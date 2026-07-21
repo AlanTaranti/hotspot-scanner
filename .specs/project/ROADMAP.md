@@ -4,6 +4,8 @@ Status: **pre-implementation** (tooling bootstrap complete; features pending).
 
 ## Milestone 1 — Scaffold
 
+→ [`.specs/features/scaffold/spec.md`](../features/scaffold/spec.md)
+
 - [ ] Package scripts (`build`, `test`), `vitest.config.ts`
 - [ ] Module layout under `src/` and `bin/hotspot-scanner.ts` stub
 - [ ] Domain types in `src/types/`
