@@ -12,12 +12,12 @@ The repository has partial bootstrap (`package.json`, Vitest, dual `tsc` project
 
 ## Goals
 
-- [ ] Module layout under `src/{git,complexity,scoring,report,types}/` plus `src/scan.ts` with stub exports
-- [ ] Domain types aligned with IMPL §5.1 (`FileChangeStats`, `ComplexityResult`, `HotspotScore`, `CoChangeEvent`, `CouplingPair`, `ScanOptions`, `ScanResult`)
-- [ ] Pipeline stub — `runScan()` returns empty typed `ScanResult` with no external I/O
-- [ ] Quality gate green — `pnpm build && pnpm test` passes
-- [ ] Fixture scaffold — `tests/fixtures/{git-log,repos,complexity}/` created (empty, with `.gitkeep`)
-- [ ] Placeholder integration test — `src/scan.test.ts` validates `runScan()` compiles, returns correct shape, and does not throw
+- [x] Module layout under `src/{git,complexity,scoring,report,types}/` plus `src/scan.ts` with stub exports
+- [x] Domain types aligned with IMPL §5.1 (`FileChangeStats`, `ComplexityResult`, `HotspotScore`, `CoChangeEvent`, `CouplingPair`, `ScanOptions`, `ScanResult`)
+- [x] Pipeline stub — `runScan()` returns empty typed `ScanResult` with no external I/O
+- [x] Quality gate green — `pnpm build && pnpm test` passes
+- [x] Fixture scaffold — `tests/fixtures/{git-log,repos,complexity}/` created (empty, with `.gitkeep`)
+- [x] Placeholder integration test — `src/scan.test.ts` validates `runScan()` compiles, returns correct shape, and does not throw
 
 ## Out of Scope
 
@@ -105,14 +105,14 @@ Explicitly excluded. Documented to prevent scope creep.
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| HOTSPOT-01 | P1: Typed module skeleton | Tasks T2 | Pending |
-| HOTSPOT-02 | P1: Typed module skeleton | Tasks T1 | Pending |
-| HOTSPOT-03 | P1: Typed module skeleton | Tasks T2 | Pending |
-| HOTSPOT-04 | P1: Typed module skeleton | Tasks T3 | Pending |
-| HOTSPOT-05 | P1: CLI and integration wiring | Tasks T4 | Pending |
-| HOTSPOT-06 | P1: Fixture directory scaffold | Tasks T5 | Pending |
-| HOTSPOT-07 | P1: CLI and integration wiring | Tasks T6 | Pending |
-| HOTSPOT-08 | P1: CLI and integration wiring | Tasks T8 | Pending |
+| HOTSPOT-01 | P1: Typed module skeleton | Tasks T2 | Done |
+| HOTSPOT-02 | P1: Typed module skeleton | Tasks T1 | Done |
+| HOTSPOT-03 | P1: Typed module skeleton | Tasks T2 | Done |
+| HOTSPOT-04 | P1: Typed module skeleton | Tasks T3 | Done |
+| HOTSPOT-05 | P1: CLI and integration wiring | Tasks T4 | Done |
+| HOTSPOT-06 | P1: Fixture directory scaffold | Tasks T5 | Done |
+| HOTSPOT-07 | P1: CLI and integration wiring | Tasks T6 | Done |
+| HOTSPOT-08 | P1: CLI and integration wiring | Tasks T8 | Done |
 
 **Coverage:** 8 total, 8 mapped to tasks, 0 unmapped
 
@@ -120,7 +120,7 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Success Criteria
 
-- [ ] `pnpm build && pnpm test` passes with zero regressions from current bootstrap
-- [ ] All P1 acceptance criteria verifiable without human judgment (automated gate)
-- [ ] Module map in STRUCTURE.md can be updated to `scaffold` / `stub` status for new paths after Execute
-- [ ] orchestrator-implementer can execute T1–T8 without ambiguous scope
+- [x] `pnpm build && pnpm test` passes with zero regressions from current bootstrap
+- [x] All P1 acceptance criteria verifiable without human judgment (automated gate)
+- [x] Module map in STRUCTURE.md can be updated to `scaffold` / `stub` status for new paths after Execute
+- [x] orchestrator-implementer can execute T1–T8 without ambiguous scope

@@ -2,7 +2,7 @@
 
 **Design**: [`.specs/features/scaffold/design.md`](./design.md)  
 **Spec**: [`.specs/features/scaffold/spec.md`](./spec.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -64,10 +64,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `src/types/domain.ts` defines all interfaces from design.md
-- [ ] `src/types/index.ts` re-exports all public types
-- [ ] No runtime logic in `src/types/` (types/interfaces only)
-- [ ] Gate check passes: `pnpm build`
+- [x] `src/types/domain.ts` defines all interfaces from design.md
+- [x] `src/types/index.ts` re-exports all public types
+- [x] No runtime logic in `src/types/` (types/interfaces only)
+- [x] Gate check passes: `pnpm build`
 
 **Tests**: none (types excluded from coverage per TESTING.md)
 
@@ -99,11 +99,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Each module exports interface(s) and `create*()` factory per design.md
-- [ ] Calling any factory throws `Error` containing "not implemented" and milestone reference
-- [ ] Co-located unit test per module asserts factory throws
-- [ ] Gate check passes: `pnpm test -- src/git src/complexity src/scoring src/report`
-- [ ] Test count: ≥4 new tests pass (one per module stub)
+- [x] Each module exports interface(s) and `create*()` factory per design.md
+- [x] Calling any factory throws `Error` containing "not implemented" and milestone reference
+- [x] Co-located unit test per module asserts factory throws
+- [x] Gate check passes: `pnpm test -- src/git src/complexity src/scoring src/report`
+- [x] Test count: ≥4 new tests pass (one per module stub)
 
 **Tests**: unit
 
@@ -130,11 +130,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `runScan` is async and returns `version: "1.0"`, empty `hotspots` and `coupling` arrays
-- [ ] `meta.since` defaults to `"12 months ago"` when `options.since` omitted
-- [ ] `meta.scannedAt` is valid ISO-8601 string
-- [ ] `runScan` does not import git, ts-morph, or invoke module factories
-- [ ] Gate check passes: `pnpm build`
+- [x] `runScan` is async and returns `version: "1.0"`, empty `hotspots` and `coupling` arrays
+- [x] `meta.since` defaults to `"12 months ago"` when `options.since` omitted
+- [x] `meta.scannedAt` is valid ISO-8601 string
+- [x] `runScan` does not import git, ts-morph, or invoke module factories
+- [x] Gate check passes: `pnpm build`
 
 **Tests**: none (covered in T6 integration test)
 
@@ -161,10 +161,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `hotspot-scanner scan <path>` exits `0` after awaiting `runScan({ repoPath })`
-- [ ] Missing/invalid args print `Usage: hotspot-scanner scan <path>` to stderr and exit `2`
-- [ ] No commander dependency added
-- [ ] Gate check passes: `pnpm build`
+- [x] `hotspot-scanner scan <path>` exits `0` after awaiting `runScan({ repoPath })`
+- [x] Missing/invalid args print `Usage: hotspot-scanner scan <path>` to stderr and exit `2`
+- [x] No commander dependency added
+- [x] Gate check passes: `pnpm build`
 
 **Tests**: none (CLI tests deferred to M5; manual smoke: `pnpm exec hotspot-scanner scan .`)
 
@@ -191,9 +191,9 @@ flowchart LR
 
 **Done when**:
 
-- [ ] All three fixture subdirectories exist
-- [ ] Each contains `.gitkeep`
-- [ ] Vitest exclude unchanged (`tests/fixtures/**` not picked up as tests)
+- [x] All three fixture subdirectories exist
+- [x] Each contains `.gitkeep`
+- [x] Vitest exclude unchanged (`tests/fixtures/**` not picked up as tests)
 
 **Tests**: none
 
@@ -220,12 +220,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Test calls `runScan({ repoPath: "." })` and asserts `version === "1.0"`
-- [ ] Test asserts `hotspots` and `coupling` are empty arrays
-- [ ] Test asserts `meta.since === "12 months ago"` when `since` omitted
-- [ ] Test asserts `meta.scannedAt` parses as valid Date
-- [ ] Gate check passes: `pnpm test -- src/scan.test.ts`
-- [ ] Test count: ≥4 assertions in scan integration test
+- [x] Test calls `runScan({ repoPath: "." })` and asserts `version === "1.0"`
+- [x] Test asserts `hotspots` and `coupling` are empty arrays
+- [x] Test asserts `meta.since === "12 months ago"` when `since` omitted
+- [x] Test asserts `meta.scannedAt` parses as valid Date
+- [x] Gate check passes: `pnpm test -- src/scan.test.ts`
+- [x] Test count: ≥4 assertions in scan integration test
 
 **Tests**: integration
 
@@ -252,10 +252,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `src/index.ts` exports `runScan` and re-exports types from `src/types/`
-- [ ] `src/index.test.ts` verifies `runScan` and `PACKAGE_NAME` are importable
-- [ ] Gate check passes: `pnpm test -- src/index.test.ts`
-- [ ] Test count: existing + new export tests pass
+- [x] `src/index.ts` exports `runScan` and re-exports types from `src/types/`
+- [x] `src/index.test.ts` verifies `runScan` and `PACKAGE_NAME` are importable
+- [x] Gate check passes: `pnpm test -- src/index.test.ts`
+- [x] Test count: existing + new export tests pass
 
 **Tests**: unit
 
@@ -285,10 +285,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Gate check passes: `pnpm build && pnpm test`
-- [ ] ROADMAP M1 links to `.specs/features/scaffold/spec.md`
-- [ ] STRUCTURE.md module map reflects new paths as `scaffold` or `stub`
-- [ ] No regressions in existing `src/index.test.ts`
+- [x] Gate check passes: `pnpm build && pnpm test`
+- [x] ROADMAP M1 links to `.specs/features/scaffold/spec.md`
+- [x] STRUCTURE.md module map reflects new paths as `scaffold` or `stub`
+- [x] No regressions in existing `src/index.test.ts`
 
 **Tests**: none (project gate)
 

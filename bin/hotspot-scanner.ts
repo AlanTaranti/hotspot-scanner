@@ -1,7 +1,20 @@
 #!/usr/bin/env node
-/**
- * CLI stub — full implementation in ROADMAP M5.
- * Flags and scan wiring added when src/scan.ts exists.
- */
-console.error("hotspot-scanner: not yet implemented");
-process.exit(2);
+import { runScan } from "#scan";
+const USAGE = "Usage: hotspot-scanner scan <path>";
+
+async function main(): Promise<void> {
+  const [, , command, repoPath] = process.argv;
+
+  if (command !== "scan" || !repoPath) {
+    console.error(USAGE);
+    process.exit(2);
+  }
+
+  await runScan({ repoPath });
+  process.exit(0);
+}
+
+main().catch((error: unknown) => {
+  console.error(error);
+  process.exit(1);
+});

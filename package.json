@@ -8,6 +8,9 @@
   "bin": {
     "hotspot-scanner": "./dist/bin/hotspot-scanner.js"
   },
+  "imports": {
+    "#scan": "./dist/scan.js"
+  },
   "scripts": {
     "build": "tsc && tsc -p tsconfig.bin.json",
     "test": "vitest run"

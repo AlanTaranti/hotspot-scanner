@@ -25,14 +25,14 @@ hotspot-scanner/
 
 | Path | Status | Role |
 |------|--------|------|
-| `bin/hotspot-scanner.ts` | planned | CLI orchestration (commander) |
-| `src/git/` | planned | GitMiner — streaming `git log` parse |
-| `src/complexity/` | planned | ComplexityAnalyzer — McCabe via ts-morph |
-| `src/scoring/` | planned | HotspotScorer, TemporalCouplingScorer |
-| `src/report/` | planned | Reporter — table + JSON |
-| `src/scan.ts` | planned | `runScan()` pipeline wiring |
-| `src/types/` | planned | FileChangeStats, HotspotScore, etc. |
-| `src/index.ts` | scaffold | Package entry stub |
+| `bin/hotspot-scanner.ts` | scaffold | CLI stub — `scan <path>` delegates to `runScan` |
+| `src/git/` | stub | GitMiner — streaming `git log` parse |
+| `src/complexity/` | stub | ComplexityAnalyzer — McCabe via ts-morph |
+| `src/scoring/` | stub | HotspotScorer, TemporalCouplingScorer |
+| `src/report/` | stub | Reporter — table + JSON |
+| `src/scan.ts` | scaffold | `runScan()` pipeline stub (empty result) |
+| `src/types/` | scaffold | FileChangeStats, HotspotScore, etc. |
+| `src/index.ts` | scaffold | Public API — `runScan`, types, `PACKAGE_NAME` |
 
 ## Test layout
 

@@ -4,7 +4,14 @@
     "rootDir": "bin",
     "outDir": "dist/bin",
     "declaration": false,
-    "declarationMap": false
+    "declarationMap": false,
+    "composite": false,
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+    "paths": {
+      "#scan": ["src/scan.ts"]
+    }
   },
+  "references": [{ "path": "./tsconfig.json" }],
   "include": ["bin/**/*"]
 }

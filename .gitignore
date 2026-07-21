@@ -3,6 +3,7 @@ dist
 node_modules
 .pnpm-store
 coverage
+*.tsbuildinfo
 src/version.ts
 .specs/quick
 .cursor/hooks-state/
