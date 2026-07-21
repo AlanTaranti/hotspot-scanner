@@ -1,0 +1,42 @@
+---
+description: Ciclo Specify → Design → Tasks → Execute para hotspot-scanner
+globs: .specs/features/**,.specs/project/ROADMAP.md,.specs/project/STATE.md
+alwaysApply: false
+---
+
+# Planejamento de Features
+
+## Ciclo obrigatório
+
+Toda funcionalidade de médio/grande porte segue:
+
+**Specify → Design → Tasks → Execute**
+
+Usar a skill `vitals-spec-driven` e agent `planner-feature` para planejamento.
+
+## Limite de sessão
+
+Agentes de planejamento param em Tasks com `tasks.md` **Status: `Planned`** — sem Execute na mesma sessão. Detalhes: [planning-session-boundary.md](../skills/vitals-spec-driven/references/planning-session-boundary.md).
+
+## Execute
+
+- Playbook: [execute-orchestration-playbook.md](../skills/vitals-spec-driven/references/execute-orchestration-playbook.md) (phases **A→F**)
+- Agent: `orchestrator-implementer` em sessão separada após promover Status
+- Modo orquestrado: [orchestrated-implementer.md](../skills/vitals-spec-driven/references/orchestrated-implementer.md)
+- Gate final do projeto: `verifier-quality-gates` (Phase **E**)
+
+## Fontes de requisitos
+
+- Design SoT: `specifications/IMPL-2026-003-hotspot-scanner.md`
+- Specs de feature: `.specs/features/<feature>/`
+- Milestones: `.specs/project/ROADMAP.md`
+- Decisões: `.specs/project/STATE.md`
+- IDs: `HOTSPOT-*` em `spec.md` e `tasks.md`
+
+## Validação (CLI)
+
+Sem UAT interativo. Gates por task + gate final `pnpm build && pnpm test` + CLI manual quando flags ou pipeline mudam.
+
+```bash
+pnpm exec hotspot-scanner scan tests/fixtures/<repo>
+```

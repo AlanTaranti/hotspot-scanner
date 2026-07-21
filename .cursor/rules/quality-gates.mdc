@@ -1,0 +1,18 @@
+---
+description: Gate de qualidade obrigatório ao finalizar tarefas (pnpm build && pnpm test)
+alwaysApply: true
+---
+
+# Quality Gates
+
+Nenhuma tarefa é "Done" sem verificação automatizada documentada.
+
+**Gate obrigatório:**
+
+```bash
+pnpm build && pnpm test
+```
+
+Definições e thresholds: [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md).
+
+Para executar e reportar: agent `verifier-quality-gates` ou inline após implementação.

@@ -1,0 +1,23 @@
+---
+description: Build do CLI — tsc para src/ e tsconfig.bin.json para bin/
+globs: bin/**,tsconfig.json,tsconfig.bin.json
+alwaysApply: false
+---
+
+# Build do CLI
+
+SoT: [`.specs/codebase/CONVENTIONS.md`](../../.specs/codebase/CONVENTIONS.md) § Build conventions, [`.specs/codebase/CONCERNS.md`](../../.specs/codebase/CONCERNS.md).
+
+## Dois projetos TypeScript
+
+| Artefato | Compilador | Output |
+| -------- | ---------- | ------ |
+| `src/**` | `tsc` (`tsconfig.json`, `rootDir: src`, `outDir: dist`) | `dist/` |
+| `bin/hotspot-scanner.ts` | `tsc -p tsconfig.bin.json` | `dist/bin/` |
+
+## Regras
+
+- **Proibido:** adicionar `bin/` ao `tsconfig.json` `include` sem reconciliar `tsconfig.bin.json` — causa output duplicado ou conflitante.
+- Imports no bin: extensão `.js` para módulos internos (`../src/scan.js` quando existir).
+- `pnpm build` = `tsc && tsc -p tsconfig.bin.json`
+- Após mudanças em `bin/`, `tsconfig.bin.json` ou `tsconfig.json`: rodar `pnpm build && pnpm test`.

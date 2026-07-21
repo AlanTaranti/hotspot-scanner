@@ -1,0 +1,25 @@
+{
+  "name": "@vitals/hotspot-scanner",
+  "version": "1.0.0",
+  "description": "Local CLI for TS/JS maintenance hotspot analysis",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "hotspot-scanner": "./dist/bin/hotspot-scanner.js"
+  },
+  "scripts": {
+    "build": "tsc && tsc -p tsconfig.bin.json",
+    "test": "vitest run"
+  },
+  "keywords": ["hotspot", "complexity", "git", "maintenance"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@tsconfig/node22": "^22.0.5",
+    "@types/node": "^22.20.0",
+    "@vitest/coverage-v8": "^4.1.9",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
+}

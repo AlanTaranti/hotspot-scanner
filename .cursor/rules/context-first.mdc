@@ -1,0 +1,26 @@
+---
+description: Ler specs do codebase antes de implementar e manter documentação viva
+alwaysApply: true
+---
+
+# Contexto em Primeiro Lugar
+
+Antes de planejar ou implementar qualquer mudança, ler os arquivos relevantes em `.specs/codebase/` e `.specs/project/`:
+
+| Tipo de mudança | Ler |
+|-----------------|-----|
+| Código geral | `CONVENTIONS.md`, `STRUCTURE.md` |
+| Módulos scanner (git, complexity, scoring) | `ARCHITECTURE.md`, `CONCERNS.md`, `INTEGRATIONS.md` |
+| Progresso / milestones | `ROADMAP.md`, `STATE.md`, `.specs/features/` |
+| Testes | `TESTING.md` |
+| Arquitetura / stack | `ARCHITECTURE.md`, `STACK.md` |
+| Integrações externas | `INTEGRATIONS.md` |
+| Áreas frágeis | `CONCERNS.md` |
+
+## Documentação viva
+
+Toda mudança significativa (novos módulos do scanner, tipos de domínio, CLI flags) deve ser refletida nos arquivos correspondentes de `.specs/codebase/`. Feature concluída → atualizar [ROADMAP.md](../../.specs/project/ROADMAP.md) conforme [roadmap-sync.md](../skills/vitals-spec-driven/references/roadmap-sync.md).
+
+## YAGNI
+
+Não implementar funcionalidades, abstrações ou componentes além do requisito atual. Priorizar simplicidade na implementação e na arquitetura.

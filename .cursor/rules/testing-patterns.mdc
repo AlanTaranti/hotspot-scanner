@@ -1,0 +1,44 @@
+---
+description: Padrões Vitest, coverage, mock boundaries e integridade de testes
+globs: **/*.test.ts,vitest.config.ts
+alwaysApply: false
+---
+
+# Padrões de Teste
+
+SoT: [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md). Gate obrigatório: [quality-gates.mdc](../quality-gates.mdc).
+
+## Coverage
+
+| Escopo | Threshold |
+| ------ | --------- |
+| `src/git/**`, `src/complexity/**`, `src/scoring/**` | **≥80%** lines (IMPL §9) |
+| Demais `src/**` | best effort até módulos existirem |
+
+- **Incluído:** `src/**/*.ts`, `bin/**/*.ts`
+- **Excluído:** `src/types/**`, `**/*.test.ts`, `**/*.d.ts`
+- Não colocar runtime logic em `src/types/` para escapar coverage
+
+## Mock boundaries
+
+- Mock **git** apenas em `GitMiner` — não em scorers, reporter ou `scan.ts`
+- Mock **ts-morph** apenas em `ComplexityAnalyzer` — não em scoring
+- Testes de parse usam fixtures em `tests/fixtures/git-log/` e `tests/fixtures/complexity/`
+
+## CLI tests (`bin/*.test.ts`)
+
+- `vi.resetModules()` antes de dynamic `import()` do CLI
+- Mock `process.stdout.write` e `process.exit`
+- Short `setTimeout` para async CLI init quando necessário
+
+## Fixtures
+
+- Árvores Git em `tests/fixtures/repos/` — excluídas do Vitest include
+- Samples de `git log` em `tests/fixtures/git-log/`
+- Validação manual/E2E: `pnpm exec hotspot-scanner scan tests/fixtures/<repo>`
+
+## Integridade
+
+- Co-localizar `*.test.ts` com o módulo testado
+- Não enfraquecer assertions nem remover casos para passar gate
+- Test count diminuído ou assertions relaxadas = regressão potencial — investigar

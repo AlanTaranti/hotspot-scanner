@@ -1,0 +1,40 @@
+---
+description: Guardrails para áreas frágeis do scanner (Git Miner, McCabe, scoring)
+globs: src/git/**,src/complexity/**,src/scoring/**,src/scan.ts
+alwaysApply: false
+---
+
+# Áreas Frágeis do Scanner
+
+SoT: [specifications/IMPL-2026-003-hotspot-scanner.md](../../specifications/IMPL-2026-003-hotspot-scanner.md) §4.3, §7, [`.specs/codebase/CONCERNS.md`](../../.specs/codebase/CONCERNS.md).
+
+Mudanças em `src/scan.ts` que alteram ordem de estágios ou wiring do pipeline exigem testes de integração atualizados.
+
+Qualquer mudança nos paths abaixo **exige** teste Vitest correspondente atualizado ou adicionado antes de marcar a task como Complete.
+
+## Git Change Miner (`src/git/`)
+
+Streaming parse de `git log --numstat --name-only` — alimenta churn e coupling numa única passada.
+
+**Proibido:** carregar log inteiro em memória; alterar parsing de rename/merge/delete sem fixtures em `tests/fixtures/git-log/`.
+
+**Obrigatório:** testes para `FileChangeStats` e `CoChangeEvent[]` derivados do mesmo stream.
+
+## Complexity Analyzer (`src/complexity/`)
+
+McCabe sobre AST via ts-morph — implementação própria de nós de decisão.
+
+Nós de decisão: `if`/`else if`, `for`, `while`, `do-while`, `case` de `switch`, `catch`, `&&`/`||`/`??` em condições, ternários.
+
+**Proibido:** alterar definição de nó de decisão sem fixtures em `tests/fixtures/complexity/` com valores McCabe verificados manualmente.
+
+**Obrigatório:** arquivo com sintaxe inválida → warning + skip (não abortar scan).
+
+## Scoring (`src/scoring/`)
+
+- `hotspotScore = normalize(complexity) × normalize(churn)`
+- `couplingStrength = coChangeCount / min(commitsA, commitsB)`
+
+**Proibido:** alterar fórmulas ou estratégia de normalização sem testes com inputs fixos e ordem esperada.
+
+**Obrigatório:** testar edge cases (zero commits, arquivo único, threshold `--min-cochange`).
