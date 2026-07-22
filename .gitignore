@@ -7,3 +7,5 @@ coverage
 src/version.ts
 .specs/quick
 .cursor/hooks-state/
+src/**/*.js
+src/**/*.js.map
