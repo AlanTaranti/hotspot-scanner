@@ -14,6 +14,8 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-21 | Cursor tooling adapted from vitals-arch workflow | Keep `vitals-*` skill names; retarget domain to hotspot-scanner |
 | 2026-07-21 | **`child_process.spawn`** over `simple-git` for Git Miner | YAGNI — no new runtime dependency; streaming control in `src/git/spawn.ts` |
 | 2026-07-21 | Rename via `old => new` line parsing + `PathAliasMap` | `git log --follow` does not work for global log mining (RT-003) |
+| 2026-07-21 | Hotspot normalization: **log1p + min-max** per scan | User decision; dampens heavy-tailed churn/complexity (M4 context.md) |
+| 2026-07-21 | Default `--min-cochange`: **3** (`DEFAULT_MIN_COCHANGE`) | User decision; filters noise pairs; CLI wiring in M5 |
 
 ## Blockers
 
@@ -25,6 +27,6 @@ _None._
 
 ## Deferred
 
-- `--top` and `--min-cochange` default values (IMPL §16 open questions)
+- `--top` default value (IMPL §16 open question)
 - Worker-thread parallelization for large repos
 - npm private registry vs Git install distribution

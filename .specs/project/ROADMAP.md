@@ -32,9 +32,11 @@ Status: **M3 Complexity Analyzer complete** (M1 scaffold + M2 + M3 implemented; 
 
 ## Milestone 4 — Scoring
 
-- [ ] HotspotScorer: normalize complexity + churn, compute `hotspotScore`
+→ [`.specs/features/scoring/spec.md`](../features/scoring/spec.md)
+
+- [ ] HotspotScorer: log-scale normalize complexity + churn, compute `hotspotScore`
 - [ ] TemporalCouplingScorer: `couplingStrength = coChangeCount / min(commitsA, commitsB)`
-- [ ] `--min-cochange` threshold
+- [ ] `DEFAULT_MIN_COCHANGE = 3` + minCochange threshold in scorer
 
 ## Milestone 5 — Reporter + CLI
 
