@@ -23,6 +23,8 @@ Status: **M2 Git Change Miner complete** (M1 scaffold + M2 implemented; M3+ pend
 
 ## Milestone 3 — Complexity Analyzer
 
+→ [`.specs/features/complexity-analyzer/spec.md`](../features/complexity-analyzer/spec.md)
+
 - [ ] ts-morph adapter for `.ts`/`.tsx`/`.js`/`.jsx`
 - [ ] McCabe cyclomatic complexity (project-owned decision nodes)
 - [ ] Invalid syntax: warn and skip file
