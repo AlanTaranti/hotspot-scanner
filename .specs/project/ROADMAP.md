@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M2 Git Change Miner complete** (M1 scaffold + M2 implemented; M3+ pending).
+Status: **M3 Complexity Analyzer complete** (M1 scaffold + M2 + M3 implemented; M4+ pending).
 
 ## Milestone 1 — Scaffold
 
@@ -25,10 +25,10 @@ Status: **M2 Git Change Miner complete** (M1 scaffold + M2 implemented; M3+ pend
 
 → [`.specs/features/complexity-analyzer/spec.md`](../features/complexity-analyzer/spec.md)
 
-- [ ] ts-morph adapter for `.ts`/`.tsx`/`.js`/`.jsx`
-- [ ] McCabe cyclomatic complexity (project-owned decision nodes)
-- [ ] Invalid syntax: warn and skip file
-- [ ] Fixture TS files with manually verified complexity values
+- [x] ts-morph adapter for `.ts`/`.tsx`/`.js`/`.jsx`
+- [x] McCabe cyclomatic complexity (project-owned decision nodes)
+- [x] Invalid syntax: warn and skip file
+- [x] Fixture TS files with manually verified complexity values
 
 ## Milestone 4 — Scoring
 

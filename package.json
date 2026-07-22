@@ -15,7 +15,12 @@
     "build": "tsc && tsc -p tsconfig.bin.json",
     "test": "vitest run"
   },
-  "keywords": ["hotspot", "complexity", "git", "maintenance"],
+  "keywords": [
+    "hotspot",
+    "complexity",
+    "git",
+    "maintenance"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
@@ -24,5 +29,8 @@
     "@vitest/coverage-v8": "^4.1.9",
     "typescript": "^6.0.3",
     "vitest": "^4.1.9"
+  },
+  "dependencies": {
+    "ts-morph": "^28.0.0"
   }
 }

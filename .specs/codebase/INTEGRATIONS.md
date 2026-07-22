@@ -7,7 +7,8 @@ External dependencies and adapter boundaries. No network integrations in v1.
 | Aspect | Detail |
 |--------|--------|
 | **Role** | AST access for TypeScript/JavaScript files |
-| **Adapter** | `ComplexityAnalyzer` in `src/complexity/` |
+| **Adapter** | `ComplexityAnalyzer` in `src/complexity/` (`project.ts` batch adapter) |
+| **Version** | `ts-morph@^28` (runtime dependency) |
 | **Rule** | Do not import ts-morph outside `src/complexity/` |
 | **Failure** | Invalid syntax → log warning, skip file (IMPL §8.4) |
 | **Tests** | Mock at adapter boundary; use fixture TS files for real AST tests |

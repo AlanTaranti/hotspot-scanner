@@ -27,7 +27,7 @@ hotspot-scanner/
 |------|--------|------|
 | `bin/hotspot-scanner.ts` | scaffold | CLI stub — `scan <path>` delegates to `runScan` |
 | `src/git/` | implemented | GitMiner — `spawn`, `parse`, `rename`, `aggregate`, `canonicalize` |
-| `src/complexity/` | stub | ComplexityAnalyzer — McCabe via ts-morph |
+| `src/complexity/` | implemented | ComplexityAnalyzer — McCabe via ts-morph (`discover`, `project`, `mccabe`, `analyze-file`) |
 | `src/scoring/` | stub | HotspotScorer, TemporalCouplingScorer |
 | `src/report/` | stub | Reporter — table + JSON |
 | `src/scan.ts` | scaffold | `runScan()` pipeline stub (empty result) |

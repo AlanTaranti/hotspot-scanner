@@ -12,11 +12,11 @@ M1 delivered the `ComplexityResult` domain type and a throwing stub in `src/comp
 
 ## Goals
 
-- [ ] ts-morph adapter for `.ts`/`.tsx`/`.js`/`.jsx` from working tree (not history)
-- [ ] Project-owned McCabe cyclomatic complexity with documented decision nodes
-- [ ] Invalid syntax: warning + skip file (do not abort scan)
-- [ ] Fixture TS files with manually verified McCabe values in `tests/fixtures/complexity/`
-- [ ] Functional `createComplexityAnalyzer().analyze()`; ≥80% line coverage on `src/complexity/**`
+- [x] ts-morph adapter for `.ts`/`.tsx`/`.js`/`.jsx` from working tree (not history)
+- [x] Project-owned McCabe cyclomatic complexity with documented decision nodes
+- [x] Invalid syntax: warning + skip file (do not abort scan)
+- [x] Fixture TS files with manually verified McCabe values in `tests/fixtures/complexity/`
+- [x] Functional `createComplexityAnalyzer().analyze()`; ≥80% line coverage on `src/complexity/**`
 
 ## Out of Scope
 
@@ -171,16 +171,16 @@ Explicitly excluded. Documented to prevent scope creep.
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| HOTSPOT-19 | P1: ts-morph adapter and file discovery | Tasks T1, T5 | Pending |
-| HOTSPOT-20 | P1: ts-morph adapter and file discovery | Tasks T2, T5 | Pending |
-| HOTSPOT-21 | P1: McCabe decision nodes | Tasks T3, T7 | Pending |
-| HOTSPOT-22 | P1: Per-file aggregation (sum) | Tasks T4, T5 | Pending |
-| HOTSPOT-23 | P1: Per-file aggregation (sum) | Tasks T4, T5 | Pending |
-| HOTSPOT-24 | P1: Invalid syntax — warn and skip | Tasks T5, T7 | Pending |
-| HOTSPOT-25 | P1: ts-morph adapter and file discovery | Tasks T2 | Pending |
-| HOTSPOT-26 | P2: Batch processing | Tasks T1 | Pending |
-| HOTSPOT-27 | P1: Fixtures and coverage gate | Tasks T6, T7 | Pending |
-| HOTSPOT-28 | P1: Fixtures and coverage gate | Tasks T8 | Pending |
+| HOTSPOT-19 | P1: ts-morph adapter and file discovery | Tasks T1, T5 | Done |
+| HOTSPOT-20 | P1: ts-morph adapter and file discovery | Tasks T2, T5 | Done |
+| HOTSPOT-21 | P1: McCabe decision nodes | Tasks T3, T7 | Done |
+| HOTSPOT-22 | P1: Per-file aggregation (sum) | Tasks T4, T5 | Done |
+| HOTSPOT-23 | P1: Per-file aggregation (sum) | Tasks T4, T5 | Done |
+| HOTSPOT-24 | P1: Invalid syntax — warn and skip | Tasks T5, T7 | Done |
+| HOTSPOT-25 | P1: ts-morph adapter and file discovery | Tasks T2 | Done |
+| HOTSPOT-26 | P2: Batch processing | Tasks T1 | Done |
+| HOTSPOT-27 | P1: Fixtures and coverage gate | Tasks T6, T7 | Done |
+| HOTSPOT-28 | P1: Fixtures and coverage gate | Tasks T8 | Done |
 
 **Coverage:** 10 total, 10 mapped to tasks, 0 unmapped
 
@@ -188,8 +188,8 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Success Criteria
 
-- [ ] All P1 acceptance criteria verifiable via Vitest + fixtures (no human judgment)
-- [ ] `pnpm build && pnpm test` passes after Execute
-- [ ] `src/complexity/**` ≥80% line coverage per [TESTING.md](../../codebase/TESTING.md)
-- [ ] ts-morph imported only inside `src/complexity/` ([INTEGRATIONS.md](../../codebase/INTEGRATIONS.md))
-- [ ] `orchestrator-implementer` can execute T1–T8 without ambiguous scope
+- [x] All P1 acceptance criteria verifiable via Vitest + fixtures (no human judgment)
+- [x] `pnpm build && pnpm test` passes after Execute
+- [x] `src/complexity/**` ≥80% line coverage per [TESTING.md](../../codebase/TESTING.md)
+- [x] ts-morph imported only inside `src/complexity/` ([INTEGRATIONS.md](../../codebase/INTEGRATIONS.md))
+- [x] `orchestrator-implementer` can execute T1–T8 without ambiguous scope

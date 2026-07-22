@@ -2,7 +2,7 @@
 
 **Design**: [`.specs/features/complexity-analyzer/design.md`](./design.md)  
 **Spec**: [`.specs/features/complexity-analyzer/spec.md`](./spec.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -61,13 +61,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `ts-morph` added as runtime dependency in `package.json`
-- [ ] `createTsMorphProject({ repoPath })` returns adapter with `loadBatch` and `getParseFailures`
-- [ ] `loadBatch` processes at most `DEFAULT_BATCH_SIZE` paths per call
-- [ ] Valid fixture file loads as `SourceFile` without error
-- [ ] Invalid syntax file appears in `getParseFailures()` with `filePath` and `message`
-- [ ] Unit tests cover batch chunking and parse failure collection
-- [ ] Gate check passes: `pnpm build && pnpm test -- src/complexity/project.test.ts`
+- [x] `ts-morph` added as runtime dependency in `package.json`
+- [x] `createTsMorphProject({ repoPath })` returns adapter with `loadBatch` and `getParseFailures`
+- [x] `loadBatch` processes at most `DEFAULT_BATCH_SIZE` paths per call
+- [x] Valid fixture file loads as `SourceFile` without error
+- [x] Invalid syntax file appears in `getParseFailures()` with `filePath` and `message`
+- [x] Unit tests cover batch chunking and parse failure collection
+- [x] Gate check passes: `pnpm build && pnpm test -- src/complexity/project.test.ts`
 
 **Tests**: unit (`project.test.ts` — real ts-morph with fixture strings or temp files)
 
@@ -94,12 +94,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `discoverSourceFiles` returns only eligible extensions
-- [ ] Nested directories are walked recursively
-- [ ] Returned paths are relative to `repoPath`
-- [ ] Non-existent `repoPath` throws with `repoPath` in message
-- [ ] Unit tests cover extension filter, nesting, and error on bad path
-- [ ] Gate check passes: `pnpm build && pnpm test -- src/complexity/discover.test.ts`
+- [x] `discoverSourceFiles` returns only eligible extensions
+- [x] Nested directories are walked recursively
+- [x] Returned paths are relative to `repoPath`
+- [x] Non-existent `repoPath` throws with `repoPath` in message
+- [x] Unit tests cover extension filter, nesting, and error on bad path
+- [x] Gate check passes: `pnpm build && pnpm test -- src/complexity/discover.test.ts`
 
 **Tests**: unit (`discover.test.ts` — temp directory with mixed files)
 
@@ -126,11 +126,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Each decision node type has a dedicated unit test
-- [ ] `switch` counts per `case` and `default` (not block-level)
-- [ ] `complexityForFunction` returns decision nodes + 1
-- [ ] Function with no branches returns complexity 1 (base path only)
-- [ ] Gate check passes: `pnpm build && pnpm test -- src/complexity/mccabe.test.ts`
+- [x] Each decision node type has a dedicated unit test
+- [x] `switch` counts per `case` and `default` (not block-level)
+- [x] `complexityForFunction` returns decision nodes + 1
+- [x] Function with no branches returns complexity 1 (base path only)
+- [x] Gate check passes: `pnpm build && pnpm test -- src/complexity/mccabe.test.ts`
 
 **Tests**: unit (`mccabe.test.ts` — ts-morph `Project` with inline source strings)
 
@@ -157,12 +157,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `functionCount` equals total functions including nested
-- [ ] `cyclomaticComplexity` equals sum of per-function complexities
-- [ ] File with no functions returns `{ cyclomaticComplexity: 0, functionCount: 0 }`
-- [ ] Class methods and arrow functions in `const` assignments are counted
-- [ ] Unit tests cover sum, nested, and empty cases
-- [ ] Gate check passes: `pnpm build && pnpm test -- src/complexity/analyze-file.test.ts`
+- [x] `functionCount` equals total functions including nested
+- [x] `cyclomaticComplexity` equals sum of per-function complexities
+- [x] File with no functions returns `{ cyclomaticComplexity: 0, functionCount: 0 }`
+- [x] Class methods and arrow functions in `const` assignments are counted
+- [x] Unit tests cover sum, nested, and empty cases
+- [x] Gate check passes: `pnpm build && pnpm test -- src/complexity/analyze-file.test.ts`
 
 **Tests**: unit (`analyze-file.test.ts` — inline source or early fixtures)
 
@@ -189,13 +189,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `createComplexityAnalyzer().analyze()` returns `{ results, warnings }` without throwing on valid fixture dir
-- [ ] `ComplexityAnalyzerResult` includes `warnings: string[]`
-- [ ] Parse failures produce warnings and are excluded from `results`
-- [ ] `ComplexityAnalyzerDependencies` allows injecting `discoverSourceFiles` and `createTsMorphProject`
-- [ ] `index.test.ts` no longer expects "not implemented" throw
-- [ ] Integration test analyzes at least `tests/fixtures/complexity/if-else.ts`
-- [ ] Gate check passes: `pnpm build && pnpm test -- src/complexity/index.test.ts`
+- [x] `createComplexityAnalyzer().analyze()` returns `{ results, warnings }` without throwing on valid fixture dir
+- [x] `ComplexityAnalyzerResult` includes `warnings: string[]`
+- [x] Parse failures produce warnings and are excluded from `results`
+- [x] `ComplexityAnalyzerDependencies` allows injecting `discoverSourceFiles` and `createTsMorphProject`
+- [x] `index.test.ts` no longer expects "not implemented" throw
+- [x] Integration test analyzes at least `tests/fixtures/complexity/if-else.ts`
+- [x] Gate check passes: `pnpm build && pnpm test -- src/complexity/index.test.ts`
 
 **Tests**: integration (`index.test.ts`)
 
@@ -222,11 +222,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] All 9 fixture files exist with documented expected `cyclomaticComplexity` and `functionCount`
-- [ ] Each fixture header comment documents provenance and expected values
-- [ ] `invalid-syntax.ts` contains deliberate unparseable syntax
-- [ ] `empty.ts` contains no functions
-- [ ] `nested.ts` documents sum of outer + inner function complexities
+- [x] All 9 fixture files exist with documented expected `cyclomaticComplexity` and `functionCount`
+- [x] Each fixture header comment documents provenance and expected values
+- [x] `invalid-syntax.ts` contains deliberate unparseable syntax
+- [x] `empty.ts` contains no functions
+- [x] `nested.ts` documents sum of outer + inner function complexities
 
 **Tests**: none (fixture data only)
 
@@ -253,12 +253,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Each fixture's expected McCabe values asserted in `index.test.ts`
-- [ ] `invalid-syntax.ts` → excluded from `results`, warning in `warnings`
-- [ ] Directory with valid + invalid files → partial results without throw
-- [ ] `nested.ts` → sum of nested function complexities verified
-- [ ] `empty.ts` → `{ cyclomaticComplexity: 0, functionCount: 0 }`
-- [ ] Gate check passes: `pnpm build && pnpm test -- src/complexity/`
+- [x] Each fixture's expected McCabe values asserted in `index.test.ts`
+- [x] `invalid-syntax.ts` → excluded from `results`, warning in `warnings`
+- [x] Directory with valid + invalid files → partial results without throw
+- [x] `nested.ts` → sum of nested function complexities verified
+- [x] `empty.ts` → `{ cyclomaticComplexity: 0, functionCount: 0 }`
+- [x] Gate check passes: `pnpm build && pnpm test -- src/complexity/`
 
 **Tests**: integration (fixture-driven)
 
@@ -285,11 +285,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `src/complexity/**` line coverage ≥80%
-- [ ] Gate check passes: `pnpm build && pnpm test`
-- [ ] ROADMAP M3 items checked or linked to completed spec
-- [ ] STRUCTURE.md reflects `src/complexity/` as implemented
-- [ ] No regressions in existing tests (`src/git/**`, `src/scan.test.ts`, etc.)
+- [x] `src/complexity/**` line coverage ≥80%
+- [x] Gate check passes: `pnpm build && pnpm test`
+- [x] ROADMAP M3 items checked or linked to completed spec
+- [x] STRUCTURE.md reflects `src/complexity/` as implemented
+- [x] No regressions in existing tests (`src/git/**`, `src/scan.test.ts`, etc.)
 
 **Tests**: project gate + coverage report
 
