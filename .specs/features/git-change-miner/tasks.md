@@ -2,7 +2,7 @@
 
 **Design**: [`.specs/features/git-change-miner/design.md`](./design.md)  
 **Spec**: [`.specs/features/git-change-miner/spec.md`](./spec.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -60,12 +60,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `streamGitLog({ repoPath, since })` yields lines from git stdout without buffering full output
-- [ ] `since` omitted → no `--since` flag in argv
-- [ ] `since` provided → `--since=<value>` in argv
-- [ ] Invalid repo or git failure → `GitLogError` with `repoPath` and stderr snippet
-- [ ] Unit tests mock spawn and assert argv + error shape
-- [ ] Gate check passes: `pnpm build && pnpm test -- src/git/spawn.test.ts`
+- [x] `streamGitLog({ repoPath, since })` yields lines from git stdout without buffering full output
+- [x] `since` omitted → no `--since` flag in argv
+- [x] `since` provided → `--since=<value>` in argv
+- [x] Invalid repo or git failure → `GitLogError` with `repoPath` and stderr snippet
+- [x] Unit tests mock spawn and assert argv + error shape
+- [x] Gate check passes: `pnpm build && pnpm test -- src/git/spawn.test.ts`
 
 **Tests**: unit (`spawn.test.ts` — mock `child_process.spawn`)
 
@@ -92,13 +92,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Commit header parsed into `hash`, `date`, `author`
-- [ ] Numstat parsed with tab separation; `-` → `null` additions/deletions
-- [ ] Rename line sets `renameFrom` on subsequent file entry
-- [ ] Multiple commits in one stream yield multiple `ParsedCommit` objects
-- [ ] Parser does not accumulate full input string (processes line-by-line)
-- [ ] Unit tests cover header, numstat, rename, binary, multi-commit
-- [ ] Gate check passes: `pnpm build && pnpm test -- src/git/parse.test.ts`
+- [x] Commit header parsed into `hash`, `date`, `author`
+- [x] Numstat parsed with tab separation; `-` → `null` additions/deletions
+- [x] Rename line sets `renameFrom` on subsequent file entry
+- [x] Multiple commits in one stream yield multiple `ParsedCommit` objects
+- [x] Parser does not accumulate full input string (processes line-by-line)
+- [x] Unit tests cover header, numstat, rename, binary, multi-commit
+- [x] Gate check passes: `pnpm build && pnpm test -- src/git/parse.test.ts`
 
 **Tests**: unit (`parse.test.ts` — async iterable of lines from inline strings)
 
@@ -125,10 +125,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `canonical("a.ts")` returns `"c.ts"` after `link("a.ts","b.ts")` and `link("b.ts","c.ts")`
-- [ ] `getAmbiguousPaths()` returns paths with incomplete chains
-- [ ] Unit tests for single rename, chain, and no-op canonical
-- [ ] Gate check passes: `pnpm build && pnpm test -- src/git/rename.test.ts`
+- [x] `canonical("a.ts")` returns `"c.ts"` after `link("a.ts","b.ts")` and `link("b.ts","c.ts")`
+- [x] `getAmbiguousPaths()` returns paths with incomplete chains
+- [x] Unit tests for single rename, chain, and no-op canonical
+- [x] Gate check passes: `pnpm build && pnpm test -- src/git/rename.test.ts`
 
 **Tests**: unit (`rename.test.ts`)
 
@@ -155,14 +155,14 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `FileChangeStats.commitCount` increments once per commit per file
-- [ ] `linesChanged` sums additions+deletions; binary commits add 0 lines
-- [ ] `authors` is `Set<string>` with distinct author names
-- [ ] `lastModified` reflects most recent commit date for file
-- [ ] `CoChangeEvent` emitted per commit with `filesChanged` canonical paths
-- [ ] Empty commits produce no `CoChangeEvent`
-- [ ] Both outputs produced from same `Iterable<ParsedCommit>` (single pass)
-- [ ] Gate check passes: `pnpm build && pnpm test -- src/git/aggregate.test.ts`
+- [x] `FileChangeStats.commitCount` increments once per commit per file
+- [x] `linesChanged` sums additions+deletions; binary commits add 0 lines
+- [x] `authors` is `Set<string>` with distinct author names
+- [x] `lastModified` reflects most recent commit date for file
+- [x] `CoChangeEvent` emitted per commit with `filesChanged` canonical paths
+- [x] Empty commits produce no `CoChangeEvent`
+- [x] Both outputs produced from same `Iterable<ParsedCommit>` (single pass)
+- [x] Gate check passes: `pnpm build && pnpm test -- src/git/aggregate.test.ts`
 
 **Tests**: unit (`aggregate.test.ts` — hand-built `ParsedCommit[]`)
 
@@ -189,12 +189,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `createGitMiner().mine()` returns `{ fileStats, coChangeEvents, warnings }` without throwing on valid fixture repo
-- [ ] `GitMinerResult` includes `warnings: string[]`
-- [ ] Pipeline processes commits one at a time (no full log buffer)
-- [ ] `index.test.ts` no longer expects "not implemented" throw
-- [ ] Integration test reads `tests/fixtures/git-log/basic.txt` via injected stream or test helper
-- [ ] Gate check passes: `pnpm build && pnpm test -- src/git/index.test.ts`
+- [x] `createGitMiner().mine()` returns `{ fileStats, coChangeEvents, warnings }` without throwing on valid fixture repo
+- [x] `GitMinerResult` includes `warnings: string[]`
+- [x] Pipeline processes commits one at a time (no full log buffer)
+- [x] `index.test.ts` no longer expects "not implemented" throw
+- [x] Integration test reads `tests/fixtures/git-log/basic.txt` via injected stream or test helper
+- [x] Gate check passes: `pnpm build && pnpm test -- src/git/index.test.ts`
 
 **Tests**: integration (`index.test.ts`)
 
@@ -221,12 +221,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `basic.txt` — 3+ commits, 2+ files, documented expected stats in test comments
-- [ ] `rename-multi.txt` — file renamed twice; final path has unified commit count
-- [ ] `merge-delete.txt` — merge commit and file deletion
-- [ ] `binary.txt` — `-` `-` numstat line
-- [ ] `large-synthetic.txt` — ≥10,000 lines for streaming smoke test
-- [ ] Each fixture has header comment documenting provenance and expected behavior
+- [x] `basic.txt` — 3+ commits, 2+ files, documented expected stats in test comments
+- [x] `rename-multi.txt` — file renamed twice; final path has unified commit count
+- [x] `merge-delete.txt` — merge commit and file deletion
+- [x] `binary.txt` — `-` `-` numstat line
+- [x] `large-synthetic.txt` — ≥10,000 lines for streaming smoke test
+- [x] Each fixture has header comment documenting provenance and expected behavior
 
 **Tests**: none (fixture data only)
 
@@ -253,11 +253,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `rename-multi.txt` → unified churn under final canonical path
-- [ ] `merge-delete.txt` → deleted file in commit's `filesChanged`
-- [ ] `binary.txt` → `commitCount` increments, `linesChanged` unchanged for binary
-- [ ] Empty stream with `since` set → empty results + warning in `warnings`
-- [ ] Gate check passes: `pnpm build && pnpm test -- src/git/`
+- [x] `rename-multi.txt` → unified churn under final canonical path
+- [x] `merge-delete.txt` → deleted file in commit's `filesChanged`
+- [x] `binary.txt` → `commitCount` increments, `linesChanged` unchanged for binary
+- [x] Empty stream with `since` set → empty results + warning in `warnings`
+- [x] Gate check passes: `pnpm build && pnpm test -- src/git/`
 
 **Tests**: integration (fixture-driven)
 
@@ -284,11 +284,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `src/git/**` line coverage ≥80%
-- [ ] Gate check passes: `pnpm build && pnpm test`
-- [ ] ROADMAP M2 items checked or linked to completed spec
-- [ ] STRUCTURE.md reflects `src/git/` as implemented
-- [ ] No regressions in existing tests (`src/scan.test.ts`, etc.)
+- [x] `src/git/**` line coverage ≥80%
+- [x] Gate check passes: `pnpm build && pnpm test`
+- [x] ROADMAP M2 items checked or linked to completed spec
+- [x] STRUCTURE.md reflects `src/git/` as implemented
+- [x] No regressions in existing tests (`src/scan.test.ts`, etc.)
 
 **Tests**: project gate + coverage report
 

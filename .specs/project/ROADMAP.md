@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **pre-implementation** (tooling bootstrap complete; features pending).
+Status: **M2 Git Change Miner complete** (M1 scaffold + M2 implemented; M3+ pending).
 
 ## Milestone 1 — Scaffold
 
@@ -15,11 +15,11 @@ Status: **pre-implementation** (tooling bootstrap complete; features pending).
 
 → [`.specs/features/git-change-miner/spec.md`](../features/git-change-miner/spec.md)
 
-- [ ] Streaming parse of `git log --numstat --name-only`
-- [ ] `FileChangeStats` aggregation
-- [ ] `CoChangeEvent[]` extraction per commit
-- [ ] Rename handling (`--follow` or equivalent)
-- [ ] Fixtures: real `git log` samples (merges, renames, deletes)
+- [x] Streaming parse of `git log --numstat --name-only`
+- [x] `FileChangeStats` aggregation
+- [x] `CoChangeEvent[]` extraction per commit
+- [x] Rename handling (`old => new` + `PathAliasMap`)
+- [x] Fixtures: real `git log` samples (merges, renames, deletes)
 
 ## Milestone 3 — Complexity Analyzer
 

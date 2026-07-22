@@ -1,0 +1,13 @@
+# merge-delete.txt — merge commit with duplicate paths + file deletion
+# Expected: deleted file appears in filesChanged; paths deduplicated within merge commit
+
+COMMIT|dddddddddddddddddddddddddddddddddddddddd|Mon Jan 1 00:00:00 2024 +0000|Alice
+1	0	src/keep.ts
+
+COMMIT|eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee|Tue Jan 2 00:00:00 2024 +0000|Bob
+0	10	src/remove.ts
+
+COMMIT|ffffffffffffffffffffffffffffffffffffffff|Wed Jan 3 00:00:00 2024 +0000|Merge Bot
+2	1	src/keep.ts
+1	0	src/keep.ts
+0	5	src/other.ts

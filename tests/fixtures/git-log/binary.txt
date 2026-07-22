@@ -1,0 +1,5 @@
+# binary.txt — binary file with - - numstat
+# Expected: commitCount=1, linesChanged=0 for assets/logo.png
+
+COMMIT|abababababababababababababababababababab|Mon Jan 1 00:00:00 2024 +0000|Alice
+-	-	assets/logo.png

@@ -1,0 +1,13 @@
+# basic.txt — 3 commits, 2 files (src/a.ts, src/b.ts)
+# Provenance: hand-crafted valid git log --numstat --name-only format
+# Expected: a.ts commitCount=2 linesChanged=6; b.ts commitCount=1 linesChanged=5; 3 co-change events
+
+COMMIT|1111111111111111111111111111111111111111|Mon Jan 1 00:00:00 2024 +0000|Alice
+3	1	src/a.ts
+2	3	src/b.ts
+
+COMMIT|2222222222222222222222222222222222222222|Tue Jan 2 00:00:00 2024 +0000|Bob
+1	1	src/a.ts
+
+COMMIT|3333333333333333333333333333333333333333|Wed Jan 3 00:00:00 2024 +0000|Alice
+0	0	src/c.ts

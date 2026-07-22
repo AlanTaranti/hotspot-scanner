@@ -1,0 +1,13 @@
+# rename-multi.txt — file renamed twice: a.ts -> b.ts -> c.ts
+# Expected: canonical path c.ts has commitCount=3 (initial edit + 2 renames/commits)
+
+COMMIT|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|Mon Jan 1 00:00:00 2024 +0000|Alice
+5	0	src/a.ts
+
+COMMIT|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb|Tue Jan 2 00:00:00 2024 +0000|Alice
+src/a.ts => src/b.ts
+0	0	src/b.ts
+
+COMMIT|cccccccccccccccccccccccccccccccccccccccc|Wed Jan 3 00:00:00 2024 +0000|Bob
+src/b.ts => src/c.ts
+2	1	src/c.ts

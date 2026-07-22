@@ -26,7 +26,7 @@ hotspot-scanner/
 | Path | Status | Role |
 |------|--------|------|
 | `bin/hotspot-scanner.ts` | scaffold | CLI stub — `scan <path>` delegates to `runScan` |
-| `src/git/` | stub | GitMiner — streaming `git log` parse |
+| `src/git/` | implemented | GitMiner — `spawn`, `parse`, `rename`, `aggregate`, `canonicalize` |
 | `src/complexity/` | stub | ComplexityAnalyzer — McCabe via ts-morph |
 | `src/scoring/` | stub | HotspotScorer, TemporalCouplingScorer |
 | `src/report/` | stub | Reporter — table + JSON |
