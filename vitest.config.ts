@@ -11,6 +11,7 @@ export default defineConfig({
     },
   },
   test: {
+    globalSetup: ["tests/fixtures/repos/global-setup.ts"],
     include: ["src/**/*.test.ts", "bin/**/*.test.ts"],
     exclude: ["tests/fixtures/**", "node_modules/**", "dist/**"],
     coverage: {
