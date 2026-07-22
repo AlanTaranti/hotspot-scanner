@@ -17,7 +17,7 @@ External dependencies and adapter boundaries. No network integrations in v1.
 
 | Aspect | Detail |
 |--------|--------|
-| **Role** | `git log --numstat --name-only` for churn and co-change |
+| **Role** | `git log --numstat` for churn and co-change (rename lines parsed from numstat output) |
 | **Adapter** | `GitMiner` in `src/git/` |
 | **Invocation** | `child_process` spawn or `simple-git` — encapsulate in one module |
 | **Rule** | Do not spawn git subprocess outside `src/git/` |

@@ -70,6 +70,22 @@ describe("runCli", () => {
   });
 
   it("prints table on successful scan", async () => {
+    vi.spyOn(scan, "runScan").mockResolvedValue({
+      version: "1.0",
+      hotspots: [
+        {
+          filePath: "src/example.ts",
+          hotspotScore: 1,
+          complexityNormalized: 1,
+          churnNormalized: 1,
+        },
+      ],
+      coupling: [],
+      meta: {
+        since: "12 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+      },
+    });
     const { chunks } = captureStdout();
 
     await runCli([
@@ -88,6 +104,15 @@ describe("runCli", () => {
   });
 
   it("prints JSON on successful scan", async () => {
+    vi.spyOn(scan, "runScan").mockResolvedValue({
+      version: "1.0",
+      hotspots: [],
+      coupling: [],
+      meta: {
+        since: "12 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+      },
+    });
     const { chunks } = captureStdout();
 
     await runCli([

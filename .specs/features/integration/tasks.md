@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/integration/design.md`](./design.md)  
 **Spec**: [`.specs/features/integration/spec.md`](./spec.md)  
 **Context**: [`.specs/features/integration/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Complete
 
 ---
 

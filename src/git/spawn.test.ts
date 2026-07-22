@@ -53,8 +53,7 @@ describe("buildGitLogArgv", () => {
       "/repo",
       "log",
       "--numstat",
-      "--name-only",
-      '--pretty=format:"COMMIT|%H|%ad|%an"',
+      '--pretty=format:COMMIT|%H|%ad|%an',
     ]);
   });
 

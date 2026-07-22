@@ -1,6 +1,12 @@
 import { stat } from "node:fs/promises";
+import { createComplexityAnalyzer } from "./complexity/index.js";
+import { createGitMiner } from "./git/index.js";
+import {
+  createHotspotScorer,
+  createTemporalCouplingScorer,
+  DEFAULT_MIN_COCHANGE,
+} from "./scoring/index.js";
 import type { ScanOptions, ScanResult } from "./types/index.js";
-import { DEFAULT_MIN_COCHANGE } from "./scoring/index.js";
 
 export const DEFAULT_SINCE = "12 months ago";
 export const DEFAULT_TOP = 20;
@@ -23,17 +29,41 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
   await validateRepoPath(options.repoPath);
 
   const since = options.since ?? DEFAULT_SINCE;
+  const minCochange = options.minCochange ?? DEFAULT_MIN_COCHANGE;
+  const onWarning = options.onWarning;
 
-  // top, minCochange, and callbacks are accepted for CLI/M6 wiring; M5 returns stub rankings.
-  void (options.top ?? DEFAULT_TOP);
-  void (options.minCochange ?? DEFAULT_MIN_COCHANGE);
-  void options.onWarning;
-  void options.onProgress;
+  const miner = createGitMiner();
+  const { fileStats, coChangeEvents, warnings: gitWarnings } =
+    await miner.mine({
+      repoPath: options.repoPath,
+      since,
+      onProgress: options.onProgress,
+    });
+
+  for (const message of gitWarnings) {
+    onWarning?.(message);
+  }
+
+  const analyzer = createComplexityAnalyzer();
+  const { results, warnings: complexityWarnings } = await analyzer.analyze({
+    repoPath: options.repoPath,
+  });
+
+  for (const message of complexityWarnings) {
+    onWarning?.(message);
+  }
+
+  const hotspots = createHotspotScorer().score(fileStats, results);
+  const coupling = createTemporalCouplingScorer().score(
+    coChangeEvents,
+    fileStats,
+    minCochange,
+  );
 
   return {
     version: "1.0",
-    hotspots: [],
-    coupling: [],
+    hotspots,
+    coupling,
     meta: {
       since,
       scannedAt: new Date().toISOString(),

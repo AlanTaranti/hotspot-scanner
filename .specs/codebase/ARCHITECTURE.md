@@ -34,12 +34,12 @@ flowchart TB
 
 ## Data flow (scan)
 
-1. CLI parses flags (`--since`, `--format`, `--top`, `--min-cochange`)
-2. **Git Change Miner** runs one `git log --numstat --name-only` in streaming mode → `FileChangeStats` + `CoChangeEvent[]`
-3. **Complexity Analyzer** loads current working-tree TS/JS files via ts-morph → `ComplexityResult` per file
-4. **Hotspot Scorer** normalizes and combines complexity + churn → ranked `HotspotScore[]`
-5. **Temporal Coupling Scorer** computes pair strengths from co-change events
-6. **Reporter** outputs CLI tables or JSON
+1. CLI parses flags (`--since`, `--format`, `--top`, `--min-cochange`) and calls `runScan()` in `src/scan.ts`
+2. **`runScan()`** validates `repoPath`, then runs stages sequentially:
+   - **Git Change Miner** — one `git log --numstat` stream → `FileChangeStats` + `CoChangeEvent[]`; forwards warnings and `onProgress`
+   - **Complexity Analyzer** — working-tree TS/JS via ts-morph → `ComplexityResult[]`; forwards warnings
+   - **Hotspot Scorer** + **Temporal Coupling Scorer** — full sorted arrays (no `--top` slicing)
+3. CLI passes `ScanResult` to **Reporter** for table or JSON output (`--top` applied at render time)
 
 ## Key constraints
 
@@ -50,4 +50,6 @@ flowchart TB
 
 ## Orchestration
 
-`src/scan.ts` coordinates the pipeline. `bin/hotspot-scanner.ts` is a thin CLI wrapper (flags only, no domain logic).
+`src/scan.ts` is the pipeline orchestrator: `createGitMiner` → `createComplexityAnalyzer` → `createHotspotScorer` + `createTemporalCouplingScorer`. It returns a typed `ScanResult` with full ranked lists. `bin/hotspot-scanner.ts` is a thin CLI wrapper (flags only, no domain logic).
+
+Integration validation: `tests/fixtures/repos/small-ts/` (see [TESTING.md](./TESTING.md) § Integration).

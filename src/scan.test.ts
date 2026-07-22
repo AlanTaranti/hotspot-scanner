@@ -1,25 +1,22 @@
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it, vi } from "vitest";
 import { DEFAULT_MIN_COCHANGE } from "./scoring/index.js";
 import { DEFAULT_SINCE, DEFAULT_TOP, runScan } from "#scan";
 
+const smallTsFixture = join(
+  fileURLToPath(new URL(".", import.meta.url)),
+  "../tests/fixtures/repos/small-ts",
+);
+
 describe("runScan", () => {
-  it("returns empty typed ScanResult with default meta", async () => {
-    const result = await runScan({ repoPath: "." });
-
-    expect(result.version).toBe("1.0");
-    expect(result.hotspots).toEqual([]);
-    expect(result.coupling).toEqual([]);
-    expect(result.meta.since).toBe(DEFAULT_SINCE);
-    expect(new Date(result.meta.scannedAt).toISOString()).toBe(
-      result.meta.scannedAt,
-    );
-  });
-
   it("uses provided since when set", async () => {
-    const result = await runScan({ repoPath: ".", since: "6 months ago" });
+    const result = await runScan({
+      repoPath: smallTsFixture,
+      since: "6 months ago",
+    });
 
     expect(result.meta.since).toBe("6 months ago");
   });
@@ -43,28 +40,28 @@ describe("runScan", () => {
     );
   });
 
-  it("accepts optional diagnostics callbacks without invoking pipeline modules", async () => {
+  it("accepts optional diagnostics callbacks", async () => {
     const onWarning = vi.fn();
     const onProgress = vi.fn();
+
     const result = await runScan({
-      repoPath: ".",
+      repoPath: smallTsFixture,
       top: 5,
       minCochange: 4,
       onWarning,
       onProgress,
     });
 
-    expect(result.hotspots).toEqual([]);
-    expect(result.coupling).toEqual([]);
-    expect(onWarning).not.toHaveBeenCalled();
-    expect(onProgress).not.toHaveBeenCalled();
+    expect(result.hotspots.length).toBeGreaterThanOrEqual(1);
+    expect(onProgress).toHaveBeenCalled();
   });
 
-  it("validates a temporary directory path", async () => {
+  it("validates a temporary directory path and throws on non-git repo", async () => {
     const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-"));
     try {
-      const result = await runScan({ repoPath: tempDir });
-      expect(result.hotspots).toEqual([]);
+      await expect(runScan({ repoPath: tempDir })).rejects.toThrow(
+        /git log failed/i,
+      );
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }

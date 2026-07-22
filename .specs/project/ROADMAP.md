@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M5 Reporter + CLI complete** (M1 scaffold + M2 + M3 + M4 + M5 implemented; M6 planned).
+Status: **M6 Integration complete** (M1 scaffold + M2 + M3 + M4 + M5 + M6 implemented).
 
 ## Milestone 1 — Scaffold
 
@@ -52,8 +52,8 @@ Status: **M5 Reporter + CLI complete** (M1 scaffold + M2 + M3 + M4 + M5 implemen
 
 → [`.specs/features/integration/spec.md`](../features/integration/spec.md)
 
-- [ ] Full scan on versioned Git fixture repo (`tests/fixtures/repos/small-ts/`)
-- [ ] `runScan()` pipeline wiring (git → complexity → scoring)
-- [ ] Integration + CLI tests on fixture repo
-- [ ] Manual performance benchmark on large synthetic repo
-- [ ] Coverage gate (`vitest.config.ts` per-file thresholds)
+- [x] Full scan on versioned Git fixture repo (`tests/fixtures/repos/small-ts/`)
+- [x] `runScan()` pipeline wiring (git → complexity → scoring)
+- [x] Integration + CLI tests on fixture repo
+- [x] Manual performance benchmark on large synthetic repo (`scripts/benchmark-scan.md`)
+- [x] Coverage gate (`vitest.config.ts` per-file thresholds)

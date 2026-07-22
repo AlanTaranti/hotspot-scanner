@@ -79,7 +79,7 @@ coverage: {
 | Git Miner | Rename, merge, delete cases | Vitest + `tests/fixtures/git-log/` |
 | Complexity | Known McCabe values | Vitest + `tests/fixtures/complexity/` |
 | CLI | Flag defaults and invalid args | Vitest; mock `process.exit` |
-| Integration | Full scan on fixture repo | Vitest + `tests/fixtures/repos/` |
+| Integration | Full scan on fixture repo | Vitest + `tests/fixtures/repos/small-ts/` (primary E2E); P2: `with-renames/`, `merge-heavy/` |
 | Performance | Large repo timing | Manual benchmark (not CI) |
 
 ## Mock boundaries

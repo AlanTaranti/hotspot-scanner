@@ -13,11 +13,11 @@ M6 wires the full pipeline: git log streaming → McCabe complexity → hotspot 
 
 ## Goals
 
-- [ ] Wire `runScan()` with `createGitMiner`, `createComplexityAnalyzer`, `createHotspotScorer`, and `createTemporalCouplingScorer`
-- [ ] Forward warnings (git + complexity) and progress (git) via `ScanOptions` callbacks
-- [ ] Versioned Git fixture `tests/fixtures/repos/small-ts/` with deterministic integration test assertions
-- [ ] `pnpm build && pnpm test` passing with `src/scan.ts` covered under `vitest.config.ts` per-file thresholds
-- [ ] Manual performance benchmark procedure documented (not CI)
+- [x] Wire `runScan()` with `createGitMiner`, `createComplexityAnalyzer`, `createHotspotScorer`, and `createTemporalCouplingScorer`
+- [x] Forward warnings (git + complexity) and progress (git) via `ScanOptions` callbacks
+- [x] Versioned Git fixture `tests/fixtures/repos/small-ts/` with deterministic integration test assertions
+- [x] `pnpm build && pnpm test` passing with `src/scan.ts` covered under `vitest.config.ts` per-file thresholds
+- [x] Manual performance benchmark procedure documented (not CI)
 
 ## Out of Scope
 
@@ -242,16 +242,16 @@ Explicitly excluded. Documented to prevent scope creep.
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| HOTSPOT-51 | P1: Pipeline orchestration | Tasks T3 | Pending |
-| HOTSPOT-52 | P1: Diagnostics forwarding | Tasks T3 | Pending |
-| HOTSPOT-53 | P1: Git/path failure handling | Tasks T3, T4 | Pending |
-| HOTSPOT-54 | P1: Fixture `small-ts` | Tasks T1 | Pending |
-| HOTSPOT-55 | P1: Integration test assertions | Tasks T4 | Pending |
-| HOTSPOT-56 | P1: CLI validation on fixture | Tasks T5 | Pending |
-| HOTSPOT-57 | P2: Fixture `with-renames` | Tasks T6 | Pending |
-| HOTSPOT-58 | P2: Fixture `merge-heavy` | Tasks T6 | Pending |
-| HOTSPOT-59 | P2: Manual benchmark | Tasks T2 | Pending |
-| HOTSPOT-60 | P1: Coverage gate | Tasks T7 | Pending |
+| HOTSPOT-51 | P1: Pipeline orchestration | Tasks T3 | Done |
+| HOTSPOT-52 | P1: Diagnostics forwarding | Tasks T3 | Done |
+| HOTSPOT-53 | P1: Git/path failure handling | Tasks T3, T4 | Done |
+| HOTSPOT-54 | P1: Fixture `small-ts` | Tasks T1 | Done |
+| HOTSPOT-55 | P1: Integration test assertions | Tasks T4 | Done |
+| HOTSPOT-56 | P1: CLI validation on fixture | Tasks T5 | Done |
+| HOTSPOT-57 | P2: Fixture `with-renames` | Tasks T6 | Done |
+| HOTSPOT-58 | P2: Fixture `merge-heavy` | Tasks T6 | Done |
+| HOTSPOT-59 | P2: Manual benchmark | Tasks T2 | Done |
+| HOTSPOT-60 | P1: Coverage gate | Tasks T7 | Done |
 
 **Coverage:** 10 total, 10 mapped to tasks, 0 unmapped
 
@@ -259,8 +259,8 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Success Criteria
 
-- [ ] All P1 acceptance criteria verifiable via Vitest + fixture (benchmark P2 excepted)
-- [ ] `pnpm build && pnpm test` passes after Execute
-- [ ] `orchestrator-implementer` can execute T1–T7 without ambiguous scope
-- [ ] `pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts` prints real rankings
-- [ ] No new runtime dependencies without [INTEGRATIONS.md](../../codebase/INTEGRATIONS.md) update
+- [x] All P1 acceptance criteria verifiable via Vitest + fixture (benchmark P2 excepted)
+- [x] `pnpm build && pnpm test` passes after Execute
+- [x] `orchestrator-implementer` can execute T1–T7 without ambiguous scope
+- [x] `pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts` prints real rankings
+- [x] No new runtime dependencies without [INTEGRATIONS.md](../../codebase/INTEGRATIONS.md) update
