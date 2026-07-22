@@ -13,6 +13,8 @@ Status: **pre-implementation** (tooling bootstrap complete; features pending).
 
 ## Milestone 2 — Git Change Miner
 
+→ [`.specs/features/git-change-miner/spec.md`](../features/git-change-miner/spec.md)
+
 - [ ] Streaming parse of `git log --numstat --name-only`
 - [ ] `FileChangeStats` aggregation
 - [ ] `CoChangeEvent[]` extraction per commit
