@@ -1,15 +1,15 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M6 Integration complete** (M1 scaffold + M2 + M3 + M4 + M5 + M6 implemented).
+Status: **M6 Integration complete** — Post-v1 backlog planned (M7–M14).
 
 ## Milestone 1 — Scaffold
 
 → [`.specs/features/scaffold/spec.md`](../features/scaffold/spec.md)
 
-- [ ] Package scripts (`build`, `test`), `vitest.config.ts`
-- [ ] Module layout under `src/` and `bin/hotspot-scanner.ts` stub
-- [ ] Domain types in `src/types/`
-- [ ] Placeholder integration test wiring
+- [x] Package scripts (`build`, `test`), `vitest.config.ts`
+- [x] Module layout under `src/` and `bin/hotspot-scanner.ts` stub
+- [x] Domain types in `src/types/`
+- [x] Placeholder integration test wiring
 
 ## Milestone 2 — Git Change Miner
 
@@ -57,3 +57,72 @@ Status: **M6 Integration complete** (M1 scaffold + M2 + M3 + M4 + M5 + M6 implem
 - [x] Integration + CLI tests on fixture repo
 - [x] Manual performance benchmark on large synthetic repo (`scripts/benchmark-scan.md`)
 - [x] Coverage gate (`vitest.config.ts` per-file thresholds)
+
+---
+
+## Post-v1 backlog
+
+Próximos milestones priorizados para adoção real. Specs em `.specs/features/<slug>/` serão criadas via `planner-feature` antes do Execute.
+
+### Milestone 7 — Path Scoping
+
+**Slug (planned):** `path-scoping` | **Priority:** Critical + High
+
+- [ ] Default exclude: `node_modules`, `.git`, `dist`, `coverage`, `build` (complexity discovery + git stats intersection)
+- [ ] Validate `repoPath` is a Git repository (`.git` exists) before scan
+- [ ] CLI flags `--include <glob>` and `--exclude <glob>` (repeatable)
+
+### Milestone 8 — Rich Output
+
+**Slug (planned):** `rich-output` | **Priority:** Critical + High
+
+- [ ] JSON hotspots include raw `cyclomaticComplexity`, `commitCount`, `linesChanged`, `functionCount`
+- [ ] Table output shows raw metrics alongside normalized scores
+- [ ] Expose bus factor: `authorCount` (from existing `authors` Set in `FileChangeStats`)
+
+### Milestone 9 — Export Formats
+
+**Slug (planned):** `export-formats` | **Priority:** High
+
+- [ ] `--output <path>` writes report to file (table/json/markdown)
+- [ ] `--format markdown` for PR-friendly report
+
+### Milestone 10 — Function Granularity
+
+**Slug (planned):** `function-granularity` | **Priority:** High
+
+- [ ] Per-function McCabe in output (`functionName`, `line`, `complexity`)
+- [ ] `--granularity file|function` (default `file`; function mode ranks top functions)
+
+### Milestone 11 — CI Gate
+
+**Slug (planned):** `ci-gate` | **Priority:** Critical
+
+- [ ] `--fail-on-hotspot-score <n>` and/or `--fail-on-coupling-strength <n>`
+- [ ] Exit code `1` when threshold exceeded (success scan with gate failure)
+- [ ] Document reversal of IMPL §3.2 non-goal in STATE.md when planned
+
+### Milestone 12 — Scan Compare
+
+**Slug (planned):** `scan-compare` | **Priority:** High
+
+- [ ] `hotspot-scanner compare <baseline.json> <path>` or `scan --baseline <file>`
+- [ ] Delta report: new/removed/ranked-changed hotspots and coupling pairs
+
+### Milestone 13 — Enriched Coupling
+
+**Slug (planned):** `enriched-coupling` | **Priority:** High
+
+- [ ] Static import analysis between coupled file pairs
+- [ ] Output field `hasStaticDependency: boolean` on `CouplingPair`
+
+### Milestone 14 — AST Parallelization
+
+**Slug (planned):** `ast-parallelization` | **Priority:** High
+
+- [ ] Worker-thread batch processing in `src/complexity/` (RT-001)
+- [ ] Remove entry from STATE.md §Deferred when Done
+
+### Suggested execution order
+
+M7 → M8 → M11 → M9 → M10 → M12 → M13 → M14
