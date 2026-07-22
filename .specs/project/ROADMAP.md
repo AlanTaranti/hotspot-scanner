@@ -67,11 +67,11 @@ Próximos milestones priorizados para adoção real. Specs em `.specs/features/<
 ### Milestone 7 — Path Scoping
 
 → [`.specs/features/path-scoping/spec.md`](../features/path-scoping/spec.md)  
-**Slug:** `path-scoping` | **Priority:** Critical + High | **Specs:** Planned
+**Slug:** `path-scoping` | **Priority:** Critical + High | **Specs:** Done
 
-- [ ] Default exclude: `node_modules`, `.git`, `dist`, `coverage`, `build` (complexity discovery + git stats intersection)
-- [ ] Validate `repoPath` is a Git repository (`.git` exists) before scan
-- [ ] CLI flags `--include <glob>` and `--exclude <glob>` (repeatable)
+- [x] Default exclude: `node_modules`, `.git`, `dist`, `coverage`, `build` (complexity discovery + git stats intersection)
+- [x] Validate `repoPath` is a Git repository (`.git` exists) before scan
+- [x] CLI flags `--include <glob>` and `--exclude <glob>` (repeatable)
 
 ### Milestone 8 — Rich Output
 

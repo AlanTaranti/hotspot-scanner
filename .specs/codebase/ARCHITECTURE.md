@@ -34,12 +34,20 @@ flowchart TB
 
 ## Data flow (scan)
 
-1. CLI parses flags (`--since`, `--format`, `--top`, `--min-cochange`) and calls `runScan()` in `src/scan.ts`
-2. **`runScan()`** validates `repoPath`, then runs stages sequentially:
-   - **Git Change Miner** — one `git log --numstat` stream → `FileChangeStats` + `CoChangeEvent[]`; forwards warnings and `onProgress`
-   - **Complexity Analyzer** — working-tree TS/JS via ts-morph → `ComplexityResult[]`; forwards warnings
+1. CLI parses flags (`--since`, `--format`, `--top`, `--min-cochange`, `--include`, `--exclude`) and calls `runScan()` in `src/scan.ts`
+2. **`runScan()`** validates `repoPath`, checks `.git` exists, builds a shared `PathScope` (`src/paths/`), then runs stages sequentially:
+   - **Git Change Miner** — one `git log --numstat` stream → `FileChangeStats` + `CoChangeEvent[]`; output filtered by `PathScope` via `filterGitMinerResult()`; forwards warnings and `onProgress`
+   - **Complexity Analyzer** — discovers in-scope TS/JS files (directory prune + file filter) via ts-morph → `ComplexityResult[]`; forwards warnings
    - **Hotspot Scorer** + **Temporal Coupling Scorer** — full sorted arrays (no `--top` slicing)
 3. CLI passes `ScanResult` to **Reporter** for table or JSON output (`--top` applied at render time)
+
+### Path scoping (M7)
+
+- **Default excludes** (always active): `node_modules`, `.git`, `dist`, `coverage`, `build`
+- **`--include <glob>`** (repeatable): narrows scope — path must match at least one include pattern
+- **`--exclude <glob>`** (repeatable): additive excludes on top of defaults
+- **Semantics**: exclude wins over include; same `PathScope` instance filters both git stats and complexity discovery
+- **Module**: `src/paths/` (`createPathScope`, `isPathInScope`, `filterGitMinerResult`); glob matching via `picomatch`
 
 ## Key constraints
 

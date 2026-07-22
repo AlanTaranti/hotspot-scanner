@@ -1,5 +1,6 @@
 import { stat } from "node:fs/promises";
 import { relative, sep } from "node:path";
+import type { PathScope } from "../paths/scope.js";
 import type { ComplexityResult } from "../types/index.js";
 import { analyzeSourceFile } from "./analyze-file.js";
 import { discoverSourceFiles } from "./discover.js";
@@ -11,6 +12,7 @@ import {
 
 export interface ComplexityAnalyzerOptions {
   repoPath: string;
+  scope?: PathScope;
 }
 
 export interface ComplexityAnalyzerResult {
@@ -81,10 +83,10 @@ export function createComplexityAnalyzer(
   const createProject = deps.createTsMorphProject ?? createTsMorphProject;
 
   return {
-    async analyze({ repoPath }) {
+    async analyze({ repoPath, scope }) {
       await validateRepoPath(repoPath);
 
-      const filePaths = await discover(repoPath);
+      const filePaths = await discover(repoPath, scope);
       const project = createProject({ repoPath });
       const results: ComplexityResult[] = [];
       const warnings: string[] = [];

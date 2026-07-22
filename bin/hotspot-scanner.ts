@@ -32,6 +32,21 @@ export function parseFormat(value: string): OutputFormat {
   );
 }
 
+export function collectGlob(value: string, previous: string[]): string[] {
+  if (value.length === 0) {
+    throw new CliUsageError("--include and --exclude patterns must not be empty");
+  }
+  return previous.concat([value]);
+}
+
+export function validateScopePatterns(patterns: string[], flagName: string): void {
+  for (const pattern of patterns) {
+    if (pattern.length === 0) {
+      throw new CliUsageError(`${flagName} patterns must not be empty`);
+    }
+  }
+}
+
 export function createCliProgram(): Command {
   const program = new Command();
 
@@ -51,6 +66,18 @@ export function createCliProgram(): Command {
       "Minimum co-change count for coupling pairs",
       String(DEFAULT_MIN_COCHANGE),
     )
+    .option(
+      "--include <glob>",
+      "Include only paths matching glob (repeatable)",
+      collectGlob,
+      [] as string[],
+    )
+    .option(
+      "--exclude <glob>",
+      "Exclude paths matching glob (repeatable)",
+      collectGlob,
+      [] as string[],
+    )
     .action(async (repoPath: string, options) => {
       const format = parseFormat(options.format);
       const top = parsePositiveInteger(options.top, "--top");
@@ -58,6 +85,10 @@ export function createCliProgram(): Command {
         options.minCochange,
         "--min-cochange",
       );
+      const includePatterns = options.include as string[];
+      const excludePatterns = options.exclude as string[];
+      validateScopePatterns(includePatterns, "--include");
+      validateScopePatterns(excludePatterns, "--exclude");
 
       const result = await runScan({
         repoPath,
@@ -65,6 +96,8 @@ export function createCliProgram(): Command {
         top,
         minCochange,
         format,
+        include: includePatterns.length > 0 ? includePatterns : undefined,
+        exclude: excludePatterns.length > 0 ? excludePatterns : undefined,
         onWarning: logWarning,
         onProgress: ({ commitsProcessed }) =>
           maybeLogProgress(commitsProcessed),

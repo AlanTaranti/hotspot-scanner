@@ -2,6 +2,7 @@ import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { afterEach, describe, expect, it } from "vitest";
+import { createPathScope } from "../paths/scope.js";
 import { discoverSourceFiles } from "./discover.js";
 
 const tempDirs: string[] = [];
@@ -60,5 +61,28 @@ describe("discoverSourceFiles", () => {
     await expect(discoverSourceFiles(join(repoPath, "file.ts"))).rejects.toThrow(
       /repoPath/,
     );
+  });
+
+  it("excludes node_modules by default", async () => {
+    const repoPath = await createTempRepo({
+      "src/app.ts": "export const app = 1;",
+      "node_modules/lib/index.ts": "export const lib = 2;",
+    });
+
+    const files = await discoverSourceFiles(repoPath);
+
+    expect(files).toEqual(["src/app.ts"]);
+  });
+
+  it("respects include scope", async () => {
+    const repoPath = await createTempRepo({
+      "src/app.ts": "export const app = 1;",
+      "lib/utils.ts": "export const util = 2;",
+    });
+
+    const scope = createPathScope({ include: ["src/**"] });
+    const files = await discoverSourceFiles(repoPath, scope);
+
+    expect(files).toEqual(["src/app.ts"]);
   });
 });

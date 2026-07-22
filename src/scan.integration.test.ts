@@ -38,4 +38,16 @@ describe("runScan integration", () => {
     expect(onProgress).toHaveBeenCalled();
     expect(onWarning).not.toHaveBeenCalled();
   });
+
+  it("limits output paths when include scope is set", async () => {
+    const result = await runScan({
+      repoPath: smallTsFixture,
+      include: ["src/**"],
+    });
+
+    expect(result.hotspots.length).toBeGreaterThanOrEqual(1);
+    for (const hotspot of result.hotspots) {
+      expect(hotspot.filePath.startsWith("src/")).toBe(true);
+    }
+  });
 });

@@ -4,10 +4,12 @@ import * as report from "#report";
 import * as scan from "#scan";
 import {
   CliUsageError,
+  collectGlob,
   createCliProgram,
   parseFormat,
   parsePositiveInteger,
   runCli,
+  validateScopePatterns,
 } from "./hotspot-scanner.js";
 
 function captureStdout(): { chunks: string[]; restore: () => void } {
@@ -59,8 +61,27 @@ describe("createCliProgram", () => {
         "--format",
         "--top",
         "--min-cochange",
+        "--include",
+        "--exclude",
       ]),
     );
+  });
+});
+
+describe("collectGlob", () => {
+  it("appends patterns to the accumulator", () => {
+    expect(collectGlob("src/**", [])).toEqual(["src/**"]);
+    expect(collectGlob("lib/**", ["src/**"])).toEqual(["src/**", "lib/**"]);
+  });
+
+  it("rejects empty patterns", () => {
+    expect(() => collectGlob("", [])).toThrow(CliUsageError);
+  });
+});
+
+describe("validateScopePatterns", () => {
+  it("rejects empty patterns", () => {
+    expect(() => validateScopePatterns([""], "--include")).toThrow(CliUsageError);
   });
 });
 
@@ -219,6 +240,50 @@ describe("runCli", () => {
         ".",
         "--min-cochange",
         "-1",
+      ]),
+    ).rejects.toThrow(CliUsageError);
+  });
+
+  it("forwards include and exclude patterns to runScan", async () => {
+    const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
+      version: "1.0",
+      hotspots: [],
+      coupling: [],
+      meta: {
+        since: "12 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+      },
+    });
+    captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      ".",
+      "--include",
+      "src/**",
+      "--exclude",
+      "generated/**",
+    ]);
+
+    expect(runScanSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        include: ["src/**"],
+        exclude: ["generated/**"],
+      }),
+    );
+  });
+
+  it("throws CliUsageError for empty --include", async () => {
+    await expect(
+      runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        ".",
+        "--include",
+        "",
       ]),
     ).rejects.toThrow(CliUsageError);
   });

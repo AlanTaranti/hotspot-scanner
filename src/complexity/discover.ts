@@ -1,5 +1,11 @@
 import { readdir, stat } from "node:fs/promises";
 import { join, relative, sep } from "node:path";
+import {
+  createPathScope,
+  isPathInScope,
+  shouldPruneDirectory,
+  type PathScope,
+} from "../paths/scope.js";
 
 export const ELIGIBLE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx"] as const;
 
@@ -14,6 +20,7 @@ function toPosixPath(filePath: string): string {
 async function walkDirectory(
   repoPath: string,
   currentDir: string,
+  scope: PathScope,
   results: string[],
 ): Promise<void> {
   const entries = await readdir(currentDir, { withFileTypes: true });
@@ -22,18 +29,30 @@ async function walkDirectory(
     const absolutePath = join(currentDir, entry.name);
 
     if (entry.isDirectory()) {
-      await walkDirectory(repoPath, absolutePath, results);
+      const relativeDir = toPosixPath(relative(repoPath, absolutePath));
+      if (shouldPruneDirectory(relativeDir, scope)) {
+        continue;
+      }
+      await walkDirectory(repoPath, absolutePath, scope, results);
       continue;
     }
 
     if (entry.isFile() && hasEligibleExtension(entry.name)) {
-      results.push(toPosixPath(relative(repoPath, absolutePath)));
+      const relativePath = toPosixPath(relative(repoPath, absolutePath));
+      if (isPathInScope(relativePath, scope)) {
+        results.push(relativePath);
+      }
     }
   }
 }
 
 /** Returns paths relative to repoPath. */
-export async function discoverSourceFiles(repoPath: string): Promise<string[]> {
+export async function discoverSourceFiles(
+  repoPath: string,
+  scope?: PathScope,
+): Promise<string[]> {
+  const effectiveScope = scope ?? createPathScope();
+
   let repoStat;
   try {
     repoStat = await stat(repoPath);
@@ -46,6 +65,6 @@ export async function discoverSourceFiles(repoPath: string): Promise<string[]> {
   }
 
   const results: string[] = [];
-  await walkDirectory(repoPath, repoPath, results);
+  await walkDirectory(repoPath, repoPath, effectiveScope, results);
   return results.sort();
 }

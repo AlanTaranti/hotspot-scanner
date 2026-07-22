@@ -44,6 +44,8 @@ export interface ScanOptions {
   top?: number;
   minCochange?: number;
   format?: "table" | "json";
+  include?: string[];
+  exclude?: string[];
   onWarning?: (message: string) => void;
   onProgress?: (progress: { commitsProcessed: number }) => void;
 }

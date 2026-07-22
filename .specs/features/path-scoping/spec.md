@@ -13,11 +13,11 @@ M7 adds unified path scoping: default excludes, early Git repository validation,
 
 ## Goals
 
-- [ ] Default excludes (`node_modules`, `.git`, `dist`, `coverage`, `build`) in complexity discovery and Git stats
-- [ ] Validate `repoPath` is a Git repository (`.git` exists) before mining or analyzing
-- [ ] CLI flags `--include <glob>` and `--exclude <glob>` (repeatable) forwarded to `ScanOptions`
-- [ ] Unified scope rules: include narrows; exclude (defaults + user) always applies
-- [ ] `pnpm build && pnpm test` passing after Execute
+- [x] Default excludes (`node_modules`, `.git`, `dist`, `coverage`, `build`) in complexity discovery and Git stats
+- [x] Validate `repoPath` is a Git repository (`.git` exists) before mining or analyzing
+- [x] CLI flags `--include <glob>` and `--exclude <glob>` (repeatable) forwarded to `ScanOptions`
+- [x] Unified scope rules: include narrows; exclude (defaults + user) always applies
+- [x] `pnpm build && pnpm test` passing after Execute
 
 ## Out of Scope
 
@@ -223,8 +223,8 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Success Criteria
 
-- [ ] All P1 acceptance criteria verifiable via Vitest + fixture
-- [ ] `pnpm build && pnpm test` passes after Execute
-- [ ] `orchestrator-implementer` can execute T1–T8 without ambiguous scope
-- [ ] `pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts` succeeds; scoped paths excluded when fixture extended
-- [ ] `picomatch` documented in INTEGRATIONS.md
+- [x] All P1 acceptance criteria verifiable via Vitest + fixture
+- [x] `pnpm build && pnpm test` passes after Execute
+- [x] `orchestrator-implementer` can execute T1–T8 without ambiguous scope
+- [x] `pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts` succeeds; scoped paths excluded when fixture extended
+- [x] `picomatch` documented in INTEGRATIONS.md

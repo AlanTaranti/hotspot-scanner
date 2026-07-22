@@ -1,6 +1,8 @@
-import { stat } from "node:fs/promises";
+import { access, stat } from "node:fs/promises";
+import { join } from "node:path";
 import { createComplexityAnalyzer } from "./complexity/index.js";
 import { createGitMiner } from "./git/index.js";
+import { createPathScope, filterGitMinerResult } from "./paths/index.js";
 import {
   createHotspotScorer,
   createTemporalCouplingScorer,
@@ -25,20 +27,35 @@ async function validateRepoPath(repoPath: string): Promise<void> {
   }
 }
 
+export async function validateGitRepository(repoPath: string): Promise<void> {
+  try {
+    await access(join(repoPath, ".git"));
+  } catch {
+    throw new Error(`repoPath is not a git repository: ${repoPath}`);
+  }
+}
+
 export async function runScan(options: ScanOptions): Promise<ScanResult> {
   await validateRepoPath(options.repoPath);
+  await validateGitRepository(options.repoPath);
+
+  const scope = createPathScope({
+    include: options.include,
+    exclude: options.exclude,
+  });
 
   const since = options.since ?? DEFAULT_SINCE;
   const minCochange = options.minCochange ?? DEFAULT_MIN_COCHANGE;
   const onWarning = options.onWarning;
 
   const miner = createGitMiner();
+  const rawGit = await miner.mine({
+    repoPath: options.repoPath,
+    since,
+    onProgress: options.onProgress,
+  });
   const { fileStats, coChangeEvents, warnings: gitWarnings } =
-    await miner.mine({
-      repoPath: options.repoPath,
-      since,
-      onProgress: options.onProgress,
-    });
+    filterGitMinerResult(rawGit, scope);
 
   for (const message of gitWarnings) {
     onWarning?.(message);
@@ -47,6 +64,7 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
   const analyzer = createComplexityAnalyzer();
   const { results, warnings: complexityWarnings } = await analyzer.analyze({
     repoPath: options.repoPath,
+    scope,
   });
 
   for (const message of complexityWarnings) {

@@ -60,7 +60,7 @@ describe("runScan", () => {
     const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-"));
     try {
       await expect(runScan({ repoPath: tempDir })).rejects.toThrow(
-        /git log failed/i,
+        /not a git repository/i,
       );
     } finally {
       await rm(tempDir, { recursive: true, force: true });

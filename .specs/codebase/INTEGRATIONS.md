@@ -32,6 +32,17 @@ External dependencies and adapter boundaries. No network integrations in v1.
 | **Location** | `bin/hotspot-scanner.ts` only |
 | **Rule** | No domain logic in bin — delegate to `runScan()` in `src/scan.ts` |
 
+## picomatch
+
+| Aspect | Detail |
+|--------|--------|
+| **Role** | Glob pattern matching for path scoping (`--include`, `--exclude`, default excludes) |
+| **Adapter** | `src/paths/scope.ts` only |
+| **Version** | `picomatch@^4` (runtime dependency) |
+| **Rule** | Do not import picomatch outside `src/paths/` |
+| **Failure** | Invalid patterns propagate at scope creation; CLI rejects empty patterns |
+| **Tests** | Real pattern behavior in `src/paths/scope.test.ts` — do not mock picomatch |
+
 ## Adding new dependencies
 
 1. Justify in feature design doc

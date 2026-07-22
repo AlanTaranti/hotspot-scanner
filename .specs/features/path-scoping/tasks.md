@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/path-scoping/design.md`](./design.md)  
 **Spec**: [`.specs/features/path-scoping/spec.md`](./spec.md)  
 **Context**: [`.specs/features/path-scoping/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -99,12 +99,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `DEFAULT_EXCLUDE_PATTERNS` includes `node_modules`, `.git`, `dist`, `coverage`, `build` (as glob patterns)
-- [ ] `createPathScope({ include, exclude })` merges user exclude with defaults
-- [ ] `isPathInScope` implements: no include → all minus excludes; with include → match include AND not exclude; exclude wins
-- [ ] `shouldPruneDirectory` returns true for excluded directory segments (e.g. `node_modules`)
-- [ ] `picomatch` is the only external import in `src/paths/scope.ts`
-- [ ] `pnpm build` succeeds
+- [x] `DEFAULT_EXCLUDE_PATTERNS` includes `node_modules`, `.git`, `dist`, `coverage`, `build` (as glob patterns)
+- [x] `createPathScope({ include, exclude })` merges user exclude with defaults
+- [x] `isPathInScope` implements: no include → all minus excludes; with include → match include AND not exclude; exclude wins
+- [x] `shouldPruneDirectory` returns true for excluded directory segments (e.g. `node_modules`)
+- [x] `picomatch` is the only external import in `src/paths/scope.ts`
+- [x] `pnpm build` succeeds
 
 **Tests**: `src/paths/scope.test.ts` — default excludes, include narrows, exclude wins, posix paths, empty include list
 
@@ -131,11 +131,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Walk does not descend into `node_modules/` (and other default excludes)
-- [ ] Files under excluded paths are not returned
-- [ ] When `scope` includes `src/**`, only `src/` files discovered
-- [ ] Backward compatible: `discoverSourceFiles(repoPath)` uses default scope (defaults only)
-- [ ] Returned paths remain posix-relative and sorted
+- [x] Walk does not descend into `node_modules/` (and other default excludes)
+- [x] Files under excluded paths are not returned
+- [x] When `scope` includes `src/**`, only `src/` files discovered
+- [x] Backward compatible: `discoverSourceFiles(repoPath)` uses default scope (defaults only)
+- [x] Returned paths remain posix-relative and sorted
 
 **Tests**: `discover.test.ts` — temp tree with `src/app.ts` + `node_modules/lib/index.ts`; include-only case
 
@@ -162,10 +162,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Out-of-scope `fileStats` entries removed
-- [ ] `coChangeEvents` filtered per-file; events with < 2 in-scope files dropped
-- [ ] Warnings array passed through unchanged
-- [ ] Partial co-change (one file in scope, one out) drops the event
+- [x] Out-of-scope `fileStats` entries removed
+- [x] `coChangeEvents` filtered per-file; events with < 2 in-scope files dropped
+- [x] Warnings array passed through unchanged
+- [x] Partial co-change (one file in scope, one out) drops the event
 
 **Tests**: `filter-git.test.ts` — mixed scope events, empty result, all excluded
 
@@ -192,10 +192,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `validateGitRepository` throws when `.git` is missing
-- [ ] Error message includes `repoPath` and indicates not a git repository
-- [ ] `validateGitRepository` is exported or tested via `runScan` once T5 lands; unit test may call it directly if exported
-- [ ] `scan.test.ts` updated for non-git directory expectation
+- [x] `validateGitRepository` throws when `.git` is missing
+- [x] Error message includes `repoPath` and indicates not a git repository
+- [x] `validateGitRepository` is exported or tested via `runScan` once T5 lands; unit test may call it directly if exported
+- [x] `scan.test.ts` updated for non-git directory expectation
 
 **Tests**: `scan.test.ts` — temp dir without `.git`
 
@@ -224,11 +224,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `ScanOptions` includes optional `include?: string[]` and `exclude?: string[]`
-- [ ] `runScan` validates Git before mining
-- [ ] Same `PathScope` instance used for git filter and complexity analysis
-- [ ] Existing `small-ts` integration test still passes (no scope flags)
-- [ ] `runScan({ include: ["src/**"] })` on fixture limits output paths to `src/`
+- [x] `ScanOptions` includes optional `include?: string[]` and `exclude?: string[]`
+- [x] `runScan` validates Git before mining
+- [x] Same `PathScope` instance used for git filter and complexity analysis
+- [x] Existing `small-ts` integration test still passes (no scope flags)
+- [x] `runScan({ include: ["src/**"] })` on fixture limits output paths to `src/`
 
 **Tests**: Integration test on `tests/fixtures/repos/small-ts/` — baseline pass + include filter
 
@@ -255,11 +255,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `--include` repeatable; collected into `include` when non-empty
-- [ ] `--exclude` repeatable; always forwarded (may be empty array)
-- [ ] Empty `--include ""` or `--exclude ""` → `CliUsageError`, exit `2`
-- [ ] CLI tests mock `runScan` and assert parsed scope options
-- [ ] Help text documents both flags
+- [x] `--include` repeatable; collected into `include` when non-empty
+- [x] `--exclude` repeatable; always forwarded (may be empty array)
+- [x] Empty `--include ""` or `--exclude ""` → `CliUsageError`, exit `2`
+- [x] CLI tests mock `runScan` and assert parsed scope options
+- [x] Help text documents both flags
 
 **Tests**: `bin/hotspot-scanner.test.ts` — flag parsing, empty glob error
 
@@ -287,10 +287,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Fixture tree contains `node_modules/` with at least one `.ts` file on disk
-- [ ] `runScan` on fixture: no hotspot `filePath` starts with `node_modules/`
-- [ ] CLI `scan small-ts --format json` also excludes `node_modules/` paths
-- [ ] Stub is minimal (no real npm install); committed as static test data
+- [x] Fixture tree contains `node_modules/` with at least one `.ts` file on disk
+- [x] `runScan` on fixture: no hotspot `filePath` starts with `node_modules/`
+- [x] CLI `scan small-ts --format json` also excludes `node_modules/` paths
+- [x] Stub is minimal (no real npm install); committed as static test data
 
 **Tests**: Integration test asserting excluded paths
 
@@ -318,12 +318,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] ARCHITECTURE.md documents `--include`, `--exclude`, default excludes, and scope application points
-- [ ] INTEGRATIONS.md documents `picomatch` — role, version, `src/paths/` only
-- [ ] ROADMAP.md M7 checkboxes marked `[x]` with link to spec
-- [ ] `tasks.md` Status → `Done` (orchestrator sets on completion)
-- [ ] `pnpm build && pnpm test` passes
-- [ ] `pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts` succeeds
+- [x] ARCHITECTURE.md documents `--include`, `--exclude`, default excludes, and scope application points
+- [x] INTEGRATIONS.md documents `picomatch` — role, version, `src/paths/` only
+- [x] ROADMAP.md M7 checkboxes marked `[x]` with link to spec
+- [x] `tasks.md` Status → `Done` (orchestrator sets on completion)
+- [x] `pnpm build && pnpm test` passes
+- [x] `pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts` succeeds
 
 **Tests**: none (doc + gate)
 

@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/path-scoping/spec.md`](./spec.md)  
 **Context**: [`.specs/features/path-scoping/context.md`](./context.md)  
-**Status**: Draft
+**Status**: Done
 
 ---
 
