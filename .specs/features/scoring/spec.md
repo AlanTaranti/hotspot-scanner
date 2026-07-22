@@ -13,11 +13,11 @@ M1 delivered typed contracts in `src/scoring/index.ts` and domain types in `src/
 
 ## Goals
 
-- [ ] `HotspotScorer`: log-scale normalize complexity + churn, compute `hotspotScore`, sort desc
-- [ ] `TemporalCouplingScorer`: aggregate co-change pairs, apply `minCochange` threshold, compute `couplingStrength`, sort desc
-- [ ] `DEFAULT_MIN_COCHANGE = 3` exported for M5 CLI
-- [ ] Fixed-input fixture tests with expected ranking order
-- [ ] Functional `createHotspotScorer()` and `createTemporalCouplingScorer()`; ≥80% line coverage on `src/scoring/**`
+- [x] `HotspotScorer`: log-scale normalize complexity + churn, compute `hotspotScore`, sort desc
+- [x] `TemporalCouplingScorer`: aggregate co-change pairs, apply `minCochange` threshold, compute `couplingStrength`, sort desc
+- [x] `DEFAULT_MIN_COCHANGE = 3` exported for M5 CLI
+- [x] Fixed-input fixture tests with expected ranking order
+- [x] Functional `createHotspotScorer()` and `createTemporalCouplingScorer()`; ≥80% line coverage on `src/scoring/**`
 
 ## Out of Scope
 
@@ -220,16 +220,16 @@ Explicitly excluded. Documented to prevent scope creep.
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| HOTSPOT-29 | P1: Log-scale normalization | Tasks T1 | Pending |
-| HOTSPOT-30 | P1: HotspotScorer formula | Tasks T2, T4 | Pending |
-| HOTSPOT-31 | P1: HotspotScorer formula | Tasks T2, T6 | Pending |
-| HOTSPOT-32 | P1: Hotspot ranking determinism | Tasks T2, T6 | Pending |
-| HOTSPOT-33 | P1: Co-change pair aggregation | Tasks T3, T7 | Pending |
-| HOTSPOT-34 | P1: Coupling strength formula | Tasks T3, T7 | Pending |
-| HOTSPOT-35 | P1: minCochange threshold | Tasks T3, T4, T7 | Pending |
-| HOTSPOT-36 | P1: Coupling ranking | Tasks T3, T7 | Pending |
-| HOTSPOT-37 | P1: Scoring fixtures | Tasks T5, T6, T7 | Pending |
-| HOTSPOT-38 | P1: Coverage gate | Tasks T8 | Pending |
+| HOTSPOT-29 | P1: Log-scale normalization | Tasks T1 | Done |
+| HOTSPOT-30 | P1: HotspotScorer formula | Tasks T2, T4 | Done |
+| HOTSPOT-31 | P1: HotspotScorer formula | Tasks T2, T6 | Done |
+| HOTSPOT-32 | P1: Hotspot ranking determinism | Tasks T2, T6 | Done |
+| HOTSPOT-33 | P1: Co-change pair aggregation | Tasks T3, T7 | Done |
+| HOTSPOT-34 | P1: Coupling strength formula | Tasks T3, T7 | Done |
+| HOTSPOT-35 | P1: minCochange threshold | Tasks T3, T4, T7 | Done |
+| HOTSPOT-36 | P1: Coupling ranking | Tasks T3, T7 | Done |
+| HOTSPOT-37 | P1: Scoring fixtures | Tasks T5, T6, T7 | Done |
+| HOTSPOT-38 | P1: Coverage gate | Tasks T8 | Done |
 
 **Coverage:** 10 total, 10 mapped to tasks, 0 unmapped
 
@@ -237,8 +237,8 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Success Criteria
 
-- [ ] All P1 acceptance criteria verifiable via Vitest + fixtures (no human judgment)
-- [ ] `pnpm build && pnpm test` passes after Execute
-- [ ] `src/scoring/**` ≥80% line coverage per [TESTING.md](../../codebase/TESTING.md)
-- [ ] `orchestrator-implementer` can execute T1–T8 without ambiguous scope
-- [ ] No changes to `src/scan.ts` or `bin/hotspot-scanner.ts` in M4
+- [x] All P1 acceptance criteria verifiable via Vitest + fixtures (no human judgment)
+- [x] `pnpm build && pnpm test` passes after Execute
+- [x] `src/scoring/**` ≥80% line coverage per [TESTING.md](../../codebase/TESTING.md)
+- [x] `orchestrator-implementer` can execute T1–T8 without ambiguous scope
+- [x] No changes to `src/scan.ts` or `bin/hotspot-scanner.ts` in M4

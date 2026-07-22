@@ -1,0 +1,23 @@
+{
+  "_comment": "Fixture: hotspot-ranking.json — hand-crafted. Expected order by hotspotScore desc: src/high.ts, src/mid.ts, src/low.ts, src/zero-churn.ts",
+  "fileStats": [
+    { "filePath": "src/high.ts", "commitCount": 50 },
+    { "filePath": "src/mid.ts", "commitCount": 20 },
+    { "filePath": "src/low.ts", "commitCount": 5 },
+    { "filePath": "src/zero-churn.ts", "commitCount": 0 }
+  ],
+  "complexity": [
+    { "filePath": "src/high.ts", "cyclomaticComplexity": 30, "functionCount": 5 },
+    { "filePath": "src/mid.ts", "cyclomaticComplexity": 15, "functionCount": 3 },
+    { "filePath": "src/low.ts", "cyclomaticComplexity": 5, "functionCount": 2 },
+    { "filePath": "src/zero-churn.ts", "cyclomaticComplexity": 20, "functionCount": 4 },
+    { "filePath": "src/missing-churn.ts", "cyclomaticComplexity": 10, "functionCount": 2 }
+  ],
+  "expectedOrder": [
+    "src/high.ts",
+    "src/mid.ts",
+    "src/low.ts",
+    "src/missing-churn.ts",
+    "src/zero-churn.ts"
+  ]
+}

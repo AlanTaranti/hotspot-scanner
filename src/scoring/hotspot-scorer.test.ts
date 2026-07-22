@@ -1,0 +1,116 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { describe, expect, it } from "vitest";
+import type { ComplexityResult, FileChangeStats } from "../types/index.js";
+import { scoreHotspots } from "./hotspot-scorer.js";
+
+const fixtureDir = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "../../tests/fixtures/scoring",
+);
+
+function buildFileStats(
+  entries: Array<{ filePath: string; commitCount: number }>,
+): Map<string, FileChangeStats> {
+  const stats = new Map<string, FileChangeStats>();
+
+  for (const entry of entries) {
+    stats.set(entry.filePath, {
+      filePath: entry.filePath,
+      commitCount: entry.commitCount,
+      linesChanged: 0,
+      authors: new Set(),
+      lastModified: new Date("2026-01-01T00:00:00.000Z"),
+    });
+  }
+
+  return stats;
+}
+
+describe("scoreHotspots", () => {
+  it("returns empty array for empty complexity input", () => {
+    expect(scoreHotspots(new Map(), [])).toEqual([]);
+  });
+
+  it("treats missing fileStats as churn 0", () => {
+    const complexity: ComplexityResult[] = [
+      { filePath: "src/a.ts", cyclomaticComplexity: 10, functionCount: 1 },
+      { filePath: "src/b.ts", cyclomaticComplexity: 5, functionCount: 1 },
+    ];
+    const fileStats = buildFileStats([{ filePath: "src/a.ts", commitCount: 10 }]);
+    const results = scoreHotspots(fileStats, complexity);
+
+    const missingChurn = results.find((entry) => entry.filePath === "src/b.ts");
+    expect(missingChurn?.churnNormalized).toBe(0);
+    expect(missingChurn?.hotspotScore).toBe(0);
+  });
+
+  it("computes hotspotScore as product of normalized values", () => {
+    const complexity: ComplexityResult[] = [
+      { filePath: "src/a.ts", cyclomaticComplexity: 10, functionCount: 1 },
+      { filePath: "src/b.ts", cyclomaticComplexity: 5, functionCount: 1 },
+    ];
+    const fileStats = buildFileStats([
+      { filePath: "src/a.ts", commitCount: 20 },
+      { filePath: "src/b.ts", commitCount: 5 },
+    ]);
+    const results = scoreHotspots(fileStats, complexity);
+
+    for (const entry of results) {
+      expect(entry.hotspotScore).toBeCloseTo(
+        entry.complexityNormalized * entry.churnNormalized,
+      );
+    }
+  });
+
+  it("sorts by hotspotScore desc then filePath asc", () => {
+    const complexity: ComplexityResult[] = [
+      { filePath: "src/b.ts", cyclomaticComplexity: 5, functionCount: 1 },
+      { filePath: "src/a.ts", cyclomaticComplexity: 5, functionCount: 1 },
+    ];
+    const fileStats = buildFileStats([
+      { filePath: "src/a.ts", commitCount: 10 },
+      { filePath: "src/b.ts", commitCount: 10 },
+    ]);
+    const results = scoreHotspots(fileStats, complexity);
+
+    expect(results[0]?.filePath).toBe("src/a.ts");
+    expect(results[1]?.filePath).toBe("src/b.ts");
+    expect(results[0]?.hotspotScore).toBe(results[1]?.hotspotScore);
+  });
+
+  it("returns zero score for single-file input (degenerate normalization)", () => {
+    const complexity: ComplexityResult[] = [
+      { filePath: "src/only.ts", cyclomaticComplexity: 15, functionCount: 1 },
+    ];
+    const fileStats = buildFileStats([
+      { filePath: "src/only.ts", commitCount: 10 },
+    ]);
+    const [result] = scoreHotspots(fileStats, complexity);
+
+    expect(result).toEqual({
+      filePath: "src/only.ts",
+      complexityNormalized: 0,
+      churnNormalized: 0,
+      hotspotScore: 0,
+    });
+  });
+
+  it("matches fixture expected ranking order", () => {
+    const fixture = JSON.parse(
+      readFileSync(join(fixtureDir, "hotspot-ranking.json"), "utf8"),
+    ) as {
+      fileStats: Array<{ filePath: string; commitCount: number }>;
+      complexity: ComplexityResult[];
+      expectedOrder: string[];
+    };
+
+    const results = scoreHotspots(
+      buildFileStats(fixture.fileStats),
+      fixture.complexity,
+    );
+
+    expect(results.map((entry) => entry.filePath)).toEqual(fixture.expectedOrder);
+  });
+});

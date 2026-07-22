@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/scoring/spec.md`](./spec.md)  
 **Context**: [`.specs/features/scoring/context.md`](./context.md)  
-**Status**: Draft
+**Status**: Done
 
 ---
 

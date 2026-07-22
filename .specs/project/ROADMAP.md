@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M3 Complexity Analyzer complete** (M1 scaffold + M2 + M3 implemented; M4+ pending).
+Status: **M4 Scoring complete** (M1 scaffold + M2 + M3 + M4 implemented; M5+ pending).
 
 ## Milestone 1 — Scaffold
 
@@ -34,9 +34,9 @@ Status: **M3 Complexity Analyzer complete** (M1 scaffold + M2 + M3 implemented; 
 
 → [`.specs/features/scoring/spec.md`](../features/scoring/spec.md)
 
-- [ ] HotspotScorer: log-scale normalize complexity + churn, compute `hotspotScore`
-- [ ] TemporalCouplingScorer: `couplingStrength = coChangeCount / min(commitsA, commitsB)`
-- [ ] `DEFAULT_MIN_COCHANGE = 3` + minCochange threshold in scorer
+- [x] HotspotScorer: log-scale normalize complexity + churn, compute `hotspotScore`
+- [x] TemporalCouplingScorer: `couplingStrength = coChangeCount / min(commitsA, commitsB)`
+- [x] `DEFAULT_MIN_COCHANGE = 3` + minCochange threshold in scorer
 
 ## Milestone 5 — Reporter + CLI
 

@@ -28,7 +28,7 @@ hotspot-scanner/
 | `bin/hotspot-scanner.ts` | scaffold | CLI stub — `scan <path>` delegates to `runScan` |
 | `src/git/` | implemented | GitMiner — `spawn`, `parse`, `rename`, `aggregate`, `canonicalize` |
 | `src/complexity/` | implemented | ComplexityAnalyzer — McCabe via ts-morph (`discover`, `project`, `mccabe`, `analyze-file`) |
-| `src/scoring/` | stub | HotspotScorer, TemporalCouplingScorer |
+| `src/scoring/` | implemented | HotspotScorer, TemporalCouplingScorer — `normalize`, `hotspot-scorer`, `coupling-scorer` |
 | `src/report/` | stub | Reporter — table + JSON |
 | `src/scan.ts` | scaffold | `runScan()` pipeline stub (empty result) |
 | `src/types/` | scaffold | FileChangeStats, HotspotScore, etc. |
@@ -40,3 +40,4 @@ hotspot-scanner/
 - `tests/fixtures/git-log/` — raw `git log` output samples
 - `tests/fixtures/repos/` — small versioned Git repositories for integration scans
 - `tests/fixtures/complexity/` — TS files with known McCabe values
+- `tests/fixtures/scoring/` — fixed scoring inputs with documented expected ranking order

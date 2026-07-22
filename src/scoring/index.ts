@@ -5,6 +5,10 @@ import type {
   FileChangeStats,
   HotspotScore,
 } from "../types/index.js";
+import { scoreCoupling } from "./coupling-scorer.js";
+import { scoreHotspots } from "./hotspot-scorer.js";
+
+export const DEFAULT_MIN_COCHANGE = 3;
 
 export interface HotspotScorer {
   score(
@@ -21,10 +25,35 @@ export interface TemporalCouplingScorer {
   ): CouplingPair[];
 }
 
-export function createHotspotScorer(): HotspotScorer {
-  throw new Error("HotspotScorer not implemented — see Milestone 4");
+export interface ScoringDependencies {
+  scoreHotspots?: typeof scoreHotspots;
+  scoreCoupling?: typeof scoreCoupling;
 }
 
-export function createTemporalCouplingScorer(): TemporalCouplingScorer {
-  throw new Error("TemporalCouplingScorer not implemented — see Milestone 4");
+export function createHotspotScorer(
+  deps: ScoringDependencies = {},
+): HotspotScorer {
+  const score = deps.scoreHotspots ?? scoreHotspots;
+
+  return {
+    score(fileStats, complexity) {
+      return score(fileStats, complexity);
+    },
+  };
 }
+
+export function createTemporalCouplingScorer(
+  deps: ScoringDependencies = {},
+): TemporalCouplingScorer {
+  const score = deps.scoreCoupling ?? scoreCoupling;
+
+  return {
+    score(coChangeEvents, fileStats, minCochange) {
+      return score(coChangeEvents, fileStats, minCochange);
+    },
+  };
+}
+
+export { scoreCoupling } from "./coupling-scorer.js";
+export { scoreHotspots } from "./hotspot-scorer.js";
+export { normalizeLogMinMax } from "./normalize.js";

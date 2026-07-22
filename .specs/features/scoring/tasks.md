@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/scoring/design.md`](./design.md)  
 **Spec**: [`.specs/features/scoring/spec.md`](./spec.md)  
 **Context**: [`.specs/features/scoring/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -65,13 +65,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `normalizeLogMinMax([0, 1, 9])` returns documented expected values (log1p then min-max)
-- [ ] Single-element array returns `[0]` (degenerate)
-- [ ] All-equal array returns all zeros
-- [ ] Empty array returns `[]`
-- [ ] Zero inputs produce valid normalized output (not NaN)
-- [ ] Unit tests cover all edge cases above
-- [ ] Gate check passes: `pnpm build && pnpm test -- src/scoring/normalize.test.ts`
+- [x] `normalizeLogMinMax([0, 1, 9])` returns documented expected values (log1p then min-max)
+- [x] Single-element array returns `[0]` (degenerate)
+- [x] All-equal array returns all zeros
+- [x] Empty array returns `[]`
+- [x] Zero inputs produce valid normalized output (not NaN)
+- [x] Unit tests cover all edge cases above
+- [x] Gate check passes: `pnpm build && pnpm test -- src/scoring/normalize.test.ts`
 
 **Tests**: unit (`normalize.test.ts`)
 
@@ -98,13 +98,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] One `HotspotScore` per `ComplexityResult` entry
-- [ ] Missing `fileStats` entry → churn treated as 0
-- [ ] `hotspotScore` equals product of normalized values
-- [ ] Results sorted by `hotspotScore` desc, `filePath` asc on tie
-- [ ] Empty `complexity` array returns `[]`
-- [ ] Unit tests with fixed inputs assert exact scores and order
-- [ ] Gate check passes: `pnpm build && pnpm test -- src/scoring/hotspot-scorer.test.ts`
+- [x] One `HotspotScore` per `ComplexityResult` entry
+- [x] Missing `fileStats` entry → churn treated as 0
+- [x] `hotspotScore` equals product of normalized values
+- [x] Results sorted by `hotspotScore` desc, `filePath` asc on tie
+- [x] Empty `complexity` array returns `[]`
+- [x] Unit tests with fixed inputs assert exact scores and order
+- [x] Gate check passes: `pnpm build && pnpm test -- src/scoring/hotspot-scorer.test.ts`
 
 **Tests**: unit (`hotspot-scorer.test.ts`)
 
@@ -131,14 +131,14 @@ flowchart LR
 
 **Done when**:
 
-- [ ] N files in one commit produce C(N, 2) pair increments
-- [ ] Duplicate paths within same commit deduplicated before pairing
-- [ ] Canonical pair order: `fileA < fileB` lexicographically
-- [ ] Pairs with `coChangeCount < minCochange` excluded
-- [ ] Pairs with `min(commitsA, commitsB) === 0` excluded (no NaN/Infinity)
-- [ ] Results sorted by `couplingStrength` desc, `fileA` asc on tie
-- [ ] Unit tests with fixed inputs assert exact strengths and order
-- [ ] Gate check passes: `pnpm build && pnpm test -- src/scoring/coupling-scorer.test.ts`
+- [x] N files in one commit produce C(N, 2) pair increments
+- [x] Duplicate paths within same commit deduplicated before pairing
+- [x] Canonical pair order: `fileA < fileB` lexicographically
+- [x] Pairs with `coChangeCount < minCochange` excluded
+- [x] Pairs with `min(commitsA, commitsB) === 0` excluded (no NaN/Infinity)
+- [x] Results sorted by `couplingStrength` desc, `fileA` asc on tie
+- [x] Unit tests with fixed inputs assert exact strengths and order
+- [x] Gate check passes: `pnpm build && pnpm test -- src/scoring/coupling-scorer.test.ts`
 
 **Tests**: unit (`coupling-scorer.test.ts`)
 
@@ -165,13 +165,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `createHotspotScorer().score()` returns scored hotspots without throwing
-- [ ] `createTemporalCouplingScorer().score()` returns coupling pairs without throwing
-- [ ] `DEFAULT_MIN_COCHANGE` exported and equals 3
-- [ ] `ScoringDependencies` allows injecting `scoreHotspots` and `scoreCoupling`
-- [ ] `index.test.ts` no longer expects "not implemented" / "Milestone 4" throw
-- [ ] Integration test calls both factories with minimal inline data
-- [ ] Gate check passes: `pnpm build && pnpm test -- src/scoring/index.test.ts`
+- [x] `createHotspotScorer().score()` returns scored hotspots without throwing
+- [x] `createTemporalCouplingScorer().score()` returns coupling pairs without throwing
+- [x] `DEFAULT_MIN_COCHANGE` exported and equals 3
+- [x] `ScoringDependencies` allows injecting `scoreHotspots` and `scoreCoupling`
+- [x] `index.test.ts` no longer expects "not implemented" / "Milestone 4" throw
+- [x] Integration test calls both factories with minimal inline data
+- [x] Gate check passes: `pnpm build && pnpm test -- src/scoring/index.test.ts`
 
 **Tests**: integration (`index.test.ts`)
 
@@ -198,10 +198,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `hotspot-ranking.json` exists with header comment documenting expected file order
-- [ ] `coupling-pairs.json` exists with header comment documenting expected pair order
-- [ ] Fixtures cover: varied complexity/churn, missing churn, minCochange boundary, zero-commit denominator, within-commit dedupe
-- [ ] Each fixture documents provenance and expected values in header or `_comment` field
+- [x] `hotspot-ranking.json` exists with header comment documenting expected file order
+- [x] `coupling-pairs.json` exists with header comment documenting expected pair order
+- [x] Fixtures cover: varied complexity/churn, missing churn, minCochange boundary, zero-commit denominator, within-commit dedupe
+- [x] Each fixture documents provenance and expected values in header or `_comment` field
 
 **Tests**: none (fixture data only)
 
@@ -228,11 +228,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Fixture-driven test asserts exact hotspot ranking order
-- [ ] Single-file input → `hotspotScore` 0, normalized values 0
-- [ ] Missing churn file included with `churnNormalized` from log1p(0) in degenerate or mixed set
-- [ ] Equal `hotspotScore` tie-break by `filePath` asc verified
-- [ ] Gate check passes: `pnpm build && pnpm test -- src/scoring/hotspot-scorer.test.ts`
+- [x] Fixture-driven test asserts exact hotspot ranking order
+- [x] Single-file input → `hotspotScore` 0, normalized values 0
+- [x] Missing churn file included with `churnNormalized` from log1p(0) in degenerate or mixed set
+- [x] Equal `hotspotScore` tie-break by `filePath` asc verified
+- [x] Gate check passes: `pnpm build && pnpm test -- src/scoring/hotspot-scorer.test.ts`
 
 **Tests**: integration (fixture-driven)
 
@@ -259,12 +259,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Fixture-driven test asserts exact coupling pair order with `DEFAULT_MIN_COCHANGE`
-- [ ] Boundary: count 2 excluded, count 3 included when `minCochange=3`
-- [ ] Zero-commit file pair excluded from output
-- [ ] Duplicate paths in one commit do not double-count pairs
-- [ ] Equal `couplingStrength` tie-break by `fileA` asc verified
-- [ ] Gate check passes: `pnpm build && pnpm test -- src/scoring/coupling-scorer.test.ts`
+- [x] Fixture-driven test asserts exact coupling pair order with `DEFAULT_MIN_COCHANGE`
+- [x] Boundary: count 2 excluded, count 3 included when `minCochange=3`
+- [x] Zero-commit file pair excluded from output
+- [x] Duplicate paths in one commit do not double-count pairs
+- [x] Equal `couplingStrength` tie-break by `fileA` asc verified
+- [x] Gate check passes: `pnpm build && pnpm test -- src/scoring/coupling-scorer.test.ts`
 
 **Tests**: integration (fixture-driven)
 
@@ -291,11 +291,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `src/scoring/**` line coverage ≥80%
-- [ ] Gate check passes: `pnpm build && pnpm test`
-- [ ] ROADMAP M4 items checked or linked to completed spec
-- [ ] STRUCTURE.md reflects `src/scoring/` as implemented
-- [ ] No regressions in existing tests (`src/git/**`, `src/complexity/**`, `src/scan.test.ts`, etc.)
+- [x] `src/scoring/**` line coverage ≥80%
+- [x] Gate check passes: `pnpm build && pnpm test`
+- [x] ROADMAP M4 items checked or linked to completed spec
+- [x] STRUCTURE.md reflects `src/scoring/` as implemented
+- [x] No regressions in existing tests (`src/git/**`, `src/complexity/**`, `src/scan.test.ts`, etc.)
 
 **Tests**: project gate + coverage report
 
