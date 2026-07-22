@@ -1,7 +1,7 @@
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { createTsMorphProject } from "./project.js";
 
 const tempDirs: string[] = [];
@@ -52,6 +52,17 @@ describe("createTsMorphProject", () => {
     expect(project.getParseFailures()[0]?.message.length).toBeGreaterThan(0);
   });
 
+  it("records parse failures for missing files", async () => {
+    const repoPath = await createTempRepo({});
+    const project = createTsMorphProject({ repoPath });
+
+    const sourceFiles = await project.loadBatch(["missing.ts"]);
+
+    expect(sourceFiles).toHaveLength(0);
+    expect(project.getParseFailures()).toHaveLength(1);
+    expect(project.getParseFailures()[0]?.filePath).toBe("missing.ts");
+  });
+
   it("processes at most one batch per loadBatch call", async () => {
     const repoPath = await createTempRepo({
       "a.ts": "export const a = 1;",
@@ -66,5 +77,25 @@ describe("createTsMorphProject", () => {
     expect(secondBatch).toHaveLength(1);
     expect(firstBatch[0]?.getBaseName()).toBe("a.ts");
     expect(secondBatch[0]?.getBaseName()).toBe("b.ts");
+  });
+
+  it("records non-Error values from addSourceFileAtPath failures", async () => {
+    const repoPath = await createTempRepo({});
+    const project = createTsMorphProject({ repoPath });
+
+    const { Project } = await import("ts-morph");
+    const addSpy = vi
+      .spyOn(Project.prototype, "addSourceFileAtPath")
+      .mockImplementation(() => {
+        throw "broken path";
+      });
+
+    try {
+      const sourceFiles = await project.loadBatch(["throws-string.ts"]);
+      expect(sourceFiles).toHaveLength(0);
+      expect(project.getParseFailures()[0]?.message).toBe("broken path");
+    } finally {
+      addSpy.mockRestore();
+    }
   });
 });

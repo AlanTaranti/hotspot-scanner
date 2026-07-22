@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "tsc && tsc -p tsconfig.bin.json",
-    "test": "vitest run"
+    "test": "vitest run --coverage"
   },
   "keywords": [
     "hotspot",

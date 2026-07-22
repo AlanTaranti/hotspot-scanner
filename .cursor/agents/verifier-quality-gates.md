@@ -27,7 +27,7 @@ pnpm build && pnpm test
 ```
 
 - `pnpm build` — `tsc` + `tsc -p tsconfig.bin.json`
-- `pnpm test` — Vitest
+- `pnpm test` — `vitest run --coverage`
 
 Run both sequentially. Fix failures before reporting Ready when acting as fixer; when verifying only, run all and report.
 
@@ -56,8 +56,9 @@ Run both sequentially. Fix failures before reporting Ready when acting as fixer;
 - Suggested fix: [brief]
 
 ## Coverage notes
-- Target: ≥80% lines on src/git, src/complexity, src/scoring (when modules exist)
-- Excluded: src/types/**, **/*.test.ts
+- `pnpm test` runs `vitest run --coverage` (see [TESTING.md](.specs/codebase/TESTING.md) § Coverage)
+- Per-file thresholds: 90% lines/functions, 80% branches/statements on `src/**` and `bin/**`
+- Excluded: `src/types/**`, `**/*.test.ts`, `**/*.d.ts`
 
 ## Verdict
 - [ ] Ready for Done (both steps PASS)

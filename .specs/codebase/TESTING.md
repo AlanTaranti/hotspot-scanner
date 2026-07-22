@@ -12,20 +12,64 @@ Required before marking any task Complete. Agents: use `verifier-quality-gates` 
 
 **Vitest** (not Jest from IMPL §9 — documented in [STATE.md](../project/STATE.md)).
 
-Config: `vitest.config.ts` at repo root. Vitest resolves `#scan`, `#report`, `#diagnostics`, and `#scoring` aliases to compiled `dist/` modules — run `pnpm build` before `pnpm test` (enforced by the quality gate).
+Config: `vitest.config.ts` at repo root.
 
-## Coverage targets
+- `pnpm test` runs `vitest run --coverage` (coverage is not optional)
+- Manual equivalent: `pnpm exec vitest --run --coverage`
+- Vitest resolves `#scan`, `#report`, `#diagnostics`, and `#scoring` aliases to **source** modules under `src/` during tests — run `pnpm build` before `pnpm test` (enforced by the quality gate; build validates production `dist/` output and package imports)
 
-| Scope | Threshold | Notes |
-|-------|-----------|-------|
-| `src/git/**`, `src/complexity/**`, `src/scoring/**` | **≥80%** lines | Per IMPL §9 |
-| Other `src/**` | Best effort | No hard threshold until modules exist |
+## Coverage
 
-**Excluded from coverage:**
+`vitest.config.ts` enforces thresholds; this section documents that config.
 
-- `src/types/**`
-- `**/*.test.ts`
-- `**/*.d.ts`
+### Provider and output
+
+| Setting | Value |
+|---------|-------|
+| Provider | `v8` (`@vitest/coverage-v8`) |
+| Output dir | `coverage/` (gitignored) |
+
+### Included / excluded files
+
+| Config key | Patterns |
+|------------|----------|
+| `coverage.include` | `src/**/*.ts`, `bin/**/*.ts` |
+| `coverage.exclude` | `src/types/**`, `**/*.test.ts`, `**/*.d.ts` |
+
+### `coverage.thresholds` (global, per-file)
+
+| Setting | Value |
+|---------|-------|
+| `perFile` | `true` |
+| `lines` | ≥ 90% |
+| `functions` | ≥ 90% |
+| `branches` | ≥ 80% |
+| `statements` | ≥ 80% |
+
+**Threshold behavior:**
+
+- **Global per-file** — every included source file must meet all four metrics individually (not just aggregate or per-directory).
+- **Scope** — all `src/**` (except `src/types/**`) and `bin/**`; no path-specific exemptions.
+- **Failure mode** — `pnpm test` exits non-zero with per-file threshold errors naming file and metric.
+
+Reference (keep in sync with `vitest.config.ts`):
+
+```ts
+coverage: {
+  provider: "v8",
+  include: ["src/**/*.ts", "bin/**/*.ts"],
+  exclude: ["src/types/**", "**/*.test.ts", "**/*.d.ts"],
+  thresholds: {
+    perFile: true,
+    branches: 80,
+    functions: 90,
+    lines: 90,
+    statements: 80,
+  },
+}
+```
+
+> IMPL §9 originally specified ≥80% lines on `src/git/**`, `src/complexity/**`, and `src/scoring/**`. Gate enforcement follows `vitest.config.ts` global per-file thresholds above.
 
 ## Test layers
 

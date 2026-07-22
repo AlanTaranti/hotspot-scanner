@@ -19,8 +19,10 @@ export class PathAliasMap {
     }
 
     if (this.wouldCreateCycle(oldCanonical, newCanonical)) {
+      /* v8 ignore next 3 -- cycle links collapse to same canonical via link() */
       this.ambiguous.add(oldCanonical);
       this.ambiguous.add(newCanonical);
+      return;
     }
 
     this.parent.set(oldCanonical, newCanonical);

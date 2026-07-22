@@ -102,4 +102,16 @@ describe("streamGitLog", () => {
       stderr: "fatal: not a git repository",
     } satisfies Partial<GitLogError>);
   });
+
+  it("throws GitLogError with unknown error when stderr is empty", async () => {
+    createMockChild([], 128, "");
+
+    await expect(
+      (async () => {
+        for await (const _line of streamGitLog({ repoPath: "/bad/repo" })) {
+          // consume
+        }
+      })(),
+    ).rejects.toThrow(/unknown error/);
+  });
 });

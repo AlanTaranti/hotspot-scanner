@@ -13,6 +13,6 @@ Nenhuma tarefa é "Done" sem verificação automatizada documentada.
 pnpm build && pnpm test
 ```
 
-Definições e thresholds: [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md).
+`pnpm test` runs Vitest with coverage (`vitest run --coverage`). Thresholds and include/exclude rules: [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md) § Coverage.
 
 Para executar e reportar: agent `verifier-quality-gates` ou inline após implementação.

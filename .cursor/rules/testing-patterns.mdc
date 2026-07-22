@@ -10,14 +10,7 @@ SoT: [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md). Gate obri
 
 ## Coverage
 
-| Escopo | Threshold |
-| ------ | --------- |
-| `src/git/**`, `src/complexity/**`, `src/scoring/**` | **≥80%** lines (IMPL §9) |
-| Demais `src/**` | best effort até módulos existirem |
-
-- **Incluído:** `src/**/*.ts`, `bin/**/*.ts`
-- **Excluído:** `src/types/**`, `**/*.test.ts`, `**/*.d.ts`
-- Não colocar runtime logic em `src/types/` para escapar coverage
+Per-file thresholds enforced on every included `src/**` and `bin/**` file. See [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md) § Coverage (90% lines/functions, 80% branches/statements).
 
 ## Mock boundaries
 

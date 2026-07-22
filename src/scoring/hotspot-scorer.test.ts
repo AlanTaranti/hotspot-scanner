@@ -64,6 +64,21 @@ describe("scoreHotspots", () => {
     }
   });
 
+  it("sorts by hotspotScore desc when scores differ", () => {
+    const complexity: ComplexityResult[] = [
+      { filePath: "src/low.ts", cyclomaticComplexity: 2, functionCount: 1 },
+      { filePath: "src/high.ts", cyclomaticComplexity: 20, functionCount: 1 },
+    ];
+    const fileStats = buildFileStats([
+      { filePath: "src/low.ts", commitCount: 2 },
+      { filePath: "src/high.ts", commitCount: 20 },
+    ]);
+    const results = scoreHotspots(fileStats, complexity);
+
+    expect(results[0]?.filePath).toBe("src/high.ts");
+    expect(results[0]!.hotspotScore).toBeGreaterThan(results[1]!.hotspotScore);
+  });
+
   it("sorts by hotspotScore desc then filePath asc", () => {
     const complexity: ComplexityResult[] = [
       { filePath: "src/b.ts", cyclomaticComplexity: 5, functionCount: 1 },

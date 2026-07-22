@@ -25,7 +25,7 @@ git log (streaming) → complexity (ts-morph + McCabe) → scoring (hotspot + co
 pnpm build && pnpm test
 ```
 
-Required before marking any implementation task as Done. See [`.specs/codebase/TESTING.md`](.specs/codebase/TESTING.md).
+`pnpm test` runs `vitest run --coverage`. Required before marking any implementation task as Done. See [`.specs/codebase/TESTING.md`](.specs/codebase/TESTING.md) § Coverage for thresholds.
 
 ## Requirement IDs
 

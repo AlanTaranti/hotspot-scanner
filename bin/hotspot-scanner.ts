@@ -86,6 +86,7 @@ export async function runCli(argv: string[]): Promise<void> {
   await program.parseAsync(argv);
 }
 
+/* v8 ignore start */
 async function main(): Promise<void> {
   try {
     await runCli(process.argv);
@@ -96,7 +97,9 @@ async function main(): Promise<void> {
     process.exit(exitCode);
   }
 }
+/* v8 ignore stop */
 
+/* v8 ignore start */
 if (
   process.argv[1] !== undefined &&
   fileURLToPath(import.meta.url) === process.argv[1]
@@ -107,3 +110,4 @@ if (
     process.exit(1);
   });
 }
+/* v8 ignore stop */

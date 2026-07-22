@@ -4,10 +4,10 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   resolve: {
     alias: {
-      "#scan": resolve(__dirname, "dist/scan.js"),
-      "#diagnostics": resolve(__dirname, "dist/diagnostics/index.js"),
-      "#report": resolve(__dirname, "dist/report/index.js"),
-      "#scoring": resolve(__dirname, "dist/scoring/index.js"),
+      "#scan": resolve(__dirname, "src/scan.ts"),
+      "#diagnostics": resolve(__dirname, "src/diagnostics/index.ts"),
+      "#report": resolve(__dirname, "src/report/index.ts"),
+      "#scoring": resolve(__dirname, "src/scoring/index.ts"),
     },
   },
   test: {
@@ -17,6 +17,13 @@ export default defineConfig({
       provider: "v8",
       include: ["src/**/*.ts", "bin/**/*.ts"],
       exclude: ["src/types/**", "**/*.test.ts", "**/*.d.ts"],
+      thresholds: {
+        perFile: true,
+        branches: 80,
+        functions: 90,
+        lines: 90,
+        statements: 80
+      }
     },
   },
 });

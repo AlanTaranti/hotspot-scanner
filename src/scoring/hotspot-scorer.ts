@@ -32,10 +32,10 @@ export function scoreHotspots(
   return complexity
     .map((entry, index) => ({
       filePath: entry.filePath,
-      complexityNormalized: complexityNormalized[index] ?? 0,
-      churnNormalized: churnNormalized[index] ?? 0,
+      complexityNormalized: complexityNormalized[index]!,
+      churnNormalized: churnNormalized[index]!,
       hotspotScore:
-        (complexityNormalized[index] ?? 0) * (churnNormalized[index] ?? 0),
+        complexityNormalized[index]! * churnNormalized[index]!,
     }))
     .sort(compareHotspotScores);
 }

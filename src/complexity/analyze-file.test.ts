@@ -47,6 +47,34 @@ describe("analyzeSourceFile", () => {
     expect(result.cyclomaticComplexity).toBe(2);
   });
 
+  it("counts constructors and function expressions", () => {
+    const result = analyzeSource(`
+      export class Example {
+        constructor() {}
+      }
+
+      const fn = function named() {
+        return 1;
+      };
+    `);
+
+    expect(result.functionCount).toBe(2);
+    expect(result.cyclomaticComplexity).toBe(2);
+  });
+
+  it("uses the source file path when filePath is omitted", () => {
+    const project = new Project({
+      compilerOptions: { allowJs: true },
+      skipAddingFilesFromTsConfig: true,
+    });
+    const sourceFile = project.createSourceFile(
+      "/tmp/custom-path/example.ts",
+      "export function demo() {}",
+    );
+
+    expect(analyzeSourceFile(sourceFile).filePath).toContain("example.ts");
+  });
+
   it("returns zero metrics for files without functions", () => {
     const result = analyzeSource(`
       export const VALUE = 42;
