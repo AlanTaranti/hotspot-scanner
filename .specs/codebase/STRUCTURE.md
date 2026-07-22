@@ -10,6 +10,7 @@ hotspot-scanner/
 │   ├── git/                     # Git Change Miner
 │   ├── complexity/              # McCabe over ts-morph
 │   ├── scoring/                 # HotspotScorer + TemporalCouplingScorer
+│   ├── diagnostics/             # stderr warnings + progress logging
 │   ├── report/                  # CLI table + JSON reporter
 │   ├── scan.ts                  # Pipeline orchestration
 │   ├── types/                   # Domain types (no runtime logic)
@@ -25,14 +26,15 @@ hotspot-scanner/
 
 | Path | Status | Role |
 |------|--------|------|
-| `bin/hotspot-scanner.ts` | scaffold | CLI stub — `scan <path>` delegates to `runScan` |
-| `src/git/` | implemented | GitMiner — `spawn`, `parse`, `rename`, `aggregate`, `canonicalize` |
+| `bin/hotspot-scanner.ts` | implemented | Commander CLI — `scan <path>` with `--since`, `--format`, `--top`, `--min-cochange` |
+| `src/git/` | implemented | GitMiner — `spawn`, `parse`, `rename`, `aggregate`, `canonicalize` (+ `onProgress` hook) |
 | `src/complexity/` | implemented | ComplexityAnalyzer — McCabe via ts-morph (`discover`, `project`, `mccabe`, `analyze-file`) |
 | `src/scoring/` | implemented | HotspotScorer, TemporalCouplingScorer — `normalize`, `hotspot-scorer`, `coupling-scorer` |
-| `src/report/` | stub | Reporter — table + JSON |
-| `src/scan.ts` | scaffold | `runScan()` pipeline stub (empty result) |
-| `src/types/` | scaffold | FileChangeStats, HotspotScore, etc. |
-| `src/index.ts` | scaffold | Public API — `runScan`, types, `PACKAGE_NAME` |
+| `src/diagnostics/` | implemented | stderr logger — warnings + throttled progress |
+| `src/report/` | implemented | Reporter — `slice`, `json`, `table` + `createReporter()` factory |
+| `src/scan.ts` | partial | `runScan()` defaults + path validation + diagnostics hooks (pipeline wiring in M6) |
+| `src/types/` | implemented | FileChangeStats, HotspotScore, ScanOptions, ScanResult, etc. |
+| `src/index.ts` | implemented | Public API — `runScan`, types, `PACKAGE_NAME` |
 
 ## Test layout
 
@@ -41,3 +43,4 @@ hotspot-scanner/
 - `tests/fixtures/repos/` — small versioned Git repositories for integration scans
 - `tests/fixtures/complexity/` — TS files with known McCabe values
 - `tests/fixtures/scoring/` — fixed scoring inputs with documented expected ranking order
+- `tests/fixtures/report/` — hand-crafted `ScanResult` for reporter tests

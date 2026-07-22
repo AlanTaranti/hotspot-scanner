@@ -119,6 +119,23 @@ describe("createGitMiner", () => {
     );
   });
 
+  it("invokes onProgress once per parsed commit", async () => {
+    const lines = await fixtureLines("basic.txt");
+    const progressCalls: number[] = [];
+    const miner = createGitMiner({
+      streamGitLog: () => streamFromLines(lines)(),
+    });
+
+    await miner.mine({
+      repoPath: "/fixture",
+      onProgress: ({ commitsProcessed }) => {
+        progressCalls.push(commitsProcessed);
+      },
+    });
+
+    expect(progressCalls).toEqual([1, 2, 3]);
+  });
+
   it("processes large-synthetic fixture without buffering entire log", async () => {
     const lines = await fixtureLines("large-synthetic.txt");
     expect(lines.length).toBeGreaterThanOrEqual(10_000);

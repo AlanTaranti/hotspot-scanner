@@ -9,7 +9,10 @@
     "hotspot-scanner": "./dist/bin/hotspot-scanner.js"
   },
   "imports": {
-    "#scan": "./dist/scan.js"
+    "#scan": "./dist/scan.js",
+    "#diagnostics": "./dist/diagnostics/index.js",
+    "#report": "./dist/report/index.js",
+    "#scoring": "./dist/scoring/index.js"
   },
   "scripts": {
     "build": "tsc && tsc -p tsconfig.bin.json",
@@ -31,6 +34,7 @@
     "vitest": "^4.1.9"
   },
   "dependencies": {
+    "commander": "^14.0.0",
     "ts-morph": "^28.0.0"
   }
 }

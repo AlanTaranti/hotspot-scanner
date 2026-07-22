@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      commander:
+        specifier: ^14.0.0
+        version: 14.0.3
       ts-morph:
         specifier: ^28.0.0
         version: 28.0.0
@@ -260,6 +263,10 @@ packages:
 
   code-block-writer@13.0.3:
     resolution: {integrity: sha512-Oofo0pq3IKnsFtuHqSF7TqBfr71aeyZDVJ0HpmqB7FBM2qEigL0iPONSCZSO9pE9dZTAxANe5XHG9Uy0YMv8cg==}
+
+  commander@14.0.3:
+    resolution: {integrity: sha512-H+y0Jo/T1RZ9qPP4Eh1pkcQcLRglraJaSLoyOtHxu6AapkjWVCy2Sit1QQ4x3Dng8qDlSsZEet7g5Pq06MvTgw==}
+    engines: {node: '>=20'}
 
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
@@ -775,6 +782,8 @@ snapshots:
   chai@6.2.2: {}
 
   code-block-writer@13.0.3: {}
+
+  commander@14.0.3: {}
 
   convert-source-map@2.0.0: {}
 

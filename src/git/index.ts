@@ -11,9 +11,14 @@ import { parseGitLogStream } from "./parse.js";
 import { PathAliasMap } from "./rename.js";
 import { streamGitLog, type GitLogSpawnOptions } from "./spawn.js";
 
+export interface GitMinerProgress {
+  commitsProcessed: number;
+}
+
 export interface GitMinerOptions {
   repoPath: string;
   since?: string;
+  onProgress?: (progress: GitMinerProgress) => void;
 }
 
 export interface GitMinerResult {
@@ -43,6 +48,7 @@ export function createGitMiner(deps: GitMinerDependencies = {}): GitMiner {
       for await (const commit of parseGitLogStream(stream(options))) {
         commitCount += 1;
         aggregateOneCommit(commit, aliasMap, accumulators);
+        options.onProgress?.({ commitsProcessed: commitCount });
       }
 
       if (commitCount === 0 && options.since !== undefined) {

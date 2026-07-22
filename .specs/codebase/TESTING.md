@@ -12,7 +12,7 @@ Required before marking any task Complete. Agents: use `verifier-quality-gates` 
 
 **Vitest** (not Jest from IMPL §9 — documented in [STATE.md](../project/STATE.md)).
 
-Config: `vitest.config.ts` at repo root.
+Config: `vitest.config.ts` at repo root. Vitest resolves `#scan`, `#report`, `#diagnostics`, and `#scoring` aliases to compiled `dist/` modules — run `pnpm build` before `pnpm test` (enforced by the quality gate).
 
 ## Coverage targets
 

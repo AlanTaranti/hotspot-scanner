@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M4 Scoring complete** (M1 scaffold + M2 + M3 + M4 implemented; M5+ pending).
+Status: **M5 Reporter + CLI complete** (M1 scaffold + M2 + M3 + M4 + M5 implemented; M6 pending).
 
 ## Milestone 1 — Scaffold
 
@@ -40,10 +40,13 @@ Status: **M4 Scoring complete** (M1 scaffold + M2 + M3 + M4 implemented; M5+ pen
 
 ## Milestone 5 — Reporter + CLI
 
-- [ ] CLI table output (top hotspots + top coupling pairs)
-- [ ] JSON output (`version`, `hotspots`, `coupling`)
-- [ ] Flags: `--since`, `--format`, `--top`, `--min-cochange`
-- [ ] Progress/warning logs for large repos
+→ [`.specs/features/reporter-cli/spec.md`](../features/reporter-cli/spec.md)
+
+- [x] CLI table output (top hotspots + top coupling pairs)
+- [x] JSON output (`version`, `hotspots`, `coupling`, `meta`)
+- [x] Flags: `--since`, `--format`, `--top`, `--min-cochange`
+- [x] Progress/warning logs for large repos (`src/diagnostics/`)
+- [x] `commander` CLI parsing; `runScan()` defaults + hooks (no full pipeline — M6)
 
 ## Milestone 6 — Integration
 

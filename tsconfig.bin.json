@@ -9,7 +9,10 @@
     "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
-      "#scan": ["src/scan.ts"]
+      "#scan": ["src/scan.ts"],
+      "#diagnostics": ["src/diagnostics/index.ts"],
+      "#report": ["src/report/index.ts"],
+      "#scoring": ["src/scoring/index.ts"]
     }
   },
   "references": [{ "path": "./tsconfig.json" }],

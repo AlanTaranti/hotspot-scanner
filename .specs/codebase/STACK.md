@@ -8,13 +8,14 @@
 | TypeScript | 6.x (ESM, `"type": "module"`) |
 | Package manager | pnpm |
 
-## Dependencies (planned)
+## Dependencies
 
 | Library | Role |
 |---------|------|
 | `ts-morph` | AST access for complexity analysis |
-| `commander` | CLI argument parsing (TBD) |
-| `simple-git` or `child_process` | Git log invocation |
+| `commander` | CLI argument parsing (`bin/hotspot-scanner.ts`) |
+
+Git log invocation uses `child_process.spawn` in `src/git/` (no `simple-git`).
 
 ## Dev dependencies
 

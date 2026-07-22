@@ -44,6 +44,8 @@ export interface ScanOptions {
   top?: number;
   minCochange?: number;
   format?: "table" | "json";
+  onWarning?: (message: string) => void;
+  onProgress?: (progress: { commitsProcessed: number }) => void;
 }
 
 /** Scan metadata included in every result. */
