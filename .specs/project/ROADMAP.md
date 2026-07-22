@@ -66,7 +66,8 @@ Próximos milestones priorizados para adoção real. Specs em `.specs/features/<
 
 ### Milestone 7 — Path Scoping
 
-**Slug (planned):** `path-scoping` | **Priority:** Critical + High
+→ [`.specs/features/path-scoping/spec.md`](../features/path-scoping/spec.md)  
+**Slug:** `path-scoping` | **Priority:** Critical + High | **Specs:** Planned
 
 - [ ] Default exclude: `node_modules`, `.git`, `dist`, `coverage`, `build` (complexity discovery + git stats intersection)
 - [ ] Validate `repoPath` is a Git repository (`.git` exists) before scan
