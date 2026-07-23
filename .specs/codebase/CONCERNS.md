@@ -30,7 +30,7 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 
 | Concern | Mitigation |
 |---------|------------|
-| `hotspotScore = norm(complexity) × norm(churn)` | Unit tests with fixed inputs and expected order |
+| `hotspotScore = 2ch / (c + h)` (harmonic mean of normalized complexity and churn) | Unit tests with fixed inputs and expected order |
 | Normalization strategy (min-max vs log) | Document in code; test edge cases (all zeros, single file) |
 | `couplingStrength = coChangeCount / min(commitsA, commitsB)` | Test denominator edge cases (zero commits) |
 | `--min-cochange` threshold | Test boundary at N-1, N, N+1 |

@@ -17,6 +17,7 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-21 | Hotspot normalization: **log1p + min-max** per scan | User decision; dampens heavy-tailed churn/complexity (M4 context.md) |
 | 2026-07-21 | Default `--min-cochange`: **3** (`DEFAULT_MIN_COCHANGE`) | User decision; filters noise pairs; CLI wiring in M5 |
 | 2026-07-22 | Default `--top`: **20** (`DEFAULT_TOP`) | User confirmed; limits both hotspot and coupling rankings |
+| 2026-07-22 | Hotspot combiner: **harmonic mean** `2ch/(c+h)` | Favors balanced dual-signal files over one-axis outliers; same log1p+min-max normalization (M8) |
 
 ## Architecture decisions (ADRs)
 

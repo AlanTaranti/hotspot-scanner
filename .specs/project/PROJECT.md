@@ -8,7 +8,7 @@
 
 ## Goals
 
-- Rank files by `hotspotScore = normalize(complexity) × normalize(churn)`
+- Rank files by `hotspotScore = 2ch / (c + h)` where `c` and `h` are normalized complexity and churn
 - Surface temporal coupling pairs with `couplingStrength` metric
 - Run 100% locally — no network, no CI gate in v1
 - Scale from small repos (~500 files, ~5k commits) to large repos via streaming Git parse

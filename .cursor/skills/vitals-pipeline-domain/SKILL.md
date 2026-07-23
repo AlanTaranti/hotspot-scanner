@@ -36,7 +36,7 @@ git log (stream) → complexity (ts-morph) → scoring → report
 
 ### HotspotScore
 
-- `hotspotScore = normalize(complexity) × normalize(churn)`
+- `hotspotScore = 2ch / (c + h)` (harmonic mean of normalized complexity and churn)
 - Churn = raw commit count (not relative code churn — closed decision)
 
 ### CoChangeEvent / CouplingPair

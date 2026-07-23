@@ -6,7 +6,7 @@ Local CLI for TypeScript/JavaScript maintenance hotspot analysis.
 
 ## Features
 
-- **Hotspot ranking** — score files by complexity × churn to surface the hardest-to-maintain code
+- **Hotspot ranking** — harmonic mean of complexity and churn to surface actively maintained complex code
 - **Temporal coupling** — find file pairs that co-change without static imports (hidden dependencies)
 - **Streaming Git parse** — single `git log` pass scales from small repos to large histories
 - **Path scoping** — default excludes for `node_modules`, `.git`, `dist`, `coverage`, and `build`; optional `--include` / `--exclude` globs
@@ -80,7 +80,7 @@ git log (streaming) → complexity (McCabe) → hotspot + coupling scoring → t
 
 ### Scoring
 
-- **Hotspot score:** `normalize(complexity) × normalize(churn)` — log1p + min-max normalization per scan
+- **Hotspot score:** `2 × normalize(complexity) × normalize(churn) / (normalize(complexity) + normalize(churn))` — log1p + min-max normalization per scan
 - **Coupling strength:** `coChangeCount / min(commitsA, commitsB)`
 
 Churn is measured as raw commit count (not relative code churn). Complexity is computed from the current working tree, not historical file versions.
@@ -97,7 +97,7 @@ Scan window: 12 months ago (scanned 2026-07-22T12:00:00.000Z)
 Top Hotspots
 Rank  File                      Score     Complexity  Churn
 ----  ------------------------  --------  ----------  ----------
-   1  src/high.ts               0.8750      1.0000      0.7500
+   1  src/high.ts               0.8571      1.0000      0.7500
 
 Top Coupling Pairs
 Rank  File A                    File B                    Strength  Co-changes
@@ -115,7 +115,7 @@ Rank  File A                    File B                    Strength  Co-changes
       "filePath": "src/high.ts",
       "complexityNormalized": 1.0,
       "churnNormalized": 0.75,
-      "hotspotScore": 0.75
+      "hotspotScore": 0.8571
     }
   ],
   "coupling": [

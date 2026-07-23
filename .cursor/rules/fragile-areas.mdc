@@ -32,7 +32,7 @@ Nós de decisão: `if`/`else if`, `for`, `while`, `do-while`, `case` de `switch`
 
 ## Scoring (`src/scoring/`)
 
-- `hotspotScore = normalize(complexity) × normalize(churn)`
+- `hotspotScore = 2ch / (c + h)` (harmonic mean of normalized complexity and churn)
 - `couplingStrength = coChangeCount / min(commitsA, commitsB)`
 
 **Proibido:** alterar fórmulas ou estratégia de normalização sem testes com inputs fixos e ordem esperada.

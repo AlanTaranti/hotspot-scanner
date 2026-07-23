@@ -30,12 +30,17 @@ export function scoreHotspots(
   const churnNormalized = normalizeLogMinMax(churnValues);
 
   return complexity
-    .map((entry, index) => ({
-      filePath: entry.filePath,
-      complexityNormalized: complexityNormalized[index]!,
-      churnNormalized: churnNormalized[index]!,
-      hotspotScore:
-        complexityNormalized[index]! * churnNormalized[index]!,
-    }))
+    .map((entry, index) => {
+      const c = complexityNormalized[index]!;
+      const h = churnNormalized[index]!;
+      const hotspotScore = c + h === 0 ? 0 : (2 * c * h) / (c + h);
+
+      return {
+        filePath: entry.filePath,
+        complexityNormalized: c,
+        churnNormalized: h,
+        hotspotScore,
+      };
+    })
     .sort(compareHotspotScores);
 }

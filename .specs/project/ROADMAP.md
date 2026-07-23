@@ -80,10 +80,10 @@ Próximos milestones priorizados para adoção real. Specs em `.specs/features/<
 
 Prefer balanced dual-signal files (actively complex + churned) over spiky one-axis outliers. Same normalization; only combiner changes.
 
-- [ ] Replace `hotspotScore = c × h` with `hotspotScore = 2ch / (c + h)` (harmonic mean of normalized complexity and churn)
-- [ ] Zero guard: when `c + h === 0`, score is `0` (covers zero churn, missing stats, degenerate normalization)
-- [ ] Update scoring fixtures and unit tests with new expected rankings (order may change vs product)
-- [ ] Record decision in STATE.md; sync CONCERNS.md, README, fragile-areas rule, pipeline-domain skill
+- [x] Replace `hotspotScore = c × h` with `hotspotScore = 2ch / (c + h)` (harmonic mean of normalized complexity and churn)
+- [x] Zero guard: when `c + h === 0`, score is `0` (covers zero churn, missing stats, degenerate normalization)
+- [x] Update scoring fixtures and unit tests with new expected rankings (order may change vs product)
+- [x] Record decision in STATE.md; sync CONCERNS.md, README, fragile-areas rule, pipeline-domain skill
 
 ### Milestone 9 — Rich Output
 

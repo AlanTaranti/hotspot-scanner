@@ -46,7 +46,7 @@ describe("scoreHotspots", () => {
     expect(missingChurn?.hotspotScore).toBe(0);
   });
 
-  it("computes hotspotScore as product of normalized values", () => {
+  it("computes hotspotScore as harmonic mean of normalized values", () => {
     const complexity: ComplexityResult[] = [
       { filePath: "src/a.ts", cyclomaticComplexity: 10, functionCount: 1 },
       { filePath: "src/b.ts", cyclomaticComplexity: 5, functionCount: 1 },
@@ -58,10 +58,34 @@ describe("scoreHotspots", () => {
     const results = scoreHotspots(fileStats, complexity);
 
     for (const entry of results) {
-      expect(entry.hotspotScore).toBeCloseTo(
-        entry.complexityNormalized * entry.churnNormalized,
-      );
+      const { complexityNormalized: c, churnNormalized: h } = entry;
+      const expected =
+        c + h === 0 ? 0 : (2 * c * h) / (c + h);
+      expect(entry.hotspotScore).toBeCloseTo(expected);
     }
+  });
+
+  it("ranks balanced file above spiky file with controlled inputs", () => {
+    const complexity: ComplexityResult[] = [
+      { filePath: "src/balanced.ts", cyclomaticComplexity: 50, functionCount: 1 },
+      { filePath: "src/spiky.ts", cyclomaticComplexity: 100, functionCount: 1 },
+      { filePath: "src/spiky-anchor.ts", cyclomaticComplexity: 1, functionCount: 1 },
+    ];
+    const fileStats = buildFileStats([
+      { filePath: "src/balanced.ts", commitCount: 50 },
+      { filePath: "src/spiky.ts", commitCount: 1 },
+      { filePath: "src/spiky-anchor.ts", commitCount: 100 },
+    ]);
+    const results = scoreHotspots(fileStats, complexity);
+
+    const balanced = results.find((entry) => entry.filePath === "src/balanced.ts");
+    const spiky = results.find((entry) => entry.filePath === "src/spiky.ts");
+
+    expect(balanced).toBeDefined();
+    expect(spiky).toBeDefined();
+    expect(balanced!.complexityNormalized).toBeCloseTo(balanced!.churnNormalized, 5);
+    expect(spiky!.hotspotScore).toBe(0);
+    expect(balanced!.hotspotScore).toBeGreaterThan(spiky!.hotspotScore);
   });
 
   it("sorts by hotspotScore desc when scores differ", () => {

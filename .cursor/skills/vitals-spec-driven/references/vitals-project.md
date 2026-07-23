@@ -42,7 +42,7 @@ SoT: [.specs/codebase/TESTING.md](../../../../.specs/codebase/TESTING.md)
 
 - **FileChangeStats** — per-file churn: `commitCount`, `linesChanged`, `authors`, `lastModified`
 - **ComplexityResult** — `cyclomaticComplexity`, `functionCount` per file
-- **hotspotScore** — `normalize(complexity) × normalize(churn)`
+- **hotspotScore** — `2ch / (c + h)` (harmonic mean of normalized complexity and churn)
 - **CoChangeEvent** — files changed together in one commit
 - **couplingStrength** — `coChangeCount / min(commitsA, commitsB)`
 - **HotspotScore** / **CouplingPair** — ranked output entities

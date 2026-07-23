@@ -2,7 +2,7 @@
 
 **Design**: [`.specs/features/harmonic-hotspot-score/design.md`](./design.md)  
 **Spec**: [`.specs/features/harmonic-hotspot-score/spec.md`](./spec.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -80,12 +80,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `hotspotScore = (2 × c × h) / (c + h)` when `c + h > 0`
-- [ ] `hotspotScore = 0` when `c + h === 0`
-- [ ] Balanced file ranks above spiky file in dedicated test
-- [ ] Sort `hotspotScore` desc, `filePath` asc on tie preserved
-- [ ] Missing `fileStats` and zero churn still produce score `0`
-- [ ] `src/scoring/**` ≥80% line coverage maintained
+- [x] `hotspotScore = (2 × c × h) / (c + h)` when `c + h > 0`
+- [x] `hotspotScore = 0` when `c + h === 0`
+- [x] Balanced file ranks above spiky file in dedicated test
+- [x] Sort `hotspotScore` desc, `filePath` asc on tie preserved
+- [x] Missing `fileStats` and zero churn still produce score `0`
+- [x] `src/scoring/**` ≥80% line coverage maintained
 
 **Tests**: `hotspot-scorer.test.ts` — harmonic formula, zero guard, balanced-vs-spiky, tie-break, single-file degenerate, missing churn
 
@@ -112,9 +112,9 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `hotspot-ranking.json` `_comment` references harmonic formula
-- [ ] `expectedOrder` matches `scoreHotspots` output on fixture inputs
-- [ ] Fixture test in `hotspot-scorer.test.ts` passes
+- [x] `hotspot-ranking.json` `_comment` references harmonic formula
+- [x] `expectedOrder` matches `scoreHotspots` output on fixture inputs
+- [x] Fixture test in `hotspot-scorer.test.ts` passes
 
 **Tests**: `hotspot-scorer.test.ts` — "matches fixture expected ranking order"
 
@@ -141,9 +141,9 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `runScan({ repoPath: small-ts })` returns non-empty hotspots and coupling
-- [ ] `hotspots[0].filePath` is `src/high.ts`
-- [ ] Integration test passes without weakening assertions
+- [x] `runScan({ repoPath: small-ts })` returns non-empty hotspots and coupling
+- [x] `hotspots[0].filePath` is `src/high.ts`
+- [x] Integration test passes without weakening assertions
 
 **Tests**: `scan.integration.test.ts` — top hotspot assertion
 
@@ -170,10 +170,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] STATE.md has harmonic combiner decision with date and rationale
-- [ ] All listed docs reference `2ch / (c + h)` instead of product formula
-- [ ] ROADMAP M8 implementation checkboxes marked `[x]`
-- [ ] `pnpm build && pnpm test` passes
+- [x] STATE.md has harmonic combiner decision with date and rationale
+- [x] All listed docs reference `2ch / (c + h)` instead of product formula
+- [x] ROADMAP M8 implementation checkboxes marked `[x]`
+- [x] `pnpm build && pnpm test` passes
 
 **Tests**: Doc grep for stale `×` product formula in listed files; full gate
 
