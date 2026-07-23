@@ -21,6 +21,8 @@ With flags:
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --since "12 months ago" --format json --top 20
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --granularity function --format json
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format markdown --output /tmp/report.md
+pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format json --output /tmp/baseline.json
+pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --baseline /tmp/baseline.json --format json
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --min-cochange 3
 ```
 
@@ -43,6 +45,7 @@ See [AGENTS.md](../../../AGENTS.md) § Validation.
 | `--format markdown` | GFM report for PRs | table |
 | `--granularity <mode>` | Ranking granularity: `file` or `function` | `file` |
 | `--output <path>` | Write report to file (any format) | stdout |
+| `--baseline <path>` | Compare against saved baseline JSON | — |
 | `--top <N>` | Limit ranking items | TBD |
 | `--min-cochange <N>` | Min co-changes for coupling pairs | TBD |
 
@@ -70,6 +73,14 @@ Test relevant flags when the feature scope touches CLI.
 - `functions` array sorted by score descending (function mode; empty in file mode)
 - `coupling` array sorted by strength descending
 - Required fields per domain types in `src/types/domain.ts`
+
+## Compare output checks (`--baseline`)
+
+- Top-level `version` field is `"1.0"`
+- `hotspots`, `functions`, and `coupling` each have `new`, `removed`, `rankChanged` arrays
+- `meta.baseline` and `meta.current` contain `ScanMeta` objects
+- `meta.warnings` is an array (may be empty)
+- Baseline file must be valid `ScanResult` v1.0 JSON with matching `meta.granularity`
 
 ## Related agents
 

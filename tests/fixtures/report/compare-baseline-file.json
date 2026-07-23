@@ -1,0 +1,59 @@
+{
+  "_comment": "Baseline ScanResult for compare tests (file mode). 3 hotspots, 2 coupling pairs.",
+  "version": "1.0",
+  "hotspots": [
+    {
+      "filePath": "src/hot.ts",
+      "complexityNormalized": 0.9,
+      "churnNormalized": 0.9444,
+      "hotspotScore": 0.85,
+      "cyclomaticComplexity": 42,
+      "functionCount": 8,
+      "commitCount": 15,
+      "linesChanged": 320,
+      "authorCount": 3
+    },
+    {
+      "filePath": "src/medium.ts",
+      "complexityNormalized": 0.6,
+      "churnNormalized": 0.5,
+      "hotspotScore": 0.3,
+      "cyclomaticComplexity": 20,
+      "functionCount": 4,
+      "commitCount": 8,
+      "linesChanged": 120,
+      "authorCount": 2
+    },
+    {
+      "filePath": "src/cold.ts",
+      "complexityNormalized": 0.1,
+      "churnNormalized": 0.2,
+      "hotspotScore": 0.02,
+      "cyclomaticComplexity": 3,
+      "functionCount": 1,
+      "commitCount": 2,
+      "linesChanged": 15,
+      "authorCount": 1
+    }
+  ],
+  "functions": [],
+  "coupling": [
+    {
+      "fileA": "src/a.ts",
+      "fileB": "src/b.ts",
+      "coChangeCount": 5,
+      "couplingStrength": 0.75
+    },
+    {
+      "fileA": "src/c.ts",
+      "fileB": "src/d.ts",
+      "coChangeCount": 3,
+      "couplingStrength": 0.5
+    }
+  ],
+  "meta": {
+    "since": "6 months ago",
+    "scannedAt": "2026-07-20T10:00:00.000Z",
+    "granularity": "file"
+  }
+}

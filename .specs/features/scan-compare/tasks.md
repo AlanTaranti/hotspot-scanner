@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/scan-compare/design.md`](./design.md)  
 **Spec**: [`.specs/features/scan-compare/spec.md`](./spec.md)  
 **Context**: [`.specs/features/scan-compare/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -102,11 +102,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `CompareResult` and related types exported from `src/types/`
-- [ ] `parseScanResult()` accepts valid M11 `ScanResult` JSON and rejects wrong version / missing keys
-- [ ] `loadBaseline()` reads UTF-8 file and returns typed `ScanResult`
-- [ ] Entity key functions stable for coupling pair order swap
-- [ ] `src/compare/**` ≥80% line coverage on new files
+- [x] `CompareResult` and related types exported from `src/types/`
+- [x] `parseScanResult()` accepts valid M11 `ScanResult` JSON and rejects wrong version / missing keys
+- [x] `loadBaseline()` reads UTF-8 file and returns typed `ScanResult`
+- [x] Entity key functions stable for coupling pair order swap
+- [x] `src/compare/**` ≥80% line coverage on new files
 
 **Tests**: `keys.test.ts` — hotspot, function, coupling keys; `load-baseline.test.ts` — valid fixture, malformed JSON, wrong version
 
@@ -133,13 +133,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] File mode: `new`, `removed`, `rankChanged` correct for hotspots; empty function sections
-- [ ] Function mode: same for `functions`; empty hotspot sections
-- [ ] Coupling: `new`, `removed`, `rankChanged` with canonical pair keys
-- [ ] Granularity mismatch throws `CompareError`
-- [ ] `since` mismatch adds warning to `meta.warnings`, does not throw
-- [ ] `rankDelta = currentRank - baselineRank`
-- [ ] `src/compare/**` ≥80% line coverage maintained
+- [x] File mode: `new`, `removed`, `rankChanged` correct for hotspots; empty function sections
+- [x] Function mode: same for `functions`; empty hotspot sections
+- [x] Coupling: `new`, `removed`, `rankChanged` with canonical pair keys
+- [x] Granularity mismatch throws `CompareError`
+- [x] `since` mismatch adds warning to `meta.warnings`, does not throw
+- [x] `rankDelta = currentRank - baselineRank`
+- [x] `src/compare/**` ≥80% line coverage maintained
 
 **Tests**: `compare.test.ts` — file mode golden, function mode golden, coupling swap, granularity error, since warning
 
@@ -166,13 +166,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `renderCompare()` dispatches table, json, markdown
-- [ ] `sliceCompareResult` slices all delta arrays when `top` provided
-- [ ] File mode sections: New/Removed/Rank Changed Hotspots + Coupling
-- [ ] Function mode sections: New/Removed/Rank Changed Functions + Coupling
-- [ ] Empty sections render without throwing
-- [ ] Normal `render()` unchanged from M11
-- [ ] Compare reporter files ≥80% line coverage
+- [x] `renderCompare()` dispatches table, json, markdown
+- [x] `sliceCompareResult` slices all delta arrays when `top` provided
+- [x] File mode sections: New/Removed/Rank Changed Hotspots + Coupling
+- [x] Function mode sections: New/Removed/Rank Changed Functions + Coupling
+- [x] Empty sections render without throwing
+- [x] Normal `render()` unchanged from M11
+- [x] Compare reporter files ≥80% line coverage
 
 **Tests**: `compare-*.test.ts`, `index.test.ts` — dispatch, slice, GFM escape
 
@@ -199,12 +199,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `--baseline` triggers compare flow with delta output
-- [ ] Omitting `--baseline` behavior unchanged (regression guard in tests)
-- [ ] `validateBaselinePath` rejects missing file, directory, empty path
-- [ ] `--format`, `--output`, `--top` work with compare output
-- [ ] Successful compare exits `0`
-- [ ] Warnings still on stderr
+- [x] `--baseline` triggers compare flow with delta output
+- [x] Omitting `--baseline` behavior unchanged (regression guard in tests)
+- [x] `validateBaselinePath` rejects missing file, directory, empty path
+- [x] `--format`, `--output`, `--top` work with compare output
+- [x] Successful compare exits `0`
+- [x] Warnings still on stderr
 
 **Tests**: `bin/hotspot-scanner.test.ts` — `validateBaselinePath`, mocked compare branch
 
@@ -231,11 +231,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Golden fixtures for file and function mode compare
-- [ ] Empty baseline edge case covered
-- [ ] `compareScanResults` and `loadBaseline` exported from `src/index.ts`
-- [ ] All compare-related unit tests pass
-- [ ] Coverage ≥80% on `src/compare/**` and new report modules
+- [x] Golden fixtures for file and function mode compare
+- [x] Empty baseline edge case covered
+- [x] `compareScanResults` and `loadBaseline` exported from `src/index.ts`
+- [x] All compare-related unit tests pass
+- [x] Coverage ≥80% on `src/compare/**` and new report modules
 
 **Tests**: Full compare unit suite
 
@@ -262,13 +262,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Integration: `--baseline` on `small-ts` exits `0`, delta JSON has `new`/`removed`/`rankChanged` sections
-- [ ] Integration: scan without `--baseline` regression pass
-- [ ] ARCHITECTURE.md documents `--baseline` and `src/compare/`
-- [ ] README.md flags table includes `--baseline`
-- [ ] vitals-cli-validation skill includes baseline workflow
-- [ ] ROADMAP M13 implementation checkboxes `[x]` on Execute Done
-- [ ] `pnpm build && pnpm test` passes
+- [x] Integration: `--baseline` on `small-ts` exits `0`, delta JSON has `new`/`removed`/`rankChanged` sections
+- [x] Integration: scan without `--baseline` regression pass
+- [x] ARCHITECTURE.md documents `--baseline` and `src/compare/`
+- [x] README.md flags table includes `--baseline`
+- [x] vitals-cli-validation skill includes baseline workflow
+- [x] ROADMAP M13 implementation checkboxes `[x]` on Execute Done
+- [x] `pnpm build && pnpm test` passes
 
 **Tests**: Full project gate + integration
 

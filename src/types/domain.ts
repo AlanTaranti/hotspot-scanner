@@ -102,3 +102,50 @@ export interface ScanResult {
   coupling: CouplingPair[];
   meta: ScanMeta;
 }
+
+/** Rank change between baseline and current scan. */
+export interface RankChange<T> {
+  entity: T;
+  baselineRank: number;
+  currentRank: number;
+  /** currentRank - baselineRank; positive = moved down in ranking */
+  rankDelta: number;
+}
+
+/** Hotspot delta section for compare output. */
+export interface HotspotCompareSection {
+  new: HotspotScore[];
+  removed: HotspotScore[];
+  rankChanged: RankChange<HotspotScore>[];
+}
+
+/** Function hotspot delta section for compare output. */
+export interface FunctionCompareSection {
+  new: FunctionHotspotScore[];
+  removed: FunctionHotspotScore[];
+  rankChanged: RankChange<FunctionHotspotScore>[];
+}
+
+/** Coupling pair delta section for compare output. */
+export interface CouplingCompareSection {
+  new: CouplingPair[];
+  removed: CouplingPair[];
+  rankChanged: RankChange<CouplingPair>[];
+}
+
+/** Compare report metadata. */
+export interface CompareMeta {
+  baseline: ScanMeta;
+  current: ScanMeta;
+  warnings: string[];
+}
+
+/** Full compare output (JSON schema). */
+export interface CompareResult {
+  version: "1.0";
+  granularity: ScanGranularity;
+  hotspots: HotspotCompareSection;
+  functions: FunctionCompareSection;
+  coupling: CouplingCompareSection;
+  meta: CompareMeta;
+}

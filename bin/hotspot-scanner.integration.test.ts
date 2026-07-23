@@ -233,4 +233,96 @@ describe("hotspot-scanner CLI integration", () => {
     expect(parsed.hotspots.length).toBeGreaterThanOrEqual(1);
     expect(parsed.functions).toEqual([]);
   });
+
+  it("exits 0 and produces parseable compare JSON with --baseline on small-ts", async () => {
+    const dir = await createTempDir();
+    const baselinePath = join(dir, "baseline.json");
+    const { chunks: baselineChunks } = captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      smallTsFixture,
+      "--format",
+      "json",
+      "--output",
+      baselinePath,
+    ]);
+
+    expect(baselineChunks.join("")).toBe("");
+
+    const { chunks } = captureStdout();
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      smallTsFixture,
+      "--format",
+      "json",
+      "--baseline",
+      baselinePath,
+    ]);
+
+    const parsed = JSON.parse(chunks.join("")) as {
+      version: string;
+      hotspots: {
+        new: unknown[];
+        removed: unknown[];
+        rankChanged: unknown[];
+      };
+      functions: {
+        new: unknown[];
+        removed: unknown[];
+        rankChanged: unknown[];
+      };
+      coupling: {
+        new: unknown[];
+        removed: unknown[];
+        rankChanged: unknown[];
+      };
+      meta: { baseline: unknown; current: unknown; warnings: string[] };
+    };
+
+    expect(parsed.version).toBe("1.0");
+    expect(parsed.hotspots).toMatchObject({
+      new: expect.any(Array),
+      removed: expect.any(Array),
+      rankChanged: expect.any(Array),
+    });
+    expect(parsed.coupling).toMatchObject({
+      new: expect.any(Array),
+      removed: expect.any(Array),
+      rankChanged: expect.any(Array),
+    });
+    expect(parsed.meta.baseline).toBeTruthy();
+    expect(parsed.meta.current).toBeTruthy();
+    expect(Array.isArray(parsed.meta.warnings)).toBe(true);
+  });
+
+  it("scan without --baseline remains unchanged regression guard", async () => {
+    const { chunks } = captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      smallTsFixture,
+      "--format",
+      "json",
+    ]);
+
+    const parsed = JSON.parse(chunks.join("")) as {
+      version: string;
+      hotspots: unknown[];
+      coupling: unknown[];
+      meta: { granularity: string };
+    };
+
+    expect(parsed.version).toBe("1.0");
+    expect(parsed.meta.granularity).toBe("file");
+    expect(parsed.hotspots.length).toBeGreaterThanOrEqual(1);
+    expect(parsed.coupling.length).toBeGreaterThanOrEqual(1);
+    expect(parsed).not.toHaveProperty("functions.new");
+  });
 });

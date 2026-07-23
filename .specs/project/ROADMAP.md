@@ -123,8 +123,8 @@ Prefer balanced dual-signal files (actively complex + churned) over spiky one-ax
 → [`.specs/features/scan-compare/spec.md`](../features/scan-compare/spec.md)  
 **Slug:** `scan-compare` | **Priority:** High | **Specs:** Done
 
-- [ ] `hotspot-scanner scan <path> --baseline <file>`
-- [ ] Delta report: new/removed/rank-changed hotspots, functions, and coupling pairs
+- [x] `hotspot-scanner scan <path> --baseline <file>`
+- [x] Delta report: new/removed/rank-changed hotspots, functions, and coupling pairs
 
 ### Milestone 14 — Enriched Coupling
 

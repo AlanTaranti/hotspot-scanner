@@ -3,6 +3,10 @@ import { access, stat, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Command } from "commander";
+import {
+  compareScanResults,
+  loadBaseline,
+} from "../src/compare/index.js";
 import { logWarning, maybeLogProgress } from "#diagnostics";
 import { createReporter } from "#report";
 import { DEFAULT_MIN_COCHANGE } from "#scoring";
@@ -69,6 +73,23 @@ export async function validateOutputPath(outputPath: string): Promise<void> {
   }
 }
 
+export async function validateBaselinePath(baselinePath: string): Promise<void> {
+  if (baselinePath.length === 0) {
+    throw new CliUsageError("--baseline path must not be empty");
+  }
+
+  let baselineStat;
+  try {
+    baselineStat = await stat(baselinePath);
+  } catch {
+    throw new CliUsageError(`--baseline file does not exist: ${baselinePath}`);
+  }
+
+  if (baselineStat.isDirectory()) {
+    throw new CliUsageError(`--baseline path is a directory: ${baselinePath}`);
+  }
+}
+
 function writeReport(output: string, outputPath?: string): Promise<void> {
   const content = output.endsWith("\n") ? output : `${output}\n`;
   if (outputPath) {
@@ -112,6 +133,10 @@ export function createCliProgram(): Command {
       "file",
     )
     .option("--output <path>", "Write report to file instead of stdout")
+    .option(
+      "--baseline <path>",
+      "Compare scan against baseline JSON from a prior run",
+    )
     .option("--top <n>", "Top N results per ranking", String(DEFAULT_TOP))
     .option(
       "--min-cochange <n>",
@@ -143,6 +168,11 @@ export function createCliProgram(): Command {
       validateScopePatterns(includePatterns, "--include");
       validateScopePatterns(excludePatterns, "--exclude");
 
+      const baselinePath = options.baseline as string | undefined;
+      if (baselinePath !== undefined) {
+        await validateBaselinePath(baselinePath);
+      }
+
       const result = await runScan({
         repoPath,
         since: options.since,
@@ -157,7 +187,18 @@ export function createCliProgram(): Command {
           maybeLogProgress(commitsProcessed),
       });
 
-      const output = createReporter().render(result, { format, top });
+      const reporter = createReporter();
+      let output: string;
+      if (baselinePath !== undefined) {
+        const baseline = await loadBaseline(baselinePath);
+        const compareResult = compareScanResults(baseline, result);
+        for (const warning of compareResult.meta.warnings) {
+          logWarning(warning);
+        }
+        output = reporter.renderCompare(compareResult, { format, top });
+      } else {
+        output = reporter.render(result, { format, top });
+      }
       const outputPath = options.output as string | undefined;
       if (outputPath) {
         await validateOutputPath(outputPath);

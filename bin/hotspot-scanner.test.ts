@@ -13,6 +13,7 @@ import {
   parseGranularity,
   parsePositiveInteger,
   runCli,
+  validateBaselinePath,
   validateOutputPath,
   validateScopePatterns,
 } from "./hotspot-scanner.js";
@@ -82,6 +83,7 @@ describe("createCliProgram", () => {
         "--min-cochange",
         "--include",
         "--exclude",
+        "--baseline",
       ]),
     );
   });
@@ -144,6 +146,53 @@ describe("validateOutputPath", () => {
     const outputPath = join(tempDir, "report.json");
     try {
       await expect(validateOutputPath(outputPath)).resolves.toBeUndefined();
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("validateBaselinePath", () => {
+  it("rejects empty path", async () => {
+    await expect(validateBaselinePath("")).rejects.toThrow(CliUsageError);
+    await expect(validateBaselinePath("")).rejects.toThrow(
+      /--baseline path must not be empty/,
+    );
+  });
+
+  it("rejects directory path", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
+    try {
+      await expect(validateBaselinePath(tempDir)).rejects.toThrow(CliUsageError);
+      await expect(validateBaselinePath(tempDir)).rejects.toThrow(
+        /--baseline path is a directory/,
+      );
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects missing file", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
+    const missingPath = join(tempDir, "missing-baseline.json");
+    try {
+      await expect(validateBaselinePath(missingPath)).rejects.toThrow(
+        CliUsageError,
+      );
+      await expect(validateBaselinePath(missingPath)).rejects.toThrow(
+        /--baseline file does not exist/,
+      );
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("accepts valid baseline file", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
+    const baselinePath = join(tempDir, "baseline.json");
+    await writeFile(baselinePath, "{}", "utf8");
+    try {
+      await expect(validateBaselinePath(baselinePath)).resolves.toBeUndefined();
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
@@ -513,5 +562,91 @@ describe("runCli", () => {
         "",
       ]),
     ).rejects.toThrow(CliUsageError);
+  });
+
+  it("renders compare output when --baseline is set", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
+    const baselinePath = join(tempDir, "baseline.json");
+    const scanResult = {
+      version: "1.0" as const,
+      hotspots: [
+        {
+          filePath: "src/example.ts",
+          hotspotScore: 1,
+          complexityNormalized: 1,
+          churnNormalized: 1,
+          cyclomaticComplexity: 10,
+          functionCount: 2,
+          commitCount: 5,
+          linesChanged: 100,
+          authorCount: 1,
+        },
+      ],
+      functions: [],
+      coupling: [],
+      meta: {
+        since: "12 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "file" as const,
+      },
+    };
+    await writeFile(baselinePath, JSON.stringify(scanResult), "utf8");
+    vi.spyOn(scan, "runScan").mockResolvedValue(scanResult);
+    const renderCompare = vi.fn(() => '{"version":"1.0","hotspots":{"new":[],"removed":[],"rankChanged":[]}}\n');
+    vi.spyOn(report, "createReporter").mockReturnValue({
+      render: vi.fn(),
+      renderCompare,
+    });
+    const { chunks } = captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        ".",
+        "--baseline",
+        baselinePath,
+        "--format",
+        "json",
+      ]);
+
+      expect(renderCompare).toHaveBeenCalled();
+      expect(chunks.join("")).toContain('"version":"1.0"');
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("uses normal render when --baseline is omitted", async () => {
+    const render = vi.fn(() => "normal-scan-output\n");
+    vi.spyOn(scan, "runScan").mockResolvedValue({
+      version: "1.0",
+      hotspots: [],
+      functions: [],
+      coupling: [],
+      meta: {
+        since: "12 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "file",
+      },
+    });
+    vi.spyOn(report, "createReporter").mockReturnValue({
+      render,
+      renderCompare: vi.fn(),
+    });
+    const { chunks } = captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      ".",
+      "--format",
+      "table",
+    ]);
+
+    expect(render).toHaveBeenCalled();
+    expect(chunks.join("")).toContain("normal-scan-output");
   });
 });

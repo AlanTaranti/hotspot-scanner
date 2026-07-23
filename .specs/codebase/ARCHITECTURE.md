@@ -32,7 +32,7 @@ flowchart TB
 
 ## Data flow (scan)
 
-1. CLI parses flags (`--since`, `--format`, `--granularity`, `--top`, `--min-cochange`, `--include`, `--exclude`, `--output`) and calls `runScan()` in `src/scan.ts`
+1. CLI parses flags (`--since`, `--format`, `--granularity`, `--top`, `--min-cochange`, `--include`, `--exclude`, `--output`, `--baseline`) and calls `runScan()` in `src/scan.ts`
 2. **`runScan()`** validates `repoPath`, checks `.git` exists, builds a shared `PathScope` (`src/paths/`), then runs stages sequentially:
    - **Git Change Miner** — one `git log --numstat` stream → `FileChangeStats` + `CoChangeEvent[]`; output filtered by `PathScope` via `filterGitMinerResult()`; forwards warnings and `onProgress`
    - **Complexity Analyzer** — discovers in-scope TS/JS files (directory prune + file filter) via ts-morph → `ComplexityResult[]` + `FunctionComplexityResult[]`; forwards warnings
@@ -42,6 +42,7 @@ flowchart TB
    - **Temporal Coupling Scorer** — file-pair ranked `coupling` (unchanged in both modes)
 3. CLI passes `ScanResult` to **Reporter** for table, JSON, or markdown output (`--top` applied at render time)
 4. With `--output <path>`, CLI writes the rendered report to file (UTF-8) instead of stdout; stderr diagnostics unchanged
+5. With `--baseline <file>`, CLI loads a prior `ScanResult` JSON, runs `compareScanResults()`, and renders a **CompareResult** delta via `renderCompare()` (same format/output transport as normal scan)
 
 ### Path scoping (M7)
 
@@ -107,3 +108,13 @@ Each `FunctionHotspotScore` entry carries per-function McCabe plus inherited fil
 - **`--output <path>`** — write report to file for any format (`table`, `json`, `markdown`); stdout silent for report content
 - **Reporter module**: `renderMarkdown()` in `src/report/markdown.ts`; `createReporter()` dispatches by format
 - **Path validation**: parent directory must exist; directory targets rejected; overwrite is default
+
+## Scan compare (M13)
+
+- **`--baseline <path>`** — compare current scan against a saved `ScanResult` JSON (from a prior `--format json --output` run)
+- **Compare module** (`src/compare/`): `loadBaseline()` validates and parses baseline JSON; `compareScanResults()` classifies entities as `new`, `removed`, or `rankChanged`
+- **CompareResult** schema (`version: "1.0"`): separate from `ScanResult`; sections for hotspots/functions (mode-dependent) and coupling pairs
+- **Entity keys**: file path for hotspots; `filePath + functionName + line` for functions; canonical `(fileA, fileB)` for coupling
+- **Guards**: granularity mismatch → hard error; `since` mismatch → warning in `meta.warnings` (stderr + report)
+- **`--top`** on compare output slices delta arrays at render time via `sliceCompareResult()` — classification uses full rankings
+- **Reporter**: `createReporter().renderCompare()` dispatches to `compare-table`, `compare-json`, `compare-markdown`
