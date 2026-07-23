@@ -5,8 +5,6 @@ bin/
 # Tests and fixtures
 tests/
 **/*.test.ts
-**/*.integration.test.ts
-
 # Dev tooling
 tsconfig.json
 tsconfig.bin.json
