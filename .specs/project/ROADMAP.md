@@ -136,22 +136,6 @@ Prefer balanced dual-signal files (actively complex + churned) over spiky one-ax
 - [ ] Worker-thread batch processing in `src/complexity/` (RT-001)
 - [ ] Remove entry from STATE.md §Deferred when Done
 
-### Milestone 16 — Optional Coupling
-
-**Slug (planned):** `optional-coupling` | **Priority:** High
-
-Allow hotspot-only scans when temporal coupling is not needed.
-
-- [ ] CLI flag `--no-coupling` (default: coupling enabled)
-- [ ] `ScanOptions.includeCoupling?: boolean` (default `true`) wired through `runScan()`
-- [ ] Git Miner: skip `CoChangeEvent[]` accumulation when `includeCoupling === false` (single `git log` pass preserved; only aggregation branch omitted)
-- [ ] Scoring: skip `TemporalCouplingScorer` when disabled; return `coupling: []`
-- [ ] Reporter: omit **Top Coupling Pairs** section when coupling was disabled (distinct from empty `(none)` when enabled but no pairs)
-- [ ] JSON schema unchanged (`coupling` key always present as `[]` when disabled)
-- [ ] `--min-cochange` ignored when coupling disabled (no error)
-- [ ] Integration + CLI tests: default scan still produces coupling; `--no-coupling` produces hotspots only
-- [ ] Document decision in STATE.md; note ADR-2026-020 still holds (one git log pass; co-change collection is conditional)
-
 ### Suggested execution order
 
-M7 → M8 → M16 → M9 → M12 → M10 → M11 → M13 → M14 → M15
+M7 → M8 → M9 → M12 → M10 → M11 → M13 → M14 → M15
