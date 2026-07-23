@@ -1,17 +1,17 @@
 import { stat } from "node:fs/promises";
-import { relative, sep } from "node:path";
 import type { PathScope } from "../paths/scope.js";
 import type {
   ComplexityResult,
   FunctionComplexityResult,
 } from "../types/index.js";
-import { analyzeSourceFile } from "./analyze-file.js";
+import type { BatchAnalysisOutput } from "./analyze-batch.js";
 import { discoverSourceFiles } from "./discover.js";
 import {
-  createTsMorphProject,
-  DEFAULT_BATCH_SIZE,
-  type TsMorphProjectAdapter,
-} from "./project.js";
+  createWorkerPool,
+  DEFAULT_WORKER_CONCURRENCY,
+  type WorkerPool,
+} from "./pool.js";
+import { DEFAULT_BATCH_SIZE } from "./project.js";
 
 export interface ComplexityAnalyzerOptions {
   repoPath: string;
@@ -26,7 +26,8 @@ export interface ComplexityAnalyzerResult {
 
 export interface ComplexityAnalyzerDependencies {
   discoverSourceFiles?: typeof discoverSourceFiles;
-  createTsMorphProject?: typeof createTsMorphProject;
+  createWorkerPool?: typeof createWorkerPool;
+  concurrency?: number;
 }
 
 export interface ComplexityAnalyzer {
@@ -55,34 +56,59 @@ async function validateRepoPath(repoPath: string): Promise<void> {
   }
 }
 
-function normalizeRelativePath(repoPath: string, absolutePath: string): string {
-  return relative(repoPath, absolutePath).split(sep).join("/");
+function buildFilePathIndex(filePaths: string[]): Map<string, number> {
+  const index = new Map<string, number>();
+  for (let fileIndex = 0; fileIndex < filePaths.length; fileIndex += 1) {
+    index.set(filePaths[fileIndex]!, fileIndex);
+  }
+  return index;
 }
 
-async function analyzeBatch(
-  project: TsMorphProjectAdapter,
-  repoPath: string,
-  batch: string[],
-): Promise<{
-  results: ComplexityResult[];
-  functions: FunctionComplexityResult[];
-  warnings: string[];
-}> {
+function parseWarningFilePath(warning: string): string {
+  const prefix = "Failed to parse ";
+  if (!warning.startsWith(prefix)) {
+    return "";
+  }
+  const rest = warning.slice(prefix.length);
+  const colonIndex = rest.indexOf(": ");
+  return colonIndex === -1 ? rest : rest.slice(0, colonIndex);
+}
+
+function mergeBatchOutputs(
+  batchOutputs: BatchAnalysisOutput[],
+  filePathIndex: Map<string, number>,
+): ComplexityAnalyzerResult {
   const results: ComplexityResult[] = [];
   const functions: FunctionComplexityResult[] = [];
   const warnings: string[] = [];
-  const sourceFiles = await project.loadBatch(batch);
 
-  for (const sourceFile of sourceFiles) {
-    const filePath = normalizeRelativePath(repoPath, sourceFile.getFilePath());
-    const analysis = analyzeSourceFile(sourceFile, filePath);
-    results.push(analysis.file);
-    functions.push(...analysis.functions);
+  for (const output of batchOutputs) {
+    results.push(...output.results);
+    functions.push(...output.functions);
+    warnings.push(...output.warnings);
   }
 
-  for (const failure of project.getParseFailures()) {
-    warnings.push(`Failed to parse ${failure.filePath}: ${failure.message}`);
-  }
+  const discoveryIndex = (filePath: string): number =>
+    filePathIndex.get(filePath) ?? Number.MAX_SAFE_INTEGER;
+
+  results.sort(
+    (left, right) => discoveryIndex(left.filePath) - discoveryIndex(right.filePath),
+  );
+
+  functions.sort((left, right) => {
+    const fileOrder =
+      discoveryIndex(left.filePath) - discoveryIndex(right.filePath);
+    if (fileOrder !== 0) {
+      return fileOrder;
+    }
+    return left.line - right.line;
+  });
+
+  warnings.sort((left, right) => {
+    const leftPath = parseWarningFilePath(left);
+    const rightPath = parseWarningFilePath(right);
+    return discoveryIndex(leftPath) - discoveryIndex(rightPath);
+  });
 
   return { results, functions, warnings };
 }
@@ -91,30 +117,37 @@ export function createComplexityAnalyzer(
   deps: ComplexityAnalyzerDependencies = {},
 ): ComplexityAnalyzer {
   const discover = deps.discoverSourceFiles ?? discoverSourceFiles;
-  const createProject = deps.createTsMorphProject ?? createTsMorphProject;
+  const poolFactory = deps.createWorkerPool ?? createWorkerPool;
 
   return {
     async analyze({ repoPath, scope }) {
       await validateRepoPath(repoPath);
 
       const filePaths = await discover(repoPath, scope);
-      const project = createProject({ repoPath });
-      const results: ComplexityResult[] = [];
-      const functions: FunctionComplexityResult[] = [];
-      const warnings: string[] = [];
-
-      for (const batch of chunk(filePaths, DEFAULT_BATCH_SIZE)) {
-        const batchResult = await analyzeBatch(project, repoPath, batch);
-        results.push(...batchResult.results);
-        functions.push(...batchResult.functions);
-        warnings.push(...batchResult.warnings);
+      if (filePaths.length === 0) {
+        return { results: [], functions: [], warnings: [] };
       }
 
-      return { results, functions, warnings };
+      const batches = chunk(filePaths, DEFAULT_BATCH_SIZE);
+      const filePathIndex = buildFilePathIndex(filePaths);
+      const requestedConcurrency = deps.concurrency ?? DEFAULT_WORKER_CONCURRENCY;
+      const effectiveConcurrency =
+        batches.length <= 1 ? 1 : requestedConcurrency;
+
+      const pool: WorkerPool = poolFactory({ concurrency: effectiveConcurrency });
+      const batchOutputs = await pool.runBatches(repoPath, batches);
+
+      return mergeBatchOutputs(batchOutputs, filePathIndex);
     },
   };
 }
 
+export { analyzeBatch } from "./analyze-batch.js";
+export {
+  createWorkerPool,
+  DEFAULT_WORKER_CONCURRENCY,
+  type WorkerPool,
+} from "./pool.js";
 export { discoverSourceFiles, ELIGIBLE_EXTENSIONS } from "./discover.js";
 export { createTsMorphProject, DEFAULT_BATCH_SIZE } from "./project.js";
 export { analyzeSourceFile } from "./analyze-file.js";

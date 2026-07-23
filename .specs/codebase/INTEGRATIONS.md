@@ -13,6 +13,16 @@ External dependencies and adapter boundaries. No network integrations in v1.
 | **Failure** | Invalid syntax → log warning, skip file (see CONCERNS.md) |
 | **Tests** | Mock at adapter boundary; use fixture TS files for real AST tests |
 
+## worker_threads (Node.js built-in)
+
+| Aspect | Detail |
+|--------|--------|
+| **Role** | Parallel batch processing in complexity stage (M15) |
+| **Adapter** | `createWorkerPool` in `src/complexity/pool.ts`; worker entry `src/complexity/worker.ts` |
+| **Rule** | Do not spawn worker threads outside `src/complexity/` |
+| **Failure** | Worker error → reject `analyze()` with `repoPath` and batch path context |
+| **Tests** | Mock `createWorkerPool` at `ComplexityAnalyzer` boundary; `worker.ts` excluded from coverage (runs in separate thread) |
+
 ## Git (local binary)
 
 | Aspect | Detail |

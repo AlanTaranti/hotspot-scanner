@@ -40,7 +40,7 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 **Risk RT-001:** Large repos exhaust memory or time.
 
 - Git: streaming mandatory
-- AST: batch file processing
+- AST: batch file processing with worker-thread parallelism (M15); default concurrency `min(availableParallelism(), 4)`; each worker owns a fresh ts-morph `Project` per batch
 - Manual benchmark before declaring v1 ready
 
 ## Hooks enforcement

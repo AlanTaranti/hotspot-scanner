@@ -16,7 +16,7 @@ Config: `vitest.config.ts` at repo root.
 
 - `pnpm test` runs `vitest run --coverage` (coverage is not optional)
 - Manual equivalent: `pnpm exec vitest --run --coverage`
-- Vitest resolves `#scan`, `#report`, `#diagnostics`, and `#scoring` aliases to **source** modules under `src/` during tests — run `pnpm build` before `pnpm test` (enforced by the quality gate; build validates production `dist/` output and package imports)
+- Vitest resolves `#scan`, `#report`, `#diagnostics`, `#scoring`, and `#compare` aliases to **source** modules under `src/` during tests — run `pnpm build` before `pnpm test` (enforced by the quality gate; build validates production `dist/` output and package imports)
 
 ## Coverage
 
@@ -34,7 +34,7 @@ Config: `vitest.config.ts` at repo root.
 | Config key | Patterns |
 |------------|----------|
 | `coverage.include` | `src/**/*.ts`, `bin/**/*.ts` |
-| `coverage.exclude` | `src/types/**`, `**/*.test.ts`, `**/*.d.ts` |
+| `coverage.exclude` | `src/types/**`, `src/complexity/worker.ts`, `**/*.test.ts`, `**/*.d.ts` |
 
 ### `coverage.thresholds` (global, per-file)
 
@@ -58,7 +58,7 @@ Reference (keep in sync with `vitest.config.ts`):
 coverage: {
   provider: "v8",
   include: ["src/**/*.ts", "bin/**/*.ts"],
-  exclude: ["src/types/**", "**/*.test.ts", "**/*.d.ts"],
+  exclude: ["src/types/**", "src/complexity/worker.ts", "**/*.test.ts", "**/*.d.ts"],
   thresholds: {
     perFile: true,
     branches: 80,

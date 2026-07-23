@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/ast-parallelization/design.md`](./design.md)  
 **Spec**: [`.specs/features/ast-parallelization/spec.md`](./spec.md)  
 **Context**: [`.specs/features/ast-parallelization/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -102,10 +102,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `analyzeBatch({ repoPath, batch })` returns `{ results, functions, warnings }` matching pre-extraction behavior
-- [ ] `worker.ts` compiles to `dist/complexity/worker.js` via `pnpm build`
-- [ ] Parse failures in batch produce warnings with `Failed to parse {filePath}:` format
-- [ ] `analyze-batch.ts` has no `worker_threads` import (pure analysis)
+- [x] `analyzeBatch({ repoPath, batch })` returns `{ results, functions, warnings }` matching pre-extraction behavior
+- [x] `worker.ts` compiles to `dist/complexity/worker.js` via `pnpm build`
+- [x] Parse failures in batch produce warnings with `Failed to parse {filePath}:` format
+- [x] `analyze-batch.ts` has no `worker_threads` import (pure analysis)
 
 **Tests**: Deferred to T4 — manual smoke: run `analyzeBatch` on `tests/fixtures/complexity/` subset
 
@@ -132,11 +132,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `runBatches(repoPath, batches)` returns array aligned to input batch order
-- [ ] In-flight batches never exceed `concurrency`
-- [ ] `concurrency === 1` path does not spawn `Worker`
-- [ ] Worker error rejects with message including batch context
-- [ ] `src/complexity/pool.ts` meets per-file coverage thresholds
+- [x] `runBatches(repoPath, batches)` returns array aligned to input batch order
+- [x] In-flight batches never exceed `concurrency`
+- [x] `concurrency === 1` path does not spawn `Worker`
+- [x] Worker error rejects with message including batch context
+- [x] `src/complexity/pool.ts` meets per-file coverage thresholds
 
 **Tests**: `pool.test.ts` — concurrency limit, single-batch inline, error propagation
 
@@ -163,11 +163,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `createComplexityAnalyzer().analyze()` return shape unchanged
-- [ ] `discoverSourceFiles` called once on main thread before pool dispatch
-- [ ] Injected `createWorkerPool` used when provided
-- [ ] `concurrency` option passed to default pool factory
-- [ ] Results ordered by discovery index
+- [x] `createComplexityAnalyzer().analyze()` return shape unchanged
+- [x] `discoverSourceFiles` called once on main thread before pool dispatch
+- [x] Injected `createWorkerPool` used when provided
+- [x] `concurrency` option passed to default pool factory
+- [x] Results ordered by discovery index
 
 **Tests**: `index.test.ts` — mock discover + mock pool; assert call order
 
@@ -194,10 +194,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Equivalence test passes (inline vs parallel output identical)
-- [ ] Multi-batch parse failure collects all warnings
-- [ ] All existing complexity unit tests pass without fixture changes
-- [ ] `src/complexity/**` meets per-file coverage thresholds
+- [x] Equivalence test passes (inline vs parallel output identical)
+- [x] Multi-batch parse failure collects all warnings
+- [x] All existing complexity unit tests pass without fixture changes
+- [x] `src/complexity/**` meets per-file coverage thresholds
 
 **Tests**: `index.test.ts`, `pool.test.ts`, full `src/complexity/**/*.test.ts`
 
@@ -224,9 +224,9 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts` exits `0`
-- [ ] `--granularity function` integration test passes
-- [ ] `pnpm build && pnpm test` passes with coverage thresholds
+- [x] `pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts` exits `0`
+- [x] `--granularity function` integration test passes
+- [x] `pnpm build && pnpm test` passes with coverage thresholds
 
 **Tests**: `bin/hotspot-scanner.integration.test.ts` + full gate
 
@@ -253,13 +253,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] STATE.md §Deferred no longer lists worker-thread parallelization
-- [ ] ARCHITECTURE.md documents worker pool in complexity stage
-- [ ] CONCERNS.md RT-001 mentions AST worker-thread batches
-- [ ] INTEGRATIONS.md documents `worker_threads` in complexity adapter
-- [ ] `benchmark-scan.md` includes M15 before/after notes
-- [ ] ROADMAP M15 implementation checkboxes `[x]` on Execute Done
-- [ ] `pnpm build && pnpm test` passes
+- [x] STATE.md §Deferred no longer lists worker-thread parallelization
+- [x] ARCHITECTURE.md documents worker pool in complexity stage
+- [x] CONCERNS.md RT-001 mentions AST worker-thread batches
+- [x] INTEGRATIONS.md documents `worker_threads` in complexity adapter
+- [x] `benchmark-scan.md` includes M15 before/after notes
+- [x] ROADMAP M15 implementation checkboxes `[x]` on Execute Done
+- [x] `pnpm build && pnpm test` passes
 
 **Tests**: Full project gate
 

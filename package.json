@@ -12,7 +12,8 @@
     "#scan": "./dist/scan.js",
     "#diagnostics": "./dist/diagnostics/index.js",
     "#report": "./dist/report/index.js",
-    "#scoring": "./dist/scoring/index.js"
+    "#scoring": "./dist/scoring/index.js",
+    "#compare": "./dist/compare/index.js"
   },
   "scripts": {
     "build": "tsc && tsc -p tsconfig.bin.json",

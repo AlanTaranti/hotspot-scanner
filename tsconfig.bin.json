@@ -12,7 +12,8 @@
       "#scan": ["src/scan.ts"],
       "#diagnostics": ["src/diagnostics/index.ts"],
       "#report": ["src/report/index.ts"],
-      "#scoring": ["src/scoring/index.ts"]
+      "#scoring": ["src/scoring/index.ts"],
+      "#compare": ["src/compare/index.ts"]
     }
   },
   "references": [{ "path": "./tsconfig.json" }],

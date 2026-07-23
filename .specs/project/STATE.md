@@ -53,5 +53,4 @@ _None._
 
 ## Deferred
 
-- Worker-thread parallelization for large repos
 - npm private registry vs Git install distribution

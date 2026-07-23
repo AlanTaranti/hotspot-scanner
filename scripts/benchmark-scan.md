@@ -59,6 +59,27 @@ Optional: capture progress on stderr by omitting redirection.
 
 On a typical developer laptop, a scan over ~10k commits in the default window should complete in reasonable time (operator judgment). Investigate streaming regressions if wall time grows disproportionately with commit count.
 
+## M15 — AST parallelization (complexity stage)
+
+Milestone 15 adds worker-thread batch processing inside `src/complexity/`. Git mining and scoring remain sequential; only AST analysis parallelizes internally.
+
+**Before M15:** batches of ≤50 files processed sequentially on a single thread.
+
+**After M15:** batches dispatched to a bounded worker pool (default concurrency `min(availableParallelism(), 4)`). Each worker runs `analyzeBatch` with a fresh ts-morph `Project`. Output is merged and reordered by file discovery index — rankings should be unchanged vs sequential mode.
+
+### Benchmark notes
+
+| Field | Notes |
+| ----- | ----- |
+| Concurrency | Internal constant only — no CLI `--workers` flag |
+| Expected effect | Reduced wall time on multi-core machines for repos with many TS/JS files |
+| Regression check | Compare wall time before/after on same large repo; record qualitative judgment |
+
+```bash
+# Same command as above — compare real time on a repo with 200+ source files
+time pnpm exec hotspot-scanner scan /path/to/large-repo --since "12 months ago" --format json > /dev/null
+```
+
 ## What this is not
 
 - No millisecond threshold in CI

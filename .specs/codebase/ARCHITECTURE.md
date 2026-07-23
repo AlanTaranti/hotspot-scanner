@@ -35,7 +35,7 @@ flowchart TB
 1. CLI parses flags (`--since`, `--format`, `--granularity`, `--top`, `--min-cochange`, `--include`, `--exclude`, `--output`, `--baseline`) and calls `runScan()` in `src/scan.ts`
 2. **`runScan()`** validates `repoPath`, checks `.git` exists, builds a shared `PathScope` (`src/paths/`), then runs stages sequentially:
    - **Git Change Miner** — one `git log --numstat` stream → `FileChangeStats` + `CoChangeEvent[]`; output filtered by `PathScope` via `filterGitMinerResult()`; forwards warnings and `onProgress`
-   - **Complexity Analyzer** — discovers in-scope TS/JS files (directory prune + file filter) via ts-morph → `ComplexityResult[]` + `FunctionComplexityResult[]`; forwards warnings
+   - **Complexity Analyzer** — discovers in-scope TS/JS files on the main thread (directory prune + file filter), chunks into batches of 50, dispatches batches to a bounded `worker_threads` pool (`createWorkerPool`, default concurrency `min(availableParallelism(), 4)`), each worker runs a fresh ts-morph `Project` per batch → merged `ComplexityResult[]` + `FunctionComplexityResult[]` in discovery order; forwards warnings
    - **Scoring branch** on `granularity` (default `file`):
      - **file** — `createHotspotScorer()` → `ScanResult.hotspots`
      - **function** — `createFunctionHotspotScorer()` with inherited file churn → `ScanResult.functions`
@@ -58,6 +58,24 @@ flowchart TB
 - Working-tree AST only (not historical file versions)
 - Invalid TS/JS: warn and skip — do not abort scan
 - Streaming required for large repos (RT-001)
+- Complexity batches processed in parallel via `worker_threads` (M15); file discovery and merge remain on main thread
+
+## Complexity stage parallelism (M15)
+
+```mermaid
+flowchart LR
+  Discover[discoverSourceFiles] --> Chunk[chunk 50 files]
+  Chunk --> Pool[createWorkerPool]
+  Pool --> W1[worker batch A]
+  Pool --> W2[worker batch B]
+  W1 --> Merge[merge by discovery index]
+  W2 --> Merge
+```
+
+- **Unit of work:** batch (≤50 files), not individual files — each worker instantiates a fresh ts-morph `Project` (M3 D7)
+- **Modules:** `analyze-batch.ts` (shared logic), `worker.ts` (thread entry), `pool.ts` (bounded dispatch)
+- **Inline fallback:** `concurrency === 1` or single batch — no worker spawn
+- **Injectable:** `ComplexityAnalyzerDependencies.createWorkerPool` and `concurrency` for tests
 
 ## Orchestration
 

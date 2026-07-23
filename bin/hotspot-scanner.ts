@@ -6,7 +6,7 @@ import { Command } from "commander";
 import {
   compareScanResults,
   loadBaseline,
-} from "../src/compare/index.js";
+} from "#compare";
 import { logWarning, maybeLogProgress } from "#diagnostics";
 import { createReporter } from "#report";
 import { DEFAULT_MIN_COCHANGE } from "#scoring";

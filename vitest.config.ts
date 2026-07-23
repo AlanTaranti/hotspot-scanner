@@ -8,6 +8,7 @@ export default defineConfig({
       "#diagnostics": resolve(__dirname, "src/diagnostics/index.ts"),
       "#report": resolve(__dirname, "src/report/index.ts"),
       "#scoring": resolve(__dirname, "src/scoring/index.ts"),
+      "#compare": resolve(__dirname, "src/compare/index.ts"),
     },
   },
   test: {
@@ -17,7 +18,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       include: ["src/**/*.ts", "bin/**/*.ts"],
-      exclude: ["src/types/**", "**/*.test.ts", "**/*.d.ts"],
+      exclude: ["src/types/**", "src/complexity/worker.ts", "**/*.test.ts", "**/*.d.ts"],
       thresholds: {
         perFile: true,
         branches: 80,
