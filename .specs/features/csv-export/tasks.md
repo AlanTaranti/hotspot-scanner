@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/csv-export/design.md`](./design.md)  
 **Spec**: [`.specs/features/csv-export/spec.md`](./spec.md)  
 **Context**: [`.specs/features/csv-export/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -90,15 +90,15 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `escapeCsvField()` quotes fields containing comma, quote, CR, LF
-- [ ] `formatCsvRow()` joins escaped fields without trailing comma
-- [ ] `renderCsv()` emits metadata block with `key,value` header
-- [ ] File granularity renders **Top Hotspots** section with correct columns
-- [ ] Function granularity renders **Top Functions** section (no hotspots block)
-- [ ] Coupling section renders with `coChanges` column
-- [ ] Empty sections render title + header, zero data rows
-- [ ] Scores/normalized: 4 decimals; integers: no decimals
-- [ ] `src/report/csv*.ts` covered by unit tests
+- [x] `escapeCsvField()` quotes fields containing comma, quote, CR, LF
+- [x] `formatCsvRow()` joins escaped fields without trailing comma
+- [x] `renderCsv()` emits metadata block with `key,value` header
+- [x] File granularity renders **Top Hotspots** section with correct columns
+- [x] Function granularity renders **Top Functions** section (no hotspots block)
+- [x] Coupling section renders with `coChanges` column
+- [x] Empty sections render title + header, zero data rows
+- [x] Scores/normalized: 4 decimals; integers: no decimals
+- [x] `src/report/csv*.ts` covered by unit tests
 
 **Tests**: `csv-utils.test.ts` — escaping matrix; `csv.test.ts` — blocks, headers, granularity branch, empty sections
 
@@ -125,13 +125,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] File mode includes new/removed/rank-changed hotspot sections + coupling sections
-- [ ] Function mode includes function sections instead of hotspot sections
-- [ ] Compare metadata block includes baseline/current timestamps and warnings
-- [ ] Removed sections have empty `rank` cell
-- [ ] Rank-changed sections include `baselineRank`, `currentRank`, `rankDelta`
-- [ ] Empty compare sections render title + header only
-- [ ] Paths and function names use RFC 4180 escaping
+- [x] File mode includes new/removed/rank-changed hotspot sections + coupling sections
+- [x] Function mode includes function sections instead of hotspot sections
+- [x] Compare metadata block includes baseline/current timestamps and warnings
+- [x] Removed sections have empty `rank` cell
+- [x] Rank-changed sections include `baselineRank`, `currentRank`, `rankDelta`
+- [x] Empty compare sections render title + header only
+- [x] Paths and function names use RFC 4180 escaping
 
 **Tests**: `compare-csv.test.ts` — file mode fixture, function mode fixture, empty sections, removed rank column
 
@@ -158,13 +158,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `parseFormat("csv")` returns `"csv"`
-- [ ] Invalid format error lists `table`, `json`, `markdown`, `csv`
-- [ ] `createReporter().render(..., { format: "csv", top: 1 })` returns unsliced CSV (all hotspot rows)
-- [ ] `createReporter().renderCompare(..., { format: "csv", top: 1 })` returns unsliced compare CSV
-- [ ] `table`, `json`, `markdown` dispatch unchanged
-- [ ] `--output` with `--format csv` writes UTF-8 file; stdout silent for report
-- [ ] stderr diagnostics unchanged with `--output`
+- [x] `parseFormat("csv")` returns `"csv"`
+- [x] Invalid format error lists `table`, `json`, `markdown`, `csv`
+- [x] `createReporter().render(..., { format: "csv", top: 1 })` returns unsliced CSV (all hotspot rows)
+- [x] `createReporter().renderCompare(..., { format: "csv", top: 1 })` returns unsliced compare CSV
+- [x] `table`, `json`, `markdown` dispatch unchanged
+- [x] `--output` with `--format csv` writes UTF-8 file; stdout silent for report
+- [x] stderr diagnostics unchanged with `--output`
 
 **Tests**: `index.test.ts` — csv dispatch, top ignored; `bin/hotspot-scanner.test.ts` — parseFormat, writeFile mock
 
@@ -191,13 +191,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `--format csv --output <tmp>/report.csv` exits `0`
-- [ ] CSV file contains `key,value` metadata header
-- [ ] CSV file contains `"Top Hotspots"` or `"Top Functions"` section title row
-- [ ] `--baseline <file> --format csv --output <tmp>/compare.csv` exits `0`
-- [ ] Compare CSV contains `"New Hotspots"` or `"New Functions"` section title
-- [ ] `--top 1 --format csv` output row count exceeds 1 when fixture has multiple hotspots
-- [ ] Temp files cleaned up in `afterEach`
+- [x] `--format csv --output <tmp>/report.csv` exits `0`
+- [x] CSV file contains `key,value` metadata header
+- [x] CSV file contains `"Top Hotspots"` or `"Top Functions"` section title row
+- [x] `--baseline <file> --format csv --output <tmp>/compare.csv` exits `0`
+- [x] Compare CSV contains `"New Hotspots"` or `"New Functions"` section title
+- [x] `--top 1 --format csv` output row count exceeds 1 when fixture has multiple hotspots
+- [x] Temp files cleaned up in `afterEach`
 
 **Tests**: `bin/hotspot-scanner.integration.test.ts` — CSV scan + compare export
 
@@ -224,12 +224,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] ARCHITECTURE.md documents `--format csv` and CSV reporters; notes `--top` ignored for csv
-- [ ] STRUCTURE.md lists `csv-utils.ts`, `csv.ts`, `compare-csv.ts`
-- [ ] README.md flags table includes `csv` format
-- [ ] vitals-cli-validation skill includes CSV export example
-- [ ] ROADMAP M17 implementation checkboxes marked `[x]` on Execute Done
-- [ ] `pnpm build && pnpm test` passes
+- [x] ARCHITECTURE.md documents `--format csv` and CSV reporters; notes `--top` ignored for csv
+- [x] STRUCTURE.md lists `csv-utils.ts`, `csv.ts`, `compare-csv.ts`
+- [x] README.md flags table includes `csv` format
+- [x] vitals-cli-validation skill includes CSV export example
+- [x] ROADMAP M17 implementation checkboxes marked `[x]` on Execute Done
+- [x] `pnpm build && pnpm test` passes
 
 **Tests**: Full project gate
 

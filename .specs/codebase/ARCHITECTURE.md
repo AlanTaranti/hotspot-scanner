@@ -40,7 +40,7 @@ flowchart TB
      - **file** — `createHotspotScorer()` → `ScanResult.hotspots`
      - **function** — `createFunctionHotspotScorer()` with inherited file churn → `ScanResult.functions`
    - **Temporal Coupling Scorer** — file-pair ranked `coupling` (unchanged in both modes)
-3. CLI passes `ScanResult` to **Reporter** for table, JSON, or markdown output (`--top` applied at render time)
+3. CLI passes `ScanResult` to **Reporter** for table, JSON, markdown, or CSV output (`--top` applied at render time for table/markdown only; ignored for JSON and CSV)
 4. With `--output <path>`, CLI writes the rendered report to file (UTF-8) instead of stdout; stderr diagnostics unchanged
 5. With `--baseline <file>`, CLI loads a prior `ScanResult` JSON, runs `compareScanResults()`, and renders a **CompareResult** delta via `renderCompare()` (same format/output transport as normal scan)
 
@@ -120,11 +120,12 @@ Each `FunctionHotspotScore` entry carries per-function McCabe plus inherited fil
 
 `coupling` remains file-pair ranked in both modes. `--top` slices the active ranking array at render time via `sliceScanResult`.
 
-## Export formats (M10)
+## Export formats (M10, M17)
 
 - **`--format markdown`** — GFM report with hotspot and coupling tables (includes `linesChanged` column)
-- **`--output <path>`** — write report to file for any format (`table`, `json`, `markdown`); stdout silent for report content
-- **Reporter module**: `renderMarkdown()` in `src/report/markdown.ts`; `createReporter()` dispatches by format
+- **`--format csv`** — multi-block RFC 4180 CSV with metadata, hotspots/functions, and coupling sections; `--top` ignored (full export)
+- **`--output <path>`** — write report to file for any format (`table`, `json`, `markdown`, `csv`); stdout silent for report content
+- **Reporter module**: `renderMarkdown()` in `src/report/markdown.ts`; `renderCsv()` / `renderCompareCsv()` in `src/report/csv.ts` and `compare-csv.ts`; `createReporter()` dispatches by format (CSV bypasses slice helpers)
 - **Path validation**: parent directory must exist; directory targets rejected; overwrite is default
 
 ## Scan compare (M13)
@@ -135,4 +136,4 @@ Each `FunctionHotspotScore` entry carries per-function McCabe plus inherited fil
 - **Entity keys**: file path for hotspots; `filePath + functionName + line` for functions; canonical `(fileA, fileB)` for coupling
 - **Guards**: granularity mismatch → hard error; `since` mismatch → warning in `meta.warnings` (stderr + report)
 - **`--top`** on compare output slices delta arrays at render time via `sliceCompareResult()` — classification uses full rankings
-- **Reporter**: `createReporter().renderCompare()` dispatches to `compare-table`, `compare-json`, `compare-markdown`
+- **Reporter**: `createReporter().renderCompare()` dispatches to `compare-table`, `compare-json`, `compare-markdown`, `compare-csv` (CSV bypasses slice helpers; `--top` ignored)

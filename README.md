@@ -53,7 +53,7 @@ hotspot-scanner scan <path> [options]
 |------|---------|-------------|
 | `<path>` | — | Repository path (required) |
 | `--since` | `12 months ago` | Git history window |
-| `--format` | `table` | Output format: `table`, `json`, or `markdown` |
+| `--format` | `table` | Output format: `table`, `json`, `markdown`, or `csv` |
 | `--granularity` | `file` | Ranking granularity: `file` or `function` |
 | `--output <path>` | — | Write report to file instead of stdout |
 | `--baseline <path>` | — | Compare scan against baseline JSON from a prior run |
@@ -69,8 +69,10 @@ hotspot-scanner scan . --since "6 months ago"
 hotspot-scanner scan . --format json --top 10
 hotspot-scanner scan . --granularity function --format json
 hotspot-scanner scan . --format markdown --output report.md
+hotspot-scanner scan . --format csv --output report.csv
 hotspot-scanner scan . --format json --output baseline.json
 hotspot-scanner scan . --baseline baseline.json --format markdown
+hotspot-scanner scan . --baseline baseline.json --format csv --output compare.csv
 hotspot-scanner scan . --include "src/**" --exclude "**/*.test.ts"
 ```
 

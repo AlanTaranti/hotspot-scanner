@@ -13,7 +13,7 @@ import { DEFAULT_MIN_COCHANGE } from "#scoring";
 import { DEFAULT_SINCE, DEFAULT_TOP, runScan } from "#scan";
 import type { ScanGranularity } from "../src/types/index.js";
 
-export type OutputFormat = "table" | "json" | "markdown";
+export type OutputFormat = "table" | "json" | "markdown" | "csv";
 
 export class CliUsageError extends Error {
   constructor(message: string) {
@@ -31,11 +31,11 @@ export function parsePositiveInteger(value: string, flagName: string): number {
 }
 
 export function parseFormat(value: string): OutputFormat {
-  if (value === "table" || value === "json" || value === "markdown") {
+  if (value === "table" || value === "json" || value === "markdown" || value === "csv") {
     return value;
   }
   throw new CliUsageError(
-    `Invalid --format: ${value}. Expected table, json, or markdown.`,
+    `Invalid --format: ${value}. Expected table, json, markdown, or csv.`,
   );
 }
 
@@ -126,7 +126,7 @@ export function createCliProgram(): Command {
     .description("Run hotspot and coupling analysis on a repository")
     .argument("<path>", "Repository path")
     .option("--since <period>", "Git history window", DEFAULT_SINCE)
-    .option("--format <format>", "Output format: table|json|markdown", "table")
+    .option("--format <format>", "Output format: table|json|markdown|csv", "table")
     .option(
       "--granularity <mode>",
       "Ranking granularity: file or function",

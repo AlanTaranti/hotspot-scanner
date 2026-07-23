@@ -79,7 +79,7 @@ export interface ScanOptions {
   since?: string;
   top?: number;
   minCochange?: number;
-  format?: "table" | "json" | "markdown";
+  format?: "table" | "json" | "markdown" | "csv";
   granularity?: ScanGranularity;
   include?: string[];
   exclude?: string[];

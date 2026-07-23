@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/csv-export/spec.md`](./spec.md)  
 **Context**: [`.specs/features/csv-export/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 

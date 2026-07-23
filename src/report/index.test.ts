@@ -48,6 +48,28 @@ function loadFunctionCompareResult(): CompareResult {
 }
 
 describe("createReporter", () => {
+  it("renders CSV output with all hotspots when top is set", () => {
+    const output = createReporter().render(loadFixture(), {
+      format: "csv",
+      top: 1,
+    });
+
+    expect(output).toContain("Top Hotspots");
+    expect(output).toContain("1,src/hot.ts,0.8500");
+    expect(output).toContain("2,src/medium.ts,0.3000");
+    expect(output).toContain("3,src/cold.ts,0.0200");
+  });
+
+  it("renders compare CSV output with all sections when top is set", () => {
+    const output = createReporter().renderCompare(loadCompareResult(), {
+      format: "csv",
+      top: 1,
+    });
+
+    expect(output).toContain("New Hotspots");
+    expect(output).toContain("Rank Changed Hotspots");
+  });
+
   it("renders JSON output", () => {
     const output = createReporter().render(loadFixture(), {
       format: "json",

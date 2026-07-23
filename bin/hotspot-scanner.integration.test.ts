@@ -300,6 +300,95 @@ describe("hotspot-scanner CLI integration", () => {
     expect(Array.isArray(parsed.meta.warnings)).toBe(true);
   });
 
+  it("writes CSV report to file with --output on small-ts fixture", async () => {
+    const dir = await createTempDir();
+    const outputPath = join(dir, "report.csv");
+    const { chunks } = captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      smallTsFixture,
+      "--format",
+      "csv",
+      "--output",
+      outputPath,
+    ]);
+
+    expect(chunks.join("")).toBe("");
+    const content = await readFile(outputPath, "utf8");
+    expect(content).toContain("key,value");
+    expect(content).toContain("Top Hotspots");
+    expect(content).toContain("Top Coupling Pairs");
+  });
+
+  it("exports all hotspot rows with --top 1 --format csv", async () => {
+    const dir = await createTempDir();
+    const outputPath = join(dir, "report-top.csv");
+    captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      smallTsFixture,
+      "--format",
+      "csv",
+      "--top",
+      "1",
+      "--output",
+      outputPath,
+    ]);
+
+    const content = await readFile(outputPath, "utf8");
+    const hotspotSection = content.split("Top Hotspots")[1]?.split(
+      "Top Coupling Pairs",
+    )[0];
+    expect(hotspotSection).toBeDefined();
+    const dataRows = hotspotSection!
+      .split("\n")
+      .filter((line) => /^\d+,src\//.test(line));
+    expect(dataRows.length).toBeGreaterThan(1);
+  });
+
+  it("writes compare CSV to file with --baseline on small-ts fixture", async () => {
+    const dir = await createTempDir();
+    const baselinePath = join(dir, "baseline.json");
+    const comparePath = join(dir, "compare.csv");
+    captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      smallTsFixture,
+      "--format",
+      "json",
+      "--output",
+      baselinePath,
+    ]);
+
+    const { chunks } = captureStdout();
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      smallTsFixture,
+      "--format",
+      "csv",
+      "--baseline",
+      baselinePath,
+      "--output",
+      comparePath,
+    ]);
+
+    expect(chunks.join("")).toBe("");
+    const content = await readFile(comparePath, "utf8");
+    expect(content).toContain("Compare Metadata");
+    expect(content).toContain("New Hotspots");
+  });
+
   it("scan without --baseline remains unchanged regression guard", async () => {
     const { chunks } = captureStdout();
 

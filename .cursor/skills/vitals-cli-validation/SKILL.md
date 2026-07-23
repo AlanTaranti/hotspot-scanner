@@ -21,8 +21,10 @@ With flags:
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --since "12 months ago" --format json --top 20
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --granularity function --format json
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format markdown --output /tmp/report.md
+pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format csv --output /tmp/report.csv
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format json --output /tmp/baseline.json
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --baseline /tmp/baseline.json --format json
+pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --baseline /tmp/baseline.json --format csv --output /tmp/compare.csv
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --min-cochange 3
 ```
 
@@ -43,6 +45,7 @@ See [AGENTS.md](../../../AGENTS.md) § Validation.
 | `--since <period>` | Git history window | ~12 months (proposed) |
 | `--format json` | JSON instead of CLI table | table |
 | `--format markdown` | GFM report for PRs | table |
+| `--format csv` | RFC 4180 tabular export for spreadsheets/BI | table |
 | `--granularity <mode>` | Ranking granularity: `file` or `function` | `file` |
 | `--output <path>` | Write report to file (any format) | stdout |
 | `--baseline <path>` | Compare against saved baseline JSON | — |

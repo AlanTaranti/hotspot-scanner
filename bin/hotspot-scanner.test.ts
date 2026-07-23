@@ -31,16 +31,17 @@ function captureStdout(): { chunks: string[]; restore: () => void } {
 }
 
 describe("hotspot-scanner CLI parsing", () => {
-  it("parseFormat accepts table, json, and markdown", () => {
+  it("parseFormat accepts table, json, markdown, and csv", () => {
     expect(parseFormat("table")).toBe("table");
     expect(parseFormat("json")).toBe("json");
     expect(parseFormat("markdown")).toBe("markdown");
+    expect(parseFormat("csv")).toBe("csv");
   });
 
   it("parseFormat rejects invalid values", () => {
     expect(() => parseFormat("xml")).toThrow(CliUsageError);
     expect(() => parseFormat("xml")).toThrow(/Invalid --format/);
-    expect(() => parseFormat("xml")).toThrow(/table, json, or markdown/);
+    expect(() => parseFormat("xml")).toThrow(/table, json, markdown, or csv/);
   });
 
   it("parseGranularity accepts file and function", () => {
@@ -331,6 +332,57 @@ describe("runCli", () => {
     ]);
 
     expect(chunks.join("")).toBe("table-without-newline\n");
+  });
+
+  it("writes CSV report to file when --output and --format csv are set", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
+    const outputPath = join(tempDir, "report.csv");
+    vi.spyOn(scan, "runScan").mockResolvedValue({
+      version: "1.0",
+      hotspots: [
+        {
+          filePath: "src/hot.ts",
+          complexityNormalized: 0.9,
+          churnNormalized: 0.9444,
+          hotspotScore: 0.85,
+          cyclomaticComplexity: 42,
+          functionCount: 8,
+          commitCount: 15,
+          linesChanged: 320,
+          authorCount: 3,
+        },
+      ],
+      functions: [],
+      coupling: [],
+      meta: {
+        since: "12 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "file",
+      },
+    });
+    const { chunks } = captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        ".",
+        "--format",
+        "csv",
+        "--output",
+        outputPath,
+      ]);
+
+      expect(chunks.join("")).toBe("");
+      const fileContent = await import("node:fs/promises").then((fs) =>
+        fs.readFile(outputPath, "utf8"),
+      );
+      expect(fileContent).toContain("key,value");
+      expect(fileContent).toContain("Top Hotspots");
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
   });
 
   it("writes report to file when --output is set", async () => {

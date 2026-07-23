@@ -154,11 +154,11 @@ Prefer balanced dual-signal files (actively complex + churned) over spiky one-ax
 → [`.specs/features/csv-export/spec.md`](../features/csv-export/spec.md)  
 **Slug:** `csv-export` | **Priority:** Medium | **Specs:** Done
 
-- [ ] `--format csv` CLI option (scan + compare)
-- [ ] `renderCsv()` / `renderCompareCsv()` in `src/report/` — tabular hotspots, functions (`--granularity function`), and coupling sections
-- [ ] RFC 4180 escaping (commas, quotes, newlines in file paths)
-- [ ] Works with `--output <path>` (same transport rules as M10)
-- [ ] `--top` ignored for CSV (full rankings, parity with JSON; M16 scopes `--top` to table/markdown only)
+- [x] `--format csv` CLI option (scan + compare)
+- [x] `renderCsv()` / `renderCompareCsv()` in `src/report/` — tabular hotspots, functions (`--granularity function`), and coupling sections
+- [x] RFC 4180 escaping (commas, quotes, newlines in file paths)
+- [x] Works with `--output <path>` (same transport rules as M10)
+- [x] `--top` ignored for CSV (full rankings, parity with JSON; M16 scopes `--top` to table/markdown only)
 
 ### Suggested execution order
 

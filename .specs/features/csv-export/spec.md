@@ -11,12 +11,12 @@ M10 added markdown for PR-friendly reports and `--output` for file export. M13 a
 
 ## Goals
 
-- [ ] `--format csv` CLI option on `scan` (with and without `--baseline`)
-- [ ] `renderCsv()` and `renderCompareCsv()` in `src/report/`
-- [ ] RFC 4180 field escaping for paths and names
-- [ ] Works with `--output <path>` (M10 transport rules)
-- [ ] `--top` ignored for CSV (full rankings, parity with JSON / M16)
-- [ ] `pnpm build && pnpm test` passing after Execute
+- [x] `--format csv` CLI option on `scan` (with and without `--baseline`)
+- [x] `renderCsv()` and `renderCompareCsv()` in `src/report/`
+- [x] RFC 4180 field escaping for paths and names
+- [x] Works with `--output <path>` (M10 transport rules)
+- [x] `--top` ignored for CSV (full rankings, parity with JSON / M16)
+- [x] `pnpm build && pnpm test` passing after Execute
 
 ## Out of Scope
 
@@ -232,8 +232,8 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Success Criteria
 
-- [ ] All P1 acceptance criteria verifiable via Vitest + fixtures (no human judgment)
-- [ ] `pnpm build && pnpm test` passes after Execute
-- [ ] `src/report/csv*.ts` ≥80% line coverage per [TESTING.md](../../codebase/TESTING.md)
-- [ ] `orchestrator-implementer` can execute T1–T5 without ambiguous scope
-- [ ] No changes to scoring, normalization, coupling scorer, or JSON/CompareResult schemas
+- [x] All P1 acceptance criteria verifiable via Vitest + fixtures (no human judgment)
+- [x] `pnpm build && pnpm test` passes after Execute
+- [x] `src/report/csv*.ts` ≥80% line coverage per [TESTING.md](../../codebase/TESTING.md)
+- [x] `orchestrator-implementer` can execute T1–T5 without ambiguous scope
+- [x] No changes to scoring, normalization, coupling scorer, or JSON/CompareResult schemas
