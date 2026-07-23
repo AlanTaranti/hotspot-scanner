@@ -99,8 +99,8 @@ Prefer balanced dual-signal files (actively complex + churned) over spiky one-ax
 → [`.specs/features/export-formats/spec.md`](../features/export-formats/spec.md)  
 **Slug:** `export-formats` | **Priority:** High | **Specs:** Done
 
-- [ ] `--output <path>` writes report to file (table/json/markdown)
-- [ ] `--format markdown` for PR-friendly report
+- [x] `--output <path>` writes report to file (table/json/markdown)
+- [x] `--format markdown` for PR-friendly report
 
 ### Milestone 11 — Function Granularity
 

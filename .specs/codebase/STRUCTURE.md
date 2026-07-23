@@ -11,7 +11,7 @@ hotspot-scanner/
 │   ├── complexity/              # McCabe over ts-morph
 │   ├── scoring/                 # HotspotScorer + TemporalCouplingScorer
 │   ├── diagnostics/             # stderr warnings + progress logging
-│   ├── report/                  # CLI table + JSON reporter
+│   ├── report/                  # CLI table + JSON + markdown reporter
 │   ├── scan.ts                  # Pipeline orchestration
 │   ├── types/                   # Domain types (no runtime logic)
 │   └── index.ts                 # Public library API (optional)
@@ -24,12 +24,12 @@ hotspot-scanner/
 
 | Path | Status | Role |
 |------|--------|------|
-| `bin/hotspot-scanner.ts` | implemented | Commander CLI — `scan <path>` with `--since`, `--format`, `--top`, `--min-cochange` |
+| `bin/hotspot-scanner.ts` | implemented | Commander CLI — `scan <path>` with `--since`, `--format`, `--top`, `--min-cochange`, `--output` |
 | `src/git/` | implemented | GitMiner — `spawn`, `parse`, `rename`, `aggregate`, `canonicalize` (+ `onProgress` hook) |
 | `src/complexity/` | implemented | ComplexityAnalyzer — McCabe via ts-morph (`discover`, `project`, `mccabe`, `analyze-file`) |
 | `src/scoring/` | implemented | HotspotScorer, TemporalCouplingScorer — `normalize`, `hotspot-scorer`, `coupling-scorer` |
 | `src/diagnostics/` | implemented | stderr logger — warnings + throttled progress |
-| `src/report/` | implemented | Reporter — `slice`, `json`, `table` + `createReporter()` factory |
+| `src/report/` | implemented | Reporter — `slice`, `json`, `table`, `markdown` + `createReporter()` factory |
 | `src/scan.ts` | partial | `runScan()` defaults + path validation + diagnostics hooks (pipeline wiring in M6) |
 | `src/types/` | implemented | FileChangeStats, HotspotScore, ScanOptions, ScanResult, etc. |
 | `src/index.ts` | implemented | Public API — `runScan`, types, `PACKAGE_NAME` |

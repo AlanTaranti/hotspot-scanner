@@ -32,12 +32,13 @@ flowchart TB
 
 ## Data flow (scan)
 
-1. CLI parses flags (`--since`, `--format`, `--top`, `--min-cochange`, `--include`, `--exclude`) and calls `runScan()` in `src/scan.ts`
+1. CLI parses flags (`--since`, `--format`, `--top`, `--min-cochange`, `--include`, `--exclude`, `--output`) and calls `runScan()` in `src/scan.ts`
 2. **`runScan()`** validates `repoPath`, checks `.git` exists, builds a shared `PathScope` (`src/paths/`), then runs stages sequentially:
    - **Git Change Miner** — one `git log --numstat` stream → `FileChangeStats` + `CoChangeEvent[]`; output filtered by `PathScope` via `filterGitMinerResult()`; forwards warnings and `onProgress`
    - **Complexity Analyzer** — discovers in-scope TS/JS files (directory prune + file filter) via ts-morph → `ComplexityResult[]`; forwards warnings
    - **Hotspot Scorer** + **Temporal Coupling Scorer** — full sorted arrays (no `--top` slicing)
-3. CLI passes `ScanResult` to **Reporter** for table or JSON output (`--top` applied at render time)
+3. CLI passes `ScanResult` to **Reporter** for table, JSON, or markdown output (`--top` applied at render time)
+4. With `--output <path>`, CLI writes the rendered report to file (UTF-8) instead of stdout; stderr diagnostics unchanged
 
 ### Path scoping (M7)
 
@@ -77,3 +78,10 @@ Each `HotspotScore` entry in `ScanResult.hotspots` carries normalized scores plu
 | `authorCount` | `FileChangeStats.authors.size` | yes | yes (Authors) |
 
 JSON `version` remains `"1.0"` (additive fields). Coupling schema unchanged from M5.
+
+## Export formats (M10)
+
+- **`--format markdown`** — GFM report with hotspot and coupling tables (includes `linesChanged` column)
+- **`--output <path>`** — write report to file for any format (`table`, `json`, `markdown`); stdout silent for report content
+- **Reporter module**: `renderMarkdown()` in `src/report/markdown.ts`; `createReporter()` dispatches by format
+- **Path validation**: parent directory must exist; directory targets rejected; overwrite is default

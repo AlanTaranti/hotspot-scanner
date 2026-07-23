@@ -37,6 +37,18 @@ describe("createReporter", () => {
     expect(output).toContain("Scan window: 6 months ago");
   });
 
+  it("renders markdown output", () => {
+    const output = createReporter().render(loadFixture(), {
+      format: "markdown",
+      top: 2,
+    });
+
+    expect(output).toContain("# Hotspot Scanner Report");
+    expect(output).toContain("## Top Hotspots");
+    expect(output).toContain("## Top Coupling Pairs");
+    expect(output).toContain("**Scan window:** 6 months ago");
+  });
+
   it("does not throw", () => {
     expect(() =>
       createReporter().render(

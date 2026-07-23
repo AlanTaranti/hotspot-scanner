@@ -19,6 +19,7 @@ With flags:
 
 ```bash
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --since "12 months ago" --format json --top 20
+pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format markdown --output /tmp/report.md
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --min-cochange 3
 ```
 
@@ -38,6 +39,8 @@ See [AGENTS.md](../../../AGENTS.md) § Validation.
 | `scan <path>` | Repository to analyze | required |
 | `--since <period>` | Git history window | ~12 months (proposed) |
 | `--format json` | JSON instead of CLI table | table |
+| `--format markdown` | GFM report for PRs | table |
+| `--output <path>` | Write report to file (any format) | stdout |
 | `--top <N>` | Limit ranking items | TBD |
 | `--min-cochange <N>` | Min co-changes for coupling pairs | TBD |
 

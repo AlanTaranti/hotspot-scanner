@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/export-formats/design.md`](./design.md)  
 **Spec**: [`.specs/features/export-formats/spec.md`](./spec.md)  
 **Context**: [`.specs/features/export-formats/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -81,13 +81,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `renderMarkdown()` produces GFM with title, metadata, hotspots table (incl. Lines column), coupling table
-- [ ] Empty hotspots/coupling render `_No results._` without throwing
-- [ ] Pipe characters in file paths are escaped in table cells
-- [ ] Scores/normalized: 4 decimals; integers: no decimals
-- [ ] `createReporter().render(..., { format: "markdown" })` returns markdown string
-- [ ] `table` and `json` dispatch unchanged
-- [ ] `src/report/**` ≥80% line coverage maintained
+- [x] `renderMarkdown()` produces GFM with title, metadata, hotspots table (incl. Lines column), coupling table
+- [x] Empty hotspots/coupling render `_No results._` without throwing
+- [x] Pipe characters in file paths are escaped in table cells
+- [x] Scores/normalized: 4 decimals; integers: no decimals
+- [x] `createReporter().render(..., { format: "markdown" })` returns markdown string
+- [x] `table` and `json` dispatch unchanged
+- [x] `src/report/**` ≥80% line coverage maintained
 
 **Tests**: `markdown.test.ts` — headings, columns, formatting, empty sections, pipe escape; `index.test.ts` — markdown dispatch
 
@@ -114,15 +114,15 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `parseFormat("markdown")` returns `"markdown"`
-- [ ] Invalid format error mentions `table`, `json`, or `markdown`
-- [ ] `--output <path>` writes UTF-8 file with rendered report
-- [ ] With `--output`, stdout receives no report content
-- [ ] Missing parent directory → exit `!= 0` with clear error
-- [ ] Output path is directory → exit `!= 0`
-- [ ] Existing file at path is overwritten
-- [ ] Warnings still go to stderr when `--output` is set (mock test)
-- [ ] All three formats work with `--output`
+- [x] `parseFormat("markdown")` returns `"markdown"`
+- [x] Invalid format error mentions `table`, `json`, or `markdown`
+- [x] `--output <path>` writes UTF-8 file with rendered report
+- [x] With `--output`, stdout receives no report content
+- [x] Missing parent directory → exit `!= 0` with clear error
+- [x] Output path is directory → exit `!= 0`
+- [x] Existing file at path is overwritten
+- [x] Warnings still go to stderr when `--output` is set (mock test)
+- [x] All three formats work with `--output`
 
 **Tests**: `bin/hotspot-scanner.test.ts` — parseFormat, validateOutputPath, writeFile mock, stderr invariant
 
@@ -149,10 +149,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `--output <tmp>/report.md --format markdown` exits `0` and file contains `# Hotspot Scanner Report`
-- [ ] `--output <tmp>/report.json --format json` exits `0` and `JSON.parse` yields `version`, `hotspots`, `coupling`, `meta`
-- [ ] Top hotspot in JSON export includes M9 raw fields
-- [ ] Temp files cleaned up after test
+- [x] `--output <tmp>/report.md --format markdown` exits `0` and file contains `# Hotspot Scanner Report`
+- [x] `--output <tmp>/report.json --format json` exits `0` and `JSON.parse` yields `version`, `hotspots`, `coupling`, `meta`
+- [x] Top hotspot in JSON export includes M9 raw fields
+- [x] Temp files cleaned up after test
 
 **Tests**: `bin/hotspot-scanner.integration.test.ts` — file export cases
 
@@ -179,12 +179,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] ARCHITECTURE.md documents `--output` and markdown format
-- [ ] STRUCTURE.md lists `src/report/markdown.ts`
-- [ ] README.md flags table includes `--output` and `markdown`
-- [ ] vitals-cli-validation skill includes file export example
-- [ ] ROADMAP M10 implementation checkboxes marked `[x]` on Execute Done
-- [ ] `pnpm build && pnpm test` passes
+- [x] ARCHITECTURE.md documents `--output` and markdown format
+- [x] STRUCTURE.md lists `src/report/markdown.ts`
+- [x] README.md flags table includes `--output` and `markdown`
+- [x] vitals-cli-validation skill includes file export example
+- [x] ROADMAP M10 implementation checkboxes marked `[x]` on Execute Done
+- [x] `pnpm build && pnpm test` passes
 
 **Tests**: Full project gate
 

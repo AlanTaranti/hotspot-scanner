@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { access, stat, writeFile } from "node:fs/promises";
+import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Command } from "commander";
 import { logWarning, maybeLogProgress } from "#diagnostics";
@@ -6,7 +8,7 @@ import { createReporter } from "#report";
 import { DEFAULT_MIN_COCHANGE } from "#scoring";
 import { DEFAULT_SINCE, DEFAULT_TOP, runScan } from "#scan";
 
-export type OutputFormat = "table" | "json";
+export type OutputFormat = "table" | "json" | "markdown";
 
 export class CliUsageError extends Error {
   constructor(message: string) {
@@ -24,12 +26,46 @@ export function parsePositiveInteger(value: string, flagName: string): number {
 }
 
 export function parseFormat(value: string): OutputFormat {
-  if (value === "table" || value === "json") {
+  if (value === "table" || value === "json" || value === "markdown") {
     return value;
   }
   throw new CliUsageError(
-    `Invalid --format: ${value}. Expected table or json.`,
+    `Invalid --format: ${value}. Expected table, json, or markdown.`,
   );
+}
+
+export async function validateOutputPath(outputPath: string): Promise<void> {
+  if (outputPath.length === 0) {
+    throw new CliUsageError("--output path must not be empty");
+  }
+
+  try {
+    const outputStat = await stat(outputPath);
+    if (outputStat.isDirectory()) {
+      throw new CliUsageError(`--output path is a directory: ${outputPath}`);
+    }
+  } catch (error) {
+    if (error instanceof CliUsageError) {
+      throw error;
+    }
+    const parentDir = dirname(outputPath);
+    try {
+      await access(parentDir);
+    } catch {
+      throw new CliUsageError(
+        `--output parent directory does not exist: ${parentDir}`,
+      );
+    }
+  }
+}
+
+function writeReport(output: string, outputPath?: string): Promise<void> {
+  const content = output.endsWith("\n") ? output : `${output}\n`;
+  if (outputPath) {
+    return writeFile(outputPath, content, "utf8");
+  }
+  process.stdout.write(content);
+  return Promise.resolve();
 }
 
 export function collectGlob(value: string, previous: string[]): string[] {
@@ -59,7 +95,8 @@ export function createCliProgram(): Command {
     .description("Run hotspot and coupling analysis on a repository")
     .argument("<path>", "Repository path")
     .option("--since <period>", "Git history window", DEFAULT_SINCE)
-    .option("--format <format>", "Output format: table|json", "table")
+    .option("--format <format>", "Output format: table|json|markdown", "table")
+    .option("--output <path>", "Write report to file instead of stdout")
     .option("--top <n>", "Top N results per ranking", String(DEFAULT_TOP))
     .option(
       "--min-cochange <n>",
@@ -104,7 +141,11 @@ export function createCliProgram(): Command {
       });
 
       const output = createReporter().render(result, { format, top });
-      process.stdout.write(output.endsWith("\n") ? output : `${output}\n`);
+      const outputPath = options.output as string | undefined;
+      if (outputPath) {
+        await validateOutputPath(outputPath);
+      }
+      await writeReport(output, outputPath);
     });
 
   return program;

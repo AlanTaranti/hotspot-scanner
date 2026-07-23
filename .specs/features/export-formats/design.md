@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/export-formats/spec.md`](./spec.md)  
 **Context**: [`.specs/features/export-formats/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 

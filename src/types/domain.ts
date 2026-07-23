@@ -48,7 +48,7 @@ export interface ScanOptions {
   since?: string;
   top?: number;
   minCochange?: number;
-  format?: "table" | "json";
+  format?: "table" | "json" | "markdown";
   include?: string[];
   exclude?: string[];
   onWarning?: (message: string) => void;

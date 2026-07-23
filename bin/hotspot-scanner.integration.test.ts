@@ -1,3 +1,5 @@
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -21,9 +23,19 @@ function captureStdout(): { chunks: string[]; restore: () => void } {
 }
 
 describe("hotspot-scanner CLI integration", () => {
-  afterEach(() => {
+  let tempDir: string;
+
+  afterEach(async () => {
     vi.restoreAllMocks();
+    if (tempDir) {
+      await rm(tempDir, { recursive: true, force: true });
+    }
   });
+
+  async function createTempDir(): Promise<string> {
+    tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-integration-"));
+    return tempDir;
+  }
 
   it("exits 0 and prints table with since header on small-ts fixture", async () => {
     const { chunks } = captureStdout();
@@ -67,6 +79,73 @@ describe("hotspot-scanner CLI integration", () => {
     expect(parsed.hotspots.length).toBeGreaterThanOrEqual(1);
     expect(Array.isArray(parsed.coupling)).toBe(true);
     expect(parsed.coupling.length).toBeGreaterThanOrEqual(1);
+    expect(parsed.meta.since).toBeTruthy();
+    expect(parsed.meta.scannedAt).toBeTruthy();
+  });
+
+  it("writes markdown report to file with --output on small-ts fixture", async () => {
+    const dir = await createTempDir();
+    const outputPath = join(dir, "report.md");
+    const { chunks } = captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      smallTsFixture,
+      "--format",
+      "markdown",
+      "--output",
+      outputPath,
+    ]);
+
+    expect(chunks.join("")).toBe("");
+    const content = await readFile(outputPath, "utf8");
+    expect(content).toContain("# Hotspot Scanner Report");
+    expect(content).toContain("## Top Hotspots");
+    expect(content).toContain("## Top Coupling Pairs");
+  });
+
+  it("writes JSON report to file with --output on small-ts fixture", async () => {
+    const dir = await createTempDir();
+    const outputPath = join(dir, "report.json");
+    const { chunks } = captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      smallTsFixture,
+      "--format",
+      "json",
+      "--output",
+      outputPath,
+    ]);
+
+    expect(chunks.join("")).toBe("");
+    const content = await readFile(outputPath, "utf8");
+    const parsed = JSON.parse(content) as {
+      version: string;
+      hotspots: Array<{
+        filePath: string;
+        cyclomaticComplexity: number;
+        linesChanged: number;
+        authorCount: number;
+      }>;
+      coupling: unknown[];
+      meta: { since: string; scannedAt: string };
+    };
+
+    expect(parsed.version).toBe("1.0");
+    expect(Array.isArray(parsed.hotspots)).toBe(true);
+    expect(parsed.hotspots.length).toBeGreaterThanOrEqual(1);
+    expect(parsed.hotspots[0]).toMatchObject({
+      filePath: expect.any(String),
+      cyclomaticComplexity: expect.any(Number),
+      linesChanged: expect.any(Number),
+      authorCount: expect.any(Number),
+    });
+    expect(Array.isArray(parsed.coupling)).toBe(true);
     expect(parsed.meta.since).toBeTruthy();
     expect(parsed.meta.scannedAt).toBeTruthy();
   });

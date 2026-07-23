@@ -13,10 +13,10 @@ M10 adds `--output <path>` for explicit file export (all formats) and `--format 
 
 ## Goals
 
-- [ ] `--output <path>` writes report to file for `table`, `json`, and `markdown`
-- [ ] `--format markdown` produces PR-friendly GFM output
-- [ ] Without `--output`, stdout behavior unchanged from M9
-- [ ] `pnpm build && pnpm test` passing after Execute
+- [x] `--output <path>` writes report to file for `table`, `json`, and `markdown`
+- [x] `--format markdown` produces PR-friendly GFM output
+- [x] Without `--output`, stdout behavior unchanged from M9
+- [x] `pnpm build && pnpm test` passing after Execute
 
 ## Out of Scope
 
@@ -225,15 +225,15 @@ Explicitly excluded. Documented to prevent scope creep.
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| HOTSPOT-83 | P1: `--output` file write | Tasks T2 | Pending |
-| HOTSPOT-84 | P1: Output path validation | Tasks T2 | Pending |
-| HOTSPOT-85 | P1: `--format markdown` CLI | Tasks T2 | Pending |
-| HOTSPOT-86 | P1: Markdown renderer | Tasks T1 | Pending |
-| HOTSPOT-87 | P1: Reporter factory dispatch | Tasks T1 | Pending |
-| HOTSPOT-88 | P1: `--output` with all formats | Tasks T2, T3 | Pending |
-| HOTSPOT-89 | P1: Diagnostics channel invariant | Tasks T2 | Pending |
-| HOTSPOT-90 | P1: Tests | Tasks T1, T2, T3 | Pending |
-| HOTSPOT-91 | P1: Documentation sync | Tasks T4 | Pending |
+| HOTSPOT-83 | P1: `--output` file write | Tasks T2 | Done |
+| HOTSPOT-84 | P1: Output path validation | Tasks T2 | Done |
+| HOTSPOT-85 | P1: `--format markdown` CLI | Tasks T2 | Done |
+| HOTSPOT-86 | P1: Markdown renderer | Tasks T1 | Done |
+| HOTSPOT-87 | P1: Reporter factory dispatch | Tasks T1 | Done |
+| HOTSPOT-88 | P1: `--output` with all formats | Tasks T2, T3 | Done |
+| HOTSPOT-89 | P1: Diagnostics channel invariant | Tasks T2 | Done |
+| HOTSPOT-90 | P1: Tests | Tasks T1, T2, T3 | Done |
+| HOTSPOT-91 | P1: Documentation sync | Tasks T4 | Done |
 
 **Coverage:** 9 total, 9 mapped to tasks, 0 unmapped
 
@@ -241,8 +241,8 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Success Criteria
 
-- [ ] All P1 acceptance criteria verifiable via Vitest + fixtures (no human judgment)
-- [ ] `pnpm build && pnpm test` passes after Execute
-- [ ] `src/report/**` ≥80% line coverage per [TESTING.md](../../codebase/TESTING.md)
-- [ ] `orchestrator-implementer` can execute T1–T4 without ambiguous scope
-- [ ] No changes to scoring, normalization, coupling scorer, or JSON schema beyond format dispatch
+- [x] All P1 acceptance criteria verifiable via Vitest + fixtures (no human judgment)
+- [x] `pnpm build && pnpm test` passes after Execute
+- [x] `src/report/**` ≥80% line coverage per [TESTING.md](../../codebase/TESTING.md)
+- [x] `orchestrator-implementer` can execute T1–T4 without ambiguous scope
+- [x] No changes to scoring, normalization, coupling scorer, or JSON schema beyond format dispatch

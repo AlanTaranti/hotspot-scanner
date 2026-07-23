@@ -1,3 +1,6 @@
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as diagnostics from "#diagnostics";
 import * as report from "#report";
@@ -9,6 +12,7 @@ import {
   parseFormat,
   parsePositiveInteger,
   runCli,
+  validateOutputPath,
   validateScopePatterns,
 } from "./hotspot-scanner.js";
 
@@ -25,14 +29,16 @@ function captureStdout(): { chunks: string[]; restore: () => void } {
 }
 
 describe("hotspot-scanner CLI parsing", () => {
-  it("parseFormat accepts table and json", () => {
+  it("parseFormat accepts table, json, and markdown", () => {
     expect(parseFormat("table")).toBe("table");
     expect(parseFormat("json")).toBe("json");
+    expect(parseFormat("markdown")).toBe("markdown");
   });
 
   it("parseFormat rejects invalid values", () => {
     expect(() => parseFormat("xml")).toThrow(CliUsageError);
     expect(() => parseFormat("xml")).toThrow(/Invalid --format/);
+    expect(() => parseFormat("xml")).toThrow(/table, json, or markdown/);
   });
 
   it("parsePositiveInteger accepts positive integers", () => {
@@ -59,6 +65,7 @@ describe("createCliProgram", () => {
       expect.arrayContaining([
         "--since",
         "--format",
+        "--output",
         "--top",
         "--min-cochange",
         "--include",
@@ -82,6 +89,52 @@ describe("collectGlob", () => {
 describe("validateScopePatterns", () => {
   it("rejects empty patterns", () => {
     expect(() => validateScopePatterns([""], "--include")).toThrow(CliUsageError);
+  });
+});
+
+describe("validateOutputPath", () => {
+  it("rejects empty path", async () => {
+    await expect(validateOutputPath("")).rejects.toThrow(CliUsageError);
+    await expect(validateOutputPath("")).rejects.toThrow(
+      /--output path must not be empty/,
+    );
+  });
+
+  it("rejects directory path", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
+    try {
+      await expect(validateOutputPath(tempDir)).rejects.toThrow(CliUsageError);
+      await expect(validateOutputPath(tempDir)).rejects.toThrow(
+        /--output path is a directory/,
+      );
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects missing parent directory", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
+    const missingParent = join(tempDir, "missing", "report.json");
+    try {
+      await expect(validateOutputPath(missingParent)).rejects.toThrow(
+        CliUsageError,
+      );
+      await expect(validateOutputPath(missingParent)).rejects.toThrow(
+        /--output parent directory does not exist/,
+      );
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("accepts valid path in existing directory", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
+    const outputPath = join(tempDir, "report.json");
+    try {
+      await expect(validateOutputPath(outputPath)).resolves.toBeUndefined();
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
   });
 });
 
@@ -209,6 +262,117 @@ describe("runCli", () => {
     ]);
 
     expect(chunks.join("")).toBe("table-without-newline\n");
+  });
+
+  it("writes report to file when --output is set", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
+    const outputPath = join(tempDir, "report.json");
+    vi.spyOn(scan, "runScan").mockResolvedValue({
+      version: "1.0",
+      hotspots: [],
+      coupling: [],
+      meta: {
+        since: "12 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+      },
+    });
+    const { chunks } = captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        ".",
+        "--format",
+        "json",
+        "--output",
+        outputPath,
+      ]);
+
+      expect(chunks.join("")).toBe("");
+      const fileContent = await import("node:fs/promises").then((fs) =>
+        fs.readFile(outputPath, "utf8"),
+      );
+      const parsed = JSON.parse(fileContent) as { version: string };
+      expect(parsed.version).toBe("1.0");
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("overwrites existing output file", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
+    const outputPath = join(tempDir, "report.json");
+    await writeFile(outputPath, "old content", "utf8");
+    vi.spyOn(scan, "runScan").mockResolvedValue({
+      version: "1.0",
+      hotspots: [],
+      coupling: [],
+      meta: {
+        since: "12 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+      },
+    });
+    captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        ".",
+        "--format",
+        "json",
+        "--output",
+        outputPath,
+      ]);
+
+      const fileContent = await import("node:fs/promises").then((fs) =>
+        fs.readFile(outputPath, "utf8"),
+      );
+      const parsed = JSON.parse(fileContent) as { version: string };
+      expect(parsed.version).toBe("1.0");
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("keeps warnings on stderr when --output is set", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
+    const outputPath = join(tempDir, "report.json");
+    const warningSpy = vi.spyOn(diagnostics, "logWarning").mockImplementation(() => {});
+    vi.spyOn(scan, "runScan").mockImplementation(async (options) => {
+      options.onWarning?.("test warning");
+      return {
+        version: "1.0",
+        hotspots: [],
+        coupling: [],
+        meta: {
+          since: "12 months ago",
+          scannedAt: "2026-01-01T00:00:00.000Z",
+        },
+      };
+    });
+    const { chunks } = captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        ".",
+        "--format",
+        "json",
+        "--output",
+        outputPath,
+      ]);
+
+      expect(chunks.join("")).toBe("");
+      expect(warningSpy).toHaveBeenCalledWith("test warning");
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
   });
 
   it("throws CliUsageError when argv is too short", async () => {
