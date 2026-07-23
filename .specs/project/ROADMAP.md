@@ -135,7 +135,8 @@ Prefer balanced dual-signal files (actively complex + churned) over spiky one-ax
 
 ### Milestone 15 — AST Parallelization
 
-**Slug (planned):** `ast-parallelization` | **Priority:** High
+→ [`.specs/features/ast-parallelization/spec.md`](../features/ast-parallelization/spec.md)  
+**Slug:** `ast-parallelization` | **Priority:** High | **Specs:** Done
 
 - [ ] Worker-thread batch processing in `src/complexity/` (RT-001)
 - [ ] Remove entry from STATE.md §Deferred when Done
