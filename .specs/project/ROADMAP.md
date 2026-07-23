@@ -87,7 +87,8 @@ Prefer balanced dual-signal files (actively complex + churned) over spiky one-ax
 
 ### Milestone 9 — Rich Output
 
-**Slug (planned):** `rich-output` | **Priority:** Critical + High
+→ [`.specs/features/rich-output/spec.md`](../features/rich-output/spec.md)  
+**Slug:** `rich-output` | **Priority:** Critical + High | **Specs:** Done
 
 - [ ] JSON hotspots include raw `cyclomaticComplexity`, `commitCount`, `linesChanged`, `functionCount`
 - [ ] Table output shows raw metrics alongside normalized scores
