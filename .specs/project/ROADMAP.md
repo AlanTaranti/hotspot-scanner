@@ -75,7 +75,8 @@ Próximos milestones priorizados para adoção real. Specs em `.specs/features/<
 
 ### Milestone 8 — Harmonic Hotspot Score
 
-**Slug (planned):** `harmonic-hotspot-score` | **Priority:** High
+→ [`.specs/features/harmonic-hotspot-score/spec.md`](../features/harmonic-hotspot-score/spec.md)  
+**Slug:** `harmonic-hotspot-score` | **Priority:** High | **Specs:** Done
 
 Prefer balanced dual-signal files (actively complex + churned) over spiky one-axis outliers. Same normalization; only combiner changes.
 
@@ -83,7 +84,6 @@ Prefer balanced dual-signal files (actively complex + churned) over spiky one-ax
 - [ ] Zero guard: when `c + h === 0`, score is `0` (covers zero churn, missing stats, degenerate normalization)
 - [ ] Update scoring fixtures and unit tests with new expected rankings (order may change vs product)
 - [ ] Record decision in STATE.md; sync CONCERNS.md, README, fragile-areas rule, pipeline-domain skill
-- [ ] Spec via `planner-feature` → `.specs/features/harmonic-hotspot-score/` before Execute
 
 ### Milestone 9 — Rich Output
 
