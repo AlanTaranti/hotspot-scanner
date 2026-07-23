@@ -24,13 +24,13 @@ hotspot-scanner/
 
 | Path | Status | Role |
 |------|--------|------|
-| `bin/hotspot-scanner.ts` | implemented | Commander CLI — `scan <path>` with `--since`, `--format`, `--top`, `--min-cochange`, `--output` |
+| `bin/hotspot-scanner.ts` | implemented | Commander CLI — `scan <path>` with `--since`, `--format`, `--granularity`, `--top`, `--min-cochange`, `--output` |
 | `src/git/` | implemented | GitMiner — `spawn`, `parse`, `rename`, `aggregate`, `canonicalize` (+ `onProgress` hook) |
 | `src/complexity/` | implemented | ComplexityAnalyzer — McCabe via ts-morph (`discover`, `project`, `mccabe`, `analyze-file`) |
-| `src/scoring/` | implemented | HotspotScorer, TemporalCouplingScorer — `normalize`, `hotspot-scorer`, `coupling-scorer` |
+| `src/scoring/` | implemented | HotspotScorer, FunctionHotspotScorer, TemporalCouplingScorer — `normalize`, `hotspot-scorer`, `function-hotspot-scorer`, `coupling-scorer` |
 | `src/diagnostics/` | implemented | stderr logger — warnings + throttled progress |
 | `src/report/` | implemented | Reporter — `slice`, `json`, `table`, `markdown` + `createReporter()` factory |
-| `src/scan.ts` | partial | `runScan()` defaults + path validation + diagnostics hooks (pipeline wiring in M6) |
+| `src/scan.ts` | implemented | `runScan()` — pipeline orchestration with granularity branch |
 | `src/types/` | implemented | FileChangeStats, HotspotScore, ScanOptions, ScanResult, etc. |
 | `src/index.ts` | implemented | Public API — `runScan`, types, `PACKAGE_NAME` |
 

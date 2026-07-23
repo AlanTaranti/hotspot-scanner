@@ -45,6 +45,38 @@ function renderHotspotsSection(result: ScanResult): string[] {
   return lines;
 }
 
+function renderFunctionsSection(result: ScanResult): string[] {
+  const lines = [
+    "Top Functions",
+    "Rank  File                      Function              Line  Score     Cpx   CpxN      Churn  ChurnN  Authors",
+    "----  ------------------------  --------------------  ----  --------  ----  --------  -----  ------  -------",
+  ];
+
+  if (result.functions.length === 0) {
+    lines.push("  (none)");
+    return lines;
+  }
+
+  for (const [index, fn] of result.functions.entries()) {
+    lines.push(
+      [
+        padStart(String(index + 1), 4),
+        padEnd(fn.filePath, 24),
+        padEnd(fn.functionName, 20),
+        padStart(String(fn.line), 4),
+        padStart(formatScore(fn.hotspotScore), 8),
+        padStart(String(fn.complexity), 4),
+        padStart(formatScore(fn.complexityNormalized), 8),
+        padStart(String(fn.commitCount), 5),
+        padStart(formatScore(fn.churnNormalized), 6),
+        padStart(String(fn.authorCount), 7),
+      ].join("  "),
+    );
+  }
+
+  return lines;
+}
+
 function renderCouplingSection(result: ScanResult): string[] {
   const lines = [
     "Top Coupling Pairs",
@@ -74,10 +106,14 @@ function renderCouplingSection(result: ScanResult): string[] {
 
 export function renderTable(result: ScanResult): string {
   const header = `Scan window: ${result.meta.since} (scanned ${result.meta.scannedAt})`;
+  const rankingSection =
+    result.meta.granularity === "function"
+      ? renderFunctionsSection(result)
+      : renderHotspotsSection(result);
   const sections = [
     header,
     "",
-    ...renderHotspotsSection(result),
+    ...rankingSection,
     "",
     ...renderCouplingSection(result),
     "",

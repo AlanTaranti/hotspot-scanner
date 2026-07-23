@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/function-granularity/spec.md`](./spec.md)  
 **Context**: [`.specs/features/function-granularity/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 

@@ -13,11 +13,11 @@ M11 adds per-function McCabe extraction (`functionName`, `line`, `complexity`) a
 
 ## Goals
 
-- [ ] Per-function McCabe in complexity output (`functionName`, `line`, `complexity`)
-- [ ] `--granularity file|function` (default `file`; function mode ranks top functions)
-- [ ] Function hotspot scoring with inherited file churn and M8 harmonic combiner
-- [ ] Table, JSON, and markdown reporters support function mode
-- [ ] `pnpm build && pnpm test` passing after Execute
+- [x] Per-function McCabe in complexity output (`functionName`, `line`, `complexity`)
+- [x] `--granularity file|function` (default `file`; function mode ranks top functions)
+- [x] Function hotspot scoring with inherited file churn and M8 harmonic combiner
+- [x] Table, JSON, and markdown reporters support function mode
+- [x] `pnpm build && pnpm test` passing after Execute
 
 ## Out of Scope
 
@@ -296,9 +296,9 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Success Criteria
 
-- [ ] All P1 acceptance criteria verifiable via Vitest + fixtures (no human judgment)
-- [ ] `pnpm build && pnpm test` passes after Execute
-- [ ] `src/complexity/**`, `src/scoring/**`, and `src/report/**` ≥80% line coverage per [TESTING.md](../../codebase/TESTING.md)
-- [ ] `orchestrator-implementer` can execute T1–T7 without ambiguous scope
-- [ ] File mode (default) behavior unchanged from M9/M10
-- [ ] McCabe decision node definition unchanged (existing complexity fixtures pass)
+- [x] All P1 acceptance criteria verifiable via Vitest + fixtures (no human judgment)
+- [x] `pnpm build && pnpm test` passes after Execute
+- [x] `src/complexity/**`, `src/scoring/**`, and `src/report/**` ≥80% line coverage per [TESTING.md](../../codebase/TESTING.md)
+- [x] `orchestrator-implementer` can execute T1–T7 without ambiguous scope
+- [x] File mode (default) behavior unchanged from M9/M10
+- [x] McCabe decision node definition unchanged (existing complexity fixtures pass)

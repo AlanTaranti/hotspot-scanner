@@ -107,8 +107,8 @@ Prefer balanced dual-signal files (actively complex + churned) over spiky one-ax
 → [`.specs/features/function-granularity/spec.md`](../features/function-granularity/spec.md)  
 **Slug:** `function-granularity` | **Priority:** High | **Specs:** Done
 
-- [ ] Per-function McCabe in output (`functionName`, `line`, `complexity`)
-- [ ] `--granularity file|function` (default `file`; function mode ranks top functions)
+- [x] Per-function McCabe in output (`functionName`, `line`, `complexity`)
+- [x] `--granularity file|function` (default `file`; function mode ranks top functions)
 
 ### Milestone 12 — CI Gate
 

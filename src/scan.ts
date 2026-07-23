@@ -4,6 +4,7 @@ import { createComplexityAnalyzer } from "./complexity/index.js";
 import { createGitMiner } from "./git/index.js";
 import { createPathScope, filterGitMinerResult } from "./paths/index.js";
 import {
+  createFunctionHotspotScorer,
   createHotspotScorer,
   createTemporalCouplingScorer,
   DEFAULT_MIN_COCHANGE,
@@ -62,7 +63,8 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
   }
 
   const analyzer = createComplexityAnalyzer();
-  const { results, warnings: complexityWarnings } = await analyzer.analyze({
+  const { results, functions: functionComplexity, warnings: complexityWarnings } =
+    await analyzer.analyze({
     repoPath: options.repoPath,
     scope,
   });
@@ -71,20 +73,45 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
     onWarning?.(message);
   }
 
-  const hotspots = createHotspotScorer().score(fileStats, results);
   const coupling = createTemporalCouplingScorer().score(
     coChangeEvents,
     fileStats,
     minCochange,
   );
 
+  const granularity = options.granularity ?? "file";
+  const scannedAt = new Date().toISOString();
+
+  if (granularity === "function") {
+    const functions = createFunctionHotspotScorer().score(
+      fileStats,
+      functionComplexity,
+    );
+
+    return {
+      version: "1.0",
+      hotspots: [],
+      functions,
+      coupling,
+      meta: {
+        since,
+        scannedAt,
+        granularity,
+      },
+    };
+  }
+
+  const hotspots = createHotspotScorer().score(fileStats, results);
+
   return {
     version: "1.0",
     hotspots,
+    functions: [],
     coupling,
     meta: {
       since,
-      scannedAt: new Date().toISOString(),
+      scannedAt,
+      granularity: "file",
     },
   };
 }

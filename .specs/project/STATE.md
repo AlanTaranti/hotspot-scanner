@@ -19,6 +19,7 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-22 | Default `--top`: **20** (`DEFAULT_TOP`) | User confirmed; limits both hotspot and coupling rankings |
 | 2026-07-22 | Hotspot combiner: **harmonic mean** `2ch/(c+h)` | Favors balanced dual-signal files over one-axis outliers; same log1p+min-max normalization (M8) |
 | 2026-07-22 | Expose **`authorCount`** (bus factor) in hotspot output | Derived from `FileChangeStats.authors` Set size; `authors` list remains internal (M9) |
+| 2026-07-22 | Function-mode ranking: **hotspotScore with inherited file churn** | Same harmonic combiner as file mode; per-function McCabe + parent file `commitCount`; no per-function git history in v1 (M11) |
 
 ## Architecture decisions (ADRs)
 

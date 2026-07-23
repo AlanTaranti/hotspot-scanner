@@ -36,6 +36,7 @@
       "authorCount": 1
     }
   ],
+  "functions": [],
   "coupling": [
     {
       "fileA": "src/a.ts",
@@ -52,6 +53,7 @@
   ],
   "meta": {
     "since": "6 months ago",
-    "scannedAt": "2026-07-22T11:00:00.000Z"
+    "scannedAt": "2026-07-22T11:00:00.000Z",
+    "granularity": "file"
   }
 }

@@ -9,11 +9,24 @@ const fixturePath = join(
   dirname(fileURLToPath(import.meta.url)),
   "../../tests/fixtures/report/sample-result.json",
 );
+const functionFixturePath = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "../../tests/fixtures/report/sample-result-functions.json",
+);
 
 function loadFixture(): ScanResult {
   const raw = JSON.parse(readFileSync(fixturePath, "utf8")) as ScanResult & {
     _comment?: string;
   };
+  const { _comment: _ignored, ...fixture } = raw;
+  void _ignored;
+  return fixture;
+}
+
+function loadFunctionFixture(): ScanResult {
+  const raw = JSON.parse(
+    readFileSync(functionFixturePath, "utf8"),
+  ) as ScanResult & { _comment?: string };
   const { _comment: _ignored, ...fixture } = raw;
   void _ignored;
   return fixture;
@@ -47,6 +60,16 @@ describe("sliceScanResult", () => {
     const sliced = sliceScanResult(fixture, 100);
 
     expect(sliced.hotspots).toHaveLength(3);
+    expect(sliced.coupling).toHaveLength(2);
+  });
+
+  it("slices functions in function mode", () => {
+    const fixture = loadFunctionFixture();
+    const sliced = sliceScanResult(fixture, 2);
+
+    expect(sliced.functions).toHaveLength(2);
+    expect(sliced.hotspots).toEqual([]);
+    expect(sliced.functions[0]?.functionName).toBe("processOrder");
     expect(sliced.coupling).toHaveLength(2);
   });
 });

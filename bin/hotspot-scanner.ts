@@ -7,6 +7,7 @@ import { logWarning, maybeLogProgress } from "#diagnostics";
 import { createReporter } from "#report";
 import { DEFAULT_MIN_COCHANGE } from "#scoring";
 import { DEFAULT_SINCE, DEFAULT_TOP, runScan } from "#scan";
+import type { ScanGranularity } from "../src/types/index.js";
 
 export type OutputFormat = "table" | "json" | "markdown";
 
@@ -31,6 +32,15 @@ export function parseFormat(value: string): OutputFormat {
   }
   throw new CliUsageError(
     `Invalid --format: ${value}. Expected table, json, or markdown.`,
+  );
+}
+
+export function parseGranularity(value: string): ScanGranularity {
+  if (value === "file" || value === "function") {
+    return value;
+  }
+  throw new CliUsageError(
+    `Invalid --granularity: ${value}. Expected file or function.`,
   );
 }
 
@@ -96,6 +106,11 @@ export function createCliProgram(): Command {
     .argument("<path>", "Repository path")
     .option("--since <period>", "Git history window", DEFAULT_SINCE)
     .option("--format <format>", "Output format: table|json|markdown", "table")
+    .option(
+      "--granularity <mode>",
+      "Ranking granularity: file or function",
+      "file",
+    )
     .option("--output <path>", "Write report to file instead of stdout")
     .option("--top <n>", "Top N results per ranking", String(DEFAULT_TOP))
     .option(
@@ -117,6 +132,7 @@ export function createCliProgram(): Command {
     )
     .action(async (repoPath: string, options) => {
       const format = parseFormat(options.format);
+      const granularity = parseGranularity(options.granularity);
       const top = parsePositiveInteger(options.top, "--top");
       const minCochange = parsePositiveInteger(
         options.minCochange,
@@ -133,6 +149,7 @@ export function createCliProgram(): Command {
         top,
         minCochange,
         format,
+        granularity,
         include: includePatterns.length > 0 ? includePatterns : undefined,
         exclude: excludePatterns.length > 0 ? excludePatterns : undefined,
         onWarning: logWarning,

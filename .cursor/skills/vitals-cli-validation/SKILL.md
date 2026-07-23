@@ -19,6 +19,7 @@ With flags:
 
 ```bash
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --since "12 months ago" --format json --top 20
+pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --granularity function --format json
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format markdown --output /tmp/report.md
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --min-cochange 3
 ```
@@ -40,6 +41,7 @@ See [AGENTS.md](../../../AGENTS.md) § Validation.
 | `--since <period>` | Git history window | ~12 months (proposed) |
 | `--format json` | JSON instead of CLI table | table |
 | `--format markdown` | GFM report for PRs | table |
+| `--granularity <mode>` | Ranking granularity: `file` or `function` | `file` |
 | `--output <path>` | Write report to file (any format) | stdout |
 | `--top <N>` | Limit ranking items | TBD |
 | `--min-cochange <N>` | Min co-changes for coupling pairs | TBD |
@@ -63,7 +65,9 @@ Test relevant flags when the feature scope touches CLI.
 ## JSON output checks
 
 - Top-level `version` field present
-- `hotspots` array sorted by score descending
+- `meta.granularity` is `"file"` or `"function"`
+- `hotspots` array sorted by score descending (file mode; empty in function mode)
+- `functions` array sorted by score descending (function mode; empty in file mode)
 - `coupling` array sorted by strength descending
 - Required fields per domain types in `src/types/domain.ts`
 

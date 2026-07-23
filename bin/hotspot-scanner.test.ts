@@ -10,6 +10,7 @@ import {
   collectGlob,
   createCliProgram,
   parseFormat,
+  parseGranularity,
   parsePositiveInteger,
   runCli,
   validateOutputPath,
@@ -39,6 +40,17 @@ describe("hotspot-scanner CLI parsing", () => {
     expect(() => parseFormat("xml")).toThrow(CliUsageError);
     expect(() => parseFormat("xml")).toThrow(/Invalid --format/);
     expect(() => parseFormat("xml")).toThrow(/table, json, or markdown/);
+  });
+
+  it("parseGranularity accepts file and function", () => {
+    expect(parseGranularity("file")).toBe("file");
+    expect(parseGranularity("function")).toBe("function");
+  });
+
+  it("parseGranularity rejects invalid values", () => {
+    expect(() => parseGranularity("module")).toThrow(CliUsageError);
+    expect(() => parseGranularity("module")).toThrow(/Invalid --granularity/);
+    expect(() => parseGranularity("module")).toThrow(/file or function/);
   });
 
   it("parsePositiveInteger accepts positive integers", () => {
@@ -159,10 +171,12 @@ describe("runCli", () => {
           authorCount: 1,
         },
       ],
+      functions: [],
       coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "file",
       },
     });
     const { chunks } = captureStdout();
@@ -186,10 +200,12 @@ describe("runCli", () => {
     vi.spyOn(scan, "runScan").mockResolvedValue({
       version: "1.0",
       hotspots: [],
+      functions: [],
       coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "file",
       },
     });
     const { chunks } = captureStdout();
@@ -216,10 +232,12 @@ describe("runCli", () => {
       return {
         version: "1.0",
         hotspots: [],
+        functions: [],
         coupling: [],
         meta: {
           since: "12 months ago",
           scannedAt: "2026-01-01T00:00:00.000Z",
+          granularity: "file",
         },
       };
     });
@@ -241,10 +259,12 @@ describe("runCli", () => {
     vi.spyOn(scan, "runScan").mockResolvedValue({
       version: "1.0",
       hotspots: [],
+      functions: [],
       coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "file",
       },
     });
     vi.spyOn(report, "createReporter").mockReturnValue({
@@ -270,10 +290,12 @@ describe("runCli", () => {
     vi.spyOn(scan, "runScan").mockResolvedValue({
       version: "1.0",
       hotspots: [],
+      functions: [],
       coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "file",
       },
     });
     const { chunks } = captureStdout();
@@ -308,10 +330,12 @@ describe("runCli", () => {
     vi.spyOn(scan, "runScan").mockResolvedValue({
       version: "1.0",
       hotspots: [],
+      functions: [],
       coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "file",
       },
     });
     captureStdout();
@@ -347,10 +371,12 @@ describe("runCli", () => {
       return {
         version: "1.0",
         hotspots: [],
+        functions: [],
         coupling: [],
         meta: {
           since: "12 months ago",
           scannedAt: "2026-01-01T00:00:00.000Z",
+          granularity: "file",
         },
       };
     });
@@ -417,10 +443,12 @@ describe("runCli", () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
       version: "1.0",
       hotspots: [],
+      functions: [],
       coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "file",
       },
     });
     captureStdout();
@@ -440,6 +468,36 @@ describe("runCli", () => {
       expect.objectContaining({
         include: ["src/**"],
         exclude: ["generated/**"],
+      }),
+    );
+  });
+
+  it("forwards granularity to runScan", async () => {
+    const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
+      version: "1.0",
+      hotspots: [],
+      functions: [],
+      coupling: [],
+      meta: {
+        since: "12 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "function",
+      },
+    });
+    captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      ".",
+      "--granularity",
+      "function",
+    ]);
+
+    expect(runScanSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        granularity: "function",
       }),
     );
   });

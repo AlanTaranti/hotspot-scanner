@@ -149,4 +149,88 @@ describe("hotspot-scanner CLI integration", () => {
     expect(parsed.meta.since).toBeTruthy();
     expect(parsed.meta.scannedAt).toBeTruthy();
   });
+
+  it("prints valid JSON with function rankings on small-ts fixture", async () => {
+    const { chunks } = captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      smallTsFixture,
+      "--format",
+      "json",
+      "--granularity",
+      "function",
+    ]);
+
+    const parsed = JSON.parse(chunks.join("")) as {
+      version: string;
+      hotspots: unknown[];
+      functions: Array<{
+        filePath: string;
+        functionName: string;
+        line: number;
+        complexity: number;
+        hotspotScore: number;
+      }>;
+      coupling: unknown[];
+      meta: { since: string; scannedAt: string; granularity: string };
+    };
+
+    expect(parsed.version).toBe("1.0");
+    expect(parsed.meta.granularity).toBe("function");
+    expect(parsed.hotspots).toEqual([]);
+    expect(parsed.functions.length).toBeGreaterThanOrEqual(1);
+    expect(parsed.functions[0]).toMatchObject({
+      filePath: expect.any(String),
+      functionName: expect.any(String),
+      line: expect.any(Number),
+      complexity: expect.any(Number),
+      hotspotScore: expect.any(Number),
+    });
+    expect(Array.isArray(parsed.coupling)).toBe(true);
+  });
+
+  it("prints markdown with Top Functions section in function mode", async () => {
+    const { chunks } = captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      smallTsFixture,
+      "--format",
+      "markdown",
+      "--granularity",
+      "function",
+    ]);
+
+    const output = chunks.join("");
+    expect(output).toContain("## Top Functions");
+    expect(output).toContain("**Granularity:** function");
+  });
+
+  it("defaults to file mode when granularity is omitted", async () => {
+    const { chunks } = captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      smallTsFixture,
+      "--format",
+      "json",
+    ]);
+
+    const parsed = JSON.parse(chunks.join("")) as {
+      hotspots: unknown[];
+      functions: unknown[];
+      meta: { granularity: string };
+    };
+
+    expect(parsed.meta.granularity).toBe("file");
+    expect(parsed.hotspots.length).toBeGreaterThanOrEqual(1);
+    expect(parsed.functions).toEqual([]);
+  });
 });

@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/function-granularity/design.md`](./design.md)  
 **Spec**: [`.specs/features/function-granularity/spec.md`](./spec.md)  
 **Context**: [`.specs/features/function-granularity/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -104,12 +104,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `analyzeSourceFile()` returns per-function array with `filePath`, `functionName`, `line`, `complexity`
-- [ ] File-level `cyclomaticComplexity` still equals sum of per-function complexities
-- [ ] `functionCount` equals per-function array length
-- [ ] Named function, method, constructor, `const` arrow, anonymous arrow naming verified by fixtures
-- [ ] Nested functions each appear as separate entries
-- [ ] `src/complexity/**` ≥80% line coverage maintained
+- [x] `analyzeSourceFile()` returns per-function array with `filePath`, `functionName`, `line`, `complexity`
+- [x] File-level `cyclomaticComplexity` still equals sum of per-function complexities
+- [x] `functionCount` equals per-function array length
+- [x] Named function, method, constructor, `const` arrow, anonymous arrow naming verified by fixtures
+- [x] Nested functions each appear as separate entries
+- [x] `src/complexity/**` ≥80% line coverage maintained
 
 **Tests**: `analyze-file.test.ts` — per-function extraction, naming conventions, nested functions, empty file
 
@@ -136,12 +136,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `scoreFunctionHotspots()` returns `FunctionHotspotScore[]` with all fields per spec
-- [ ] Harmonic combiner `2ch/(c+h)` with zero guard when `c+h===0`
-- [ ] Churn inherited from parent file `commitCount`
-- [ ] Sort: `hotspotScore` desc, `filePath` asc, `line` asc
-- [ ] Missing `fileStats` → git fields `0`
-- [ ] `src/scoring/**` ≥80% line coverage maintained
+- [x] `scoreFunctionHotspots()` returns `FunctionHotspotScore[]` with all fields per spec
+- [x] Harmonic combiner `2ch/(c+h)` with zero guard when `c+h===0`
+- [x] Churn inherited from parent file `commitCount`
+- [x] Sort: `hotspotScore` desc, `filePath` asc, `line` asc
+- [x] Missing `fileStats` → git fields `0`
+- [x] `src/scoring/**` ≥80% line coverage maintained
 
 **Tests**: `function-hotspot-scorer.test.ts` — scoring, inherited churn, sort, zero guard, missing stats
 
@@ -168,12 +168,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `ScanOptions.granularity` defaults to `"file"`
-- [ ] File mode: populated `hotspots`, empty `functions`, `meta.granularity = "file"`
-- [ ] Function mode: populated `functions`, empty `hotspots`, `meta.granularity = "function"`
-- [ ] `coupling` populated in both modes
-- [ ] `version` remains `"1.0"`
-- [ ] Integration test: `runScan({ granularity: "function" })` on `small-ts` returns non-empty `functions`
+- [x] `ScanOptions.granularity` defaults to `"file"`
+- [x] File mode: populated `hotspots`, empty `functions`, `meta.granularity = "file"`
+- [x] Function mode: populated `functions`, empty `hotspots`, `meta.granularity = "function"`
+- [x] `coupling` populated in both modes
+- [x] `version` remains `"1.0"`
+- [x] Integration test: `runScan({ granularity: "function" })` on `small-ts` returns non-empty `functions`
 
 **Tests**: `scan.integration.test.ts` — function mode pipeline wiring
 
@@ -200,10 +200,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `parseGranularity("file")` and `parseGranularity("function")` succeed
-- [ ] Invalid value throws `CliUsageError` mentioning `file` or `function`
-- [ ] Default granularity is `file` when flag omitted
-- [ ] Flag passed through to `runScan()`
+- [x] `parseGranularity("file")` and `parseGranularity("function")` succeed
+- [x] Invalid value throws `CliUsageError` mentioning `file` or `function`
+- [x] Default granularity is `file` when flag omitted
+- [x] Flag passed through to `runScan()`
 
 **Tests**: `bin/hotspot-scanner.test.ts` — `parseGranularity` valid/invalid
 
@@ -230,13 +230,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] File mode table/markdown unchanged (Top Hotspots)
-- [ ] Function mode renders Top Functions with columns per design
-- [ ] `sliceScanResult` slices `functions` when `meta.granularity === "function"`
-- [ ] Empty sections render without throwing
-- [ ] Pipe escaping on file paths and function names in markdown
-- [ ] `json.test.ts` asserts function mode schema with empty `hotspots`
-- [ ] `src/report/**` ≥80% line coverage maintained
+- [x] File mode table/markdown unchanged (Top Hotspots)
+- [x] Function mode renders Top Functions with columns per design
+- [x] `sliceScanResult` slices `functions` when `meta.granularity === "function"`
+- [x] Empty sections render without throwing
+- [x] Pipe escaping on file paths and function names in markdown
+- [x] `json.test.ts` asserts function mode schema with empty `hotspots`
+- [x] `src/report/**` ≥80% line coverage maintained
 
 **Tests**: `table.test.ts`, `markdown.test.ts`, `index.test.ts`, `json.test.ts` — function mode fixture
 
@@ -263,11 +263,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `--granularity function --format json` exits `0` on `small-ts`
-- [ ] Parsed JSON has `meta.granularity === "function"`, non-empty `functions`, empty `hotspots`
-- [ ] `functions[0]` has `functionName`, `line`, `complexity`, `hotspotScore` with expected types
-- [ ] `--granularity function --format markdown` output contains `## Top Functions`
-- [ ] `--granularity file` (default) behavior unchanged
+- [x] `--granularity function --format json` exits `0` on `small-ts`
+- [x] Parsed JSON has `meta.granularity === "function"`, non-empty `functions`, empty `hotspots`
+- [x] `functions[0]` has `functionName`, `line`, `complexity`, `hotspotScore` with expected types
+- [x] `--granularity function --format markdown` output contains `## Top Functions`
+- [x] `--granularity file` (default) behavior unchanged
 
 **Tests**: `bin/hotspot-scanner.integration.test.ts` — function mode cases
 
@@ -294,13 +294,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] STATE.md records function-mode ranking decision (inherited file churn)
-- [ ] ARCHITECTURE.md documents granularity branch and `FunctionHotspotScore`
-- [ ] README.md flags table includes `--granularity`
-- [ ] vitals-cli-validation skill includes function mode example
-- [ ] vitals-pipeline-domain skill documents function granularity
-- [ ] ROADMAP M11 implementation checkboxes marked `[x]` on Execute Done
-- [ ] `pnpm build && pnpm test` passes
+- [x] STATE.md records function-mode ranking decision (inherited file churn)
+- [x] ARCHITECTURE.md documents granularity branch and `FunctionHotspotScore`
+- [x] README.md flags table includes `--granularity`
+- [x] vitals-cli-validation skill includes function mode example
+- [x] vitals-pipeline-domain skill documents function granularity
+- [x] ROADMAP M11 implementation checkboxes marked `[x]` on Execute Done
+- [x] `pnpm build && pnpm test` passes
 
 **Tests**: Full project gate
 

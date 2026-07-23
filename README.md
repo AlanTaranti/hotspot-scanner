@@ -54,6 +54,7 @@ hotspot-scanner scan <path> [options]
 | `<path>` | — | Repository path (required) |
 | `--since` | `12 months ago` | Git history window |
 | `--format` | `table` | Output format: `table`, `json`, or `markdown` |
+| `--granularity` | `file` | Ranking granularity: `file` or `function` |
 | `--output <path>` | — | Write report to file instead of stdout |
 | `--top` | `20` | Top N results per ranking section |
 | `--min-cochange` | `3` | Minimum co-change count for coupling pairs |
@@ -65,6 +66,7 @@ hotspot-scanner scan <path> [options]
 ```bash
 hotspot-scanner scan . --since "6 months ago"
 hotspot-scanner scan . --format json --top 10
+hotspot-scanner scan . --granularity function --format json
 hotspot-scanner scan . --format markdown --output report.md
 hotspot-scanner scan . --include "src/**" --exclude "**/*.test.ts"
 ```

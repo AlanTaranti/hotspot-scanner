@@ -3,9 +3,12 @@ import type {
   ComplexityResult,
   CouplingPair,
   FileChangeStats,
+  FunctionComplexityResult,
+  FunctionHotspotScore,
   HotspotScore,
 } from "../types/index.js";
 import { scoreCoupling } from "./coupling-scorer.js";
+import { scoreFunctionHotspots } from "./function-hotspot-scorer.js";
 import { scoreHotspots } from "./hotspot-scorer.js";
 
 export const DEFAULT_MIN_COCHANGE = 3;
@@ -25,8 +28,16 @@ export interface TemporalCouplingScorer {
   ): CouplingPair[];
 }
 
+export interface FunctionHotspotScorer {
+  score(
+    fileStats: Map<string, FileChangeStats>,
+    functions: FunctionComplexityResult[],
+  ): FunctionHotspotScore[];
+}
+
 export interface ScoringDependencies {
   scoreHotspots?: typeof scoreHotspots;
+  scoreFunctionHotspots?: typeof scoreFunctionHotspots;
   scoreCoupling?: typeof scoreCoupling;
 }
 
@@ -38,6 +49,18 @@ export function createHotspotScorer(
   return {
     score(fileStats, complexity) {
       return score(fileStats, complexity);
+    },
+  };
+}
+
+export function createFunctionHotspotScorer(
+  deps: ScoringDependencies = {},
+): FunctionHotspotScorer {
+  const score = deps.scoreFunctionHotspots ?? scoreFunctionHotspots;
+
+  return {
+    score(fileStats, functions) {
+      return score(fileStats, functions);
     },
   };
 }
@@ -55,5 +78,6 @@ export function createTemporalCouplingScorer(
 }
 
 export { scoreCoupling } from "./coupling-scorer.js";
+export { scoreFunctionHotspots } from "./function-hotspot-scorer.js";
 export { scoreHotspots } from "./hotspot-scorer.js";
 export { normalizeLogMinMax } from "./normalize.js";

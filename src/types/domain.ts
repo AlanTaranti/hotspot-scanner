@@ -15,6 +15,20 @@ export interface ComplexityResult {
   functionCount: number;
 }
 
+/** McCabe complexity per function. */
+export interface FunctionComplexityResult {
+  filePath: string;
+  functionName: string;
+  line: number;
+  complexity: number;
+}
+
+/** Per-file complexity analysis with per-function breakdown. */
+export interface FileComplexityResult {
+  file: ComplexityResult;
+  functions: FunctionComplexityResult[];
+}
+
 /** Ranked hotspot entry. */
 export interface HotspotScore {
   filePath: string;
@@ -23,6 +37,20 @@ export interface HotspotScore {
   hotspotScore: number;
   cyclomaticComplexity: number;
   functionCount: number;
+  commitCount: number;
+  linesChanged: number;
+  authorCount: number;
+}
+
+/** Ranked function hotspot entry. */
+export interface FunctionHotspotScore {
+  filePath: string;
+  functionName: string;
+  line: number;
+  complexity: number;
+  complexityNormalized: number;
+  churnNormalized: number;
+  hotspotScore: number;
   commitCount: number;
   linesChanged: number;
   authorCount: number;
@@ -42,6 +70,9 @@ export interface CouplingPair {
   couplingStrength: number;
 }
 
+/** Scan granularity for ranking output. */
+export type ScanGranularity = "file" | "function";
+
 /** Scan input — flags optional until M5. */
 export interface ScanOptions {
   repoPath: string;
@@ -49,6 +80,7 @@ export interface ScanOptions {
   top?: number;
   minCochange?: number;
   format?: "table" | "json" | "markdown";
+  granularity?: ScanGranularity;
   include?: string[];
   exclude?: string[];
   onWarning?: (message: string) => void;
@@ -59,12 +91,14 @@ export interface ScanOptions {
 export interface ScanMeta {
   since: string;
   scannedAt: string;
+  granularity: ScanGranularity;
 }
 
 /** Full scan output (JSON schema). */
 export interface ScanResult {
   version: "1.0";
   hotspots: HotspotScore[];
+  functions: FunctionHotspotScore[];
   coupling: CouplingPair[];
   meta: ScanMeta;
 }

@@ -32,6 +32,28 @@ function renderHotspotsSection(result: ScanResult): string[] {
   return lines;
 }
 
+function renderFunctionsSection(result: ScanResult): string[] {
+  const lines = ["## Top Functions", ""];
+
+  if (result.functions.length === 0) {
+    lines.push("_No results._");
+    return lines;
+  }
+
+  lines.push(
+    "| Rank | File | Function | Line | Score | Cpx | CpxN | Churn | ChurnN | Authors | Lines |",
+    "| ---: | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+  );
+
+  for (const [index, fn] of result.functions.entries()) {
+    lines.push(
+      `| ${index + 1} | ${escapeCell(fn.filePath)} | ${escapeCell(fn.functionName)} | ${fn.line} | ${formatScore(fn.hotspotScore)} | ${fn.complexity} | ${formatScore(fn.complexityNormalized)} | ${fn.commitCount} | ${formatScore(fn.churnNormalized)} | ${fn.authorCount} | ${fn.linesChanged} |`,
+    );
+  }
+
+  return lines;
+}
+
 function renderCouplingSection(result: ScanResult): string[] {
   const lines = ["## Top Coupling Pairs", ""];
 
@@ -55,13 +77,26 @@ function renderCouplingSection(result: ScanResult): string[] {
 }
 
 export function renderMarkdown(result: ScanResult): string {
-  const sections = [
+  const metadata = [
     "# Hotspot Scanner Report",
     "",
     `**Scan window:** ${result.meta.since}`,
     `**Scanned at:** ${result.meta.scannedAt}`,
+  ];
+
+  if (result.meta.granularity === "function") {
+    metadata.push(`**Granularity:** function`);
+  }
+
+  const rankingSection =
+    result.meta.granularity === "function"
+      ? renderFunctionsSection(result)
+      : renderHotspotsSection(result);
+
+  const sections = [
+    ...metadata,
     "",
-    ...renderHotspotsSection(result),
+    ...rankingSection,
     "",
     ...renderCouplingSection(result),
   ];

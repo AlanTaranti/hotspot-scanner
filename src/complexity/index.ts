@@ -1,7 +1,10 @@
 import { stat } from "node:fs/promises";
 import { relative, sep } from "node:path";
 import type { PathScope } from "../paths/scope.js";
-import type { ComplexityResult } from "../types/index.js";
+import type {
+  ComplexityResult,
+  FunctionComplexityResult,
+} from "../types/index.js";
 import { analyzeSourceFile } from "./analyze-file.js";
 import { discoverSourceFiles } from "./discover.js";
 import {
@@ -17,6 +20,7 @@ export interface ComplexityAnalyzerOptions {
 
 export interface ComplexityAnalyzerResult {
   results: ComplexityResult[];
+  functions: FunctionComplexityResult[];
   warnings: string[];
 }
 
@@ -59,21 +63,28 @@ async function analyzeBatch(
   project: TsMorphProjectAdapter,
   repoPath: string,
   batch: string[],
-): Promise<{ results: ComplexityResult[]; warnings: string[] }> {
+): Promise<{
+  results: ComplexityResult[];
+  functions: FunctionComplexityResult[];
+  warnings: string[];
+}> {
   const results: ComplexityResult[] = [];
+  const functions: FunctionComplexityResult[] = [];
   const warnings: string[] = [];
   const sourceFiles = await project.loadBatch(batch);
 
   for (const sourceFile of sourceFiles) {
     const filePath = normalizeRelativePath(repoPath, sourceFile.getFilePath());
-    results.push(analyzeSourceFile(sourceFile, filePath));
+    const analysis = analyzeSourceFile(sourceFile, filePath);
+    results.push(analysis.file);
+    functions.push(...analysis.functions);
   }
 
   for (const failure of project.getParseFailures()) {
     warnings.push(`Failed to parse ${failure.filePath}: ${failure.message}`);
   }
 
-  return { results, warnings };
+  return { results, functions, warnings };
 }
 
 export function createComplexityAnalyzer(
@@ -89,15 +100,17 @@ export function createComplexityAnalyzer(
       const filePaths = await discover(repoPath, scope);
       const project = createProject({ repoPath });
       const results: ComplexityResult[] = [];
+      const functions: FunctionComplexityResult[] = [];
       const warnings: string[] = [];
 
       for (const batch of chunk(filePaths, DEFAULT_BATCH_SIZE)) {
         const batchResult = await analyzeBatch(project, repoPath, batch);
         results.push(...batchResult.results);
+        functions.push(...batchResult.functions);
         warnings.push(...batchResult.warnings);
       }
 
-      return { results, warnings };
+      return { results, functions, warnings };
     },
   };
 }

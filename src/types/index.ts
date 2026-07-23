@@ -3,8 +3,12 @@ export type {
   ComplexityResult,
   CouplingPair,
   FileChangeStats,
+  FileComplexityResult,
+  FunctionComplexityResult,
+  FunctionHotspotScore,
   HotspotScore,
   ScanMeta,
   ScanOptions,
+  ScanGranularity,
   ScanResult,
 } from "./domain.js";

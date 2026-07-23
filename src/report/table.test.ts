@@ -10,11 +10,24 @@ const fixturePath = join(
   dirname(fileURLToPath(import.meta.url)),
   "../../tests/fixtures/report/sample-result.json",
 );
+const functionFixturePath = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "../../tests/fixtures/report/sample-result-functions.json",
+);
 
 function loadFixture(): ScanResult {
   const raw = JSON.parse(readFileSync(fixturePath, "utf8")) as ScanResult & {
     _comment?: string;
   };
+  const { _comment: _ignored, ...fixture } = raw;
+  void _ignored;
+  return fixture;
+}
+
+function loadFunctionFixture(): ScanResult {
+  const raw = JSON.parse(
+    readFileSync(functionFixturePath, "utf8"),
+  ) as ScanResult & { _comment?: string };
   const { _comment: _ignored, ...fixture } = raw;
   void _ignored;
   return fixture;
@@ -75,6 +88,7 @@ describe("renderTable", () => {
           authorCount: 2,
         },
       ],
+      functions: [],
       coupling: [
         {
           fileA: longPath,
@@ -86,6 +100,7 @@ describe("renderTable", () => {
       meta: {
         since: "12 months ago",
         scannedAt: "2026-07-22T12:00:00.000Z",
+        granularity: "file",
       },
     });
 
@@ -97,14 +112,25 @@ describe("renderTable", () => {
     const output = renderTable({
       version: "1.0",
       hotspots: [],
+      functions: [],
       coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-07-22T12:00:00.000Z",
+        granularity: "file",
       },
     });
 
     expect(output).toContain("  (none)");
     expect(output.match(/\(none\)/g)?.length).toBe(2);
+  });
+
+  it("renders Top Functions section in function mode", () => {
+    const output = renderTable(loadFunctionFixture());
+
+    expect(output).toContain("Top Functions");
+    expect(output).toContain("processOrder");
+    expect(output).toContain("0.8200");
+    expect(output).not.toContain("Top Hotspots");
   });
 });

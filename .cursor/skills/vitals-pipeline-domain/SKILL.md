@@ -17,7 +17,7 @@ git log (stream) → complexity (ts-morph) → scoring → report
 | ----- | ------ | -------------- |
 | Git | `src/git/` | `GitMiner` — single `git log` pass, streaming parse |
 | Complexity | `src/complexity/` | `ComplexityAnalyzer` — McCabe over ts-morph AST |
-| Scoring | `src/scoring/` | `HotspotScorer`, `TemporalCouplingScorer` |
+| Scoring | `src/scoring/` | `HotspotScorer`, `FunctionHotspotScorer`, `TemporalCouplingScorer` |
 | Report | `src/report/` | `Reporter` — CLI table + JSON |
 | Orchestration | `src/scan.ts` | `runScan()` |
 | CLI | `bin/hotspot-scanner.ts` | commander — flags only, no domain logic |
@@ -34,10 +34,16 @@ git log (stream) → complexity (ts-morph) → scoring → report
 - `filePath`, `cyclomaticComplexity`, `functionCount`
 - Working-tree AST only (not historical versions)
 
-### HotspotScore
+### FunctionComplexityResult
+
+- `filePath`, `functionName`, `line`, `complexity`
+- Per-function McCabe from `analyzeSourceFile()`; file aggregate sums per-function values
+
+### HotspotScore / FunctionHotspotScore
 
 - `hotspotScore = 2ch / (c + h)` (harmonic mean of normalized complexity and churn)
 - Churn = raw commit count (not relative code churn — closed decision)
+- Function mode: complexity normalized across all functions; churn inherited from parent file `commitCount`
 
 ### CoChangeEvent / CouplingPair
 
@@ -64,6 +70,7 @@ Formula: decision nodes + 1 per function/file scope (document exact scope in imp
 | `scan <path>` | Target repository |
 | `--since <period>` | Git history window (default ~12 months) |
 | `--format json` | JSON output |
+| `--granularity <mode>` | Ranking granularity: `file` (default) or `function` |
 | `--top <N>` | Limit ranking size |
 | `--min-cochange <N>` | Coupling pair threshold |
 
@@ -79,8 +86,17 @@ Formula: decision nodes + 1 per function/file scope (document exact scope in imp
 ## Output JSON schema
 
 ```json
-{ "version": "1.0", "hotspots": [...], "coupling": [...] }
+{
+  "version": "1.0",
+  "hotspots": [],
+  "functions": [],
+  "coupling": [],
+  "meta": { "since": "...", "scannedAt": "...", "granularity": "file" }
+}
 ```
+
+- `granularity: "file"` — `hotspots` populated, `functions` empty
+- `granularity: "function"` — `functions` populated, `hotspots` empty
 
 ## Related docs
 

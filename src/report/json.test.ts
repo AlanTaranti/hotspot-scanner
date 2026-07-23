@@ -10,6 +10,10 @@ const fixturePath = join(
   dirname(fileURLToPath(import.meta.url)),
   "../../tests/fixtures/report/sample-result.json",
 );
+const functionFixturePath = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "../../tests/fixtures/report/sample-result-functions.json",
+);
 
 function loadFixture(): ScanResult {
   const raw = JSON.parse(readFileSync(fixturePath, "utf8")) as ScanResult & {
@@ -55,15 +59,39 @@ describe("renderJson", () => {
     const output = renderJson({
       version: "1.0",
       hotspots: [],
+      functions: [],
       coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-07-22T12:00:00.000Z",
+        granularity: "file",
       },
     });
     const parsed = JSON.parse(output) as ScanResult;
 
     expect(parsed.hotspots).toEqual([]);
     expect(parsed.coupling).toEqual([]);
+  });
+
+  it("serializes function mode schema with empty hotspots", () => {
+    const raw = JSON.parse(
+      readFileSync(functionFixturePath, "utf8"),
+    ) as ScanResult & { _comment?: string };
+    const { _comment: _ignored, ...fixture } = raw;
+    void _ignored;
+
+    const output = renderJson(sliceScanResult(fixture, 2));
+    const parsed = JSON.parse(output) as ScanResult;
+
+    expect(parsed.meta.granularity).toBe("function");
+    expect(parsed.hotspots).toEqual([]);
+    expect(parsed.functions).toHaveLength(2);
+    expect(parsed.functions[0]).toMatchObject({
+      filePath: "src/hot.ts",
+      functionName: "processOrder",
+      line: 42,
+      complexity: 15,
+      hotspotScore: 0.82,
+    });
   });
 });

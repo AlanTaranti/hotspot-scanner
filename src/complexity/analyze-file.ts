@@ -3,7 +3,7 @@ import {
   type Node as TsMorphNode,
   type SourceFile,
 } from "ts-morph";
-import type { ComplexityResult } from "../types/index.js";
+import type { FileComplexityResult } from "../types/index.js";
 import { complexityForFunction } from "./mccabe.js";
 
 function collectFunctionsInScope(
@@ -62,21 +62,46 @@ function collectFunctionsInScope(
   });
 }
 
+function resolveFunctionName(node: TsMorphNode): string {
+  if (Node.isConstructorDeclaration(node)) {
+    return "constructor";
+  }
+  if (Node.isMethodDeclaration(node) || Node.isFunctionDeclaration(node)) {
+    return node.getName() ?? `<anonymous>:L${node.getStartLineNumber()}`;
+  }
+  const parent = node.getParent();
+  if (Node.isVariableDeclaration(parent)) {
+    return parent.getName();
+  }
+  return `<anonymous>:L${node.getStartLineNumber()}`;
+}
+
 export function analyzeSourceFile(
   sourceFile: SourceFile,
   filePath?: string,
-): ComplexityResult {
-  const functions: TsMorphNode[] = [];
-  collectFunctionsInScope(sourceFile, functions);
+): FileComplexityResult {
+  const functionNodes: TsMorphNode[] = [];
+  collectFunctionsInScope(sourceFile, functionNodes);
+
+  const resolvedPath = filePath ?? sourceFile.getFilePath();
+  const functions = functionNodes.map((node) => ({
+    filePath: resolvedPath,
+    functionName: resolveFunctionName(node),
+    line: node.getStartLineNumber(),
+    complexity: complexityForFunction(node),
+  }));
 
   const cyclomaticComplexity = functions.reduce(
-    (sum, fn) => sum + complexityForFunction(fn),
+    (sum, fn) => sum + fn.complexity,
     0,
   );
 
   return {
-    filePath: filePath ?? sourceFile.getFilePath(),
-    cyclomaticComplexity,
-    functionCount: functions.length,
+    file: {
+      filePath: resolvedPath,
+      cyclomaticComplexity,
+      functionCount: functions.length,
+    },
+    functions,
   };
 }

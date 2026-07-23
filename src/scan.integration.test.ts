@@ -57,4 +57,22 @@ describe("runScan integration", () => {
       expect(hotspot.filePath.startsWith("src/")).toBe(true);
     }
   });
+
+  it("returns function rankings when granularity is function", async () => {
+    const result = await runScan({
+      repoPath: smallTsFixture,
+      granularity: "function",
+    });
+
+    expect(result.meta.granularity).toBe("function");
+    expect(result.hotspots).toEqual([]);
+    expect(result.functions.length).toBeGreaterThan(0);
+    expect(result.coupling.length).toBeGreaterThanOrEqual(1);
+
+    const topFunction = result.functions[0]!;
+    expect(topFunction.functionName).toBeTruthy();
+    expect(topFunction.line).toBeGreaterThan(0);
+    expect(topFunction.complexity).toBeGreaterThan(0);
+    expect(topFunction.hotspotScore).toBeGreaterThanOrEqual(0);
+  });
 });
