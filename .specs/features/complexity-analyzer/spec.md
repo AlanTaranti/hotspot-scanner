@@ -2,7 +2,7 @@
 
 **Feature slug:** `complexity-analyzer`  
 **Milestone:** ROADMAP M3  
-**Design SoT:** [IMPL-2026-003 §4.3, §5.1, §7.1–7.2, §8.4, §9, §13](../../../specifications/IMPL-2026-003-hotspot-scanner.md) (RT-001, RT-002, RT-005)
+**Design SoT:** [ARCHITECTURE.md](../../codebase/ARCHITECTURE.md), [CONCERNS.md](../../codebase/CONCERNS.md), [TESTING.md](../../codebase/TESTING.md) (RT-001, RT-002, RT-005)
 
 ## Problem Statement
 

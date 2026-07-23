@@ -2,7 +2,7 @@
 
 **Feature slug:** `integration`  
 **Milestone:** ROADMAP M6  
-**Design SoT:** [IMPL-2026-003 §4, §7, §8.4, §9](../../../specifications/IMPL-2026-003-hotspot-scanner.md)  
+**Design SoT:** [ARCHITECTURE.md](../../codebase/ARCHITECTURE.md), [CONCERNS.md](../../codebase/CONCERNS.md)  
 **Context:** [`.specs/features/integration/context.md`](./context.md)
 
 ## Problem Statement

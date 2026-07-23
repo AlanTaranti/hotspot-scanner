@@ -10,7 +10,7 @@
 - **CLI bin:** `hotspot-scanner` (unscoped)
 - **Purpose:** Local CLI that ranks TS/JS maintenance hotspots from cyclomatic complexity, Git churn, and temporal coupling
 - **Pipeline:** `git → complexity → scoring → report`
-- **Design SoT:** [specifications/IMPL-2026-003-hotspot-scanner.md](../../../../specifications/IMPL-2026-003-hotspot-scanner.md)
+- **Design SoT:** [`.specs/codebase/ARCHITECTURE.md`](../../../../.specs/codebase/ARCHITECTURE.md)
 
 ## Module map
 
@@ -80,7 +80,7 @@ Includes Git streaming parse, McCabe decision nodes, scoring normalization formu
 
 ## Knowledge sources
 
-1. IMPL-2026-003 + `.specs/codebase/`
+1. `.specs/codebase/` (Design SoT) + [STATE.md](../../../../.specs/project/STATE.md)
 2. `vitals-pipeline-domain` skill for scan pipeline context
 3. Context7 MCP → ts-morph, commander, vitest (optional)
 4. Web search for official docs when needed

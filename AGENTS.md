@@ -9,7 +9,7 @@ Canonical reference for AI agents working in this repository.
 | **Package** | `@vitals/hotspot-scanner` |
 | **CLI bin** | `hotspot-scanner` (unscoped) |
 | **Purpose** | Local CLI that ranks TS/JS maintenance hotspots from cyclomatic complexity, Git churn, and temporal coupling |
-| **Design SoT** | [specifications/IMPL-2026-003-hotspot-scanner.md](specifications/IMPL-2026-003-hotspot-scanner.md) |
+| **Design SoT** | [`.specs/codebase/ARCHITECTURE.md`](.specs/codebase/ARCHITECTURE.md) |
 | **Project docs** | `.specs/project/`, `.specs/codebase/` |
 | **Feature specs** | `.specs/features/<slug>/` |
 

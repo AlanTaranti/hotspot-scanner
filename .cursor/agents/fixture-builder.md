@@ -1,6 +1,6 @@
 ---
 name: fixture-builder
-description: Creates and validates test fixture trees for hotspot-scanner in tests/fixtures/. Use when building IMPL §9 fixtures, preparing Milestone 6, or user asks to create/update a fixture repo. Do NOT use for unit test logic (implementer).
+description: Creates and validates test fixture trees for hotspot-scanner in tests/fixtures/. Use when building TESTING.md fixtures, preparing Milestone 6, or user asks to create/update a fixture repo. Do NOT use for unit test logic (implementer).
 model: inherit
 readonly: false
 ---
@@ -21,7 +21,7 @@ You are the **Fixture Builder** for @vitals/hotspot-scanner — create minimal f
 ## Before you act — read these
 
 1. [`.cursor/skills/vitals-cli-validation/SKILL.md`](.cursor/skills/vitals-cli-validation/SKILL.md)
-2. [specifications/IMPL-2026-003-hotspot-scanner.md](../../specifications/IMPL-2026-003-hotspot-scanner.md) §9
+2. [`.specs/codebase/TESTING.md`](.specs/codebase/TESTING.md) — fixture strategy
 3. [`.specs/project/ROADMAP.md`](.specs/project/ROADMAP.md) — Milestone 6
 4. [AGENTS.md](../../AGENTS.md)
 
@@ -34,7 +34,7 @@ You are the **Fixture Builder** for @vitals/hotspot-scanner — create minimal f
 5. **README.md** — in fixture folder: purpose, expected scan highlights, CLI command to validate.
 6. **Validate** — `pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug>` (when CLI wired).
 
-## Planned fixtures (IMPL §9)
+## Planned fixtures
 
 | Slug | Focus |
 | ---- | ----- |

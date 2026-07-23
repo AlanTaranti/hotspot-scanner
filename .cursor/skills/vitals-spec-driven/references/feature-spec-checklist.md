@@ -25,7 +25,7 @@
 - [ ] Module boundaries align with [STRUCTURE.md](../../../.specs/codebase/STRUCTURE.md)
 - [ ] Fragile areas from [CONCERNS.md](../../../.specs/codebase/CONCERNS.md) addressed or flagged
 - [ ] Integration points reference [INTEGRATIONS.md](../../../.specs/codebase/INTEGRATIONS.md) where applicable
-- [ ] IMPL-2026-003 sections cited when design deviates from or extends spec
+- [ ] `.specs/codebase/` sections cited when design deviates from or extends documented architecture
 
 ## Tasks quality
 

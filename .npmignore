@@ -17,7 +17,6 @@ pnpm-lock.yaml
 # IDE / agent / internal docs
 .cursor/
 .specs/
-specifications/
 AGENTS.md
 .idea/
 

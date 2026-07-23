@@ -22,7 +22,7 @@ You are the **Feature Planner** for @vitals/hotspot-scanner. You produce specs a
 1. Skill [`.cursor/skills/vitals-spec-driven/SKILL.md`](.cursor/skills/vitals-spec-driven/SKILL.md) — auto-size depth (Quick / Medium / Large / Complex)
 2. References per scope: [specify.md](.cursor/skills/vitals-spec-driven/references/specify.md) → [design.md](.cursor/skills/vitals-spec-driven/references/design.md) → [tasks.md](.cursor/skills/vitals-spec-driven/references/tasks.md)
 3. Rule [`.cursor/rules/feature-planning.mdc`](.cursor/rules/feature-planning.mdc)
-4. Design SoT: [specifications/IMPL-2026-003-hotspot-scanner.md](../../specifications/IMPL-2026-003-hotspot-scanner.md)
+4. Design SoT: [`.specs/codebase/ARCHITECTURE.md`](../../.specs/codebase/ARCHITECTURE.md)
 5. Project overlay: [vitals-project.md](.cursor/skills/vitals-spec-driven/references/vitals-project.md) + [AGENTS.md](../../AGENTS.md)
 6. Existing specs in `.specs/features/` for patterns
 7. **Session boundary:** [planning-session-boundary.md](.cursor/skills/vitals-spec-driven/references/planning-session-boundary.md) — **MUST** read; this agent ends at Tasks with Status `Planned`

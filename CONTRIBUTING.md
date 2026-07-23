@@ -4,8 +4,8 @@ Thank you for your interest in contributing. This document explains how to set u
 
 **@vitals/hotspot-scanner** is a local CLI that ranks TypeScript/JavaScript maintenance hotspots by combining cyclomatic complexity, Git churn, and temporal coupling. It runs entirely on your machine — no network services or databases.
 
-- **Design source of truth:** [specifications/IMPL-2026-003-hotspot-scanner.md](specifications/IMPL-2026-003-hotspot-scanner.md)
-- **License:** ISC (see [package.json](package.json))
+- **Design source of truth:** [.specs/codebase/ARCHITECTURE.md](.specs/codebase/ARCHITECTURE.md)
+- **License:** MIT (see [package.json](package.json))
 
 ## Prerequisites
 

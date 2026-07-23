@@ -5,7 +5,7 @@ description: Pipeline domain knowledge for hotspot-scanner — Git Miner, McCabe
 
 # Hotspot Scanner Pipeline Domain
 
-Concise domain reference for `@vitals/hotspot-scanner`. Full design: [specifications/IMPL-2026-003-hotspot-scanner.md](../../../specifications/IMPL-2026-003-hotspot-scanner.md).
+Concise domain reference for `@vitals/hotspot-scanner`. Full design: [`.specs/codebase/ARCHITECTURE.md`](../../../.specs/codebase/ARCHITECTURE.md).
 
 ## Pipeline stages
 
@@ -57,7 +57,7 @@ Count as decision nodes:
 
 Formula: decision nodes + 1 per function/file scope (document exact scope in implementation).
 
-## CLI flags (IMPL §6.1)
+## CLI flags
 
 | Flag | Purpose |
 | ---- | ------- |

@@ -2,7 +2,7 @@
 
 **Feature slug:** `git-change-miner`  
 **Milestone:** ROADMAP M2  
-**Design SoT:** [IMPL-2026-003 §4.3, §5.1–5.2, §7.1–7.2, §8.4, §9, §13](../../../specifications/IMPL-2026-003-hotspot-scanner.md)
+**Design SoT:** [ARCHITECTURE.md](../../codebase/ARCHITECTURE.md), [CONCERNS.md](../../codebase/CONCERNS.md), [TESTING.md](../../codebase/TESTING.md)
 
 ## Problem Statement
 

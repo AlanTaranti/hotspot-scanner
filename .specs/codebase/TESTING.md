@@ -10,7 +10,7 @@ Required before marking any task Complete. Agents: use `verifier-quality-gates` 
 
 ## Test runner
 
-**Vitest** (not Jest from IMPL §9 — documented in [STATE.md](../project/STATE.md)).
+**Vitest** (documented in [STATE.md](../project/STATE.md)).
 
 Config: `vitest.config.ts` at repo root.
 
@@ -69,7 +69,7 @@ coverage: {
 }
 ```
 
-> IMPL §9 originally specified ≥80% lines on `src/git/**`, `src/complexity/**`, and `src/scoring/**`. Gate enforcement follows `vitest.config.ts` global per-file thresholds above.
+> Original design targeted ≥80% lines on `src/git/**`, `src/complexity/**`, and `src/scoring/**`. Gate enforcement follows `vitest.config.ts` global per-file thresholds above.
 
 ## Test layers
 

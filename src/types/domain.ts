@@ -1,21 +1,21 @@
-/** Per-file churn aggregated from git log (IMPL §5.1). */
+/** Per-file churn aggregated from git log. */
 export interface FileChangeStats {
   filePath: string;
   commitCount: number;
   linesChanged: number;
-  /** Collected in M2; not exposed in JSON output (IMPL §5.2, §6.2). */
+  /** Collected in M2; not exposed in JSON output. */
   authors: Set<string>;
   lastModified: Date;
 }
 
-/** McCabe complexity per file (IMPL §5.1). */
+/** McCabe complexity per file. */
 export interface ComplexityResult {
   filePath: string;
   cyclomaticComplexity: number;
   functionCount: number;
 }
 
-/** Ranked hotspot entry (IMPL §5.1). */
+/** Ranked hotspot entry. */
 export interface HotspotScore {
   filePath: string;
   complexityNormalized: number;
@@ -23,13 +23,13 @@ export interface HotspotScore {
   hotspotScore: number;
 }
 
-/** Co-change event from a single commit (IMPL §5.1). */
+/** Co-change event from a single commit. */
 export interface CoChangeEvent {
   commitHash: string;
   filesChanged: string[];
 }
 
-/** Ranked temporal coupling pair (IMPL §4.3, §6.2). */
+/** Ranked temporal coupling pair. */
 export interface CouplingPair {
   fileA: string;
   fileB: string;
@@ -56,7 +56,7 @@ export interface ScanMeta {
   scannedAt: string;
 }
 
-/** Full scan output (IMPL §6.2 JSON schema). */
+/** Full scan output (JSON schema). */
 export interface ScanResult {
   version: "1.0";
   hotspots: HotspotScore[];

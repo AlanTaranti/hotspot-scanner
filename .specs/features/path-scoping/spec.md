@@ -2,7 +2,7 @@
 
 **Feature slug:** `path-scoping`  
 **Milestone:** ROADMAP M7  
-**Design SoT:** [IMPL-2026-003 §4, §6.1, §8.4](../../../specifications/IMPL-2026-003-hotspot-scanner.md)  
+**Design SoT:** [ARCHITECTURE.md](../../codebase/ARCHITECTURE.md)  
 **Context:** [`.specs/features/path-scoping/context.md`](./context.md)
 
 ## Problem Statement

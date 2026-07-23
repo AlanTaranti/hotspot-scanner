@@ -1,7 +1,5 @@
 # ARCHITECTURE — @vitals/hotspot-scanner
 
-Design SoT: [specifications/IMPL-2026-003-hotspot-scanner.md](../../specifications/IMPL-2026-003-hotspot-scanner.md) §4.
-
 ## Container view
 
 ```mermaid

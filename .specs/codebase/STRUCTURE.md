@@ -17,8 +17,6 @@ hotspot-scanner/
 │   └── index.ts                 # Public library API (optional)
 ├── tests/
 │   └── fixtures/                # Git repos + git log samples + TS complexity fixtures
-├── specifications/
-│   └── IMPL-2026-003-hotspot-scanner.md
 └── .specs/                      # Living project docs
 ```
 

@@ -101,7 +101,7 @@ Próximos milestones priorizados para adoção real. Specs em `.specs/features/<
 
 - [ ] `--fail-on-hotspot-score <n>` and/or `--fail-on-coupling-strength <n>`
 - [ ] Exit code `1` when threshold exceeded (success scan with gate failure)
-- [ ] Document reversal of IMPL §3.2 non-goal in STATE.md when planned
+- [ ] Document reversal of v1 CI-gate non-goal in STATE.md when planned
 
 ### Milestone 12 — Scan Compare
 

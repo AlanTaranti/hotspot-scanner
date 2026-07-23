@@ -18,7 +18,7 @@ This skill is adapted for the **@vitals/hotspot-scanner** repository, based on T
 
 **Scope:** Project-specific — do not treat as stack-agnostic. Applies only to this repository unless explicitly forked.
 
-**Brownfield status:** `.specs/codebase/` bootstrapped from IMPL-2026-003 — refresh incrementally after milestones. Do not run full brownfield mapping unless the user requests a refresh.
+**Brownfield status:** `.specs/codebase/` is the Design SoT — refresh incrementally after milestones. Do not run full brownfield mapping unless the user requests a refresh.
 
 **Base load for this repo:**
 

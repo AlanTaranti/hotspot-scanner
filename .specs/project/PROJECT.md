@@ -8,7 +8,7 @@
 
 ## Goals
 
-- Rank files by `hotspotScore = normalize(complexity) × normalize(churn)` (IMPL §4.3)
+- Rank files by `hotspotScore = normalize(complexity) × normalize(churn)`
 - Surface temporal coupling pairs with `couplingStrength` metric
 - Run 100% locally — no network, no CI gate in v1
 - Scale from small repos (~500 files, ~5k commits) to large repos via streaming Git parse
@@ -19,7 +19,7 @@
 
 - Runtime: Node.js 22+
 - Language: TypeScript 6 (ESM)
-- Test: Vitest (repo choice; IMPL §9 mentions Jest — see STATE.md)
+- Test: Vitest (see STATE.md)
 - AST: ts-morph (McCabe implementation is project-owned)
 - Git: subprocess or simple-git
 - CLI: commander (TBD at implementation)
@@ -42,5 +42,5 @@
 
 ## References
 
-- Design: [specifications/IMPL-2026-003-hotspot-scanner.md](../../specifications/IMPL-2026-003-hotspot-scanner.md)
 - Architecture: [../codebase/ARCHITECTURE.md](../codebase/ARCHITECTURE.md)
+- Decisions: [STATE.md](STATE.md)

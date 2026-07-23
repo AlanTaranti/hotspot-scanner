@@ -4,7 +4,7 @@
 
 **Purpose:** Understand existing project structure before adding features.
 
-**@vitals/hotspot-scanner:** `.specs/codebase/` is bootstrapped from IMPL-2026-003. Skip full mapping unless the user requests a refresh. When refreshing, update only affected files — do not recreate all docs from scratch unless they are missing or severely outdated.
+**@vitals/hotspot-scanner:** `.specs/codebase/` is the Design SoT. Skip full mapping unless the user requests a refresh. When refreshing, update only affected files — do not recreate all docs from scratch unless they are missing or severely outdated.
 
 ## Process
 

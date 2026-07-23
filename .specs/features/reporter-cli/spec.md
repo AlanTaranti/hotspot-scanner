@@ -2,7 +2,7 @@
 
 **Feature slug:** `reporter-cli`  
 **Milestone:** ROADMAP M5  
-**Design SoT:** [IMPL-2026-003 §4.3, §6.1, §6.2, §8.5, §9](../../../specifications/IMPL-2026-003-hotspot-scanner.md)  
+**Design SoT:** [ARCHITECTURE.md](../../codebase/ARCHITECTURE.md), [INTEGRATIONS.md](../../codebase/INTEGRATIONS.md)  
 **Context:** [`.specs/features/reporter-cli/context.md`](./context.md)
 
 ## Problem Statement

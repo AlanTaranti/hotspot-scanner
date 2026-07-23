@@ -27,7 +27,7 @@ Agentes de planejamento param em Tasks com `tasks.md` **Status: `Planned`** — 
 
 ## Fontes de requisitos
 
-- Design SoT: `specifications/IMPL-2026-003-hotspot-scanner.md`
+- Design SoT: `.specs/codebase/ARCHITECTURE.md`
 - Specs de feature: `.specs/features/<feature>/`
 - Milestones: `.specs/project/ROADMAP.md`
 - Decisões: `.specs/project/STATE.md`

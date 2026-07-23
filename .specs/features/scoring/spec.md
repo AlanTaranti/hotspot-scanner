@@ -2,7 +2,7 @@
 
 **Feature slug:** `scoring`  
 **Milestone:** ROADMAP M4  
-**Design SoT:** [IMPL-2026-003 §4.3, §5.1, §7.1, §8.4, §9, §13](../../../specifications/IMPL-2026-003-hotspot-scanner.md)  
+**Design SoT:** [ARCHITECTURE.md](../../codebase/ARCHITECTURE.md), [CONCERNS.md](../../codebase/CONCERNS.md), [TESTING.md](../../codebase/TESTING.md)  
 **Context:** [`.specs/features/scoring/context.md`](./context.md)
 
 ## Problem Statement

@@ -15,7 +15,7 @@ Automated validation for `@vitals/hotspot-scanner` CLI. No interactive UI UAT.
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo>
 ```
 
-With flags (per IMPL §6.1):
+With flags:
 
 ```bash
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --since "12 months ago" --format json --top 20
@@ -31,7 +31,7 @@ pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --min-cochange 3
 
 See [AGENTS.md](../../../AGENTS.md) § Validation.
 
-## Flag matrix (IMPL §6.1)
+## Flag matrix
 
 | Flag | Purpose | Default |
 | ---- | ------- | ------- |
@@ -55,14 +55,14 @@ Test relevant flags when the feature scope touches CLI.
 2. Is a valid git repository (for integration scans)
 3. `pnpm exec hotspot-scanner scan <path>` exits `0` on success
 4. JSON output matches schema when `--format json`
-5. Output shows `--since` window used (IMPL §6.2)
+5. Output shows `--since` window used
 
 ## JSON output checks
 
 - Top-level `version` field present
 - `hotspots` array sorted by score descending
 - `coupling` array sorted by strength descending
-- Required fields per IMPL §5.1
+- Required fields per domain types in `src/types/domain.ts`
 
 ## Related agents
 
@@ -74,6 +74,6 @@ Test relevant flags when the feature scope touches CLI.
 
 ## References
 
-- Design SoT: [specifications/IMPL-2026-003-hotspot-scanner.md](../../../specifications/IMPL-2026-003-hotspot-scanner.md) §6, §9
+- Design SoT: [`.specs/codebase/ARCHITECTURE.md`](../../../.specs/codebase/ARCHITECTURE.md), [TESTING.md](../../../.specs/codebase/TESTING.md)
 - Skill: [vitals-pipeline-domain](../vitals-pipeline-domain/SKILL.md)
 - Rule: [testing-patterns.mdc](../../rules/testing-patterns.mdc)

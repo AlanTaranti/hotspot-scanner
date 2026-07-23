@@ -6,7 +6,7 @@ alwaysApply: false
 
 # Áreas Frágeis do Scanner
 
-SoT: [specifications/IMPL-2026-003-hotspot-scanner.md](../../specifications/IMPL-2026-003-hotspot-scanner.md) §4.3, §7, [`.specs/codebase/CONCERNS.md`](../../.specs/codebase/CONCERNS.md).
+SoT: [`.specs/codebase/ARCHITECTURE.md`](../../.specs/codebase/ARCHITECTURE.md), [`.specs/codebase/CONCERNS.md`](../../.specs/codebase/CONCERNS.md).
 
 Mudanças em `src/scan.ts` que alteram ordem de estágios ou wiring do pipeline exigem testes de integração atualizados.
 

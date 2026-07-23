@@ -2,7 +2,7 @@
 
 **Feature slug:** `scaffold`  
 **Milestone:** ROADMAP M1  
-**Design SoT:** [IMPL-2026-003 §4–5](../../../specifications/IMPL-2026-003-hotspot-scanner.md)
+**Design SoT:** [ARCHITECTURE.md](../../codebase/ARCHITECTURE.md), [STRUCTURE.md](../../codebase/STRUCTURE.md)
 
 ## Problem Statement
 
