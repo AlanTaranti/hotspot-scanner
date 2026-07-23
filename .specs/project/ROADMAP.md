@@ -145,10 +145,20 @@ Prefer balanced dual-signal files (actively complex + churned) over spiky one-ax
 
 **Slug (planned):** `format-scoped-top` | **Priority:** Medium
 
-- [ ] `--top` limits output only for `--format table` and `--format markdown`
+- [ ] `--top` limits output only for `--format table`, `--format markdown`, and `--format csv`
 - [ ] `--format json` (scan and compare) outputs full ranked arrays; `--top` is ignored
-- [ ] Compare: classification still uses full rankings; slicing applies only to table/markdown delta display
+- [ ] Compare: classification still uses full rankings; slicing applies only to table/markdown/csv delta display
+
+### Milestone 17 — CSV Export
+
+**Slug (planned):** `csv-export` | **Priority:** Medium
+
+- [ ] `--format csv` CLI option (scan + compare)
+- [ ] `renderCsv()` / `renderCompareCsv()` in `src/report/` — tabular hotspots, functions (`--granularity function`), and coupling sections
+- [ ] RFC 4180 escaping (commas, quotes, newlines in file paths)
+- [ ] Works with `--output <path>` (same transport rules as M10)
+- [ ] Spec via `planner-feature` before Execute
 
 ### Suggested execution order
 
-M7 → M8 → M9 → M12 → M10 → M16 → M11 → M13 → M14 → M15
+M7 → M8 → M9 → M12 → M10 → M17 → M16 → M11 → M13 → M14 → M15
