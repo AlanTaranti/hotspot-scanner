@@ -120,10 +120,11 @@ Prefer balanced dual-signal files (actively complex + churned) over spiky one-ax
 
 ### Milestone 13 — Scan Compare
 
-**Slug (planned):** `scan-compare` | **Priority:** High
+→ [`.specs/features/scan-compare/spec.md`](../features/scan-compare/spec.md)  
+**Slug:** `scan-compare` | **Priority:** High | **Specs:** Done
 
-- [ ] `hotspot-scanner compare <baseline.json> <path>` or `scan --baseline <file>`
-- [ ] Delta report: new/removed/ranked-changed hotspots and coupling pairs
+- [ ] `hotspot-scanner scan <path> --baseline <file>`
+- [ ] Delta report: new/removed/rank-changed hotspots, functions, and coupling pairs
 
 ### Milestone 14 — Enriched Coupling
 
