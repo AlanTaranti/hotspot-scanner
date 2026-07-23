@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M6 Integration complete** — Post-v1 backlog planned (M7–M14).
+Status: **M6 Integration complete** — Post-v1 backlog planned (M7–M15).
 
 ## Milestone 1 — Scaffold
 
@@ -73,7 +73,19 @@ Próximos milestones priorizados para adoção real. Specs em `.specs/features/<
 - [x] Validate `repoPath` is a Git repository (`.git` exists) before scan
 - [x] CLI flags `--include <glob>` and `--exclude <glob>` (repeatable)
 
-### Milestone 8 — Rich Output
+### Milestone 8 — Harmonic Hotspot Score
+
+**Slug (planned):** `harmonic-hotspot-score` | **Priority:** High
+
+Prefer balanced dual-signal files (actively complex + churned) over spiky one-axis outliers. Same normalization; only combiner changes.
+
+- [ ] Replace `hotspotScore = c × h` with `hotspotScore = 2ch / (c + h)` (harmonic mean of normalized complexity and churn)
+- [ ] Zero guard: when `c + h === 0`, score is `0` (covers zero churn, missing stats, degenerate normalization)
+- [ ] Update scoring fixtures and unit tests with new expected rankings (order may change vs product)
+- [ ] Record decision in STATE.md; sync CONCERNS.md, README, fragile-areas rule, pipeline-domain skill
+- [ ] Spec via `planner-feature` → `.specs/features/harmonic-hotspot-score/` before Execute
+
+### Milestone 9 — Rich Output
 
 **Slug (planned):** `rich-output` | **Priority:** Critical + High
 
@@ -81,21 +93,21 @@ Próximos milestones priorizados para adoção real. Specs em `.specs/features/<
 - [ ] Table output shows raw metrics alongside normalized scores
 - [ ] Expose bus factor: `authorCount` (from existing `authors` Set in `FileChangeStats`)
 
-### Milestone 9 — Export Formats
+### Milestone 10 — Export Formats
 
 **Slug (planned):** `export-formats` | **Priority:** High
 
 - [ ] `--output <path>` writes report to file (table/json/markdown)
 - [ ] `--format markdown` for PR-friendly report
 
-### Milestone 10 — Function Granularity
+### Milestone 11 — Function Granularity
 
 **Slug (planned):** `function-granularity` | **Priority:** High
 
 - [ ] Per-function McCabe in output (`functionName`, `line`, `complexity`)
 - [ ] `--granularity file|function` (default `file`; function mode ranks top functions)
 
-### Milestone 11 — CI Gate
+### Milestone 12 — CI Gate
 
 **Slug (planned):** `ci-gate` | **Priority:** Critical
 
@@ -103,21 +115,21 @@ Próximos milestones priorizados para adoção real. Specs em `.specs/features/<
 - [ ] Exit code `1` when threshold exceeded (success scan with gate failure)
 - [ ] Document reversal of v1 CI-gate non-goal in STATE.md when planned
 
-### Milestone 12 — Scan Compare
+### Milestone 13 — Scan Compare
 
 **Slug (planned):** `scan-compare` | **Priority:** High
 
 - [ ] `hotspot-scanner compare <baseline.json> <path>` or `scan --baseline <file>`
 - [ ] Delta report: new/removed/ranked-changed hotspots and coupling pairs
 
-### Milestone 13 — Enriched Coupling
+### Milestone 14 — Enriched Coupling
 
 **Slug (planned):** `enriched-coupling` | **Priority:** High
 
 - [ ] Static import analysis between coupled file pairs
 - [ ] Output field `hasStaticDependency: boolean` on `CouplingPair`
 
-### Milestone 14 — AST Parallelization
+### Milestone 15 — AST Parallelization
 
 **Slug (planned):** `ast-parallelization` | **Priority:** High
 
@@ -126,4 +138,4 @@ Próximos milestones priorizados para adoção real. Specs em `.specs/features/<
 
 ### Suggested execution order
 
-M7 → M8 → M11 → M9 → M10 → M12 → M13 → M14
+M7 → M8 → M9 → M12 → M10 → M11 → M13 → M14 → M15
