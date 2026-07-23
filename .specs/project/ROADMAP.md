@@ -141,6 +141,14 @@ Prefer balanced dual-signal files (actively complex + churned) over spiky one-ax
 - [x] Worker-thread batch processing in `src/complexity/` (RT-001)
 - [x] Remove entry from STATE.md §Deferred when Done
 
+### Milestone 16 — Format-Scoped Top Limit
+
+**Slug (planned):** `format-scoped-top` | **Priority:** Medium
+
+- [ ] `--top` limits output only for `--format table` and `--format markdown`
+- [ ] `--format json` (scan and compare) outputs full ranked arrays; `--top` is ignored
+- [ ] Compare: classification still uses full rankings; slicing applies only to table/markdown delta display
+
 ### Suggested execution order
 
-M7 → M8 → M9 → M12 → M10 → M11 → M13 → M14 → M15
+M7 → M8 → M9 → M12 → M10 → M16 → M11 → M13 → M14 → M15
