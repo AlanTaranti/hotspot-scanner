@@ -1,0 +1,165 @@
+# Contributing to @vitals/hotspot-scanner
+
+Thank you for your interest in contributing. This document explains how to set up the project locally, verify your changes, and where to find the technical details you need before coding.
+
+**@vitals/hotspot-scanner** is a local CLI that ranks TypeScript/JavaScript maintenance hotspots by combining cyclomatic complexity, Git churn, and temporal coupling. It runs entirely on your machine — no network services or databases.
+
+- **Design source of truth:** [specifications/IMPL-2026-003-hotspot-scanner.md](specifications/IMPL-2026-003-hotspot-scanner.md)
+- **License:** ISC (see [package.json](package.json))
+
+## Prerequisites
+
+| Requirement | Version |
+|-------------|---------|
+| Node.js | 22+ |
+| pnpm | latest stable |
+| git | required at runtime for scans |
+
+## Local setup
+
+```bash
+git clone <repo-url>
+cd hotspot-scanner
+pnpm install
+pnpm build
+pnpm test
+```
+
+`pnpm test` runs Vitest with **mandatory per-file coverage**. Every included source file must meet the thresholds defined in [vitest.config.ts](vitest.config.ts) and documented in [.specs/codebase/TESTING.md](.specs/codebase/TESTING.md).
+
+## Quality gate
+
+Before opening a pull request, run:
+
+```bash
+pnpm build && pnpm test
+```
+
+This is the required acceptance bar for all contributions. There is no CI pipeline in v1 — local verification is what reviewers expect.
+
+### Coverage thresholds
+
+Per-file coverage applies to all `src/**` and `bin/**` files, except `src/types/**`:
+
+| Metric | Minimum |
+|--------|---------|
+| Lines | 90% |
+| Functions | 90% |
+| Branches | 80% |
+| Statements | 80% |
+
+Do not lower thresholds, skip tests, or weaken assertions to pass the gate. A falling test count is a potential regression — investigate before merging.
+
+## Manual CLI validation
+
+When you change CLI flags, `bin/`, or pipeline wiring, validate against a fixture repo:
+
+```bash
+pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts
+pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts --since "12 months ago" --format json
+```
+
+| Exit code | Meaning |
+|-----------|---------|
+| `0` | Scan completed successfully |
+| `!= 0` | Invalid repo/path, git error, or invalid CLI arguments |
+
+## How to contribute
+
+```mermaid
+flowchart LR
+  smallFix[Small fix or tweak] --> gate[pnpm build && pnpm test]
+  feature[New feature or behavior change] --> specs[Specify in .specs/features/]
+  specs --> implement[Implement with tests]
+  implement --> gate
+  gate --> pr[Open PR with description and test plan]
+```
+
+### Small changes
+
+For bug fixes, typos, or narrow refactors:
+
+1. Read the relevant module and [.specs/codebase/CONVENTIONS.md](.specs/codebase/CONVENTIONS.md)
+2. Co-locate `*.test.ts` with the module under test
+3. Run the quality gate
+
+### Medium and large features
+
+For new CLI flags, scanner modules, or scoring changes:
+
+1. Follow **Specify → Design → Tasks → Execute** (see [.cursor/skills/vitals-spec-driven/](.cursor/skills/vitals-spec-driven/))
+2. Create or extend `.specs/features/<slug>/` with:
+   - `spec.md` — requirements with traceable `HOTSPOT-*` IDs
+   - `design.md` — optional, for architectural decisions
+   - `tasks.md` — optional, for multi-step breakdown
+3. Check [.specs/project/ROADMAP.md](.specs/project/ROADMAP.md) for planned milestones
+4. Update living docs in `.specs/codebase/` when adding modules, types, or integrations
+
+**YAGNI:** implement only what the spec or task requires. Do not add extra flags, abstractions, or features beyond the current requirement.
+
+## Code conventions
+
+Summary of [.specs/codebase/CONVENTIONS.md](.specs/codebase/CONVENTIONS.md) and [.specs/codebase/STRUCTURE.md](.specs/codebase/STRUCTURE.md):
+
+- **ESM only** — import internal modules with `.js` extension in TypeScript source
+- **Domain logic in `src/`** — `bin/` is for commander flag parsing and `runScan()` invocation only
+- **Co-locate tests** — `*.test.ts` next to the module; fixtures live in `tests/fixtures/`
+- **Separate build** — `src/**` via root `tsc`; `bin/hotspot-scanner.ts` via `tsconfig.bin.json`
+
+```
+hotspot-scanner/
+├── bin/              # CLI entry (flags only)
+├── src/
+│   ├── git/          # Git Change Miner
+│   ├── complexity/   # McCabe over ts-morph
+│   ├── scoring/      # Hotspot + temporal coupling scorers
+│   ├── paths/        # Path scoping (--include, --exclude)
+│   ├── diagnostics/  # stderr warnings + progress
+│   ├── report/       # CLI table + JSON output
+│   ├── scan.ts       # Pipeline orchestration
+│   └── types/        # Domain types (no runtime logic)
+└── tests/fixtures/   # Git repos, git-log samples, complexity fixtures
+```
+
+## Architecture boundaries
+
+External dependencies must stay inside their adapter modules (see [.specs/codebase/INTEGRATIONS.md](.specs/codebase/INTEGRATIONS.md)):
+
+| Dependency | Allowed location |
+|------------|------------------|
+| `ts-morph` | `src/complexity/` only |
+| `git` subprocess | `src/git/` only |
+| `picomatch` | `src/paths/` only |
+| `commander` | `bin/hotspot-scanner.ts` only |
+
+In tests, mock at adapter boundaries — not in scorers, reporter, or `scan.ts`. New runtime dependencies require design justification and an entry in `INTEGRATIONS.md`.
+
+## Fragile areas
+
+Changes to these modules need extra care and targeted fixtures (see [.specs/codebase/CONCERNS.md](.specs/codebase/CONCERNS.md)):
+
+| Module | Risk |
+|--------|------|
+| `src/git/` | Streaming parse, renames, merges — incorrect parsing distorts all downstream scores |
+| `src/complexity/` | McCabe decision-node definition — bugs silently change rankings |
+| `src/scoring/` | Normalization and formula changes — ranking order can shift without obvious failures |
+
+## Commits and pull requests
+
+- Use **Conventional Commits** (e.g. `feat:`, `fix:`, `test:`, `docs:`)
+- PR description should include: what changed, why, and a test plan (commands you ran)
+- Local quality gate is the acceptance bar — no CI in v1
+
+## Documentation map
+
+| Topic | Document |
+|-------|----------|
+| Module layout | [.specs/codebase/STRUCTURE.md](.specs/codebase/STRUCTURE.md) |
+| Pipeline / data flow | [.specs/codebase/ARCHITECTURE.md](.specs/codebase/ARCHITECTURE.md) |
+| Testing & coverage | [.specs/codebase/TESTING.md](.specs/codebase/TESTING.md) |
+| External dependencies | [.specs/codebase/INTEGRATIONS.md](.specs/codebase/INTEGRATIONS.md) |
+| Fragile areas | [.specs/codebase/CONCERNS.md](.specs/codebase/CONCERNS.md) |
+| Conventions | [.specs/codebase/CONVENTIONS.md](.specs/codebase/CONVENTIONS.md) |
+| Decisions | [.specs/project/STATE.md](.specs/project/STATE.md) |
+| Roadmap | [.specs/project/ROADMAP.md](.specs/project/ROADMAP.md) |
+| AI/agent workflow | [AGENTS.md](AGENTS.md) |
