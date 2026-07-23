@@ -3,7 +3,7 @@ export interface FileChangeStats {
   filePath: string;
   commitCount: number;
   linesChanged: number;
-  /** Collected in M2; not exposed in JSON output. */
+  /** Collected in M2; exposed as authorCount in hotspot output. */
   authors: Set<string>;
   lastModified: Date;
 }
@@ -21,6 +21,11 @@ export interface HotspotScore {
   complexityNormalized: number;
   churnNormalized: number;
   hotspotScore: number;
+  cyclomaticComplexity: number;
+  functionCount: number;
+  commitCount: number;
+  linesChanged: number;
+  authorCount: number;
 }
 
 /** Co-change event from a single commit. */

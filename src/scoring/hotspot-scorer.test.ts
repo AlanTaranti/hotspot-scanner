@@ -11,7 +11,12 @@ const fixtureDir = join(
 );
 
 function buildFileStats(
-  entries: Array<{ filePath: string; commitCount: number }>,
+  entries: Array<{
+    filePath: string;
+    commitCount: number;
+    linesChanged?: number;
+    authors?: string[];
+  }>,
 ): Map<string, FileChangeStats> {
   const stats = new Map<string, FileChangeStats>();
 
@@ -19,8 +24,8 @@ function buildFileStats(
     stats.set(entry.filePath, {
       filePath: entry.filePath,
       commitCount: entry.commitCount,
-      linesChanged: 0,
-      authors: new Set(),
+      linesChanged: entry.linesChanged ?? 0,
+      authors: new Set(entry.authors ?? []),
       lastModified: new Date("2026-01-01T00:00:00.000Z"),
     });
   }
@@ -44,6 +49,65 @@ describe("scoreHotspots", () => {
     const missingChurn = results.find((entry) => entry.filePath === "src/b.ts");
     expect(missingChurn?.churnNormalized).toBe(0);
     expect(missingChurn?.hotspotScore).toBe(0);
+    expect(missingChurn?.commitCount).toBe(0);
+    expect(missingChurn?.linesChanged).toBe(0);
+    expect(missingChurn?.authorCount).toBe(0);
+  });
+
+  it("populates all raw fields from complexity and fileStats", () => {
+    const complexity: ComplexityResult[] = [
+      { filePath: "src/a.ts", cyclomaticComplexity: 10, functionCount: 3 },
+    ];
+    const fileStats = buildFileStats([
+      {
+        filePath: "src/a.ts",
+        commitCount: 20,
+        linesChanged: 150,
+        authors: ["alice", "bob", "carol"],
+      },
+    ]);
+    const [result] = scoreHotspots(fileStats, complexity);
+
+    expect(result).toMatchObject({
+      cyclomaticComplexity: 10,
+      functionCount: 3,
+      commitCount: 20,
+      linesChanged: 150,
+      authorCount: 3,
+    });
+  });
+
+  it("sets authorCount from authors Set size", () => {
+    const complexity: ComplexityResult[] = [
+      { filePath: "src/a.ts", cyclomaticComplexity: 5, functionCount: 1 },
+    ];
+    const fileStats = buildFileStats([
+      {
+        filePath: "src/a.ts",
+        commitCount: 5,
+        authors: ["dev1", "dev2"],
+      },
+    ]);
+    const [result] = scoreHotspots(fileStats, complexity);
+
+    expect(result?.authorCount).toBe(2);
+  });
+
+  it("never leaves raw fields undefined", () => {
+    const complexity: ComplexityResult[] = [
+      { filePath: "src/a.ts", cyclomaticComplexity: 10, functionCount: 2 },
+      { filePath: "src/b.ts", cyclomaticComplexity: 5, functionCount: 1 },
+    ];
+    const fileStats = buildFileStats([{ filePath: "src/a.ts", commitCount: 10 }]);
+    const results = scoreHotspots(fileStats, complexity);
+
+    for (const entry of results) {
+      expect(entry.cyclomaticComplexity).toBeDefined();
+      expect(entry.functionCount).toBeDefined();
+      expect(entry.commitCount).toBeDefined();
+      expect(entry.linesChanged).toBeDefined();
+      expect(entry.authorCount).toBeDefined();
+    }
   });
 
   it("computes hotspotScore as harmonic mean of normalized values", () => {
@@ -133,6 +197,11 @@ describe("scoreHotspots", () => {
       complexityNormalized: 0,
       churnNormalized: 0,
       hotspotScore: 0,
+      cyclomaticComplexity: 15,
+      functionCount: 1,
+      commitCount: 10,
+      linesChanged: 0,
+      authorCount: 0,
     });
   });
 

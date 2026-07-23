@@ -18,6 +18,13 @@ describe("runScan integration", () => {
     expect(result.hotspots.length).toBeGreaterThanOrEqual(1);
     expect(result.hotspots[0]!.filePath).toBe(EXPECTED_TOP_HOTSPOT);
 
+    const topHotspot = result.hotspots[0]!;
+    expect(topHotspot.cyclomaticComplexity).toBeGreaterThan(0);
+    expect(topHotspot.commitCount).toBeGreaterThan(0);
+    expect(topHotspot.authorCount).toBeGreaterThan(0);
+    expect(topHotspot.functionCount).toBeDefined();
+    expect(topHotspot.linesChanged).toBeDefined();
+
     expect(result.coupling.length).toBeGreaterThanOrEqual(1);
     const topCoupling = result.coupling[0]!;
     expect(topCoupling.coChangeCount).toBeGreaterThanOrEqual(

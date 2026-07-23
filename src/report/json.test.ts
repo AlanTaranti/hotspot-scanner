@@ -35,6 +35,11 @@ describe("renderJson", () => {
       complexityNormalized: 0.9,
       churnNormalized: 0.9444,
       hotspotScore: 0.85,
+      cyclomaticComplexity: 42,
+      functionCount: 8,
+      commitCount: 15,
+      linesChanged: 320,
+      authorCount: 3,
     });
     expect(parsed.coupling[0]).toMatchObject({
       fileA: "src/a.ts",

@@ -29,8 +29,8 @@ Explicitly excluded. Documented to prevent scope creep.
 | Intersect complexity paths with git paths (M6 C1) | M7 filters by **scope rules**, not by presence in both stages |
 | `.gitignore` / `.hotspotignore` file support | Future; explicit globs suffice for M7 |
 | Path scoping via `git log -- pathspec` | Preserves single-pass ADR-2026-020; post-aggregation filter instead |
-| Rich JSON raw metrics | Milestone 8 — [rich-output/spec.md](../rich-output/spec.md) (planned) |
-| Export formats / markdown output | Milestone 9 |
+| Rich JSON raw metrics | Milestone 9 — [rich-output/spec.md](../rich-output/spec.md) |
+| Export formats / markdown output | Milestone 10 |
 | CI fail thresholds | Milestone 11 |
 
 ---

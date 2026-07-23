@@ -90,9 +90,9 @@ Prefer balanced dual-signal files (actively complex + churned) over spiky one-ax
 → [`.specs/features/rich-output/spec.md`](../features/rich-output/spec.md)  
 **Slug:** `rich-output` | **Priority:** Critical + High | **Specs:** Done
 
-- [ ] JSON hotspots include raw `cyclomaticComplexity`, `commitCount`, `linesChanged`, `functionCount`
-- [ ] Table output shows raw metrics alongside normalized scores
-- [ ] Expose bus factor: `authorCount` (from existing `authors` Set in `FileChangeStats`)
+- [x] JSON hotspots include raw `cyclomaticComplexity`, `commitCount`, `linesChanged`, `functionCount`
+- [x] Table output shows raw metrics alongside normalized scores
+- [x] Expose bus factor: `authorCount` (from existing `authors` Set in `FileChangeStats`)
 
 ### Milestone 10 — Export Formats
 

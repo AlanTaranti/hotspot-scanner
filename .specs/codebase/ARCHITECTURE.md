@@ -59,3 +59,21 @@ flowchart TB
 `src/scan.ts` is the pipeline orchestrator: `createGitMiner` → `createComplexityAnalyzer` → `createHotspotScorer` + `createTemporalCouplingScorer`. It returns a typed `ScanResult` with full ranked lists. `bin/hotspot-scanner.ts` is a thin CLI wrapper (flags only, no domain logic).
 
 Integration validation: `tests/fixtures/repos/small-ts/` (see [TESTING.md](./TESTING.md) § Integration).
+
+## Hotspot output schema (M9)
+
+Each `HotspotScore` entry in `ScanResult.hotspots` carries normalized scores plus raw metrics:
+
+| Field | Source | JSON | Table |
+| ----- | ------ | ---- | ----- |
+| `filePath` | complexity entry | yes | yes |
+| `hotspotScore` | harmonic mean of normalized c/h | yes | yes |
+| `complexityNormalized` | log1p+min-max | yes | yes (CpxN) |
+| `churnNormalized` | log1p+min-max | yes | yes (ChurnN) |
+| `cyclomaticComplexity` | `ComplexityResult` | yes | yes (Cpx) |
+| `functionCount` | `ComplexityResult` | yes | yes (Funcs) |
+| `commitCount` | `FileChangeStats` | yes | yes (Churn) |
+| `linesChanged` | `FileChangeStats` | yes | no |
+| `authorCount` | `FileChangeStats.authors.size` | yes | yes (Authors) |
+
+JSON `version` remains `"1.0"` (additive fields). Coupling schema unchanged from M5.

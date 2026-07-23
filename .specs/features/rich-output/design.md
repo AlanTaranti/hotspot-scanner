@@ -1,7 +1,7 @@
 # Milestone 9 — Rich Output Design
 
 **Spec**: [`.specs/features/rich-output/spec.md`](./spec.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 

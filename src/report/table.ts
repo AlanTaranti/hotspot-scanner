@@ -17,8 +17,8 @@ function padStart(value: string, width: number): string {
 function renderHotspotsSection(result: ScanResult): string[] {
   const lines = [
     "Top Hotspots",
-    "Rank  File                      Score     Complexity  Churn",
-    "----  ------------------------  --------  ----------  ----------",
+    "Rank  File                      Score     Cpx   CpxN      Churn  ChurnN  Funcs  Authors",
+    "----  ------------------------  --------  ----  --------  -----  ------  -----  -------",
   ];
 
   if (result.hotspots.length === 0) {
@@ -32,8 +32,12 @@ function renderHotspotsSection(result: ScanResult): string[] {
         padStart(String(index + 1), 4),
         padEnd(hotspot.filePath, 24),
         padStart(formatScore(hotspot.hotspotScore), 8),
-        padStart(formatScore(hotspot.complexityNormalized), 10),
-        padStart(formatScore(hotspot.churnNormalized), 10),
+        padStart(String(hotspot.cyclomaticComplexity), 4),
+        padStart(formatScore(hotspot.complexityNormalized), 8),
+        padStart(String(hotspot.commitCount), 5),
+        padStart(formatScore(hotspot.churnNormalized), 6),
+        padStart(String(hotspot.functionCount), 5),
+        padStart(String(hotspot.authorCount), 7),
       ].join("  "),
     );
   }

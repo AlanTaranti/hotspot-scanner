@@ -189,13 +189,13 @@ Explicitly excluded. Documented to prevent scope creep.
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| HOTSPOT-76 | P1: HotspotScore raw enrichment | Tasks T1 | Pending |
-| HOTSPOT-77 | P1: JSON schema enrichment | Tasks T2 | Pending |
-| HOTSPOT-78 | P1: Table raw columns | Tasks T3 | Pending |
-| HOTSPOT-79 | P1: Reporter fixture and tests | Tasks T2, T3 | Pending |
-| HOTSPOT-80 | P1: Scorer unit tests | Tasks T1 | Pending |
-| HOTSPOT-81 | P1: Integration invariant | Tasks T4 | Pending |
-| HOTSPOT-82 | P1: Documentation sync | Tasks T4 | Pending |
+| HOTSPOT-76 | P1: HotspotScore raw enrichment | Tasks T1 | Done |
+| HOTSPOT-77 | P1: JSON schema enrichment | Tasks T2 | Done |
+| HOTSPOT-78 | P1: Table raw columns | Tasks T3 | Done |
+| HOTSPOT-79 | P1: Reporter fixture and tests | Tasks T2, T3 | Done |
+| HOTSPOT-80 | P1: Scorer unit tests | Tasks T1 | Done |
+| HOTSPOT-81 | P1: Integration invariant | Tasks T4 | Done |
+| HOTSPOT-82 | P1: Documentation sync | Tasks T4 | Done |
 
 **Coverage:** 7 total, 7 mapped to tasks, 0 unmapped
 

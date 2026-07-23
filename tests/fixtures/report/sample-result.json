@@ -1,24 +1,39 @@
 {
-  "_comment": "Hand-crafted ScanResult for reporter tests. Hotspots sorted by hotspotScore desc; coupling sorted by couplingStrength desc. Expected: 3 hotspot rows, 2 coupling rows when top=3/2; since header shows '6 months ago'.",
+  "_comment": "Hand-crafted ScanResult for reporter tests. M9: hotspots include raw fields (cyclomaticComplexity, functionCount, commitCount, linesChanged, authorCount). Hotspots sorted by hotspotScore desc; coupling sorted by couplingStrength desc. Expected: 3 hotspot rows, 2 coupling rows when top=3/2; since header shows '6 months ago'.",
   "version": "1.0",
   "hotspots": [
     {
       "filePath": "src/hot.ts",
       "complexityNormalized": 0.9,
       "churnNormalized": 0.9444,
-      "hotspotScore": 0.85
+      "hotspotScore": 0.85,
+      "cyclomaticComplexity": 42,
+      "functionCount": 8,
+      "commitCount": 15,
+      "linesChanged": 320,
+      "authorCount": 3
     },
     {
       "filePath": "src/medium.ts",
       "complexityNormalized": 0.6,
       "churnNormalized": 0.5,
-      "hotspotScore": 0.3
+      "hotspotScore": 0.3,
+      "cyclomaticComplexity": 20,
+      "functionCount": 4,
+      "commitCount": 8,
+      "linesChanged": 120,
+      "authorCount": 2
     },
     {
       "filePath": "src/cold.ts",
       "complexityNormalized": 0.1,
       "churnNormalized": 0.2,
-      "hotspotScore": 0.02
+      "hotspotScore": 0.02,
+      "cyclomaticComplexity": 3,
+      "functionCount": 1,
+      "commitCount": 2,
+      "linesChanged": 15,
+      "authorCount": 1
     }
   ],
   "coupling": [

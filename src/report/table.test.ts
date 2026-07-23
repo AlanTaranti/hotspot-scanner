@@ -35,6 +35,21 @@ describe("renderTable", () => {
     expect(output).toContain("0.7500");
   });
 
+  it("shows raw metric columns in hotspots section", () => {
+    const output = renderTable(loadFixture());
+
+    expect(output).toContain("Cpx");
+    expect(output).toContain("CpxN");
+    expect(output).toContain("Churn");
+    expect(output).toContain("ChurnN");
+    expect(output).toContain("Funcs");
+    expect(output).toContain("Authors");
+    expect(output).toContain("42");
+    expect(output).toContain("15");
+    expect(output).toContain("8");
+    expect(output).toContain("3");
+  });
+
   it("respects top slicing when applied before render", () => {
     const output = renderTable(sliceScanResult(loadFixture(), 1));
 
@@ -53,6 +68,11 @@ describe("renderTable", () => {
           hotspotScore: 0.5,
           complexityNormalized: 0.4,
           churnNormalized: 0.6,
+          cyclomaticComplexity: 12,
+          functionCount: 3,
+          commitCount: 8,
+          linesChanged: 50,
+          authorCount: 2,
         },
       ],
       coupling: [

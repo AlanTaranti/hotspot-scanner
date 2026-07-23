@@ -2,7 +2,7 @@
 
 **Design**: [`.specs/features/rich-output/design.md`](./design.md)  
 **Spec**: [`.specs/features/rich-output/spec.md`](./spec.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -80,12 +80,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `HotspotScore` includes `cyclomaticComplexity`, `functionCount`, `commitCount`, `linesChanged`, `authorCount`
-- [ ] `scoreHotspots()` populates all raw fields per design sourcing table
-- [ ] Missing `fileStats` → `commitCount`, `linesChanged`, `authorCount` are `0`
-- [ ] `authorCount` equals `authors.size` when stats present
-- [ ] Normalized fields and harmonic `hotspotScore` behavior unchanged
-- [ ] `src/scoring/**` ≥80% line coverage maintained
+- [x] `HotspotScore` includes `cyclomaticComplexity`, `functionCount`, `commitCount`, `linesChanged`, `authorCount`
+- [x] `scoreHotspots()` populates all raw fields per design sourcing table
+- [x] Missing `fileStats` → `commitCount`, `linesChanged`, `authorCount` are `0`
+- [x] `authorCount` equals `authors.size` when stats present
+- [x] Normalized fields and harmonic `hotspotScore` behavior unchanged
+- [x] `src/scoring/**` ≥80% line coverage maintained
 
 **Tests**: `hotspot-scorer.test.ts` — raw fields on scored output; missing fileStats git-side zeros; authorCount from Set size
 
@@ -112,10 +112,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `sample-result.json` hotspots include all five raw fields with documented values
-- [ ] `_comment` documents M9 raw field additions
-- [ ] `json.test.ts` asserts raw fields via `toMatchObject`
-- [ ] JSON output still has `version: "1.0"` and no `authors` key
+- [x] `sample-result.json` hotspots include all five raw fields with documented values
+- [x] `_comment` documents M9 raw field additions
+- [x] `json.test.ts` asserts raw fields via `toMatchObject`
+- [x] JSON output still has `version: "1.0"` and no `authors` key
 
 **Tests**: `json.test.ts` — serialized hotspot raw fields; empty arrays still valid
 
@@ -142,11 +142,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Table hotspots section shows Cpx, CpxN, Churn, ChurnN, Funcs, Authors columns
-- [ ] Integer columns use no decimal places; normalized/score use 4 decimals
-- [ ] Coupling section unchanged
-- [ ] Empty hotspots still render `(none)`
-- [ ] Path truncation behavior preserved
+- [x] Table hotspots section shows Cpx, CpxN, Churn, ChurnN, Funcs, Authors columns
+- [x] Integer columns use no decimal places; normalized/score use 4 decimals
+- [x] Coupling section unchanged
+- [x] Empty hotspots still render `(none)`
+- [x] Path truncation behavior preserved
 
 **Tests**: `table.test.ts` — column headers, raw integer values, truncation, empty sections
 
@@ -173,13 +173,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `hotspots[0]` on `small-ts` scan includes all five raw fields
-- [ ] `cyclomaticComplexity`, `commitCount`, `authorCount` on top hotspot are `> 0`
-- [ ] STATE.md records `authorCount` bus-factor decision
-- [ ] ARCHITECTURE.md documents enriched hotspot fields
-- [ ] path-scoping spec Out of Scope fixed (M9 rich-output, M10 export)
-- [ ] ROADMAP M9 implementation checkboxes marked `[x]` on Execute Done
-- [ ] `pnpm build && pnpm test` passes
+- [x] `hotspots[0]` on `small-ts` scan includes all five raw fields
+- [x] `cyclomaticComplexity`, `commitCount`, `authorCount` on top hotspot are `> 0`
+- [x] STATE.md records `authorCount` bus-factor decision
+- [x] ARCHITECTURE.md documents enriched hotspot fields
+- [x] path-scoping spec Out of Scope fixed (M9 rich-output, M10 export)
+- [x] ROADMAP M9 implementation checkboxes marked `[x]` on Execute Done
+- [x] `pnpm build && pnpm test` passes
 
 **Tests**: `scan.integration.test.ts` — raw fields on top hotspot; full project gate
 

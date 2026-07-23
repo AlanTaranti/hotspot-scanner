@@ -34,12 +34,18 @@ export function scoreHotspots(
       const c = complexityNormalized[index]!;
       const h = churnNormalized[index]!;
       const hotspotScore = c + h === 0 ? 0 : (2 * c * h) / (c + h);
+      const stats = fileStats.get(entry.filePath);
 
       return {
         filePath: entry.filePath,
         complexityNormalized: c,
         churnNormalized: h,
         hotspotScore,
+        cyclomaticComplexity: entry.cyclomaticComplexity,
+        functionCount: entry.functionCount,
+        commitCount: stats?.commitCount ?? 0,
+        linesChanged: stats?.linesChanged ?? 0,
+        authorCount: stats?.authors.size ?? 0,
       };
     })
     .sort(compareHotspotScores);
