@@ -1,0 +1,28 @@
+# Source (consumers use dist/)
+src/
+bin/
+
+# Tests and fixtures
+tests/
+**/*.test.ts
+**/*.integration.test.ts
+
+# Dev tooling
+tsconfig.json
+tsconfig.bin.json
+vitest.config.ts
+scripts/
+pnpm-lock.yaml
+
+# IDE / agent / internal docs
+.cursor/
+.specs/
+specifications/
+AGENTS.md
+.idea/
+
+# Artifacts
+coverage/
+*.tsbuildinfo
+.pnpm-store/
+node_modules/
