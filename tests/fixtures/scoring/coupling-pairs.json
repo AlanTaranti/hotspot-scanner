@@ -15,7 +15,10 @@
     { "commitHash": "c4", "filesChanged": ["src/c.ts", "src/d.ts"] },
     { "commitHash": "c5", "filesChanged": ["src/c.ts", "src/d.ts"] },
     { "commitHash": "c6", "filesChanged": ["src/c.ts", "src/d.ts"] },
-    { "commitHash": "c7", "filesChanged": ["src/a.ts", "src/b.ts", "src/a.ts"] },
+    {
+      "commitHash": "c7",
+      "filesChanged": ["src/a.ts", "src/b.ts", "src/a.ts"]
+    },
     { "commitHash": "c8", "filesChanged": ["src/a.ts", "src/orphan.ts"] },
     { "commitHash": "c9", "filesChanged": ["src/c.ts", "src/d.ts"] },
     { "commitHash": "c10", "filesChanged": ["src/e.ts", "src/f.ts"] },

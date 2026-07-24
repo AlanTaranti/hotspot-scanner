@@ -120,7 +120,10 @@ function renderRankChangedFunctionRows(
   );
 }
 
-function renderCouplingRows(items: CouplingPair[], includeRank: boolean): string[] {
+function renderCouplingRows(
+  items: CouplingPair[],
+  includeRank: boolean,
+): string[] {
   if (items.length === 0) {
     return ["  (none)"];
   }

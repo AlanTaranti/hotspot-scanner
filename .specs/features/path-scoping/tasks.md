@@ -54,27 +54,27 @@ flowchart LR
 
 | Task | Depends on (declared) | Appears in diagram after deps | Match |
 | ---- | --------------------- | ----------------------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T1 | T1 → T3 | ✅ |
-| T4 | T1 | T1 → T4 | ✅ |
-| T5 | T2, T3, T4 | T2,T3,T4 → T5 | ✅ |
-| T6 | T5 | T5 → T6 | ✅ |
-| T7 | T6 | T6 → T7 | ✅ |
-| T8 | T7 | T7 → T8 | ✅ |
+| T1   | None                  | Root                          | ✅    |
+| T2   | T1                    | T1 → T2                       | ✅    |
+| T3   | T1                    | T1 → T3                       | ✅    |
+| T4   | T1                    | T1 → T4                       | ✅    |
+| T5   | T2, T3, T4            | T2,T3,T4 → T5                 | ✅    |
+| T6   | T5                    | T5 → T6                       | ✅    |
+| T7   | T6                    | T6 → T7                       | ✅    |
+| T8   | T7                    | T7 → T8                       | ✅    |
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Tests in same task | Match |
-| ---- | ---------- | ---------------------- | ------------------ | ----- |
-| T1 | `src/paths/` | Unit required | `scope.test.ts` | ✅ |
-| T2 | `src/complexity/discover.ts` | Unit required | `discover.test.ts` update | ✅ |
-| T3 | `src/paths/filter-git.ts` | Unit required | `filter-git.test.ts` | ✅ |
-| T4 | `src/scan.ts` validation | Unit required | `scan.test.ts` update | ✅ |
-| T5 | `src/scan.ts` orchestration | Integration | `scan.integration.test.ts` or extend existing | ✅ |
-| T6 | `bin/hotspot-scanner.ts` | CLI unit | `bin/*.test.ts` | ✅ |
-| T7 | Fixture + integration | Integration | Scoped integration test | ✅ |
-| T8 | Docs only | Gate | `pnpm build && pnpm test` | ✅ |
+| Task | Code layer                   | TESTING.md expectation | Tests in same task                            | Match |
+| ---- | ---------------------------- | ---------------------- | --------------------------------------------- | ----- |
+| T1   | `src/paths/`                 | Unit required          | `scope.test.ts`                               | ✅    |
+| T2   | `src/complexity/discover.ts` | Unit required          | `discover.test.ts` update                     | ✅    |
+| T3   | `src/paths/filter-git.ts`    | Unit required          | `filter-git.test.ts`                          | ✅    |
+| T4   | `src/scan.ts` validation     | Unit required          | `scan.test.ts` update                         | ✅    |
+| T5   | `src/scan.ts` orchestration  | Integration            | `scan.integration.test.ts` or extend existing | ✅    |
+| T6   | `bin/hotspot-scanner.ts`     | CLI unit               | `bin/*.test.ts`                               | ✅    |
+| T7   | Fixture + integration        | Integration            | Scoped integration test                       | ✅    |
+| T8   | Docs only                    | Gate                   | `pnpm build && pnpm test`                     | ✅    |
 
 ---
 
@@ -335,14 +335,14 @@ flowchart LR
 
 | Requirement ID | Task(s) |
 | -------------- | ------- |
-| HOTSPOT-61 | T1, T2 |
-| HOTSPOT-62 | T1, T3 |
-| HOTSPOT-63 | T4 |
-| HOTSPOT-64 | T6 |
-| HOTSPOT-65 | T1, T5 |
-| HOTSPOT-66 | T6 |
-| HOTSPOT-67 | T7 |
-| HOTSPOT-68 | T8 |
+| HOTSPOT-61     | T1, T2  |
+| HOTSPOT-62     | T1, T3  |
+| HOTSPOT-63     | T4      |
+| HOTSPOT-64     | T6      |
+| HOTSPOT-65     | T1, T5  |
+| HOTSPOT-66     | T6      |
+| HOTSPOT-67     | T7      |
+| HOTSPOT-68     | T8      |
 
 ---
 

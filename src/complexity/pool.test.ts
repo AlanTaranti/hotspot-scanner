@@ -14,7 +14,9 @@ describe("createWorkerPool", () => {
   let tempDirs: string[] = [];
 
   afterEach(async () => {
-    await Promise.all(tempDirs.map((dir) => rm(dir, { recursive: true, force: true })));
+    await Promise.all(
+      tempDirs.map((dir) => rm(dir, { recursive: true, force: true })),
+    );
     tempDirs = [];
   });
 
@@ -137,9 +139,9 @@ describe("createWorkerPool", () => {
       ),
     });
 
-    await expect(
-      pool.runBatches("/tmp/exit-repo", [["a.ts"]]),
-    ).rejects.toThrow(/Worker exited with code 1/);
+    await expect(pool.runBatches("/tmp/exit-repo", [["a.ts"]])).rejects.toThrow(
+      /Worker exited with code 1/,
+    );
   });
 
   it("uses adjacent worker script when compiled worker exists beside pool", async () => {

@@ -15,10 +15,7 @@ const fixtureDir = join(
   "../../tests/fixtures/complexity",
 );
 
-function findResult(
-  results: Array<{ filePath: string }>,
-  fileName: string,
-) {
+function findResult(results: Array<{ filePath: string }>, fileName: string) {
   return results.find((result) => result.filePath.endsWith(fileName));
 }
 
@@ -26,7 +23,9 @@ describe("createComplexityAnalyzer", () => {
   let tempDirs: string[] = [];
 
   afterEach(async () => {
-    await Promise.all(tempDirs.map((dir) => rm(dir, { recursive: true, force: true })));
+    await Promise.all(
+      tempDirs.map((dir) => rm(dir, { recursive: true, force: true })),
+    );
     tempDirs = [];
   });
 
@@ -42,7 +41,9 @@ describe("createComplexityAnalyzer", () => {
 
   it("analyzes fixture files and returns results with warnings for invalid syntax", async () => {
     const analyzer = createComplexityAnalyzer();
-    const { results, warnings } = await analyzer.analyze({ repoPath: fixtureDir });
+    const { results, warnings } = await analyzer.analyze({
+      repoPath: fixtureDir,
+    });
 
     expect(findResult(results, "if-else.ts")).toEqual({
       filePath: "if-else.ts",
@@ -86,9 +87,9 @@ describe("createComplexityAnalyzer", () => {
     });
 
     expect(findResult(results, "invalid-syntax.ts")).toBeUndefined();
-    expect(warnings.some((warning) => warning.includes("invalid-syntax.ts"))).toBe(
-      true,
-    );
+    expect(
+      warnings.some((warning) => warning.includes("invalid-syntax.ts")),
+    ).toBe(true);
   });
 
   it("throws when repoPath is invalid", async () => {
@@ -208,13 +209,17 @@ describe("createComplexityAnalyzer", () => {
 
     expect(results).toHaveLength(DEFAULT_BATCH_SIZE + 1 - 2);
     expect(warnings).toHaveLength(2);
-    expect(warnings.every((warning) => warning.startsWith("Failed to parse "))).toBe(
+    expect(
+      warnings.every((warning) => warning.startsWith("Failed to parse ")),
+    ).toBe(true);
+    expect(warnings.some((warning) => warning.includes("file-010.ts"))).toBe(
       true,
     );
-    expect(warnings.some((warning) => warning.includes("file-010.ts"))).toBe(true);
     expect(
       warnings.some((warning) =>
-        warning.includes(`file-${String(DEFAULT_BATCH_SIZE).padStart(3, "0")}.ts`),
+        warning.includes(
+          `file-${String(DEFAULT_BATCH_SIZE).padStart(3, "0")}.ts`,
+        ),
       ),
     ).toBe(true);
   });

@@ -57,29 +57,29 @@ flowchart TD
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `runScan()` | `src/scan.ts` | Current scan in compare branch — unchanged |
-| `createReporter` | `src/report/index.ts` | Add `renderCompare()` dispatch |
-| `sliceScanResult` | `src/report/slice.ts` | Pattern for new `sliceCompareResult` |
-| `renderTable` / `renderMarkdown` | `src/report/table.ts`, `markdown.ts` | GFM escaping, numeric formatting conventions |
-| `parseFormat`, `parseGranularity` | `bin/hotspot-scanner.ts` | Unchanged parsers |
-| `validateOutputPath`, `writeReport` | `bin/hotspot-scanner.ts` | Reuse for delta file output |
-| `canonicalPair` logic | `src/scoring/coupling-scorer.ts` | Extract or duplicate `pairKey` for coupling entity keys |
-| `sample-result.json` | `tests/fixtures/report/` | Base for compare fixture derivation |
-| Integration fixture | `tests/fixtures/repos/small-ts/` | E2E compare in T6 |
+| Component                           | Location                             | How to Use                                              |
+| ----------------------------------- | ------------------------------------ | ------------------------------------------------------- |
+| `runScan()`                         | `src/scan.ts`                        | Current scan in compare branch — unchanged              |
+| `createReporter`                    | `src/report/index.ts`                | Add `renderCompare()` dispatch                          |
+| `sliceScanResult`                   | `src/report/slice.ts`                | Pattern for new `sliceCompareResult`                    |
+| `renderTable` / `renderMarkdown`    | `src/report/table.ts`, `markdown.ts` | GFM escaping, numeric formatting conventions            |
+| `parseFormat`, `parseGranularity`   | `bin/hotspot-scanner.ts`             | Unchanged parsers                                       |
+| `validateOutputPath`, `writeReport` | `bin/hotspot-scanner.ts`             | Reuse for delta file output                             |
+| `canonicalPair` logic               | `src/scoring/coupling-scorer.ts`     | Extract or duplicate `pairKey` for coupling entity keys |
+| `sample-result.json`                | `tests/fixtures/report/`             | Base for compare fixture derivation                     |
+| Integration fixture                 | `tests/fixtures/repos/small-ts/`     | E2E compare in T6                                       |
 
 ### Integration Points
 
-| Consumer | Impact |
-| -------- | ------ |
-| `src/types/domain.ts` | Add `CompareResult`, `RankChange`, section types |
-| `src/compare/` | **New** — loader, keys, engine |
-| `src/report/` | **New** compare renderers + `sliceCompareResult` |
-| `bin/hotspot-scanner.ts` | `--baseline` option, action branch, `validateBaselinePath` |
-| `src/scan.ts` | None — compare is post-scan |
-| `src/scoring/**` | None — may export `canonicalPair` helper if refactored |
-| `src/index.ts` | Export `compareScanResults`, `loadBaseline` (optional public API) |
+| Consumer                 | Impact                                                            |
+| ------------------------ | ----------------------------------------------------------------- |
+| `src/types/domain.ts`    | Add `CompareResult`, `RankChange`, section types                  |
+| `src/compare/`           | **New** — loader, keys, engine                                    |
+| `src/report/`            | **New** compare renderers + `sliceCompareResult`                  |
+| `bin/hotspot-scanner.ts` | `--baseline` option, action branch, `validateBaselinePath`        |
+| `src/scan.ts`            | None — compare is post-scan                                       |
+| `src/scoring/**`         | None — may export `canonicalPair` helper if refactored            |
+| `src/index.ts`           | Export `compareScanResults`, `loadBaseline` (optional public API) |
 
 ---
 
@@ -149,10 +149,10 @@ export interface CompareResult {
 
 **Mode population:**
 
-| `granularity` | `hotspots` | `functions` | `coupling` |
-| ------------- | ---------- | ----------- | ---------- |
-| `file` | populated | empty sections (`new`/`removed`/`rankChanged` all `[]`) | populated |
-| `function` | empty sections | populated | populated |
+| `granularity` | `hotspots`     | `functions`                                             | `coupling` |
+| ------------- | -------------- | ------------------------------------------------------- | ---------- |
+| `file`        | populated      | empty sections (`new`/`removed`/`rankChanged` all `[]`) | populated  |
+| `function`    | empty sections | populated                                               | populated  |
 
 ---
 
@@ -226,10 +226,10 @@ When `top` is defined, slice `new`, `removed`, and `rankChanged` independently f
 
 ### Compare renderers
 
-| Module | Export |
-| ------ | ------ |
-| `src/report/compare-json.ts` | `renderCompareJson(result): string` |
-| `src/report/compare-table.ts` | `renderCompareTable(result): string` |
+| Module                           | Export                                  |
+| -------------------------------- | --------------------------------------- |
+| `src/report/compare-json.ts`     | `renderCompareJson(result): string`     |
+| `src/report/compare-table.ts`    | `renderCompareTable(result): string`    |
 | `src/report/compare-markdown.ts` | `renderCompareMarkdown(result): string` |
 
 ### `createReporter` extension (`src/report/index.ts`)
@@ -315,6 +315,7 @@ Replace **Hotspots** sections with **Functions** — add `Function` and `Line` c
 | ---: | --- | ---: | … |
 
 ## Removed Hotspots
+
 …
 
 ## Rank Changed Hotspots
@@ -323,6 +324,7 @@ Replace **Hotspots** sections with **Functions** — add `Function` and `Line` c
 | ---: | ---: | ---: | --- | ---: | … |
 
 ## Coupling Changes
+
 …
 ```
 
@@ -364,13 +366,13 @@ await writeReport(output, outputPath);
 
 ## Test Fixtures
 
-| Fixture | Purpose |
-| ------- | ------- |
-| `tests/fixtures/report/compare-baseline-file.json` | Minimal baseline `ScanResult` (file mode, 3 hotspots, 2 coupling) |
-| `tests/fixtures/report/compare-current-file.json` | Current with 1 new, 1 removed, 1 rank-changed hotspot |
-| `tests/fixtures/report/compare-expected-file.json` | Expected `CompareResult` for unit test golden assert |
-| `tests/fixtures/report/compare-baseline-function.json` | Function mode baseline |
-| `tests/fixtures/report/compare-expected-function.json` | Function mode expected delta |
+| Fixture                                                | Purpose                                                           |
+| ------------------------------------------------------ | ----------------------------------------------------------------- |
+| `tests/fixtures/report/compare-baseline-file.json`     | Minimal baseline `ScanResult` (file mode, 3 hotspots, 2 coupling) |
+| `tests/fixtures/report/compare-current-file.json`      | Current with 1 new, 1 removed, 1 rank-changed hotspot             |
+| `tests/fixtures/report/compare-expected-file.json`     | Expected `CompareResult` for unit test golden assert              |
+| `tests/fixtures/report/compare-baseline-function.json` | Function mode baseline                                            |
+| `tests/fixtures/report/compare-expected-function.json` | Function mode expected delta                                      |
 
 Derive from `sample-result.json` and `sample-result-functions.json` where possible.
 
@@ -378,13 +380,13 @@ Derive from `sample-result.json` and `sample-result-functions.json` where possib
 
 ## Documentation Sync Targets (T6)
 
-| File | Updates |
-| ---- | ------- |
-| `.specs/codebase/ARCHITECTURE.md` | `--baseline` branch, `src/compare/` module, `CompareResult` |
-| `.specs/codebase/STRUCTURE.md` | `src/compare/`, `compare-*.ts` reporters |
-| `README.md` | `--baseline` flag, CI workflow example |
-| `.cursor/skills/vitals-cli-validation/SKILL.md` | Baseline export + compare validation commands |
-| `.specs/project/ROADMAP.md` | M13 `**Specs:** Done` (planning); implementation `[x]` on Execute Done |
+| File                                            | Updates                                                                |
+| ----------------------------------------------- | ---------------------------------------------------------------------- |
+| `.specs/codebase/ARCHITECTURE.md`               | `--baseline` branch, `src/compare/` module, `CompareResult`            |
+| `.specs/codebase/STRUCTURE.md`                  | `src/compare/`, `compare-*.ts` reporters                               |
+| `README.md`                                     | `--baseline` flag, CI workflow example                                 |
+| `.cursor/skills/vitals-cli-validation/SKILL.md` | Baseline export + compare validation commands                          |
+| `.specs/project/ROADMAP.md`                     | M13 `**Specs:** Done` (planning); implementation `[x]` on Execute Done |
 
 ---
 

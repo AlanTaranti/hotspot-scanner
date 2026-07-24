@@ -20,16 +20,16 @@ Contributor and publish-prep DX is incomplete: `package.json` has only `build`/`
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Actual `npm publish` / release workflow | Prep-only (Scope B) |
-| `publishConfig` | YAGNI until a real publish path exists |
-| Registry vs Git-install distribution | Remains Deferred in STATE |
-| GitHub Actions or any CI pipeline | Keep “no CI in v1” |
-| `dev` script | YAGNI |
-| Changing AGENTS.md / quality-gates rule to require lint or format | Gate stays `pnpm build && pnpm test` |
-| Application behavior under `src/` / `bin/` | Package/tooling/docs only |
-| New LICENSE file | Already exists at repo root |
+| Feature                                                           | Reason                                 |
+| ----------------------------------------------------------------- | -------------------------------------- |
+| Actual `npm publish` / release workflow                           | Prep-only (Scope B)                    |
+| `publishConfig`                                                   | YAGNI until a real publish path exists |
+| Registry vs Git-install distribution                              | Remains Deferred in STATE              |
+| GitHub Actions or any CI pipeline                                 | Keep “no CI in v1”                     |
+| `dev` script                                                      | YAGNI                                  |
+| Changing AGENTS.md / quality-gates rule to require lint or format | Gate stays `pnpm build && pnpm test`   |
+| Application behavior under `src/` / `bin/`                        | Package/tooling/docs only              |
+| New LICENSE file                                                  | Already exists at repo root            |
 
 ---
 
@@ -208,17 +208,17 @@ Contributor and publish-prep DX is incomplete: `package.json` has only `build`/`
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-194 | P1: typecheck script | Tasks | Pending |
-| HOTSPOT-195 | P1: ESLint + lint | Tasks | Pending |
-| HOTSPOT-196 | P1: Prettier + format scripts | Tasks | Pending |
-| HOTSPOT-197 | P1: engines.node | Tasks | Pending |
-| HOTSPOT-198 | P1: repository metadata | Tasks | Pending |
-| HOTSPOT-199 | P1: files including schemas/ | Tasks | Pending |
-| HOTSPOT-200 | P1: CONTRIBUTING DX docs | Tasks | Pending |
-| HOTSPOT-201 | P1: STACK / CONVENTIONS + schemas ship | Tasks | Pending |
-| HOTSPOT-202 | P1: Project gate unchanged | Tasks | Pending |
+| Requirement ID | Story                                  | Phase | Status  |
+| -------------- | -------------------------------------- | ----- | ------- |
+| HOTSPOT-194    | P1: typecheck script                   | Tasks | Pending |
+| HOTSPOT-195    | P1: ESLint + lint                      | Tasks | Pending |
+| HOTSPOT-196    | P1: Prettier + format scripts          | Tasks | Pending |
+| HOTSPOT-197    | P1: engines.node                       | Tasks | Pending |
+| HOTSPOT-198    | P1: repository metadata                | Tasks | Pending |
+| HOTSPOT-199    | P1: files including schemas/           | Tasks | Pending |
+| HOTSPOT-200    | P1: CONTRIBUTING DX docs               | Tasks | Pending |
+| HOTSPOT-201    | P1: STACK / CONVENTIONS + schemas ship | Tasks | Pending |
+| HOTSPOT-202    | P1: Project gate unchanged             | Tasks | Pending |
 
 **ID format:** `HOTSPOT-*` (M24 range **194–202**; M23 ended at HOTSPOT-193)
 

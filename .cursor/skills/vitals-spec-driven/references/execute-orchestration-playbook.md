@@ -14,9 +14,9 @@
 
 ## Input modes
 
-| Mode                 | Input                                                            | Behavior                                                                                                           |
-| -------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| **Single (default)** | `featureSlug` or path to `tasks.md` + optional `tasks: [T1, T3]` | One feature per run                                                                                                |
+| Mode                 | Input                                                            | Behavior                                                        |
+| -------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------- |
+| **Single (default)** | `featureSlug` or path to `tasks.md` + optional `tasks: [T1, T3]` | One feature per run                                             |
 | **Batch (optional)** | `[{ feature: slug, tasks?: [Tn] }, ...]`                         | Order features by cross-feature deps; parallel when independent |
 
 If `tasks` is omitted, execute all incomplete tasks in dependency order.

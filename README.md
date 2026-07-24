@@ -17,11 +17,11 @@ Local CLI for TypeScript/JavaScript maintenance hotspot analysis.
 
 ## Requirements
 
-| Requirement | Version |
-|-------------|---------|
-| Node.js | 22+ |
-| git | required at scan time |
-| pnpm | for development |
+| Requirement | Version               |
+| ----------- | --------------------- |
+| Node.js     | 22+                   |
+| git         | required at scan time |
+| pnpm        | for development       |
 
 ## Installation
 
@@ -52,18 +52,18 @@ pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts
 hotspot-scanner scan <path> [options]
 ```
 
-| Flag | Default | Description |
-|------|---------|-------------|
-| `<path>` | — | Repository path (required) |
-| `--since` | `12 months ago` | Git history window |
-| `--format` | `table` | Output format: `table`, `json`, `markdown`, or `csv` (csv requires `--output`) |
-| `--granularity` | `file` | Ranking granularity: `file` or `function` |
-| `--output <path>` | — | Write report to file instead of stdout (required for `--format csv`) |
-| `--baseline <path>` | — | Compare scan against baseline JSON from a prior run |
-| `--top` | `20` | Top N rows in table/markdown output (ignored for json/csv) |
-| `--min-cochange` | `3` | Minimum co-change count for coupling pairs |
-| `--include <glob>` | — | Include only paths matching glob (repeatable) |
-| `--exclude <glob>` | — | Exclude paths matching glob (repeatable, additive) |
+| Flag                | Default         | Description                                                                    |
+| ------------------- | --------------- | ------------------------------------------------------------------------------ |
+| `<path>`            | —               | Repository path (required)                                                     |
+| `--since`           | `12 months ago` | Git history window                                                             |
+| `--format`          | `table`         | Output format: `table`, `json`, `markdown`, or `csv` (csv requires `--output`) |
+| `--granularity`     | `file`          | Ranking granularity: `file` or `function`                                      |
+| `--output <path>`   | —               | Write report to file instead of stdout (required for `--format csv`)           |
+| `--baseline <path>` | —               | Compare scan against baseline JSON from a prior run                            |
+| `--top`             | `20`            | Top N rows in table/markdown output (ignored for json/csv)                     |
+| `--min-cochange`    | `3`             | Minimum co-change count for coupling pairs                                     |
+| `--include <glob>`  | —               | Include only paths matching glob (repeatable)                                  |
+| `--exclude <glob>`  | —               | Exclude paths matching glob (repeatable, additive)                             |
 
 ### Examples
 
@@ -87,14 +87,14 @@ Place **`.hotspot-scanner.json`** in the repository root you scan (`<repoPath>/.
 
 **Precedence:** CLI flags **>** config file **>** built-in defaults.
 
-| Key | Maps to | Type |
-|-----|---------|------|
-| `since` | `--since` | string |
-| `include` | `--include` | string array (globs) |
-| `exclude` | `--exclude` | string array (globs) |
-| `granularity` | `--granularity` | `"file"` or `"function"` |
-| `minCochange` | `--min-cochange` | positive integer |
-| `top` | `--top` | positive integer |
+| Key           | Maps to          | Type                     |
+| ------------- | ---------------- | ------------------------ |
+| `since`       | `--since`        | string                   |
+| `include`     | `--include`      | string array (globs)     |
+| `exclude`     | `--exclude`      | string array (globs)     |
+| `granularity` | `--granularity`  | `"file"` or `"function"` |
+| `minCochange` | `--min-cochange` | positive integer         |
+| `top`         | `--top`          | positive integer         |
 
 `format`, `output`, and `baseline` are **CLI-only** — they cannot be set in the config file. Unknown keys are ignored. Invalid JSON or invalid values exit non-zero with a clear error.
 
@@ -130,7 +130,11 @@ import {
   loadBaseline,
   parseScanResult,
 } from "@vitals/hotspot-scanner";
-import type { ScanOptions, ScanResult, CompareResult } from "@vitals/hotspot-scanner";
+import type {
+  ScanOptions,
+  ScanResult,
+  CompareResult,
+} from "@vitals/hotspot-scanner";
 
 const result: ScanResult = await runScan({
   repoPath: "/path/to/repo",
@@ -193,19 +197,19 @@ Rank  File A                    File B                    Strength  Co-changes  
 
 Published JSON Schema files live under [`schemas/`](schemas/):
 
-| Schema | TypeScript type |
-|--------|-----------------|
-| [`schemas/scan-result.json`](schemas/scan-result.json) | `ScanResult` |
+| Schema                                                       | TypeScript type |
+| ------------------------------------------------------------ | --------------- |
+| [`schemas/scan-result.json`](schemas/scan-result.json)       | `ScanResult`    |
 | [`schemas/compare-result.json`](schemas/compare-result.json) | `CompareResult` |
 
 Use these schemas to validate CLI output or baselines in your own pipelines.
 
 `--granularity` selects the active ranking array:
 
-| Mode | Active array | Inactive array | `meta.granularity` |
-|------|--------------|----------------|--------------------|
-| `file` (default) | `hotspots` | `functions: []` | `"file"` |
-| `function` | `functions` | `hotspots: []` | `"function"` |
+| Mode             | Active array | Inactive array  | `meta.granularity` |
+| ---------------- | ------------ | --------------- | ------------------ |
+| `file` (default) | `hotspots`   | `functions: []` | `"file"`           |
+| `function`       | `functions`  | `hotspots: []`  | `"function"`       |
 
 `coupling` is always file-pair ranked in both modes. **`--top` does not slice JSON** — all ranked entities are exported for scripting and baselines.
 
@@ -259,23 +263,23 @@ hotspot-scanner scan . --format json --output baseline.json
 
 **Scan bundle** (`--output out/report.csv`):
 
-| File | Contents |
-|------|----------|
-| `out/report.meta.json` | Scan metadata (`since`, `scannedAt`, `granularity`) |
+| File                      | Contents                                                       |
+| ------------------------- | -------------------------------------------------------------- |
+| `out/report.meta.json`    | Scan metadata (`since`, `scannedAt`, `granularity`)            |
 | `out/report.hotspots.csv` | File-mode ranking (or `report.functions.csv` in function mode) |
-| `out/report.coupling.csv` | Coupling pairs |
+| `out/report.coupling.csv` | Coupling pairs                                                 |
 
 **Compare bundle** (`--baseline baseline.json --format csv --output out/compare.csv`):
 
-| File | Contents |
-|------|----------|
-| `out/compare.meta.json` | Baseline/current metadata and warnings |
-| `out/compare.hotspots.new.csv` | New hotspots (or `functions.*` in function mode) |
-| `out/compare.hotspots.removed.csv` | Removed hotspots |
+| File                                    | Contents                                         |
+| --------------------------------------- | ------------------------------------------------ |
+| `out/compare.meta.json`                 | Baseline/current metadata and warnings           |
+| `out/compare.hotspots.new.csv`          | New hotspots (or `functions.*` in function mode) |
+| `out/compare.hotspots.removed.csv`      | Removed hotspots                                 |
 | `out/compare.hotspots.rank-changed.csv` | Rank changes with baseline/current/delta columns |
-| `out/compare.coupling.new.csv` | New coupling pairs |
-| `out/compare.coupling.removed.csv` | Removed coupling pairs |
-| `out/compare.coupling.rank-changed.csv` | Coupling rank changes |
+| `out/compare.coupling.new.csv`          | New coupling pairs                               |
+| `out/compare.coupling.removed.csv`      | Removed coupling pairs                           |
+| `out/compare.coupling.rank-changed.csv` | Coupling rank changes                            |
 
 Empty sections produce header-only CSV files. Data files have no section title rows.
 
@@ -298,7 +302,11 @@ Delta sections classify entities as **new**, **removed**, or **rank changed** fo
     "removed": [/* HotspotScore[] */],
     "rankChanged": [
       {
-        "entity": { "filePath": "src/medium.ts", "hotspotScore": 0.3, "..." : "..." },
+        "entity": {
+          "filePath": "src/medium.ts",
+          "hotspotScore": 0.3,
+          "...": "..."
+        },
         "baselineRank": 2,
         "currentRank": 1,
         "rankDelta": -1
@@ -308,8 +316,16 @@ Delta sections classify entities as **new**, **removed**, or **rank changed** fo
   "functions": { "new": [], "removed": [], "rankChanged": [] },
   "coupling": { "new": [], "removed": [], "rankChanged": [] },
   "meta": {
-    "baseline": { "since": "12 months ago", "scannedAt": "...", "granularity": "file" },
-    "current": { "since": "12 months ago", "scannedAt": "...", "granularity": "file" },
+    "baseline": {
+      "since": "12 months ago",
+      "scannedAt": "...",
+      "granularity": "file"
+    },
+    "current": {
+      "since": "12 months ago",
+      "scannedAt": "...",
+      "granularity": "file"
+    },
     "warnings": []
   }
 }
@@ -319,11 +335,11 @@ Delta sections classify entities as **new**, **removed**, or **rank changed** fo
 
 ### Exit codes
 
-| Code | Meaning |
-|------|---------|
-| `0` | Scan completed successfully |
-| `2` | Invalid usage (missing command, bad flags) |
-| `1` | Runtime error (invalid path, git failure) |
+| Code | Meaning                                    |
+| ---- | ------------------------------------------ |
+| `0`  | Scan completed successfully                |
+| `2`  | Invalid usage (missing command, bad flags) |
+| `1`  | Runtime error (invalid path, git failure)  |
 
 ## Development
 

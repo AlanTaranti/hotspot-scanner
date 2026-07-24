@@ -48,8 +48,8 @@ normalized[i] = 0                                       // when max === min
 
 ## Related closed decisions (STATE.md)
 
-| Decision | Value | Relevance to M4 |
-|----------|-------|-----------------|
-| Churn metric | Raw `commitCount` | HotspotScorer churn input |
-| Coupling denominator | `min(commitsA, commitsB)` | TemporalCouplingScorer formula |
-| Coupling vs hotspot | Separate rankings | Coupling does not feed `hotspotScore` |
+| Decision             | Value                     | Relevance to M4                       |
+| -------------------- | ------------------------- | ------------------------------------- |
+| Churn metric         | Raw `commitCount`         | HotspotScorer churn input             |
+| Coupling denominator | `min(commitsA, commitsB)` | TemporalCouplingScorer formula        |
+| Coupling vs hotspot  | Separate rankings         | Coupling does not feed `hotspotScore` |

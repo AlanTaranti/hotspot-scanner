@@ -3,10 +3,7 @@ import { access, stat, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Command } from "commander";
-import {
-  compareScanResults,
-  loadBaseline,
-} from "#compare";
+import { compareScanResults, loadBaseline } from "#compare";
 import {
   ConfigError,
   loadHotspotScannerConfig,
@@ -38,7 +35,12 @@ export function parsePositiveInteger(value: string, flagName: string): number {
 }
 
 export function parseFormat(value: string): OutputFormat {
-  if (value === "table" || value === "json" || value === "markdown" || value === "csv") {
+  if (
+    value === "table" ||
+    value === "json" ||
+    value === "markdown" ||
+    value === "csv"
+  ) {
     return value;
   }
   throw new CliUsageError(
@@ -80,7 +82,9 @@ export async function validateOutputPath(outputPath: string): Promise<void> {
   }
 }
 
-export async function validateBaselinePath(baselinePath: string): Promise<void> {
+export async function validateBaselinePath(
+  baselinePath: string,
+): Promise<void> {
   if (baselinePath.length === 0) {
     throw new CliUsageError("--baseline path must not be empty");
   }
@@ -130,12 +134,17 @@ function writeReport(output: string, outputPath?: string): Promise<void> {
 
 export function collectGlob(value: string, previous: string[]): string[] {
   if (value.length === 0) {
-    throw new CliUsageError("--include and --exclude patterns must not be empty");
+    throw new CliUsageError(
+      "--include and --exclude patterns must not be empty",
+    );
   }
   return previous.concat([value]);
 }
 
-export function validateScopePatterns(patterns: string[], flagName: string): void {
+export function validateScopePatterns(
+  patterns: string[],
+  flagName: string,
+): void {
   for (const pattern of patterns) {
     if (pattern.length === 0) {
       throw new CliUsageError(`${flagName} patterns must not be empty`);
@@ -228,13 +237,20 @@ export function createCliProgram(): Command {
     )
     .argument("<path>", "Repository path")
     .option("--since <period>", "Git history window", DEFAULT_SINCE)
-    .option("--format <format>", "Output format: table|json|markdown|csv (csv requires --output)", "table")
+    .option(
+      "--format <format>",
+      "Output format: table|json|markdown|csv (csv requires --output)",
+      "table",
+    )
     .option(
       "--granularity <mode>",
       "Ranking granularity: file or function",
       "file",
     )
-    .option("--output <path>", "Write report to file instead of stdout (required for --format csv)")
+    .option(
+      "--output <path>",
+      "Write report to file instead of stdout (required for --format csv)",
+    )
     .option(
       "--baseline <path>",
       "Compare scan against baseline JSON from a prior run",
@@ -266,7 +282,10 @@ export function createCliProgram(): Command {
       const format = parseFormat(options.format);
       const cliOverrides = buildCliConfigOverrides(cmd, options);
       const fileConfig = await loadHotspotScannerConfig(repoPath);
-      const merged = mergeScanOptions({ config: fileConfig, cli: cliOverrides });
+      const merged = mergeScanOptions({
+        config: fileConfig,
+        cli: cliOverrides,
+      });
       const top = merged.top;
 
       const baselinePath = options.baseline as string | undefined;

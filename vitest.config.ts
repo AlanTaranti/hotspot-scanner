@@ -22,14 +22,19 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       include: ["src/**/*.ts", "bin/**/*.ts"],
-      exclude: ["src/types/**", "src/complexity/worker.ts", "**/*.test.ts", "**/*.d.ts"],
+      exclude: [
+        "src/types/**",
+        "src/complexity/worker.ts",
+        "**/*.test.ts",
+        "**/*.d.ts",
+      ],
       thresholds: {
         perFile: true,
         branches: 80,
         functions: 90,
         lines: 90,
-        statements: 80
-      }
+        statements: 80,
+      },
     },
   },
 });

@@ -23,25 +23,25 @@ flowchart LR
 
 | Task | Depends on | Diagram | Match |
 | ---- | ---------- | ------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T2 | T2 → T3 | ✅ |
-| T4 | T3 | T3 → T4 | ✅ |
+| T1   | None       | Root    | ✅    |
+| T2   | T1         | T1 → T2 | ✅    |
+| T3   | T2         | T2 → T3 | ✅    |
+| T4   | T3         | T3 → T4 | ✅    |
 
 ### Path Conflict Check
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | docs | `PROJECT.md`, `INTEGRATIONS.md`, optionally `integrations.mdc` | Sequential |
-| T2 | docs | `.specs/features/*/spec.md|design.md|tasks.md` Status fields; ROADMAP header | After T1 |
-| T3 | docs | `README.md` | After T2 |
-| T4 | docs | `ROADMAP.md`, `STACK.md` if needed | After T3 |
+| Task | Module owner | Paths                                                          | Conflict   |
+| ---- | ------------ | -------------------------------------------------------------- | ---------- |
+| T1   | docs         | `PROJECT.md`, `INTEGRATIONS.md`, optionally `integrations.mdc` | Sequential |
+| T2   | docs         | `.specs/features/*/spec.md                                     | design.md  | tasks.md` Status fields; ROADMAP header | After T1 |
+| T3   | docs         | `README.md`                                                    | After T2   |
+| T4   | docs         | `ROADMAP.md`, `STACK.md` if needed                             | After T3   |
 
 ### Test Co-location Validation
 
-| Task | Code layer | Matrix | Tests | Match |
-| ---- | ---------- | ------ | ----- | ----- |
-| T1–T4 | Docs only | none | Gate `pnpm build && pnpm test` (sanity; no code change expected) | ✅ |
+| Task  | Code layer | Matrix | Tests                                                            | Match |
+| ----- | ---------- | ------ | ---------------------------------------------------------------- | ----- |
+| T1–T4 | Docs only  | none   | Gate `pnpm build && pnpm test` (sanity; no code change expected) | ✅    |
 
 ---
 
@@ -146,8 +146,8 @@ flowchart LR
 
 | Requirement ID | Task |
 | -------------- | ---- |
-| HOTSPOT-153 | T1 |
-| HOTSPOT-154 | T2 |
-| HOTSPOT-155 | T3 |
-| HOTSPOT-156 | T1 |
-| HOTSPOT-157 | T4 |
+| HOTSPOT-153    | T1   |
+| HOTSPOT-154    | T2   |
+| HOTSPOT-155    | T3   |
+| HOTSPOT-156    | T1   |
+| HOTSPOT-157    | T4   |

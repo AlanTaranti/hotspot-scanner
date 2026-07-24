@@ -24,7 +24,10 @@ function loadCompareResult(baselineName: string, currentName: string) {
 describe("renderCompareTable", () => {
   it("renders file mode sections", () => {
     const output = renderCompareTable(
-      loadCompareResult("compare-baseline-file.json", "compare-current-file.json"),
+      loadCompareResult(
+        "compare-baseline-file.json",
+        "compare-current-file.json",
+      ),
     );
 
     expect(output).toContain("Scan Compare Report");
@@ -38,7 +41,10 @@ describe("renderCompareTable", () => {
 
   it("renders StaticDep column in coupling sections", () => {
     const output = renderCompareTable(
-      loadCompareResult("compare-baseline-file.json", "compare-current-file.json"),
+      loadCompareResult(
+        "compare-baseline-file.json",
+        "compare-current-file.json",
+      ),
     );
 
     expect(output).toContain("StaticDep");

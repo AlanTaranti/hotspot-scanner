@@ -23,17 +23,17 @@ M11 adds per-function McCabe extraction (`functionName`, `line`, `complexity`) a
 
 Explicitly excluded. Documented to prevent scope creep.
 
-| Feature | Reason |
-| ------- | ------ |
-| Per-function git churn | No blame/history AST in v1 — churn inherited from parent file |
-| Coupling at function granularity | Co-change events are file-level (M2); unchanged in M11 |
-| CI fail thresholds / exit codes on metric breach | Not planned — removed from roadmap (see STATE.md) |
-| `scan compare` / baseline delta | Milestone 13 — Scan Compare |
-| Static import analysis on functions | Milestone 14 — Enriched Coupling |
-| Worker-thread AST parallelization | Milestone 15 — AST Parallelization |
-| Alter McCabe decision node definition | CONCERNS RT-005 — reuse `complexityForFunction()` |
-| Bump JSON `version` to `"1.1"` | Additive schema under `"1.0"` |
-| Change file-mode hotspot scoring or coupling | M8/M9 boundary |
+| Feature                                          | Reason                                                        |
+| ------------------------------------------------ | ------------------------------------------------------------- |
+| Per-function git churn                           | No blame/history AST in v1 — churn inherited from parent file |
+| Coupling at function granularity                 | Co-change events are file-level (M2); unchanged in M11        |
+| CI fail thresholds / exit codes on metric breach | Not planned — removed from roadmap (see STATE.md)             |
+| `scan compare` / baseline delta                  | Milestone 13 — Scan Compare                                   |
+| Static import analysis on functions              | Milestone 14 — Enriched Coupling                              |
+| Worker-thread AST parallelization                | Milestone 15 — AST Parallelization                            |
+| Alter McCabe decision node definition            | CONCERNS RT-005 — reuse `complexityForFunction()`             |
+| Bump JSON `version` to `"1.1"`                   | Additive schema under `"1.0"`                                 |
+| Change file-mode hotspot scoring or coupling     | M8/M9 boundary                                                |
 
 ---
 
@@ -276,19 +276,19 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-92 | P1: Per-function complexity extraction | Tasks T1 | Planned |
-| HOTSPOT-93 | P1: Function naming fixtures | Tasks T1 | Planned |
-| HOTSPOT-94 | P1: Function hotspot scorer | Tasks T2 | Planned |
-| HOTSPOT-95 | P1: Domain types + pipeline wiring | Tasks T3 | Planned |
-| HOTSPOT-96 | P1: CLI `--granularity` flag | Tasks T4 | Planned |
-| HOTSPOT-97 | P1: Table reporter (function mode) | Tasks T5 | Planned |
-| HOTSPOT-98 | P1: JSON schema (function mode) | Tasks T5 | Planned |
-| HOTSPOT-99 | P1: Markdown reporter (function mode) | Tasks T5 | Planned |
-| HOTSPOT-100 | P1: Reporter factory + slice | Tasks T5 | Planned |
-| HOTSPOT-101 | P1: Tests + integration | Tasks T6 | Planned |
-| HOTSPOT-102 | P1: Documentation sync | Tasks T7 | Planned |
+| Requirement ID | Story                                  | Phase    | Status  |
+| -------------- | -------------------------------------- | -------- | ------- |
+| HOTSPOT-92     | P1: Per-function complexity extraction | Tasks T1 | Planned |
+| HOTSPOT-93     | P1: Function naming fixtures           | Tasks T1 | Planned |
+| HOTSPOT-94     | P1: Function hotspot scorer            | Tasks T2 | Planned |
+| HOTSPOT-95     | P1: Domain types + pipeline wiring     | Tasks T3 | Planned |
+| HOTSPOT-96     | P1: CLI `--granularity` flag           | Tasks T4 | Planned |
+| HOTSPOT-97     | P1: Table reporter (function mode)     | Tasks T5 | Planned |
+| HOTSPOT-98     | P1: JSON schema (function mode)        | Tasks T5 | Planned |
+| HOTSPOT-99     | P1: Markdown reporter (function mode)  | Tasks T5 | Planned |
+| HOTSPOT-100    | P1: Reporter factory + slice           | Tasks T5 | Planned |
+| HOTSPOT-101    | P1: Tests + integration                | Tasks T6 | Planned |
+| HOTSPOT-102    | P1: Documentation sync                 | Tasks T7 | Planned |
 
 **Coverage:** 11 total, 11 mapped to tasks, 0 unmapped
 

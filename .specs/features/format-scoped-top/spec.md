@@ -23,15 +23,15 @@ Data pipelines and baseline export (`--format json --output`) need complete rank
 
 Explicitly excluded. Documented to prevent scope creep.
 
-| Feature | Reason |
-| ------- | ------ |
-| Separate `--top-hotspots` / `--top-coupling` flags | YAGNI |
-| Slicing in `runScan()` pipeline | M5 D3 — reporter owns display limit |
-| Changing `DEFAULT_TOP` (20) | Out of scope |
-| CI fail thresholds / exit codes on metric breach | Not planned — removed from roadmap (see STATE.md) |
-| Altering `ScanResult` / `CompareResult` schema | Render-only change |
-| Warning when `--top` combined with JSON/CSV | YAGNI — flag accepted, ignored silently |
-| Updating historical M5 `reporter-cli/spec.md` | Superseded by M16; noted in context.md |
+| Feature                                            | Reason                                            |
+| -------------------------------------------------- | ------------------------------------------------- |
+| Separate `--top-hotspots` / `--top-coupling` flags | YAGNI                                             |
+| Slicing in `runScan()` pipeline                    | M5 D3 — reporter owns display limit               |
+| Changing `DEFAULT_TOP` (20)                        | Out of scope                                      |
+| CI fail thresholds / exit codes on metric breach   | Not planned — removed from roadmap (see STATE.md) |
+| Altering `ScanResult` / `CompareResult` schema     | Render-only change                                |
+| Warning when `--top` combined with JSON/CSV        | YAGNI — flag accepted, ignored silently           |
+| Updating historical M5 `reporter-cli/spec.md`      | Superseded by M16; noted in context.md            |
 
 ---
 
@@ -169,14 +169,14 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-129 | P1: Scan JSON ignores `--top` | Tasks T1 | Done |
-| HOTSPOT-130 | P1: Compare JSON ignores `--top` | Tasks T1 | Done |
-| HOTSPOT-131 | P1: Table/markdown retain slicing | Tasks T1 | Done |
-| HOTSPOT-132 | P1: Reporter factory dispatch | Tasks T1 | Done |
-| HOTSPOT-133 | P1: Tests | Tasks T1, T2 | Done |
-| HOTSPOT-134 | P1: CLI help and documentation sync | Tasks T2, T3 | Done |
+| Requirement ID | Story                               | Phase        | Status |
+| -------------- | ----------------------------------- | ------------ | ------ |
+| HOTSPOT-129    | P1: Scan JSON ignores `--top`       | Tasks T1     | Done   |
+| HOTSPOT-130    | P1: Compare JSON ignores `--top`    | Tasks T1     | Done   |
+| HOTSPOT-131    | P1: Table/markdown retain slicing   | Tasks T1     | Done   |
+| HOTSPOT-132    | P1: Reporter factory dispatch       | Tasks T1     | Done   |
+| HOTSPOT-133    | P1: Tests                           | Tasks T1, T2 | Done   |
+| HOTSPOT-134    | P1: CLI help and documentation sync | Tasks T2, T3 | Done   |
 
 **Coverage:** 6 total, 6 mapped to tasks, 0 unmapped
 

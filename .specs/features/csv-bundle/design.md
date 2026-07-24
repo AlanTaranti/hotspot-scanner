@@ -61,10 +61,10 @@ out/compare.coupling.rank-changed.csv
 
 **Stem rule:** If `--output` ends with `.csv` (case-sensitive), strip that suffix once; otherwise use the path as-is.
 
-| `--output` | Stem | Example ranking file |
-| ---------- | ---- | -------------------- |
-| `out/report.csv` | `out/report` | `out/report.hotspots.csv` |
-| `out/report` | `out/report` | `out/report.hotspots.csv` |
+| `--output`        | Stem              | Example ranking file                                                             |
+| ----------------- | ----------------- | -------------------------------------------------------------------------------- |
+| `out/report.csv`  | `out/report`      | `out/report.hotspots.csv`                                                        |
+| `out/report`      | `out/report`      | `out/report.hotspots.csv`                                                        |
 | `out/compare.CSV` | `out/compare.CSV` | No strip (suffix is `.csv` lowercase only) — prefer documenting lowercase `.csv` |
 
 **YAGNI note:** Case-insensitive strip is optional; implement **lowercase `.csv` strip only** unless tests prove otherwise. Document that users should pass `--output …/*.csv` lowercase.
@@ -75,28 +75,28 @@ out/compare.coupling.rank-changed.csv
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `escapeCsvField` / `formatCsvRow` | `src/report/csv-utils.ts` | **Unchanged** — all data rows |
-| Column sourcing tables | [csv-export/design.md](../csv-export/design.md) | Reuse hotspots/functions/coupling/compare columns |
-| `createReporter` | `src/report/index.ts` | CSV branch returns `CsvBundle`; skip slice |
-| `validateOutputPath` | `bin/hotspot-scanner.ts` | Validate user `--output` path before write (M10) |
-| `writeReport` | `bin/hotspot-scanner.ts` | Keep for non-csv formats; add `writeCsvBundle` sibling |
-| `CliUsageError` | `bin/hotspot-scanner.ts` | Missing `--output` for csv |
-| Fixtures | `tests/fixtures/report/` | Unit tests for bundle contents |
-| Integration | `tests/fixtures/repos/small-ts/` | E2E multi-file asserts |
+| Component                         | Location                                        | How to Use                                             |
+| --------------------------------- | ----------------------------------------------- | ------------------------------------------------------ |
+| `escapeCsvField` / `formatCsvRow` | `src/report/csv-utils.ts`                       | **Unchanged** — all data rows                          |
+| Column sourcing tables            | [csv-export/design.md](../csv-export/design.md) | Reuse hotspots/functions/coupling/compare columns      |
+| `createReporter`                  | `src/report/index.ts`                           | CSV branch returns `CsvBundle`; skip slice             |
+| `validateOutputPath`              | `bin/hotspot-scanner.ts`                        | Validate user `--output` path before write (M10)       |
+| `writeReport`                     | `bin/hotspot-scanner.ts`                        | Keep for non-csv formats; add `writeCsvBundle` sibling |
+| `CliUsageError`                   | `bin/hotspot-scanner.ts`                        | Missing `--output` for csv                             |
+| Fixtures                          | `tests/fixtures/report/`                        | Unit tests for bundle contents                         |
+| Integration                       | `tests/fixtures/repos/small-ts/`                | E2E multi-file asserts                                 |
 
 ### Integration Points
 
-| Consumer | Impact |
-| -------- | ------ |
-| `src/scan.ts` | None |
-| `src/compare/**` | None |
-| `src/report/csv.ts` | Return `CsvBundle`; drop title rows / blank-line join / metadata CSV block |
-| `src/report/compare-csv.ts` | Return `CsvBundle` with 6 data keys + `meta.json` |
-| `src/report/index.ts` | Widen return type for csv; dispatch unchanged for other formats |
-| `bin/hotspot-scanner.ts` | Require `--output` for csv; stem + multi-write |
-| Scoring / types | None |
+| Consumer                    | Impact                                                                     |
+| --------------------------- | -------------------------------------------------------------------------- |
+| `src/scan.ts`               | None                                                                       |
+| `src/compare/**`            | None                                                                       |
+| `src/report/csv.ts`         | Return `CsvBundle`; drop title rows / blank-line join / metadata CSV block |
+| `src/report/compare-csv.ts` | Return `CsvBundle` with 6 data keys + `meta.json`                          |
+| `src/report/index.ts`       | Widen return type for csv; dispatch unchanged for other formats            |
+| `bin/hotspot-scanner.ts`    | Require `--output` for csv; stem + multi-write                             |
+| Scoring / types             | None                                                                       |
 
 ---
 
@@ -131,12 +131,12 @@ export type CsvBundle = Readonly<Record<string, string>>;
 
 **Scan bundle keys:**
 
-| Key | When |
-| --- | ---- |
-| `meta.json` | Always |
-| `hotspots.csv` | `granularity !== "function"` |
+| Key             | When                         |
+| --------------- | ---------------------------- |
+| `meta.json`     | Always                       |
+| `hotspots.csv`  | `granularity !== "function"` |
 | `functions.csv` | `granularity === "function"` |
-| `coupling.csv` | Always |
+| `coupling.csv`  | Always                       |
 
 Never include both `hotspots.csv` and `functions.csv`.
 
@@ -151,14 +151,14 @@ Never include both `hotspots.csv` and `functions.csv`.
 
 **Compare bundle keys (file mode):**
 
-| Key |
-| --- |
-| `meta.json` |
-| `hotspots.new.csv` |
-| `hotspots.removed.csv` |
+| Key                         |
+| --------------------------- |
+| `meta.json`                 |
+| `hotspots.new.csv`          |
+| `hotspots.removed.csv`      |
 | `hotspots.rank-changed.csv` |
-| `coupling.new.csv` |
-| `coupling.removed.csv` |
+| `coupling.new.csv`          |
+| `coupling.removed.csv`      |
 | `coupling.rank-changed.csv` |
 
 **Function mode:** replace `hotspots.*` with `functions.*`; coupling keys unchanged. Always emit all six data keys + meta (empty → header-only CSV string).
@@ -268,54 +268,54 @@ Same as [csv-export/design.md](../csv-export/design.md) § Compare CSV Layout co
 
 ## Error Handling Strategy
 
-| Error Scenario | Handling | User Impact |
-| -------------- | -------- | ----------- |
-| `--format csv` without `--output` | `CliUsageError` | Exit `2`; message states `--output` required for csv |
-| Invalid `--output` (empty, directory, missing parent) | M10 `validateOutputPath` | Exit `2` |
-| Write failure mid-bundle | Propagate `fs` error | Exit `1`; partial files may exist (document; no transactional rollback — YAGNI) |
-| Invalid `--format` | Unchanged `parseFormat` | Exit `2` |
+| Error Scenario                                        | Handling                 | User Impact                                                                     |
+| ----------------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------- |
+| `--format csv` without `--output`                     | `CliUsageError`          | Exit `2`; message states `--output` required for csv                            |
+| Invalid `--output` (empty, directory, missing parent) | M10 `validateOutputPath` | Exit `2`                                                                        |
+| Write failure mid-bundle                              | Propagate `fs` error     | Exit `1`; partial files may exist (document; no transactional rollback — YAGNI) |
+| Invalid `--format`                                    | Unchanged `parseFormat`  | Exit `2`                                                                        |
 
 ---
 
 ## Tech Decisions (non-obvious)
 
-| Decision | Choice | Rationale |
-| -------- | ------ | --------- |
-| Return type union `string \| CsvBundle` | Widened `Reporter` | Minimal churn vs separate CSV-only API |
-| Shared `csv-bundle.ts` for type | Small module | Avoid csv ↔ compare-csv import cycle |
-| Validate only user `--output` path | Not every expanded file | M10 parity; parent dir same for all siblings |
-| Always emit empty compare files | Header-only | Stable paths for scripts |
-| No zip / BOM / legacy flag | YAGNI | Locked in context.md |
-| `--top` ignored for csv | Unchanged | M16/M17 parity |
+| Decision                                | Choice                  | Rationale                                    |
+| --------------------------------------- | ----------------------- | -------------------------------------------- |
+| Return type union `string \| CsvBundle` | Widened `Reporter`      | Minimal churn vs separate CSV-only API       |
+| Shared `csv-bundle.ts` for type         | Small module            | Avoid csv ↔ compare-csv import cycle         |
+| Validate only user `--output` path      | Not every expanded file | M10 parity; parent dir same for all siblings |
+| Always emit empty compare files         | Header-only             | Stable paths for scripts                     |
+| No zip / BOM / legacy flag              | YAGNI                   | Locked in context.md                         |
+| `--top` ignored for csv                 | Unchanged               | M16/M17 parity                               |
 
 ---
 
 ## Risks
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| Breaking change for M17 consumers | Document in STATE + README; ROADMAP M17 supersede note; no dual layout |
-| Partial writes on disk full | Accept fail-fast; YAGNI atomic rename |
-| `Reporter` return type breaks typed callers | Only CLI + tests consume today; update call sites in T3 |
+| Risk                                                              | Mitigation                                                                        |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Breaking change for M17 consumers                                 | Document in STATE + README; ROADMAP M17 supersede note; no dual layout            |
+| Partial writes on disk full                                       | Accept fail-fast; YAGNI atomic rename                                             |
+| `Reporter` return type breaks typed callers                       | Only CLI + tests consume today; update call sites in T3                           |
 | Stem collision if user passes `report.hotspots.csv` as `--output` | Document stem = strip trailing `.csv` once; unusual stems are user responsibility |
-| Integration tests still assert M17 title rows | Rewrite asserts to bundle files / headers in T4 |
+| Integration tests still assert M17 title rows                     | Rewrite asserts to bundle files / headers in T4                                   |
 
 ---
 
 ## Test Impact
 
-| File | Change |
-| ---- | ------ |
-| `src/report/csv-bundle.ts` | **New** (type + optional helpers) |
-| `src/report/csv.ts` | Return `CsvBundle`; drop multi-block |
-| `src/report/csv.test.ts` | Assert keys, headers, XOR, empty |
-| `src/report/compare-csv.ts` | Return `CsvBundle` |
-| `src/report/compare-csv.test.ts` | Six keys + meta; modes |
-| `src/report/index.ts` | Union return; csv dispatch |
-| `src/report/index.test.ts` | Bundle vs string; top ignored |
-| `bin/hotspot-scanner.ts` | require output; stem; writeCsvBundle |
-| `bin/hotspot-scanner.test.ts` | CliUsageError; multi-write |
-| `bin/hotspot-scanner.integration.test.ts` | Bundle file asserts on small-ts |
+| File                                      | Change                               |
+| ----------------------------------------- | ------------------------------------ |
+| `src/report/csv-bundle.ts`                | **New** (type + optional helpers)    |
+| `src/report/csv.ts`                       | Return `CsvBundle`; drop multi-block |
+| `src/report/csv.test.ts`                  | Assert keys, headers, XOR, empty     |
+| `src/report/compare-csv.ts`               | Return `CsvBundle`                   |
+| `src/report/compare-csv.test.ts`          | Six keys + meta; modes               |
+| `src/report/index.ts`                     | Union return; csv dispatch           |
+| `src/report/index.test.ts`                | Bundle vs string; top ignored        |
+| `bin/hotspot-scanner.ts`                  | require output; stem; writeCsvBundle |
+| `bin/hotspot-scanner.test.ts`             | CliUsageError; multi-write           |
+| `bin/hotspot-scanner.integration.test.ts` | Bundle file asserts on small-ts      |
 
 **Do not change:** scoring, scan pipeline, json/table/markdown renderers (except type-safe call sites if needed), `csv-utils.ts`.
 
@@ -323,11 +323,11 @@ Same as [csv-export/design.md](../csv-export/design.md) § Compare CSV Layout co
 
 ## Documentation Sync Targets
 
-| File | Update |
-| ---- | ------ |
-| `.specs/codebase/ARCHITECTURE.md` | CSV bundle; `--output` required; `CsvBundle` |
-| `.specs/codebase/STRUCTURE.md` | `csv-bundle.ts` if added |
-| `README.md` | Flags / examples for multi-file csv |
-| `.cursor/skills/vitals-cli-validation/SKILL.md` | Bundle path examples |
-| `.specs/project/ROADMAP.md` | M18 + optional M17 supersede note |
-| `.specs/project/STATE.md` | Breaking decision log |
+| File                                            | Update                                       |
+| ----------------------------------------------- | -------------------------------------------- |
+| `.specs/codebase/ARCHITECTURE.md`               | CSV bundle; `--output` required; `CsvBundle` |
+| `.specs/codebase/STRUCTURE.md`                  | `csv-bundle.ts` if added                     |
+| `README.md`                                     | Flags / examples for multi-file csv          |
+| `.cursor/skills/vitals-cli-validation/SKILL.md` | Bundle path examples                         |
+| `.specs/project/ROADMAP.md`                     | M18 + optional M17 supersede note            |
+| `.specs/project/STATE.md`                       | Breaking decision log                        |

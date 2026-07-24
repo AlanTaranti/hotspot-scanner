@@ -317,46 +317,46 @@ Phase 3 (Sequential):
 
 ## Task Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1: Git spawn | 1 module (`spawn.ts`) | ✅ Granular |
-| T2: Parser | 1 module (`parse.ts`) | ✅ Granular |
-| T3: Rename map | 1 module (`rename.ts`) | ✅ Granular |
-| T4: Aggregator | 1 module (`aggregate.ts`) | ✅ Granular |
-| T5: GitMiner wire | 1 file (`index.ts`) | ✅ Granular |
-| T6: Fixtures | `tests/fixtures/git-log/` data files | ✅ Granular |
-| T7: Edge tests | test files only | ✅ Granular |
-| T8: Coverage + docs | verification + docs | ✅ Granular |
+| Task                | Scope                                | Status      |
+| ------------------- | ------------------------------------ | ----------- |
+| T1: Git spawn       | 1 module (`spawn.ts`)                | ✅ Granular |
+| T2: Parser          | 1 module (`parse.ts`)                | ✅ Granular |
+| T3: Rename map      | 1 module (`rename.ts`)               | ✅ Granular |
+| T4: Aggregator      | 1 module (`aggregate.ts`)            | ✅ Granular |
+| T5: GitMiner wire   | 1 file (`index.ts`)                  | ✅ Granular |
+| T6: Fixtures        | `tests/fixtures/git-log/` data files | ✅ Granular |
+| T7: Edge tests      | test files only                      | ✅ Granular |
+| T8: Coverage + docs | verification + docs                  | ✅ Granular |
 
 ---
 
 ## Diagram-Definition Cross-Check
 
-| Task | Depends On (task body) | Diagram Shows | Status |
-| ---- | ---------------------- | ------------- | ------ |
-| T1 | None | Entry node | ✅ Match |
-| T2 | T1 | T1 → T2 | ✅ Match |
-| T3 | T2 | T2 → T3 | ✅ Match |
-| T4 | T2, T3 | T3 → T4 | ✅ Match |
-| T5 | T1–T4, T6 | T4 → T5, T6 → T5 | ✅ Match |
-| T6 | None | Parallel node | ✅ Match |
-| T7 | T5, T6 | T5 → T7 | ✅ Match |
-| T8 | T1–T7 | T7 → T8 | ✅ Match |
+| Task | Depends On (task body) | Diagram Shows    | Status   |
+| ---- | ---------------------- | ---------------- | -------- |
+| T1   | None                   | Entry node       | ✅ Match |
+| T2   | T1                     | T1 → T2          | ✅ Match |
+| T3   | T2                     | T2 → T3          | ✅ Match |
+| T4   | T2, T3                 | T3 → T4          | ✅ Match |
+| T5   | T1–T4, T6              | T4 → T5, T6 → T5 | ✅ Match |
+| T6   | None                   | Parallel node    | ✅ Match |
+| T7   | T5, T6                 | T5 → T7          | ✅ Match |
+| T8   | T1–T7                  | T7 → T8          | ✅ Match |
 
 ---
 
 ## Test Co-location Validation
 
-| Task | Code Layer Created/Modified | Matrix Requires | Task Says | Status |
-| ---- | --------------------------- | --------------- | --------- | ------ |
-| T1: spawn | `src/git/spawn.ts` | unit ≥80% | unit (`spawn.test.ts`) | ✅ OK |
-| T2: parse | `src/git/parse.ts` | unit ≥80% | unit (`parse.test.ts`) | ✅ OK |
-| T3: rename | `src/git/rename.ts` | unit ≥80% | unit (`rename.test.ts`) | ✅ OK |
-| T4: aggregate | `src/git/aggregate.ts` | unit ≥80% | unit (`aggregate.test.ts`) | ✅ OK |
-| T5: GitMiner wire | `src/git/index.ts` | unit ≥80% | integration (`index.test.ts`) | ✅ OK |
-| T6: Fixtures | `tests/fixtures/git-log/` | none | none | ✅ OK |
-| T7: Edge tests | `src/git/*.test.ts` | unit ≥80% | integration | ✅ OK |
-| T8: Coverage gate | docs + config | project gate | full gate | ✅ OK |
+| Task              | Code Layer Created/Modified | Matrix Requires | Task Says                     | Status |
+| ----------------- | --------------------------- | --------------- | ----------------------------- | ------ |
+| T1: spawn         | `src/git/spawn.ts`          | unit ≥80%       | unit (`spawn.test.ts`)        | ✅ OK  |
+| T2: parse         | `src/git/parse.ts`          | unit ≥80%       | unit (`parse.test.ts`)        | ✅ OK  |
+| T3: rename        | `src/git/rename.ts`         | unit ≥80%       | unit (`rename.test.ts`)       | ✅ OK  |
+| T4: aggregate     | `src/git/aggregate.ts`      | unit ≥80%       | unit (`aggregate.test.ts`)    | ✅ OK  |
+| T5: GitMiner wire | `src/git/index.ts`          | unit ≥80%       | integration (`index.test.ts`) | ✅ OK  |
+| T6: Fixtures      | `tests/fixtures/git-log/`   | none            | none                          | ✅ OK  |
+| T7: Edge tests    | `src/git/*.test.ts`         | unit ≥80%       | integration                   | ✅ OK  |
+| T8: Coverage gate | docs + config               | project gate    | full gate                     | ✅ OK  |
 
 ---
 
@@ -364,16 +364,16 @@ Phase 3 (Sequential):
 
 | Requirement | Task(s) |
 | ----------- | ------- |
-| HOTSPOT-09 | T1, T5 |
-| HOTSPOT-10 | T2, T5 |
-| HOTSPOT-11 | T4, T5 |
-| HOTSPOT-12 | T4, T5 |
-| HOTSPOT-13 | T4, T5 |
-| HOTSPOT-14 | T3, T5 |
-| HOTSPOT-15 | T2, T7 |
-| HOTSPOT-16 | T1 |
-| HOTSPOT-17 | T7 |
-| HOTSPOT-18 | T6, T8 |
+| HOTSPOT-09  | T1, T5  |
+| HOTSPOT-10  | T2, T5  |
+| HOTSPOT-11  | T4, T5  |
+| HOTSPOT-12  | T4, T5  |
+| HOTSPOT-13  | T4, T5  |
+| HOTSPOT-14  | T3, T5  |
+| HOTSPOT-15  | T2, T7  |
+| HOTSPOT-16  | T1      |
+| HOTSPOT-17  | T7      |
+| HOTSPOT-18  | T6, T8  |
 
 **Coverage:** 10 requirements, 10 mapped, 0 unmapped
 
@@ -381,16 +381,16 @@ Phase 3 (Sequential):
 
 ## Module Owner Routing
 
-| Task | Primary owner module |
-| ---- | -------------------- |
-| T1 | `src/git/spawn.ts` |
-| T2 | `src/git/parse.ts` |
-| T3 | `src/git/rename.ts` |
-| T4 | `src/git/aggregate.ts` |
-| T5 | `src/git/index.ts` |
-| T6 | `tests/fixtures/git-log/` |
-| T7 | `src/git/*.test.ts` |
-| T8 | project docs + vitest config |
+| Task | Primary owner module         |
+| ---- | ---------------------------- |
+| T1   | `src/git/spawn.ts`           |
+| T2   | `src/git/parse.ts`           |
+| T3   | `src/git/rename.ts`          |
+| T4   | `src/git/aggregate.ts`       |
+| T5   | `src/git/index.ts`           |
+| T6   | `tests/fixtures/git-log/`    |
+| T7   | `src/git/*.test.ts`          |
+| T8   | project docs + vitest config |
 
 **Path conflict check:** Each production file owned by exactly one task (T1–T5). ✅ No conflicts.
 

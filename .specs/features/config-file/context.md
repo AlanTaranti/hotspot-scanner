@@ -24,11 +24,11 @@
 
 **Choice:** **CLI flags > config file > built-in defaults**
 
-| Source | Wins when |
-| ------ | --------- |
-| CLI flag explicitly provided | Always overrides config for that option |
-| Config file key present | Overrides default when CLI omitted |
-| Built-in default | When neither CLI nor config sets the value |
+| Source                       | Wins when                                  |
+| ---------------------------- | ------------------------------------------ |
+| CLI flag explicitly provided | Always overrides config for that option    |
+| Config file key present      | Overrides default when CLI omitted         |
+| Built-in default             | When neither CLI nor config sets the value |
 
 **Status:** **Confirmed — user locked**
 
@@ -36,14 +36,14 @@
 
 ## Decision: Supported keys (LOCKED)
 
-| Key | Maps to | Notes |
-| --- | ------- | ----- |
-| `since` | `--since` | string |
-| `include` | `--include` | string array (globs) |
-| `exclude` | `--exclude` | string array (globs) |
-| `granularity` | `--granularity` | `"file"` \| `"function"` |
-| `minCochange` | `--min-cochange` | positive integer |
-| `top` | `--top` | positive integer |
+| Key           | Maps to          | Notes                    |
+| ------------- | ---------------- | ------------------------ |
+| `since`       | `--since`        | string                   |
+| `include`     | `--include`      | string array (globs)     |
+| `exclude`     | `--exclude`      | string array (globs)     |
+| `granularity` | `--granularity`  | `"file"` \| `"function"` |
+| `minCochange` | `--min-cochange` | positive integer         |
+| `top`         | `--top`          | positive integer         |
 
 **Not in M21 config:** `format`, `output`, `baseline`, hooks — CLI-only (YAGNI).
 

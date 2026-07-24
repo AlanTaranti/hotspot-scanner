@@ -22,17 +22,17 @@ M10 adds `--output <path>` for explicit file export (all formats) and `--format 
 
 Explicitly excluded. Documented to prevent scope creep.
 
-| Feature | Reason |
-| ------- | ------ |
-| `scan compare` / baseline delta | Milestone 13 — Scan Compare |
+| Feature                                          | Reason                                            |
+| ------------------------------------------------ | ------------------------------------------------- |
+| `scan compare` / baseline delta                  | Milestone 13 — Scan Compare                       |
 | CI fail thresholds / exit codes on metric breach | Not planned — removed from roadmap (see STATE.md) |
-| `--granularity function` | Milestone 11 — Function Granularity |
-| HTML, PDF, SARIF | YAGNI |
-| Auto-detect format from file extension | `--format` is source of truth |
-| `mkdir -p` for missing parent directories | YAGNI — fail fast with clear error |
-| `--no-clobber` | YAGNI — overwrite is default |
-| Alter JSON schema, scoring, or coupling output | M9 boundary |
-| Per-function markdown sections | Milestone 11 |
+| `--granularity function`                         | Milestone 11 — Function Granularity               |
+| HTML, PDF, SARIF                                 | YAGNI                                             |
+| Auto-detect format from file extension           | `--format` is source of truth                     |
+| `mkdir -p` for missing parent directories        | YAGNI — fail fast with clear error                |
+| `--no-clobber`                                   | YAGNI — overwrite is default                      |
+| Alter JSON schema, scoring, or coupling output   | M9 boundary                                       |
+| Per-function markdown sections                   | Milestone 11                                      |
 
 ---
 
@@ -223,17 +223,17 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-83 | P1: `--output` file write | Tasks T2 | Done |
-| HOTSPOT-84 | P1: Output path validation | Tasks T2 | Done |
-| HOTSPOT-85 | P1: `--format markdown` CLI | Tasks T2 | Done |
-| HOTSPOT-86 | P1: Markdown renderer | Tasks T1 | Done |
-| HOTSPOT-87 | P1: Reporter factory dispatch | Tasks T1 | Done |
-| HOTSPOT-88 | P1: `--output` with all formats | Tasks T2, T3 | Done |
-| HOTSPOT-89 | P1: Diagnostics channel invariant | Tasks T2 | Done |
-| HOTSPOT-90 | P1: Tests | Tasks T1, T2, T3 | Done |
-| HOTSPOT-91 | P1: Documentation sync | Tasks T4 | Done |
+| Requirement ID | Story                             | Phase            | Status |
+| -------------- | --------------------------------- | ---------------- | ------ |
+| HOTSPOT-83     | P1: `--output` file write         | Tasks T2         | Done   |
+| HOTSPOT-84     | P1: Output path validation        | Tasks T2         | Done   |
+| HOTSPOT-85     | P1: `--format markdown` CLI       | Tasks T2         | Done   |
+| HOTSPOT-86     | P1: Markdown renderer             | Tasks T1         | Done   |
+| HOTSPOT-87     | P1: Reporter factory dispatch     | Tasks T1         | Done   |
+| HOTSPOT-88     | P1: `--output` with all formats   | Tasks T2, T3     | Done   |
+| HOTSPOT-89     | P1: Diagnostics channel invariant | Tasks T2         | Done   |
+| HOTSPOT-90     | P1: Tests                         | Tasks T1, T2, T3 | Done   |
+| HOTSPOT-91     | P1: Documentation sync            | Tasks T4         | Done   |
 
 **Coverage:** 9 total, 9 mapped to tasks, 0 unmapped
 

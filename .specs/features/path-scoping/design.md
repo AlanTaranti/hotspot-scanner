@@ -65,46 +65,46 @@ flowchart TB
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `runScan` pipeline | `src/scan.ts` | Extend with scope build + git filter; add `validateGitRepository` |
-| `validateRepoPath` | `src/scan.ts` | Keep; run before Git validation |
-| `discoverSourceFiles` | `src/complexity/discover.ts` | Add optional `PathScope`; prune excluded directories |
-| `createComplexityAnalyzer` | `src/complexity/index.ts` | Accept `scope` in options; pass to discover |
-| `createGitMiner` | `src/git/index.ts` | No API change — filter output in `runScan` |
-| Scorers | `src/scoring/` | Unchanged — receive pre-filtered inputs |
-| CLI flag patterns | `bin/hotspot-scanner.ts` | Mirror `--min-cochange` collect pattern for include/exclude |
-| `ScanOptions` | `src/types/domain.ts` | Add `include?: string[]`, `exclude?: string[]` |
-| Integration fixture | `tests/fixtures/repos/small-ts/` | Extend with `node_modules` stub for T7 |
+| Component                  | Location                         | How to Use                                                        |
+| -------------------------- | -------------------------------- | ----------------------------------------------------------------- |
+| `runScan` pipeline         | `src/scan.ts`                    | Extend with scope build + git filter; add `validateGitRepository` |
+| `validateRepoPath`         | `src/scan.ts`                    | Keep; run before Git validation                                   |
+| `discoverSourceFiles`      | `src/complexity/discover.ts`     | Add optional `PathScope`; prune excluded directories              |
+| `createComplexityAnalyzer` | `src/complexity/index.ts`        | Accept `scope` in options; pass to discover                       |
+| `createGitMiner`           | `src/git/index.ts`               | No API change — filter output in `runScan`                        |
+| Scorers                    | `src/scoring/`                   | Unchanged — receive pre-filtered inputs                           |
+| CLI flag patterns          | `bin/hotspot-scanner.ts`         | Mirror `--min-cochange` collect pattern for include/exclude       |
+| `ScanOptions`              | `src/types/domain.ts`            | Add `include?: string[]`, `exclude?: string[]`                    |
+| Integration fixture        | `tests/fixtures/repos/small-ts/` | Extend with `node_modules` stub for T7                            |
 
 ### Integration Points
 
-| System | M7 behavior | Notes |
-| ------ | ----------- | ----- |
-| `src/paths/` | **New** — scope + git filter | Only module importing `picomatch` |
-| `src/complexity/discover.ts` | Prune + file filter | Fragile area — update `discover.test.ts` |
-| `src/complexity/index.ts` | Forward scope | Optional `scope` on `ComplexityAnalyzerOptions` |
-| `src/scan.ts` | Git validate, scope, filter | Primary orchestration delta |
-| `src/git/` | Unchanged | Post-filter preserves streaming |
-| `bin/hotspot-scanner.ts` | New flags | No domain logic |
-| `package.json` | Add `picomatch` | Document in INTEGRATIONS.md |
+| System                       | M7 behavior                  | Notes                                           |
+| ---------------------------- | ---------------------------- | ----------------------------------------------- |
+| `src/paths/`                 | **New** — scope + git filter | Only module importing `picomatch`               |
+| `src/complexity/discover.ts` | Prune + file filter          | Fragile area — update `discover.test.ts`        |
+| `src/complexity/index.ts`    | Forward scope                | Optional `scope` on `ComplexityAnalyzerOptions` |
+| `src/scan.ts`                | Git validate, scope, filter  | Primary orchestration delta                     |
+| `src/git/`                   | Unchanged                    | Post-filter preserves streaming                 |
+| `bin/hotspot-scanner.ts`     | New flags                    | No domain logic                                 |
+| `package.json`               | Add `picomatch`              | Document in INTEGRATIONS.md                     |
 
 ---
 
 ## Design Decisions
 
-| # | Decision | Rationale |
-| - | -------- | --------- |
-| D1 | New module `src/paths/` (`scope.ts`, `filter-git.ts`, `index.ts`) | Single owner for scope rules and git filtering |
-| D2 | Runtime dependency `picomatch` | Glob matching for CLI patterns; no Node built-in |
-| D3 | Paths always posix-relative to `repoPath` | Matches `discover.ts` and git canonical paths |
-| D4 | Default excludes always active; user `--exclude` additive | [context.md](./context.md); ROADMAP M7 |
-| D5 | Include narrows; exclude wins over include | User-confirmed product semantics |
-| D6 | Git filter post-`mine()` via `filterGitMinerResult` | ADR-2026-020 single-pass; stable `GitMiner` API |
-| D7 | Git validation via `access(join(repoPath, '.git'))` | ROADMAP; supports worktree `.git` file |
-| D8 | No git∩complexity intersection (M6 C1 stands) | Scope rules apply per stage; churn=0 for in-scope files without git history |
-| D9 | Prune excluded directories during walk | Performance on large `node_modules` trees |
-| D10 | Reporter/CLI output unchanged | Scope affects data, not report format |
+| #   | Decision                                                          | Rationale                                                                   |
+| --- | ----------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| D1  | New module `src/paths/` (`scope.ts`, `filter-git.ts`, `index.ts`) | Single owner for scope rules and git filtering                              |
+| D2  | Runtime dependency `picomatch`                                    | Glob matching for CLI patterns; no Node built-in                            |
+| D3  | Paths always posix-relative to `repoPath`                         | Matches `discover.ts` and git canonical paths                               |
+| D4  | Default excludes always active; user `--exclude` additive         | [context.md](./context.md); ROADMAP M7                                      |
+| D5  | Include narrows; exclude wins over include                        | User-confirmed product semantics                                            |
+| D6  | Git filter post-`mine()` via `filterGitMinerResult`               | ADR-2026-020 single-pass; stable `GitMiner` API                             |
+| D7  | Git validation via `access(join(repoPath, '.git'))`               | ROADMAP; supports worktree `.git` file                                      |
+| D8  | No git∩complexity intersection (M6 C1 stands)                     | Scope rules apply per stage; churn=0 for in-scope files without git history |
+| D9  | Prune excluded directories during walk                            | Performance on large `node_modules` trees                                   |
+| D10 | Reporter/CLI output unchanged                                     | Scope affects data, not report format                                       |
 
 ---
 
@@ -240,9 +240,16 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
   const minCochange = options.minCochange ?? DEFAULT_MIN_COCHANGE;
 
   const miner = createGitMiner();
-  const rawGit = await miner.mine({ repoPath: options.repoPath, since, onProgress: options.onProgress });
-  const { fileStats, coChangeEvents, warnings: gitWarnings } =
-    filterGitMinerResult(rawGit, scope);
+  const rawGit = await miner.mine({
+    repoPath: options.repoPath,
+    since,
+    onProgress: options.onProgress,
+  });
+  const {
+    fileStats,
+    coChangeEvents,
+    warnings: gitWarnings,
+  } = filterGitMinerResult(rawGit, scope);
 
   // ... forward gitWarnings ...
 
@@ -296,26 +303,26 @@ No changes to `ScanResult`, `HotspotScore`, or `CouplingPair`.
 
 ## Error Handling Strategy
 
-| Scenario | Behavior | Test |
-| -------- | -------- | ---- |
-| `repoPath` not found / not directory | Throw before Git check (M5/M6) | `scan.test.ts` |
-| Directory without `.git` | Throw `not a git repository` before `git log` | `scan.test.ts` (update) |
-| Empty `--include ""` or `--exclude ""` | `CliUsageError`, exit `2` | `bin/*.test.ts` |
-| No in-scope files | Empty rankings, exit `0` | Integration test |
-| Invalid glob (picomatch throws) | Propagate or wrap with context | `scope.test.ts` edge case |
+| Scenario                               | Behavior                                      | Test                      |
+| -------------------------------------- | --------------------------------------------- | ------------------------- |
+| `repoPath` not found / not directory   | Throw before Git check (M5/M6)                | `scan.test.ts`            |
+| Directory without `.git`               | Throw `not a git repository` before `git log` | `scan.test.ts` (update)   |
+| Empty `--include ""` or `--exclude ""` | `CliUsageError`, exit `2`                     | `bin/*.test.ts`           |
+| No in-scope files                      | Empty rankings, exit `0`                      | Integration test          |
+| Invalid glob (picomatch throws)        | Propagate or wrap with context                | `scope.test.ts` edge case |
 
 ---
 
 ## Test Strategy
 
-| Layer | File | Focus |
-| ----- | ---- | ----- |
-| Unit | `src/paths/scope.test.ts` | Match rules, defaults, include/exclude interaction |
-| Unit | `src/paths/filter-git.test.ts` | fileStats filter, co-change sanitization |
-| Unit | `src/complexity/discover.test.ts` | Prune `node_modules`, respect include |
-| Unit | `src/scan.test.ts` | Git validation message; non-git temp dir |
-| Integration | `src/scan.integration.test.ts` or scoped test file | `small-ts` + `node_modules` stub excluded |
-| CLI | `bin/hotspot-scanner.test.ts` | Flag parsing, empty glob error |
+| Layer       | File                                               | Focus                                              |
+| ----------- | -------------------------------------------------- | -------------------------------------------------- |
+| Unit        | `src/paths/scope.test.ts`                          | Match rules, defaults, include/exclude interaction |
+| Unit        | `src/paths/filter-git.test.ts`                     | fileStats filter, co-change sanitization           |
+| Unit        | `src/complexity/discover.test.ts`                  | Prune `node_modules`, respect include              |
+| Unit        | `src/scan.test.ts`                                 | Git validation message; non-git temp dir           |
+| Integration | `src/scan.integration.test.ts` or scoped test file | `small-ts` + `node_modules` stub excluded          |
+| CLI         | `bin/hotspot-scanner.test.ts`                      | Flag parsing, empty glob error                     |
 
 **Mock boundaries** ([TESTING.md](../../codebase/TESTING.md)):
 
@@ -326,13 +333,13 @@ No changes to `ScanResult`, `HotspotScore`, or `CouplingPair`.
 
 ## Risks
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| Incorrect co-change filtering distorts coupling | Dedicated `filter-git.test.ts` with partial-commit cases |
-| Walk prune skips in-scope nested paths | Test `src/pkg/node_modules/foo` vs pruned top-level `node_modules` |
-| `picomatch` pattern surprises (dotfiles, `**`) | Document examples in spec; test `src/**` and `**/generated/**` |
-| Breaking `scan.test.ts` non-git expectation | Update test to expect early Git validation message |
-| New dependency scope creep | Restrict `picomatch` import to `src/paths/scope.ts` only |
+| Risk                                            | Mitigation                                                         |
+| ----------------------------------------------- | ------------------------------------------------------------------ |
+| Incorrect co-change filtering distorts coupling | Dedicated `filter-git.test.ts` with partial-commit cases           |
+| Walk prune skips in-scope nested paths          | Test `src/pkg/node_modules/foo` vs pruned top-level `node_modules` |
+| `picomatch` pattern surprises (dotfiles, `**`)  | Document examples in spec; test `src/**` and `**/generated/**`     |
+| Breaking `scan.test.ts` non-git expectation     | Update test to expect early Git validation message                 |
+| New dependency scope creep                      | Restrict `picomatch` import to `src/paths/scope.ts` only           |
 
 ---
 

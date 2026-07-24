@@ -19,12 +19,12 @@ Project docs still describe pre-v1 or mid-backlog reality: `PROJECT.md` mentions
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Implementing M14/M20–M24 features | Separate milestones |
+| Feature                             | Reason                            |
+| ----------------------------------- | --------------------------------- |
+| Implementing M14/M20–M24 features   | Separate milestones               |
 | Rewriting ARCHITECTURE from scratch | Incremental sync only where stale |
-| Changing CLI behavior | Docs only |
-| New marketing site | YAGNI |
+| Changing CLI behavior               | Docs only                         |
+| New marketing site                  | YAGNI                             |
 
 ---
 
@@ -119,13 +119,13 @@ Project docs still describe pre-v1 or mid-backlog reality: `PROJECT.md` mentions
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-153 | P1: PROJECT.md | Tasks T1 | Done |
-| HOTSPOT-154 | P1: Stale status | Tasks T2 | Done |
-| HOTSPOT-155 | P1: README | Tasks T3 | Done |
-| HOTSPOT-156 | P1: INTEGRATIONS.md | Tasks T1 | Done |
-| HOTSPOT-157 | P1: Consistency + ROADMAP | Tasks T4 | Done |
+| Requirement ID | Story                     | Phase    | Status |
+| -------------- | ------------------------- | -------- | ------ |
+| HOTSPOT-153    | P1: PROJECT.md            | Tasks T1 | Done   |
+| HOTSPOT-154    | P1: Stale status          | Tasks T2 | Done   |
+| HOTSPOT-155    | P1: README                | Tasks T3 | Done   |
+| HOTSPOT-156    | P1: INTEGRATIONS.md       | Tasks T1 | Done   |
+| HOTSPOT-157    | P1: Consistency + ROADMAP | Tasks T4 | Done   |
 
 **Coverage:** 5 total, 5 mapped to tasks, 0 unmapped
 

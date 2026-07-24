@@ -23,7 +23,9 @@ describe("compareScanResults", () => {
     const result = compareScanResults(baseline, current);
 
     expect(result.granularity).toBe("file");
-    expect(result.hotspots.new.map((item) => item.filePath)).toEqual(["src/new.ts"]);
+    expect(result.hotspots.new.map((item) => item.filePath)).toEqual([
+      "src/new.ts",
+    ]);
     expect(result.hotspots.removed.map((item) => item.filePath)).toEqual([
       "src/medium.ts",
     ]);
@@ -133,20 +135,43 @@ describe("compareScanResults", () => {
       ...baseline,
       hotspots: baseline.hotspots.map((hotspot) => ({ ...hotspot })),
       coupling: [
-        { fileA: "src/z.ts", fileB: "src/y.ts", coChangeCount: 2, couplingStrength: 0.4 },
-        { fileA: "src/a.ts", fileB: "src/b.ts", coChangeCount: 5, couplingStrength: 0.75 },
+        {
+          fileA: "src/z.ts",
+          fileB: "src/y.ts",
+          coChangeCount: 2,
+          couplingStrength: 0.4,
+        },
+        {
+          fileA: "src/a.ts",
+          fileB: "src/b.ts",
+          coChangeCount: 5,
+          couplingStrength: 0.75,
+        },
       ],
     };
     const currentCouplingOnly: ScanResult = {
       ...current,
       hotspots: baseline.hotspots.map((hotspot) => ({ ...hotspot })),
       coupling: [
-        { fileA: "src/a.ts", fileB: "src/b.ts", coChangeCount: 5, couplingStrength: 0.75 },
-        { fileA: "src/z.ts", fileB: "src/y.ts", coChangeCount: 2, couplingStrength: 0.4 },
+        {
+          fileA: "src/a.ts",
+          fileB: "src/b.ts",
+          coChangeCount: 5,
+          couplingStrength: 0.75,
+        },
+        {
+          fileA: "src/z.ts",
+          fileB: "src/y.ts",
+          coChangeCount: 2,
+          couplingStrength: 0.4,
+        },
       ],
     };
 
-    const result = compareScanResults(baselineCouplingOnly, currentCouplingOnly);
+    const result = compareScanResults(
+      baselineCouplingOnly,
+      currentCouplingOnly,
+    );
     expect(result.coupling.rankChanged).toHaveLength(2);
     expect(Math.abs(result.coupling.rankChanged[0]!.rankDelta)).toBe(
       Math.abs(result.coupling.rankChanged[1]!.rankDelta),

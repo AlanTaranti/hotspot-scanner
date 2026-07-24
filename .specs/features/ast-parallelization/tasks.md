@@ -61,23 +61,23 @@ flowchart LR
 
 | Task | Depends on (declared) | Appears in diagram after deps | Match |
 | ---- | --------------------- | ----------------------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T2 | T2 → T3 | ✅ |
-| T4 | T3 | T3 → T4a/T4b | ✅ |
-| T5 | T4 | T4 → T5 | ✅ |
-| T6 | T5 | T5 → T6 | ✅ |
+| T1   | None                  | Root                          | ✅    |
+| T2   | T1                    | T1 → T2                       | ✅    |
+| T3   | T2                    | T2 → T3                       | ✅    |
+| T4   | T3                    | T3 → T4a/T4b                  | ✅    |
+| T5   | T4                    | T4 → T5                       | ✅    |
+| T6   | T5                    | T5 → T6                       | ✅    |
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Tests in same task | Match |
-| ---- | ---------- | ---------------------- | ------------------ | ----- |
-| T1 | `src/complexity/analyze-batch.ts`, `worker.ts` | Unit required | Covered in T4 via analyze-batch | ✅ |
-| T2 | `src/complexity/pool.ts` | Unit required | `pool.test.ts` | ✅ |
-| T3 | `src/complexity/index.ts` | Unit required | `index.test.ts` (partial) | ✅ |
-| T4 | `src/complexity/**` | Unit required | `pool.test.ts`, `index.test.ts` | ✅ |
-| T5 | `bin/` integration | Integration | `bin/hotspot-scanner.integration.test.ts` | ✅ |
-| T6 | Docs only | Gate | `pnpm build && pnpm test` | ✅ |
+| Task | Code layer                                     | TESTING.md expectation | Tests in same task                        | Match |
+| ---- | ---------------------------------------------- | ---------------------- | ----------------------------------------- | ----- |
+| T1   | `src/complexity/analyze-batch.ts`, `worker.ts` | Unit required          | Covered in T4 via analyze-batch           | ✅    |
+| T2   | `src/complexity/pool.ts`                       | Unit required          | `pool.test.ts`                            | ✅    |
+| T3   | `src/complexity/index.ts`                      | Unit required          | `index.test.ts` (partial)                 | ✅    |
+| T4   | `src/complexity/**`                            | Unit required          | `pool.test.ts`, `index.test.ts`           | ✅    |
+| T5   | `bin/` integration                             | Integration            | `bin/hotspot-scanner.integration.test.ts` | ✅    |
+| T6   | Docs only                                      | Gate                   | `pnpm build && pnpm test`                 | ✅    |
 
 ---
 
@@ -269,16 +269,16 @@ flowchart LR
 
 ## Requirement Traceability (Tasks)
 
-| Requirement ID | Tasks |
-| -------------- | ----- |
-| HOTSPOT-113 | T1, T2 |
-| HOTSPOT-114 | T3, T4 |
-| HOTSPOT-115 | T1, T4 |
-| HOTSPOT-116 | T1, T3 |
-| HOTSPOT-117 | T2, T3, T4 |
-| HOTSPOT-118 | T4, T5 |
-| HOTSPOT-119 | T6 |
-| HOTSPOT-120 | T6 |
+| Requirement ID | Tasks      |
+| -------------- | ---------- |
+| HOTSPOT-113    | T1, T2     |
+| HOTSPOT-114    | T3, T4     |
+| HOTSPOT-115    | T1, T4     |
+| HOTSPOT-116    | T1, T3     |
+| HOTSPOT-117    | T2, T3, T4 |
+| HOTSPOT-118    | T4, T5     |
+| HOTSPOT-119    | T6         |
+| HOTSPOT-120    | T6         |
 
 **Coverage:** 8 total, 8 mapped to tasks, 0 unmapped
 

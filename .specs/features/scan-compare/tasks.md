@@ -61,23 +61,23 @@ flowchart LR
 
 | Task | Depends on (declared) | Appears in diagram after deps | Match |
 | ---- | --------------------- | ----------------------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T2 | T2 → T3 | ✅ |
-| T4 | T1, T3 | T1/T3 → T4 | ✅ |
-| T5 | T2, T3 | T2/T3 → T5 | ✅ |
-| T6 | T4, T5 | T4/T5 → T6 | ✅ |
+| T1   | None                  | Root                          | ✅    |
+| T2   | T1                    | T1 → T2                       | ✅    |
+| T3   | T2                    | T2 → T3                       | ✅    |
+| T4   | T1, T3                | T1/T3 → T4                    | ✅    |
+| T5   | T2, T3                | T2/T3 → T5                    | ✅    |
+| T6   | T4, T5                | T4/T5 → T6                    | ✅    |
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Tests in same task | Match |
-| ---- | ---------- | ---------------------- | ------------------ | ----- |
-| T1 | `src/compare/load-baseline.ts`, `keys.ts` | Unit required | `load-baseline.test.ts`, `keys.test.ts` | ✅ |
-| T2 | `src/compare/compare.ts` | Unit required | `compare.test.ts` | ✅ |
-| T3 | `src/report/compare-*.ts` | Unit required | `compare-*.test.ts`, `index.test.ts` | ✅ |
-| T4 | `bin/hotspot-scanner.ts` | CLI unit | `bin/hotspot-scanner.test.ts` | ✅ |
-| T5 | Fixtures + unit coverage | Unit required | Consolidate/compare gate in T5 | ✅ |
-| T6 | `bin/` integration + docs | Integration + gate | `bin/hotspot-scanner.integration.test.ts` | ✅ |
+| Task | Code layer                                | TESTING.md expectation | Tests in same task                        | Match |
+| ---- | ----------------------------------------- | ---------------------- | ----------------------------------------- | ----- |
+| T1   | `src/compare/load-baseline.ts`, `keys.ts` | Unit required          | `load-baseline.test.ts`, `keys.test.ts`   | ✅    |
+| T2   | `src/compare/compare.ts`                  | Unit required          | `compare.test.ts`                         | ✅    |
+| T3   | `src/report/compare-*.ts`                 | Unit required          | `compare-*.test.ts`, `index.test.ts`      | ✅    |
+| T4   | `bin/hotspot-scanner.ts`                  | CLI unit               | `bin/hotspot-scanner.test.ts`             | ✅    |
+| T5   | Fixtures + unit coverage                  | Unit required          | Consolidate/compare gate in T5            | ✅    |
+| T6   | `bin/` integration + docs                 | Integration + gate     | `bin/hotspot-scanner.integration.test.ts` | ✅    |
 
 ---
 
@@ -278,17 +278,17 @@ flowchart LR
 
 ## Requirement Traceability (Tasks)
 
-| Requirement ID | Tasks |
-| -------------- | ----- |
-| HOTSPOT-103 | T1 |
-| HOTSPOT-104 | T1 |
-| HOTSPOT-105 | T2 |
-| HOTSPOT-106 | T2 |
-| HOTSPOT-107 | T1, T2 |
-| HOTSPOT-108 | T4 |
-| HOTSPOT-109 | T3 |
-| HOTSPOT-110 | T3 |
-| HOTSPOT-111 | T5 |
-| HOTSPOT-112 | T6 |
+| Requirement ID | Tasks  |
+| -------------- | ------ |
+| HOTSPOT-103    | T1     |
+| HOTSPOT-104    | T1     |
+| HOTSPOT-105    | T2     |
+| HOTSPOT-106    | T2     |
+| HOTSPOT-107    | T1, T2 |
+| HOTSPOT-108    | T4     |
+| HOTSPOT-109    | T3     |
+| HOTSPOT-110    | T3     |
+| HOTSPOT-111    | T5     |
+| HOTSPOT-112    | T6     |
 
 **Coverage:** 10 total, 10 mapped to tasks, 0 unmapped

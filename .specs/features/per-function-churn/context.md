@@ -52,13 +52,13 @@
 
 **Choice:**
 
-| Aspect | Behavior |
-| ------ | -------- |
+| Aspect        | Behavior                                                                     |
+| ------------- | ---------------------------------------------------------------------------- |
 | Output fields | Same on `FunctionHotspotScore`: `commitCount`, `linesChanged`, `authorCount` |
-| Source | Overlap aggregation (not whole-file `FileChangeStats`) |
-| Normalization | `log1p` + min-max unchanged |
-| Combiner | Harmonic `2ch/(c+h)` unchanged |
-| Universe | All functions in the scan |
+| Source        | Overlap aggregation (not whole-file `FileChangeStats`)                       |
+| Normalization | `log1p` + min-max unchanged                                                  |
+| Combiner      | Harmonic `2ch/(c+h)` unchanged                                               |
+| Universe      | All functions in the scan                                                    |
 
 **Status:** **Confirmed**
 
@@ -144,10 +144,10 @@
 
 ## Decision: Requirement IDs and fixtures
 
-| Item | Value |
-| ---- | ----- |
-| Requirement IDs | `HOTSPOT-181+` (continues after M22 `HOTSPOT-180`) |
-| Fixtures | Synthetic logs/patches under `tests/fixtures/` (paths as task targets — implement in Execute) |
+| Item            | Value                                                                                         |
+| --------------- | --------------------------------------------------------------------------------------------- |
+| Requirement IDs | `HOTSPOT-181+` (continues after M22 `HOTSPOT-180`)                                            |
+| Fixtures        | Synthetic logs/patches under `tests/fixtures/` (paths as task targets — implement in Execute) |
 
 **Status:** **Confirmed**
 
@@ -155,11 +155,11 @@
 
 ## Related closed decisions (prior milestones)
 
-| Decision | Value | Relevance to M23 |
-| -------- | ----- | ---------------- |
-| M11 inherited file churn | Superseded in function mode | This milestone replaces it |
-| File-mode GitMiner | `--numstat` single pass (ADR-2026-020) | Unchanged; coupling still from numstat |
-| Hotspot combiner | Harmonic `2ch/(c+h)` | Unchanged |
-| Normalization | `log1p` + min-max | Unchanged; universe = all functions |
-| Working-tree AST only | No historical AST | Aligns with hunk-overlap vs re-parse history |
-| Spawn only in `src/git/` | INTEGRATIONS.md | Patch spawn stays in `src/git/` |
+| Decision                 | Value                                  | Relevance to M23                             |
+| ------------------------ | -------------------------------------- | -------------------------------------------- |
+| M11 inherited file churn | Superseded in function mode            | This milestone replaces it                   |
+| File-mode GitMiner       | `--numstat` single pass (ADR-2026-020) | Unchanged; coupling still from numstat       |
+| Hotspot combiner         | Harmonic `2ch/(c+h)`                   | Unchanged                                    |
+| Normalization            | `log1p` + min-max                      | Unchanged; universe = all functions          |
+| Working-tree AST only    | No historical AST                      | Aligns with hunk-overlap vs re-parse history |
+| Spawn only in `src/git/` | INTEGRATIONS.md                        | Patch spawn stays in `src/git/`              |

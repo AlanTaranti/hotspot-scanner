@@ -32,27 +32,27 @@ pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --min-cochange 3
 
 ## Exit codes
 
-| Code | Meaning |
-| ---- | ------- |
-| `0` | Scan completed successfully |
+| Code   | Meaning                                                |
+| ------ | ------------------------------------------------------ |
+| `0`    | Scan completed successfully                            |
 | `!= 0` | Invalid repo/path, git error, or invalid CLI arguments |
 
 See [AGENTS.md](../../../AGENTS.md) § Validation.
 
 ## Flag matrix
 
-| Flag | Purpose | Default |
-| ---- | ------- | ------- |
-| `scan <path>` | Repository to analyze | required |
-| `--since <period>` | Git history window | ~12 months (proposed) |
-| `--format json` | JSON instead of CLI table | table |
-| `--format markdown` | GFM report for PRs | table |
-| `--format csv` | Multi-file CSV bundle (requires `--output`); stem-derived paths + `meta.json` sidecar | table |
-| `--granularity <mode>` | Ranking granularity: `file` or `function` | `file` |
-| `--output <path>` | Write report to file (required for `--format csv`) | stdout |
-| `--baseline <path>` | Compare against saved baseline JSON | — |
-| `--top <N>` | Limit table/markdown rows (ignored for json/csv) | `20` |
-| `--min-cochange <N>` | Min co-changes for coupling pairs | TBD |
+| Flag                   | Purpose                                                                               | Default               |
+| ---------------------- | ------------------------------------------------------------------------------------- | --------------------- |
+| `scan <path>`          | Repository to analyze                                                                 | required              |
+| `--since <period>`     | Git history window                                                                    | ~12 months (proposed) |
+| `--format json`        | JSON instead of CLI table                                                             | table                 |
+| `--format markdown`    | GFM report for PRs                                                                    | table                 |
+| `--format csv`         | Multi-file CSV bundle (requires `--output`); stem-derived paths + `meta.json` sidecar | table                 |
+| `--granularity <mode>` | Ranking granularity: `file` or `function`                                             | `file`                |
+| `--output <path>`      | Write report to file (required for `--format csv`)                                    | stdout                |
+| `--baseline <path>`    | Compare against saved baseline JSON                                                   | —                     |
+| `--top <N>`            | Limit table/markdown rows (ignored for json/csv)                                      | `20`                  |
+| `--min-cochange <N>`   | Min co-changes for coupling pairs                                                     | TBD                   |
 
 Test relevant flags when the feature scope touches CLI.
 
@@ -89,11 +89,11 @@ Test relevant flags when the feature scope touches CLI.
 
 ## Related agents
 
-| Agent | When |
-| ----- | ---- |
-| `fixture-builder` | Create/update fixture repos and samples |
-| `verifier-implementation` | Spec acceptance after CLI changes |
-| `verifier-quality-gates` | `pnpm build && pnpm test` |
+| Agent                     | When                                    |
+| ------------------------- | --------------------------------------- |
+| `fixture-builder`         | Create/update fixture repos and samples |
+| `verifier-implementation` | Spec acceptance after CLI changes       |
+| `verifier-quality-gates`  | `pnpm build && pnpm test`               |
 
 ## References
 

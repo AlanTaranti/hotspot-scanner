@@ -24,20 +24,20 @@ flowchart TD
 
 ## Code Reuse Analysis
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `collectFunctionsInScope` | `analyze-file.ts` | Add branches for accessors, property arrows, object methods |
-| `resolveFunctionName` | `analyze-file.ts` | Handle new node kinds per context.md |
-| `complexityForFunction` | `mccabe.ts` | **Do not modify** decision nodes |
-| Existing fixtures | `tests/fixtures/complexity/` | Keep; add new files per construct |
-| M11 naming | function-granularity/context.md | Extend table only |
+| Component                 | Location                        | How to Use                                                  |
+| ------------------------- | ------------------------------- | ----------------------------------------------------------- |
+| `collectFunctionsInScope` | `analyze-file.ts`               | Add branches for accessors, property arrows, object methods |
+| `resolveFunctionName`     | `analyze-file.ts`               | Handle new node kinds per context.md                        |
+| `complexityForFunction`   | `mccabe.ts`                     | **Do not modify** decision nodes                            |
+| Existing fixtures         | `tests/fixtures/complexity/`    | Keep; add new files per construct                           |
+| M11 naming                | function-granularity/context.md | Extend table only                                           |
 
 ### Fragile areas (CONCERNS.md)
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| Accidental McCabe definition drift | Code review: no edits to decision-node list; fixture lock |
-| Double-counting nodes | Ensure class members not visited twice (current class branch vs forEachChild) — re-read control flow carefully |
+| Risk                               | Mitigation                                                                                                     |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Accidental McCabe definition drift | Code review: no edits to decision-node list; fixture lock                                                      |
+| Double-counting nodes              | Ensure class members not visited twice (current class branch vs forEachChild) — re-read control flow carefully |
 
 ---
 
@@ -61,8 +61,8 @@ flowchart TD
 
 ## Tech Decisions
 
-| Decision | Choice | Rationale |
-| -------- | ------ | --------- |
-| Touch mccabe.ts? | No (semantics) | ROADMAP / CONCERNS |
-| Getter name prefix | Bare name | Align with methods |
-| File sum | Includes new nodes | Honest complexity |
+| Decision           | Choice             | Rationale          |
+| ------------------ | ------------------ | ------------------ |
+| Touch mccabe.ts?   | No (semantics)     | ROADMAP / CONCERNS |
+| Getter name prefix | Bare name          | Align with methods |
+| File sum           | Includes new nodes | Honest complexity  |

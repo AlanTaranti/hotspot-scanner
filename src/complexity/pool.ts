@@ -2,10 +2,7 @@ import { availableParallelism } from "node:os";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { Worker } from "node:worker_threads";
-import {
-  analyzeBatch,
-  type BatchAnalysisOutput,
-} from "./analyze-batch.js";
+import { analyzeBatch, type BatchAnalysisOutput } from "./analyze-batch.js";
 
 export const DEFAULT_WORKER_CONCURRENCY = Math.min(availableParallelism(), 4);
 

@@ -51,21 +51,21 @@ flowchart LR
 
 | Task | Depends on (declared) | Appears in diagram after deps | Match |
 | ---- | --------------------- | ----------------------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T2 | T2 → T3 | ✅ |
-| T4 | T3 | T3 → T4 | ✅ |
-| T5 | T4 | T4 → T5 | ✅ |
+| T1   | None                  | Root                          | ✅    |
+| T2   | T1                    | T1 → T2                       | ✅    |
+| T3   | T2                    | T2 → T3                       | ✅    |
+| T4   | T3                    | T3 → T4                       | ✅    |
+| T5   | T4                    | T4 → T5                       | ✅    |
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Tests in same task | Match |
-| ---- | ---------- | ---------------------- | ------------------ | ----- |
-| T1 | `src/report/csv-utils.ts`, `csv.ts` | Unit required | `csv-utils.test.ts`, `csv.test.ts` | ✅ |
-| T2 | `src/report/compare-csv.ts` | Unit required | `compare-csv.test.ts` | ✅ |
-| T3 | `src/report/index.ts`, `bin/` | Unit required | `index.test.ts`, `bin/hotspot-scanner.test.ts` | ✅ |
-| T4 | `bin/` integration | Integration | `bin/hotspot-scanner.integration.test.ts` | ✅ |
-| T5 | Docs only | Gate | `pnpm build && pnpm test` | ✅ |
+| Task | Code layer                          | TESTING.md expectation | Tests in same task                             | Match |
+| ---- | ----------------------------------- | ---------------------- | ---------------------------------------------- | ----- |
+| T1   | `src/report/csv-utils.ts`, `csv.ts` | Unit required          | `csv-utils.test.ts`, `csv.test.ts`             | ✅    |
+| T2   | `src/report/compare-csv.ts`         | Unit required          | `compare-csv.test.ts`                          | ✅    |
+| T3   | `src/report/index.ts`, `bin/`       | Unit required          | `index.test.ts`, `bin/hotspot-scanner.test.ts` | ✅    |
+| T4   | `bin/` integration                  | Integration            | `bin/hotspot-scanner.integration.test.ts`      | ✅    |
+| T5   | Docs only                           | Gate                   | `pnpm build && pnpm test`                      | ✅    |
 
 ---
 
@@ -239,15 +239,15 @@ flowchart LR
 
 ## Requirement Traceability (Tasks)
 
-| Requirement ID | Tasks |
-| -------------- | ----- |
-| HOTSPOT-121 | T1 |
-| HOTSPOT-122 | T1 |
-| HOTSPOT-123 | T3 |
-| HOTSPOT-124 | T2 |
-| HOTSPOT-125 | T3 |
-| HOTSPOT-126 | T3 |
-| HOTSPOT-127 | T1, T2, T3, T4 |
-| HOTSPOT-128 | T5 |
+| Requirement ID | Tasks          |
+| -------------- | -------------- |
+| HOTSPOT-121    | T1             |
+| HOTSPOT-122    | T1             |
+| HOTSPOT-123    | T3             |
+| HOTSPOT-124    | T2             |
+| HOTSPOT-125    | T3             |
+| HOTSPOT-126    | T3             |
+| HOTSPOT-127    | T1, T2, T3, T4 |
+| HOTSPOT-128    | T5             |
 
 **Coverage:** 8 total, 8 mapped to tasks, 0 unmapped

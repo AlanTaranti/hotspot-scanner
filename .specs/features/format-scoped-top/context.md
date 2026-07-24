@@ -117,12 +117,12 @@ Captured decisions for M16. No open gray areas — all choices confirmed from RO
 
 ## Related closed decisions (STATE.md / prior milestones)
 
-| Decision | Value | Relevance to M16 |
-| -------- | ----- | ---------------- |
-| Default `--top` | `20` (`DEFAULT_TOP`) | Unchanged; applies to table/markdown |
-| Pipeline full lists | `runScan()` no slice | JSON/CSV now align with pipeline output |
-| M5 reporter owns display limit | slice at render | Scoped by format in M16 |
-| M13 compare `--top` | display-only slice | JSON/CSV excluded from slice in M16 |
-| M17 CSV `--top` ignored | full export | Precedent for JSON |
-| M5 `reporter-cli/spec.md` HOTSPOT-45 | JSON sliced at N | **Superseded** by M16 — historical spec not edited |
-| Requirement ID start | `HOTSPOT-129` | Continues after M17 (`HOTSPOT-128`) |
+| Decision                             | Value                | Relevance to M16                                   |
+| ------------------------------------ | -------------------- | -------------------------------------------------- |
+| Default `--top`                      | `20` (`DEFAULT_TOP`) | Unchanged; applies to table/markdown               |
+| Pipeline full lists                  | `runScan()` no slice | JSON/CSV now align with pipeline output            |
+| M5 reporter owns display limit       | slice at render      | Scoped by format in M16                            |
+| M13 compare `--top`                  | display-only slice   | JSON/CSV excluded from slice in M16                |
+| M17 CSV `--top` ignored              | full export          | Precedent for JSON                                 |
+| M5 `reporter-cli/spec.md` HOTSPOT-45 | JSON sliced at N     | **Superseded** by M16 — historical spec not edited |
+| Requirement ID start                 | `HOTSPOT-129`        | Continues after M17 (`HOTSPOT-128`)                |

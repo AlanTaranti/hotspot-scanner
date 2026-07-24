@@ -23,16 +23,16 @@ M9 enriches hotspot output with raw metrics and bus-factor (`authorCount`) while
 
 Explicitly excluded. Documented to prevent scope creep.
 
-| Feature | Reason |
-| ------- | ------ |
-| `authors: string[]` in JSON | ROADMAP requests `authorCount` only (bus factor) |
-| Bump `version` to `"1.1"` | User decision — additive change under `"1.0"` |
-| Coupling pair enrichment | M9 scope is hotspots only; coupling already has `coChangeCount` |
-| `--format markdown` / `--output <path>` | Milestone 10 — Export Formats |
-| Per-function granularity (`--granularity`) | Milestone 11 |
-| CI fail thresholds / exit codes on metric breach | Not planned — removed from roadmap (see STATE.md) |
-| Alter harmonic combiner or normalization | M8 boundary |
-| Edit M5 reporter-cli spec | M9 supersedes deferred raw-metrics aspect only |
+| Feature                                          | Reason                                                          |
+| ------------------------------------------------ | --------------------------------------------------------------- |
+| `authors: string[]` in JSON                      | ROADMAP requests `authorCount` only (bus factor)                |
+| Bump `version` to `"1.1"`                        | User decision — additive change under `"1.0"`                   |
+| Coupling pair enrichment                         | M9 scope is hotspots only; coupling already has `coChangeCount` |
+| `--format markdown` / `--output <path>`          | Milestone 10 — Export Formats                                   |
+| Per-function granularity (`--granularity`)       | Milestone 11                                                    |
+| CI fail thresholds / exit codes on metric breach | Not planned — removed from roadmap (see STATE.md)               |
+| Alter harmonic combiner or normalization         | M8 boundary                                                     |
+| Edit M5 reporter-cli spec                        | M9 supersedes deferred raw-metrics aspect only                  |
 
 ---
 
@@ -187,15 +187,15 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-76 | P1: HotspotScore raw enrichment | Tasks T1 | Done |
-| HOTSPOT-77 | P1: JSON schema enrichment | Tasks T2 | Done |
-| HOTSPOT-78 | P1: Table raw columns | Tasks T3 | Done |
-| HOTSPOT-79 | P1: Reporter fixture and tests | Tasks T2, T3 | Done |
-| HOTSPOT-80 | P1: Scorer unit tests | Tasks T1 | Done |
-| HOTSPOT-81 | P1: Integration invariant | Tasks T4 | Done |
-| HOTSPOT-82 | P1: Documentation sync | Tasks T4 | Done |
+| Requirement ID | Story                           | Phase        | Status |
+| -------------- | ------------------------------- | ------------ | ------ |
+| HOTSPOT-76     | P1: HotspotScore raw enrichment | Tasks T1     | Done   |
+| HOTSPOT-77     | P1: JSON schema enrichment      | Tasks T2     | Done   |
+| HOTSPOT-78     | P1: Table raw columns           | Tasks T3     | Done   |
+| HOTSPOT-79     | P1: Reporter fixture and tests  | Tasks T2, T3 | Done   |
+| HOTSPOT-80     | P1: Scorer unit tests           | Tasks T1     | Done   |
+| HOTSPOT-81     | P1: Integration invariant       | Tasks T4     | Done   |
+| HOTSPOT-82     | P1: Documentation sync          | Tasks T4     | Done   |
 
 **Coverage:** 7 total, 7 mapped to tasks, 0 unmapped
 

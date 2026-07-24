@@ -10,11 +10,11 @@
 
 **Choice:** Extend `collectFunctionsInScope` in `src/complexity/analyze-file.ts` to also collect:
 
-| Construct | ts-morph kind (indicative) | `functionName` rule |
-| --------- | -------------------------- | ------------------- |
-| Getter | `GetAccessorDeclaration` | accessor name (e.g. `foo` for `get foo()`) |
-| Setter | `SetAccessorDeclaration` | accessor name (e.g. `foo` for `set foo()`) |
-| Class field arrow | `PropertyDeclaration` with arrow/function initializer | property name |
+| Construct             | ts-morph kind (indicative)                                                   | `functionName` rule                            |
+| --------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------- |
+| Getter                | `GetAccessorDeclaration`                                                     | accessor name (e.g. `foo` for `get foo()`)     |
+| Setter                | `SetAccessorDeclaration`                                                     | accessor name (e.g. `foo` for `set foo()`)     |
+| Class field arrow     | `PropertyDeclaration` with arrow/function initializer                        | property name                                  |
 | Object-literal method | `MethodDeclaration` inside `ObjectLiteralExpression` (and shorthand methods) | method name; anonymous → `<anonymous>:L{line}` |
 
 **Status:** **Confirmed**
@@ -27,13 +27,13 @@
 
 Additional rows:
 
-| Construct | `functionName` |
-| --------- | -------------- |
-| `get foo()` | `foo` |
-| `set foo()` | `foo` |
-| `class C { foo = () => {} }` | `foo` |
-| `const o = { bar() {} }` | `bar` |
-| `const o = { baz: () => {} }` | `baz` |
+| Construct                                            | `functionName`        |
+| ---------------------------------------------------- | --------------------- |
+| `get foo()`                                          | `foo`                 |
+| `set foo()`                                          | `foo`                 |
+| `class C { foo = () => {} }`                         | `foo`                 |
+| `const o = { bar() {} }`                             | `bar`                 |
+| `const o = { baz: () => {} }`                        | `baz`                 |
 | Object property anonymous function expr without name | `<anonymous>:L{line}` |
 
 **Note:** Getter and setter sharing the name `foo` are distinct nodes (different lines); both may appear. No prefix `get `/`set ` unless needed for disambiguation — **prefer bare name** to match method naming; tests may use `line` to distinguish.

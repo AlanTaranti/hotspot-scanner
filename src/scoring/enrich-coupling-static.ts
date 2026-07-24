@@ -9,8 +9,14 @@ const RELATIVE_SPECIFIER = String.raw`(\.\.?\/[^'"]+)`;
 const STATIC_REFERENCE_PATTERNS = [
   new RegExp(String.raw`\bimport\s+['"]${RELATIVE_SPECIFIER}['"]`, "g"),
   new RegExp(String.raw`\bfrom\s+['"]${RELATIVE_SPECIFIER}['"]`, "g"),
-  new RegExp(String.raw`\bimport\s*\(\s*['"]${RELATIVE_SPECIFIER}['"]\s*\)`, "g"),
-  new RegExp(String.raw`\brequire\s*\(\s*['"]${RELATIVE_SPECIFIER}['"]\s*\)`, "g"),
+  new RegExp(
+    String.raw`\bimport\s*\(\s*['"]${RELATIVE_SPECIFIER}['"]\s*\)`,
+    "g",
+  ),
+  new RegExp(
+    String.raw`\brequire\s*\(\s*['"]${RELATIVE_SPECIFIER}['"]\s*\)`,
+    "g",
+  ),
 ];
 
 function normalizeRepoPath(filePath: string): string {

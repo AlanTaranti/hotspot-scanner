@@ -43,25 +43,25 @@ flowchart LR
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `scoreHotspots` | `src/scoring/hotspot-scorer.ts` | Attach raw fields in `.map()` — already has `complexity` entry and `fileStats.get()` |
-| `HotspotScore` | `src/types/domain.ts` | Extend interface with five numeric fields |
-| `FileChangeStats.authors` | `src/types/domain.ts` | `authorCount = stats.authors.size` |
-| `renderJson` | `src/report/json.ts` | Unchanged — `JSON.stringify(result)` serializes new fields automatically |
-| `renderTable` | `src/report/table.ts` | Add columns to hotspots section only |
-| `sample-result.json` | `tests/fixtures/report/` | Add raw field values for both reporter test files |
-| Integration fixture | `tests/fixtures/repos/small-ts/` | Verify raw fields on top hotspot |
+| Component                 | Location                         | How to Use                                                                           |
+| ------------------------- | -------------------------------- | ------------------------------------------------------------------------------------ |
+| `scoreHotspots`           | `src/scoring/hotspot-scorer.ts`  | Attach raw fields in `.map()` — already has `complexity` entry and `fileStats.get()` |
+| `HotspotScore`            | `src/types/domain.ts`            | Extend interface with five numeric fields                                            |
+| `FileChangeStats.authors` | `src/types/domain.ts`            | `authorCount = stats.authors.size`                                                   |
+| `renderJson`              | `src/report/json.ts`             | Unchanged — `JSON.stringify(result)` serializes new fields automatically             |
+| `renderTable`             | `src/report/table.ts`            | Add columns to hotspots section only                                                 |
+| `sample-result.json`      | `tests/fixtures/report/`         | Add raw field values for both reporter test files                                    |
+| Integration fixture       | `tests/fixtures/repos/small-ts/` | Verify raw fields on top hotspot                                                     |
 
 ### Integration Points
 
-| Consumer | Impact |
-| -------- | ------ |
-| `src/scan.ts` | None — returns `HotspotScore[]` from scorer unchanged call site |
-| `src/report/slice.ts` | None — slices hotspot array; fields travel with entries |
-| `bin/hotspot-scanner.ts` | None |
-| `src/scoring/coupling-scorer.ts` | None |
-| `src/scoring/normalize.ts` | None |
+| Consumer                         | Impact                                                          |
+| -------------------------------- | --------------------------------------------------------------- |
+| `src/scan.ts`                    | None — returns `HotspotScore[]` from scorer unchanged call site |
+| `src/report/slice.ts`            | None — slices hotspot array; fields travel with entries         |
+| `bin/hotspot-scanner.ts`         | None                                                            |
+| `src/scoring/coupling-scorer.ts` | None                                                            |
+| `src/scoring/normalize.ts`       | None                                                            |
 
 ---
 
@@ -87,13 +87,13 @@ Remove stale comment on `FileChangeStats.authors` ("not exposed in JSON output")
 
 ### Field sourcing
 
-| Field | Source | Missing `fileStats` default |
-| ----- | ------ | --------------------------- |
+| Field                  | Source                                  | Missing `fileStats` default        |
+| ---------------------- | --------------------------------------- | ---------------------------------- |
 | `cyclomaticComplexity` | `ComplexityResult.cyclomaticComplexity` | N/A (always from complexity entry) |
-| `functionCount` | `ComplexityResult.functionCount` | N/A |
-| `commitCount` | `FileChangeStats.commitCount` | `0` |
-| `linesChanged` | `FileChangeStats.linesChanged` | `0` |
-| `authorCount` | `FileChangeStats.authors.size` | `0` |
+| `functionCount`        | `ComplexityResult.functionCount`        | N/A                                |
+| `commitCount`          | `FileChangeStats.commitCount`           | `0`                                |
+| `linesChanged`         | `FileChangeStats.linesChanged`          | `0`                                |
+| `authorCount`          | `FileChangeStats.authors.size`          | `0`                                |
 
 ### Scorer implementation (`hotspot-scorer.ts`)
 
@@ -154,17 +154,17 @@ Rank  File                      Score     Cpx   CpxN      Churn  ChurnN  Funcs  
 ----  ------------------------  --------  ----  --------  -----  ------  -----  -------
 ```
 
-| Column | Source field | Format |
-| ------ | ------------ | ------ |
-| Rank | index + 1 | integer |
-| File | `filePath` | pad/truncate 24 chars |
-| Score | `hotspotScore` | 4 decimals |
-| Cpx | `cyclomaticComplexity` | integer |
-| CpxN | `complexityNormalized` | 4 decimals |
-| Churn | `commitCount` | integer (raw churn signal per STATE.md) |
-| ChurnN | `churnNormalized` | 4 decimals |
-| Funcs | `functionCount` | integer |
-| Authors | `authorCount` | integer |
+| Column  | Source field           | Format                                  |
+| ------- | ---------------------- | --------------------------------------- |
+| Rank    | index + 1              | integer                                 |
+| File    | `filePath`             | pad/truncate 24 chars                   |
+| Score   | `hotspotScore`         | 4 decimals                              |
+| Cpx     | `cyclomaticComplexity` | integer                                 |
+| CpxN    | `complexityNormalized` | 4 decimals                              |
+| Churn   | `commitCount`          | integer (raw churn signal per STATE.md) |
+| ChurnN  | `churnNormalized`      | 4 decimals                              |
+| Funcs   | `functionCount`        | integer                                 |
+| Authors | `authorCount`          | integer                                 |
 
 **Note:** `linesChanged` is included in JSON per ROADMAP but omitted from table to limit width. Table focuses on primary triage signals; JSON carries full raw set.
 
@@ -176,16 +176,16 @@ Rank  File                      Score     Cpx   CpxN      Churn  ChurnN  Funcs  
 
 ## Test Impact
 
-| File | Change |
-| ---- | ------ |
-| `src/types/domain.ts` | Extend `HotspotScore`; update `FileChangeStats` comment |
-| `src/scoring/hotspot-scorer.ts` | Attach raw fields in return object |
-| `src/scoring/hotspot-scorer.test.ts` | Assert raw fields; missing fileStats → git zeros |
-| `tests/fixtures/report/sample-result.json` | Add raw values per hotspot |
-| `src/report/json.test.ts` | Assert raw fields in parsed JSON |
-| `src/report/table.test.ts` | Assert column headers and integer values |
-| `src/report/table.ts` | Expanded hotspots section |
-| `src/scan.integration.test.ts` | Assert raw fields on `hotspots[0]` |
+| File                                       | Change                                                  |
+| ------------------------------------------ | ------------------------------------------------------- |
+| `src/types/domain.ts`                      | Extend `HotspotScore`; update `FileChangeStats` comment |
+| `src/scoring/hotspot-scorer.ts`            | Attach raw fields in return object                      |
+| `src/scoring/hotspot-scorer.test.ts`       | Assert raw fields; missing fileStats → git zeros        |
+| `tests/fixtures/report/sample-result.json` | Add raw values per hotspot                              |
+| `src/report/json.test.ts`                  | Assert raw fields in parsed JSON                        |
+| `src/report/table.test.ts`                 | Assert column headers and integer values                |
+| `src/report/table.ts`                      | Expanded hotspots section                               |
+| `src/scan.integration.test.ts`             | Assert raw fields on `hotspots[0]`                      |
 
 **Do not change:**
 
@@ -200,21 +200,21 @@ Rank  File                      Score     Cpx   CpxN      Churn  ChurnN  Funcs  
 
 ## Risks
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| Table too wide for narrow terminals | Accept for M9; path truncation preserved; `linesChanged` JSON-only |
-| Fixture drift between json/table tests | Single `sample-result.json` updated atomically in T2 |
-| Stale M5 schema docs | T4 sync ARCHITECTURE.md, STATE.md, path-scoping cross-ref |
-| Test literals missing new required fields | TypeScript compile catches; grep `HotspotScore` literals in T1 gate |
-| `authorCount = 0` for complexity-only files | Documented edge case; scorer defaults |
+| Risk                                        | Mitigation                                                          |
+| ------------------------------------------- | ------------------------------------------------------------------- |
+| Table too wide for narrow terminals         | Accept for M9; path truncation preserved; `linesChanged` JSON-only  |
+| Fixture drift between json/table tests      | Single `sample-result.json` updated atomically in T2                |
+| Stale M5 schema docs                        | T4 sync ARCHITECTURE.md, STATE.md, path-scoping cross-ref           |
+| Test literals missing new required fields   | TypeScript compile catches; grep `HotspotScore` literals in T1 gate |
+| `authorCount = 0` for complexity-only files | Documented edge case; scorer defaults                               |
 
 ---
 
 ## Documentation Sync Targets
 
-| File | Update |
-| ---- | ------ |
-| `.specs/project/STATE.md` | Decision: expose `authorCount` as bus factor; `authors` list remains internal |
-| `.specs/codebase/ARCHITECTURE.md` | Document enriched hotspot JSON/table fields |
-| `.specs/features/path-scoping/spec.md` | Fix Out of Scope: rich-output → M9, export → M10 |
-| `.specs/project/ROADMAP.md` | Link spec; mark implementation checkboxes on Execute Done |
+| File                                   | Update                                                                        |
+| -------------------------------------- | ----------------------------------------------------------------------------- |
+| `.specs/project/STATE.md`              | Decision: expose `authorCount` as bus factor; `authors` list remains internal |
+| `.specs/codebase/ARCHITECTURE.md`      | Document enriched hotspot JSON/table fields                                   |
+| `.specs/features/path-scoping/spec.md` | Fix Out of Scope: rich-output → M9, export → M10                              |
+| `.specs/project/ROADMAP.md`            | Link spec; mark implementation checkboxes on Execute Done                     |

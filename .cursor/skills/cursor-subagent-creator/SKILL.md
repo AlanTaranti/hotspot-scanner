@@ -126,9 +126,9 @@ CRITICAL for automatic delegation. Explains when the Agent should use this subag
 #### model (optional)
 
 ```yaml
-model: inherit  # Uses the same model as parent agent (default)
-model: fast     # Uses fast model
-model: claude-3-5-sonnet-20250219  # Specific model
+model: inherit # Uses the same model as parent agent (default)
+model: fast # Uses fast model
+model: claude-3-5-sonnet-20250219 # Specific model
 ```
 
 **When to use each model:**

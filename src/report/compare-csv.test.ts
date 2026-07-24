@@ -24,7 +24,10 @@ function loadCompareResult(baselineName: string, currentName: string) {
 describe("renderCompareCsv", () => {
   it("returns CsvBundle with meta.json and six data files in file mode", () => {
     const bundle = renderCompareCsv(
-      loadCompareResult("compare-baseline-file.json", "compare-current-file.json"),
+      loadCompareResult(
+        "compare-baseline-file.json",
+        "compare-current-file.json",
+      ),
     );
 
     expect(bundle).toHaveProperty("meta.json");
@@ -39,7 +42,10 @@ describe("renderCompareCsv", () => {
 
   it("meta.json is parseable compare metadata", () => {
     const bundle = renderCompareCsv(
-      loadCompareResult("compare-baseline-file.json", "compare-current-file.json"),
+      loadCompareResult(
+        "compare-baseline-file.json",
+        "compare-current-file.json",
+      ),
     );
     const meta = JSON.parse(bundle["meta.json"]!) as {
       kind: string;
@@ -58,7 +64,10 @@ describe("renderCompareCsv", () => {
 
   it("file mode data CSVs have header rows without title rows", () => {
     const bundle = renderCompareCsv(
-      loadCompareResult("compare-baseline-file.json", "compare-current-file.json"),
+      loadCompareResult(
+        "compare-baseline-file.json",
+        "compare-current-file.json",
+      ),
     );
 
     expect(bundle["hotspots.new.csv"]!.split("\n")[0]).toBe(
@@ -93,17 +102,25 @@ describe("renderCompareCsv", () => {
 
   it("renders removed sections with empty rank cell", () => {
     const bundle = renderCompareCsv(
-      loadCompareResult("compare-baseline-file.json", "compare-current-file.json"),
+      loadCompareResult(
+        "compare-baseline-file.json",
+        "compare-current-file.json",
+      ),
     );
 
     const lines = bundle["hotspots.removed.csv"]!.split("\n").slice(1);
-    const dataRows = lines.filter((line) => line.includes("src/") && line.startsWith(","));
+    const dataRows = lines.filter(
+      (line) => line.includes("src/") && line.startsWith(","),
+    );
     expect(dataRows.length).toBeGreaterThan(0);
   });
 
   it("renders rank-changed rows with baselineRank, currentRank, rankDelta", () => {
     const bundle = renderCompareCsv(
-      loadCompareResult("compare-baseline-file.json", "compare-current-file.json"),
+      loadCompareResult(
+        "compare-baseline-file.json",
+        "compare-current-file.json",
+      ),
     );
 
     const lines = bundle["hotspots.rank-changed.csv"]!.split("\n").slice(1);
@@ -142,7 +159,10 @@ describe("renderCompareCsv", () => {
     const bundle = renderCompareCsv(result);
     const meta = JSON.parse(bundle["meta.json"]!) as { warnings: string[] };
 
-    expect(meta.warnings).toEqual(["baseline window differs", "stale baseline"]);
+    expect(meta.warnings).toEqual([
+      "baseline window differs",
+      "stale baseline",
+    ]);
   });
 
   it("escapes special characters in file paths", () => {

@@ -26,13 +26,13 @@ flowchart TD
 
 ## Code Reuse Analysis
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `ScanOptions` | `src/types/domain.ts` | Target shape after merge |
-| Defaults | `DEFAULT_SINCE`, `DEFAULT_TOP`, `DEFAULT_MIN_COCHANGE` | Fallback layer |
-| Flag parsers | `bin/hotspot-scanner.ts` | Reuse validation or extract shared parsers to `src/config/` |
-| Path scoping | `src/paths/` | `include`/`exclude` arrays feed existing scope builder |
-| `CliUsageError` | bin | Pattern for config errors |
+| Component       | Location                                               | How to Use                                                  |
+| --------------- | ------------------------------------------------------ | ----------------------------------------------------------- |
+| `ScanOptions`   | `src/types/domain.ts`                                  | Target shape after merge                                    |
+| Defaults        | `DEFAULT_SINCE`, `DEFAULT_TOP`, `DEFAULT_MIN_COCHANGE` | Fallback layer                                              |
+| Flag parsers    | `bin/hotspot-scanner.ts`                               | Reuse validation or extract shared parsers to `src/config/` |
+| Path scoping    | `src/paths/`                                           | `include`/`exclude` arrays feed existing scope builder      |
+| `CliUsageError` | bin                                                    | Pattern for config errors                                   |
 
 ---
 
@@ -79,20 +79,20 @@ interface HotspotScannerConfigFile {
 
 ## Error Handling Strategy
 
-| Scenario | Handling |
-| -------- | -------- |
-| ENOENT | `null` config — not an error |
+| Scenario     | Handling                          |
+| ------------ | --------------------------------- |
+| ENOENT       | `null` config — not an error      |
 | Invalid JSON | throw typed error → CLI exit != 0 |
-| Bad types | throw with key name |
-| Unknown key | ignore |
+| Bad types    | throw with key name               |
+| Unknown key  | ignore                            |
 
 ---
 
 ## Tech Decisions
 
-| Decision | Choice | Rationale |
-| -------- | ------ | --------- |
-| Filename | `.hotspot-scanner.json` only | User locked |
-| Location | `repoPath` root | No cascade |
-| Module | `src/config/` | Keeps bin thin |
-| format/output/baseline | Not in file | YAGNI / locked keys |
+| Decision               | Choice                       | Rationale           |
+| ---------------------- | ---------------------------- | ------------------- |
+| Filename               | `.hotspot-scanner.json` only | User locked         |
+| Location               | `repoPath` root              | No cascade          |
+| Module                 | `src/config/`                | Keeps bin thin      |
+| format/output/baseline | Not in file                  | YAGNI / locked keys |

@@ -45,15 +45,15 @@ Optional: capture progress on stderr by omitting redirection.
 
 ## Record results
 
-| Field | Example |
-| ----- | ------- |
-| Date | 2026-07-22 |
-| Machine | laptop / CI runner name |
-| Repo path | `/tmp/hotspot-bench-repo` |
-| `--since` | `12 months ago` |
-| Commits processed | (from progress stderr or `git rev-list --count`) |
-| Wall time (seconds) | `real` from `time` output |
-| Notes | qualitative: acceptable / slow / needs investigation |
+| Field               | Example                                              |
+| ------------------- | ---------------------------------------------------- |
+| Date                | 2026-07-22                                           |
+| Machine             | laptop / CI runner name                              |
+| Repo path           | `/tmp/hotspot-bench-repo`                            |
+| `--since`           | `12 months ago`                                      |
+| Commits processed   | (from progress stderr or `git rev-list --count`)     |
+| Wall time (seconds) | `real` from `time` output                            |
+| Notes               | qualitative: acceptable / slow / needs investigation |
 
 ## Qualitative target
 
@@ -69,10 +69,10 @@ Milestone 15 adds worker-thread batch processing inside `src/complexity/`. Git m
 
 ### Benchmark notes
 
-| Field | Notes |
-| ----- | ----- |
-| Concurrency | Internal constant only — no CLI `--workers` flag |
-| Expected effect | Reduced wall time on multi-core machines for repos with many TS/JS files |
+| Field            | Notes                                                                          |
+| ---------------- | ------------------------------------------------------------------------------ |
+| Concurrency      | Internal constant only — no CLI `--workers` flag                               |
+| Expected effect  | Reduced wall time on multi-core machines for repos with many TS/JS files       |
 | Regression check | Compare wall time before/after on same large repo; record qualitative judgment |
 
 ```bash

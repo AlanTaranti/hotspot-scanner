@@ -10,11 +10,11 @@
 
 ## Artifacts per feature
 
-| Scope | spec.md | design.md | tasks.md | context.md |
-| ----- | ------- | --------- | -------- | ---------- |
-| Small / Quick | ✓ | — | — | — |
-| Medium | ✓ | inline or — | implicit OK | if needed |
-| Large / Complex | ✓ + HOTSPOT-* IDs | ✓ | ✓ + Execution Plan | ✓ if ambiguous |
+| Scope           | spec.md           | design.md   | tasks.md           | context.md     |
+| --------------- | ----------------- | ----------- | ------------------ | -------------- |
+| Small / Quick   | ✓                 | —           | —                  | —              |
+| Medium          | ✓                 | inline or — | implicit OK        | if needed      |
+| Large / Complex | ✓ + HOTSPOT-* IDs | ✓           | ✓ + Execution Plan | ✓ if ambiguous |
 
 - [ ] Folder `.specs/features/<slug>/` exists with at least `spec.md`
 - [ ] Requirement IDs use prefix `HOTSPOT-`

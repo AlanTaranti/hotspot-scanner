@@ -39,15 +39,15 @@ This skill is adapted for the **@vitals/hotspot-scanner** repository, based on T
 
 Load **only** the refs for the current phase. Never preload the entire `references/` tree.
 
-| Phase / mode | Load these refs |
-| ------------ | --------------- |
-| Specify | [specify.md](references/specify.md); [discuss.md](references/discuss.md) only if gray areas |
-| Design | [design.md](references/design.md); [brownfield-mapping.md](references/brownfield-mapping.md) if Large/Complex |
-| Tasks | [tasks.md](references/tasks.md); [feature-spec-checklist.md](references/feature-spec-checklist.md); [implementer-routing.md](references/implementer-routing.md); [planning-session-boundary.md](references/planning-session-boundary.md) |
+| Phase / mode           | Load these refs                                                                                                                                                                                                                                  |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Specify                | [specify.md](references/specify.md); [discuss.md](references/discuss.md) only if gray areas                                                                                                                                                      |
+| Design                 | [design.md](references/design.md); [brownfield-mapping.md](references/brownfield-mapping.md) if Large/Complex                                                                                                                                    |
+| Tasks                  | [tasks.md](references/tasks.md); [feature-spec-checklist.md](references/feature-spec-checklist.md); [implementer-routing.md](references/implementer-routing.md); [planning-session-boundary.md](references/planning-session-boundary.md)         |
 | Execute (orchestrated) | [execute-orchestration-playbook.md](references/execute-orchestration-playbook.md); [orchestrated-implementer.md](references/orchestrated-implementer.md); [implement.md](references/implement.md); [roadmap-sync.md](references/roadmap-sync.md) |
-| Validate | [validate.md](references/validate.md) |
-| Quick | [quick-mode.md](references/quick-mode.md) |
-| Session handoff | [session-handoff.md](references/session-handoff.md); [state-management.md](references/state-management.md) |
+| Validate               | [validate.md](references/validate.md)                                                                                                                                                                                                            |
+| Quick                  | [quick-mode.md](references/quick-mode.md)                                                                                                                                                                                                        |
+| Session handoff        | [session-handoff.md](references/session-handoff.md); [state-management.md](references/state-management.md)                                                                                                                                       |
 
 ```
 ┌──────────┐   ┌──────────┐   ┌─────────┐   ┌─────────┐
@@ -62,12 +62,12 @@ Load **only** the refs for the current phase. Never preload the entire `referenc
 
 **The complexity determines the depth, not a fixed pipeline.** Before starting any feature, assess its scope and apply only what's needed:
 
-| Scope       | What                     | Specify                                                 | Design                                          | Tasks                         | Execute                                               |
-| ----------- | ------------------------ | ------------------------------------------------------- | ----------------------------------------------- | ----------------------------- | ----------------------------------------------------- |
-| **Small**   | ≤3 files, one sentence   | **Quick mode** — skip pipeline entirely                 | -                                               | -                             | -                                                     |
-| **Medium**  | Clear feature, <10 tasks | Spec (brief)                                            | Skip — design inline                            | Skip — tasks implicit         | Implement + verify                                    |
-| **Large**   | Multi-component feature  | Full spec + requirement IDs                             | Architecture + components                       | Full breakdown + dependencies | Implement + verify per task                           |
-| **Complex** | Ambiguity, new domain    | Full spec + [discuss gray areas](references/discuss.md) | [Research](references/design.md) + architecture | Breakdown + parallel plan     | Implement + [validate](references/validate.md)        |
+| Scope       | What                     | Specify                                                 | Design                                          | Tasks                         | Execute                                        |
+| ----------- | ------------------------ | ------------------------------------------------------- | ----------------------------------------------- | ----------------------------- | ---------------------------------------------- |
+| **Small**   | ≤3 files, one sentence   | **Quick mode** — skip pipeline entirely                 | -                                               | -                             | -                                              |
+| **Medium**  | Clear feature, <10 tasks | Spec (brief)                                            | Skip — design inline                            | Skip — tasks implicit         | Implement + verify                             |
+| **Large**   | Multi-component feature  | Full spec + requirement IDs                             | Architecture + components                       | Full breakdown + dependencies | Implement + verify per task                    |
+| **Complex** | Ambiguity, new domain    | Full spec + [discuss gray areas](references/discuss.md) | [Research](references/design.md) + architecture | Breakdown + parallel plan     | Implement + [validate](references/validate.md) |
 
 **Rules:**
 
@@ -160,13 +160,13 @@ Use sub-agents (the Task tool or equivalent) to keep the main context window lea
 
 **When to delegate to a sub-agent:**
 
-| Activity | Delegate? | Executor |
-|---|---|---|
-| Research (design phase, brownfield mapping) | Yes | explore / generalPurpose |
-| Implementing a tasks.md task | Yes | `implementer` |
-| Parallel `[P]` tasks | Yes (one per task) | `implementer` (parallel Task calls) |
-| Planning, task creation, validation reports | No | Full context required |
-| Quick mode tasks | No | Too small to justify overhead |
+| Activity                                    | Delegate?          | Executor                            |
+| ------------------------------------------- | ------------------ | ----------------------------------- |
+| Research (design phase, brownfield mapping) | Yes                | explore / generalPurpose            |
+| Implementing a tasks.md task                | Yes                | `implementer`                       |
+| Parallel `[P]` tasks                        | Yes (one per task) | `implementer` (parallel Task calls) |
+| Planning, task creation, validation reports | No                 | Full context required               |
+| Quick mode tasks                            | No                 | Too small to justify overhead       |
 
 **Context each `implementer` sub-agent receives:**
 
@@ -185,26 +185,28 @@ Use sub-agents (the Task tool or equivalent) to keep the main context window lea
 ## Commands
 
 **Project-level:**
-| Trigger Pattern | Reference |
-|----------------|-----------|
-| Initialize project, setup project | [project-init.md](references/project-init.md) |
-| Create roadmap, plan features | [roadmap.md](references/roadmap.md) |
+
+| Trigger Pattern                     | Reference                                                 |
+| ----------------------------------- | --------------------------------------------------------- |
+| Initialize project, setup project   | [project-init.md](references/project-init.md)             |
+| Create roadmap, plan features       | [roadmap.md](references/roadmap.md)                       |
 | Map codebase, analyze existing code | [brownfield-mapping.md](references/brownfield-mapping.md) |
-| Document concerns, find tech debt | [concerns.md](references/concerns.md) |
-| Record decision, log blocker | [state-management.md](references/state-management.md) |
-| Pause work, end session | [session-handoff.md](references/session-handoff.md) |
-| Resume work, continue | [session-handoff.md](references/session-handoff.md) |
+| Document concerns, find tech debt   | [concerns.md](references/concerns.md)                     |
+| Record decision, log blocker        | [state-management.md](references/state-management.md)     |
+| Pause work, end session             | [session-handoff.md](references/session-handoff.md)       |
+| Resume work, continue               | [session-handoff.md](references/session-handoff.md)       |
 
 **Feature-level (auto-sized):**
-| Trigger Pattern | Reference |
-|----------------|-----------|
-| Specify feature, define requirements | [specify.md](references/specify.md) |
-| Discuss feature, capture context | [discuss.md](references/discuss.md) |
-| Design feature, architecture | [design.md](references/design.md) |
-| Break into tasks, create tasks | [tasks.md](references/tasks.md) |
-| Implement task, build, execute | [implement.md](references/implement.md) |
-| Validate, verify, test | [validate.md](references/validate.md) |
-| Quick fix, quick task, small change | [quick-mode.md](references/quick-mode.md) |
+
+| Trigger Pattern                      | Reference                                 |
+| ------------------------------------ | ----------------------------------------- |
+| Specify feature, define requirements | [specify.md](references/specify.md)       |
+| Discuss feature, capture context     | [discuss.md](references/discuss.md)       |
+| Design feature, architecture         | [design.md](references/design.md)         |
+| Break into tasks, create tasks       | [tasks.md](references/tasks.md)           |
+| Implement task, build, execute       | [implement.md](references/implement.md)   |
+| Validate, verify, test               | [validate.md](references/validate.md)     |
+| Quick fix, quick task, small change  | [quick-mode.md](references/quick-mode.md) |
 
 ## Knowledge Verification Chain
 

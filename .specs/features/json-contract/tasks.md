@@ -25,28 +25,28 @@ flowchart LR
 
 | Task | Depends on | Diagram | Match |
 | ---- | ---------- | ------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T2 | T2 → T3 | ✅ |
-| T4 | T3 | T3 → T4 | ✅ |
+| T1   | None       | Root    | ✅    |
+| T2   | T1         | T1 → T2 | ✅    |
+| T3   | T2         | T2 → T3 | ✅    |
+| T4   | T3         | T3 → T4 | ✅    |
 
 ### Path Conflict Check
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | `schemas/` | `schemas/*.json` | Sequential |
-| T2 | `src/compare/` | `load-baseline.ts`, `load-baseline.test.ts` | After T1 |
-| T3 | `tests/contract/` or `src/compare/` | contract test + package.json devDep | After T2 |
-| T4 | docs | README, ARCHITECTURE, ROADMAP | After T3 |
+| Task | Module owner                        | Paths                                       | Conflict   |
+| ---- | ----------------------------------- | ------------------------------------------- | ---------- |
+| T1   | `schemas/`                          | `schemas/*.json`                            | Sequential |
+| T2   | `src/compare/`                      | `load-baseline.ts`, `load-baseline.test.ts` | After T1   |
+| T3   | `tests/contract/` or `src/compare/` | contract test + package.json devDep         | After T2   |
+| T4   | docs                                | README, ARCHITECTURE, ROADMAP               | After T3   |
 
 ### Test Co-location Validation
 
-| Task | Layer | Tests | Match |
-| ---- | ----- | ----- | ----- |
-| T1 | schemas | Compile/smoke in T3; optional Ajv compile in T1 | ✅ |
-| T2 | compare loader | unit in same task | ✅ |
-| T3 | contract | contract tests in same task | ✅ |
-| T4 | docs | full gate | ✅ |
+| Task | Layer          | Tests                                           | Match |
+| ---- | -------------- | ----------------------------------------------- | ----- |
+| T1   | schemas        | Compile/smoke in T3; optional Ajv compile in T1 | ✅    |
+| T2   | compare loader | unit in same task                               | ✅    |
+| T3   | contract       | contract tests in same task                     | ✅    |
+| T4   | docs           | full gate                                       | ✅    |
 
 ---
 
@@ -152,11 +152,11 @@ flowchart LR
 
 | Requirement ID | Task |
 | -------------- | ---- |
-| HOTSPOT-158 | T1 |
-| HOTSPOT-159 | T1 |
-| HOTSPOT-160 | T2 |
-| HOTSPOT-161 | T2 |
-| HOTSPOT-162 | T3 |
-| HOTSPOT-163 | T3 |
-| HOTSPOT-164 | T4 |
-| HOTSPOT-165 | T4 |
+| HOTSPOT-158    | T1   |
+| HOTSPOT-159    | T1   |
+| HOTSPOT-160    | T2   |
+| HOTSPOT-161    | T2   |
+| HOTSPOT-162    | T3   |
+| HOTSPOT-163    | T3   |
+| HOTSPOT-164    | T4   |
+| HOTSPOT-165    | T4   |

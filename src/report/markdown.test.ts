@@ -50,12 +50,8 @@ describe("renderMarkdown", () => {
     expect(output).toContain(
       "| Rank | File A | File B | Strength | Co-changes | Has static |",
     );
-    expect(output).toContain(
-      "| 1 | src/a.ts | src/b.ts | 0.7500 | 5 | yes |",
-    );
-    expect(output).toContain(
-      "| 2 | src/c.ts | src/d.ts | 0.5000 | 3 | no |",
-    );
+    expect(output).toContain("| 1 | src/a.ts | src/b.ts | 0.7500 | 5 | yes |");
+    expect(output).toContain("| 2 | src/c.ts | src/d.ts | 0.5000 | 3 | no |");
   });
 
   it("escapes pipe characters in file paths", () => {

@@ -319,46 +319,46 @@ Phase 3 (Sequential):
 
 ## Task Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1: ts-morph + project | 1 module (`project.ts`) + dep | ✅ Granular |
-| T2: discover | 1 module (`discover.ts`) | ✅ Granular |
-| T3: mccabe | 1 module (`mccabe.ts`) | ✅ Granular |
-| T4: analyze-file | 1 module (`analyze-file.ts`) | ✅ Granular |
-| T5: analyzer wire | 1 file (`index.ts`) | ✅ Granular |
-| T6: Fixtures | `tests/fixtures/complexity/` data files | ✅ Granular |
-| T7: Edge tests | test files only | ✅ Granular |
-| T8: Coverage + docs | verification + docs | ✅ Granular |
+| Task                   | Scope                                   | Status      |
+| ---------------------- | --------------------------------------- | ----------- |
+| T1: ts-morph + project | 1 module (`project.ts`) + dep           | ✅ Granular |
+| T2: discover           | 1 module (`discover.ts`)                | ✅ Granular |
+| T3: mccabe             | 1 module (`mccabe.ts`)                  | ✅ Granular |
+| T4: analyze-file       | 1 module (`analyze-file.ts`)            | ✅ Granular |
+| T5: analyzer wire      | 1 file (`index.ts`)                     | ✅ Granular |
+| T6: Fixtures           | `tests/fixtures/complexity/` data files | ✅ Granular |
+| T7: Edge tests         | test files only                         | ✅ Granular |
+| T8: Coverage + docs    | verification + docs                     | ✅ Granular |
 
 ---
 
 ## Diagram-Definition Cross-Check
 
-| Task | Depends On (task body) | Diagram Shows | Status |
-| ---- | ---------------------- | ------------- | ------ |
-| T1 | None | Entry node | ✅ Match |
-| T2 | T1 | T1 → T2 | ✅ Match |
-| T3 | T1 | T1 → T3 | ✅ Match |
-| T4 | T3 | T3 → T4 | ✅ Match |
-| T5 | T1–T4, T6 | T2+T4 → T5, T6 → T7 | ✅ Match |
-| T6 | None | Parallel node | ✅ Match |
-| T7 | T5, T6 | T5 → T7, T6 → T7 | ✅ Match |
-| T8 | T1–T7 | T7 → T8 | ✅ Match |
+| Task | Depends On (task body) | Diagram Shows       | Status   |
+| ---- | ---------------------- | ------------------- | -------- |
+| T1   | None                   | Entry node          | ✅ Match |
+| T2   | T1                     | T1 → T2             | ✅ Match |
+| T3   | T1                     | T1 → T3             | ✅ Match |
+| T4   | T3                     | T3 → T4             | ✅ Match |
+| T5   | T1–T4, T6              | T2+T4 → T5, T6 → T7 | ✅ Match |
+| T6   | None                   | Parallel node       | ✅ Match |
+| T7   | T5, T6                 | T5 → T7, T6 → T7    | ✅ Match |
+| T8   | T1–T7                  | T7 → T8             | ✅ Match |
 
 ---
 
 ## Test Co-location Validation
 
-| Task | Code Layer Created/Modified | Matrix Requires | Task Says | Status |
-| ---- | --------------------------- | --------------- | --------- | ------ |
-| T1: project | `src/complexity/project.ts` | unit ≥80% | unit (`project.test.ts`) | ✅ OK |
-| T2: discover | `src/complexity/discover.ts` | unit ≥80% | unit (`discover.test.ts`) | ✅ OK |
-| T3: mccabe | `src/complexity/mccabe.ts` | unit ≥80% | unit (`mccabe.test.ts`) | ✅ OK |
-| T4: analyze-file | `src/complexity/analyze-file.ts` | unit ≥80% | unit (`analyze-file.test.ts`) | ✅ OK |
-| T5: analyzer wire | `src/complexity/index.ts` | unit ≥80% | integration (`index.test.ts`) | ✅ OK |
-| T6: Fixtures | `tests/fixtures/complexity/` | none | none | ✅ OK |
-| T7: Edge tests | `src/complexity/*.test.ts` | unit ≥80% | integration | ✅ OK |
-| T8: Coverage gate | docs + config | project gate | full gate | ✅ OK |
+| Task              | Code Layer Created/Modified      | Matrix Requires | Task Says                     | Status |
+| ----------------- | -------------------------------- | --------------- | ----------------------------- | ------ |
+| T1: project       | `src/complexity/project.ts`      | unit ≥80%       | unit (`project.test.ts`)      | ✅ OK  |
+| T2: discover      | `src/complexity/discover.ts`     | unit ≥80%       | unit (`discover.test.ts`)     | ✅ OK  |
+| T3: mccabe        | `src/complexity/mccabe.ts`       | unit ≥80%       | unit (`mccabe.test.ts`)       | ✅ OK  |
+| T4: analyze-file  | `src/complexity/analyze-file.ts` | unit ≥80%       | unit (`analyze-file.test.ts`) | ✅ OK  |
+| T5: analyzer wire | `src/complexity/index.ts`        | unit ≥80%       | integration (`index.test.ts`) | ✅ OK  |
+| T6: Fixtures      | `tests/fixtures/complexity/`     | none            | none                          | ✅ OK  |
+| T7: Edge tests    | `src/complexity/*.test.ts`       | unit ≥80%       | integration                   | ✅ OK  |
+| T8: Coverage gate | docs + config                    | project gate    | full gate                     | ✅ OK  |
 
 ---
 
@@ -366,16 +366,16 @@ Phase 3 (Sequential):
 
 | Requirement | Task(s) |
 | ----------- | ------- |
-| HOTSPOT-19 | T1, T5 |
-| HOTSPOT-20 | T2, T5 |
-| HOTSPOT-21 | T3, T7 |
-| HOTSPOT-22 | T4, T5 |
-| HOTSPOT-23 | T4, T5 |
-| HOTSPOT-24 | T5, T7 |
-| HOTSPOT-25 | T2 |
-| HOTSPOT-26 | T1 |
-| HOTSPOT-27 | T6, T7 |
-| HOTSPOT-28 | T8 |
+| HOTSPOT-19  | T1, T5  |
+| HOTSPOT-20  | T2, T5  |
+| HOTSPOT-21  | T3, T7  |
+| HOTSPOT-22  | T4, T5  |
+| HOTSPOT-23  | T4, T5  |
+| HOTSPOT-24  | T5, T7  |
+| HOTSPOT-25  | T2      |
+| HOTSPOT-26  | T1      |
+| HOTSPOT-27  | T6, T7  |
+| HOTSPOT-28  | T8      |
 
 **Coverage:** 10 requirements, 10 mapped, 0 unmapped
 
@@ -383,16 +383,16 @@ Phase 3 (Sequential):
 
 ## Module Owner Routing
 
-| Task | Primary owner module |
-| ---- | -------------------- |
-| T1 | `src/complexity/project.ts` |
-| T2 | `src/complexity/discover.ts` |
-| T3 | `src/complexity/mccabe.ts` |
-| T4 | `src/complexity/analyze-file.ts` |
-| T5 | `src/complexity/index.ts` |
-| T6 | `tests/fixtures/complexity/` |
-| T7 | `src/complexity/*.test.ts` |
-| T8 | project docs + vitest config |
+| Task | Primary owner module             |
+| ---- | -------------------------------- |
+| T1   | `src/complexity/project.ts`      |
+| T2   | `src/complexity/discover.ts`     |
+| T3   | `src/complexity/mccabe.ts`       |
+| T4   | `src/complexity/analyze-file.ts` |
+| T5   | `src/complexity/index.ts`        |
+| T6   | `tests/fixtures/complexity/`     |
+| T7   | `src/complexity/*.test.ts`       |
+| T8   | project docs + vitest config     |
 
 **Path conflict check:** Each production file owned by exactly one task (T1–T5). ✅ No conflicts.
 

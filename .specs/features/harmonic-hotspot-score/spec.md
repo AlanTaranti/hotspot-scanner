@@ -23,13 +23,13 @@ M8 replaces only the combiner with the harmonic mean of normalized complexity an
 
 Explicitly excluded. Documented to prevent scope creep.
 
-| Feature | Reason |
-| ------- | ------ |
-| Change to `normalizeLogMinMax` | ROADMAP: "same normalization" |
-| `couplingStrength` / `TemporalCouplingScorer` | M8 scope is hotspot combiner only |
-| `--score-formula` flag / product-formula retrocompat | YAGNI; no ROADMAP requirement |
-| Rich output raw metrics (M9), CI fail thresholds | Future milestones (CI gate not planned) |
-| Edit M4 scoring spec | M8 supersedes combiner only; M4 spec remains historical |
+| Feature                                              | Reason                                                  |
+| ---------------------------------------------------- | ------------------------------------------------------- |
+| Change to `normalizeLogMinMax`                       | ROADMAP: "same normalization"                           |
+| `couplingStrength` / `TemporalCouplingScorer`        | M8 scope is hotspot combiner only                       |
+| `--score-formula` flag / product-formula retrocompat | YAGNI; no ROADMAP requirement                           |
+| Rich output raw metrics (M9), CI fail thresholds     | Future milestones (CI gate not planned)                 |
+| Edit M4 scoring spec                                 | M8 supersedes combiner only; M4 spec remains historical |
 
 ---
 
@@ -176,15 +176,15 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-69 | P1: Harmonic combiner | Tasks T1 | Pending |
-| HOTSPOT-70 | P1: Zero guard | Tasks T1 | Pending |
-| HOTSPOT-71 | P1: Balanced beats spiky | Tasks T1 | Pending |
-| HOTSPOT-72 | P1: Ranking determinism | Tasks T1 | Pending |
-| HOTSPOT-73 | P1: Fixture regression lock | Tasks T2 | Pending |
-| HOTSPOT-74 | P1: Integration invariant | Tasks T3 | Pending |
-| HOTSPOT-75 | P1: Documentation sync | Tasks T4 | Pending |
+| Requirement ID | Story                       | Phase    | Status  |
+| -------------- | --------------------------- | -------- | ------- |
+| HOTSPOT-69     | P1: Harmonic combiner       | Tasks T1 | Pending |
+| HOTSPOT-70     | P1: Zero guard              | Tasks T1 | Pending |
+| HOTSPOT-71     | P1: Balanced beats spiky    | Tasks T1 | Pending |
+| HOTSPOT-72     | P1: Ranking determinism     | Tasks T1 | Pending |
+| HOTSPOT-73     | P1: Fixture regression lock | Tasks T2 | Pending |
+| HOTSPOT-74     | P1: Integration invariant   | Tasks T3 | Pending |
+| HOTSPOT-75     | P1: Documentation sync      | Tasks T4 | Pending |
 
 **Coverage:** 7 total, 7 mapped to tasks, 0 unmapped
 

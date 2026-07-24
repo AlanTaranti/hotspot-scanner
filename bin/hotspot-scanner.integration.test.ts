@@ -330,7 +330,9 @@ describe("hotspot-scanner CLI integration", () => {
     await expect(access(hotspotsPath)).resolves.toBeUndefined();
     await expect(access(couplingPath)).resolves.toBeUndefined();
 
-    const meta = JSON.parse(await readFile(metaPath, "utf8")) as { kind: string };
+    const meta = JSON.parse(await readFile(metaPath, "utf8")) as {
+      kind: string;
+    };
     const hotspotsContent = await readFile(hotspotsPath, "utf8");
     const couplingContent = await readFile(couplingPath, "utf8");
 

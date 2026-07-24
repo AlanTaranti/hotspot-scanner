@@ -28,7 +28,7 @@ export function buildGitLogArgv(options: GitLogSpawnOptions): string[] {
     options.repoPath,
     "log",
     "--numstat",
-    '--pretty=format:COMMIT|%H|%ad|%an',
+    "--pretty=format:COMMIT|%H|%ad|%an",
   ];
   if (options.since !== undefined) {
     args.push(`--since=${options.since}`);

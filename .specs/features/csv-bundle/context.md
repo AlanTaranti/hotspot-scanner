@@ -131,12 +131,12 @@
 
 **Choice:** Hierarchical suffixes after stem:
 
-| Mode | Examples |
-| ---- | -------- |
-| Scan | `{stem}.hotspots.csv`, `{stem}.coupling.csv`, `{stem}.meta.json` |
-| Scan (function) | `{stem}.functions.csv`, `{stem}.coupling.csv`, `{stem}.meta.json` |
-| Compare | `{stem}.hotspots.new.csv`, `{stem}.hotspots.removed.csv`, `{stem}.hotspots.rank-changed.csv`, `{stem}.coupling.new.csv`, `{stem}.coupling.removed.csv`, `{stem}.coupling.rank-changed.csv`, `{stem}.meta.json` |
-| Compare (function) | `{stem}.functions.new.csv`, `{stem}.functions.removed.csv`, `{stem}.functions.rank-changed.csv`, plus same coupling trio + meta |
+| Mode               | Examples                                                                                                                                                                                                       |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Scan               | `{stem}.hotspots.csv`, `{stem}.coupling.csv`, `{stem}.meta.json`                                                                                                                                               |
+| Scan (function)    | `{stem}.functions.csv`, `{stem}.coupling.csv`, `{stem}.meta.json`                                                                                                                                              |
+| Compare            | `{stem}.hotspots.new.csv`, `{stem}.hotspots.removed.csv`, `{stem}.hotspots.rank-changed.csv`, `{stem}.coupling.new.csv`, `{stem}.coupling.removed.csv`, `{stem}.coupling.rank-changed.csv`, `{stem}.meta.json` |
+| Compare (function) | `{stem}.functions.new.csv`, `{stem}.functions.removed.csv`, `{stem}.functions.rank-changed.csv`, plus same coupling trio + meta                                                                                |
 
 **Status:** **Confirmed** — locked; do not re-open
 
@@ -197,12 +197,12 @@
 
 ## Related closed decisions (prior milestones)
 
-| Decision | Value | Relevance to M18 |
-| -------- | ----- | ---------------- |
-| M17 multi-block single CSV | Done / historical | Superseded by this milestone |
-| `--top` ignored for CSV | M16/M17 | Unchanged |
-| Reporter pure (no `fs` in `src/report/`) | M5/M10/M17 | Unchanged — CLI writes bundle |
-| UTF-8 without BOM | M17 | Unchanged |
-| No `mkdir -p` / overwrite OK | M10 | Apply to each bundle path |
-| Format from `--format` only | M10 | Unchanged |
-| Requirement ID start | `HOTSPOT-135` | Continues after M16 (`HOTSPOT-134`) |
+| Decision                                 | Value             | Relevance to M18                    |
+| ---------------------------------------- | ----------------- | ----------------------------------- |
+| M17 multi-block single CSV               | Done / historical | Superseded by this milestone        |
+| `--top` ignored for CSV                  | M16/M17           | Unchanged                           |
+| Reporter pure (no `fs` in `src/report/`) | M5/M10/M17        | Unchanged — CLI writes bundle       |
+| UTF-8 without BOM                        | M17               | Unchanged                           |
+| No `mkdir -p` / overwrite OK             | M10               | Apply to each bundle path           |
+| Format from `--format` only              | M10               | Unchanged                           |
+| Requirement ID start                     | `HOTSPOT-135`     | Continues after M16 (`HOTSPOT-134`) |

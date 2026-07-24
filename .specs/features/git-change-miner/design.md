@@ -46,23 +46,23 @@ flowchart TB
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| Domain types | `src/types/domain.ts` | `FileChangeStats`, `CoChangeEvent` — no changes expected |
-| GitMiner contract | `src/git/index.ts` | Extend `GitMinerResult` with `warnings`; keep public interfaces |
-| Stub test pattern | `src/git/index.test.ts` | Replace "throws not implemented" with integration tests |
-| Fixture directories | `tests/fixtures/git-log/` | Populate with real log samples in T6 |
-| Vitest config | `vitest.config.ts` | Coverage threshold for `src/git/**` in T8 |
+| Component           | Location                  | How to Use                                                      |
+| ------------------- | ------------------------- | --------------------------------------------------------------- |
+| Domain types        | `src/types/domain.ts`     | `FileChangeStats`, `CoChangeEvent` — no changes expected        |
+| GitMiner contract   | `src/git/index.ts`        | Extend `GitMinerResult` with `warnings`; keep public interfaces |
+| Stub test pattern   | `src/git/index.test.ts`   | Replace "throws not implemented" with integration tests         |
+| Fixture directories | `tests/fixtures/git-log/` | Populate with real log samples in T6                            |
+| Vitest config       | `vitest.config.ts`        | Coverage threshold for `src/git/**` in T8                       |
 
 ### Integration Points
 
-| System | M2 behavior | Future milestone |
-| ------ | ----------- | ---------------- |
-| `git` subprocess | `child_process.spawn` in `src/git/spawn.ts` only | — |
-| `simple-git` | Not added (YAGNI) | Revisit only if spawn complexity grows |
-| `src/scan.ts` | Not wired | M6 Integration |
-| CLI `--since` default | `since` optional on `GitMinerOptions` | M5 Reporter + CLI |
-| Scoring | Consumes types only | M4 |
+| System                | M2 behavior                                      | Future milestone                       |
+| --------------------- | ------------------------------------------------ | -------------------------------------- |
+| `git` subprocess      | `child_process.spawn` in `src/git/spawn.ts` only | —                                      |
+| `simple-git`          | Not added (YAGNI)                                | Revisit only if spawn complexity grows |
+| `src/scan.ts`         | Not wired                                        | M6 Integration                         |
+| CLI `--since` default | `since` optional on `GitMinerOptions`            | M5 Reporter + CLI                      |
+| Scoring               | Consumes types only                              | M4                                     |
 
 Per [INTEGRATIONS.md](../../codebase/INTEGRATIONS.md): all `git` invocation stays inside `src/git/`. Errors propagate with `repoPath`, command, and stderr snippet.
 
@@ -70,14 +70,14 @@ Per [INTEGRATIONS.md](../../codebase/INTEGRATIONS.md): all `git` invocation stay
 
 ## Design Decisions
 
-| # | Decision | Rationale |
-| - | -------- | --------- |
-| D1 | `child_process.spawn` over `simple-git` | Zero new runtime dependency; YAGNI; full control over streaming |
-| D2 | Rename via `old => new` line parsing + `PathAliasMap` | `git log --follow` only works with a single path argument, not global log mining |
-| D3 | Track all file paths from log | Complete co-change picture; M3/M4 filter to TS/JS at complexity/scoring |
-| D4 | `warnings: string[]` on `GitMinerResult` | Testable without console mocks; M5 can surface to CLI |
-| D5 | Skip empty `CoChangeEvent` (no file changes) | Deterministic; avoids noise in coupling scorer |
-| D6 | Deduplicate paths within one commit | Prevents inflated co-change pairs from pathological input |
+| #   | Decision                                              | Rationale                                                                        |
+| --- | ----------------------------------------------------- | -------------------------------------------------------------------------------- |
+| D1  | `child_process.spawn` over `simple-git`               | Zero new runtime dependency; YAGNI; full control over streaming                  |
+| D2  | Rename via `old => new` line parsing + `PathAliasMap` | `git log --follow` only works with a single path argument, not global log mining |
+| D3  | Track all file paths from log                         | Complete co-change picture; M3/M4 filter to TS/JS at complexity/scoring          |
+| D4  | `warnings: string[]` on `GitMinerResult`              | Testable without console mocks; M5 can surface to CLI                            |
+| D5  | Skip empty `CoChangeEvent` (no file changes)          | Deterministic; avoids noise in coupling scorer                                   |
+| D6  | Deduplicate paths within one commit                   | Prevents inflated co-change pairs from pathological input                        |
 
 ---
 
@@ -317,27 +317,27 @@ export interface CoChangeEvent {
 
 ## Risks and Mitigations
 
-| Risk | Source | Mitigation |
-| ---- | ------ | ---------- |
-| RT-001: Memory exhaustion on large repos | CONCERNS.md | Line streaming; commit-by-commit aggregation; large fixture test (~10k lines) |
-| RT-003: Rename churn distortion | IMPL §9 | `PathAliasMap` + `rename-multi.txt` fixture |
-| Incorrect merge numstat | IMPL §9 | `merge-delete.txt` fixture |
-| Binary `-` handling | IMPL §9 | `binary.txt` fixture; `null` additions/deletions |
-| Git not installed | INTEGRATIONS.md | `GitLogError` with clear message on spawn failure |
+| Risk                                     | Source          | Mitigation                                                                    |
+| ---------------------------------------- | --------------- | ----------------------------------------------------------------------------- |
+| RT-001: Memory exhaustion on large repos | CONCERNS.md     | Line streaming; commit-by-commit aggregation; large fixture test (~10k lines) |
+| RT-003: Rename churn distortion          | IMPL §9         | `PathAliasMap` + `rename-multi.txt` fixture                                   |
+| Incorrect merge numstat                  | IMPL §9         | `merge-delete.txt` fixture                                                    |
+| Binary `-` handling                      | IMPL §9         | `binary.txt` fixture; `null` additions/deletions                              |
+| Git not installed                        | INTEGRATIONS.md | `GitLogError` with clear message on spawn failure                             |
 
 ---
 
 ## Test Strategy
 
-| Layer | Location | Focus |
-| ----- | -------- | ----- |
-| Unit — spawn | `src/git/spawn.test.ts` | Argv building; error on bad repo (mock spawn) |
-| Unit — parse | `src/git/parse.test.ts` | Header, numstat, rename, binary, blank lines |
-| Unit — rename | `src/git/rename.test.ts` | Single rename, chain, ambiguous |
-| Unit — aggregate | `src/git/aggregate.test.ts` | Stats math, authors Set, co-change events |
-| Integration | `src/git/index.test.ts` | Full pipeline on fixtures |
-| Edge cases | `src/git/*.test.ts` | Merge, delete, empty history (T7) |
-| Fixtures | `tests/fixtures/git-log/` | Real captured `git log` output |
+| Layer            | Location                    | Focus                                         |
+| ---------------- | --------------------------- | --------------------------------------------- |
+| Unit — spawn     | `src/git/spawn.test.ts`     | Argv building; error on bad repo (mock spawn) |
+| Unit — parse     | `src/git/parse.test.ts`     | Header, numstat, rename, binary, blank lines  |
+| Unit — rename    | `src/git/rename.test.ts`    | Single rename, chain, ambiguous               |
+| Unit — aggregate | `src/git/aggregate.test.ts` | Stats math, authors Set, co-change events     |
+| Integration      | `src/git/index.test.ts`     | Full pipeline on fixtures                     |
+| Edge cases       | `src/git/*.test.ts`         | Merge, delete, empty history (T7)             |
+| Fixtures         | `tests/fixtures/git-log/`   | Real captured `git log` output                |
 
 **Mock boundary:** Mock `child_process` only in spawn tests. Parse/aggregate/rename tests use fixture strings or iterables — no git mock needed.
 
@@ -345,13 +345,13 @@ export interface CoChangeEvent {
 
 ### Planned fixtures
 
-| File | Scenario |
-| ---- | -------- |
-| `basic.txt` | 3 commits, 2 files, simple numstat |
-| `rename-multi.txt` | File renamed twice; assert unified churn |
-| `merge-delete.txt` | Merge commit + file deletion |
-| `binary.txt` | Binary file with `-` `-` numstat |
-| `large-synthetic.txt` | ~10k lines for streaming smoke test |
+| File                  | Scenario                                 |
+| --------------------- | ---------------------------------------- |
+| `basic.txt`           | 3 commits, 2 files, simple numstat       |
+| `rename-multi.txt`    | File renamed twice; assert unified churn |
+| `merge-delete.txt`    | Merge commit + file deletion             |
+| `binary.txt`          | Binary file with `-` `-` numstat         |
+| `large-synthetic.txt` | ~10k lines for streaming smoke test      |
 
 ---
 

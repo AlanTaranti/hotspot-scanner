@@ -321,46 +321,46 @@ Phase 3 (Sequential):
 
 ## Task Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1: Domain types | 1 module (`src/types/`) | ✅ Granular |
-| T2: Module stubs | 4 related stub files, same pattern | ✅ Granular |
-| T3: runScan stub | 1 file | ✅ Granular |
-| T4: Bin wire | 1 file | ✅ Granular |
-| T5: Fixture dirs | 3 `.gitkeep` files | ✅ Granular |
-| T6: scan.test.ts | 1 test file | ✅ Granular |
-| T7: index exports | 2 files | ✅ Granular |
-| T8: Gate + docs | verification + docs | ✅ Granular |
+| Task              | Scope                              | Status      |
+| ----------------- | ---------------------------------- | ----------- |
+| T1: Domain types  | 1 module (`src/types/`)            | ✅ Granular |
+| T2: Module stubs  | 4 related stub files, same pattern | ✅ Granular |
+| T3: runScan stub  | 1 file                             | ✅ Granular |
+| T4: Bin wire      | 1 file                             | ✅ Granular |
+| T5: Fixture dirs  | 3 `.gitkeep` files                 | ✅ Granular |
+| T6: scan.test.ts  | 1 test file                        | ✅ Granular |
+| T7: index exports | 2 files                            | ✅ Granular |
+| T8: Gate + docs   | verification + docs                | ✅ Granular |
 
 ---
 
 ## Diagram-Definition Cross-Check
 
-| Task | Depends On (task body) | Diagram Shows | Status |
-| ---- | ---------------------- | ------------- | ------ |
-| T1 | None | Entry node | ✅ Match |
-| T2 | T1 | T1 → T2 | ✅ Match |
-| T3 | T1, T2 | T2 → T3 | ✅ Match |
-| T4 | T3 | T3 → T4 | ✅ Match |
-| T5 | None | T3 → T5 (parallel) | ✅ Match |
-| T6 | T3 | T3 → T6 | ✅ Match |
-| T7 | T3, T4, T5, T6 | T4,T5,T6 → T7 | ✅ Match |
-| T8 | T1–T7 | T7 → T8 | ✅ Match |
+| Task | Depends On (task body) | Diagram Shows      | Status   |
+| ---- | ---------------------- | ------------------ | -------- |
+| T1   | None                   | Entry node         | ✅ Match |
+| T2   | T1                     | T1 → T2            | ✅ Match |
+| T3   | T1, T2                 | T2 → T3            | ✅ Match |
+| T4   | T3                     | T3 → T4            | ✅ Match |
+| T5   | None                   | T3 → T5 (parallel) | ✅ Match |
+| T6   | T3                     | T3 → T6            | ✅ Match |
+| T7   | T3, T4, T5, T6         | T4,T5,T6 → T7      | ✅ Match |
+| T8   | T1–T7                  | T7 → T8            | ✅ Match |
 
 ---
 
 ## Test Co-location Validation
 
-| Task | Code Layer Created/Modified | Matrix Requires | Task Says | Status |
-| ---- | --------------------------- | --------------- | --------- | ------ |
-| T1: Domain types | `src/types/**` | none (excluded) | none | ✅ OK |
-| T2: Module stubs | `src/{git,complexity,scoring,report}/` | unit (best effort) | unit | ✅ OK |
-| T3: runScan | `src/scan.ts` | best effort | none (T6 covers) | ✅ OK |
-| T4: Bin | `bin/hotspot-scanner.ts` | CLI tests in M5 | none | ✅ OK |
-| T5: Fixtures | `tests/fixtures/` | none | none | ✅ OK |
-| T6: scan.test | integration wiring | integration placeholder | integration | ✅ OK |
-| T7: index exports | `src/index.ts` | best effort | unit | ✅ OK |
-| T8: Final gate | docs only | project gate | full gate | ✅ OK |
+| Task              | Code Layer Created/Modified            | Matrix Requires         | Task Says        | Status |
+| ----------------- | -------------------------------------- | ----------------------- | ---------------- | ------ |
+| T1: Domain types  | `src/types/**`                         | none (excluded)         | none             | ✅ OK  |
+| T2: Module stubs  | `src/{git,complexity,scoring,report}/` | unit (best effort)      | unit             | ✅ OK  |
+| T3: runScan       | `src/scan.ts`                          | best effort             | none (T6 covers) | ✅ OK  |
+| T4: Bin           | `bin/hotspot-scanner.ts`               | CLI tests in M5         | none             | ✅ OK  |
+| T5: Fixtures      | `tests/fixtures/`                      | none                    | none             | ✅ OK  |
+| T6: scan.test     | integration wiring                     | integration placeholder | integration      | ✅ OK  |
+| T7: index exports | `src/index.ts`                         | best effort             | unit             | ✅ OK  |
+| T8: Final gate    | docs only                              | project gate            | full gate        | ✅ OK  |
 
 ---
 
@@ -368,14 +368,14 @@ Phase 3 (Sequential):
 
 | Requirement | Task(s) |
 | ----------- | ------- |
-| HOTSPOT-01 | T2 |
-| HOTSPOT-02 | T1, T7 |
-| HOTSPOT-03 | T2 |
-| HOTSPOT-04 | T3, T7 |
-| HOTSPOT-05 | T4 |
-| HOTSPOT-06 | T5 |
-| HOTSPOT-07 | T6 |
-| HOTSPOT-08 | T8 |
+| HOTSPOT-01  | T2      |
+| HOTSPOT-02  | T1, T7  |
+| HOTSPOT-03  | T2      |
+| HOTSPOT-04  | T3, T7  |
+| HOTSPOT-05  | T4      |
+| HOTSPOT-06  | T5      |
+| HOTSPOT-07  | T6      |
+| HOTSPOT-08  | T8      |
 
 **Coverage:** 8 requirements, 8 mapped, 0 unmapped
 
@@ -383,13 +383,13 @@ Phase 3 (Sequential):
 
 ## Module Owner Routing
 
-| Task | Primary owner module |
-| ---- | -------------------- |
-| T1 | `src/types/` |
-| T2 | `src/git/`, `src/complexity/`, `src/scoring/`, `src/report/` |
-| T3 | `src/scan.ts` |
-| T4 | `bin/hotspot-scanner.ts` |
-| T5 | `tests/fixtures/` |
-| T6 | `src/scan.test.ts` |
-| T7 | `src/index.ts` |
-| T8 | project docs |
+| Task | Primary owner module                                         |
+| ---- | ------------------------------------------------------------ |
+| T1   | `src/types/`                                                 |
+| T2   | `src/git/`, `src/complexity/`, `src/scoring/`, `src/report/` |
+| T3   | `src/scan.ts`                                                |
+| T4   | `bin/hotspot-scanner.ts`                                     |
+| T5   | `tests/fixtures/`                                            |
+| T6   | `src/scan.test.ts`                                           |
+| T7   | `src/index.ts`                                               |
+| T8   | project docs                                                 |

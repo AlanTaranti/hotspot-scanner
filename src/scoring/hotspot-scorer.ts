@@ -21,7 +21,9 @@ export function scoreHotspots(
     return [];
   }
 
-  const complexityValues = complexity.map((entry) => entry.cyclomaticComplexity);
+  const complexityValues = complexity.map(
+    (entry) => entry.cyclomaticComplexity,
+  );
   const churnValues = complexity.map(
     (entry) => fileStats.get(entry.filePath)?.commitCount ?? 0,
   );

@@ -43,19 +43,19 @@ flowchart LR
 
 | Task | Depends on (declared) | Appears in diagram after deps | Match |
 | ---- | --------------------- | ----------------------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T2 | T2 → T3 | ✅ |
-| T4 | T3 | T3 → T4 | ✅ |
+| T1   | None                  | Root                          | ✅    |
+| T2   | T1                    | T1 → T2                       | ✅    |
+| T3   | T2                    | T2 → T3                       | ✅    |
+| T4   | T3                    | T3 → T4                       | ✅    |
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Tests in same task | Match |
-| ---- | ---------- | ---------------------- | ------------------ | ----- |
-| T1 | `src/scoring/hotspot-scorer.ts`, `src/types/domain.ts` | Unit required | `hotspot-scorer.test.ts` update | ✅ |
-| T2 | `src/report/json.ts` (fixture only) | Unit required | `json.test.ts` + `sample-result.json` | ✅ |
-| T3 | `src/report/table.ts` | Unit required | `table.test.ts` update | ✅ |
-| T4 | `src/scan.ts` integration + docs | Integration + gate | `scan.integration.test.ts` + full gate | ✅ |
+| Task | Code layer                                             | TESTING.md expectation | Tests in same task                     | Match |
+| ---- | ------------------------------------------------------ | ---------------------- | -------------------------------------- | ----- |
+| T1   | `src/scoring/hotspot-scorer.ts`, `src/types/domain.ts` | Unit required          | `hotspot-scorer.test.ts` update        | ✅    |
+| T2   | `src/report/json.ts` (fixture only)                    | Unit required          | `json.test.ts` + `sample-result.json`  | ✅    |
+| T3   | `src/report/table.ts`                                  | Unit required          | `table.test.ts` update                 | ✅    |
+| T4   | `src/scan.ts` integration + docs                       | Integration + gate     | `scan.integration.test.ts` + full gate | ✅    |
 
 ---
 
@@ -189,14 +189,14 @@ flowchart LR
 
 ## Requirement Traceability (Tasks)
 
-| Requirement ID | Tasks |
-| -------------- | ----- |
-| HOTSPOT-76 | T1 |
-| HOTSPOT-77 | T2 |
-| HOTSPOT-78 | T3 |
-| HOTSPOT-79 | T2, T3 |
-| HOTSPOT-80 | T1 |
-| HOTSPOT-81 | T4 |
-| HOTSPOT-82 | T4 |
+| Requirement ID | Tasks  |
+| -------------- | ------ |
+| HOTSPOT-76     | T1     |
+| HOTSPOT-77     | T2     |
+| HOTSPOT-78     | T3     |
+| HOTSPOT-79     | T2, T3 |
+| HOTSPOT-80     | T1     |
+| HOTSPOT-81     | T4     |
+| HOTSPOT-82     | T4     |
 
 **Coverage:** 7 total, 7 mapped to tasks, 0 unmapped

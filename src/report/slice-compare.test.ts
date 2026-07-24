@@ -12,7 +12,9 @@ const fixturesDir = join(
 );
 
 function loadScanFixture(name: string): ScanResult {
-  return JSON.parse(readFileSync(join(fixturesDir, name), "utf8")) as ScanResult;
+  return JSON.parse(
+    readFileSync(join(fixturesDir, name), "utf8"),
+  ) as ScanResult;
 }
 
 function loadCompareFixture(): CompareResult {

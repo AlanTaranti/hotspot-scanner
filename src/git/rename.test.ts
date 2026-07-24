@@ -49,7 +49,9 @@ describe("PathAliasMap", () => {
     map.link("b.ts", "c.ts");
 
     const wouldCreateCycle = (
-      map as unknown as { wouldCreateCycle: (from: string, to: string) => boolean }
+      map as unknown as {
+        wouldCreateCycle: (from: string, to: string) => boolean;
+      }
     ).wouldCreateCycle;
 
     expect(wouldCreateCycle.call(map, "c.ts", "b.ts")).toBe(true);
@@ -62,7 +64,9 @@ describe("PathAliasMap", () => {
     parent.set("c.ts", "b.ts");
 
     const wouldCreateCycle = (
-      map as unknown as { wouldCreateCycle: (from: string, to: string) => boolean }
+      map as unknown as {
+        wouldCreateCycle: (from: string, to: string) => boolean;
+      }
     ).wouldCreateCycle;
 
     expect(wouldCreateCycle.call(map, "d.ts", "c.ts")).toBe(true);

@@ -15,20 +15,20 @@
 
 ## Module map
 
-| Path | Status | Role |
-|------|--------|------|
+| Path                     | Status      | Role                                                                                                                                                    |
+| ------------------------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `bin/hotspot-scanner.ts` | implemented | Commander CLI — `scan <path>` with `--since`, `--format`, `--granularity`, `--top`, `--min-cochange`, `--include`/`--exclude`, `--output`, `--baseline` |
-| `src/git/` | implemented | GitMiner — streaming `git log` parse |
-| `src/complexity/` | implemented | ComplexityAnalyzer — McCabe via ts-morph |
-| `src/scoring/` | implemented | HotspotScorer, FunctionHotspotScorer, TemporalCouplingScorer, `enrichCouplingStaticDeps` |
-| `src/diagnostics/` | implemented | stderr warnings + progress |
-| `src/report/` | implemented | Reporter — table, JSON, markdown, CSV bundle (+ compare variants) |
-| `src/compare/` | implemented | `loadBaseline`, `compareScanResults` |
-| `src/config/` | implemented | `.hotspot-scanner.json` load + `mergeScanOptions` (CLI > config > defaults) |
-| `src/scan.ts` | implemented | `runScan()` — config + pipeline orchestration |
-| `src/types/` | implemented | Domain types (no runtime logic) |
-| `src/index.ts` | implemented | Public library API |
-| `schemas/` | implemented | JSON Schema for `ScanResult` / `CompareResult` |
+| `src/git/`               | implemented | GitMiner — streaming `git log` parse                                                                                                                    |
+| `src/complexity/`        | implemented | ComplexityAnalyzer — McCabe via ts-morph                                                                                                                |
+| `src/scoring/`           | implemented | HotspotScorer, FunctionHotspotScorer, TemporalCouplingScorer, `enrichCouplingStaticDeps`                                                                |
+| `src/diagnostics/`       | implemented | stderr warnings + progress                                                                                                                              |
+| `src/report/`            | implemented | Reporter — table, JSON, markdown, CSV bundle (+ compare variants)                                                                                       |
+| `src/compare/`           | implemented | `loadBaseline`, `compareScanResults`                                                                                                                    |
+| `src/config/`            | implemented | `.hotspot-scanner.json` load + `mergeScanOptions` (CLI > config > defaults)                                                                             |
+| `src/scan.ts`            | implemented | `runScan()` — config + pipeline orchestration                                                                                                           |
+| `src/types/`             | implemented | Domain types (no runtime logic)                                                                                                                         |
+| `src/index.ts`           | implemented | Public library API                                                                                                                                      |
+| `schemas/`               | implemented | JSON Schema for `ScanResult` / `CompareResult`                                                                                                          |
 
 ## Gate check
 

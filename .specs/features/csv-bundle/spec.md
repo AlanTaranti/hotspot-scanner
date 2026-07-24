@@ -24,20 +24,20 @@ M17 shipped `--format csv` as one multi-block file (title rows + blank-line join
 
 Explicitly excluded. Documented to prevent scope creep.
 
-| Feature | Reason |
-| ------- | ------ |
-| Zip / archive of bundle | YAGNI |
-| UTF-8 BOM | YAGNI — keep M17 UTF-8 without BOM |
-| Wide / single flat CSV for all sections | Dual-consumer layout forbids |
-| Legacy multi-block flag or dual layout | Breaking replace — locked |
-| Emit-only-nonempty (skip empty files) | Always emit stable paths — locked |
-| `--top` limiting CSV rows | Parity with M16/M17 — ignored for csv |
+| Feature                                          | Reason                                            |
+| ------------------------------------------------ | ------------------------------------------------- |
+| Zip / archive of bundle                          | YAGNI                                             |
+| UTF-8 BOM                                        | YAGNI — keep M17 UTF-8 without BOM                |
+| Wide / single flat CSV for all sections          | Dual-consumer layout forbids                      |
+| Legacy multi-block flag or dual layout           | Breaking replace — locked                         |
+| Emit-only-nonempty (skip empty files)            | Always emit stable paths — locked                 |
+| `--top` limiting CSV rows                        | Parity with M16/M17 — ignored for csv             |
 | CI fail thresholds / exit codes on metric breach | Not planned — removed from roadmap (see STATE.md) |
-| HTML, PDF, SARIF, Excel `.xlsx` | YAGNI |
-| Auto-detect format from extension | M10 — `--format` is source of truth |
-| Alter scoring, normalization, or JSON schema | M18 boundary — report/CLI only |
-| `mkdir -p` / `--no-clobber` | Inherit M10 |
-| Change `csv-utils.ts` escaping rules | Keep existing helpers |
+| HTML, PDF, SARIF, Excel `.xlsx`                  | YAGNI                                             |
+| Auto-detect format from extension                | M10 — `--format` is source of truth               |
+| Alter scoring, normalization, or JSON schema     | M18 boundary — report/CLI only                    |
+| `mkdir -p` / `--no-clobber`                      | Inherit M10                                       |
+| Change `csv-utils.ts` escaping rules             | Keep existing helpers                             |
 
 ---
 
@@ -213,18 +213,18 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-135 | P1: CsvBundle reporter contract | Tasks T1–T3 | Planned |
-| HOTSPOT-136 | P1: Scan CSV bundle layout | Tasks T1, T3, T4 | Planned |
-| HOTSPOT-137 | P1: Compare CSV bundle layout | Tasks T2, T3, T4 | Planned |
-| HOTSPOT-138 | P1: CLI requires `--output` | Tasks T3, T4 | Planned |
-| HOTSPOT-139 | P1: Stem expansion + multi-write | Tasks T3, T4 | Planned |
-| HOTSPOT-140 | P1: Granularity XOR | Tasks T1, T2, T4 | Planned |
-| HOTSPOT-141 | P1: No title rows; header-only empty; M17 columns | Tasks T1, T2 | Planned |
-| HOTSPOT-142 | P1: `--top` ignored for csv | Tasks T1–T4 | Planned |
-| HOTSPOT-143 | P1: Tests | Tasks T1–T4 | Planned |
-| HOTSPOT-144 | P1: Documentation sync | Tasks T5 | Planned |
+| Requirement ID | Story                                             | Phase            | Status  |
+| -------------- | ------------------------------------------------- | ---------------- | ------- |
+| HOTSPOT-135    | P1: CsvBundle reporter contract                   | Tasks T1–T3      | Planned |
+| HOTSPOT-136    | P1: Scan CSV bundle layout                        | Tasks T1, T3, T4 | Planned |
+| HOTSPOT-137    | P1: Compare CSV bundle layout                     | Tasks T2, T3, T4 | Planned |
+| HOTSPOT-138    | P1: CLI requires `--output`                       | Tasks T3, T4     | Planned |
+| HOTSPOT-139    | P1: Stem expansion + multi-write                  | Tasks T3, T4     | Planned |
+| HOTSPOT-140    | P1: Granularity XOR                               | Tasks T1, T2, T4 | Planned |
+| HOTSPOT-141    | P1: No title rows; header-only empty; M17 columns | Tasks T1, T2     | Planned |
+| HOTSPOT-142    | P1: `--top` ignored for csv                       | Tasks T1–T4      | Planned |
+| HOTSPOT-143    | P1: Tests                                         | Tasks T1–T4      | Planned |
+| HOTSPOT-144    | P1: Documentation sync                            | Tasks T5         | Planned |
 
 **Coverage:** 10 total, 10 mapped to tasks, 0 unmapped
 

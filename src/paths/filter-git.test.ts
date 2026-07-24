@@ -48,7 +48,10 @@ describe("filterGitMinerResult", () => {
 
     const result = filterGitMinerResult(
       {
-        fileStats: makeFileStats([["src/a.ts", {}], ["src/b.ts", {}]]),
+        fileStats: makeFileStats([
+          ["src/a.ts", {}],
+          ["src/b.ts", {}],
+        ]),
         coChangeEvents: events,
         warnings: [],
       },
@@ -113,7 +116,10 @@ describe("filterGitMinerResult", () => {
   it("deduplicates in-scope files in coChangeEvents", () => {
     const result = filterGitMinerResult(
       {
-        fileStats: makeFileStats([["src/a.ts", {}], ["src/b.ts", {}]]),
+        fileStats: makeFileStats([
+          ["src/a.ts", {}],
+          ["src/b.ts", {}],
+        ]),
         coChangeEvents: [
           {
             commitHash: "dup",

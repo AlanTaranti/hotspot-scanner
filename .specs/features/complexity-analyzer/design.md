@@ -48,24 +48,24 @@ flowchart TB
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| Domain types | `src/types/domain.ts` | `ComplexityResult` — no changes expected |
-| ComplexityAnalyzer contract | `src/complexity/index.ts` | Extend return type with `warnings`; keep `ComplexityAnalyzerOptions` |
-| Stub test pattern | `src/complexity/index.test.ts` | Replace "throws not implemented" with integration tests |
-| Fixture directory | `tests/fixtures/complexity/` | Populate with McCabe-verified TS files in T6 |
-| Vitest config | `vitest.config.ts` | Coverage threshold for `src/complexity/**` in T8 |
-| GitMiner deps pattern | `src/git/index.ts` | Mirror `ComplexityAnalyzerDependencies` injection pattern |
+| Component                   | Location                       | How to Use                                                           |
+| --------------------------- | ------------------------------ | -------------------------------------------------------------------- |
+| Domain types                | `src/types/domain.ts`          | `ComplexityResult` — no changes expected                             |
+| ComplexityAnalyzer contract | `src/complexity/index.ts`      | Extend return type with `warnings`; keep `ComplexityAnalyzerOptions` |
+| Stub test pattern           | `src/complexity/index.test.ts` | Replace "throws not implemented" with integration tests              |
+| Fixture directory           | `tests/fixtures/complexity/`   | Populate with McCabe-verified TS files in T6                         |
+| Vitest config               | `vitest.config.ts`             | Coverage threshold for `src/complexity/**` in T8                     |
+| GitMiner deps pattern       | `src/git/index.ts`             | Mirror `ComplexityAnalyzerDependencies` injection pattern            |
 
 ### Integration Points
 
-| System | M3 behavior | Future milestone |
-| ------ | ----------- | ---------------- |
-| `ts-morph` | Added as runtime dependency; used only in `src/complexity/` | — |
-| `src/scan.ts` | Not wired | M6 Integration |
-| `HotspotScorer` | Consumes `ComplexityResult[]` types only | M4 Scoring |
-| Git Miner paths | Not intersected in M3 | M4/M6 may filter at orchestration |
-| CLI | No flags added | M5 Reporter + CLI |
+| System          | M3 behavior                                                 | Future milestone                  |
+| --------------- | ----------------------------------------------------------- | --------------------------------- |
+| `ts-morph`      | Added as runtime dependency; used only in `src/complexity/` | —                                 |
+| `src/scan.ts`   | Not wired                                                   | M6 Integration                    |
+| `HotspotScorer` | Consumes `ComplexityResult[]` types only                    | M4 Scoring                        |
+| Git Miner paths | Not intersected in M3                                       | M4/M6 may filter at orchestration |
+| CLI             | No flags added                                              | M5 Reporter + CLI                 |
 
 Per [INTEGRATIONS.md](../../codebase/INTEGRATIONS.md): all `ts-morph` usage stays inside `src/complexity/`. Parse errors propagate as warnings with `filePath` and error message — not as fatal scan errors.
 
@@ -73,15 +73,15 @@ Per [INTEGRATIONS.md](../../codebase/INTEGRATIONS.md): all `ts-morph` usage stay
 
 ## Design Decisions
 
-| # | Decision | Rationale |
-| - | -------- | --------- |
-| D1 | File `cyclomaticComplexity` = **sum** of per-function complexities | User decision; reflects total decision-path load in the file |
-| D2 | Recursive walk of all eligible extensions under `repoPath` | User decision; M3 testable in isolation without Git Miner |
-| D3 | `switch`: each `case` and `default` = 1 decision node | Classic McCabe; RT-005 mitigated by per-construct fixtures |
-| D4 | `ts-morph` encapsulated in `src/complexity/` only | INTEGRATIONS.md adapter boundary |
-| D5 | `ComplexityAnalyzerDependencies` for test injection | Mirrors M2 `GitMinerDependencies`; mock at adapter boundary |
-| D6 | `ComplexityAnalyzerResult { results, warnings }` | Parse failures testable without `console` mocks; mirrors M2 `GitMinerResult.warnings` |
-| D7 | Default batch size **50** files per `addSourceFiles` call | RT-001 heap mitigation; internal constant, not CLI flag |
+| #   | Decision                                                           | Rationale                                                                             |
+| --- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| D1  | File `cyclomaticComplexity` = **sum** of per-function complexities | User decision; reflects total decision-path load in the file                          |
+| D2  | Recursive walk of all eligible extensions under `repoPath`         | User decision; M3 testable in isolation without Git Miner                             |
+| D3  | `switch`: each `case` and `default` = 1 decision node              | Classic McCabe; RT-005 mitigated by per-construct fixtures                            |
+| D4  | `ts-morph` encapsulated in `src/complexity/` only                  | INTEGRATIONS.md adapter boundary                                                      |
+| D5  | `ComplexityAnalyzerDependencies` for test injection                | Mirrors M2 `GitMinerDependencies`; mock at adapter boundary                           |
+| D6  | `ComplexityAnalyzerResult { results, warnings }`                   | Parse failures testable without `console` mocks; mirrors M2 `GitMinerResult.warnings` |
+| D7  | Default batch size **50** files per `addSourceFiles` call          | RT-001 heap mitigation; internal constant, not CLI flag                               |
 
 ---
 
@@ -163,14 +163,14 @@ export function complexityForFunction(fn: FunctionLikeDeclaration): number;
 
 - **Decision nodes counted**:
 
-| Construct | Count rule |
-| --------- | ---------- |
-| `IfStatement` | +1 per `if` and `else if` branch |
-| `ForStatement`, `ForInStatement`, `ForOfStatement`, `WhileStatement`, `DoStatement` | +1 each |
-| `CaseClause`, `DefaultClause` | +1 each (inside parent `SwitchStatement`) |
-| `CatchClause` | +1 each |
-| `BinaryExpression` with `&&`, `\|\|`, `??` | +1 per operator (when in expression context) |
-| `ConditionalExpression` (ternary) | +1 each |
+| Construct                                                                           | Count rule                                   |
+| ----------------------------------------------------------------------------------- | -------------------------------------------- |
+| `IfStatement`                                                                       | +1 per `if` and `else if` branch             |
+| `ForStatement`, `ForInStatement`, `ForOfStatement`, `WhileStatement`, `DoStatement` | +1 each                                      |
+| `CaseClause`, `DefaultClause`                                                       | +1 each (inside parent `SwitchStatement`)    |
+| `CatchClause`                                                                       | +1 each                                      |
+| `BinaryExpression` with `&&`, `\|\|`, `??`                                          | +1 per operator (when in expression context) |
+| `ConditionalExpression` (ternary)                                                   | +1 each                                      |
 
 - **Not counted**: JSX elements, type annotations, `else` without `if` (the `else if` is a separate `IfStatement` child), loop `increment` expressions.
 - **Formula**: `complexityForFunction(fn) = countDecisionNodes(fn.getBody() ?? fn) + 1`
@@ -233,7 +233,9 @@ export interface ComplexityAnalyzerDependencies {
 }
 
 export interface ComplexityAnalyzer {
-  analyze(options: ComplexityAnalyzerOptions): Promise<ComplexityAnalyzerResult>;
+  analyze(
+    options: ComplexityAnalyzerOptions,
+  ): Promise<ComplexityAnalyzerResult>;
 }
 
 export function createComplexityAnalyzer(
@@ -298,27 +300,27 @@ export interface ComplexityAnalyzerResult {
 
 ## Risks and Mitigations
 
-| Risk | Source | Mitigation |
-| ---- | ------ | ---------- |
-| RT-005: McCabe bugs / non-standard definitions | CONCERNS.md | Fixture per construct; document decision nodes in `mccabe.ts` |
-| RT-001: Heap exhaustion on large repos | IMPL §7.2 | Batch loading (D7); fresh Project per batch |
-| RT-002: ts-morph exotic syntax failures | IMPL §8.4 | warn + skip via `getParseFailures()` |
-| ts-morph version API drift | INTEGRATIONS.md | Pin version in `package.json`; adapter isolates API |
-| Nested function double-counting | Spec edge case | Each function is its own scope; sum is intentional (D1) |
+| Risk                                           | Source          | Mitigation                                                    |
+| ---------------------------------------------- | --------------- | ------------------------------------------------------------- |
+| RT-005: McCabe bugs / non-standard definitions | CONCERNS.md     | Fixture per construct; document decision nodes in `mccabe.ts` |
+| RT-001: Heap exhaustion on large repos         | IMPL §7.2       | Batch loading (D7); fresh Project per batch                   |
+| RT-002: ts-morph exotic syntax failures        | IMPL §8.4       | warn + skip via `getParseFailures()`                          |
+| ts-morph version API drift                     | INTEGRATIONS.md | Pin version in `package.json`; adapter isolates API           |
+| Nested function double-counting                | Spec edge case  | Each function is its own scope; sum is intentional (D1)       |
 
 ---
 
 ## Test Strategy
 
-| Layer | Location | Focus |
-| ----- | -------- | ----- |
-| Unit — discover | `src/complexity/discover.test.ts` | Extension filter, recursive walk, relative paths |
-| Unit — project | `src/complexity/project.test.ts` | Batch boundaries, parse failure collection |
-| Unit — mccabe | `src/complexity/mccabe.test.ts` | Each decision node type in isolation |
-| Unit — analyze-file | `src/complexity/analyze-file.test.ts` | Sum aggregation, nested functions, empty file |
-| Integration | `src/complexity/index.test.ts` | Full pipeline on fixture directory |
-| Edge cases | `src/complexity/index.test.ts` | Invalid syntax, mixed valid/invalid (T7) |
-| Fixtures | `tests/fixtures/complexity/` | Manually verified McCabe values |
+| Layer               | Location                              | Focus                                            |
+| ------------------- | ------------------------------------- | ------------------------------------------------ |
+| Unit — discover     | `src/complexity/discover.test.ts`     | Extension filter, recursive walk, relative paths |
+| Unit — project      | `src/complexity/project.test.ts`      | Batch boundaries, parse failure collection       |
+| Unit — mccabe       | `src/complexity/mccabe.test.ts`       | Each decision node type in isolation             |
+| Unit — analyze-file | `src/complexity/analyze-file.test.ts` | Sum aggregation, nested functions, empty file    |
+| Integration         | `src/complexity/index.test.ts`        | Full pipeline on fixture directory               |
+| Edge cases          | `src/complexity/index.test.ts`        | Invalid syntax, mixed valid/invalid (T7)         |
+| Fixtures            | `tests/fixtures/complexity/`          | Manually verified McCabe values                  |
 
 **Mock boundary:** Mock `discoverSourceFiles` and `createTsMorphProject` only in `index.test.ts` integration tests when needed. `mccabe.ts` and `analyze-file.ts` tests use real ts-morph `Project` with fixture file content or inline source strings.
 
@@ -326,17 +328,17 @@ export interface ComplexityAnalyzerResult {
 
 ### Planned fixtures
 
-| File | Scenario | Expected (documented in header) |
-| ---- | -------- | ------------------------------- |
-| `if-else.ts` | if / else if / else | fn complexity = 3 |
-| `switch.ts` | switch with 3 cases + default | per-case counting |
-| `loops.ts` | for, while, do-while in one function | fn complexity = 4 |
-| `try-catch.ts` | try/catch/finally | catch = 1 node |
-| `logical-ops.ts` | `&&`, `\|\|`, `??` in conditions | 3 nodes + 1 base |
-| `ternary.ts` | nested ternary | documented per level |
-| `nested.ts` | outer + inner functions | sum of both scopes |
-| `empty.ts` | no functions | 0 / 0 |
-| `invalid-syntax.ts` | deliberate syntax error | skip + warning |
+| File                | Scenario                             | Expected (documented in header) |
+| ------------------- | ------------------------------------ | ------------------------------- |
+| `if-else.ts`        | if / else if / else                  | fn complexity = 3               |
+| `switch.ts`         | switch with 3 cases + default        | per-case counting               |
+| `loops.ts`          | for, while, do-while in one function | fn complexity = 4               |
+| `try-catch.ts`      | try/catch/finally                    | catch = 1 node                  |
+| `logical-ops.ts`    | `&&`, `\|\|`, `??` in conditions     | 3 nodes + 1 base                |
+| `ternary.ts`        | nested ternary                       | documented per level            |
+| `nested.ts`         | outer + inner functions              | sum of both scopes              |
+| `empty.ts`          | no functions                         | 0 / 0                           |
+| `invalid-syntax.ts` | deliberate syntax error              | skip + warning                  |
 
 Each fixture header comment format:
 

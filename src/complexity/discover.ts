@@ -57,7 +57,9 @@ export async function discoverSourceFiles(
   try {
     repoStat = await stat(repoPath);
   } catch {
-    throw new Error(`repoPath does not exist or is not accessible: ${repoPath}`);
+    throw new Error(
+      `repoPath does not exist or is not accessible: ${repoPath}`,
+    );
   }
 
   if (!repoStat.isDirectory()) {

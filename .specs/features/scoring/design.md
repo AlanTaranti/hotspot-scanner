@@ -50,37 +50,37 @@ flowchart TB
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| Domain types | `src/types/domain.ts` | `HotspotScore`, `CouplingPair`, `FileChangeStats`, `ComplexityResult`, `CoChangeEvent` — no changes expected |
-| Scorer contracts | `src/scoring/index.ts` | Keep `HotspotScorer` and `TemporalCouplingScorer` interfaces; replace throwing factories |
-| Stub test pattern | `src/scoring/index.test.ts` | Replace "throws not implemented" with factory integration tests |
-| GitMiner deps pattern | `src/git/index.ts` | Mirror `ScoringDependencies` injection at factory boundary |
-| ComplexityAnalyzer deps pattern | `src/complexity/index.ts` | Same injection pattern for testability |
+| Component                       | Location                    | How to Use                                                                                                   |
+| ------------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Domain types                    | `src/types/domain.ts`       | `HotspotScore`, `CouplingPair`, `FileChangeStats`, `ComplexityResult`, `CoChangeEvent` — no changes expected |
+| Scorer contracts                | `src/scoring/index.ts`      | Keep `HotspotScorer` and `TemporalCouplingScorer` interfaces; replace throwing factories                     |
+| Stub test pattern               | `src/scoring/index.test.ts` | Replace "throws not implemented" with factory integration tests                                              |
+| GitMiner deps pattern           | `src/git/index.ts`          | Mirror `ScoringDependencies` injection at factory boundary                                                   |
+| ComplexityAnalyzer deps pattern | `src/complexity/index.ts`   | Same injection pattern for testability                                                                       |
 
 ### Integration Points
 
-| System | M4 behavior | Future milestone |
-| ------ | ----------- | ---------------- |
-| `src/git/` | Consumes `FileChangeStats` map + `CoChangeEvent[]` | — |
-| `src/complexity/` | Consumes `ComplexityResult[]` | — |
-| `src/scan.ts` | Not wired | M6 Integration |
-| `bin/hotspot-scanner.ts` | No flags added | M5 Reporter + CLI |
-| `src/report/` | Consumes types only | M5 |
+| System                   | M4 behavior                                        | Future milestone  |
+| ------------------------ | -------------------------------------------------- | ----------------- |
+| `src/git/`               | Consumes `FileChangeStats` map + `CoChangeEvent[]` | —                 |
+| `src/complexity/`        | Consumes `ComplexityResult[]`                      | —                 |
+| `src/scan.ts`            | Not wired                                          | M6 Integration    |
+| `bin/hotspot-scanner.ts` | No flags added                                     | M5 Reporter + CLI |
+| `src/report/`            | Consumes types only                                | M5                |
 
 ---
 
 ## Design Decisions
 
-| # | Decision | Rationale |
-| - | -------- | --------- |
-| D1 | Log1p + min-max normalization | User decision in [context.md](./context.md); dampens heavy-tailed distributions |
-| D2 | `DEFAULT_MIN_COCHANGE = 3` | User decision in [context.md](./context.md); filters noise pairs |
-| D3 | Score all `ComplexityResult` files; churn defaults to 0 | Working-tree complexity is authoritative; git may not touch all files |
-| D4 | Degenerate min-max → all normalized values 0 | CONCERNS: single-file / all-equal edge case |
-| D5 | `ScoringDependencies` injection pattern | Mirrors M2/M3; mock at factory boundary in tests |
-| D6 | No `src/scan.ts` changes | M3 precedent — scorer testable in isolation |
-| D7 | Tie-break by `filePath` / `fileA` asc | Deterministic test assertions |
+| #   | Decision                                                | Rationale                                                                       |
+| --- | ------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| D1  | Log1p + min-max normalization                           | User decision in [context.md](./context.md); dampens heavy-tailed distributions |
+| D2  | `DEFAULT_MIN_COCHANGE = 3`                              | User decision in [context.md](./context.md); filters noise pairs                |
+| D3  | Score all `ComplexityResult` files; churn defaults to 0 | Working-tree complexity is authoritative; git may not touch all files           |
+| D4  | Degenerate min-max → all normalized values 0            | CONCERNS: single-file / all-equal edge case                                     |
+| D5  | `ScoringDependencies` injection pattern                 | Mirrors M2/M3; mock at factory boundary in tests                                |
+| D6  | No `src/scan.ts` changes                                | M3 precedent — scorer testable in isolation                                     |
+| D7  | Tie-break by `filePath` / `fileA` asc                   | Deterministic test assertions                                                   |
 
 ---
 
@@ -277,26 +277,26 @@ export interface CouplingPair {
 
 ## Risks and Mitigations
 
-| Risk | Source | Mitigation |
-| ---- | ------ | ---------- |
-| Normalization changes reorder rankings | CONCERNS.md | Lock log1p+minmax in design; fixture tests assert exact order |
-| Zero-commit denominator in coupling | CONCERNS.md | Exclude pair; test explicitly |
-| minCochange boundary off-by-one | CONCERNS.md | Tests at N-1, N, N+1 with DEFAULT=3 |
-| Path mismatch git vs complexity | D3 join rule | Test missing churn → 0 |
-| Floating-point tie instability | Determinism | Tie-break on string `filePath` / `fileA` |
+| Risk                                   | Source       | Mitigation                                                    |
+| -------------------------------------- | ------------ | ------------------------------------------------------------- |
+| Normalization changes reorder rankings | CONCERNS.md  | Lock log1p+minmax in design; fixture tests assert exact order |
+| Zero-commit denominator in coupling    | CONCERNS.md  | Exclude pair; test explicitly                                 |
+| minCochange boundary off-by-one        | CONCERNS.md  | Tests at N-1, N, N+1 with DEFAULT=3                           |
+| Path mismatch git vs complexity        | D3 join rule | Test missing churn → 0                                        |
+| Floating-point tie instability         | Determinism  | Tie-break on string `filePath` / `fileA`                      |
 
 ---
 
 ## Test Strategy
 
-| Layer | Location | Focus |
-| ----- | -------- | ----- |
-| Unit — normalize | `src/scoring/normalize.test.ts` | log1p, min-max, degenerate, empty, zeros |
-| Unit — hotspot | `src/scoring/hotspot-scorer.test.ts` | join, formula, sort, missing churn |
-| Unit — coupling | `src/scoring/coupling-scorer.test.ts` | pair count, dedupe, threshold, strength, zero denom |
-| Integration | `src/scoring/index.test.ts` | Factory wiring, DEFAULT_MIN_COCHANGE export |
-| Edge cases | T6, T7 task tests | Fixture-driven ranking order |
-| Fixtures | `tests/fixtures/scoring/` | Documented expected orderings |
+| Layer            | Location                              | Focus                                               |
+| ---------------- | ------------------------------------- | --------------------------------------------------- |
+| Unit — normalize | `src/scoring/normalize.test.ts`       | log1p, min-max, degenerate, empty, zeros            |
+| Unit — hotspot   | `src/scoring/hotspot-scorer.test.ts`  | join, formula, sort, missing churn                  |
+| Unit — coupling  | `src/scoring/coupling-scorer.test.ts` | pair count, dedupe, threshold, strength, zero denom |
+| Integration      | `src/scoring/index.test.ts`           | Factory wiring, DEFAULT_MIN_COCHANGE export         |
+| Edge cases       | T6, T7 task tests                     | Fixture-driven ranking order                        |
+| Fixtures         | `tests/fixtures/scoring/`             | Documented expected orderings                       |
 
 **Mock boundary:** Inject `scoreHotspots` / `scoreCoupling` via `ScoringDependencies` only in `index.test.ts` when needed. Pure function tests use direct imports with inline builders.
 
@@ -304,10 +304,10 @@ export interface CouplingPair {
 
 ### Planned fixtures
 
-| File | Scenario | Expected (documented in header) |
-| ---- | -------- | ------------------------------- |
+| File                   | Scenario                             | Expected (documented in header)    |
+| ---------------------- | ------------------------------------ | ---------------------------------- |
 | `hotspot-ranking.json` | 4 files with varied complexity/churn | Ordered file paths by hotspotScore |
-| `coupling-pairs.json` | Events + stats with threshold pairs | Ordered pairs by couplingStrength |
+| `coupling-pairs.json`  | Events + stats with threshold pairs  | Ordered pairs by couplingStrength  |
 
 Fixture header comment format:
 

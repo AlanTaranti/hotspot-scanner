@@ -54,12 +54,8 @@ describe("renderCsv", () => {
     expect(lines[0]).toBe(
       "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,lines",
     );
-    expect(lines[1]).toBe(
-      "1,src/hot.ts,0.8500,42,0.9000,15,0.9444,8,3,320",
-    );
-    expect(lines[3]).toBe(
-      "3,src/cold.ts,0.0200,3,0.1000,2,0.2000,1,1,15",
-    );
+    expect(lines[1]).toBe("1,src/hot.ts,0.8500,42,0.9000,15,0.9444,8,3,320");
+    expect(lines[3]).toBe("3,src/cold.ts,0.0200,3,0.1000,2,0.2000,1,1,15");
   });
 
   it("coupling.csv has correct header and data", () => {
@@ -68,8 +64,12 @@ describe("renderCsv", () => {
     expect(bundle["coupling.csv"]).toContain(
       "rank,fileA,fileB,strength,coChanges,hasStaticDependency",
     );
-    expect(bundle["coupling.csv"]).toContain("1,src/a.ts,src/b.ts,0.7500,5,true");
-    expect(bundle["coupling.csv"]).toContain("2,src/c.ts,src/d.ts,0.5000,3,false");
+    expect(bundle["coupling.csv"]).toContain(
+      "1,src/a.ts,src/b.ts,0.7500,5,true",
+    );
+    expect(bundle["coupling.csv"]).toContain(
+      "2,src/c.ts,src/d.ts,0.5000,3,false",
+    );
   });
 
   it("returns functions.csv instead of hotspots.csv in function mode", () => {

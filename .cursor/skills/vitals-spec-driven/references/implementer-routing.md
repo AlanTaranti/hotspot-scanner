@@ -4,15 +4,15 @@ Canonical module ownership for `tasks.md` path assignment and implementer delega
 
 ## Module map → task ownership
 
-| Path prefix | Domain |
-| ----------- | ------ |
-| `src/git/` | Git Change Miner (streaming parse, rename handling) |
-| `src/complexity/` | McCabe complexity via ts-morph |
-| `src/scoring/` | HotspotScorer, TemporalCouplingScorer |
-| `src/report/` | CLI table + JSON reporter |
-| `src/scan.ts` | Pipeline orchestration |
-| `src/types/` | Domain type definitions |
-| `bin/` | CLI flags and entry (no domain logic) |
+| Path prefix       | Domain                                                  |
+| ----------------- | ------------------------------------------------------- |
+| `src/git/`        | Git Change Miner (streaming parse, rename handling)     |
+| `src/complexity/` | McCabe complexity via ts-morph                          |
+| `src/scoring/`    | HotspotScorer, TemporalCouplingScorer                   |
+| `src/report/`     | CLI table + JSON reporter                               |
+| `src/scan.ts`     | Pipeline orchestration                                  |
+| `src/types/`      | Domain type definitions                                 |
+| `bin/`            | CLI flags and entry (no domain logic)                   |
 | `tests/fixtures/` | Fixture repos and samples (`fixture-builder` preferred) |
 
 ## Parallelism rules
@@ -27,11 +27,11 @@ Canonical module ownership for `tasks.md` path assignment and implementer delega
 
 ## Blocked conditions
 
-| Condition | Action |
-| --------- | ------ |
-| Task depends on incomplete upstream module | Blocked — complete dependency task first |
+| Condition                                               | Action                                          |
+| ------------------------------------------------------- | ----------------------------------------------- |
+| Task depends on incomplete upstream module              | Blocked — complete dependency task first        |
 | Fragile area (git parse, McCabe, scoring) without tests | Block Complete until tests exist per TESTING.md |
-| Missing fixture for integration task | Delegate `fixture-builder` or Blocked |
+| Missing fixture for integration task                    | Delegate `fixture-builder` or Blocked           |
 
 ## CLI validation routing
 

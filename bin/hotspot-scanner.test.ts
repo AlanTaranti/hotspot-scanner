@@ -117,7 +117,9 @@ describe("collectGlob", () => {
 
 describe("validateScopePatterns", () => {
   it("rejects empty patterns", () => {
-    expect(() => validateScopePatterns([""], "--include")).toThrow(CliUsageError);
+    expect(() => validateScopePatterns([""], "--include")).toThrow(
+      CliUsageError,
+    );
   });
 });
 
@@ -178,7 +180,9 @@ describe("validateBaselinePath", () => {
   it("rejects directory path", async () => {
     const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
     try {
-      await expect(validateBaselinePath(tempDir)).rejects.toThrow(CliUsageError);
+      await expect(validateBaselinePath(tempDir)).rejects.toThrow(
+        CliUsageError,
+      );
       await expect(validateBaselinePath(tempDir)).rejects.toThrow(
         /--baseline path is a directory/,
       );
@@ -245,14 +249,7 @@ describe("runCli", () => {
     });
     const { chunks } = captureStdout();
 
-    await runCli([
-      "node",
-      "hotspot-scanner",
-      "scan",
-      ".",
-      "--format",
-      "table",
-    ]);
+    await runCli(["node", "hotspot-scanner", "scan", ".", "--format", "table"]);
 
     const output = chunks.join("");
     expect(output).toContain("Scan window:");
@@ -274,14 +271,7 @@ describe("runCli", () => {
     });
     const { chunks } = captureStdout();
 
-    await runCli([
-      "node",
-      "hotspot-scanner",
-      "scan",
-      ".",
-      "--format",
-      "json",
-    ]);
+    await runCli(["node", "hotspot-scanner", "scan", ".", "--format", "json"]);
 
     const parsed = JSON.parse(chunks.join("")) as { version: string };
     expect(parsed.version).toBe("1.0");
@@ -307,14 +297,7 @@ describe("runCli", () => {
     });
     captureStdout();
 
-    await runCli([
-      "node",
-      "hotspot-scanner",
-      "scan",
-      ".",
-      "--format",
-      "table",
-    ]);
+    await runCli(["node", "hotspot-scanner", "scan", ".", "--format", "table"]);
 
     expect(progressSpy).toHaveBeenCalledWith(1000);
   });
@@ -336,14 +319,7 @@ describe("runCli", () => {
     });
     const { chunks } = captureStdout();
 
-    await runCli([
-      "node",
-      "hotspot-scanner",
-      "scan",
-      ".",
-      "--format",
-      "table",
-    ]);
+    await runCli(["node", "hotspot-scanner", "scan", ".", "--format", "table"]);
 
     expect(chunks.join("")).toBe("table-without-newline\n");
   });
@@ -396,7 +372,10 @@ describe("runCli", () => {
 
       expect(chunks.join("")).toBe("");
       const fs = await import("node:fs/promises");
-      const metaContent = await fs.readFile(join(tempDir, "report.meta.json"), "utf8");
+      const metaContent = await fs.readFile(
+        join(tempDir, "report.meta.json"),
+        "utf8",
+      );
       const hotspotsContent = await fs.readFile(
         join(tempDir, "report.hotspots.csv"),
         "utf8",
@@ -519,7 +498,9 @@ describe("runCli", () => {
   it("keeps warnings on stderr when --output is set", async () => {
     const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
     const outputPath = join(tempDir, "report.json");
-    const warningSpy = vi.spyOn(diagnostics, "logWarning").mockImplementation(() => {});
+    const warningSpy = vi
+      .spyOn(diagnostics, "logWarning")
+      .mockImplementation(() => {});
     vi.spyOn(scan, "runScan").mockImplementation(async (options) => {
       options.onWarning?.("test warning");
       return {
@@ -563,14 +544,7 @@ describe("runCli", () => {
 
   it("throws CliUsageError for invalid --format", async () => {
     await expect(
-      runCli([
-        "node",
-        "hotspot-scanner",
-        "scan",
-        ".",
-        "--format",
-        "xml",
-      ]),
+      runCli(["node", "hotspot-scanner", "scan", ".", "--format", "xml"]),
     ).rejects.toThrow(CliUsageError);
   });
 
@@ -582,14 +556,7 @@ describe("runCli", () => {
 
   it("throws CliUsageError for non-positive --min-cochange", async () => {
     await expect(
-      runCli([
-        "node",
-        "hotspot-scanner",
-        "scan",
-        ".",
-        "--min-cochange",
-        "-1",
-      ]),
+      runCli(["node", "hotspot-scanner", "scan", ".", "--min-cochange", "-1"]),
     ).rejects.toThrow(CliUsageError);
   });
 
@@ -785,14 +752,7 @@ describe("runCli", () => {
 
   it("throws CliUsageError for empty --include", async () => {
     await expect(
-      runCli([
-        "node",
-        "hotspot-scanner",
-        "scan",
-        ".",
-        "--include",
-        "",
-      ]),
+      runCli(["node", "hotspot-scanner", "scan", ".", "--include", ""]),
     ).rejects.toThrow(CliUsageError);
   });
 
@@ -824,7 +784,10 @@ describe("runCli", () => {
     };
     await writeFile(baselinePath, JSON.stringify(scanResult), "utf8");
     vi.spyOn(scan, "runScan").mockResolvedValue(scanResult);
-    const renderCompare = vi.fn(() => '{"version":"1.0","hotspots":{"new":[],"removed":[],"rankChanged":[]}}\n');
+    const renderCompare = vi.fn(
+      () =>
+        '{"version":"1.0","hotspots":{"new":[],"removed":[],"rankChanged":[]}}\n',
+    );
     vi.spyOn(report, "createReporter").mockReturnValue({
       render: vi.fn(),
       renderCompare,
@@ -869,14 +832,7 @@ describe("runCli", () => {
     });
     const { chunks } = captureStdout();
 
-    await runCli([
-      "node",
-      "hotspot-scanner",
-      "scan",
-      ".",
-      "--format",
-      "table",
-    ]);
+    await runCli(["node", "hotspot-scanner", "scan", ".", "--format", "table"]);
 
     expect(render).toHaveBeenCalled();
     expect(chunks.join("")).toContain("normal-scan-output");

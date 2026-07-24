@@ -32,7 +32,9 @@ function requireKey(
   path: string,
 ): unknown {
   if (!(key in record)) {
-    throw new BaselineError(`Baseline ${path} is missing required field: ${key}`);
+    throw new BaselineError(
+      `Baseline ${path} is missing required field: ${key}`,
+    );
   }
   return record[key];
 }
@@ -77,7 +79,10 @@ function assertHotspot(item: unknown, index: number): HotspotScore {
   const record = assertRecord(item, path);
 
   return {
-    filePath: assertString(requireKey(record, "filePath", path), `${path}.filePath`),
+    filePath: assertString(
+      requireKey(record, "filePath", path),
+      `${path}.filePath`,
+    ),
     complexityNormalized: assertNumber(
       requireKey(record, "complexityNormalized", path),
       `${path}.complexityNormalized`,
@@ -113,18 +118,27 @@ function assertHotspot(item: unknown, index: number): HotspotScore {
   };
 }
 
-function assertFunctionHotspot(item: unknown, index: number): FunctionHotspotScore {
+function assertFunctionHotspot(
+  item: unknown,
+  index: number,
+): FunctionHotspotScore {
   const path = `functions[${index}]`;
   const record = assertRecord(item, path);
 
   return {
-    filePath: assertString(requireKey(record, "filePath", path), `${path}.filePath`),
+    filePath: assertString(
+      requireKey(record, "filePath", path),
+      `${path}.filePath`,
+    ),
     functionName: assertString(
       requireKey(record, "functionName", path),
       `${path}.functionName`,
     ),
     line: assertInteger(requireKey(record, "line", path), `${path}.line`),
-    complexity: assertNumber(requireKey(record, "complexity", path), `${path}.complexity`),
+    complexity: assertNumber(
+      requireKey(record, "complexity", path),
+      `${path}.complexity`,
+    ),
     complexityNormalized: assertNumber(
       requireKey(record, "complexityNormalized", path),
       `${path}.complexityNormalized`,
@@ -173,27 +187,36 @@ function assertCouplingPair(item: unknown, index: number): CouplingPair {
       requireKey(record, "couplingStrength", path),
       `${path}.couplingStrength`,
     ),
-    hasStaticDependency: assertBoolean(record.hasStaticDependency, `${path}.hasStaticDependency`),
+    hasStaticDependency: assertBoolean(
+      record.hasStaticDependency,
+      `${path}.hasStaticDependency`,
+    ),
   };
 }
 
 function assertHotspots(value: unknown): HotspotScore[] {
   if (!Array.isArray(value)) {
-    throw new BaselineError("Baseline JSON is missing required field: hotspots");
+    throw new BaselineError(
+      "Baseline JSON is missing required field: hotspots",
+    );
   }
   return value.map((item, index) => assertHotspot(item, index));
 }
 
 function assertFunctions(value: unknown): FunctionHotspotScore[] {
   if (!Array.isArray(value)) {
-    throw new BaselineError("Baseline JSON is missing required field: functions");
+    throw new BaselineError(
+      "Baseline JSON is missing required field: functions",
+    );
   }
   return value.map((item, index) => assertFunctionHotspot(item, index));
 }
 
 function assertCoupling(value: unknown): CouplingPair[] {
   if (!Array.isArray(value)) {
-    throw new BaselineError("Baseline JSON is missing required field: coupling");
+    throw new BaselineError(
+      "Baseline JSON is missing required field: coupling",
+    );
   }
   return value.map((item, index) => assertCouplingPair(item, index));
 }

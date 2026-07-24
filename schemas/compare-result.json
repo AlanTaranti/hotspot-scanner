@@ -5,7 +5,14 @@
   "description": "Compare output from hotspot-scanner (baseline vs current scan).",
   "type": "object",
   "additionalProperties": true,
-  "required": ["version", "granularity", "hotspots", "functions", "coupling", "meta"],
+  "required": [
+    "version",
+    "granularity",
+    "hotspots",
+    "functions",
+    "coupling",
+    "meta"
+  ],
   "properties": {
     "version": {
       "type": "string",

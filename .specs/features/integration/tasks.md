@@ -300,43 +300,43 @@ Phase 4:
 
 ## Task Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1: small-ts fixture | fixture tree only | ✅ Granular |
-| T2: benchmark doc | scripts/ doc only | ✅ Granular |
-| T3: runScan pipeline | `src/scan.ts` only | ✅ Granular |
-| T4: scan integration tests | `src/scan*.test.ts` | ✅ Granular |
-| T5: CLI integration test | `bin/*.integration.test.ts` | ✅ Granular |
-| T6: P2 fixtures | `tests/fixtures/repos/` | ✅ Granular |
-| T7: gate + docs | verification + docs | ✅ Granular |
+| Task                       | Scope                       | Status      |
+| -------------------------- | --------------------------- | ----------- |
+| T1: small-ts fixture       | fixture tree only           | ✅ Granular |
+| T2: benchmark doc          | scripts/ doc only           | ✅ Granular |
+| T3: runScan pipeline       | `src/scan.ts` only          | ✅ Granular |
+| T4: scan integration tests | `src/scan*.test.ts`         | ✅ Granular |
+| T5: CLI integration test   | `bin/*.integration.test.ts` | ✅ Granular |
+| T6: P2 fixtures            | `tests/fixtures/repos/`     | ✅ Granular |
+| T7: gate + docs            | verification + docs         | ✅ Granular |
 
 ---
 
 ## Diagram-Definition Cross-Check
 
-| Task | Depends On (task body) | Diagram Shows | Status |
-| ---- | ---------------------- | ------------- | ------ |
-| T1 | None | Entry node | ✅ Match |
-| T2 | None | Entry node | ✅ Match |
-| T3 | T1 | T1 → T3 | ✅ Match |
-| T4 | T1, T3 | T3 → T4 | ✅ Match |
-| T5 | T1, T3 | T3 → T5 | ✅ Match |
-| T6 | T1 | T1 → T6 | ✅ Match |
-| T7 | T4, T5 | T4+T5 → T7 | ✅ Match |
+| Task | Depends On (task body) | Diagram Shows | Status   |
+| ---- | ---------------------- | ------------- | -------- |
+| T1   | None                   | Entry node    | ✅ Match |
+| T2   | None                   | Entry node    | ✅ Match |
+| T3   | T1                     | T1 → T3       | ✅ Match |
+| T4   | T1, T3                 | T3 → T4       | ✅ Match |
+| T5   | T1, T3                 | T3 → T5       | ✅ Match |
+| T6   | T1                     | T1 → T6       | ✅ Match |
+| T7   | T4, T5                 | T4+T5 → T7    | ✅ Match |
 
 ---
 
 ## Test Co-location Validation
 
-| Task | Code Layer Created/Modified | Matrix Requires | Task Says | Status |
-| ---- | --------------------------- | --------------- | --------- | ------ |
-| T1: fixture | `tests/fixtures/repos/` | none | none | ✅ OK |
-| T2: benchmark | `scripts/` | none | none | ✅ OK |
-| T3: runScan | `src/scan.ts` | integration | unit (T4) | ✅ OK |
-| T4: integration | `src/scan.integration.test.ts` | integration | integration | ✅ OK |
-| T5: CLI integration | `bin/` | CLI tests | CLI integration | ✅ OK |
-| T6: P2 fixtures | `tests/fixtures/repos/` | optional integration | optional | ✅ OK |
-| T7: gate | docs only | project gate | full gate | ✅ OK |
+| Task                | Code Layer Created/Modified    | Matrix Requires      | Task Says       | Status |
+| ------------------- | ------------------------------ | -------------------- | --------------- | ------ |
+| T1: fixture         | `tests/fixtures/repos/`        | none                 | none            | ✅ OK  |
+| T2: benchmark       | `scripts/`                     | none                 | none            | ✅ OK  |
+| T3: runScan         | `src/scan.ts`                  | integration          | unit (T4)       | ✅ OK  |
+| T4: integration     | `src/scan.integration.test.ts` | integration          | integration     | ✅ OK  |
+| T5: CLI integration | `bin/`                         | CLI tests            | CLI integration | ✅ OK  |
+| T6: P2 fixtures     | `tests/fixtures/repos/`        | optional integration | optional        | ✅ OK  |
+| T7: gate            | docs only                      | project gate         | full gate       | ✅ OK  |
 
 ---
 
@@ -344,16 +344,16 @@ Phase 4:
 
 | Requirement | Task(s) |
 | ----------- | ------- |
-| HOTSPOT-51 | T3 |
-| HOTSPOT-52 | T3 |
-| HOTSPOT-53 | T3, T4 |
-| HOTSPOT-54 | T1 |
-| HOTSPOT-55 | T4 |
-| HOTSPOT-56 | T5 |
-| HOTSPOT-57 | T6 |
-| HOTSPOT-58 | T6 |
-| HOTSPOT-59 | T2 |
-| HOTSPOT-60 | T7 |
+| HOTSPOT-51  | T3      |
+| HOTSPOT-52  | T3      |
+| HOTSPOT-53  | T3, T4  |
+| HOTSPOT-54  | T1      |
+| HOTSPOT-55  | T4      |
+| HOTSPOT-56  | T5      |
+| HOTSPOT-57  | T6      |
+| HOTSPOT-58  | T6      |
+| HOTSPOT-59  | T2      |
+| HOTSPOT-60  | T7      |
 
 **Coverage:** 10 requirements, 10 mapped, 0 unmapped
 
@@ -361,27 +361,27 @@ Phase 4:
 
 ## Module Owner Routing
 
-| Task | Primary owner module |
-| ---- | -------------------- |
-| T1 | `tests/fixtures/repos/small-ts/` |
-| T2 | `scripts/benchmark-scan.md` |
-| T3 | `src/scan.ts` |
-| T4 | `src/scan.integration.test.ts`, `src/scan.test.ts` |
-| T5 | `bin/hotspot-scanner.integration.test.ts` |
-| T6 | `tests/fixtures/repos/with-renames/`, `merge-heavy/` |
-| T7 | `.specs/project/ROADMAP.md`, `.specs/codebase/ARCHITECTURE.md` |
+| Task | Primary owner module                                           |
+| ---- | -------------------------------------------------------------- |
+| T1   | `tests/fixtures/repos/small-ts/`                               |
+| T2   | `scripts/benchmark-scan.md`                                    |
+| T3   | `src/scan.ts`                                                  |
+| T4   | `src/scan.integration.test.ts`, `src/scan.test.ts`             |
+| T5   | `bin/hotspot-scanner.integration.test.ts`                      |
+| T6   | `tests/fixtures/repos/with-renames/`, `merge-heavy/`           |
+| T7   | `.specs/project/ROADMAP.md`, `.specs/codebase/ARCHITECTURE.md` |
 
 **Path conflict check:** Each production file owned by exactly one task. ✅ No conflicts.
 
-| File | Owner task |
-| ---- | ---------- |
-| `src/scan.ts` | T3 |
-| `src/scan.test.ts` | T4 |
-| `src/scan.integration.test.ts` | T4 |
-| `bin/hotspot-scanner.integration.test.ts` | T5 |
-| `tests/fixtures/repos/small-ts/` | T1 |
-| `tests/fixtures/repos/with-renames/` | T6 |
-| `tests/fixtures/repos/merge-heavy/` | T6 |
+| File                                      | Owner task |
+| ----------------------------------------- | ---------- |
+| `src/scan.ts`                             | T3         |
+| `src/scan.test.ts`                        | T4         |
+| `src/scan.integration.test.ts`            | T4         |
+| `bin/hotspot-scanner.integration.test.ts` | T5         |
+| `tests/fixtures/repos/small-ts/`          | T1         |
+| `tests/fixtures/repos/with-renames/`      | T6         |
+| `tests/fixtures/repos/merge-heavy/`       | T6         |
 
 ---
 

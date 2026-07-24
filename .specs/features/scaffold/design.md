@@ -37,23 +37,23 @@ flowchart TB
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| Build scripts | `package.json` | Keep `build` and `test`; validate in T8 |
-| Vitest config | `vitest.config.ts` | Keep include/exclude; no threshold changes in M1 |
-| Dual TypeScript projects | `tsconfig.json`, `tsconfig.bin.json` | Unchanged; bin imports `../src/scan.js` |
-| Package entry stub | `src/index.ts` | Extend to re-export `runScan` and public types |
-| Package name test | `src/index.test.ts` | Extend to verify re-exports |
-| CLI stub | `bin/hotspot-scanner.ts` | Replace `exit(2)` with minimal `scan <path>` delegation |
+| Component                | Location                             | How to Use                                              |
+| ------------------------ | ------------------------------------ | ------------------------------------------------------- |
+| Build scripts            | `package.json`                       | Keep `build` and `test`; validate in T8                 |
+| Vitest config            | `vitest.config.ts`                   | Keep include/exclude; no threshold changes in M1        |
+| Dual TypeScript projects | `tsconfig.json`, `tsconfig.bin.json` | Unchanged; bin imports `../src/scan.js`                 |
+| Package entry stub       | `src/index.ts`                       | Extend to re-export `runScan` and public types          |
+| Package name test        | `src/index.test.ts`                  | Extend to verify re-exports                             |
+| CLI stub                 | `bin/hotspot-scanner.ts`             | Replace `exit(2)` with minimal `scan <path>` delegation |
 
 ### Integration Points
 
-| System | M1 behavior | Future milestone |
-| ------ | ----------- | ---------------- |
-| Git (`child_process` / simple-git) | Not invoked; `GitMiner` interface only | M2 |
-| ts-morph | Not added as dependency; `ComplexityAnalyzer` interface only | M3 |
-| commander | Not added; argv parsing in bin | M5 |
-| Filesystem (repo under scan) | Not read in M1 | M2/M3 |
+| System                             | M1 behavior                                                  | Future milestone |
+| ---------------------------------- | ------------------------------------------------------------ | ---------------- |
+| Git (`child_process` / simple-git) | Not invoked; `GitMiner` interface only                       | M2               |
+| ts-morph                           | Not added as dependency; `ComplexityAnalyzer` interface only | M3               |
+| commander                          | Not added; argv parsing in bin                               | M5               |
+| Filesystem (repo under scan)       | Not read in M1                                               | M2/M3            |
 
 Per [INTEGRATIONS.md](../../codebase/INTEGRATIONS.md): adapter boundaries are declared in stubs but not wired in `runScan()` until respective milestones.
 
@@ -303,10 +303,10 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
 - **Location**: `bin/hotspot-scanner.ts`
 - **M1 behavior**:
 
-| Invocation | Action | Exit code |
-| ---------- | ------ | --------- |
-| `hotspot-scanner scan <path>` | `await runScan({ repoPath })` | `0` |
-| Any other argv | Print usage to stderr | `2` |
+| Invocation                    | Action                        | Exit code |
+| ----------------------------- | ----------------------------- | --------- |
+| `hotspot-scanner scan <path>` | `await runScan({ repoPath })` | `0`       |
+| Any other argv                | Print usage to stderr         | `2`       |
 
 - **Usage message**: `Usage: hotspot-scanner scan <path>`
 - **No flags** in M1 (`--since`, `--format`, etc. added in M5)
@@ -340,22 +340,22 @@ tests/fixtures/
 
 ## Risks and Mitigations
 
-| Risk | Source | M1 mitigation |
-| ---- | ------ | ------------- |
-| Dual `tsc` project misconfiguration | CONCERNS / bin-build rule | Do not add `bin/` to root `tsconfig.json` include |
-| Git/McCabe parsing bugs | CONCERNS.md | Stubs throw on invoke; `runScan` does not call them |
-| Premature commander/ts-morph deps | YAGNI | No new runtime dependencies in M1 |
-| Stub factories silently succeed | Testability | Factory stubs throw explicit `Error` with milestone hint |
+| Risk                                | Source                    | M1 mitigation                                            |
+| ----------------------------------- | ------------------------- | -------------------------------------------------------- |
+| Dual `tsc` project misconfiguration | CONCERNS / bin-build rule | Do not add `bin/` to root `tsconfig.json` include        |
+| Git/McCabe parsing bugs             | CONCERNS.md               | Stubs throw on invoke; `runScan` does not call them      |
+| Premature commander/ts-morph deps   | YAGNI                     | No new runtime dependencies in M1                        |
+| Stub factories silently succeed     | Testability               | Factory stubs throw explicit `Error` with milestone hint |
 
 ---
 
 ## Deviations from IMPL
 
-| IMPL section | Deviation | Rationale |
-| ------------ | --------- | --------- |
-| §6.1 CLI flags | No flags in M1 | Commander and full flag set deferred to M5 |
+| IMPL section                        | Deviation                | Rationale                                          |
+| ----------------------------------- | ------------------------ | -------------------------------------------------- |
+| §6.1 CLI flags                      | No flags in M1           | Commander and full flag set deferred to M5         |
 | §6.2 exit code 0 on successful scan | Bin exits 0 on stub scan | Aligns with future behavior; invalid usage exits 2 |
-| §9 Jest | Vitest used | Documented in STATE.md; no change in M1 |
+| §9 Jest                             | Vitest used              | Documented in STATE.md; no change in M1            |
 
 ---
 

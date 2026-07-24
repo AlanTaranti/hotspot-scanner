@@ -27,32 +27,32 @@ flowchart LR
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `scoreCoupling` | `src/scoring/coupling-scorer.ts` | Unchanged; call enrich **after** |
-| `canonicalPair` / path form | coupling-scorer | Match enrichment paths to same canonical strings |
-| `runScan` | `src/scan.ts` | Wire enrich between score and `ScanResult` assembly |
-| Reporters | `src/report/*` | Add column/field; reuse formatting helpers |
-| Fixture repos | `tests/fixtures/repos/small-ts/` | Integration; add small import-linked pair if needed |
-| Report fixtures | `tests/fixtures/report/*.json` | Add boolean to sample coupling objects |
+| Component                   | Location                         | How to Use                                          |
+| --------------------------- | -------------------------------- | --------------------------------------------------- |
+| `scoreCoupling`             | `src/scoring/coupling-scorer.ts` | Unchanged; call enrich **after**                    |
+| `canonicalPair` / path form | coupling-scorer                  | Match enrichment paths to same canonical strings    |
+| `runScan`                   | `src/scan.ts`                    | Wire enrich between score and `ScanResult` assembly |
+| Reporters                   | `src/report/*`                   | Add column/field; reuse formatting helpers          |
+| Fixture repos               | `tests/fixtures/repos/small-ts/` | Integration; add small import-linked pair if needed |
+| Report fixtures             | `tests/fixtures/report/*.json`   | Add boolean to sample coupling objects              |
 
 ### Integration Points
 
-| Consumer | Impact |
-| -------- | ------ |
-| `src/types/domain.ts` | Add `hasStaticDependency: boolean` |
-| `src/scoring/` | New enrich module + unit tests |
-| `src/scan.ts` | Call enricher with `repoPath` |
-| `src/report/` | table, markdown, csv, compare-* |
-| `src/compare/load-baseline.ts` | Soft: accept pairs with or without field until M20 hardens (M14 may cast; M20 validates) |
-| Fixtures / README / ARCHITECTURE | Document field |
+| Consumer                         | Impact                                                                                   |
+| -------------------------------- | ---------------------------------------------------------------------------------------- |
+| `src/types/domain.ts`            | Add `hasStaticDependency: boolean`                                                       |
+| `src/scoring/`                   | New enrich module + unit tests                                                           |
+| `src/scan.ts`                    | Call enricher with `repoPath`                                                            |
+| `src/report/`                    | table, markdown, csv, compare-*                                                          |
+| `src/compare/load-baseline.ts`   | Soft: accept pairs with or without field until M20 hardens (M14 may cast; M20 validates) |
+| Fixtures / README / ARCHITECTURE | Document field                                                                           |
 
 ### Fragile areas (CONCERNS.md)
 
-| Area | Mitigation |
-| ---- | ---------- |
-| Scoring formulas | Do **not** edit strength formula; enrich only |
-| Complexity / McCabe | No change; no ts-morph in scoring enricher |
+| Area                | Mitigation                                    |
+| ------------------- | --------------------------------------------- |
+| Scoring formulas    | Do **not** edit strength formula; enrich only |
+| Complexity / McCabe | No change; no ts-morph in scoring enricher    |
 
 ---
 
@@ -113,24 +113,24 @@ interface CouplingPair {
 
 ## Error Handling Strategy
 
-| Error Scenario | Handling | User Impact |
-| -------------- | -------- | ----------- |
-| Source file missing | `hasStaticDependency = false` | Pair still listed |
-| Unreadable file (EACCES) | `false`; optional warning via `onWarning` | Scan continues |
-| Malformed import line | Ignore line; continue | Best-effort boolean |
-| Empty coupling list | Skip enrich | None |
+| Error Scenario           | Handling                                  | User Impact         |
+| ------------------------ | ----------------------------------------- | ------------------- |
+| Source file missing      | `hasStaticDependency = false`             | Pair still listed   |
+| Unreadable file (EACCES) | `false`; optional warning via `onWarning` | Scan continues      |
+| Malformed import line    | Ignore line; continue                     | Best-effort boolean |
+| Empty coupling list      | Skip enrich                               | None                |
 
 ---
 
 ## Tech Decisions
 
-| Decision | Choice | Rationale |
-| -------- | ------ | --------- |
-| Enrich after score | Yes | Formula purity; fewer files read |
-| No ts-morph in scoring | Literal/static string extract | INTEGRATIONS boundary |
-| No path aliases | Relative only | YAGNI |
-| Schema version | Keep `"1.0"` | Additive like M9/M11 |
-| M20 interaction | Schema requires boolean | Plan schemas after M14 Execute preferred; M20 artifacts already list the field |
+| Decision               | Choice                        | Rationale                                                                      |
+| ---------------------- | ----------------------------- | ------------------------------------------------------------------------------ |
+| Enrich after score     | Yes                           | Formula purity; fewer files read                                               |
+| No ts-morph in scoring | Literal/static string extract | INTEGRATIONS boundary                                                          |
+| No path aliases        | Relative only                 | YAGNI                                                                          |
+| Schema version         | Keep `"1.0"`                  | Additive like M9/M11                                                           |
+| M20 interaction        | Schema requires boolean       | Plan schemas after M14 Execute preferred; M20 artifacts already list the field |
 
 ---
 

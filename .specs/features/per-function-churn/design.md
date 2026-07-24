@@ -57,40 +57,40 @@ Report
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| Numstat GitMiner | `src/git/spawn.ts`, `parse.ts`, `aggregate.ts` | **Unchanged** for file churn + coupling; do not fold patch into this parse |
-| `PathAliasMap` | `src/git/rename.ts` | Reuse for path canonicalization in function churn aggregate |
-| `GitLogError` / spawn pattern | `src/git/spawn.ts` | Mirror for patch spawn (separate argv builder) |
-| `FunctionComplexityResult` | `src/types/domain.ts` | Add `endLine`; keep `line` as start |
-| `scoreFunctionHotspots` | `src/scoring/function-hotspot-scorer.ts` | Swap churn input source; keep normalize + harmonic |
-| `normalizeLogMinMax` | `src/scoring/normalize.ts` | Unchanged |
-| `runScan` granularity branch | `src/scan.ts` | Wire miner only on `function` branch |
-| Git-log fixtures pattern | `tests/fixtures/git-log/` | Mirror under e.g. `tests/fixtures/git-patch/` for synthetic patches |
+| Component                     | Location                                       | How to Use                                                                 |
+| ----------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------- |
+| Numstat GitMiner              | `src/git/spawn.ts`, `parse.ts`, `aggregate.ts` | **Unchanged** for file churn + coupling; do not fold patch into this parse |
+| `PathAliasMap`                | `src/git/rename.ts`                            | Reuse for path canonicalization in function churn aggregate                |
+| `GitLogError` / spawn pattern | `src/git/spawn.ts`                             | Mirror for patch spawn (separate argv builder)                             |
+| `FunctionComplexityResult`    | `src/types/domain.ts`                          | Add `endLine`; keep `line` as start                                        |
+| `scoreFunctionHotspots`       | `src/scoring/function-hotspot-scorer.ts`       | Swap churn input source; keep normalize + harmonic                         |
+| `normalizeLogMinMax`          | `src/scoring/normalize.ts`                     | Unchanged                                                                  |
+| `runScan` granularity branch  | `src/scan.ts`                                  | Wire miner only on `function` branch                                       |
+| Git-log fixtures pattern      | `tests/fixtures/git-log/`                      | Mirror under e.g. `tests/fixtures/git-patch/` for synthetic patches        |
 
 ### Integration Points
 
-| System | M23 behavior |
-| ------ | ------------ |
+| System           | M23 behavior                                                                                         |
+| ---------------- | ---------------------------------------------------------------------------------------------------- |
 | `git` subprocess | Second spawn only in function mode; argv with `--unified=0` (or minimal equivalent) + same `--since` |
-| `ts-morph` | `getEndLineNumber()` in `analyze-file.ts` only — no historical Project |
-| JSON / schemas | No shape change; churn **semantics** in function mode change |
-| Reporter | No field changes expected |
+| `ts-morph`       | `getEndLineNumber()` in `analyze-file.ts` only — no historical Project                               |
+| JSON / schemas   | No shape change; churn **semantics** in function mode change                                         |
+| Reporter         | No field changes expected                                                                            |
 
 ---
 
 ## Design Decisions
 
-| # | Decision | Rationale |
-| - | -------- | --------- |
-| D1 | Separate FunctionChurnMiner module under `src/git/` (not mutate numstat parse) | Avoid regressing file-mode streaming parse; Clear Path Conflict ownership |
-| D2 | Hunk overlap vs current `[line, endLine]` | User locked; YAGNI vs historical AST |
-| D3 | Nested overlap credits all N | User locked |
-| D4 | `endLine` on `FunctionComplexityResult`; optional omission from public JSON | Pipeline needs range; no contract break |
-| D5 | Churn map key: `filePath` + `functionName` + `line` (same identity as compare/M11) | Stable join to complexity results without requiring `endLine` in scorer output |
-| D6 | `linesChanged`: sum of `|added| + |deleted|` from hunks that intersect the function (intersecting hunk contributes full hunk line delta — simple, deterministic; document in CONCERNS) | Avoid per-line split inside hunk without blame; YAGNI |
-| D7 | Additional stream only in function mode | User locked cost model |
-| D8 | Reuse `PathAliasMap`; document post-rename imprecision | RT-003; no historical AST |
+| #   | Decision                                                                           | Rationale                                                                      |
+| --- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| D1  | Separate FunctionChurnMiner module under `src/git/` (not mutate numstat parse)     | Avoid regressing file-mode streaming parse; Clear Path Conflict ownership      |
+| D2  | Hunk overlap vs current `[line, endLine]`                                          | User locked; YAGNI vs historical AST                                           |
+| D3  | Nested overlap credits all N                                                       | User locked                                                                    |
+| D4  | `endLine` on `FunctionComplexityResult`; optional omission from public JSON        | Pipeline needs range; no contract break                                        |
+| D5  | Churn map key: `filePath` + `functionName` + `line` (same identity as compare/M11) | Stable join to complexity results without requiring `endLine` in scorer output |
+| D6  | `linesChanged`: sum of `                                                           | added                                                                          | +   | deleted | ` from hunks that intersect the function (intersecting hunk contributes full hunk line delta — simple, deterministic; document in CONCERNS) | Avoid per-line split inside hunk without blame; YAGNI |
+| D7  | Additional stream only in function mode                                            | User locked cost model                                                         |
+| D8  | Reuse `PathAliasMap`; document post-rename imprecision                             | RT-003; no historical AST                                                      |
 
 ---
 
@@ -106,8 +106,8 @@ Report
 interface FunctionComplexityResult {
   filePath: string;
   functionName: string;
-  line: number;      // getStartLineNumber()
-  endLine: number;   // getEndLineNumber() — NEW
+  line: number; // getStartLineNumber()
+  endLine: number; // getEndLineNumber() — NEW
   complexity: number;
 }
 ```
@@ -139,7 +139,7 @@ async function* streamGitPatchLog(
 git -C <repoPath> log -p --unified=0 --pretty=format:"COMMIT|%H|%ad|%an" [--since=<since>]
 ```
 
-  Exact flags may be adjusted in Execute if rename lines need `--name-status` / `-M` parity with numstat miner — **must** keep streaming and unified=0 (or equivalent). Prefer documenting final argv in ARCHITECTURE after implementation.
+Exact flags may be adjusted in Execute if rename lines need `--name-status` / `-M` parity with numstat miner — **must** keep streaming and unified=0 (or equivalent). Prefer documenting final argv in ARCHITECTURE after implementation.
 
 - **Dependencies**: `child_process.spawn`, readline
 - **Reuses**: `GitLogError` pattern from `spawn.ts`
@@ -271,48 +271,48 @@ Fields unchanged. Semantics of churn fields = per-function overlap (not parent f
 
 ## Error Handling Strategy
 
-| Error Scenario | Handling | User Impact |
-| -------------- | -------- | ----------- |
-| Patch `git log` non-zero exit | Throw `GitLogError` (or shared subclass) with repoPath/command/stderr | Non-zero CLI exit |
-| Malformed hunk header | Skip hunk + warning (prefer continue) or fail-fast if unrecoverable — prefer warn+skip aligned with parse resilience | Partial churn; stderr warning |
-| Rename ambiguous | Existing PathAliasMap warning | Documented imprecision |
-| Empty functions list | Skip spawn or spawn no-op — prefer **skip spawn** for cost | Empty `functions` array |
+| Error Scenario                | Handling                                                                                                             | User Impact                   |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| Patch `git log` non-zero exit | Throw `GitLogError` (or shared subclass) with repoPath/command/stderr                                                | Non-zero CLI exit             |
+| Malformed hunk header         | Skip hunk + warning (prefer continue) or fail-fast if unrecoverable — prefer warn+skip aligned with parse resilience | Partial churn; stderr warning |
+| Rename ambiguous              | Existing PathAliasMap warning                                                                                        | Documented imprecision        |
+| Empty functions list          | Skip spawn or spawn no-op — prefer **skip spawn** for cost                                                           | Empty `functions` array       |
 
 ---
 
 ## Risks (from CONCERNS.md)
 
-| Risk | Mitigation in design |
-| ---- | -------------------- |
-| RT-001 memory on large repos | Function-only stream; `--unified=0`; line-by-line; never buffer full patch |
-| RT-003 rename distortion | PathAliasMap + explicit docs that current ranges ≠ historical hunk lines after moves |
-| Git parse fragility | Isolated module + fixtures; numstat path untouched |
-| Scoring silent reorder | Unit tests with fixed per-function churn proving sibling divergence |
-| ADR-2026-020 “single pass” | Clarified: single **numstat** pass remains for file churn+coupling; function mode adds a second **optional** stream (document ADR note / ARCHITECTURE — not a silent contradiction) |
+| Risk                         | Mitigation in design                                                                                                                                                                |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| RT-001 memory on large repos | Function-only stream; `--unified=0`; line-by-line; never buffer full patch                                                                                                          |
+| RT-003 rename distortion     | PathAliasMap + explicit docs that current ranges ≠ historical hunk lines after moves                                                                                                |
+| Git parse fragility          | Isolated module + fixtures; numstat path untouched                                                                                                                                  |
+| Scoring silent reorder       | Unit tests with fixed per-function churn proving sibling divergence                                                                                                                 |
+| ADR-2026-020 “single pass”   | Clarified: single **numstat** pass remains for file churn+coupling; function mode adds a second **optional** stream (document ADR note / ARCHITECTURE — not a silent contradiction) |
 
 ---
 
 ## Tech Decisions (non-obvious)
 
-| Decision | Choice | Rationale |
-| -------- | ------ | --------- |
-| Module layout | `src/git/function-churn/*` | Path Conflict isolation from numstat parse |
-| `linesChanged` attribution | Full intersecting hunk delta | Deterministic without intra-hunk blame |
-| Skip spawn when no functions | Yes | Cost |
-| Public JSON `endLine` | Omit by default | No shape break; pipeline-internal |
+| Decision                     | Choice                       | Rationale                                  |
+| ---------------------------- | ---------------------------- | ------------------------------------------ |
+| Module layout                | `src/git/function-churn/*`   | Path Conflict isolation from numstat parse |
+| `linesChanged` attribution   | Full intersecting hunk delta | Deterministic without intra-hunk blame     |
+| Skip spawn when no functions | Yes                          | Cost                                       |
+| Public JSON `endLine`        | Omit by default              | No shape break; pipeline-internal          |
 
 ---
 
 ## Living docs targets (Execute)
 
-| Doc | Update |
-| --- | ------ |
-| ARCHITECTURE.md | Function granularity: hunk-overlap; pipeline diagram; ADR-2026-020 note |
-| CONCERNS.md | New function-churn parse / rename imprecision / streaming |
-| TESTING.md | `tests/fixtures/git-patch/` (or chosen path) |
-| STRUCTURE.md | `src/git/function-churn/` |
-| INTEGRATIONS.md | Second git log invocation (function mode) |
-| STATE.md / ROADMAP.md | Supersede M11 inherited churn; M23 progress |
+| Doc                   | Update                                                                  |
+| --------------------- | ----------------------------------------------------------------------- |
+| ARCHITECTURE.md       | Function granularity: hunk-overlap; pipeline diagram; ADR-2026-020 note |
+| CONCERNS.md           | New function-churn parse / rename imprecision / streaming               |
+| TESTING.md            | `tests/fixtures/git-patch/` (or chosen path)                            |
+| STRUCTURE.md          | `src/git/function-churn/`                                               |
+| INTEGRATIONS.md       | Second git log invocation (function mode)                               |
+| STATE.md / ROADMAP.md | Supersede M11 inherited churn; M23 progress                             |
 
 ---
 

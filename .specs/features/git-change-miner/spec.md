@@ -23,15 +23,15 @@ M1 delivered typed contracts in `src/git/index.ts` and domain types in `src/type
 
 Explicitly excluded. Documented to prevent scope creep.
 
-| Feature | Reason |
-| ------- | ------ |
-| Scoring formulas (`hotspotScore`, `couplingStrength`) | Milestone 4 — Scoring |
-| Wiring into `runScan()` / CLI `--since` default | M5/M6 — miner testable in isolation |
+| Feature                                               | Reason                                                          |
+| ----------------------------------------------------- | --------------------------------------------------------------- |
+| Scoring formulas (`hotspotScore`, `couplingStrength`) | Milestone 4 — Scoring                                           |
+| Wiring into `runScan()` / CLI `--since` default       | M5/M6 — miner testable in isolation                             |
 | Extension filter (`.ts`/`.tsx`/`.js`/`.jsx`) in miner | Downstream (M3/M4) intersects; miner records all paths from log |
-| `commander`, reporter, JSON output | Milestone 5 — Reporter + CLI |
-| Versioned Git fixture repo (`tests/fixtures/repos/`) | Milestone 6 — Integration |
-| Progress logs ("processing commit 5,000/40,000") | Milestone 5 |
-| Worker-thread parallelization | Deferred in [STATE.md](../../project/STATE.md) |
+| `commander`, reporter, JSON output                    | Milestone 5 — Reporter + CLI                                    |
+| Versioned Git fixture repo (`tests/fixtures/repos/`)  | Milestone 6 — Integration                                       |
+| Progress logs ("processing commit 5,000/40,000")      | Milestone 5                                                     |
+| Worker-thread parallelization                         | Deferred in [STATE.md](../../project/STATE.md)                  |
 
 ---
 
@@ -184,18 +184,18 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-09 | P1: Git subprocess invocation | Tasks T1, T5 | Pending |
-| HOTSPOT-10 | P1: Streaming parser | Tasks T2 | Pending |
-| HOTSPOT-11 | P1: Dual-output aggregation | Tasks T4 | Pending |
-| HOTSPOT-12 | P1: Dual-output aggregation | Tasks T4 | Pending |
-| HOTSPOT-13 | P1: Dual-output aggregation | Tasks T4 | Pending |
-| HOTSPOT-14 | P1: Rename handling | Tasks T3 | Pending |
-| HOTSPOT-15 | P1: Merge/delete/binary | Tasks T2, T7 | Pending |
-| HOTSPOT-16 | P1: Git subprocess invocation | Tasks T1 | Pending |
-| HOTSPOT-17 | P2: Insufficient history | Tasks T7 | Pending |
-| HOTSPOT-18 | P1: Fixtures and coverage | Tasks T6, T8 | Pending |
+| Requirement ID | Story                         | Phase        | Status  |
+| -------------- | ----------------------------- | ------------ | ------- |
+| HOTSPOT-09     | P1: Git subprocess invocation | Tasks T1, T5 | Pending |
+| HOTSPOT-10     | P1: Streaming parser          | Tasks T2     | Pending |
+| HOTSPOT-11     | P1: Dual-output aggregation   | Tasks T4     | Pending |
+| HOTSPOT-12     | P1: Dual-output aggregation   | Tasks T4     | Pending |
+| HOTSPOT-13     | P1: Dual-output aggregation   | Tasks T4     | Pending |
+| HOTSPOT-14     | P1: Rename handling           | Tasks T3     | Pending |
+| HOTSPOT-15     | P1: Merge/delete/binary       | Tasks T2, T7 | Pending |
+| HOTSPOT-16     | P1: Git subprocess invocation | Tasks T1     | Pending |
+| HOTSPOT-17     | P2: Insufficient history      | Tasks T7     | Pending |
+| HOTSPOT-18     | P1: Fixtures and coverage     | Tasks T6, T8 | Pending |
 
 **Coverage:** 10 total, 10 mapped to tasks, 0 unmapped
 

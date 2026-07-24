@@ -21,15 +21,15 @@ Temporal coupling ranks file pairs that change together, but does not say whethe
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Full repo import graph / dependency cycles | YAGNI — pair boolean only |
-| Direction (`A→B` vs `B→A`) as separate output fields | YAGNI — single boolean |
-| tsconfig `paths` / package.json `exports` aliases | YAGNI — relative resolution only |
-| Dynamic `import(expr)` / non-literal `require` | Unreliable without eval |
-| Changing `--min-cochange` or ranking order by static edge | Ranking stays temporal |
-| Per-function coupling | Coupling remains file-level (M11) |
-| M20 schema file publication | M20 owns schemas; M14 only adds the field |
+| Feature                                                   | Reason                                    |
+| --------------------------------------------------------- | ----------------------------------------- |
+| Full repo import graph / dependency cycles                | YAGNI — pair boolean only                 |
+| Direction (`A→B` vs `B→A`) as separate output fields      | YAGNI — single boolean                    |
+| tsconfig `paths` / package.json `exports` aliases         | YAGNI — relative resolution only          |
+| Dynamic `import(expr)` / non-literal `require`            | Unreliable without eval                   |
+| Changing `--min-cochange` or ranking order by static edge | Ranking stays temporal                    |
+| Per-function coupling                                     | Coupling remains file-level (M11)         |
+| M20 schema file publication                               | M20 owns schemas; M14 only adds the field |
 
 ---
 
@@ -140,16 +140,16 @@ Temporal coupling ranks file pairs that change together, but does not say whethe
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-145 | P1: Domain field on CouplingPair | Tasks T1 | Done |
-| HOTSPOT-146 | P1: Static edge detection | Tasks T2 | Done |
-| HOTSPOT-147 | P1: Static edge detection (missing file) | Tasks T2 | Done |
-| HOTSPOT-148 | P1: JSON reporter | Tasks T3 | Done |
-| HOTSPOT-149 | P1: Table/markdown reporters | Tasks T3 | Done |
-| HOTSPOT-150 | P1: CSV + compare reporters | Tasks T3 | Done |
-| HOTSPOT-151 | P1: Pipeline wiring | Tasks T4 | Done |
-| HOTSPOT-152 | P1: Tests + documentation | Tasks T2, T4, T5 | Done |
+| Requirement ID | Story                                    | Phase            | Status |
+| -------------- | ---------------------------------------- | ---------------- | ------ |
+| HOTSPOT-145    | P1: Domain field on CouplingPair         | Tasks T1         | Done   |
+| HOTSPOT-146    | P1: Static edge detection                | Tasks T2         | Done   |
+| HOTSPOT-147    | P1: Static edge detection (missing file) | Tasks T2         | Done   |
+| HOTSPOT-148    | P1: JSON reporter                        | Tasks T3         | Done   |
+| HOTSPOT-149    | P1: Table/markdown reporters             | Tasks T3         | Done   |
+| HOTSPOT-150    | P1: CSV + compare reporters              | Tasks T3         | Done   |
+| HOTSPOT-151    | P1: Pipeline wiring                      | Tasks T4         | Done   |
+| HOTSPOT-152    | P1: Tests + documentation                | Tasks T2, T4, T5 | Done   |
 
 **Coverage:** 8 total, 8 mapped to tasks, 0 unmapped
 

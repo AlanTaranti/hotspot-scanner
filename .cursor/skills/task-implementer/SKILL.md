@@ -11,10 +11,10 @@ Execute **one** `tasks.md` task at a time. Workflow detail lives in linked refer
 
 ## Mode detection
 
-| Prompt signal | Follow |
-| ------------- | ------ |
-| `orchestrated: true` | [orchestrated-implementer.md](../vitals-spec-driven/references/orchestrated-implementer.md) — default when delegated by `orchestrator-implementer` |
-| otherwise | [implement.md](../vitals-spec-driven/references/implement.md) direct mode — may update `tasks.md`; on Status `Done` sync [roadmap-sync.md](../vitals-spec-driven/references/roadmap-sync.md) |
+| Prompt signal        | Follow                                                                                                                                                                                       |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `orchestrated: true` | [orchestrated-implementer.md](../vitals-spec-driven/references/orchestrated-implementer.md) — default when delegated by `orchestrator-implementer`                                           |
+| otherwise            | [implement.md](../vitals-spec-driven/references/implement.md) direct mode — may update `tasks.md`; on Status `Done` sync [roadmap-sync.md](../vitals-spec-driven/references/roadmap-sync.md) |
 
 ## Always read before coding
 

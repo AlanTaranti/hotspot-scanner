@@ -26,21 +26,21 @@ flowchart TD
 
 ## Code Reuse Analysis
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `parseScanResult` / `loadBaseline` | `src/compare/load-baseline.ts` | Deepen item-level checks |
-| `BaselineError` | same | Reuse error type |
-| Domain types | `src/types/domain.ts` | Field checklist for schemas |
-| Report fixtures | `tests/fixtures/report/` | Valid/invalid samples |
-| CLI integration | `bin/*.integration.test.ts` | Optional hook for contract tests |
-| M14 CouplingPair | domain | `hasStaticDependency` required |
+| Component                          | Location                       | How to Use                       |
+| ---------------------------------- | ------------------------------ | -------------------------------- |
+| `parseScanResult` / `loadBaseline` | `src/compare/load-baseline.ts` | Deepen item-level checks         |
+| `BaselineError`                    | same                           | Reuse error type                 |
+| Domain types                       | `src/types/domain.ts`          | Field checklist for schemas      |
+| Report fixtures                    | `tests/fixtures/report/`       | Valid/invalid samples            |
+| CLI integration                    | `bin/*.integration.test.ts`    | Optional hook for contract tests |
+| M14 CouplingPair                   | domain                         | `hasStaticDependency` required   |
 
 ### Fragile areas
 
-| Area | Mitigation |
-| ---- | ---------- |
-| Compare engine assumes shapes | Reject bad baselines before compare |
-| Over-strict `additionalProperties: false` | Prefer `true` (context.md) |
+| Area                                      | Mitigation                          |
+| ----------------------------------------- | ----------------------------------- |
+| Compare engine assumes shapes             | Reject bad baselines before compare |
+| Over-strict `additionalProperties: false` | Prefer `true` (context.md)          |
 
 ---
 
@@ -86,19 +86,19 @@ Mirror TypeScript:
 
 ## Error Handling Strategy
 
-| Scenario | Handling | User impact |
-| -------- | -------- | ----------- |
-| Missing `hasStaticDependency` | `BaselineError` with re-scan hint | Exit != 0 |
-| Wrong type on nested field | `BaselineError` with field path | Exit != 0 |
-| Valid schema-compliant JSON | Return `ScanResult` | Compare proceeds |
+| Scenario                      | Handling                          | User impact      |
+| ----------------------------- | --------------------------------- | ---------------- |
+| Missing `hasStaticDependency` | `BaselineError` with re-scan hint | Exit != 0        |
+| Wrong type on nested field    | `BaselineError` with field path   | Exit != 0        |
+| Valid schema-compliant JSON   | Return `ScanResult`               | Compare proceeds |
 
 ---
 
 ## Tech Decisions
 
-| Decision | Choice | Rationale |
-| -------- | ------ | --------- |
-| Schema draft | JSON Schema Draft 2020-12 or Draft-07 | Ajv support; pick one and stick |
-| additionalProperties | `true` | Forward compatible |
-| Ajv runtime | Optional; tests require Ajv or equivalent | YAGNI vs DRY — see context |
-| Execute order | After M14 | Required field exists in producers |
+| Decision             | Choice                                    | Rationale                          |
+| -------------------- | ----------------------------------------- | ---------------------------------- |
+| Schema draft         | JSON Schema Draft 2020-12 or Draft-07     | Ajv support; pick one and stick    |
+| additionalProperties | `true`                                    | Forward compatible                 |
+| Ajv runtime          | Optional; tests require Ajv or equivalent | YAGNI vs DRY — see context         |
+| Execute order        | After M14                                 | Required field exists in producers |

@@ -161,13 +161,13 @@ granularity,file
 
 ## Related closed decisions (STATE.md / prior milestones)
 
-| Decision | Value | Relevance to M17 |
-| -------- | ----- | ---------------- |
-| `--output` suppresses stdout | file only | Unchanged for CSV |
-| Format from `--format` only | no extension inference | CSV same as M10 |
-| Overwrite output files | yes | Unchanged |
-| No `mkdir -p` for `--output` | fail fast | Unchanged |
-| Diagnostics channel | stderr | Unchanged with `--output` |
-| `--top` on table/markdown | slice at render | M16 — CSV excluded |
-| `--top` on JSON | ignored (M16) | CSV same behavior |
-| Requirement ID start | `HOTSPOT-121` | Continues after M15 (`HOTSPOT-120`) |
+| Decision                     | Value                  | Relevance to M17                    |
+| ---------------------------- | ---------------------- | ----------------------------------- |
+| `--output` suppresses stdout | file only              | Unchanged for CSV                   |
+| Format from `--format` only  | no extension inference | CSV same as M10                     |
+| Overwrite output files       | yes                    | Unchanged                           |
+| No `mkdir -p` for `--output` | fail fast              | Unchanged                           |
+| Diagnostics channel          | stderr                 | Unchanged with `--output`           |
+| `--top` on table/markdown    | slice at render        | M16 — CSV excluded                  |
+| `--top` on JSON              | ignored (M16)          | CSV same behavior                   |
+| Requirement ID start         | `HOTSPOT-121`          | Continues after M15 (`HOTSPOT-120`) |

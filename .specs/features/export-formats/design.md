@@ -44,26 +44,26 @@ flowchart LR
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `createReporter` | `src/report/index.ts` | Add `markdown` branch in dispatch |
-| `sliceScanResult` | `src/report/slice.ts` | Unchanged — slice before all renders |
-| `renderJson` | `src/report/json.ts` | Unchanged — file export reuses same string |
-| `renderTable` | `src/report/table.ts` | Unchanged — file export reuses same string |
-| `parseFormat` | `bin/hotspot-scanner.ts` | Extend union to include `markdown` |
-| `sample-result.json` | `tests/fixtures/report/` | Reuse for markdown unit tests |
-| Integration fixture | `tests/fixtures/repos/small-ts/` | File export E2E in T3 |
-| M5 stderr channel | `src/diagnostics/logger.ts` | Unchanged — warnings/progress stay on stderr |
+| Component            | Location                         | How to Use                                   |
+| -------------------- | -------------------------------- | -------------------------------------------- |
+| `createReporter`     | `src/report/index.ts`            | Add `markdown` branch in dispatch            |
+| `sliceScanResult`    | `src/report/slice.ts`            | Unchanged — slice before all renders         |
+| `renderJson`         | `src/report/json.ts`             | Unchanged — file export reuses same string   |
+| `renderTable`        | `src/report/table.ts`            | Unchanged — file export reuses same string   |
+| `parseFormat`        | `bin/hotspot-scanner.ts`         | Extend union to include `markdown`           |
+| `sample-result.json` | `tests/fixtures/report/`         | Reuse for markdown unit tests                |
+| Integration fixture  | `tests/fixtures/repos/small-ts/` | File export E2E in T3                        |
+| M5 stderr channel    | `src/diagnostics/logger.ts`      | Unchanged — warnings/progress stay on stderr |
 
 ### Integration Points
 
-| Consumer | Impact |
-| -------- | ------ |
-| `src/scan.ts` | None — `ScanResult` shape unchanged |
-| `src/types/domain.ts` | None — `ScanOptions.format` may extend type if used internally; optional |
-| `src/scoring/**` | None |
-| `bin/hotspot-scanner.ts` | Add `--output`, extend `OutputFormat`, file write routing |
-| `src/report/index.ts` | Extend `ReporterOptions.format`, import `renderMarkdown` |
+| Consumer                 | Impact                                                                   |
+| ------------------------ | ------------------------------------------------------------------------ |
+| `src/scan.ts`            | None — `ScanResult` shape unchanged                                      |
+| `src/types/domain.ts`    | None — `ScanOptions.format` may extend type if used internally; optional |
+| `src/scoring/**`         | None                                                                     |
+| `bin/hotspot-scanner.ts` | Add `--output`, extend `OutputFormat`, file write routing                |
+| `src/report/index.ts`    | Extend `ReporterOptions.format`, import `renderMarkdown`                 |
 
 ---
 
@@ -120,41 +120,41 @@ New module: `src/report/markdown.ts` — `export function renderMarkdown(result:
 
 ## Top Hotspots
 
-| Rank | File | Score | Cpx | CpxN | Churn | ChurnN | Funcs | Authors | Lines |
-| ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 1 | src/hot.ts | 0.8500 | 42 | 0.9000 | 15 | 0.9444 | 8 | 3 | 320 |
+| Rank | File       |  Score | Cpx |   CpxN | Churn | ChurnN | Funcs | Authors | Lines |
+| ---: | ---------- | -----: | --: | -----: | ----: | -----: | ----: | ------: | ----: |
+|    1 | src/hot.ts | 0.8500 |  42 | 0.9000 |    15 | 0.9444 |     8 |       3 |   320 |
 
 ## Top Coupling Pairs
 
-| Rank | File A | File B | Strength | Co-changes |
-| ---: | --- | --- | ---: | ---: |
-| 1 | src/a.ts | src/b.ts | 0.7500 | 12 |
+| Rank | File A   | File B   | Strength | Co-changes |
+| ---: | -------- | -------- | -------: | ---------: |
+|    1 | src/a.ts | src/b.ts |   0.7500 |         12 |
 ```
 
 ### Column sourcing (hotspots)
 
-| Column | Source field | Format |
-| ------ | ------------ | ------ |
-| Rank | index + 1 | integer |
-| File | `filePath` | GFM-escaped |
-| Score | `hotspotScore` | 4 decimals |
-| Cpx | `cyclomaticComplexity` | integer |
-| CpxN | `complexityNormalized` | 4 decimals |
-| Churn | `commitCount` | integer |
-| ChurnN | `churnNormalized` | 4 decimals |
-| Funcs | `functionCount` | integer |
-| Authors | `authorCount` | integer |
-| Lines | `linesChanged` | integer |
+| Column  | Source field           | Format      |
+| ------- | ---------------------- | ----------- |
+| Rank    | index + 1              | integer     |
+| File    | `filePath`             | GFM-escaped |
+| Score   | `hotspotScore`         | 4 decimals  |
+| Cpx     | `cyclomaticComplexity` | integer     |
+| CpxN    | `complexityNormalized` | 4 decimals  |
+| Churn   | `commitCount`          | integer     |
+| ChurnN  | `churnNormalized`      | 4 decimals  |
+| Funcs   | `functionCount`        | integer     |
+| Authors | `authorCount`          | integer     |
+| Lines   | `linesChanged`         | integer     |
 
 ### Column sourcing (coupling)
 
-| Column | Source field | Format |
-| ------ | ------------ | ------ |
-| Rank | index + 1 | integer |
-| File A | `fileA` | GFM-escaped |
-| File B | `fileB` | GFM-escaped |
-| Strength | `couplingStrength` | 4 decimals |
-| Co-changes | `coChangeCount` | integer |
+| Column     | Source field       | Format      |
+| ---------- | ------------------ | ----------- |
+| Rank       | index + 1          | integer     |
+| File A     | `fileA`            | GFM-escaped |
+| File B     | `fileB`            | GFM-escaped |
+| Strength   | `couplingStrength` | 4 decimals  |
+| Co-changes | `coChangeCount`    | integer     |
 
 ### Formatting helpers
 
@@ -233,15 +233,15 @@ throw new CliUsageError(
 
 ## Test Impact
 
-| File | Change |
-| ---- | ------ |
-| `src/report/markdown.ts` | **New** — `renderMarkdown()` |
-| `src/report/markdown.test.ts` | **New** — GFM structure, empty sections, pipe escape, formatting |
-| `src/report/index.ts` | Markdown dispatch |
-| `src/report/index.test.ts` | Assert `format: "markdown"` returns GFM |
-| `bin/hotspot-scanner.ts` | `--output`, `parseFormat`, `validateOutputPath` |
-| `bin/hotspot-scanner.test.ts` | Format validation, output path validation, file write mock |
-| `bin/hotspot-scanner.integration.test.ts` | `--output` + markdown/json on `small-ts` |
+| File                                      | Change                                                           |
+| ----------------------------------------- | ---------------------------------------------------------------- |
+| `src/report/markdown.ts`                  | **New** — `renderMarkdown()`                                     |
+| `src/report/markdown.test.ts`             | **New** — GFM structure, empty sections, pipe escape, formatting |
+| `src/report/index.ts`                     | Markdown dispatch                                                |
+| `src/report/index.test.ts`                | Assert `format: "markdown"` returns GFM                          |
+| `bin/hotspot-scanner.ts`                  | `--output`, `parseFormat`, `validateOutputPath`                  |
+| `bin/hotspot-scanner.test.ts`             | Format validation, output path validation, file write mock       |
+| `bin/hotspot-scanner.integration.test.ts` | `--output` + markdown/json on `small-ts`                         |
 
 **Do not change:**
 
@@ -261,22 +261,22 @@ throw new CliUsageError(
 
 ## Risks
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| GFM table breaks on `\|` in paths | `escapeCell()` on all path columns |
-| Wide markdown tables in narrow viewers | Acceptable for PR context; richer than CLI table |
-| Test flakiness on file I/O | Unique temp dirs per test; cleanup in `afterEach` |
-| `writeFile` errors surface as exit 1 | Catch in `main()`, `console.error`, `process.exit(1)` |
+| Risk                                           | Mitigation                                                    |
+| ---------------------------------------------- | ------------------------------------------------------------- |
+| GFM table breaks on `\|` in paths              | `escapeCell()` on all path columns                            |
+| Wide markdown tables in narrow viewers         | Acceptable for PR context; richer than CLI table              |
+| Test flakiness on file I/O                     | Unique temp dirs per test; cleanup in `afterEach`             |
+| `writeFile` errors surface as exit 1           | Catch in `main()`, `console.error`, `process.exit(1)`         |
 | Duplicate format constants (table vs markdown) | YAGNI — duplicate `SCORE_DECIMALS` until extraction justified |
 
 ---
 
 ## Documentation Sync Targets
 
-| File | Update |
-| ---- | ------ |
-| `.specs/codebase/ARCHITECTURE.md` | CLI flags `--output`, `--format markdown`; `renderMarkdown` in report layer |
-| `.specs/codebase/STRUCTURE.md` | Add `src/report/markdown.ts` |
-| `README.md` | Flags table: `--output`, `markdown` format |
-| `.cursor/skills/vitals-cli-validation/SKILL.md` | Example with `--output` |
-| `.specs/project/ROADMAP.md` | Link spec; `**Specs:** Done` (planning); implementation checkboxes on Execute |
+| File                                            | Update                                                                        |
+| ----------------------------------------------- | ----------------------------------------------------------------------------- |
+| `.specs/codebase/ARCHITECTURE.md`               | CLI flags `--output`, `--format markdown`; `renderMarkdown` in report layer   |
+| `.specs/codebase/STRUCTURE.md`                  | Add `src/report/markdown.ts`                                                  |
+| `README.md`                                     | Flags table: `--output`, `markdown` format                                    |
+| `.cursor/skills/vitals-cli-validation/SKILL.md` | Example with `--output`                                                       |
+| `.specs/project/ROADMAP.md`                     | Link spec; `**Specs:** Done` (planning); implementation checkboxes on Execute |

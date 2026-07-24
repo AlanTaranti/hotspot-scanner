@@ -21,15 +21,15 @@ M23 adds a **function-mode-only** hunk-overlap miner: for each commit touching a
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Historical AST per commit | User locked — current range + hunk overlap only |
-| Changing file-mode GitMiner / numstat parse | File mode must not regress; ADR-2026-020 preserved for churn+coupling |
-| Function-level temporal coupling | Co-change remains file-pair (M2/M11) |
-| JSON schema version bump or new public fields | Locked — `version: "1.0"`, no shape break |
-| Blame-based attribution | Locked approach is hunk overlap, not `git blame` |
-| Altering McCabe decision nodes or M22 collection | Complexity only adds `endLine` emission |
-| Package DX / publish prep | Milestone 24 |
+| Feature                                          | Reason                                                                |
+| ------------------------------------------------ | --------------------------------------------------------------------- |
+| Historical AST per commit                        | User locked — current range + hunk overlap only                       |
+| Changing file-mode GitMiner / numstat parse      | File mode must not regress; ADR-2026-020 preserved for churn+coupling |
+| Function-level temporal coupling                 | Co-change remains file-pair (M2/M11)                                  |
+| JSON schema version bump or new public fields    | Locked — `version: "1.0"`, no shape break                             |
+| Blame-based attribution                          | Locked approach is hunk overlap, not `git blame`                      |
+| Altering McCabe decision nodes or M22 collection | Complexity only adds `endLine` emission                               |
+| Package DX / publish prep                        | Milestone 24                                                          |
 
 ---
 
@@ -149,21 +149,21 @@ M23 adds a **function-mode-only** hunk-overlap miner: for each commit touching a
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-181 | P1: Emit endLine | Tasks | Pending |
-| HOTSPOT-182 | P1: Function churn miner | Tasks | Pending |
-| HOTSPOT-183 | P1: Pipeline — function only | Tasks | Pending |
-| HOTSPOT-184 | P1: Nested overlap → all N | Tasks | Pending |
-| HOTSPOT-185 | P1: Scorer per-function churn | Tasks | Pending |
-| HOTSPOT-186 | P1: scan.ts wiring | Tasks | Pending |
-| HOTSPOT-187 | P1: `--since` / authors parity | Tasks | Pending |
-| HOTSPOT-188 | P1: Renames / PathAliasMap | Tasks | Pending |
-| HOTSPOT-189 | P1: JSON `1.0` no shape break | Tasks | Pending |
-| HOTSPOT-190 | P1: Streaming `--unified=0` | Tasks | Pending |
-| HOTSPOT-191 | P1: Synthetic patch fixtures | Tasks | Pending |
-| HOTSPOT-192 | P2: Living docs | Tasks | Pending |
-| HOTSPOT-193 | P2: Integration + project gate | Tasks | Pending |
+| Requirement ID | Story                          | Phase | Status  |
+| -------------- | ------------------------------ | ----- | ------- |
+| HOTSPOT-181    | P1: Emit endLine               | Tasks | Pending |
+| HOTSPOT-182    | P1: Function churn miner       | Tasks | Pending |
+| HOTSPOT-183    | P1: Pipeline — function only   | Tasks | Pending |
+| HOTSPOT-184    | P1: Nested overlap → all N     | Tasks | Pending |
+| HOTSPOT-185    | P1: Scorer per-function churn  | Tasks | Pending |
+| HOTSPOT-186    | P1: scan.ts wiring             | Tasks | Pending |
+| HOTSPOT-187    | P1: `--since` / authors parity | Tasks | Pending |
+| HOTSPOT-188    | P1: Renames / PathAliasMap     | Tasks | Pending |
+| HOTSPOT-189    | P1: JSON `1.0` no shape break  | Tasks | Pending |
+| HOTSPOT-190    | P1: Streaming `--unified=0`    | Tasks | Pending |
+| HOTSPOT-191    | P1: Synthetic patch fixtures   | Tasks | Pending |
+| HOTSPOT-192    | P2: Living docs                | Tasks | Pending |
+| HOTSPOT-193    | P2: Integration + project gate | Tasks | Pending |
 
 **ID format:** `HOTSPOT-NNN`  
 **Coverage:** 13 total — all mapped in Tasks phase

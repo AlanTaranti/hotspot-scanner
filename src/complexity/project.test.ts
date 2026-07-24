@@ -20,7 +20,9 @@ async function createTempRepo(files: Record<string, string>): Promise<string> {
 }
 
 afterEach(async () => {
-  await Promise.all(tempDirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })));
+  await Promise.all(
+    tempDirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })),
+  );
 });
 
 describe("createTsMorphProject", () => {

@@ -12,11 +12,11 @@
 
 **Choice:** **Include narrows; exclude always applies (defaults + user).**
 
-| Condition | In scope when |
-| --------- | ------------- |
-| No `--include` | Path matches no exclude pattern (default + user) |
-| One or more `--include` | Path matches at least one include **and** matches no exclude pattern |
-| Include vs exclude conflict | **Exclude wins** — path is out of scope |
+| Condition                   | In scope when                                                        |
+| --------------------------- | -------------------------------------------------------------------- |
+| No `--include`              | Path matches no exclude pattern (default + user)                     |
+| One or more `--include`     | Path matches at least one include **and** matches no exclude pattern |
+| Include vs exclude conflict | **Exclude wins** — path is out of scope                              |
 
 **Rationale:**
 
@@ -141,11 +141,11 @@
 
 ## Related closed decisions (STATE.md)
 
-| Decision | Value | Relevance to M7 |
-| -------- | ----- | ----------------- |
-| Default `--since` | `"12 months ago"` | Unchanged |
-| Default `--min-cochange` | `3` | Unchanged |
-| Exit code on success | `0` | Unchanged; validation errors `!= 0` |
-| Requirement ID start | `HOTSPOT-61` | Continues after M6 (`HOTSPOT-60`) |
+| Decision                 | Value             | Relevance to M7                     |
+| ------------------------ | ----------------- | ----------------------------------- |
+| Default `--since`        | `"12 months ago"` | Unchanged                           |
+| Default `--min-cochange` | `3`               | Unchanged                           |
+| Exit code on success     | `0`               | Unchanged; validation errors `!= 0` |
+| Requirement ID start     | `HOTSPOT-61`      | Continues after M6 (`HOTSPOT-60`)   |
 
 ---

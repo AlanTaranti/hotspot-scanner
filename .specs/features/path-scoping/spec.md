@@ -23,15 +23,15 @@ M7 adds unified path scoping: default excludes, early Git repository validation,
 
 Explicitly excluded. Documented to prevent scope creep.
 
-| Feature | Reason |
-| ------- | ------ |
-| `--no-default-excludes` | ROADMAP does not require; user `--exclude` is additive only |
-| Intersect complexity paths with git paths (M6 C1) | M7 filters by **scope rules**, not by presence in both stages |
-| `.gitignore` / `.hotspotignore` file support | Future; explicit globs suffice for M7 |
-| Path scoping via `git log -- pathspec` | Preserves single-pass ADR-2026-020; post-aggregation filter instead |
-| Rich JSON raw metrics | Milestone 9 — [rich-output/spec.md](../rich-output/spec.md) |
-| Export formats / markdown output | Milestone 10 |
-| CI fail thresholds / exit codes on metric breach | Not planned — removed from roadmap (see STATE.md) |
+| Feature                                           | Reason                                                              |
+| ------------------------------------------------- | ------------------------------------------------------------------- |
+| `--no-default-excludes`                           | ROADMAP does not require; user `--exclude` is additive only         |
+| Intersect complexity paths with git paths (M6 C1) | M7 filters by **scope rules**, not by presence in both stages       |
+| `.gitignore` / `.hotspotignore` file support      | Future; explicit globs suffice for M7                               |
+| Path scoping via `git log -- pathspec`            | Preserves single-pass ADR-2026-020; post-aggregation filter instead |
+| Rich JSON raw metrics                             | Milestone 9 — [rich-output/spec.md](../rich-output/spec.md)         |
+| Export formats / markdown output                  | Milestone 10                                                        |
+| CI fail thresholds / exit codes on metric breach  | Not planned — removed from roadmap (see STATE.md)                   |
 
 ---
 
@@ -206,16 +206,16 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-61 | P1: Default excludes in complexity discovery | Tasks T1, T2 | Pending |
-| HOTSPOT-62 | P1: Default excludes in Git stats | Tasks T1, T3 | Pending |
-| HOTSPOT-63 | P1: Git repository validation | Tasks T4 | Pending |
-| HOTSPOT-64 | P1: CLI include/exclude flags | Tasks T6 | Pending |
-| HOTSPOT-65 | P1: Unified scope semantics | Tasks T1, T5 | Pending |
-| HOTSPOT-66 | P2: CLI scope flag validation | Tasks T6 | Pending |
-| HOTSPOT-67 | P1: Fixture coverage | Tasks T7 | Pending |
-| HOTSPOT-68 | P1: Documentation sync | Tasks T8 | Pending |
+| Requirement ID | Story                                        | Phase        | Status  |
+| -------------- | -------------------------------------------- | ------------ | ------- |
+| HOTSPOT-61     | P1: Default excludes in complexity discovery | Tasks T1, T2 | Pending |
+| HOTSPOT-62     | P1: Default excludes in Git stats            | Tasks T1, T3 | Pending |
+| HOTSPOT-63     | P1: Git repository validation                | Tasks T4     | Pending |
+| HOTSPOT-64     | P1: CLI include/exclude flags                | Tasks T6     | Pending |
+| HOTSPOT-65     | P1: Unified scope semantics                  | Tasks T1, T5 | Pending |
+| HOTSPOT-66     | P2: CLI scope flag validation                | Tasks T6     | Pending |
+| HOTSPOT-67     | P1: Fixture coverage                         | Tasks T7     | Pending |
+| HOTSPOT-68     | P1: Documentation sync                       | Tasks T8     | Pending |
 
 **Coverage:** 8 total, 8 mapped to tasks, 0 unmapped
 

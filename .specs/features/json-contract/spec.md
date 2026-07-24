@@ -21,13 +21,13 @@ JSON output and `--baseline` loading are only loosely validated (top-level keys)
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| OpenAPI / HTML docs site | YAGNI |
-| Validating table/markdown/csv text | JSON contract only |
-| Changing scoring formulas | Contract only |
-| Auto-migrating old baselines | Reject with message (context.md) |
-| JSON Schema for CSV meta sidecar | Separate concern; optional note only if trivial |
+| Feature                            | Reason                                          |
+| ---------------------------------- | ----------------------------------------------- |
+| OpenAPI / HTML docs site           | YAGNI                                           |
+| Validating table/markdown/csv text | JSON contract only                              |
+| Changing scoring formulas          | Contract only                                   |
+| Auto-migrating old baselines       | Reject with message (context.md)                |
+| JSON Schema for CSV meta sidecar   | Separate concern; optional note only if trivial |
 
 ---
 
@@ -124,16 +124,16 @@ JSON output and `--baseline` loading are only loosely validated (top-level keys)
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-158 | P1: scan-result schema | Tasks T1 | Done |
-| HOTSPOT-159 | P1: compare-result schema + hasStaticDependency | Tasks T1 | Done |
-| HOTSPOT-160 | P1: Strong parseScanResult | Tasks T2 | Done |
-| HOTSPOT-161 | P1: BaselineError messages | Tasks T2 | Done |
-| HOTSPOT-162 | P1: Scan JSON contract test | Tasks T3 | Done |
-| HOTSPOT-163 | P1: Compare JSON contract test | Tasks T3 | Done |
-| HOTSPOT-164 | P1: Documentation | Tasks T4 | Done |
-| HOTSPOT-165 | P1: Package/README visibility | Tasks T4 | Done |
+| Requirement ID | Story                                           | Phase    | Status |
+| -------------- | ----------------------------------------------- | -------- | ------ |
+| HOTSPOT-158    | P1: scan-result schema                          | Tasks T1 | Done   |
+| HOTSPOT-159    | P1: compare-result schema + hasStaticDependency | Tasks T1 | Done   |
+| HOTSPOT-160    | P1: Strong parseScanResult                      | Tasks T2 | Done   |
+| HOTSPOT-161    | P1: BaselineError messages                      | Tasks T2 | Done   |
+| HOTSPOT-162    | P1: Scan JSON contract test                     | Tasks T3 | Done   |
+| HOTSPOT-163    | P1: Compare JSON contract test                  | Tasks T3 | Done   |
+| HOTSPOT-164    | P1: Documentation                               | Tasks T4 | Done   |
+| HOTSPOT-165    | P1: Package/README visibility                   | Tasks T4 | Done   |
 
 **Coverage:** 8 total, 8 mapped to tasks, 0 unmapped
 

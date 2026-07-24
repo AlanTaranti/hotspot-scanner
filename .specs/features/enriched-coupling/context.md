@@ -30,14 +30,14 @@
 
 **Choice:** `hasStaticDependency === true` when **either** file has a **resolvable** static reference to the other:
 
-| Construct | Counted |
-| --------- | ------- |
-| `import … from './path'` / `import('./path')` (static string only) | Yes |
-| `export … from './path'` / `export * from './path'` | Yes |
-| `require('./path')` with string literal | Yes |
-| Dynamic `import(expr)` / `require(expr)` (non-literal) | No |
-| Bare package specifier (`lodash`, `@scope/pkg`) | No — not a pair edge |
-| Type-only `import type` / `export type … from` | Yes (still a static module edge) |
+| Construct                                                          | Counted                          |
+| ------------------------------------------------------------------ | -------------------------------- |
+| `import … from './path'` / `import('./path')` (static string only) | Yes                              |
+| `export … from './path'` / `export * from './path'`                | Yes                              |
+| `require('./path')` with string literal                            | Yes                              |
+| Dynamic `import(expr)` / `require(expr)` (non-literal)             | No                               |
+| Bare package specifier (`lodash`, `@scope/pkg`)                    | No — not a pair edge             |
+| Type-only `import type` / `export type … from`                     | Yes (still a static module edge) |
 
 Resolution: resolve relative (and `./`/`../`) specifiers against the importing file’s directory to a repo-relative path; normalize to the same path form used in coupling (`fileA`/`fileB`). Extensionless and `.js`→`.ts` candidates: try common TS/JS extensions (`.ts`, `.tsx`, `.js`, `.jsx`, `/index.*`) when matching the peer path.
 
@@ -79,12 +79,12 @@ Resolution: resolve relative (and `./`/`../`) specifiers against the importing f
 
 **Choice:**
 
-| Surface | Behavior |
-| ------- | -------- |
-| JSON | Field on every `CouplingPair` object |
-| Table / markdown | Column `StaticDep` (or `Has static`) — `yes`/`no` |
-| CSV coupling | Column `hasStaticDependency` (`true`/`false`) |
-| Compare | Field travels with `entity` on coupling deltas; renderers show column where coupling rows appear |
+| Surface          | Behavior                                                                                         |
+| ---------------- | ------------------------------------------------------------------------------------------------ |
+| JSON             | Field on every `CouplingPair` object                                                             |
+| Table / markdown | Column `StaticDep` (or `Has static`) — `yes`/`no`                                                |
+| CSV coupling     | Column `hasStaticDependency` (`true`/`false`)                                                    |
+| Compare          | Field travels with `entity` on coupling deltas; renderers show column where coupling rows appear |
 
 **Rationale:** Additive schema under `version: "1.0"` (same pattern as M9/M11). M20 JSON Schema **must** include `hasStaticDependency` (boolean, required on coupling items once M14 ships; M20 plans for it).
 
@@ -110,9 +110,9 @@ Resolution: resolve relative (and `./`/`../`) specifiers against the importing f
 
 ## Related closed decisions
 
-| Decision | Value | Relevance |
-| -------- | ----- | --------- |
-| Coupling always file-level | M11 | Enrichment is file-pair only |
-| `DEFAULT_MIN_COCHANGE = 3` | M4/M5 | Enrich only pairs that pass threshold |
-| JSON version `"1.0"` additive | M9/M11 | No version bump for new boolean |
-| Requirement ID start | `HOTSPOT-145` | Continues after M18 (`HOTSPOT-144`) |
+| Decision                      | Value         | Relevance                             |
+| ----------------------------- | ------------- | ------------------------------------- |
+| Coupling always file-level    | M11           | Enrichment is file-pair only          |
+| `DEFAULT_MIN_COCHANGE = 3`    | M4/M5         | Enrich only pairs that pass threshold |
+| JSON version `"1.0"` additive | M9/M11        | No version bump for new boolean       |
+| Requirement ID start          | `HOTSPOT-145` | Continues after M18 (`HOTSPOT-144`)   |

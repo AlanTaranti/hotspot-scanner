@@ -24,7 +24,10 @@ function loadCompareResult(baselineName: string, currentName: string) {
 describe("renderCompareMarkdown", () => {
   it("renders markdown with GFM sections", () => {
     const output = renderCompareMarkdown(
-      loadCompareResult("compare-baseline-file.json", "compare-current-file.json"),
+      loadCompareResult(
+        "compare-baseline-file.json",
+        "compare-current-file.json",
+      ),
     );
 
     expect(output).toContain("# Hotspot Scanner — Compare Report");
@@ -35,7 +38,10 @@ describe("renderCompareMarkdown", () => {
 
   it("renders Has static column in coupling tables", () => {
     const output = renderCompareMarkdown(
-      loadCompareResult("compare-baseline-file.json", "compare-current-file.json"),
+      loadCompareResult(
+        "compare-baseline-file.json",
+        "compare-current-file.json",
+      ),
     );
 
     expect(output).toContain("| Has static |");

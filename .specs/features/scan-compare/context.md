@@ -186,11 +186,11 @@
 
 **Choice:**
 
-| Entity | Key |
-| ------ | --- |
-| File hotspot | `filePath` |
-| Function hotspot | `filePath` + `\0` + `functionName` + `\0` + `line` (or equivalent composite) |
-| Coupling pair | canonical `(fileA, fileB)` where `fileA < fileB` lexicographically — reuse `canonicalPair` from `coupling-scorer.ts` |
+| Entity           | Key                                                                                                                  |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------- |
+| File hotspot     | `filePath`                                                                                                           |
+| Function hotspot | `filePath` + `\0` + `functionName` + `\0` + `line` (or equivalent composite)                                         |
+| Coupling pair    | canonical `(fileA, fileB)` where `fileA < fileB` lexicographically — reuse `canonicalPair` from `coupling-scorer.ts` |
 
 **Rationale:**
 
@@ -205,11 +205,11 @@
 
 ## Related closed decisions (STATE.md / prior milestones)
 
-| Decision | Value | Relevance to M13 |
-| -------- | ----- | ---------------- |
-| JSON schema version | `"1.0"` | Baseline must be `ScanResult` v1.0 |
-| Exit code on successful scan | `0` | Same for successful compare |
-| Report channel | stdout (or `--output` file) | Delta report uses same transport |
-| Diagnostics channel | stderr | Warnings (`since` mismatch) on stderr |
-| `--top` slicing | Render-time via `sliceScanResult` | New `sliceCompareResult` for delta |
-| Requirement ID start | `HOTSPOT-103` | Continues after M11 (`HOTSPOT-102`) |
+| Decision                     | Value                             | Relevance to M13                      |
+| ---------------------------- | --------------------------------- | ------------------------------------- |
+| JSON schema version          | `"1.0"`                           | Baseline must be `ScanResult` v1.0    |
+| Exit code on successful scan | `0`                               | Same for successful compare           |
+| Report channel               | stdout (or `--output` file)       | Delta report uses same transport      |
+| Diagnostics channel          | stderr                            | Warnings (`since` mismatch) on stderr |
+| `--top` slicing              | Render-time via `sliceScanResult` | New `sliceCompareResult` for delta    |
+| Requirement ID start         | `HOTSPOT-103`                     | Continues after M11 (`HOTSPOT-102`)   |

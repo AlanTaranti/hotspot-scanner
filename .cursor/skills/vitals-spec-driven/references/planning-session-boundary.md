@@ -10,10 +10,10 @@
 
 ## Session model
 
-| Session | Agents / skills | Ends when |
-| ------- | --------------- | --------- |
-| **Planning** | `planner-feature`, `vitals-spec-driven` (Specify/Design/Tasks) | `tasks.md` **Status: Planned**; handoff delivered |
-| **Development** | User promotes Status → `orchestrator-implementer` | Gates pass; tasks marked Complete; ROADMAP synced |
+| Session         | Agents / skills                                                | Ends when                                         |
+| --------------- | -------------------------------------------------------------- | ------------------------------------------------- |
+| **Planning**    | `planner-feature`, `vitals-spec-driven` (Specify/Design/Tasks) | `tasks.md` **Status: Planned**; handoff delivered |
+| **Development** | User promotes Status → `orchestrator-implementer`              | Gates pass; tasks marked Complete; ROADMAP synced |
 
 The product lifecycle includes Execute — but **not in the same session** as planning agents.
 
@@ -59,10 +59,10 @@ Gate final esperado: pnpm build && pnpm test
 
 ## Status transitions
 
-| Status | Who sets | Meaning |
-| ------ | -------- | ------- |
-| `Draft` | planner | Incomplete spec/tasks |
-| `Planned` | planner | Ready for user review — **planning session ends here** |
-| `Approved` / `Ready for Execute` | user or main agent | OK to start orchestrator |
-| `In Progress` | orchestrator | Execute started |
-| `Done` | orchestrator | All tasks complete + gates pass |
+| Status                           | Who sets           | Meaning                                                |
+| -------------------------------- | ------------------ | ------------------------------------------------------ |
+| `Draft`                          | planner            | Incomplete spec/tasks                                  |
+| `Planned`                        | planner            | Ready for user review — **planning session ends here** |
+| `Approved` / `Ready for Execute` | user or main agent | OK to start orchestrator                               |
+| `In Progress`                    | orchestrator       | Execute started                                        |
+| `Done`                           | orchestrator       | All tasks complete + gates pass                        |

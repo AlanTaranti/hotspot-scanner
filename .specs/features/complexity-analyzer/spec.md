@@ -22,17 +22,17 @@ M1 delivered the `ComplexityResult` domain type and a throwing stub in `src/comp
 
 Explicitly excluded. Documented to prevent scope creep.
 
-| Feature | Reason |
-| ------- | ------ |
-| `hotspotScore` / normalization formulas | Milestone 4 — Scoring |
-| Wiring into `runScan()` / CLI | M5/M6 — analyzer testable in isolation |
-| Historical file versions from Git | IMPL §4.3 — working tree only |
-| Intersection with Git Miner file paths | M4/M6 — M3 analyzes all eligible files under `repoPath` |
-| Extension filter in Git Miner | M2 records all paths; M3 filters by extension at discovery |
-| Worker-thread parallelization | Deferred in [STATE.md](../../project/STATE.md) |
-| Exclusion of `node_modules` / `dist` | YAGNI v1 — no directory denylist unless added later |
-| `commander`, reporter, JSON output | Milestone 5 — Reporter + CLI |
-| Versioned Git fixture repo (`tests/fixtures/repos/`) | Milestone 6 — Integration |
+| Feature                                              | Reason                                                     |
+| ---------------------------------------------------- | ---------------------------------------------------------- |
+| `hotspotScore` / normalization formulas              | Milestone 4 — Scoring                                      |
+| Wiring into `runScan()` / CLI                        | M5/M6 — analyzer testable in isolation                     |
+| Historical file versions from Git                    | IMPL §4.3 — working tree only                              |
+| Intersection with Git Miner file paths               | M4/M6 — M3 analyzes all eligible files under `repoPath`    |
+| Extension filter in Git Miner                        | M2 records all paths; M3 filters by extension at discovery |
+| Worker-thread parallelization                        | Deferred in [STATE.md](../../project/STATE.md)             |
+| Exclusion of `node_modules` / `dist`                 | YAGNI v1 — no directory denylist unless added later        |
+| `commander`, reporter, JSON output                   | Milestone 5 — Reporter + CLI                               |
+| Versioned Git fixture repo (`tests/fixtures/repos/`) | Milestone 6 — Integration                                  |
 
 ---
 
@@ -169,18 +169,18 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-19 | P1: ts-morph adapter and file discovery | Tasks T1, T5 | Done |
-| HOTSPOT-20 | P1: ts-morph adapter and file discovery | Tasks T2, T5 | Done |
-| HOTSPOT-21 | P1: McCabe decision nodes | Tasks T3, T7 | Done |
-| HOTSPOT-22 | P1: Per-file aggregation (sum) | Tasks T4, T5 | Done |
-| HOTSPOT-23 | P1: Per-file aggregation (sum) | Tasks T4, T5 | Done |
-| HOTSPOT-24 | P1: Invalid syntax — warn and skip | Tasks T5, T7 | Done |
-| HOTSPOT-25 | P1: ts-morph adapter and file discovery | Tasks T2 | Done |
-| HOTSPOT-26 | P2: Batch processing | Tasks T1 | Done |
-| HOTSPOT-27 | P1: Fixtures and coverage gate | Tasks T6, T7 | Done |
-| HOTSPOT-28 | P1: Fixtures and coverage gate | Tasks T8 | Done |
+| Requirement ID | Story                                   | Phase        | Status |
+| -------------- | --------------------------------------- | ------------ | ------ |
+| HOTSPOT-19     | P1: ts-morph adapter and file discovery | Tasks T1, T5 | Done   |
+| HOTSPOT-20     | P1: ts-morph adapter and file discovery | Tasks T2, T5 | Done   |
+| HOTSPOT-21     | P1: McCabe decision nodes               | Tasks T3, T7 | Done   |
+| HOTSPOT-22     | P1: Per-file aggregation (sum)          | Tasks T4, T5 | Done   |
+| HOTSPOT-23     | P1: Per-file aggregation (sum)          | Tasks T4, T5 | Done   |
+| HOTSPOT-24     | P1: Invalid syntax — warn and skip      | Tasks T5, T7 | Done   |
+| HOTSPOT-25     | P1: ts-morph adapter and file discovery | Tasks T2     | Done   |
+| HOTSPOT-26     | P2: Batch processing                    | Tasks T1     | Done   |
+| HOTSPOT-27     | P1: Fixtures and coverage gate          | Tasks T6, T7 | Done   |
+| HOTSPOT-28     | P1: Fixtures and coverage gate          | Tasks T8     | Done   |
 
 **Coverage:** 10 total, 10 mapped to tasks, 0 unmapped
 

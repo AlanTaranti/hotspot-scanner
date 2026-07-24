@@ -76,13 +76,15 @@ describe("createGitMiner", () => {
     const result = await miner.mine({ repoPath: "/fixture" });
 
     const deleteEvent = result.coChangeEvents.find(
-      (event) => event.commitHash === "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      (event) =>
+        event.commitHash === "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
     );
     expect(deleteEvent?.filesChanged).toContain("src/remove.ts");
     expect(result.fileStats.get("src/remove.ts")?.commitCount).toBe(1);
 
     const mergeEvent = result.coChangeEvents.find(
-      (event) => event.commitHash === "ffffffffffffffffffffffffffffffffffffffff",
+      (event) =>
+        event.commitHash === "ffffffffffffffffffffffffffffffffffffffff",
     );
     expect(mergeEvent?.filesChanged).toEqual(["src/keep.ts", "src/other.ts"]);
     expect(result.fileStats.get("src/keep.ts")?.commitCount).toBe(2);

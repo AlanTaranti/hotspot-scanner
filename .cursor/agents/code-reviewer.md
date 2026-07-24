@@ -88,8 +88,8 @@ You are the **Code Reviewer** for @vitals/hotspot-scanner — a read-only review
 
 **Verdict rules:**
 
-| Verdict | Meaning |
-| ------- | ------- |
-| **Approved** | No Blocker or Major issues |
+| Verdict                   | Meaning                                           |
+| ------------------------- | ------------------------------------------------- |
+| **Approved**              | No Blocker or Major issues                        |
 | **Approved with caveats** | Minor issues only; safe to proceed with awareness |
-| **Changes needed** | One or more Blocker/Major issues |
+| **Changes needed**        | One or more Blocker/Major issues                  |

@@ -46,33 +46,33 @@ flowchart LR
 
 | Task | Depends on (declared) | Appears in diagram after deps | Match |
 | ---- | --------------------- | ----------------------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T1 | T1 → T3 | ✅ |
-| T4 | T2, T3 | T2/T3 → T4 | ✅ |
-| T5 | T4 | T4 → T5 | ✅ |
+| T1   | None                  | Root                          | ✅    |
+| T2   | T1                    | T1 → T2                       | ✅    |
+| T3   | T1                    | T1 → T3                       | ✅    |
+| T4   | T2, T3                | T2/T3 → T4                    | ✅    |
+| T5   | T4                    | T4 → T5                       | ✅    |
 
 ### Path Conflict Check
 
-| Task | Module owner | Paths | Conflict with parallel peers |
-| ---- | ------------ | ----- | ---------------------------- |
-| T1 | `src/types/` | `domain.ts` | N/A sequential root |
-| T2 | `src/scoring/` | `enrich-coupling-static.ts`, `*.test.ts`, maybe export from `scoring/index.ts` | Disjoint from T3 |
-| T3 | `src/report/` | table/markdown/csv/compare-* + fixtures | Disjoint from T2 — **[P] OK with T2** |
-| T4 | `src/scan.ts` | `scan.ts`, integration tests | After T2+T3 |
-| T5 | docs | ARCHITECTURE, README, STRUCTURE, ROADMAP | After T4 |
+| Task | Module owner   | Paths                                                                          | Conflict with parallel peers          |
+| ---- | -------------- | ------------------------------------------------------------------------------ | ------------------------------------- |
+| T1   | `src/types/`   | `domain.ts`                                                                    | N/A sequential root                   |
+| T2   | `src/scoring/` | `enrich-coupling-static.ts`, `*.test.ts`, maybe export from `scoring/index.ts` | Disjoint from T3                      |
+| T3   | `src/report/`  | table/markdown/csv/compare-* + fixtures                                        | Disjoint from T2 — **[P] OK with T2** |
+| T4   | `src/scan.ts`  | `scan.ts`, integration tests                                                   | After T2+T3                           |
+| T5   | docs           | ARCHITECTURE, README, STRUCTURE, ROADMAP                                       | After T4                              |
 
 > T2 and T3 may run in parallel after T1 (`[P]` on T3).
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Tests in same task | Match |
-| ---- | ---------- | ---------------------- | ------------------ | ----- |
-| T1 | `src/types/` | none (excluded from coverage) | Type-only; consumers tested in T2–T4 | ✅ |
-| T2 | `src/scoring/` | Unit required | `enrich-coupling-static.test.ts` | ✅ |
-| T3 | `src/report/` | Unit required | Existing reporter tests updated | ✅ |
-| T4 | `src/scan.ts` | Integration | scan/integration or fixture assert | ✅ |
-| T5 | Docs | Gate | `pnpm build && pnpm test` | ✅ |
+| Task | Code layer     | TESTING.md expectation        | Tests in same task                   | Match |
+| ---- | -------------- | ----------------------------- | ------------------------------------ | ----- |
+| T1   | `src/types/`   | none (excluded from coverage) | Type-only; consumers tested in T2–T4 | ✅    |
+| T2   | `src/scoring/` | Unit required                 | `enrich-coupling-static.test.ts`     | ✅    |
+| T3   | `src/report/`  | Unit required                 | Existing reporter tests updated      | ✅    |
+| T4   | `src/scan.ts`  | Integration                   | scan/integration or fixture assert   | ✅    |
+| T5   | Docs           | Gate                          | `pnpm build && pnpm test`            | ✅    |
 
 ---
 
@@ -245,13 +245,13 @@ Phase 4: T5
 
 ## Requirement → Task map
 
-| Requirement ID | Task |
-| -------------- | ---- |
-| HOTSPOT-145 | T1 |
-| HOTSPOT-146 | T2 |
-| HOTSPOT-147 | T2 |
-| HOTSPOT-148 | T3 |
-| HOTSPOT-149 | T3 |
-| HOTSPOT-150 | T3 |
-| HOTSPOT-151 | T4 |
-| HOTSPOT-152 | T2, T3, T4, T5 |
+| Requirement ID | Task           |
+| -------------- | -------------- |
+| HOTSPOT-145    | T1             |
+| HOTSPOT-146    | T2             |
+| HOTSPOT-147    | T2             |
+| HOTSPOT-148    | T3             |
+| HOTSPOT-149    | T3             |
+| HOTSPOT-150    | T3             |
+| HOTSPOT-151    | T4             |
+| HOTSPOT-152    | T2, T3, T4, T5 |

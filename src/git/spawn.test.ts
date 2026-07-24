@@ -1,11 +1,7 @@
 import { EventEmitter } from "node:events";
 import { PassThrough } from "node:stream";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import {
-  buildGitLogArgv,
-  GitLogError,
-  streamGitLog,
-} from "./spawn.js";
+import { buildGitLogArgv, GitLogError, streamGitLog } from "./spawn.js";
 
 vi.mock("node:child_process", () => ({
   spawn: vi.fn(),
@@ -53,7 +49,7 @@ describe("buildGitLogArgv", () => {
       "/repo",
       "log",
       "--numstat",
-      '--pretty=format:COMMIT|%H|%ad|%an',
+      "--pretty=format:COMMIT|%H|%ad|%an",
     ]);
   });
 

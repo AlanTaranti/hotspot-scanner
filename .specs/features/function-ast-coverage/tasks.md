@@ -23,25 +23,25 @@ flowchart LR
 
 | Task | Depends on | Diagram | Match |
 | ---- | ---------- | ------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T2 | T2 → T3 | ✅ |
+| T1   | None       | Root    | ✅    |
+| T2   | T1         | T1 → T2 | ✅    |
+| T3   | T2         | T2 → T3 | ✅    |
 
 ### Path Conflict Check
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | `src/complexity/` | `analyze-file.ts`, `analyze-file.test.ts` | Sequential |
-| T2 | `tests/fixtures/complexity/` + complexity tests | fixtures + tests | After T1 — same domain, sequential |
-| T3 | docs | README/ARCHITECTURE/CONCERNS naming notes, ROADMAP | After T2 |
+| Task | Module owner                                    | Paths                                              | Conflict                           |
+| ---- | ----------------------------------------------- | -------------------------------------------------- | ---------------------------------- |
+| T1   | `src/complexity/`                               | `analyze-file.ts`, `analyze-file.test.ts`          | Sequential                         |
+| T2   | `tests/fixtures/complexity/` + complexity tests | fixtures + tests                                   | After T1 — same domain, sequential |
+| T3   | docs                                            | README/ARCHITECTURE/CONCERNS naming notes, ROADMAP | After T2                           |
 
 ### Test Co-location Validation
 
-| Task | Layer | Tests | Match |
-| ---- | ----- | ----- | ----- |
-| T1 | complexity analyze-file | unit same task | ✅ |
-| T2 | complexity fixtures | unit same task | ✅ |
-| T3 | docs | full gate | ✅ |
+| Task | Layer                   | Tests          | Match |
+| ---- | ----------------------- | -------------- | ----- |
+| T1   | complexity analyze-file | unit same task | ✅    |
+| T2   | complexity fixtures     | unit same task | ✅    |
+| T3   | docs                    | full gate      | ✅    |
 
 ---
 
@@ -121,12 +121,12 @@ flowchart LR
 
 ## Requirement → Task map
 
-| Requirement ID | Task |
-| -------------- | ---- |
-| HOTSPOT-174 | T1 |
-| HOTSPOT-175 | T1 |
-| HOTSPOT-176 | T1 |
-| HOTSPOT-177 | T1, T2 |
-| HOTSPOT-178 | T2 |
-| HOTSPOT-179 | T3 |
-| HOTSPOT-180 | T3 |
+| Requirement ID | Task   |
+| -------------- | ------ |
+| HOTSPOT-174    | T1     |
+| HOTSPOT-175    | T1     |
+| HOTSPOT-176    | T1     |
+| HOTSPOT-177    | T1, T2 |
+| HOTSPOT-178    | T2     |
+| HOTSPOT-179    | T3     |
+| HOTSPOT-180    | T3     |

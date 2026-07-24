@@ -31,7 +31,9 @@ export interface ComplexityAnalyzerDependencies {
 }
 
 export interface ComplexityAnalyzer {
-  analyze(options: ComplexityAnalyzerOptions): Promise<ComplexityAnalyzerResult>;
+  analyze(
+    options: ComplexityAnalyzerOptions,
+  ): Promise<ComplexityAnalyzerResult>;
 }
 
 function chunk<T>(items: T[], size: number): T[][] {
@@ -52,7 +54,9 @@ async function validateRepoPath(repoPath: string): Promise<void> {
     if (error instanceof Error && error.message.includes("repoPath")) {
       throw error;
     }
-    throw new Error(`repoPath does not exist or is not accessible: ${repoPath}`);
+    throw new Error(
+      `repoPath does not exist or is not accessible: ${repoPath}`,
+    );
   }
 }
 
@@ -92,7 +96,8 @@ function mergeBatchOutputs(
     filePathIndex.get(filePath) ?? Number.MAX_SAFE_INTEGER;
 
   results.sort(
-    (left, right) => discoveryIndex(left.filePath) - discoveryIndex(right.filePath),
+    (left, right) =>
+      discoveryIndex(left.filePath) - discoveryIndex(right.filePath),
   );
 
   functions.sort((left, right) => {
@@ -130,11 +135,14 @@ export function createComplexityAnalyzer(
 
       const batches = chunk(filePaths, DEFAULT_BATCH_SIZE);
       const filePathIndex = buildFilePathIndex(filePaths);
-      const requestedConcurrency = deps.concurrency ?? DEFAULT_WORKER_CONCURRENCY;
+      const requestedConcurrency =
+        deps.concurrency ?? DEFAULT_WORKER_CONCURRENCY;
       const effectiveConcurrency =
         batches.length <= 1 ? 1 : requestedConcurrency;
 
-      const pool: WorkerPool = poolFactory({ concurrency: effectiveConcurrency });
+      const pool: WorkerPool = poolFactory({
+        concurrency: effectiveConcurrency,
+      });
       const batchOutputs = await pool.runBatches(repoPath, batches);
 
       return mergeBatchOutputs(batchOutputs, filePathIndex);

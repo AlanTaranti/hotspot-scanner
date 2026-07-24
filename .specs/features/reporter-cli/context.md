@@ -73,10 +73,10 @@
 
 ## Related closed decisions (STATE.md)
 
-| Decision | Value | Relevance to M5 |
-| -------- | ----- | ----------------- |
-| Default `--since` | `"12 months ago"` | CLI default + `meta.since` in output |
-| Default `--min-cochange` | `3` (`DEFAULT_MIN_COCHANGE`) | CLI default; import from `src/scoring/` |
-| Exit code on success | `0` | No fail thresholds in v1 |
-| `authors` not in JSON | Excluded | `ScanResult` schema has no authors field |
-| Requirement ID start | `HOTSPOT-39` | Continues after M4 (`HOTSPOT-38`) |
+| Decision                 | Value                        | Relevance to M5                          |
+| ------------------------ | ---------------------------- | ---------------------------------------- |
+| Default `--since`        | `"12 months ago"`            | CLI default + `meta.since` in output     |
+| Default `--min-cochange` | `3` (`DEFAULT_MIN_COCHANGE`) | CLI default; import from `src/scoring/`  |
+| Exit code on success     | `0`                          | No fail thresholds in v1                 |
+| `authors` not in JSON    | Excluded                     | `ScanResult` schema has no authors field |
+| Requirement ID start     | `HOTSPOT-39`                 | Continues after M4 (`HOTSPOT-38`)        |

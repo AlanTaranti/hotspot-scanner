@@ -23,25 +23,25 @@ flowchart LR
 
 | Task | Depends on | Diagram | Match |
 | ---- | ---------- | ------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T2 | T2 → T3 | ✅ |
+| T1   | None       | Root    | ✅    |
+| T2   | T1         | T1 → T2 | ✅    |
+| T3   | T2         | T2 → T3 | ✅    |
 
 ### Path Conflict Check
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | `src/config/` | new module + tests | Sequential |
-| T2 | `src/scan.ts` + `bin/` | wiring | After T1 |
-| T3 | docs | README, ARCHITECTURE, ROADMAP | After T2 |
+| Task | Module owner           | Paths                         | Conflict   |
+| ---- | ---------------------- | ----------------------------- | ---------- |
+| T1   | `src/config/`          | new module + tests            | Sequential |
+| T2   | `src/scan.ts` + `bin/` | wiring                        | After T1   |
+| T3   | docs                   | README, ARCHITECTURE, ROADMAP | After T2   |
 
 ### Test Co-location Validation
 
-| Task | Layer | Tests | Match |
-| ---- | ----- | ----- | ----- |
-| T1 | config | unit same task | ✅ |
-| T2 | scan/bin | unit/integration same task | ✅ |
-| T3 | docs | full gate | ✅ |
+| Task | Layer    | Tests                      | Match |
+| ---- | -------- | -------------------------- | ----- |
+| T1   | config   | unit same task             | ✅    |
+| T2   | scan/bin | unit/integration same task | ✅    |
+| T3   | docs     | full gate                  | ✅    |
 
 ---
 
@@ -122,13 +122,13 @@ flowchart LR
 
 ## Requirement → Task map
 
-| Requirement ID | Task |
-| -------------- | ---- |
-| HOTSPOT-166 | T1 |
-| HOTSPOT-167 | T1 |
-| HOTSPOT-168 | T1, T2 |
-| HOTSPOT-169 | T1 |
-| HOTSPOT-170 | T1 |
-| HOTSPOT-171 | T2 |
-| HOTSPOT-172 | T3 |
-| HOTSPOT-173 | T3 |
+| Requirement ID | Task   |
+| -------------- | ------ |
+| HOTSPOT-166    | T1     |
+| HOTSPOT-167    | T1     |
+| HOTSPOT-168    | T1, T2 |
+| HOTSPOT-169    | T1     |
+| HOTSPOT-170    | T1     |
+| HOTSPOT-171    | T2     |
+| HOTSPOT-172    | T3     |
+| HOTSPOT-173    | T3     |

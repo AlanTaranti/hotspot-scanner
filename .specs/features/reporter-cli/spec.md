@@ -24,16 +24,16 @@ M5 delivers the user-facing Reporter and CLI layer plus diagnostics infrastructu
 
 Explicitly excluded. Documented to prevent scope creep.
 
-| Feature | Reason |
-| ------- | ------ |
-| Full `runScan()` pipeline (git → complexity → scoring) | Milestone 6 — Integration |
-| Versioned Git fixture repo E2E (`tests/fixtures/repos/`) | Milestone 6 |
+| Feature                                                           | Reason                                                          |
+| ----------------------------------------------------------------- | --------------------------------------------------------------- |
+| Full `runScan()` pipeline (git → complexity → scoring)            | Milestone 6 — Integration                                       |
+| Versioned Git fixture repo E2E (`tests/fixtures/repos/`)          | Milestone 6                                                     |
 | Coverage ≥80% on `src/git/**` or `src/scoring/**` (already M2/M4) | No regression; M5 targets `src/report/**`, `src/diagnostics/**` |
-| `authors` field in JSON output | STATE.md — not exposed in v1 |
-| Raw `cyclomaticComplexity` / `commitCount` in JSON | M4 deferred; reporter uses scored types only |
-| Worker-thread parallelization | Deferred in STATE.md |
-| CI fail thresholds / non-zero exit on high hotspot score | IMPL §6.2 non-goal |
-| Configurable progress throttle interval flag | YAGNI — hardcode sensible default (e.g., every 1000 commits) |
+| `authors` field in JSON output                                    | STATE.md — not exposed in v1                                    |
+| Raw `cyclomaticComplexity` / `commitCount` in JSON                | M4 deferred; reporter uses scored types only                    |
+| Worker-thread parallelization                                     | Deferred in STATE.md                                            |
+| CI fail thresholds / non-zero exit on high hotspot score          | IMPL §6.2 non-goal                                              |
+| Configurable progress throttle interval flag                      | YAGNI — hardcode sensible default (e.g., every 1000 commits)    |
 
 ---
 
@@ -233,20 +233,20 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-39 | P1: CLI flags | Tasks T7 | Pending |
-| HOTSPOT-40 | P1: CLI flags (defaults) | Tasks T6, T7 | Pending |
-| HOTSPOT-41 | P1: CLI validation | Tasks T6, T7 | Pending |
-| HOTSPOT-42 | P1: JSON reporter | Tasks T3 | Pending |
-| HOTSPOT-43 | P1: Table reporter | Tasks T4 | Pending |
-| HOTSPOT-44 | P1: Table reporter (since header) | Tasks T4 | Pending |
-| HOTSPOT-45 | P1: `--top` slicing | Tasks T3, T4 | Pending |
-| HOTSPOT-46 | P1: Warning diagnostics | Tasks T1, T6, T7 | Pending |
-| HOTSPOT-47 | P1: Progress diagnostics | Tasks T1, T2, T7 | Pending |
-| HOTSPOT-48 | P1: runScan M5 wiring | Tasks T6 | Pending |
-| HOTSPOT-49 | P1: Reporter factory | Tasks T5 | Pending |
-| HOTSPOT-50 | P1: Coverage gate | Tasks T9 | Pending |
+| Requirement ID | Story                             | Phase            | Status  |
+| -------------- | --------------------------------- | ---------------- | ------- |
+| HOTSPOT-39     | P1: CLI flags                     | Tasks T7         | Pending |
+| HOTSPOT-40     | P1: CLI flags (defaults)          | Tasks T6, T7     | Pending |
+| HOTSPOT-41     | P1: CLI validation                | Tasks T6, T7     | Pending |
+| HOTSPOT-42     | P1: JSON reporter                 | Tasks T3         | Pending |
+| HOTSPOT-43     | P1: Table reporter                | Tasks T4         | Pending |
+| HOTSPOT-44     | P1: Table reporter (since header) | Tasks T4         | Pending |
+| HOTSPOT-45     | P1: `--top` slicing               | Tasks T3, T4     | Pending |
+| HOTSPOT-46     | P1: Warning diagnostics           | Tasks T1, T6, T7 | Pending |
+| HOTSPOT-47     | P1: Progress diagnostics          | Tasks T1, T2, T7 | Pending |
+| HOTSPOT-48     | P1: runScan M5 wiring             | Tasks T6         | Pending |
+| HOTSPOT-49     | P1: Reporter factory              | Tasks T5         | Pending |
+| HOTSPOT-50     | P1: Coverage gate                 | Tasks T9         | Pending |
 
 **Coverage:** 12 total, 12 mapped to tasks, 0 unmapped
 

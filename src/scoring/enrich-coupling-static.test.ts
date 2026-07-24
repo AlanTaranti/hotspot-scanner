@@ -67,7 +67,8 @@ describe("extractRelativeSpecifiers", () => {
 describe("enrichCouplingStaticDeps", () => {
   it("sets hasStaticDependency true when one file imports the other", async () => {
     const repoPath = await createTempRepo({
-      "src/consumer.ts": "import { low } from './provider';\nexport const value = low();\n",
+      "src/consumer.ts":
+        "import { low } from './provider';\nexport const value = low();\n",
       "src/provider.ts": "export function low(): number { return 1; }\n",
     });
 
@@ -109,7 +110,8 @@ describe("enrichCouplingStaticDeps", () => {
 
   it("does not treat bare package imports as a static dependency to an unrelated peer", async () => {
     const repoPath = await createTempRepo({
-      "src/pkg-only.ts": "import lodash from 'lodash';\nexport const x = lodash.sum([1, 2]);\n",
+      "src/pkg-only.ts":
+        "import lodash from 'lodash';\nexport const x = lodash.sum([1, 2]);\n",
       "src/unrelated.ts": "export const y = 3;\n",
     });
 
@@ -123,7 +125,8 @@ describe("enrichCouplingStaticDeps", () => {
 
   it("resolves extensionless and index module paths", async () => {
     const repoPath = await createTempRepo({
-      "src/consumer.ts": "import { value } from './lib';\nexport const out = value;\n",
+      "src/consumer.ts":
+        "import { value } from './lib';\nexport const out = value;\n",
       "src/lib/index.ts": "export const value = 42;\n",
     });
 
@@ -159,7 +162,8 @@ describe("enrichCouplingStaticDeps", () => {
 
   it("resolves .js import specifiers to .ts peers", async () => {
     const repoPath = await createTempRepo({
-      "src/consumer.ts": "import { value } from './provider.js';\nexport const out = value;\n",
+      "src/consumer.ts":
+        "import { value } from './provider.js';\nexport const out = value;\n",
       "src/provider.ts": "export const value = 42;\n",
     });
 

@@ -64,12 +64,12 @@
 
 **Choice:**
 
-| Construct | `functionName` |
-| --------- | -------------- |
-| `function foo()` | `foo` |
-| `class Foo { bar() {} }` | `bar` |
-| `constructor() {}` | `constructor` |
-| `const foo = () => {}` | `foo` (variable name) |
+| Construct                             | `functionName`                                 |
+| ------------------------------------- | ---------------------------------------------- |
+| `function foo()`                      | `foo`                                          |
+| `class Foo { bar() {} }`              | `bar`                                          |
+| `constructor() {}`                    | `constructor`                                  |
+| `const foo = () => {}`                | `foo` (variable name)                          |
 | Anonymous arrow / function expression | `<anonymous>:L{line}` (e.g. `<anonymous>:L42`) |
 
 `line` = `getStartLineNumber()` of the function node.
@@ -144,10 +144,10 @@
 
 ## Related closed decisions (STATE.md / prior milestones)
 
-| Decision | Value | Relevance to M11 |
-| -------- | ----- | ---------------- |
-| McCabe decision nodes | Project-owned (RT-005) | Reuse `complexityForFunction()` — no definition change |
-| Hotspot combiner | Harmonic mean `2ch/(c+h)` | Same formula at function level |
-| Normalization | `log1p` + min-max | Same strategy; universe = all functions |
-| Churn signal | Raw `commitCount` | Inherited from parent file per function |
-| Requirement ID start | `HOTSPOT-92` | Continues after M10 (`HOTSPOT-91`) |
+| Decision              | Value                     | Relevance to M11                                       |
+| --------------------- | ------------------------- | ------------------------------------------------------ |
+| McCabe decision nodes | Project-owned (RT-005)    | Reuse `complexityForFunction()` — no definition change |
+| Hotspot combiner      | Harmonic mean `2ch/(c+h)` | Same formula at function level                         |
+| Normalization         | `log1p` + min-max         | Same strategy; universe = all functions                |
+| Churn signal          | Raw `commitCount`         | Inherited from parent file per function                |
+| Requirement ID start  | `HOTSPOT-92`              | Continues after M10 (`HOTSPOT-91`)                     |

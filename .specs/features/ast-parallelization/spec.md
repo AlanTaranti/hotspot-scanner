@@ -23,17 +23,17 @@ M15 adds worker-thread parallel batch processing inside `src/complexity/` so lar
 
 Explicitly excluded. Documented to prevent scope creep.
 
-| Feature | Reason |
-| ------- | ------ |
-| Parallel git mining | ADR-2026-020; different module |
+| Feature                                  | Reason                                                                  |
+| ---------------------------------------- | ----------------------------------------------------------------------- |
+| Parallel git mining                      | ADR-2026-020; different module                                          |
 | Overlap git + complexity pipeline stages | [integration/context.md](../integration/context.md) — sequential stages |
-| CLI `--workers` / `--batch-size` flags | YAGNI; internal constants first |
-| CI performance thresholds | Manual benchmark only (integration/context.md C5) |
-| Alter McCabe / decision node definition | CONCERNS RT-005 — reuse `complexityForFunction()` |
-| File-level parallelism within a batch | Batch-level aligns with M3 D7 fresh `Project` per batch |
-| Scoring/reporter parallelization | In-memory; not RT-001 bottleneck |
-| Change `DEFAULT_BATCH_SIZE` (50) | Memory tuning ≠ parallelism |
-| Historical AST from Git | ARCHITECTURE constraint — working tree only |
+| CLI `--workers` / `--batch-size` flags   | YAGNI; internal constants first                                         |
+| CI performance thresholds                | Manual benchmark only (integration/context.md C5)                       |
+| Alter McCabe / decision node definition  | CONCERNS RT-005 — reuse `complexityForFunction()`                       |
+| File-level parallelism within a batch    | Batch-level aligns with M3 D7 fresh `Project` per batch                 |
+| Scoring/reporter parallelization         | In-memory; not RT-001 bottleneck                                        |
+| Change `DEFAULT_BATCH_SIZE` (50)         | Memory tuning ≠ parallelism                                             |
+| Historical AST from Git                  | ARCHITECTURE constraint — working tree only                             |
 
 ---
 
@@ -205,16 +205,16 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-113 | P1: Worker pool with bounded concurrency | Tasks T1, T2 | Planned |
-| HOTSPOT-114 | P1: Output equivalence | Tasks T3, T4 | Planned |
-| HOTSPOT-115 | P1: Parse failures unchanged | Tasks T1, T4 | Planned |
-| HOTSPOT-116 | P1: Discovery on main thread | Tasks T1, T3 | Planned |
-| HOTSPOT-117 | P1: Testability — injectable pool | Tasks T2, T3, T4 | Planned |
-| HOTSPOT-118 | P1: McCabe regression gate | Tasks T4, T5 | Planned |
-| HOTSPOT-119 | P2: Manual benchmark documentation | Tasks T6 | Planned |
-| HOTSPOT-120 | P1: Documentation sync | Tasks T6 | Planned |
+| Requirement ID | Story                                    | Phase            | Status  |
+| -------------- | ---------------------------------------- | ---------------- | ------- |
+| HOTSPOT-113    | P1: Worker pool with bounded concurrency | Tasks T1, T2     | Planned |
+| HOTSPOT-114    | P1: Output equivalence                   | Tasks T3, T4     | Planned |
+| HOTSPOT-115    | P1: Parse failures unchanged             | Tasks T1, T4     | Planned |
+| HOTSPOT-116    | P1: Discovery on main thread             | Tasks T1, T3     | Planned |
+| HOTSPOT-117    | P1: Testability — injectable pool        | Tasks T2, T3, T4 | Planned |
+| HOTSPOT-118    | P1: McCabe regression gate               | Tasks T4, T5     | Planned |
+| HOTSPOT-119    | P2: Manual benchmark documentation       | Tasks T6         | Planned |
+| HOTSPOT-120    | P1: Documentation sync                   | Tasks T6         | Planned |
 
 **Coverage:** 8 total, 8 mapped to tasks, 0 unmapped
 

@@ -43,19 +43,19 @@ flowchart LR
 
 | Task | Depends on (declared) | Appears in diagram after deps | Match |
 | ---- | --------------------- | ----------------------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T2 | T2 → T3 | ✅ |
-| T4 | T3 | T3 → T4 | ✅ |
+| T1   | None                  | Root                          | ✅    |
+| T2   | T1                    | T1 → T2                       | ✅    |
+| T3   | T2                    | T2 → T3                       | ✅    |
+| T4   | T3                    | T3 → T4                       | ✅    |
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Tests in same task | Match |
-| ---- | ---------- | ---------------------- | ------------------ | ----- |
-| T1 | `src/scoring/hotspot-scorer.ts` | Unit required | `hotspot-scorer.test.ts` update | ✅ |
-| T2 | `tests/fixtures/scoring/` | Unit via fixture test | `hotspot-scorer.test.ts` fixture case | ✅ |
-| T3 | `src/scan.ts` integration | Integration | `scan.integration.test.ts` verify | ✅ |
-| T4 | Docs only | Gate | `pnpm build && pnpm test` | ✅ |
+| Task | Code layer                      | TESTING.md expectation | Tests in same task                    | Match |
+| ---- | ------------------------------- | ---------------------- | ------------------------------------- | ----- |
+| T1   | `src/scoring/hotspot-scorer.ts` | Unit required          | `hotspot-scorer.test.ts` update       | ✅    |
+| T2   | `tests/fixtures/scoring/`       | Unit via fixture test  | `hotspot-scorer.test.ts` fixture case | ✅    |
+| T3   | `src/scan.ts` integration       | Integration            | `scan.integration.test.ts` verify     | ✅    |
+| T4   | Docs only                       | Gate                   | `pnpm build && pnpm test`             | ✅    |
 
 ---
 
@@ -185,12 +185,12 @@ flowchart LR
 
 | Requirement ID | Tasks |
 | -------------- | ----- |
-| HOTSPOT-69 | T1 |
-| HOTSPOT-70 | T1 |
-| HOTSPOT-71 | T1 |
-| HOTSPOT-72 | T1 |
-| HOTSPOT-73 | T2 |
-| HOTSPOT-74 | T3 |
-| HOTSPOT-75 | T4 |
+| HOTSPOT-69     | T1    |
+| HOTSPOT-70     | T1    |
+| HOTSPOT-71     | T1    |
+| HOTSPOT-72     | T1    |
+| HOTSPOT-73     | T2    |
+| HOTSPOT-74     | T3    |
+| HOTSPOT-75     | T4    |
 
 **Coverage:** 7 total, 7 mapped to tasks, 0 unmapped

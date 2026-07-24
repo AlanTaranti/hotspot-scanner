@@ -8,11 +8,11 @@
 
 ## When to sync
 
-| Event | ROADMAP.md | STATE.md |
-| ----- | ---------- | -------- |
-| Planning complete | Add/update feature under milestone (status: planned) | Optional: log decisions |
-| Execute Done | Mark feature **DONE** under milestone | Log blockers/lessons if any |
-| Milestone complete | Update **Current Milestone** header | Record milestone decision |
+| Event              | ROADMAP.md                                           | STATE.md                    |
+| ------------------ | ---------------------------------------------------- | --------------------------- |
+| Planning complete  | Add/update feature under milestone (status: planned) | Optional: log decisions     |
+| Execute Done       | Mark feature **DONE** under milestone                | Log blockers/lessons if any |
+| Milestone complete | Update **Current Milestone** header                  | Record milestone decision   |
 
 ---
 
@@ -38,20 +38,20 @@
 
 ## Who edits what
 
-| File | planner-feature | orchestrator-implementer | implementer (orchestrated) |
-| ---- | --------------- | ------------------------ | -------------------------- |
-| tasks.md | Creates; Status Planned | Updates checkboxes + Status | **Must not edit** |
-| ROADMAP.md | Adds planned feature | Marks Done | **Must not edit** |
-| STATE.md | Optional on planning | On significant decisions | **Must not edit** |
+| File       | planner-feature         | orchestrator-implementer    | implementer (orchestrated) |
+| ---------- | ----------------------- | --------------------------- | -------------------------- |
+| tasks.md   | Creates; Status Planned | Updates checkboxes + Status | **Must not edit**          |
+| ROADMAP.md | Adds planned feature    | Marks Done                  | **Must not edit**          |
+| STATE.md   | Optional on planning    | On significant decisions    | **Must not edit**          |
 
 ---
 
 ## Examples
 
-| Feature | ROADMAP change |
-| ------- | -------------- |
-| GitMiner Done | Add DONE under M2 Git Change Miner |
-| ComplexityAnalyzer Done | Add DONE under M3 |
-| CLI wiring Done | Mark under M5 |
+| Feature                 | ROADMAP change                     |
+| ----------------------- | ---------------------------------- |
+| GitMiner Done           | Add DONE under M2 Git Change Miner |
+| ComplexityAnalyzer Done | Add DONE under M3                  |
+| CLI wiring Done         | Mark under M5                      |
 
 Do not duplicate full spec content in ROADMAP — link to `.specs/features/<slug>/spec.md`.

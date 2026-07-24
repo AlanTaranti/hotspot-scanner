@@ -114,10 +114,10 @@
 
 ## Related closed decisions (STATE.md / M5 context)
 
-| Decision | Value | Relevance to M10 |
-| -------- | ----- | ---------------- |
-| Warnings/progress channel | stderr | Unchanged with `--output` |
-| Report channel (no `--output`) | stdout | Unchanged |
-| Default `--format` | `table` | Unchanged |
-| JSON schema version | `"1.0"` | Unchanged — file export is same JSON |
-| Requirement ID start | `HOTSPOT-83` | Continues after M9 (`HOTSPOT-82`) |
+| Decision                       | Value        | Relevance to M10                     |
+| ------------------------------ | ------------ | ------------------------------------ |
+| Warnings/progress channel      | stderr       | Unchanged with `--output`            |
+| Report channel (no `--output`) | stdout       | Unchanged                            |
+| Default `--format`             | `table`      | Unchanged                            |
+| JSON schema version            | `"1.0"`      | Unchanged — file export is same JSON |
+| Requirement ID start           | `HOTSPOT-83` | Continues after M9 (`HOTSPOT-82`)    |

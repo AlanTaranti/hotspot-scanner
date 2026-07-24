@@ -4,7 +4,11 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { BaselineError, loadBaseline, parseScanResult } from "./load-baseline.js";
+import {
+  BaselineError,
+  loadBaseline,
+  parseScanResult,
+} from "./load-baseline.js";
 
 const fixturePath = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -12,7 +16,10 @@ const fixturePath = join(
 );
 
 function loadFixture(): Record<string, unknown> {
-  return JSON.parse(readFileSync(fixturePath, "utf8")) as Record<string, unknown>;
+  return JSON.parse(readFileSync(fixturePath, "utf8")) as Record<
+    string,
+    unknown
+  >;
 }
 
 describe("parseScanResult", () => {
@@ -75,7 +82,10 @@ describe("parseScanResult", () => {
     expect(() =>
       parseScanResult({
         ...raw,
-        meta: { ...(raw.meta as Record<string, unknown>), granularity: "module" },
+        meta: {
+          ...(raw.meta as Record<string, unknown>),
+          granularity: "module",
+        },
       }),
     ).toThrow(/Invalid baseline meta.granularity/);
   });
@@ -85,7 +95,9 @@ describe("parseScanResult", () => {
     const hotspots = [...(raw.hotspots as unknown[])];
 
     hotspots[0] = "not-an-object";
-    expect(() => parseScanResult({ ...raw, hotspots })).toThrow(/hotspots\[0\] must be an object/);
+    expect(() => parseScanResult({ ...raw, hotspots })).toThrow(
+      /hotspots\[0\] must be an object/,
+    );
 
     hotspots[0] = { ...(raw.hotspots as Record<string, unknown>[])[0] };
     delete (hotspots[0] as Record<string, unknown>).filePath;
@@ -166,7 +178,8 @@ describe("parseScanResult", () => {
   it("rejects coupling items missing hasStaticDependency with re-scan hint", () => {
     const raw = loadFixture();
     const coupling = (raw.coupling as Record<string, unknown>[]).map((item) => {
-      const { hasStaticDependency: _hasStaticDependency, ...withoutFlag } = item;
+      const { hasStaticDependency: _hasStaticDependency, ...withoutFlag } =
+        item;
       return withoutFlag;
     });
 
@@ -196,9 +209,11 @@ describe("loadBaseline", () => {
     const result = await loadBaseline(fixturePath);
     expect(result.version).toBe("1.0");
     expect(result.hotspots[0]?.filePath).toBe("src/hot.ts");
-    expect(result.coupling.every((pair) => typeof pair.hasStaticDependency === "boolean")).toBe(
-      true,
-    );
+    expect(
+      result.coupling.every(
+        (pair) => typeof pair.hasStaticDependency === "boolean",
+      ),
+    ).toBe(true);
   });
 
   it("throws on missing file", async () => {
@@ -231,13 +246,16 @@ describe("loadBaseline", () => {
     const invalidPath = join(tempDir, "pre-m14-baseline.json");
     const raw = loadFixture();
     const coupling = (raw.coupling as Record<string, unknown>[]).map((item) => {
-      const { hasStaticDependency: _hasStaticDependency, ...withoutFlag } = item;
+      const { hasStaticDependency: _hasStaticDependency, ...withoutFlag } =
+        item;
       return withoutFlag;
     });
     await writeFile(invalidPath, JSON.stringify({ ...raw, coupling }), "utf8");
     try {
       await expect(loadBaseline(invalidPath)).rejects.toThrow(BaselineError);
-      await expect(loadBaseline(invalidPath)).rejects.toThrow(/hasStaticDependency/);
+      await expect(loadBaseline(invalidPath)).rejects.toThrow(
+        /hasStaticDependency/,
+      );
       await expect(loadBaseline(invalidPath)).rejects.toThrow(/Re-scan/);
     } finally {
       await rm(tempDir, { recursive: true, force: true });

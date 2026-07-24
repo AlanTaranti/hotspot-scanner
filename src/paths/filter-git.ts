@@ -6,7 +6,10 @@ export function filterGitMinerResult(
   result: GitMinerResult,
   scope: PathScope,
 ): GitMinerResult {
-  const fileStats = new Map<string, (typeof result.fileStats extends Map<string, infer V> ? V : never)>();
+  const fileStats = new Map<
+    string,
+    typeof result.fileStats extends Map<string, infer V> ? V : never
+  >();
 
   for (const [filePath, stats] of result.fileStats) {
     if (isPathInScope(filePath, scope)) {
@@ -18,7 +21,9 @@ export function filterGitMinerResult(
     .map((event) => {
       const inScopeFiles = [
         ...new Set(
-          event.filesChanged.filter((filePath) => isPathInScope(filePath, scope)),
+          event.filesChanged.filter((filePath) =>
+            isPathInScope(filePath, scope),
+          ),
         ),
       ];
       return { ...event, filesChanged: inScopeFiles };

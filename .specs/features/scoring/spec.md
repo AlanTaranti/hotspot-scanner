@@ -23,15 +23,15 @@ M1 delivered typed contracts in `src/scoring/index.ts` and domain types in `src/
 
 Explicitly excluded. Documented to prevent scope creep.
 
-| Feature | Reason |
-| ------- | ------ |
-| `src/scan.ts` pipeline wiring | Milestone 6 — Integration |
-| `bin/hotspot-scanner.ts` CLI flags (`--min-cochange`, `--top`, `--since`, `--format`) | Milestone 5 — Reporter + CLI |
-| Reporter table/JSON output | Milestone 5 |
-| Versioned Git fixture repo (`tests/fixtures/repos/`) | Milestone 6 — Integration |
-| Extension filter at orchestration (intersect git paths with complexity paths) | M6 may filter at `runScan()` |
-| Worker-thread parallelization | Deferred in [STATE.md](../../project/STATE.md) |
-| Adding coupling into `hotspotScore` | IMPL §4.3 — separate rankings |
+| Feature                                                                               | Reason                                         |
+| ------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| `src/scan.ts` pipeline wiring                                                         | Milestone 6 — Integration                      |
+| `bin/hotspot-scanner.ts` CLI flags (`--min-cochange`, `--top`, `--since`, `--format`) | Milestone 5 — Reporter + CLI                   |
+| Reporter table/JSON output                                                            | Milestone 5                                    |
+| Versioned Git fixture repo (`tests/fixtures/repos/`)                                  | Milestone 6 — Integration                      |
+| Extension filter at orchestration (intersect git paths with complexity paths)         | M6 may filter at `runScan()`                   |
+| Worker-thread parallelization                                                         | Deferred in [STATE.md](../../project/STATE.md) |
+| Adding coupling into `hotspotScore`                                                   | IMPL §4.3 — separate rankings                  |
 
 ---
 
@@ -218,18 +218,18 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-29 | P1: Log-scale normalization | Tasks T1 | Done |
-| HOTSPOT-30 | P1: HotspotScorer formula | Tasks T2, T4 | Done |
-| HOTSPOT-31 | P1: HotspotScorer formula | Tasks T2, T6 | Done |
-| HOTSPOT-32 | P1: Hotspot ranking determinism | Tasks T2, T6 | Done |
-| HOTSPOT-33 | P1: Co-change pair aggregation | Tasks T3, T7 | Done |
-| HOTSPOT-34 | P1: Coupling strength formula | Tasks T3, T7 | Done |
-| HOTSPOT-35 | P1: minCochange threshold | Tasks T3, T4, T7 | Done |
-| HOTSPOT-36 | P1: Coupling ranking | Tasks T3, T7 | Done |
-| HOTSPOT-37 | P1: Scoring fixtures | Tasks T5, T6, T7 | Done |
-| HOTSPOT-38 | P1: Coverage gate | Tasks T8 | Done |
+| Requirement ID | Story                           | Phase            | Status |
+| -------------- | ------------------------------- | ---------------- | ------ |
+| HOTSPOT-29     | P1: Log-scale normalization     | Tasks T1         | Done   |
+| HOTSPOT-30     | P1: HotspotScorer formula       | Tasks T2, T4     | Done   |
+| HOTSPOT-31     | P1: HotspotScorer formula       | Tasks T2, T6     | Done   |
+| HOTSPOT-32     | P1: Hotspot ranking determinism | Tasks T2, T6     | Done   |
+| HOTSPOT-33     | P1: Co-change pair aggregation  | Tasks T3, T7     | Done   |
+| HOTSPOT-34     | P1: Coupling strength formula   | Tasks T3, T7     | Done   |
+| HOTSPOT-35     | P1: minCochange threshold       | Tasks T3, T4, T7 | Done   |
+| HOTSPOT-36     | P1: Coupling ranking            | Tasks T3, T7     | Done   |
+| HOTSPOT-37     | P1: Scoring fixtures            | Tasks T5, T6, T7 | Done   |
+| HOTSPOT-38     | P1: Coverage gate               | Tasks T8         | Done   |
 
 **Coverage:** 10 total, 10 mapped to tasks, 0 unmapped
 

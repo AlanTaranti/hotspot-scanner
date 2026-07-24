@@ -22,7 +22,9 @@ function renderScanMeta(result: ScanResult): string {
     scan_window: result.meta.since,
     scanned_at: result.meta.scannedAt,
     granularity:
-      result.meta.granularity === "function" ? ("function" as const) : ("file" as const),
+      result.meta.granularity === "function"
+        ? ("function" as const)
+        : ("file" as const),
   };
   return `${JSON.stringify(meta, null, 2)}\n`;
 }

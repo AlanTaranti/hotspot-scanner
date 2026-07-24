@@ -21,7 +21,9 @@ async function createTempRepo(files: Record<string, string>): Promise<string> {
 }
 
 afterEach(async () => {
-  await Promise.all(tempDirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })));
+  await Promise.all(
+    tempDirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })),
+  );
 });
 
 describe("discoverSourceFiles", () => {
@@ -58,9 +60,9 @@ describe("discoverSourceFiles", () => {
       "file.ts": "export const x = 1;",
     });
 
-    await expect(discoverSourceFiles(join(repoPath, "file.ts"))).rejects.toThrow(
-      /repoPath/,
-    );
+    await expect(
+      discoverSourceFiles(join(repoPath, "file.ts")),
+    ).rejects.toThrow(/repoPath/);
   });
 
   it("excludes node_modules by default", async () => {

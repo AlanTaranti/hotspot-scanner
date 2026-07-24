@@ -122,11 +122,11 @@
 
 ## Related closed decisions (STATE.md)
 
-| Decision | Value | Relevance to M6 |
-| -------- | ----- | ----------------- |
-| Default `--since` | `"12 months ago"` | Fixture commit dates + integration test window |
-| Default `--min-cochange` | `3` | Fixture co-change pair design |
-| Default `--top` | `20` | Not applied in `runScan`; CLI/reporter only |
-| Exit code on success | `0` | CLI integration test |
-| Rename via `PathAliasMap` | Not `--follow` global log | P2 `with-renames` fixture validates E2E |
-| Requirement ID start | `HOTSPOT-51` | Continues after M5 (`HOTSPOT-50`) |
+| Decision                  | Value                     | Relevance to M6                                |
+| ------------------------- | ------------------------- | ---------------------------------------------- |
+| Default `--since`         | `"12 months ago"`         | Fixture commit dates + integration test window |
+| Default `--min-cochange`  | `3`                       | Fixture co-change pair design                  |
+| Default `--top`           | `20`                      | Not applied in `runScan`; CLI/reporter only    |
+| Exit code on success      | `0`                       | CLI integration test                           |
+| Rename via `PathAliasMap` | Not `--follow` global log | P2 `with-renames` fixture validates E2E        |
+| Requirement ID start      | `HOTSPOT-51`              | Continues after M5 (`HOTSPOT-50`)              |

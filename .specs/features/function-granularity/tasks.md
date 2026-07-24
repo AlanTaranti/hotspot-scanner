@@ -61,25 +61,25 @@ flowchart LR
 
 | Task | Depends on (declared) | Appears in diagram after deps | Match |
 | ---- | --------------------- | ----------------------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T2 | T2 → T3 | ✅ |
-| T4 | T3 | T3 → T4 | ✅ |
-| T5 | T3 | T3 → T5 | ✅ |
-| T6 | T4, T5 | T4/T5 → T6 | ✅ |
-| T7 | T6 | T6 → T7 | ✅ |
+| T1   | None                  | Root                          | ✅    |
+| T2   | T1                    | T1 → T2                       | ✅    |
+| T3   | T2                    | T2 → T3                       | ✅    |
+| T4   | T3                    | T3 → T4                       | ✅    |
+| T5   | T3                    | T3 → T5                       | ✅    |
+| T6   | T4, T5                | T4/T5 → T6                    | ✅    |
+| T7   | T6                    | T6 → T7                       | ✅    |
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Tests in same task | Match |
-| ---- | ---------- | ---------------------- | ------------------ | ----- |
-| T1 | `src/complexity/analyze-file.ts` | Unit required | `analyze-file.test.ts` | ✅ |
-| T2 | `src/scoring/function-hotspot-scorer.ts` | Unit required | `function-hotspot-scorer.test.ts` | ✅ |
-| T3 | `src/scan.ts`, `src/types/domain.ts` | Integration | `scan.integration.test.ts` (partial) | ✅ |
-| T4 | `bin/hotspot-scanner.ts` | CLI unit | `bin/hotspot-scanner.test.ts` | ✅ |
-| T5 | `src/report/**` | Unit required | `table.test.ts`, `markdown.test.ts`, `slice.test.ts`, `index.test.ts` | ✅ |
-| T6 | `bin/` integration | Integration | `bin/hotspot-scanner.integration.test.ts` | ✅ |
-| T7 | Docs only | Gate | `pnpm build && pnpm test` | ✅ |
+| Task | Code layer                               | TESTING.md expectation | Tests in same task                                                    | Match |
+| ---- | ---------------------------------------- | ---------------------- | --------------------------------------------------------------------- | ----- |
+| T1   | `src/complexity/analyze-file.ts`         | Unit required          | `analyze-file.test.ts`                                                | ✅    |
+| T2   | `src/scoring/function-hotspot-scorer.ts` | Unit required          | `function-hotspot-scorer.test.ts`                                     | ✅    |
+| T3   | `src/scan.ts`, `src/types/domain.ts`     | Integration            | `scan.integration.test.ts` (partial)                                  | ✅    |
+| T4   | `bin/hotspot-scanner.ts`                 | CLI unit               | `bin/hotspot-scanner.test.ts`                                         | ✅    |
+| T5   | `src/report/**`                          | Unit required          | `table.test.ts`, `markdown.test.ts`, `slice.test.ts`, `index.test.ts` | ✅    |
+| T6   | `bin/` integration                       | Integration            | `bin/hotspot-scanner.integration.test.ts`                             | ✅    |
+| T7   | Docs only                                | Gate                   | `pnpm build && pnpm test`                                             | ✅    |
 
 ---
 
@@ -312,16 +312,16 @@ flowchart LR
 
 | Requirement ID | Tasks |
 | -------------- | ----- |
-| HOTSPOT-92 | T1 |
-| HOTSPOT-93 | T1 |
-| HOTSPOT-94 | T2 |
-| HOTSPOT-95 | T3 |
-| HOTSPOT-96 | T4 |
-| HOTSPOT-97 | T5 |
-| HOTSPOT-98 | T5 |
-| HOTSPOT-99 | T5 |
-| HOTSPOT-100 | T5 |
-| HOTSPOT-101 | T6 |
-| HOTSPOT-102 | T7 |
+| HOTSPOT-92     | T1    |
+| HOTSPOT-93     | T1    |
+| HOTSPOT-94     | T2    |
+| HOTSPOT-95     | T3    |
+| HOTSPOT-96     | T4    |
+| HOTSPOT-97     | T5    |
+| HOTSPOT-98     | T5    |
+| HOTSPOT-99     | T5    |
+| HOTSPOT-100    | T5    |
+| HOTSPOT-101    | T6    |
+| HOTSPOT-102    | T7    |
 
 **Coverage:** 11 total, 11 mapped to tasks, 0 unmapped

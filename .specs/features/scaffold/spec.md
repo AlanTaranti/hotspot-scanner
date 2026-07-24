@@ -23,15 +23,15 @@ The repository has partial bootstrap (`package.json`, Vitest, dual `tsc` project
 
 Explicitly excluded. Documented to prevent scope creep.
 
-| Feature | Reason |
-| ------- | ------ |
-| `git log` parsing | Milestone 2 — Git Change Miner |
-| McCabe / ts-morph | Milestone 3 — Complexity Analyzer |
-| Scoring formulas | Milestone 4 — Scoring |
-| Commander, CLI flags, real reporter | Milestone 5 — Reporter + CLI |
-| Versioned Git fixture repo | Milestones 2 / 6 |
-| Runtime deps (`commander`, `ts-morph`, `simple-git`) | Respective milestones |
-| Coverage ≥80% on domain modules | After real implementation (M2+) |
+| Feature                                              | Reason                            |
+| ---------------------------------------------------- | --------------------------------- |
+| `git log` parsing                                    | Milestone 2 — Git Change Miner    |
+| McCabe / ts-morph                                    | Milestone 3 — Complexity Analyzer |
+| Scoring formulas                                     | Milestone 4 — Scoring             |
+| Commander, CLI flags, real reporter                  | Milestone 5 — Reporter + CLI      |
+| Versioned Git fixture repo                           | Milestones 2 / 6                  |
+| Runtime deps (`commander`, `ts-morph`, `simple-git`) | Respective milestones             |
+| Coverage ≥80% on domain modules                      | After real implementation (M2+)   |
 
 ---
 
@@ -103,16 +103,16 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-01 | P1: Typed module skeleton | Tasks T2 | Done |
-| HOTSPOT-02 | P1: Typed module skeleton | Tasks T1 | Done |
-| HOTSPOT-03 | P1: Typed module skeleton | Tasks T2 | Done |
-| HOTSPOT-04 | P1: Typed module skeleton | Tasks T3 | Done |
-| HOTSPOT-05 | P1: CLI and integration wiring | Tasks T4 | Done |
-| HOTSPOT-06 | P1: Fixture directory scaffold | Tasks T5 | Done |
-| HOTSPOT-07 | P1: CLI and integration wiring | Tasks T6 | Done |
-| HOTSPOT-08 | P1: CLI and integration wiring | Tasks T8 | Done |
+| Requirement ID | Story                          | Phase    | Status |
+| -------------- | ------------------------------ | -------- | ------ |
+| HOTSPOT-01     | P1: Typed module skeleton      | Tasks T2 | Done   |
+| HOTSPOT-02     | P1: Typed module skeleton      | Tasks T1 | Done   |
+| HOTSPOT-03     | P1: Typed module skeleton      | Tasks T2 | Done   |
+| HOTSPOT-04     | P1: Typed module skeleton      | Tasks T3 | Done   |
+| HOTSPOT-05     | P1: CLI and integration wiring | Tasks T4 | Done   |
+| HOTSPOT-06     | P1: Fixture directory scaffold | Tasks T5 | Done   |
+| HOTSPOT-07     | P1: CLI and integration wiring | Tasks T6 | Done   |
+| HOTSPOT-08     | P1: CLI and integration wiring | Tasks T8 | Done   |
 
 **Coverage:** 8 total, 8 mapped to tasks, 0 unmapped
 

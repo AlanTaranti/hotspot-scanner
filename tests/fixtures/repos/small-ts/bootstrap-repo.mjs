@@ -156,8 +156,7 @@ for (let i = 1; i <= 3; i++) {
 
 for (let i = 1; i <= 3; i++) {
   const lowWithCochange = lowTsMutable + `\n// medium-low co-change ${i}\n`;
-  const mediumWithLowCochange =
-    mediumTs + `\n// medium-low co-change ${i}\n`;
+  const mediumWithLowCochange = mediumTs + `\n// medium-low co-change ${i}\n`;
   parent = createRef(
     createTree({
       "src/low.ts": lowWithCochange,

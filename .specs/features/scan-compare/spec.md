@@ -22,17 +22,17 @@ M1–M11 produce point-in-time scan reports. CI pipelines and PR workflows need 
 
 Explicitly excluded. Documented to prevent scope creep.
 
-| Feature | Reason |
-| ------- | ------ |
-| Subcomando `compare` | User decision — apenas `scan --baseline` |
-| CI fail thresholds / exit codes on metric breach | Not planned — removed from roadmap (see STATE.md) |
-| Score-delta without rank change | YAGNI — ROADMAP pede rank-changed, não score-changed |
-| Compare across different granularities | Hard error — indefinido |
-| Block compare on `meta.since` mismatch | Warning only — janelas distintas são válidas em CI |
-| HTML, PDF, SARIF | YAGNI |
-| Alter `ScanResult` v1.0 schema or scoring formulas | M13 boundary — new `CompareResult` type |
-| `mkdir -p` / `--no-clobber` for output | Herdar decisões M10 |
-| Re-scan baseline repo from baseline JSON | Baseline is data-only; current scan uses `<path>` arg |
+| Feature                                            | Reason                                                |
+| -------------------------------------------------- | ----------------------------------------------------- |
+| Subcomando `compare`                               | User decision — apenas `scan --baseline`              |
+| CI fail thresholds / exit codes on metric breach   | Not planned — removed from roadmap (see STATE.md)     |
+| Score-delta without rank change                    | YAGNI — ROADMAP pede rank-changed, não score-changed  |
+| Compare across different granularities             | Hard error — indefinido                               |
+| Block compare on `meta.since` mismatch             | Warning only — janelas distintas são válidas em CI    |
+| HTML, PDF, SARIF                                   | YAGNI                                                 |
+| Alter `ScanResult` v1.0 schema or scoring formulas | M13 boundary — new `CompareResult` type               |
+| `mkdir -p` / `--no-clobber` for output             | Herdar decisões M10                                   |
+| Re-scan baseline repo from baseline JSON           | Baseline is data-only; current scan uses `<path>` arg |
 
 ---
 
@@ -253,18 +253,18 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-103 | P1: Baseline JSON loader + validation | Tasks T1 | Planned |
-| HOTSPOT-104 | P1: Entity identity keys | Tasks T1 | Planned |
-| HOTSPOT-105 | P1: Compare engine — hotspots/functions | Tasks T2 | Planned |
-| HOTSPOT-106 | P1: Compare engine — coupling pairs | Tasks T2 | Planned |
-| HOTSPOT-107 | P1: Granularity and metadata guards | Tasks T1, T2 | Planned |
-| HOTSPOT-108 | P1: CLI `scan --baseline` flag | Tasks T4 | Planned |
-| HOTSPOT-109 | P1: Delta reporters | Tasks T3 | Planned |
-| HOTSPOT-110 | P1: Reporter factory dispatch | Tasks T3 | Planned |
-| HOTSPOT-111 | P1: Tests + fixtures | Tasks T5 | Planned |
-| HOTSPOT-112 | P1: Documentation sync | Tasks T6 | Planned |
+| Requirement ID | Story                                   | Phase        | Status  |
+| -------------- | --------------------------------------- | ------------ | ------- |
+| HOTSPOT-103    | P1: Baseline JSON loader + validation   | Tasks T1     | Planned |
+| HOTSPOT-104    | P1: Entity identity keys                | Tasks T1     | Planned |
+| HOTSPOT-105    | P1: Compare engine — hotspots/functions | Tasks T2     | Planned |
+| HOTSPOT-106    | P1: Compare engine — coupling pairs     | Tasks T2     | Planned |
+| HOTSPOT-107    | P1: Granularity and metadata guards     | Tasks T1, T2 | Planned |
+| HOTSPOT-108    | P1: CLI `scan --baseline` flag          | Tasks T4     | Planned |
+| HOTSPOT-109    | P1: Delta reporters                     | Tasks T3     | Planned |
+| HOTSPOT-110    | P1: Reporter factory dispatch           | Tasks T3     | Planned |
+| HOTSPOT-111    | P1: Tests + fixtures                    | Tasks T5     | Planned |
+| HOTSPOT-112    | P1: Documentation sync                  | Tasks T6     | Planned |
 
 **Coverage:** 10 total, 10 mapped to tasks, 0 unmapped
 

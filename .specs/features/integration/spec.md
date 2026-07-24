@@ -23,16 +23,16 @@ M6 wires the full pipeline: git log streaming → McCabe complexity → hotspot 
 
 Explicitly excluded. Documented to prevent scope creep.
 
-| Feature | Reason |
-| ------- | ------ |
-| New scoring formulas or normalization strategy | M4 closed — [scoring/spec.md](../scoring/spec.md) |
-| Reporter table/JSON changes or new CLI flags | M5 closed — [reporter-cli/spec.md](../reporter-cli/spec.md) |
+| Feature                                                                              | Reason                                                                                                              |
+| ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| New scoring formulas or normalization strategy                                       | M4 closed — [scoring/spec.md](../scoring/spec.md)                                                                   |
+| Reporter table/JSON changes or new CLI flags                                         | M5 closed — [reporter-cli/spec.md](../reporter-cli/spec.md)                                                         |
 | Intersection filter at orchestration (restrict complexity to git-touched paths only) | YAGNI — M4 uses `ComplexityResult[]` as hotspot driver; missing git stats → churn 0 ([context.md](./context.md) C1) |
-| Worker-thread parallelization | Deferred in [STATE.md](../../project/STATE.md) |
-| CI fail thresholds / non-zero exit on high hotspot score | IMPL §6.2 non-goal |
-| Configurable scan timeout | IMPL [CLARIFICAR] — YAGNI v1 |
-| `authors` field in JSON output | STATE.md — not exposed in v1 |
-| Benchmark time threshold in CI | IMPL §9 — manual qualitative check only |
+| Worker-thread parallelization                                                        | Deferred in [STATE.md](../../project/STATE.md)                                                                      |
+| CI fail thresholds / non-zero exit on high hotspot score                             | IMPL §6.2 non-goal                                                                                                  |
+| Configurable scan timeout                                                            | IMPL [CLARIFICAR] — YAGNI v1                                                                                        |
+| `authors` field in JSON output                                                       | STATE.md — not exposed in v1                                                                                        |
+| Benchmark time threshold in CI                                                       | IMPL §9 — manual qualitative check only                                                                             |
 
 ---
 
@@ -240,18 +240,18 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-51 | P1: Pipeline orchestration | Tasks T3 | Done |
-| HOTSPOT-52 | P1: Diagnostics forwarding | Tasks T3 | Done |
-| HOTSPOT-53 | P1: Git/path failure handling | Tasks T3, T4 | Done |
-| HOTSPOT-54 | P1: Fixture `small-ts` | Tasks T1 | Done |
-| HOTSPOT-55 | P1: Integration test assertions | Tasks T4 | Done |
-| HOTSPOT-56 | P1: CLI validation on fixture | Tasks T5 | Done |
-| HOTSPOT-57 | P2: Fixture `with-renames` | Tasks T6 | Done |
-| HOTSPOT-58 | P2: Fixture `merge-heavy` | Tasks T6 | Done |
-| HOTSPOT-59 | P2: Manual benchmark | Tasks T2 | Done |
-| HOTSPOT-60 | P1: Coverage gate | Tasks T7 | Done |
+| Requirement ID | Story                           | Phase        | Status |
+| -------------- | ------------------------------- | ------------ | ------ |
+| HOTSPOT-51     | P1: Pipeline orchestration      | Tasks T3     | Done   |
+| HOTSPOT-52     | P1: Diagnostics forwarding      | Tasks T3     | Done   |
+| HOTSPOT-53     | P1: Git/path failure handling   | Tasks T3, T4 | Done   |
+| HOTSPOT-54     | P1: Fixture `small-ts`          | Tasks T1     | Done   |
+| HOTSPOT-55     | P1: Integration test assertions | Tasks T4     | Done   |
+| HOTSPOT-56     | P1: CLI validation on fixture   | Tasks T5     | Done   |
+| HOTSPOT-57     | P2: Fixture `with-renames`      | Tasks T6     | Done   |
+| HOTSPOT-58     | P2: Fixture `merge-heavy`       | Tasks T6     | Done   |
+| HOTSPOT-59     | P2: Manual benchmark            | Tasks T2     | Done   |
+| HOTSPOT-60     | P1: Coverage gate               | Tasks T7     | Done   |
 
 **Coverage:** 10 total, 10 mapped to tasks, 0 unmapped
 

@@ -349,68 +349,68 @@ Phase 3 (Sequential):
 
 ## Task Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1: diagnostics logger | 1 module | ✅ Granular |
-| T2: git onProgress | 1 hook in `git/index.ts` | ✅ Granular |
-| T3: slice + JSON | 2 cohesive report files | ✅ Granular |
-| T4: table reporter | 1 module | ✅ Granular |
-| T5: fixture | data file only | ✅ Granular |
-| T6: reporter factory | 1 file (`index.ts`) | ✅ Granular |
-| T7: runScan updates | `scan.ts` + types | ✅ Granular |
-| T8: commander CLI | `bin/` + package.json dep | ✅ Granular |
-| T9: gate + docs | verification + docs | ✅ Granular |
+| Task                   | Scope                     | Status      |
+| ---------------------- | ------------------------- | ----------- |
+| T1: diagnostics logger | 1 module                  | ✅ Granular |
+| T2: git onProgress     | 1 hook in `git/index.ts`  | ✅ Granular |
+| T3: slice + JSON       | 2 cohesive report files   | ✅ Granular |
+| T4: table reporter     | 1 module                  | ✅ Granular |
+| T5: fixture            | data file only            | ✅ Granular |
+| T6: reporter factory   | 1 file (`index.ts`)       | ✅ Granular |
+| T7: runScan updates    | `scan.ts` + types         | ✅ Granular |
+| T8: commander CLI      | `bin/` + package.json dep | ✅ Granular |
+| T9: gate + docs        | verification + docs       | ✅ Granular |
 
 ---
 
 ## Diagram-Definition Cross-Check
 
-| Task | Depends On (task body) | Diagram Shows | Status |
-| ---- | ---------------------- | ------------- | ------ |
-| T1 | None | Entry node | ✅ Match |
-| T2 | None | Entry node | ✅ Match |
-| T5 | None | Entry node | ✅ Match |
-| T3 | T5 | T5 → T3 | ✅ Match |
-| T4 | T5 | T5 → T4 | ✅ Match |
-| T6 | T3, T4 | T3+T4 → T6 | ✅ Match |
-| T7 | T1 | T6 → T7 (T1 types) | ✅ Match |
-| T8 | T1, T2, T6, T7 | T7 → T8 | ✅ Match |
-| T9 | T1–T8 | T8 → T9 | ✅ Match |
+| Task | Depends On (task body) | Diagram Shows      | Status   |
+| ---- | ---------------------- | ------------------ | -------- |
+| T1   | None                   | Entry node         | ✅ Match |
+| T2   | None                   | Entry node         | ✅ Match |
+| T5   | None                   | Entry node         | ✅ Match |
+| T3   | T5                     | T5 → T3            | ✅ Match |
+| T4   | T5                     | T5 → T4            | ✅ Match |
+| T6   | T3, T4                 | T3+T4 → T6         | ✅ Match |
+| T7   | T1                     | T6 → T7 (T1 types) | ✅ Match |
+| T8   | T1, T2, T6, T7         | T7 → T8            | ✅ Match |
+| T9   | T1–T8                  | T8 → T9            | ✅ Match |
 
 ---
 
 ## Test Co-location Validation
 
-| Task | Code Layer Created/Modified | Matrix Requires | Task Says | Status |
-| ---- | --------------------------- | --------------- | --------- | ------ |
-| T1: diagnostics | `src/diagnostics/**` | best effort unit | unit | ✅ OK |
-| T2: git progress | `src/git/index.ts` | unit ≥80% | unit supplement | ✅ OK |
-| T3: json + slice | `src/report/slice.ts`, `json.ts` | best effort unit | unit | ✅ OK |
-| T4: table | `src/report/table.ts` | best effort unit | unit | ✅ OK |
-| T5: fixture | `tests/fixtures/report/` | none | none | ✅ OK |
-| T6: factory | `src/report/index.ts` | best effort integration | integration | ✅ OK |
-| T7: runScan | `src/scan.ts` | best effort unit | unit | ✅ OK |
-| T8: CLI | `bin/hotspot-scanner.ts` | CLI unit tests | unit | ✅ OK |
-| T9: gate | docs only | project gate | full gate | ✅ OK |
+| Task             | Code Layer Created/Modified      | Matrix Requires         | Task Says       | Status |
+| ---------------- | -------------------------------- | ----------------------- | --------------- | ------ |
+| T1: diagnostics  | `src/diagnostics/**`             | best effort unit        | unit            | ✅ OK  |
+| T2: git progress | `src/git/index.ts`               | unit ≥80%               | unit supplement | ✅ OK  |
+| T3: json + slice | `src/report/slice.ts`, `json.ts` | best effort unit        | unit            | ✅ OK  |
+| T4: table        | `src/report/table.ts`            | best effort unit        | unit            | ✅ OK  |
+| T5: fixture      | `tests/fixtures/report/`         | none                    | none            | ✅ OK  |
+| T6: factory      | `src/report/index.ts`            | best effort integration | integration     | ✅ OK  |
+| T7: runScan      | `src/scan.ts`                    | best effort unit        | unit            | ✅ OK  |
+| T8: CLI          | `bin/hotspot-scanner.ts`         | CLI unit tests          | unit            | ✅ OK  |
+| T9: gate         | docs only                        | project gate            | full gate       | ✅ OK  |
 
 ---
 
 ## Requirement → Task Mapping
 
-| Requirement | Task(s) |
-| ----------- | ------- |
-| HOTSPOT-39 | T8 |
-| HOTSPOT-40 | T7, T8 |
-| HOTSPOT-41 | T7, T8 |
-| HOTSPOT-42 | T3, T5 |
-| HOTSPOT-43 | T4, T5 |
-| HOTSPOT-44 | T4 |
-| HOTSPOT-45 | T3, T4 |
-| HOTSPOT-46 | T1, T7, T8 |
-| HOTSPOT-47 | T1, T2, T8 |
-| HOTSPOT-48 | T7 |
-| HOTSPOT-49 | T6 |
-| HOTSPOT-50 | T9 |
+| Requirement | Task(s)    |
+| ----------- | ---------- |
+| HOTSPOT-39  | T8         |
+| HOTSPOT-40  | T7, T8     |
+| HOTSPOT-41  | T7, T8     |
+| HOTSPOT-42  | T3, T5     |
+| HOTSPOT-43  | T4, T5     |
+| HOTSPOT-44  | T4         |
+| HOTSPOT-45  | T3, T4     |
+| HOTSPOT-46  | T1, T7, T8 |
+| HOTSPOT-47  | T1, T2, T8 |
+| HOTSPOT-48  | T7         |
+| HOTSPOT-49  | T6         |
+| HOTSPOT-50  | T9         |
 
 **Coverage:** 12 requirements, 12 mapped, 0 unmapped
 
@@ -418,30 +418,30 @@ Phase 3 (Sequential):
 
 ## Module Owner Routing
 
-| Task | Primary owner module |
-| ---- | -------------------- |
-| T1 | `src/diagnostics/` |
-| T2 | `src/git/index.ts` |
-| T3 | `src/report/slice.ts`, `src/report/json.ts` |
-| T4 | `src/report/table.ts` |
-| T5 | `tests/fixtures/report/` |
-| T6 | `src/report/index.ts` |
-| T7 | `src/scan.ts`, `src/types/domain.ts` |
-| T8 | `bin/hotspot-scanner.ts`, `package.json` |
-| T9 | `.specs/project/ROADMAP.md`, `.specs/codebase/STRUCTURE.md` |
+| Task | Primary owner module                                        |
+| ---- | ----------------------------------------------------------- |
+| T1   | `src/diagnostics/`                                          |
+| T2   | `src/git/index.ts`                                          |
+| T3   | `src/report/slice.ts`, `src/report/json.ts`                 |
+| T4   | `src/report/table.ts`                                       |
+| T5   | `tests/fixtures/report/`                                    |
+| T6   | `src/report/index.ts`                                       |
+| T7   | `src/scan.ts`, `src/types/domain.ts`                        |
+| T8   | `bin/hotspot-scanner.ts`, `package.json`                    |
+| T9   | `.specs/project/ROADMAP.md`, `.specs/codebase/STRUCTURE.md` |
 
 **Path conflict check:** Each production file owned by exactly one task. ✅ No conflicts.
 
-| File | Owner task |
-| ---- | ---------- |
-| `src/diagnostics/*` | T1 |
-| `src/git/index.ts` | T2 (callback only) |
-| `src/report/slice.ts`, `json.ts` | T3 |
-| `src/report/table.ts` | T4 |
-| `src/report/index.ts` | T6 |
-| `src/scan.ts` | T7 |
-| `src/types/domain.ts` | T7 |
-| `bin/hotspot-scanner.ts` | T8 |
+| File                             | Owner task         |
+| -------------------------------- | ------------------ |
+| `src/diagnostics/*`              | T1                 |
+| `src/git/index.ts`               | T2 (callback only) |
+| `src/report/slice.ts`, `json.ts` | T3                 |
+| `src/report/table.ts`            | T4                 |
+| `src/report/index.ts`            | T6                 |
+| `src/scan.ts`                    | T7                 |
+| `src/types/domain.ts`            | T7                 |
+| `bin/hotspot-scanner.ts`         | T8                 |
 
 ---
 

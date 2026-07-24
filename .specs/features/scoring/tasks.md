@@ -328,63 +328,63 @@ Phase 3 (Sequential):
 
 ## Task Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1: normalize | 1 module (`normalize.ts`) | ✅ Granular |
-| T2: hotspot-scorer | 1 module (`hotspot-scorer.ts`) | ✅ Granular |
-| T3: coupling-scorer | 1 module (`coupling-scorer.ts`) | ✅ Granular |
-| T4: factory wire | 1 file (`index.ts`) | ✅ Granular |
-| T5: Fixtures | `tests/fixtures/scoring/` data files | ✅ Granular |
-| T6: Hotspot edge tests | test supplement | ✅ Granular |
-| T7: Coupling edge tests | test supplement | ✅ Granular |
-| T8: Coverage + docs | verification + docs | ✅ Granular |
+| Task                    | Scope                                | Status      |
+| ----------------------- | ------------------------------------ | ----------- |
+| T1: normalize           | 1 module (`normalize.ts`)            | ✅ Granular |
+| T2: hotspot-scorer      | 1 module (`hotspot-scorer.ts`)       | ✅ Granular |
+| T3: coupling-scorer     | 1 module (`coupling-scorer.ts`)      | ✅ Granular |
+| T4: factory wire        | 1 file (`index.ts`)                  | ✅ Granular |
+| T5: Fixtures            | `tests/fixtures/scoring/` data files | ✅ Granular |
+| T6: Hotspot edge tests  | test supplement                      | ✅ Granular |
+| T7: Coupling edge tests | test supplement                      | ✅ Granular |
+| T8: Coverage + docs     | verification + docs                  | ✅ Granular |
 
 ---
 
 ## Diagram-Definition Cross-Check
 
-| Task | Depends On (task body) | Diagram Shows | Status |
-| ---- | ---------------------- | ------------- | ------ |
-| T1 | None | Entry node | ✅ Match |
-| T2 | T1 | T1 → T2 | ✅ Match |
-| T3 | None | T1 → T3 (optional) | ✅ Match |
-| T4 | T2, T3 | T2+T3 → T4 | ✅ Match |
-| T5 | None | Parallel node | ✅ Match |
-| T6 | T2, T5 | T2+T5 → T6 | ✅ Match |
-| T7 | T3, T5 | T3+T5 → T7 | ✅ Match |
-| T8 | T1–T7 | T6+T7 → T8 | ✅ Match |
+| Task | Depends On (task body) | Diagram Shows      | Status   |
+| ---- | ---------------------- | ------------------ | -------- |
+| T1   | None                   | Entry node         | ✅ Match |
+| T2   | T1                     | T1 → T2            | ✅ Match |
+| T3   | None                   | T1 → T3 (optional) | ✅ Match |
+| T4   | T2, T3                 | T2+T3 → T4         | ✅ Match |
+| T5   | None                   | Parallel node      | ✅ Match |
+| T6   | T2, T5                 | T2+T5 → T6         | ✅ Match |
+| T7   | T3, T5                 | T3+T5 → T7         | ✅ Match |
+| T8   | T1–T7                  | T6+T7 → T8         | ✅ Match |
 
 ---
 
 ## Test Co-location Validation
 
-| Task | Code Layer Created/Modified | Matrix Requires | Task Says | Status |
-| ---- | --------------------------- | --------------- | --------- | ------ |
-| T1: normalize | `src/scoring/normalize.ts` | unit ≥80% | unit (`normalize.test.ts`) | ✅ OK |
-| T2: hotspot-scorer | `src/scoring/hotspot-scorer.ts` | unit ≥80% | unit (`hotspot-scorer.test.ts`) | ✅ OK |
-| T3: coupling-scorer | `src/scoring/coupling-scorer.ts` | unit ≥80% | unit (`coupling-scorer.test.ts`) | ✅ OK |
-| T4: factory wire | `src/scoring/index.ts` | unit ≥80% | integration (`index.test.ts`) | ✅ OK |
-| T5: Fixtures | `tests/fixtures/scoring/` | none | none | ✅ OK |
-| T6: Hotspot edges | `src/scoring/hotspot-scorer.test.ts` | unit ≥80% | integration | ✅ OK |
-| T7: Coupling edges | `src/scoring/coupling-scorer.test.ts` | unit ≥80% | integration | ✅ OK |
-| T8: Coverage gate | docs + config | project gate | full gate | ✅ OK |
+| Task                | Code Layer Created/Modified           | Matrix Requires | Task Says                        | Status |
+| ------------------- | ------------------------------------- | --------------- | -------------------------------- | ------ |
+| T1: normalize       | `src/scoring/normalize.ts`            | unit ≥80%       | unit (`normalize.test.ts`)       | ✅ OK  |
+| T2: hotspot-scorer  | `src/scoring/hotspot-scorer.ts`       | unit ≥80%       | unit (`hotspot-scorer.test.ts`)  | ✅ OK  |
+| T3: coupling-scorer | `src/scoring/coupling-scorer.ts`      | unit ≥80%       | unit (`coupling-scorer.test.ts`) | ✅ OK  |
+| T4: factory wire    | `src/scoring/index.ts`                | unit ≥80%       | integration (`index.test.ts`)    | ✅ OK  |
+| T5: Fixtures        | `tests/fixtures/scoring/`             | none            | none                             | ✅ OK  |
+| T6: Hotspot edges   | `src/scoring/hotspot-scorer.test.ts`  | unit ≥80%       | integration                      | ✅ OK  |
+| T7: Coupling edges  | `src/scoring/coupling-scorer.test.ts` | unit ≥80%       | integration                      | ✅ OK  |
+| T8: Coverage gate   | docs + config                         | project gate    | full gate                        | ✅ OK  |
 
 ---
 
 ## Requirement → Task Mapping
 
-| Requirement | Task(s) |
-| ----------- | ------- |
-| HOTSPOT-29 | T1 |
-| HOTSPOT-30 | T2, T4 |
-| HOTSPOT-31 | T2, T6 |
-| HOTSPOT-32 | T2, T6 |
-| HOTSPOT-33 | T3, T7 |
-| HOTSPOT-34 | T3, T7 |
-| HOTSPOT-35 | T3, T4, T7 |
-| HOTSPOT-36 | T3, T7 |
-| HOTSPOT-37 | T5, T6, T7 |
-| HOTSPOT-38 | T8 |
+| Requirement | Task(s)    |
+| ----------- | ---------- |
+| HOTSPOT-29  | T1         |
+| HOTSPOT-30  | T2, T4     |
+| HOTSPOT-31  | T2, T6     |
+| HOTSPOT-32  | T2, T6     |
+| HOTSPOT-33  | T3, T7     |
+| HOTSPOT-34  | T3, T7     |
+| HOTSPOT-35  | T3, T4, T7 |
+| HOTSPOT-36  | T3, T7     |
+| HOTSPOT-37  | T5, T6, T7 |
+| HOTSPOT-38  | T8         |
 
 **Coverage:** 10 requirements, 10 mapped, 0 unmapped
 
@@ -392,16 +392,16 @@ Phase 3 (Sequential):
 
 ## Module Owner Routing
 
-| Task | Primary owner module |
-| ---- | -------------------- |
-| T1 | `src/scoring/normalize.ts` |
-| T2 | `src/scoring/hotspot-scorer.ts` |
-| T3 | `src/scoring/coupling-scorer.ts` |
-| T4 | `src/scoring/index.ts` |
-| T5 | `tests/fixtures/scoring/` |
-| T6 | `src/scoring/hotspot-scorer.test.ts` |
-| T7 | `src/scoring/coupling-scorer.test.ts` |
-| T8 | project docs + vitest config |
+| Task | Primary owner module                  |
+| ---- | ------------------------------------- |
+| T1   | `src/scoring/normalize.ts`            |
+| T2   | `src/scoring/hotspot-scorer.ts`       |
+| T3   | `src/scoring/coupling-scorer.ts`      |
+| T4   | `src/scoring/index.ts`                |
+| T5   | `tests/fixtures/scoring/`             |
+| T6   | `src/scoring/hotspot-scorer.test.ts`  |
+| T7   | `src/scoring/coupling-scorer.test.ts` |
+| T8   | project docs + vitest config          |
 
 **Path conflict check:** Each production file owned by exactly one task (T1–T4). ✅ No conflicts.
 

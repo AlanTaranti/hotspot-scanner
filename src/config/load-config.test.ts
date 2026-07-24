@@ -81,12 +81,12 @@ describe("parseHotspotScannerConfig", () => {
   });
 
   it("rejects exclude as a single string", () => {
-    expect(() => parseHotspotScannerConfig({ exclude: "**/*.test.ts" })).toThrow(
-      ConfigError,
-    );
-    expect(() => parseHotspotScannerConfig({ exclude: "**/*.test.ts" })).toThrow(
-      /"exclude"/,
-    );
+    expect(() =>
+      parseHotspotScannerConfig({ exclude: "**/*.test.ts" }),
+    ).toThrow(ConfigError);
+    expect(() =>
+      parseHotspotScannerConfig({ exclude: "**/*.test.ts" }),
+    ).toThrow(/"exclude"/);
   });
 
   it("rejects non-string include entries", () => {

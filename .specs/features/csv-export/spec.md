@@ -22,16 +22,16 @@ M10 added markdown for PR-friendly reports and `--output` for file export. M13 a
 
 Explicitly excluded. Documented to prevent scope creep.
 
-| Feature | Reason |
-| ------- | ------ |
-| `--top` limiting CSV rows | M16 scopes `--top` to table/markdown only; CSV exports full data like JSON |
-| CI fail thresholds / exit codes on metric breach | Not planned — removed from roadmap (see STATE.md) |
-| HTML, PDF, SARIF, Excel `.xlsx` | YAGNI |
-| Auto-detect format from file extension | M10 decision — `--format` is source of truth |
-| Alter scoring, normalization, or JSON schema | M17 boundary — new renderers only |
-| `mkdir -p` / `--no-clobber` for output | Inherit M10 decisions |
-| UTF-8 BOM for Excel | YAGNI — see context.md |
-| Single flat CSV schema for all sections | Different column sets per section; multi-block layout |
+| Feature                                          | Reason                                                                     |
+| ------------------------------------------------ | -------------------------------------------------------------------------- |
+| `--top` limiting CSV rows                        | M16 scopes `--top` to table/markdown only; CSV exports full data like JSON |
+| CI fail thresholds / exit codes on metric breach | Not planned — removed from roadmap (see STATE.md)                          |
+| HTML, PDF, SARIF, Excel `.xlsx`                  | YAGNI                                                                      |
+| Auto-detect format from file extension           | M10 decision — `--format` is source of truth                               |
+| Alter scoring, normalization, or JSON schema     | M17 boundary — new renderers only                                          |
+| `mkdir -p` / `--no-clobber` for output           | Inherit M10 decisions                                                      |
+| UTF-8 BOM for Excel                              | YAGNI — see context.md                                                     |
+| Single flat CSV schema for all sections          | Different column sets per section; multi-block layout                      |
 
 ---
 
@@ -215,16 +215,16 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-121 | P1: RFC 4180 field escaping | Tasks T1 | Planned |
-| HOTSPOT-122 | P1: Scan CSV renderer | Tasks T1 | Planned |
-| HOTSPOT-123 | P1: `--format csv` CLI | Tasks T3 | Planned |
-| HOTSPOT-124 | P1: Compare CSV renderer | Tasks T2 | Planned |
-| HOTSPOT-125 | P1: Reporter factory dispatch | Tasks T3 | Planned |
-| HOTSPOT-126 | P1: `--output` with CSV | Tasks T3 | Planned |
-| HOTSPOT-127 | P1: Tests | Tasks T1, T2, T3, T4 | Planned |
-| HOTSPOT-128 | P1: Documentation sync | Tasks T5 | Planned |
+| Requirement ID | Story                         | Phase                | Status  |
+| -------------- | ----------------------------- | -------------------- | ------- |
+| HOTSPOT-121    | P1: RFC 4180 field escaping   | Tasks T1             | Planned |
+| HOTSPOT-122    | P1: Scan CSV renderer         | Tasks T1             | Planned |
+| HOTSPOT-123    | P1: `--format csv` CLI        | Tasks T3             | Planned |
+| HOTSPOT-124    | P1: Compare CSV renderer      | Tasks T2             | Planned |
+| HOTSPOT-125    | P1: Reporter factory dispatch | Tasks T3             | Planned |
+| HOTSPOT-126    | P1: `--output` with CSV       | Tasks T3             | Planned |
+| HOTSPOT-127    | P1: Tests                     | Tasks T1, T2, T3, T4 | Planned |
+| HOTSPOT-128    | P1: Documentation sync        | Tasks T5             | Planned |
 
 **Coverage:** 8 total, 8 mapped to tasks, 0 unmapped
 

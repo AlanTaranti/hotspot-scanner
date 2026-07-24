@@ -20,13 +20,13 @@ Teams repeat the same CLI flags (`--since`, includes/excludes, granularity, thre
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| `.hotspotrc` or dual filename lookup | **User locked — forbidden** |
-| Parent-directory / home config walk | YAGNI — repoPath only |
-| Config keys for `format`, `output`, `baseline` | CLI-only |
-| YAML / TOML config | JSON only |
-| Schema file for config (optional later) | YAGNI for M21 |
+| Feature                                        | Reason                      |
+| ---------------------------------------------- | --------------------------- |
+| `.hotspotrc` or dual filename lookup           | **User locked — forbidden** |
+| Parent-directory / home config walk            | YAGNI — repoPath only       |
+| Config keys for `format`, `output`, `baseline` | CLI-only                    |
+| YAML / TOML config                             | JSON only                   |
+| Schema file for config (optional later)        | YAGNI for M21               |
 
 ---
 
@@ -125,16 +125,16 @@ Teams repeat the same CLI flags (`--since`, includes/excludes, granularity, thre
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-166 | P1: Load config | Tasks T1 | Done |
-| HOTSPOT-167 | P1: Invalid config errors | Tasks T1 | Done |
-| HOTSPOT-168 | P1: Precedence | Tasks T1, T2 | Done |
-| HOTSPOT-169 | P1: Key mapping | Tasks T1 | Done |
-| HOTSPOT-170 | P1: Unknown keys ignored | Tasks T1 | Done |
-| HOTSPOT-171 | P1: CLI / runScan wiring | Tasks T2 | Done |
-| HOTSPOT-172 | P1: README/ARCHITECTURE | Tasks T3 | Done |
-| HOTSPOT-173 | P1: Help + ROADMAP | Tasks T3 | Done |
+| Requirement ID | Story                     | Phase        | Status |
+| -------------- | ------------------------- | ------------ | ------ |
+| HOTSPOT-166    | P1: Load config           | Tasks T1     | Done   |
+| HOTSPOT-167    | P1: Invalid config errors | Tasks T1     | Done   |
+| HOTSPOT-168    | P1: Precedence            | Tasks T1, T2 | Done   |
+| HOTSPOT-169    | P1: Key mapping           | Tasks T1     | Done   |
+| HOTSPOT-170    | P1: Unknown keys ignored  | Tasks T1     | Done   |
+| HOTSPOT-171    | P1: CLI / runScan wiring  | Tasks T2     | Done   |
+| HOTSPOT-172    | P1: README/ARCHITECTURE   | Tasks T3     | Done   |
+| HOTSPOT-173    | P1: Help + ROADMAP        | Tasks T3     | Done   |
 
 **Coverage:** 8 total, 8 mapped to tasks, 0 unmapped
 

@@ -43,12 +43,12 @@ flowchart TB
 
 ## Code Reuse Analysis
 
-| Existing | Location | How to use |
-| -------- | -------- | ---------- |
+| Existing            | Location                                           | How to use                             |
+| ------------------- | -------------------------------------------------- | -------------------------------------- |
 | Dual tsconfig build | `tsconfig.json`, `tsconfig.bin.json`, `pnpm build` | Mirror with `--noEmit` for `typecheck` |
-| Node 22 baseline | `@tsconfig/node22`, CONTRIBUTING prerequisites | Align `engines.node` |
-| LICENSE / README | repo root | Include in `files` |
-| JSON schemas | `schemas/*.json` | Include via `files` (closes M20 note) |
+| Node 22 baseline    | `@tsconfig/node22`, CONTRIBUTING prerequisites     | Align `engines.node`                   |
+| LICENSE / README    | repo root                                          | Include in `files`                     |
+| JSON schemas        | `schemas/*.json`                                   | Include via `files` (closes M20 note)  |
 
 **Fragile areas (CONCERNS.md):** None touched in `src/git|complexity|scoring`. Risk is tooling false positives / large Prettier churn — mitigate with ignores and green scripts.
 
@@ -56,14 +56,14 @@ flowchart TB
 
 ## Script contracts (concrete)
 
-| Script | Exact command | Mutates tree? |
-| ------ | ------------- | ------------- |
-| `typecheck` | `tsc --noEmit && tsc --noEmit -p tsconfig.bin.json` | No |
-| `lint` | `eslint .` | No |
-| `format` | `prettier --write .` | Yes |
-| `format:check` | `prettier --check .` | No |
-| `build` | unchanged (`tsc && tsc -p tsconfig.bin.json`) | Emit |
-| `test` | unchanged (`vitest run --coverage`) | No |
+| Script         | Exact command                                       | Mutates tree? |
+| -------------- | --------------------------------------------------- | ------------- |
+| `typecheck`    | `tsc --noEmit && tsc --noEmit -p tsconfig.bin.json` | No            |
+| `lint`         | `eslint .`                                          | No            |
+| `format`       | `prettier --write .`                                | Yes           |
+| `format:check` | `prettier --check .`                                | No            |
+| `build`        | unchanged (`tsc && tsc -p tsconfig.bin.json`)       | Emit          |
+| `test`         | unchanged (`vitest run --coverage`)                 | No            |
 
 **Project gate (unchanged):** `pnpm build && pnpm test`  
 **Recommended local (CONTRIBUTING only):** `typecheck`, `lint`, `format:check` before PR; use `format` to fix.
@@ -138,12 +138,12 @@ flowchart TB
 
 ## Risks
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| Lint fails on existing code | Fix or narrow rules until `pnpm lint` is green |
-| Large Prettier diff | Run once; ignore generated dirs; accept format commit within T4/T6 if needed for check green |
-| Wrong `repository.url` (no remote) | Locked default in context.md; replace if origin appears |
-| Accidental gate expansion | Explicit HOTSPOT-202; do not edit AGENTS.md gate |
+| Risk                               | Mitigation                                                                                   |
+| ---------------------------------- | -------------------------------------------------------------------------------------------- |
+| Lint fails on existing code        | Fix or narrow rules until `pnpm lint` is green                                               |
+| Large Prettier diff                | Run once; ignore generated dirs; accept format commit within T4/T6 if needed for check green |
+| Wrong `repository.url` (no remote) | Locked default in context.md; replace if origin appears                                      |
+| Accidental gate expansion          | Explicit HOTSPOT-202; do not edit AGENTS.md gate                                             |
 
 ---
 

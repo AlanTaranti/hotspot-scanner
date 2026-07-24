@@ -1,9 +1,6 @@
 import type { ScanResult } from "../types/index.js";
 
-export function sliceScanResult(
-  result: ScanResult,
-  top?: number,
-): ScanResult {
+export function sliceScanResult(result: ScanResult, top?: number): ScanResult {
   const slicedCoupling =
     top !== undefined ? result.coupling.slice(0, top) : result.coupling;
 

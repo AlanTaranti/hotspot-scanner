@@ -51,31 +51,31 @@ flowchart LR
 
 | Task | Depends on (declared) | Appears in diagram after deps | Match |
 | ---- | --------------------- | ----------------------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T2 | T2 → T3 | ✅ |
-| T4 | T3 | T3 → T4 | ✅ |
-| T5 | T4 | T4 → T5 | ✅ |
+| T1   | None                  | Root                          | ✅    |
+| T2   | T1                    | T1 → T2                       | ✅    |
+| T3   | T2                    | T2 → T3                       | ✅    |
+| T4   | T3                    | T3 → T4                       | ✅    |
+| T5   | T4                    | T4 → T5                       | ✅    |
 
 ### Path Conflict Check
 
-| Task | Module owner | Paths | Conflict with parallel peers |
-| ---- | ------------ | ----- | ---------------------------- |
-| T1 | `src/report/` | `csv-bundle.ts`, `csv.ts`, `csv.test.ts` | N/A (sequential) |
-| T2 | `src/report/` | `compare-csv.ts`, `compare-csv.test.ts` | After T1 — OK |
-| T3 | `src/report/` + `bin/` | `index.ts`, `index.test.ts`, `bin/hotspot-scanner.ts`, `bin/hotspot-scanner.test.ts` | Sequential after T2 — OK |
-| T4 | `bin/` | `bin/hotspot-scanner.integration.test.ts` | After T3 — OK |
-| T5 | docs | ARCHITECTURE, STRUCTURE, README, vitals-cli-validation, ROADMAP | After T4 — OK |
+| Task | Module owner           | Paths                                                                                | Conflict with parallel peers |
+| ---- | ---------------------- | ------------------------------------------------------------------------------------ | ---------------------------- |
+| T1   | `src/report/`          | `csv-bundle.ts`, `csv.ts`, `csv.test.ts`                                             | N/A (sequential)             |
+| T2   | `src/report/`          | `compare-csv.ts`, `compare-csv.test.ts`                                              | After T1 — OK                |
+| T3   | `src/report/` + `bin/` | `index.ts`, `index.test.ts`, `bin/hotspot-scanner.ts`, `bin/hotspot-scanner.test.ts` | Sequential after T2 — OK     |
+| T4   | `bin/`                 | `bin/hotspot-scanner.integration.test.ts`                                            | After T3 — OK                |
+| T5   | docs                   | ARCHITECTURE, STRUCTURE, README, vitals-cli-validation, ROADMAP                      | After T4 — OK                |
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Tests in same task | Match |
-| ---- | ---------- | ---------------------- | ------------------ | ----- |
-| T1 | `src/report/csv*.ts` | Unit required | `csv.test.ts` (+ type smoke) | ✅ |
-| T2 | `src/report/compare-csv.ts` | Unit required | `compare-csv.test.ts` | ✅ |
-| T3 | `src/report/index.ts`, `bin/` | Unit required | `index.test.ts`, `bin/hotspot-scanner.test.ts` | ✅ |
-| T4 | `bin/` integration | Integration | `bin/hotspot-scanner.integration.test.ts` | ✅ |
-| T5 | Docs only | Gate | `pnpm build && pnpm test` | ✅ |
+| Task | Code layer                    | TESTING.md expectation | Tests in same task                             | Match |
+| ---- | ----------------------------- | ---------------------- | ---------------------------------------------- | ----- |
+| T1   | `src/report/csv*.ts`          | Unit required          | `csv.test.ts` (+ type smoke)                   | ✅    |
+| T2   | `src/report/compare-csv.ts`   | Unit required          | `compare-csv.test.ts`                          | ✅    |
+| T3   | `src/report/index.ts`, `bin/` | Unit required          | `index.test.ts`, `bin/hotspot-scanner.test.ts` | ✅    |
+| T4   | `bin/` integration            | Integration            | `bin/hotspot-scanner.integration.test.ts`      | ✅    |
+| T5   | Docs only                     | Gate                   | `pnpm build && pnpm test`                      | ✅    |
 
 ---
 
@@ -250,18 +250,18 @@ flowchart LR
 
 ## Requirement Traceability (Tasks)
 
-| Requirement ID | Tasks |
-| -------------- | ----- |
-| HOTSPOT-135 | T1, T2, T3 |
-| HOTSPOT-136 | T1, T3, T4 |
-| HOTSPOT-137 | T2, T3, T4 |
-| HOTSPOT-138 | T3, T4 |
-| HOTSPOT-139 | T3, T4 |
-| HOTSPOT-140 | T1, T2, T4 |
-| HOTSPOT-141 | T1, T2 |
-| HOTSPOT-142 | T1, T2, T3, T4 |
-| HOTSPOT-143 | T1, T2, T3, T4 |
-| HOTSPOT-144 | T5 |
+| Requirement ID | Tasks          |
+| -------------- | -------------- |
+| HOTSPOT-135    | T1, T2, T3     |
+| HOTSPOT-136    | T1, T3, T4     |
+| HOTSPOT-137    | T2, T3, T4     |
+| HOTSPOT-138    | T3, T4         |
+| HOTSPOT-139    | T3, T4         |
+| HOTSPOT-140    | T1, T2, T4     |
+| HOTSPOT-141    | T1, T2         |
+| HOTSPOT-142    | T1, T2, T3, T4 |
+| HOTSPOT-143    | T1, T2, T3, T4 |
+| HOTSPOT-144    | T5             |
 
 **Coverage:** 10 total, 10 mapped to tasks, 0 unmapped
 

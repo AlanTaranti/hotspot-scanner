@@ -41,14 +41,14 @@ Follow [execute-orchestration-playbook.md](.cursor/skills/vitals-spec-driven/ref
 
 **Phase summary:**
 
-| Phase | Action |
-| ----- | ------ |
-| A | Intake, validate Status/format, parse task graph |
-| B | Execute waves — delegate to `implementer`; `deferred_project_gate` → Phase E only |
-| C | `code-reviewer` (readonly) — **mandatory**; Changes needed blocks Phase D |
-| D | `verifier-implementation` (readonly) — acceptance criteria + Done when |
-| E | `verifier-quality-gates` — `pnpm build && pnpm test` |
-| F | Sync `tasks.md`, ROADMAP; report |
+| Phase | Action                                                                            |
+| ----- | --------------------------------------------------------------------------------- |
+| A     | Intake, validate Status/format, parse task graph                                  |
+| B     | Execute waves — delegate to `implementer`; `deferred_project_gate` → Phase E only |
+| C     | `code-reviewer` (readonly) — **mandatory**; Changes needed blocks Phase D         |
+| D     | `verifier-implementation` (readonly) — acceptance criteria + Done when            |
+| E     | `verifier-quality-gates` — `pnpm build && pnpm test`                              |
+| F     | Sync `tasks.md`, ROADMAP; report                                                  |
 
 ## Hard constraints
 

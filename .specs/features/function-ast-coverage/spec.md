@@ -20,12 +20,12 @@
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Changing McCabe decision nodes | Explicit non-goal / fragile |
-| Per-function git churn | M23 |
-| Decorator-only / ambient declare bodies | YAGNI unless trivial |
-| tsconfig path changes | Unrelated |
+| Feature                                 | Reason                      |
+| --------------------------------------- | --------------------------- |
+| Changing McCabe decision nodes          | Explicit non-goal / fragile |
+| Per-function git churn                  | M23                         |
+| Decorator-only / ambient declare bodies | YAGNI unless trivial        |
+| tsconfig path changes                   | Unrelated                   |
 
 ---
 
@@ -118,15 +118,15 @@
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-174 | P1: Getters/setters | Tasks T1 | Pending |
-| HOTSPOT-175 | P1: Class field arrows | Tasks T1 | Pending |
-| HOTSPOT-176 | P1: Object-literal methods | Tasks T1 | Pending |
-| HOTSPOT-177 | P1: McCabe regression | Tasks T1, T2 | Pending |
-| HOTSPOT-178 | P1: Fixtures per construct | Tasks T2 | Pending |
-| HOTSPOT-179 | P1: Naming docs | Tasks T3 | Pending |
-| HOTSPOT-180 | P1: Docs / gate | Tasks T3 | Pending |
+| Requirement ID | Story                      | Phase        | Status  |
+| -------------- | -------------------------- | ------------ | ------- |
+| HOTSPOT-174    | P1: Getters/setters        | Tasks T1     | Pending |
+| HOTSPOT-175    | P1: Class field arrows     | Tasks T1     | Pending |
+| HOTSPOT-176    | P1: Object-literal methods | Tasks T1     | Pending |
+| HOTSPOT-177    | P1: McCabe regression      | Tasks T1, T2 | Pending |
+| HOTSPOT-178    | P1: Fixtures per construct | Tasks T2     | Pending |
+| HOTSPOT-179    | P1: Naming docs            | Tasks T3     | Pending |
+| HOTSPOT-180    | P1: Docs / gate            | Tasks T3     | Pending |
 
 **Coverage:** 7 total, 7 mapped to tasks, 0 unmapped
 

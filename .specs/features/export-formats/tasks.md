@@ -44,19 +44,19 @@ flowchart LR
 
 | Task | Depends on (declared) | Appears in diagram after deps | Match |
 | ---- | --------------------- | ----------------------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T2 | T2 → T3 | ✅ |
-| T4 | T3 | T3 → T4 | ✅ |
+| T1   | None                  | Root                          | ✅    |
+| T2   | T1                    | T1 → T2                       | ✅    |
+| T3   | T2                    | T2 → T3                       | ✅    |
+| T4   | T3                    | T3 → T4                       | ✅    |
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Tests in same task | Match |
-| ---- | ---------- | ---------------------- | ------------------ | ----- |
-| T1 | `src/report/markdown.ts`, `index.ts` | Unit required | `markdown.test.ts`, `index.test.ts` | ✅ |
-| T2 | `bin/hotspot-scanner.ts` | CLI unit | `bin/hotspot-scanner.test.ts` | ✅ |
-| T3 | `bin/` integration | Integration | `bin/hotspot-scanner.integration.test.ts` | ✅ |
-| T4 | Docs only | Gate | `pnpm build && pnpm test` | ✅ |
+| Task | Code layer                           | TESTING.md expectation | Tests in same task                        | Match |
+| ---- | ------------------------------------ | ---------------------- | ----------------------------------------- | ----- |
+| T1   | `src/report/markdown.ts`, `index.ts` | Unit required          | `markdown.test.ts`, `index.test.ts`       | ✅    |
+| T2   | `bin/hotspot-scanner.ts`             | CLI unit               | `bin/hotspot-scanner.test.ts`             | ✅    |
+| T3   | `bin/` integration                   | Integration            | `bin/hotspot-scanner.integration.test.ts` | ✅    |
+| T4   | Docs only                            | Gate                   | `pnpm build && pnpm test`                 | ✅    |
 
 ---
 
@@ -194,16 +194,16 @@ flowchart LR
 
 ## Requirement Traceability (Tasks)
 
-| Requirement ID | Tasks |
-| -------------- | ----- |
-| HOTSPOT-83 | T2 |
-| HOTSPOT-84 | T2 |
-| HOTSPOT-85 | T2 |
-| HOTSPOT-86 | T1 |
-| HOTSPOT-87 | T1 |
-| HOTSPOT-88 | T2, T3 |
-| HOTSPOT-89 | T2 |
-| HOTSPOT-90 | T1, T2, T3 |
-| HOTSPOT-91 | T4 |
+| Requirement ID | Tasks      |
+| -------------- | ---------- |
+| HOTSPOT-83     | T2         |
+| HOTSPOT-84     | T2         |
+| HOTSPOT-85     | T2         |
+| HOTSPOT-86     | T1         |
+| HOTSPOT-87     | T1         |
+| HOTSPOT-88     | T2, T3     |
+| HOTSPOT-89     | T2         |
+| HOTSPOT-90     | T1, T2, T3 |
+| HOTSPOT-91     | T4         |
 
 **Coverage:** 9 total, 9 mapped to tasks, 0 unmapped

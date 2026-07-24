@@ -38,10 +38,10 @@
 
 **Choice:** **Prettier is IN scope.** Concrete scripts (no TBD):
 
-| Script | Command | Role |
-| ------ | ------- | ---- |
-| `format` | `prettier --write .` | Mutating format (local fix) |
-| `format:check` | `prettier --check .` | Non-mutating verification |
+| Script         | Command              | Role                        |
+| -------------- | -------------------- | --------------------------- |
+| `format`       | `prettier --write .` | Mutating format (local fix) |
+| `format:check` | `prettier --check .` | Non-mutating verification   |
 
 Both scripts are required deliverables. CONTRIBUTING recommends `format:check` (and `lint` / `typecheck`) as local steps; they are **not** part of the project quality gate.
 
@@ -53,14 +53,14 @@ Both scripts are required deliverables. CONTRIBUTING recommends `format:check` (
 
 ## Decision: Out of scope (explicit)
 
-| Item | Status |
-| ---- | ------ |
-| Actual `npm publish` / publish workflow | Out of scope |
-| `publishConfig` | Out of scope |
-| Registry vs Git-install distribution | Remains **Deferred** in STATE — do not resolve in M24 |
-| GitHub Actions / any CI | Out of scope (keep “no CI in v1”) |
-| `dev` script | Out of scope (YAGNI) |
-| Changing AGENTS.md quality gate to require lint/format | Out of scope |
+| Item                                                   | Status                                                |
+| ------------------------------------------------------ | ----------------------------------------------------- |
+| Actual `npm publish` / publish workflow                | Out of scope                                          |
+| `publishConfig`                                        | Out of scope                                          |
+| Registry vs Git-install distribution                   | Remains **Deferred** in STATE — do not resolve in M24 |
+| GitHub Actions / any CI                                | Out of scope (keep “no CI in v1”)                     |
+| `dev` script                                           | Out of scope (YAGNI)                                  |
+| Changing AGENTS.md quality gate to require lint/format | Out of scope                                          |
 
 **Status:** **Confirmed** (user locked)
 

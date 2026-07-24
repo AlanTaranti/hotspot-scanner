@@ -32,7 +32,11 @@ function aggregateCoChangeCounts(
     const uniquePaths = [...new Set(event.filesChanged)];
 
     for (let index = 0; index < uniquePaths.length; index += 1) {
-      for (let otherIndex = index + 1; otherIndex < uniquePaths.length; otherIndex += 1) {
+      for (
+        let otherIndex = index + 1;
+        otherIndex < uniquePaths.length;
+        otherIndex += 1
+      ) {
         const [fileA, fileB] = canonicalPair(
           uniquePaths[index]!,
           uniquePaths[otherIndex]!,

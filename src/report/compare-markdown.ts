@@ -196,7 +196,11 @@ export function renderCompareMarkdown(result: CompareResult): string {
     lines.push(
       ...renderFunctionTable("New Functions", result.functions.new, true),
       "",
-      ...renderFunctionTable("Removed Functions", result.functions.removed, false),
+      ...renderFunctionTable(
+        "Removed Functions",
+        result.functions.removed,
+        false,
+      ),
       "",
       ...renderRankChangedFunctionTable(
         "Rank Changed Functions",
@@ -221,7 +225,11 @@ export function renderCompareMarkdown(result: CompareResult): string {
   lines.push(
     ...renderCouplingTable("New Coupling Pairs", result.coupling.new, true),
     "",
-    ...renderCouplingTable("Removed Coupling Pairs", result.coupling.removed, false),
+    ...renderCouplingTable(
+      "Removed Coupling Pairs",
+      result.coupling.removed,
+      false,
+    ),
     "",
     ...renderRankChangedCouplingTable(
       "Rank Changed Coupling Pairs",

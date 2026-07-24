@@ -35,11 +35,11 @@
 
 **The complexity is in the system, not in your workflow.** You talk naturally — the skill decides how deep to go:
 
-| Scope                               | What happens                                                      |
-| ----------------------------------- | ----------------------------------------------------------------- |
-| **Small** (≤3 files)                | Quick mode — describe → implement → verify (commit on request)    |
-| **Medium** (clear feature)          | Specify → Execute (design and tasks inline)                       |
-| **Large** (multi-component)         | Full pipeline with formal design and task breakdown               |
+| Scope                               | What happens                                                     |
+| ----------------------------------- | ---------------------------------------------------------------- |
+| **Small** (≤3 files)                | Quick mode — describe → implement → verify (commit on request)   |
+| **Medium** (clear feature)          | Specify → Execute (design and tasks inline)                      |
+| **Large** (multi-component)         | Full pipeline with formal design and task breakdown              |
 | **Complex** (ambiguity, new domain) | Full pipeline + gray area discussion + research + CLI validation |
 
 ## 🚀 Quick Start
