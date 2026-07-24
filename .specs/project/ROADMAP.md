@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M30 Done** — Post-M30 perf backlog **M31–M36** (stubs; specs via `planner-feature`).
+Status: **M7–M30 Done** — Post-M30 perf backlog **M31–M36** specs **Planned** (Execute pending).
 
 ## Milestone 1 — Scaffold
 
@@ -313,14 +313,14 @@ M27 → M28 → M30 → M29
 
 ## Post-M30 backlog — scan performance
 
-RT-001 follow-ups: high- and medium-impact wall-time / memory wins identified after M15/M28. Specs via `planner-feature` before Execute. Rankings / formulas / JSON contract unchanged unless a milestone documents an explicit warning (e.g. mega-commit guard). No historical AST. Gate remains `pnpm build && pnpm test`; timing stays manual (`scripts/benchmark-scan.md`).
+RT-001 follow-ups: high- and medium-impact wall-time / memory wins identified after M15/M28. Specs **Planned** via `planner-feature` (2026-07-23). Promote each `tasks.md` Status before Execute. Rankings / formulas / JSON contract unchanged unless a milestone documents an explicit warning (e.g. mega-commit guard). No historical AST. Gate remains `pnpm build && pnpm test`; timing stays manual (`scripts/benchmark-scan.md`).
 
 ### Milestone 31 — Persistent AST workers
 
-→ [`.specs/features/persistent-ast-workers/spec.md`](../features/persistent-ast-workers/spec.md) *(stub — create via `planner-feature`)*  
-**Slug:** `persistent-ast-workers` | **Priority:** High | **Specs:** stub
+→ [`.specs/features/persistent-ast-workers/spec.md`](../features/persistent-ast-workers/spec.md)  
+**Slug:** `persistent-ast-workers` | **Priority:** High | **Specs:** Planned
 
-Reduce worker spawn and ts-morph cold-start cost on large file trees.
+Reduce worker spawn and ts-morph cold-start cost on large file trees. IDs: HOTSPOT-300–313.
 
 - [ ] Persistent worker pool (N live workers + batch queue) instead of `new Worker()` per batch — `src/complexity/pool.ts`
 - [ ] Reuse ts-morph `Project` across batches in the worker — `src/complexity/project.ts` / `analyze-batch.ts`
@@ -330,10 +330,10 @@ Reduce worker spawn and ts-morph cold-start cost on large file trees.
 
 ### Milestone 32 — Coupling stream aggregation
 
-→ [`.specs/features/coupling-stream-aggregate/spec.md`](../features/coupling-stream-aggregate/spec.md) *(stub — create via `planner-feature`)*  
-**Slug:** `coupling-stream-aggregate` | **Priority:** High | **Specs:** stub
+→ [`.specs/features/coupling-stream-aggregate/spec.md`](../features/coupling-stream-aggregate/spec.md)  
+**Slug:** `coupling-stream-aggregate` | **Priority:** High | **Specs:** Planned
 
-Lower memory and avoid a second full pass over co-change events on large histories.
+Lower memory and avoid a second full pass over co-change events on large histories. IDs: HOTSPOT-320–334.
 
 - [ ] Aggregate `pair → coChangeCount` during the numstat stream (avoid retaining full `coChangeEvents[]`) — `src/git/aggregate.ts` + `src/scoring/coupling-scorer.ts`
 - [ ] Preserve ranking / `couplingStrength` for commits below the mega-commit guard
@@ -342,10 +342,10 @@ Lower memory and avoid a second full pass over co-change events on large histori
 
 ### Milestone 33 — Static enrich graph cache
 
-→ [`.specs/features/static-enrich-cache/spec.md`](../features/static-enrich-cache/spec.md) *(stub — create via `planner-feature`)*  
-**Slug:** `static-enrich-cache` | **Priority:** High | **Specs:** stub
+→ [`.specs/features/static-enrich-cache/spec.md`](../features/static-enrich-cache/spec.md)  
+**Slug:** `static-enrich-cache` | **Priority:** High | **Specs:** Planned
 
-Eliminate repeated source reads/regex when labeling coupling pairs.
+Eliminate repeated source reads/regex when labeling coupling pairs. IDs: HOTSPOT-340–348, 351.
 
 - [ ] One read/parse per file in enrich; cache resolved edges; O(1) pair lookup — `src/scoring/enrich-coupling-static.ts`
 - [ ] No ranking change; same `hasStaticDependency` / direction / kind fields
@@ -353,10 +353,10 @@ Eliminate repeated source reads/regex when labeling coupling pairs.
 
 ### Milestone 34 — Pipeline stage overlap
 
-→ [`.specs/features/pipeline-stage-overlap/spec.md`](../features/pipeline-stage-overlap/spec.md) *(stub — create via `planner-feature`)*  
-**Slug:** `pipeline-stage-overlap` | **Priority:** High | **Specs:** stub
+→ [`.specs/features/pipeline-stage-overlap/spec.md`](../features/pipeline-stage-overlap/spec.md)  
+**Slug:** `pipeline-stage-overlap` | **Priority:** High | **Specs:** Planned
 
-Overlap I/O-bound git mining with CPU-bound complexity analysis.
+Overlap I/O-bound git mining with CPU-bound complexity analysis. IDs: HOTSPOT-360–379.
 
 - [ ] Overlap git miner and complexity in `src/scan.ts` with coherent cancel/error handling
 - [ ] File mode: coupling/scoring only after both complete; function mode: function-churn after complexity (needs ranges)
@@ -365,10 +365,10 @@ Overlap I/O-bound git mining with CPU-bound complexity analysis.
 
 ### Milestone 35 — Function-mode scan efficiency
 
-→ [`.specs/features/function-mode-scan-efficiency/spec.md`](../features/function-mode-scan-efficiency/spec.md) *(stub — create via `planner-feature`)*  
-**Slug:** `function-mode-scan-efficiency` | **Priority:** High | **Specs:** stub
+→ [`.specs/features/function-mode-scan-efficiency/spec.md`](../features/function-mode-scan-efficiency/spec.md)  
+**Slug:** `function-mode-scan-efficiency` | **Priority:** High | **Specs:** Planned
 
-Cut function-mode wall time (patch stream + AST + hunk overlap).
+Cut function-mode wall time (patch stream + AST + hunk overlap). IDs: HOTSPOT-380–399.
 
 - [ ] Restrict patch stream (pathspec / only paths with churn or functions) — `src/git/function-churn/`
 - [ ] In function mode, limit AST to relevant files (churn ∩ scope) without worsening expected rankings
@@ -377,10 +377,10 @@ Cut function-mode wall time (patch stream + AST + hunk overlap).
 
 ### Milestone 36 — Discovery & concurrency defaults
 
-→ [`.specs/features/discovery-concurrency-defaults/spec.md`](../features/discovery-concurrency-defaults/spec.md) *(stub — create via `planner-feature`)*  
-**Slug:** `discovery-concurrency-defaults` | **Priority:** Medium | **Specs:** stub
+→ [`.specs/features/discovery-concurrency-defaults/spec.md`](../features/discovery-concurrency-defaults/spec.md)  
+**Slug:** `discovery-concurrency-defaults` | **Priority:** Medium | **Specs:** Planned
 
-Faster source discovery and better out-of-box concurrency on multi-core machines.
+Faster source discovery and better out-of-box concurrency on multi-core machines. IDs: HOTSPOT-400–413.
 
 - [ ] Prefer `git ls-files` + `PathScope` filter for discovery, with filesystem walk fallback — `src/complexity/discover.ts`
 - [ ] Revisit `DEFAULT_WORKER_CONCURRENCY` (today `min(availableParallelism(), 4)`); document memory vs `--concurrency`
