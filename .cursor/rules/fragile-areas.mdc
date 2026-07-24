@@ -1,12 +1,12 @@
 ---
-description: Guardrails para áreas frágeis do scanner (Git Miner, McCabe, scoring)
-globs: src/git/**,src/complexity/**,src/scoring/**,src/scan.ts
+description: Guardrails para áreas frágeis do scanner (Git Miner, McCabe, scoring, compare, schemas)
+globs: src/git/**,src/complexity/**,src/scoring/**,src/scan.ts,src/compare/**,schemas/**
 alwaysApply: false
 ---
 
 # Áreas Frágeis do Scanner
 
-SoT: [`.specs/codebase/ARCHITECTURE.md`](../../.specs/codebase/ARCHITECTURE.md), [`.specs/codebase/CONCERNS.md`](../../.specs/codebase/CONCERNS.md).
+SoT de risco e fórmulas: [`.specs/codebase/CONCERNS.md`](../../.specs/codebase/CONCERNS.md). Design: [`.specs/codebase/ARCHITECTURE.md`](../../.specs/codebase/ARCHITECTURE.md).
 
 Mudanças em `src/scan.ts` que alteram ordem de estágios ou wiring do pipeline exigem testes de integração atualizados.
 
@@ -22,9 +22,9 @@ Streaming parse de `git log --numstat --name-only` — alimenta churn e coupling
 
 ## Complexity Analyzer (`src/complexity/`)
 
-McCabe sobre AST via ts-morph — implementação própria de nós de decisão.
+McCabe sobre AST via ts-morph — definição detalhada em CONCERNS/ARCHITECTURE.
 
-Nós de decisão: `if`/`else if`, `for`, `while`, `do-while`, `case` de `switch`, `catch`, `&&`/`||`/`??` em condições, ternários.
+Nós de decisão (resumo): `if`/`else if`, `for`, `while`, `do-while`, `case` de `switch`, `catch`, `&&`/`||`/`??` em condições, ternários.
 
 **Proibido:** alterar definição de nó de decisão sem fixtures em `tests/fixtures/complexity/` com valores McCabe verificados manualmente.
 
@@ -32,9 +32,20 @@ Nós de decisão: `if`/`else if`, `for`, `while`, `do-while`, `case` de `switch`
 
 ## Scoring (`src/scoring/`)
 
-- `hotspotScore = 2ch / (c + h)` (harmonic mean of normalized complexity and churn)
-- `couplingStrength = coChangeCount / min(commitsA, commitsB)`
+SoT: CONCERNS.md — `hotspotScore = 2ch / (c + h)`; `couplingStrength = coChangeCount / min(commitsA, commitsB)`.
 
 **Proibido:** alterar fórmulas ou estratégia de normalização sem testes com inputs fixos e ordem esperada.
 
 **Obrigatório:** testar edge cases (zero commits, arquivo único, threshold `--min-cochange`).
+
+## Compare / baseline (`src/compare/`)
+
+`loadBaseline()` valida estrutura forte (incl. `hasStaticDependency`). Mudanças no contrato de parse exigem testes em `load-baseline.test.ts` e fixtures de baseline.
+
+**Proibido:** auto-migrar baselines pré-M14; falhar com mensagem clara.
+
+## JSON schemas (`schemas/`)
+
+SoT de contrato I/O: `schemas/scan-result.json`, `schemas/compare-result.json`.
+
+**Obrigatório:** após editar schemas, atualizar `tests/contract/json-schema.test.ts` e fixtures JSON relacionados.

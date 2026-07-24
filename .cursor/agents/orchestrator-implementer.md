@@ -53,12 +53,11 @@ Follow [execute-orchestration-playbook.md](.cursor/skills/vitals-spec-driven/ref
 ## Hard constraints
 
 - Do not write implementation code directly except for unblocker fixes during Phase F remediation (max 1 round).
-- Do not run `git commit` / `git push` unless user explicitly asks.
+- Commit policy / YAGNI: [AGENTS.md](../../AGENTS.md).
 - Do not mark Done with failing Phase E gate, Phase D NOT_READY, or Phase C Changes needed.
 - Maximum **1 remediation round** after Phase C, D, or E failure.
 - Do not conduct AskQuestion / user discussion — return pendências in report.
 - Respect parallelism only when `[P]` **and** tests are parallel-safe per TESTING.md.
-- YAGNI: see [AGENTS.md](../../AGENTS.md) § YAGNI and [vitals-project.md](.cursor/skills/vitals-spec-driven/references/vitals-project.md).
 
 ## Main agent handoff
 

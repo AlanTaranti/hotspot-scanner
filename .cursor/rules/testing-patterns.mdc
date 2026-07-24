@@ -28,7 +28,7 @@ Per-file thresholds enforced on every included `src/**` and `bin/**` file. See [
 
 - Árvores Git em `tests/fixtures/repos/` — excluídas do Vitest include
 - Samples de `git log` em `tests/fixtures/git-log/`
-- Validação manual/E2E: `pnpm exec hotspot-scanner scan tests/fixtures/<repo>`
+- Validação manual/E2E: `pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug>`
 
 ## Integridade
 

@@ -46,4 +46,4 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 
 ## Hooks enforcement
 
-Edits to `src/git/`, `src/complexity/`, or `src/scoring/` trigger fragile-area warnings. Tests must be updated before marking tasks Complete.
+Edits to `src/git/`, `src/complexity/`, `src/scoring/`, `src/scan.ts`, `src/compare/`, or `schemas/` trigger fragile-area warnings. Tests must be updated before marking tasks Complete.

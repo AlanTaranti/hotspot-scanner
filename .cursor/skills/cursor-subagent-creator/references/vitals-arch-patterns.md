@@ -51,9 +51,11 @@ You are the **[Nome legível]** for @vitals/hotspot-scanner — [uma linha: CLI 
 
 | Rule | Escopo |
 | ---- | ------ |
+| `context-first` | Ler `.specs/codebase/` antes de mudar |
+| `feature-planning` | Specify → Design → Tasks; sessão para em Planned |
 | `quality-gates` | Gate obrigatório |
-| `fragile-areas` | git, complexity, scoring |
-| `integrations` | ts-morph, git, commander |
+| `fragile-areas` | git, complexity, scoring, compare, schemas |
+| `integrations` | ts-morph, git, commander, schemas |
 | `bin-build` | tsconfig + tsconfig.bin.json |
 | `testing-patterns` | Vitest, mock boundaries |
 

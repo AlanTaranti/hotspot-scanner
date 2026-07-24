@@ -11,7 +11,7 @@ Estado de sessão (gitignored): `.cursor/hooks-state/<conversation_id>.json`
 | Crítico | `beforeShellExecution` | `commit-policy.mjs` | `git commit` negado sem keyword do usuário (`commit`, `commite`, `comitar`, `versionar`) |
 | Crítico | `beforeShellExecution` | `gate-before-commit.mjs` | `git commit` negado se código mudou sem gate recente |
 | Crítico | `afterShellExecution` | `record-gate-pass.mjs` | `gatePassedAt` / `buildPassedAt` + `testPassedAt` após build e test |
-| Crítico | `subagentStop` | `subagent-stop.mjs` | Follow-up Phase E (quality gate) |
+| Crítico | `subagentStop` | `subagent-stop.mjs` | Limpa estado do subagent; follow-up Phase E (quality gate) |
 | Alto | `subagentStart` | `subagent-start.mjs` | Estado subagent; bloqueio orchestrator se Status Draft/Planned |
 | Alto | `preToolUse` | `pre-edit-guard.mjs` | Planner boundary; fragile `ask`; ownership orquestrado |
 | Alto | `postToolUse` | `post-edit-guard.mjs` | Rastreia edições + alertas áreas frágeis / scoring |

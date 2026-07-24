@@ -53,7 +53,7 @@
       },
       {
         "command": "node .cursor/hooks/shell-guards.mjs",
-        "matcher": "pnpm start",
+        "matcher": "hotspot-scanner",
         "timeout": 5
       }
     ],
@@ -69,10 +69,6 @@
       }
     ],
     "subagentStop": [
-      {
-        "command": "node .cursor/hooks/subagent-start.mjs",
-        "timeout": 3
-      },
       {
         "command": "node .cursor/hooks/subagent-stop.mjs",
         "matcher": "implementer|orchestrator-implementer",

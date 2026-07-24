@@ -38,5 +38,5 @@ Agentes de planejamento param em Tasks com `tasks.md` **Status: `Planned`** — 
 Sem UAT interativo. Gates por task + gate final `pnpm build && pnpm test` + CLI manual quando flags ou pipeline mudam.
 
 ```bash
-pnpm exec hotspot-scanner scan tests/fixtures/<repo>
+pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug>
 ```

@@ -90,14 +90,5 @@ if (event === "subagentStart") {
   process.exit(0);
 }
 
-if (event === "subagentStop") {
-  saveState(input, {
-    activeSubagent: null,
-    orchestrated: false,
-  });
-  emptyOk();
-  process.exit(0);
-}
-
 emptyOk();
 process.exit(0);

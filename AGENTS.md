@@ -16,8 +16,10 @@ Canonical reference for AI agents working in this repository.
 ## Pipeline
 
 ```
-git log (streaming) → complexity (ts-morph + McCabe) → scoring (hotspot + coupling) → report (CLI table / JSON)
+git log (streaming) → complexity (ts-morph + McCabe) → scoring (hotspot + coupling) → report (table / JSON / markdown / CSV)
 ```
+
+Optional: `--baseline` → compare → delta report. Config: `.hotspot-scanner.json` (CLI > config > defaults).
 
 ## Quality gate
 
@@ -38,11 +40,11 @@ Prefix **`HOTSPOT-*`** in `spec.md` and `tasks.md` (e.g. `HOTSPOT-01`).
 
 ## Validation (CLI)
 
-No interactive UI UAT.
+No interactive UI UAT. Fixture repos live under `tests/fixtures/repos/<slug>`.
 
 ```bash
-pnpm exec hotspot-scanner scan tests/fixtures/<repo>
-pnpm exec hotspot-scanner scan tests/fixtures/<repo> --since "12 months ago" --format json
+pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug>
+pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug> --since "12 months ago" --format json
 ```
 
 | Exit code | Meaning |
@@ -52,14 +54,28 @@ pnpm exec hotspot-scanner scan tests/fixtures/<repo> --since "12 months ago" --f
 
 ## Skills and agents
 
-| Tool | Use for |
-|------|---------|
+### Skills
+
+| Skill | Use for |
+|-------|---------|
 | `vitals-spec-driven` | Specify → Design → Tasks → Execute workflow |
-| `vitals-pipeline-domain` | Domain context (git, complexity, scoring, report) |
+| `vitals-pipeline-domain` | Domain context (git, complexity, scoring, compare, config, report) |
 | `vitals-cli-validation` | CLI flag and fixture validation |
+| `task-implementer` | Single `tasks.md` task RED→GREEN→VERIFY (used by `implementer`) |
+| `coding-guidelines` | Surgical diffs, simplicity, anti-overengineering |
+| `cursor-subagent-creator` | Authoring new `.cursor/agents/` entries for this repo |
+
+### Agents
+
+| Agent | Use for |
+|-------|---------|
 | `planner-feature` | Planning only — ends at `tasks.md` Status `Planned` |
-| `orchestrator-implementer` | Execute phases in a separate session |
-| `verifier-quality-gates` | Run `pnpm build && pnpm test` |
+| `orchestrator-implementer` | Execute phases A→F in a separate session |
+| `implementer` | One task from `tasks.md` (Phase B) |
+| `code-reviewer` | Conventions / maintainability review (Phase C) |
+| `verifier-implementation` | Spec acceptance vs `spec.md` / `tasks.md` (Phase D) |
+| `verifier-quality-gates` | Run `pnpm build && pnpm test` and report (Phase E) |
+| `fixture-builder` | Create/update trees under `tests/fixtures/` |
 
 ## YAGNI
 

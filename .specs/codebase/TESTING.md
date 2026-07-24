@@ -91,8 +91,8 @@ coverage: {
 ## CLI validation
 
 ```bash
-pnpm exec hotspot-scanner scan tests/fixtures/<repo>
-pnpm exec hotspot-scanner scan tests/fixtures/<repo> --since "12 months ago" --format json
+pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug>
+pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug> --since "12 months ago" --format json
 ```
 
 See skill `vitals-cli-validation` for exit codes and flag matrix.

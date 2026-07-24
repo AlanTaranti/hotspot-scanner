@@ -1,6 +1,6 @@
 ---
-description: Encapsulamento de integrações externas (ts-morph, git, commander)
-globs: src/git/**,src/complexity/**,bin/**,package.json
+description: Encapsulamento de integrações externas (ts-morph, git, commander, schemas)
+globs: src/git/**,src/complexity/**,src/scoring/**,src/report/**,src/compare/**,src/config/**,bin/**,package.json,schemas/**
 alwaysApply: false
 ---
 
@@ -11,10 +11,13 @@ Seguir [INTEGRATIONS.md](../../.specs/codebase/INTEGRATIONS.md):
 - **ts-morph** — único ponto de acesso à AST; mock na fronteira `ComplexityAnalyzer`, não em scorers ou reporter.
 - **git** — `child_process.spawn` encapsulado em `GitMiner`; não spawnar git fora de `src/git/`.
 - **commander** — parsing CLI em `bin/hotspot-scanner.ts`; sem lógica de domínio no bin.
+- **JSON schemas** — contratos publicados em `schemas/`; `loadBaseline` valida contra o contrato de domínio (não espalhar parsers ad hoc).
 
 ## Regras
 
 - Encapsular adapters (`GitMiner`, `ComplexityAnalyzer`) — não espalhar imports de ts-morph/git pelo pipeline.
+- `src/report/` permanece puro (sem `fs`); I/O de arquivo no bin / compare loader.
+- `src/config/` — só `.hotspot-scanner.json`; precedência CLI > config > defaults.
 - Testes mockam na fronteira do adapter (ver TESTING.md § Mock boundaries).
 - Novas dependências runtime exigem entrada em `INTEGRATIONS.md` e justificativa no design da feature.
 

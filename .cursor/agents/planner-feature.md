@@ -41,8 +41,7 @@ For **Large** or **Complex** features (per vitals-spec-driven auto-sizing):
 ## Hard constraints
 
 - Do not write TypeScript implementation or test code — planning artifacts only.
-- YAGNI: see [AGENTS.md](../../AGENTS.md) § YAGNI and [vitals-project.md](.cursor/skills/vitals-spec-driven/references/vitals-project.md).
-- Requirement IDs use prefix **`HOTSPOT-`**.
+- YAGNI / IDs / commit: [AGENTS.md](../../AGENTS.md) (`HOTSPOT-*`).
 - Every medium/large feature task must have clear acceptance criteria, **Done when**, **Tests**, and **Gate** (`pnpm build && pnpm test` or a narrower per-task gate).
 - Run **Check 5: Path Conflict** per [tasks.md](.cursor/skills/vitals-spec-driven/references/tasks.md) § Validate Before Presenting — one task = one module owner when possible ([implementer-routing.md](.cursor/skills/vitals-spec-driven/references/implementer-routing.md)).
 - Sync [ROADMAP.md](.specs/project/ROADMAP.md) and [STATE.md](.specs/project/STATE.md) when planning completes.

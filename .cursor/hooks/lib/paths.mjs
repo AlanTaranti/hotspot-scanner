@@ -8,6 +8,8 @@ export const FRAGILE_PATH_RES = [
   /^src\/complexity\//,
   /^src\/scoring\//,
   /^src\/scan\.ts$/,
+  /^src\/compare\//,
+  /^schemas\//,
 ];
 
 export const FRAGILE_SCORING_RE = /^src\/scoring\//;

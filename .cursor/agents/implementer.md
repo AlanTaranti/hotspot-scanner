@@ -33,8 +33,7 @@ Do not inline routing tables or RED→GREEN→VERIFY steps — the skill and ref
 
 ## Hard constraints
 
-- YAGNI: see [AGENTS.md](../../AGENTS.md) § YAGNI and [vitals-project.md](.cursor/skills/vitals-spec-driven/references/vitals-project.md).
+- YAGNI / commit policy: [AGENTS.md](../../AGENTS.md).
 - Requirement IDs: `HOTSPOT-*` when tracing to spec.
-- Do not run `git add` / `git commit` / `git push` unless the user explicitly asked in this session.
 - When `orchestrated: true`: do **not** edit `tasks.md`, feature Status, or `ROADMAP.md`.
 - Do not run project-wide `pnpm build && pnpm test` unless that is the task's Verify/Gate field.

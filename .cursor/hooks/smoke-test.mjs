@@ -202,6 +202,40 @@ const tests = [
       assertIncludes(stdout, '"permission":"deny"', "fixture deny");
     },
   },
+  {
+    name: "hooks.json shell-guards beforeShell matcher covers scan",
+    run() {
+      const hooksPath = path.join(root, ".cursor/hooks.json");
+      const config = JSON.parse(fs.readFileSync(hooksPath, "utf8"));
+      const before = config.hooks?.beforeShellExecution ?? [];
+      const entry = before.find(
+        (h) =>
+          typeof h.command === "string" &&
+          h.command.includes("shell-guards.mjs"),
+      );
+      if (!entry) {
+        throw new Error("wiring: no shell-guards.mjs in beforeShellExecution");
+      }
+      const matcher = typeof entry.matcher === "string" ? entry.matcher : "";
+      if (!/hotspot-scanner|scan/.test(matcher)) {
+        throw new Error(
+          `wiring: beforeShellExecution shell-guards matcher must match hotspot-scanner/scan, got ${JSON.stringify(matcher)}`,
+        );
+      }
+      const stop = config.hooks?.subagentStop ?? [];
+      if (
+        stop.some(
+          (h) =>
+            typeof h.command === "string" &&
+            h.command.includes("subagent-start.mjs"),
+        )
+      ) {
+        throw new Error(
+          "wiring: subagentStop must not invoke subagent-start.mjs",
+        );
+      }
+    },
+  },
 ];
 
 let passed = 0;

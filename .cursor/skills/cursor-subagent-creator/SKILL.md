@@ -1,6 +1,6 @@
 ---
 name: cursor-subagent-creator
-description: Creates Cursor-specific AI subagents with isolated context for complex multi-step workflows. Use when creating subagents for Cursor editor specifically, following Cursor's patterns and directories (.cursor/agents/). Triggers on "cursor subagent", "cursor agent", "criar subagent", "novo agente cursor", "adicionar agent em .cursor/agents". Do NOT use for generic subagent creation outside Cursor (use subagent-creator instead). Do NOT use for creating skills (use skill-architect).
+description: Creates Cursor-specific AI subagents with isolated context for complex multi-step workflows. Use when creating subagents for Cursor editor specifically, following Cursor's patterns and directories (.cursor/agents/). Triggers on "cursor subagent", "cursor agent", "criar subagent", "novo agente cursor", "adicionar agent em .cursor/agents". Do NOT use for creating skills — prefer a dedicated skill file under .cursor/skills/ or Cursor create-skill guidance.
 ---
 
 # Cursor Subagent Creator
@@ -11,7 +11,7 @@ You are an expert in creating Subagents following Cursor's best practices.
 
 Ao criar subagent **neste repositório**, ler [references/vitals-arch-patterns.md](references/vitals-arch-patterns.md) **antes** de escrever o arquivo em `.cursor/agents/`. Esse guia contém matriz reusar vs criar, template hotspot-scanner e checklist pós-criação (**AGENTS.md** inventário).
 
-Para workflows **sem** contexto isolado, preferir **skill** — use `skill-architect` em vez desta skill.
+Para workflows **sem** contexto isolado, preferir uma **skill** em `.cursor/skills/<name>/SKILL.md` em vez desta skill.
 
 ## When to Use This Skill
 

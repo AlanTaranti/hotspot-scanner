@@ -62,8 +62,8 @@ For each user story in `spec.md`:
 When scope includes `bin/` or end-to-end scan wiring:
 
 ```bash
-pnpm exec hotspot-scanner scan tests/fixtures/<repo>
-pnpm exec hotspot-scanner scan tests/fixtures/<repo> --since "12 months ago" --format json
+pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug>
+pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug> --since "12 months ago" --format json
 ```
 
 - Exit `0` — scan completed successfully

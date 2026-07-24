@@ -10,12 +10,13 @@ Antes de planejar ou implementar qualquer mudança, ler os arquivos relevantes e
 | Tipo de mudança | Ler |
 |-----------------|-----|
 | Código geral | `CONVENTIONS.md`, `STRUCTURE.md` |
-| Módulos scanner (git, complexity, scoring) | `ARCHITECTURE.md`, `CONCERNS.md`, `INTEGRATIONS.md` |
+| Módulos scanner (git, complexity, scoring, compare, config, report) | `ARCHITECTURE.md`, `CONCERNS.md`, `INTEGRATIONS.md` |
 | Progresso / milestones | `ROADMAP.md`, `STATE.md`, `.specs/features/` |
 | Testes | `TESTING.md` |
 | Arquitetura / stack | `ARCHITECTURE.md`, `STACK.md` |
 | Integrações externas | `INTEGRATIONS.md` |
 | Áreas frágeis | `CONCERNS.md` |
+| Contrato JSON | `schemas/`, `TESTING.md` § contract |
 
 ## Documentação viva
 
@@ -23,4 +24,4 @@ Toda mudança significativa (novos módulos do scanner, tipos de domínio, CLI f
 
 ## YAGNI
 
-Não implementar funcionalidades, abstrações ou componentes além do requisito atual. Priorizar simplicidade na implementação e na arquitetura.
+Ver [AGENTS.md](../../AGENTS.md) § YAGNI.

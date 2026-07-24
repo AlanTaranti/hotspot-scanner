@@ -35,6 +35,20 @@ This skill is adapted for the **@vitals/hotspot-scanner** repository, based on T
 
 **Execute boundary:** If `tasks.md` Status is `Draft` or `Planned`, do **not** start Execute in this session — hand off to a new session with `orchestrator-implementer` after user promotes Status.
 
+## Progressive disclosure (do not load all references)
+
+Load **only** the refs for the current phase. Never preload the entire `references/` tree.
+
+| Phase / mode | Load these refs |
+| ------------ | --------------- |
+| Specify | [specify.md](references/specify.md); [discuss.md](references/discuss.md) only if gray areas |
+| Design | [design.md](references/design.md); [brownfield-mapping.md](references/brownfield-mapping.md) if Large/Complex |
+| Tasks | [tasks.md](references/tasks.md); [feature-spec-checklist.md](references/feature-spec-checklist.md); [implementer-routing.md](references/implementer-routing.md); [planning-session-boundary.md](references/planning-session-boundary.md) |
+| Execute (orchestrated) | [execute-orchestration-playbook.md](references/execute-orchestration-playbook.md); [orchestrated-implementer.md](references/orchestrated-implementer.md); [implement.md](references/implement.md); [roadmap-sync.md](references/roadmap-sync.md) |
+| Validate | [validate.md](references/validate.md) |
+| Quick | [quick-mode.md](references/quick-mode.md) |
+| Session handoff | [session-handoff.md](references/session-handoff.md); [state-management.md](references/state-management.md) |
+
 ```
 ┌──────────┐   ┌──────────┐   ┌─────────┐   ┌─────────┐
 │ SPECIFY  │ → │  DESIGN  │ → │  TASKS  │ → │ EXECUTE │
@@ -110,6 +124,8 @@ This skill is adapted for the **@vitals/hotspot-scanner** repository, based on T
 
 ## Context Loading Strategy
 
+Follow the progressive disclosure table above. Do **not** load all `references/*.md` at once.
+
 **Base load (~15k tokens):**
 
 - AGENTS.md + vitals-project.md (this repo)
@@ -122,16 +138,15 @@ This skill is adapted for the **@vitals/hotspot-scanner** repository, based on T
 - Codebase docs (when working in existing project)
 - CONCERNS.md (when planning features that touch flagged areas)
 - TESTING.md (when creating tasks or executing)
-- spec.md (when working on specific feature)
-- context.md (when designing or implementing from user decisions)
-- design.md (when implementing from design)
-- tasks.md (when executing tasks)
+- Feature `spec.md` / `context.md` / `design.md` / `tasks.md` for the active slug only
+- Phase refs from the progressive disclosure table
 
 **Never load simultaneously:**
 
 - Multiple feature specs
 - Multiple architecture docs
 - Archived documents
+- The full set of skill references
 
 **Target:** <40k tokens total context
 **Reserve:** 160k+ tokens for work, reasoning, outputs
