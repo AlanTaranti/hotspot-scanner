@@ -31,7 +31,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | Path scoping via `git log -- pathspec` | Preserves single-pass ADR-2026-020; post-aggregation filter instead |
 | Rich JSON raw metrics | Milestone 9 — [rich-output/spec.md](../rich-output/spec.md) |
 | Export formats / markdown output | Milestone 10 |
-| CI fail thresholds | Milestone 11 |
+| CI fail thresholds / exit codes on metric breach | Not planned — removed from roadmap (see STATE.md) |
 
 ---
 

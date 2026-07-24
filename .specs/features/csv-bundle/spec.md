@@ -32,7 +32,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | Legacy multi-block flag or dual layout | Breaking replace — locked |
 | Emit-only-nonempty (skip empty files) | Always emit stable paths — locked |
 | `--top` limiting CSV rows | Parity with M16/M17 — ignored for csv |
-| CI fail thresholds | Milestone 12 |
+| CI fail thresholds / exit codes on metric breach | Not planned — removed from roadmap (see STATE.md) |
 | HTML, PDF, SARIF, Excel `.xlsx` | YAGNI |
 | Auto-detect format from extension | M10 — `--format` is source of truth |
 | Alter scoring, normalization, or JSON schema | M18 boundary — report/CLI only |

@@ -28,7 +28,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | Change to `normalizeLogMinMax` | ROADMAP: "same normalization" |
 | `couplingStrength` / `TemporalCouplingScorer` | M8 scope is hotspot combiner only |
 | `--score-formula` flag / product-formula retrocompat | YAGNI; no ROADMAP requirement |
-| Rich output raw metrics (M9), CI gate (M12) | Future milestones |
+| Rich output raw metrics (M9), CI fail thresholds | Future milestones (CI gate not planned) |
 | Edit M4 scoring spec | M8 supersedes combiner only; M4 spec remains historical |
 
 ---

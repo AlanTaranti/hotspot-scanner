@@ -27,7 +27,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | ------- | ------ |
 | Per-function git churn | No blame/history AST in v1 — churn inherited from parent file |
 | Coupling at function granularity | Co-change events are file-level (M2); unchanged in M11 |
-| CI fail thresholds | Milestone 12 — CI Gate |
+| CI fail thresholds / exit codes on metric breach | Not planned — removed from roadmap (see STATE.md) |
 | `scan compare` / baseline delta | Milestone 13 — Scan Compare |
 | Static import analysis on functions | Milestone 14 — Enriched Coupling |
 | Worker-thread AST parallelization | Milestone 15 — AST Parallelization |

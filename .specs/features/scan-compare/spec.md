@@ -25,7 +25,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | Feature | Reason |
 | ------- | ------ |
 | Subcomando `compare` | User decision — apenas `scan --baseline` |
-| CI fail thresholds | Milestone 12 — CI Gate |
+| CI fail thresholds / exit codes on metric breach | Not planned — removed from roadmap (see STATE.md) |
 | Score-delta without rank change | YAGNI — ROADMAP pede rank-changed, não score-changed |
 | Compare across different granularities | Hard error — indefinido |
 | Block compare on `meta.since` mismatch | Warning only — janelas distintas são válidas em CI |

@@ -25,7 +25,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | Feature | Reason |
 | ------- | ------ |
 | `scan compare` / baseline delta | Milestone 13 — Scan Compare |
-| CI fail thresholds | Milestone 12 — CI Gate |
+| CI fail thresholds / exit codes on metric breach | Not planned — removed from roadmap (see STATE.md) |
 | `--granularity function` | Milestone 11 — Function Granularity |
 | HTML, PDF, SARIF | YAGNI |
 | Auto-detect format from file extension | `--format` is source of truth |

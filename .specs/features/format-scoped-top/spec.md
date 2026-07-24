@@ -28,7 +28,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | Separate `--top-hotspots` / `--top-coupling` flags | YAGNI |
 | Slicing in `runScan()` pipeline | M5 D3 — reporter owns display limit |
 | Changing `DEFAULT_TOP` (20) | Out of scope |
-| CI fail thresholds | Milestone 12 — CI Gate |
+| CI fail thresholds / exit codes on metric breach | Not planned — removed from roadmap (see STATE.md) |
 | Altering `ScanResult` / `CompareResult` schema | Render-only change |
 | Warning when `--top` combined with JSON/CSV | YAGNI — flag accepted, ignored silently |
 | Updating historical M5 `reporter-cli/spec.md` | Superseded by M16; noted in context.md |

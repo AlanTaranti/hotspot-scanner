@@ -150,11 +150,11 @@
 
 **Question:** What exit code when compare completes without errors?
 
-**Choice:** **`0`** — successful compare always exits `0`, regardless of delta content (new/removed/rank-changed). CI fail thresholds are M12.
+**Choice:** **`0`** — successful compare always exits `0`, regardless of delta content (new/removed/rank-changed).
 
 **Rationale:**
 
-- Consistent with v1 STATE.md decision (no fail thresholds until M12)
+- Consistent with STATE.md decision (no fail thresholds; CI gate removed from roadmap)
 - Delta presence is informational, not a gate failure
 
 **Status:** **Confirmed**

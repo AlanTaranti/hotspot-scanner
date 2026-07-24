@@ -25,7 +25,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | Feature | Reason |
 | ------- | ------ |
 | `--top` limiting CSV rows | M16 scopes `--top` to table/markdown only; CSV exports full data like JSON |
-| CI fail thresholds | Milestone 12 — CI Gate |
+| CI fail thresholds / exit codes on metric breach | Not planned — removed from roadmap (see STATE.md) |
 | HTML, PDF, SARIF, Excel `.xlsx` | YAGNI |
 | Auto-detect format from file extension | M10 decision — `--format` is source of truth |
 | Alter scoring, normalization, or JSON schema | M17 boundary — new renderers only |

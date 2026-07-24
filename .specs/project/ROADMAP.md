@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M6 Integration complete** — Post-v1 backlog through M18 (M18 CSV Bundle Specs: Planned).
+Status: **M18 CSV Bundle complete** — backlog: M14, M19–M24.
 
 ## Milestone 1 — Scaffold
 
@@ -110,14 +110,6 @@ Prefer balanced dual-signal files (actively complex + churned) over spiky one-ax
 - [x] Per-function McCabe in output (`functionName`, `line`, `complexity`)
 - [x] `--granularity file|function` (default `file`; function mode ranks top functions)
 
-### Milestone 12 — CI Gate
-
-**Slug (planned):** `ci-gate` | **Priority:** Critical
-
-- [ ] `--fail-on-hotspot-score <n>` and/or `--fail-on-coupling-strength <n>`
-- [ ] Exit code `1` when threshold exceeded (success scan with gate failure)
-- [ ] Document reversal of v1 CI-gate non-goal in STATE.md when planned
-
 ### Milestone 13 — Scan Compare
 
 → [`.specs/features/scan-compare/spec.md`](../features/scan-compare/spec.md)  
@@ -176,6 +168,53 @@ Breaking redesign of `--format csv`: multi-file stem bundle + `{stem}.meta.json`
 - [x] `--format csv` requires `--output` (`CliUsageError` otherwise); CLI stem expansion + multi-write
 - [x] No title rows; reuse M17 column sets + `csv-utils`; `--top` ignored; no legacy multi-block flag
 
+### Milestone 19 — Documentation Sync
+
+**Slug (planned):** `docs-sync` | **Priority:** Medium
+
+- [ ] Sync [PROJECT.md](PROJECT.md) with post-v1 reality (no simple-git, commander implemented, features M7–M18)
+- [ ] Fix stale status in ROADMAP header and `design.md`/`spec.md` for Done milestones (e.g. csv-bundle `Status: Planned`)
+- [ ] Update [README.md](../../README.md): full JSON (M9/M11), compare JSON, programmatic API, markdown/csv formats
+- [ ] Fix [INTEGRATIONS.md](../codebase/INTEGRATIONS.md): `child_process.spawn` only (remove `simple-git` mention)
+
+### Milestone 20 — JSON Contract
+
+**Slug (planned):** `json-contract` | **Priority:** High
+
+- [ ] Publish JSON Schema for `ScanResult` and `CompareResult` (e.g. `schemas/scan-result.json`)
+- [ ] Strong validation in `loadBaseline()` (`src/compare/load-baseline.ts`) — reject malformed JSON with clear error
+- [ ] Contract tests: CLI `--format json` output and compare match schema
+
+### Milestone 21 — Config File
+
+**Slug (planned):** `config-file` | **Priority:** High
+
+- [ ] Support `.hotspot-scanner.json` (or `.hotspotrc`) with defaults: `since`, `include`, `exclude`, `granularity`, `minCochange`, `top`
+- [ ] Precedence: CLI flags > config file > defaults
+- [ ] Document in README and ARCHITECTURE
+
+### Milestone 22 — Function AST Coverage
+
+**Slug (planned):** `function-ast-coverage` | **Priority:** Medium
+
+- [ ] Extend `src/complexity/analyze-file.ts` for getters/setters, class field arrows, object-literal methods
+- [ ] McCabe fixtures per construct; do not change existing decision-node definition
+
+### Milestone 23 — Per-Function Git Churn
+
+**Slug (planned):** `per-function-churn` | **Priority:** Medium
+
+- [ ] Per-function churn in `--granularity function` mode (replace inherited file churn — M11 decision)
+- [ ] Approach TBD in spec (e.g. blame-lite by function line range); out of scope: historical AST per commit
+
+### Milestone 24 — Package DX
+
+**Slug (planned):** `package-dx` | **Priority:** Medium
+
+- [ ] Scripts: `typecheck`, `lint` (optionally `format`, `dev`)
+- [ ] `package.json`: `engines.node >= 22`, `files`, `repository` (publish prep)
+- [ ] Document in CONTRIBUTING
+
 ### Suggested execution order
 
-M7 → M8 → M9 → M12 → M10 → M17 → M16 → M11 → M13 → M14 → M15 → M18
+M14 → M19 → M20 → M21 → M22 → M23 → M24

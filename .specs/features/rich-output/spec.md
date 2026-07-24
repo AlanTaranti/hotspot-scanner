@@ -30,7 +30,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | Coupling pair enrichment | M9 scope is hotspots only; coupling already has `coChangeCount` |
 | `--format markdown` / `--output <path>` | Milestone 10 — Export Formats |
 | Per-function granularity (`--granularity`) | Milestone 11 |
-| CI fail thresholds | Milestone 12 |
+| CI fail thresholds / exit codes on metric breach | Not planned — removed from roadmap (see STATE.md) |
 | Alter harmonic combiner or normalization | M8 boundary |
 | Edit M5 reporter-cli spec | M9 supersedes deferred raw-metrics aspect only |
 
