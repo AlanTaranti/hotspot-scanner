@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M6 Integration complete** — Post-v1 backlog planned (M7–M15).
+Status: **M6 Integration complete** — Post-v1 backlog through M18 (M18 CSV Bundle Specs: Planned).
 
 ## Milestone 1 — Scaffold
 
@@ -155,12 +155,27 @@ Prefer balanced dual-signal files (actively complex + churned) over spiky one-ax
 → [`.specs/features/csv-export/spec.md`](../features/csv-export/spec.md)  
 **Slug:** `csv-export` | **Priority:** Medium | **Specs:** Done
 
+> **Note:** Multi-block single-file CSV layout is **superseded by Milestone 18** (`csv-bundle`). Leave M17 historical; do not reopen.
+
 - [x] `--format csv` CLI option (scan + compare)
 - [x] `renderCsv()` / `renderCompareCsv()` in `src/report/` — tabular hotspots, functions (`--granularity function`), and coupling sections
 - [x] RFC 4180 escaping (commas, quotes, newlines in file paths)
 - [x] Works with `--output <path>` (same transport rules as M10)
 - [x] `--top` ignored for CSV (full rankings, parity with JSON; M16 scopes `--top` to table/markdown only)
 
+### Milestone 18 — CSV Bundle Export
+
+→ [`.specs/features/csv-bundle/spec.md`](../features/csv-bundle/spec.md)  
+**Slug:** `csv-bundle` | **Priority:** Medium | **Specs:** Planned
+
+Breaking redesign of `--format csv`: multi-file stem bundle + `{stem}.meta.json` sidecar (replaces M17 multi-block single file).
+
+- [ ] `CsvBundle` return type from `renderCsv()` / `renderCompareCsv()`; reporter stays pure (no `fs`)
+- [ ] Scan bundle: `{stem}.meta.json` + `{stem}.hotspots.csv`|`{stem}.functions.csv` + `{stem}.coupling.csv`
+- [ ] Compare bundle: always 6 data CSVs + meta (empty = header-only); hierarchical names
+- [ ] `--format csv` requires `--output` (`CliUsageError` otherwise); CLI stem expansion + multi-write
+- [ ] No title rows; reuse M17 column sets + `csv-utils`; `--top` ignored; no legacy multi-block flag
+
 ### Suggested execution order
 
-M7 → M8 → M9 → M12 → M10 → M17 → M16 → M11 → M13 → M14 → M15
+M7 → M8 → M9 → M12 → M10 → M17 → M16 → M11 → M13 → M14 → M15 → M18

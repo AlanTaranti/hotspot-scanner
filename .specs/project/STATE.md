@@ -21,6 +21,7 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-22 | Expose **`authorCount`** (bus factor) in hotspot output | Derived from `FileChangeStats.authors` Set size; `authors` list remains internal (M9) |
 | 2026-07-22 | Function-mode ranking: **hotspotScore with inherited file churn** | Same harmonic combiner as file mode; per-function McCabe + parent file `commitCount`; no per-function git history in v1 (M11) |
 | 2026-07-23 | **`--top` scoped to table/markdown only** | JSON and CSV export full ranked arrays; `--top` ignored for machine-readable formats (M16). **Breaking change:** pre-M16 `--format json --top N` returned at most N items per array; post-M16 JSON always returns full arrays |
+| 2026-07-23 | **`--format csv` → multi-file bundle (M18)** | **Breaking change** vs M17 multi-block single CSV. Stem from `--output`; sidecar `{stem}.meta.json` only; separate ranking/coupling CSVs; compare always emits 6 CSVs + meta (empty = header-only); `--format csv` **requires** `--output` (`CliUsageError` otherwise); no legacy flag / zip / BOM / emit-only-nonempty. Specs: `.specs/features/csv-bundle/` (Status Planned). Leave M17 Done/historical |
 
 ## Architecture decisions (ADRs)
 
