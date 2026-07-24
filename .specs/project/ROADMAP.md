@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M36 Done** — Post-M30 perf backlog complete.
+Status: **M7–M36 Done** — Post-M30 perf backlog complete. Next planned: **M37** README adoption DX (Specs Planned; npm publish deferred).
 
 ## Milestone 1 — Scaffold
 
@@ -391,3 +391,22 @@ Faster source discovery and better out-of-box concurrency on multi-core machines
 M31 → M32 → M33 → M35 → M34 → M36
 
 Workers and coupling/enrich first (isolated wins); function-mode I/O next; stage overlap later among the highs (more fragile); discovery/defaults last (polish).
+
+---
+
+## Post-M36 backlog — adoption / distribution
+
+### Milestone 37 — README Adoption DX — Specs Planned
+
+→ [`.specs/features/readme-adoption-dx/spec.md`](../features/readme-adoption-dx/spec.md)  
+**Slug:** `readme-adoption-dx` | **Priority:** High | **Specs:** Planned | **Execute:** Pending  
+**IDs:** HOTSPOT-420–440 | **Sister:** [product-docs-sync](../features/product-docs-sync/spec.md) (M25)
+
+Improve GitHub-facing adoption DX without npm publish. Official install remains `git clone` + `pnpm install` + `pnpm build` using the real GitHub URL. **npm / npx / publish install path is future backlog (not M37).**
+
+- [ ] Fix duplicate Markdown fence; restore rendering of following sections
+- [ ] Opening: problem → solution; package vs bin naming; TOC; badges (no npm version)
+- [ ] Sample CLI table + real `docs/assets/` screenshot from fixture `small-ts` in first ~60 lines
+- [ ] Short top + Advanced detail; slim How it works; workflows; privacy; Limitations
+- [ ] Remove user-facing M26/M28/M32/RT-003 jargon and “v1” framing; keep stable warning `code`s
+- [ ] Real clone URL; CONTRIBUTING pointer/dedupe; expand `package.json` keywords (no publish)
