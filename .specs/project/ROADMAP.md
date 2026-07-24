@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M29 Function AST Coverage+ Done** — post-v1 milestones M7–M30 Done.
+Status: **M7–M30 Done** — Post-M30 perf backlog **M31–M36** (stubs; specs via `planner-feature`).
 
 ## Milestone 1 — Scaffold
 
@@ -308,3 +308,86 @@ Better defaults and config discovery for real monorepos. Locked decisions: [path
 ### Suggested execution order (M27–M30)
 
 M27 → M28 → M30 → M29
+
+---
+
+## Post-M30 backlog — scan performance
+
+RT-001 follow-ups: high- and medium-impact wall-time / memory wins identified after M15/M28. Specs via `planner-feature` before Execute. Rankings / formulas / JSON contract unchanged unless a milestone documents an explicit warning (e.g. mega-commit guard). No historical AST. Gate remains `pnpm build && pnpm test`; timing stays manual (`scripts/benchmark-scan.md`).
+
+### Milestone 31 — Persistent AST workers
+
+→ [`.specs/features/persistent-ast-workers/spec.md`](../features/persistent-ast-workers/spec.md) *(stub — create via `planner-feature`)*  
+**Slug:** `persistent-ast-workers` | **Priority:** High | **Specs:** stub
+
+Reduce worker spawn and ts-morph cold-start cost on large file trees.
+
+- [ ] Persistent worker pool (N live workers + batch queue) instead of `new Worker()` per batch — `src/complexity/pool.ts`
+- [ ] Reuse ts-morph `Project` across batches in the worker — `src/complexity/project.ts` / `analyze-batch.ts`
+- [ ] Cheaper syntactic diagnostics path (`getSyntacticDiagnostics` / `getProgram()` per file) without changing McCabe decision nodes (RT-005)
+- [ ] Keep `concurrency === 1` / single-batch inline fallback; `--concurrency` semantics unchanged
+- [ ] After Execute: update `scripts/benchmark-scan.md`, CONCERNS, ARCHITECTURE
+
+### Milestone 32 — Coupling stream aggregation
+
+→ [`.specs/features/coupling-stream-aggregate/spec.md`](../features/coupling-stream-aggregate/spec.md) *(stub — create via `planner-feature`)*  
+**Slug:** `coupling-stream-aggregate` | **Priority:** High | **Specs:** stub
+
+Lower memory and avoid a second full pass over co-change events on large histories.
+
+- [ ] Aggregate `pair → coChangeCount` during the numstat stream (avoid retaining full `coChangeEvents[]`) — `src/git/aggregate.ts` + `src/scoring/coupling-scorer.ts`
+- [ ] Preserve ranking / `couplingStrength` for commits below the mega-commit guard
+- [ ] Guard commits with too many unique files (cap or skip + `ScanWarning`); document in CONCERNS
+- [ ] Path scope continues to filter before/during aggregation
+
+### Milestone 33 — Static enrich graph cache
+
+→ [`.specs/features/static-enrich-cache/spec.md`](../features/static-enrich-cache/spec.md) *(stub — create via `planner-feature`)*  
+**Slug:** `static-enrich-cache` | **Priority:** High | **Specs:** stub
+
+Eliminate repeated source reads/regex when labeling coupling pairs.
+
+- [ ] One read/parse per file in enrich; cache resolved edges; O(1) pair lookup — `src/scoring/enrich-coupling-static.ts`
+- [ ] No ranking change; same `hasStaticDependency` / direction / kind fields
+- [ ] `package.json` `exports`/`imports` remain deferred (CONCERNS)
+
+### Milestone 34 — Pipeline stage overlap
+
+→ [`.specs/features/pipeline-stage-overlap/spec.md`](../features/pipeline-stage-overlap/spec.md) *(stub — create via `planner-feature`)*  
+**Slug:** `pipeline-stage-overlap` | **Priority:** High | **Specs:** stub
+
+Overlap I/O-bound git mining with CPU-bound complexity analysis.
+
+- [ ] Overlap git miner and complexity in `src/scan.ts` with coherent cancel/error handling
+- [ ] File mode: coupling/scoring only after both complete; function mode: function-churn after complexity (needs ranges)
+- [ ] Document peak-memory trade-off; progress phases unchanged or carefully extended
+- [ ] Boundary: do **not** parallelize function-churn with numstat in this milestone (rename/alias complexity)
+
+### Milestone 35 — Function-mode scan efficiency
+
+→ [`.specs/features/function-mode-scan-efficiency/spec.md`](../features/function-mode-scan-efficiency/spec.md) *(stub — create via `planner-feature`)*  
+**Slug:** `function-mode-scan-efficiency` | **Priority:** High | **Specs:** stub
+
+Cut function-mode wall time (patch stream + AST + hunk overlap).
+
+- [ ] Restrict patch stream (pathspec / only paths with churn or functions) — `src/git/function-churn/`
+- [ ] In function mode, limit AST to relevant files (churn ∩ scope) without worsening expected rankings
+- [ ] Interval index for function×hunk overlap (sort/sweep) — `src/git/function-churn/aggregate.ts`
+- [ ] File mode: zero patch spawn (regression test)
+
+### Milestone 36 — Discovery & concurrency defaults
+
+→ [`.specs/features/discovery-concurrency-defaults/spec.md`](../features/discovery-concurrency-defaults/spec.md) *(stub — create via `planner-feature`)*  
+**Slug:** `discovery-concurrency-defaults` | **Priority:** Medium | **Specs:** stub
+
+Faster source discovery and better out-of-box concurrency on multi-core machines.
+
+- [ ] Prefer `git ls-files` + `PathScope` filter for discovery, with filesystem walk fallback — `src/complexity/discover.ts`
+- [ ] Revisit `DEFAULT_WORKER_CONCURRENCY` (today `min(availableParallelism(), 4)`); document memory vs `--concurrency`
+- [ ] Update README / M28 docs / benchmark notes
+
+### Suggested execution order (M31–M36)
+
+M31 → M32 → M33 → M35 → M34 → M36
+
+Workers and coupling/enrich first (isolated wins); function-mode I/O next; stage overlap later among the highs (more fragile); discovery/defaults last (polish).

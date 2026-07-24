@@ -40,6 +40,7 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-23 | **M30 Execute complete**                                          | Path & config DX: expanded default excludes (`.next`, `out`, `vendor`, etc.), parent config walk, `--config`. Specs: `.specs/features/path-config-dx/` (Done) |
 | 2026-07-23 | **M29 Execute complete**                                          | Function AST coverage+: ClassExpression members, object-literal get/set, assignment RHS callables, overload stub skip; McCabe decision nodes unchanged (RT-005). Specs: `.specs/features/function-ast-coverage-plus/` (Done) |
 | 2026-07-23 | **M25–M30 Execute complete**                                      | Post-v1 backlog M25–M30 all Done per ROADMAP; execution order M26→M25→M27→M28→M30→M29 |
+| 2026-07-23 | **Post-M30 perf backlog M31–M36**                                 | ROADMAP stubs for high/medium scan-performance wins (persistent AST workers, coupling stream aggregate, static enrich cache, pipeline overlap, function-mode I/O, discovery/concurrency defaults). Specs via `planner-feature` before Execute. Suggested order M31→M32→M33→M35→M34→M36. No historical AST; rankings/JSON unchanged unless mega-commit warning documented |
 
 ## Architecture decisions (ADRs)
 
@@ -74,9 +75,9 @@ _None._
 
 ## Active
 
-Post-v1 milestones **M7–M30 Done**. No open backlog milestones.
+Post-v1 milestones **M7–M30 Done**. Open backlog: **M31–M36** (scan performance stubs in ROADMAP).
 
-Next work: see **Deferred** or new `planner-feature` specs if scope expands.
+Next work: `planner-feature` for **M31** (`persistent-ast-workers`), then Execute in a separate session. Suggested order: M31 → M32 → M33 → M35 → M34 → M36.
 
 ## Deferred
 
