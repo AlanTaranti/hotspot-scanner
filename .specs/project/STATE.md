@@ -23,6 +23,10 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-23 | **`--top` scoped to table/markdown only** | JSON and CSV export full ranked arrays; `--top` ignored for machine-readable formats (M16). **Breaking change:** pre-M16 `--format json --top N` returned at most N items per array; post-M16 JSON always returns full arrays |
 | 2026-07-23 | **`--format csv` → multi-file bundle (M18)** | **Breaking change** vs M17 multi-block single CSV. Stem from `--output`; sidecar `{stem}.meta.json` only; separate ranking/coupling CSVs; compare always emits 6 CSVs + meta (empty = header-only); `--format csv` **requires** `--output` (`CliUsageError` otherwise); no legacy flag / zip / BOM / emit-only-nonempty. Specs: `.specs/features/csv-bundle/` (Status Planned). Leave M17 Done/historical |
 | 2026-07-23 | **CI Gate (M12) removed from roadmap** | `hotspotScore` is scan-relative (log1p + min-max); fail thresholds on normalized score are fragile for CI; no `--fail-on-*` gates planned |
+| 2026-07-23 | **M21 config file: `.hotspot-scanner.json` only** | User locked — not `.hotspotrc`, not dual lookup. Precedence: CLI flags > config file > defaults. Keys: `since`, `include`, `exclude`, `granularity`, `minCochange`, `top`. Load from `repoPath` root only (no parent walk). Specs: `.specs/features/config-file/` |
+| 2026-07-23 | **M14 enriched coupling: post-score boolean** | After `scoreCoupling`, set `hasStaticDependency` via relative import/export/require resolution (no ts-morph in scoring; no path aliases). Missing source → `false`. Additive under JSON `version: "1.0"`. Specs: `.specs/features/enriched-coupling/` |
+| 2026-07-23 | **M20 schemas require `hasStaticDependency`** | Reject baselines missing the field (re-scan). Ajv preferred as devDependency for contract tests; deepen `parseScanResult`. Execute after M14. Specs: `.specs/features/json-contract/` |
+| 2026-07-23 | **M14–M22 specs Planned** | Planner session created feature folders for M14, M19, M20, M21, M22 (`tasks.md` Status: Planned). Execute order: M14 → M19 → M20 → M21 → M22. M23/M24 out of this planning batch |
 
 ## Architecture decisions (ADRs)
 

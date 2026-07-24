@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M18 CSV Bundle complete** — backlog: M14, M19–M24.
+Status: **M18 CSV Bundle complete** — specs Planned for M14, M19–M22; backlog Execute: M14 → M19 → M20 → M21 → M22 → M23 → M24.
 
 ## Milestone 1 — Scaffold
 
@@ -120,7 +120,8 @@ Prefer balanced dual-signal files (actively complex + churned) over spiky one-ax
 
 ### Milestone 14 — Enriched Coupling
 
-**Slug (planned):** `enriched-coupling` | **Priority:** High
+→ [`.specs/features/enriched-coupling/spec.md`](../features/enriched-coupling/spec.md)  
+**Slug:** `enriched-coupling` | **Priority:** High | **Specs:** Planned
 
 - [ ] Static import analysis between coupled file pairs
 - [ ] Output field `hasStaticDependency: boolean` on `CouplingPair`
@@ -170,7 +171,8 @@ Breaking redesign of `--format csv`: multi-file stem bundle + `{stem}.meta.json`
 
 ### Milestone 19 — Documentation Sync
 
-**Slug (planned):** `docs-sync` | **Priority:** Medium
+→ [`.specs/features/docs-sync/spec.md`](../features/docs-sync/spec.md)  
+**Slug:** `docs-sync` | **Priority:** Medium | **Specs:** Planned
 
 - [ ] Sync [PROJECT.md](PROJECT.md) with post-v1 reality (no simple-git, commander implemented, features M7–M18)
 - [ ] Fix stale status in ROADMAP header and `design.md`/`spec.md` for Done milestones (e.g. csv-bundle `Status: Planned`)
@@ -179,23 +181,27 @@ Breaking redesign of `--format csv`: multi-file stem bundle + `{stem}.meta.json`
 
 ### Milestone 20 — JSON Contract
 
-**Slug (planned):** `json-contract` | **Priority:** High
+→ [`.specs/features/json-contract/spec.md`](../features/json-contract/spec.md)  
+**Slug:** `json-contract` | **Priority:** High | **Specs:** Planned
 
 - [ ] Publish JSON Schema for `ScanResult` and `CompareResult` (e.g. `schemas/scan-result.json`)
 - [ ] Strong validation in `loadBaseline()` (`src/compare/load-baseline.ts`) — reject malformed JSON with clear error
 - [ ] Contract tests: CLI `--format json` output and compare match schema
+- [ ] Schemas require M14 `hasStaticDependency` on coupling items
 
 ### Milestone 21 — Config File
 
-**Slug (planned):** `config-file` | **Priority:** High
+→ [`.specs/features/config-file/spec.md`](../features/config-file/spec.md)  
+**Slug:** `config-file` | **Priority:** High | **Specs:** Planned
 
-- [ ] Support `.hotspot-scanner.json` (or `.hotspotrc`) with defaults: `since`, `include`, `exclude`, `granularity`, `minCochange`, `top`
+- [ ] Support **only** `.hotspot-scanner.json` (not `.hotspotrc`, not dual lookup) with keys: `since`, `include`, `exclude`, `granularity`, `minCochange`, `top`
 - [ ] Precedence: CLI flags > config file > defaults
 - [ ] Document in README and ARCHITECTURE
 
 ### Milestone 22 — Function AST Coverage
 
-**Slug (planned):** `function-ast-coverage` | **Priority:** Medium
+→ [`.specs/features/function-ast-coverage/spec.md`](../features/function-ast-coverage/spec.md)  
+**Slug:** `function-ast-coverage` | **Priority:** Medium | **Specs:** Planned
 
 - [ ] Extend `src/complexity/analyze-file.ts` for getters/setters, class field arrows, object-literal methods
 - [ ] McCabe fixtures per construct; do not change existing decision-node definition
