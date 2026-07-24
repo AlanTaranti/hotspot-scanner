@@ -72,3 +72,24 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 ## Hooks enforcement
 
 Edits to `src/git/`, `src/complexity/`, `src/scoring/`, `src/scan.ts`, `src/compare/`, or `schemas/` trigger fragile-area warnings. Tests must be updated before marking tasks Complete.
+
+## Unmitigated — risk × effort
+
+Gaps without product mitigation (only “document / accept / `false`”, or explicitly *No warning today*). Scales: **Risco** / **Esforço** = A | M | B (impact if left open / cost of the chosen mitigation path).
+
+| Item | Risco | Esforço | Caminho | Backlog |
+| ---- | ----- | ------- | ------- | ------- |
+| Rename blind spots (copy-paste, pre-`--since`, no `old => new`) | A | M | Actionable warnings + fixtures | M26 |
+| Function overlap: current `[line, endLine]` vs historical hunks | M | B (avisos) | Warning/confidence; **do not** invent historical AST | M26 |
+| Post-rename hunk line mismatch | M | B (avisos) / A (true fix) | Prefer warnings; true fix = historical AST — **do not prioritize** | M26 avisos; fix deferred |
+| Enriched coupling: no tsconfig `paths` / package `exports` | M→A (monorepos) | A | Resolve aliases | M27 |
+| Renamed-but-unlinked → `hasStaticDependency: false` | M | M | Doc/warning via PathAliasMap limits; no alias graph in scoring | No dedicated milestone (out of M26) |
+
+```text
+                 Esforço B              Esforço M              Esforço A
+Risco A     —                      Rename blind spots     tsconfig paths
+Risco M     Function avisos        renamed→false          AST histórico
+            (pós-rename)                                   (não priorizar)
+```
+
+**Maintenance:** when an item gains product mitigation (e.g. M26 Done), move it into the matching Concern|Mitigation table above and **remove** it from this matrix; when planning new gaps, update this section.

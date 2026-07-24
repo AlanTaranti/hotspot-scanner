@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M24 Package DX Done** — post-v1 milestones M7–M24 Done. Next backlog: **M25–M30** (stubs; specs Pending until `planner-feature`).
+Status: **M24 Package DX Done** — post-v1 milestones M7–M24 Done. Next backlog: **M25–M30** (stubs; specs Pending until `planner-feature`). **Suggested execution starts at M26** (then M25 → M27 → M28 → M30 → M29).
 
 ## Milestone 1 — Scaffold
 
@@ -254,11 +254,12 @@ Align living product docs with shipped M19–M24 reality.
 
 **Slug:** `rename-confidence` | **Priority:** High | **Specs:** Pending
 
-Improve trust of file- and function-mode rankings after renames/moves.
+Improve trust of file- and function-mode rankings after renames/moves. Ordered scope (avisos only — no historical AST). Tracked gaps: [CONCERNS.md](../codebase/CONCERNS.md) (Git miner rename blind spots + function churn pós-rename).
 
-- [ ] Stronger fixtures and warnings for ambiguous / incomplete rename history (file miner)
-- [ ] Document and tighten function-mode post-rename hunk vs current `[line, endLine]` imprecision
-- [ ] Surface actionable confidence / warning UX for rename blind spots (copy-paste, pre-`--since`)
+1. **Rename blind spots** — actionable warnings when history may be incomplete (copy-paste, pre-`--since`, no `old => new`); stronger file-miner fixtures
+2. **Function-mode pós-rename (avisos)** — document + emit warning/confidence when hunk overlap uses current `[line, endLine]` vs historical hunks / mis-attribution after moves (**do not** invent historical AST)
+
+**Boundary:** M26 owns RT-003 / function-rename warnings. M28 keeps generic `--concurrency` / progress / warning-severity consolidation (do not duplicate RT-003 scope here). Paths/`exports` enrichment stays **M27**.
 
 ### Milestone 27 — Coupling enrichment
 
@@ -300,4 +301,4 @@ Better defaults and config discovery for real monorepos.
 
 ### Suggested execution order (M25–M30)
 
-M25 → M26 → M27 → M28 → M30 → M29
+M26 → M25 → M27 → M28 → M30 → M29
