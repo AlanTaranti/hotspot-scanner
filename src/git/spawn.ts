@@ -1,9 +1,10 @@
 import { spawn } from "node:child_process";
-import { createInterface } from "node:readline";
+import { createInterface, type Interface } from "node:readline";
 
 export interface GitLogSpawnOptions {
   repoPath: string;
   since?: string;
+  signal?: AbortSignal;
 }
 
 export class GitLogError extends Error {
@@ -37,6 +38,10 @@ export function buildGitLogArgv(options: GitLogSpawnOptions): string[] {
   return args;
 }
 
+function createAbortError(): DOMException {
+  return new DOMException("The operation was aborted.", "AbortError");
+}
+
 export async function* streamGitLog(
   options: GitLogSpawnOptions,
 ): AsyncGenerator<string> {
@@ -56,13 +61,45 @@ export async function* streamGitLog(
   });
 
   const rl = createInterface({ input: child.stdout! });
+  let aborted = false;
+  let rlRef: Interface | undefined = rl;
+
+  const abortFromSignal = () => {
+    aborted = true;
+    rlRef?.close();
+    child.kill();
+    child.stdout?.destroy();
+    child.stderr?.destroy();
+  };
+
+  const { signal } = options;
+  if (signal) {
+    if (signal.aborted) {
+      abortFromSignal();
+    } else {
+      signal.addEventListener("abort", abortFromSignal, { once: true });
+    }
+  }
 
   try {
+    if (aborted) {
+      throw createAbortError();
+    }
+
     for await (const line of rl) {
+      if (aborted) {
+        throw createAbortError();
+      }
       yield line;
     }
   } finally {
+    signal?.removeEventListener("abort", abortFromSignal);
+    rlRef = undefined;
+
     const exitCode = await exitPromise;
+    if (aborted) {
+      throw createAbortError();
+    }
     if (exitCode !== 0) {
       throw new GitLogError(options.repoPath, command, stderrChunks.join(""));
     }

@@ -1,4 +1,5 @@
 import type { GitMinerResult } from "../git/index.js";
+import type { CoChangePairCount } from "../types/index.js";
 import type { PathScope } from "./scope.js";
 import { isPathInScope } from "./scope.js";
 
@@ -17,22 +18,16 @@ export function filterGitMinerResult(
     }
   }
 
-  const coChangeEvents = result.coChangeEvents
-    .map((event) => {
-      const inScopeFiles = [
-        ...new Set(
-          event.filesChanged.filter((filePath) =>
-            isPathInScope(filePath, scope),
-          ),
-        ),
-      ];
-      return { ...event, filesChanged: inScopeFiles };
-    })
-    .filter((event) => event.filesChanged.length >= 2);
+  const pairCounts = new Map<string, CoChangePairCount>();
+  for (const [key, pair] of result.pairCounts) {
+    if (isPathInScope(pair.fileA, scope) && isPathInScope(pair.fileB, scope)) {
+      pairCounts.set(key, pair);
+    }
+  }
 
   return {
     fileStats,
-    coChangeEvents,
+    pairCounts,
     warnings: result.warnings,
   };
 }

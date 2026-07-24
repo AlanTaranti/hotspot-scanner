@@ -2,7 +2,16 @@ import { spawn } from "node:child_process";
 import { createInterface } from "node:readline";
 import { GitLogError, type GitLogSpawnOptions } from "../spawn.js";
 
-export type FunctionChurnSpawnOptions = GitLogSpawnOptions;
+/**
+ * When `paths` exceeds this count, omit pathspecs from argv to avoid ARG_MAX risk.
+ * Unrestricted patch stream remains correct; only I/O is less selective.
+ */
+export const PATCH_PATHSPEC_FALLBACK_THRESHOLD = 1000;
+
+export interface FunctionChurnSpawnOptions extends GitLogSpawnOptions {
+  /** Relative paths; when non-empty and under threshold, appended after `--` */
+  paths?: string[];
+}
 
 export function buildGitPatchLogArgv(
   options: FunctionChurnSpawnOptions,
@@ -18,6 +27,14 @@ export function buildGitPatchLogArgv(
   ];
   if (options.since !== undefined) {
     args.push(`--since=${options.since}`);
+  }
+  const paths = options.paths;
+  if (
+    paths !== undefined &&
+    paths.length > 0 &&
+    paths.length <= PATCH_PATHSPEC_FALLBACK_THRESHOLD
+  ) {
+    args.push("--", ...paths);
   }
   return args;
 }

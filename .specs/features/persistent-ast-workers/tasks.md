@@ -2,7 +2,7 @@
 
 **Design**: [`.specs/features/persistent-ast-workers/design.md`](./design.md)  
 **Spec**: [`.specs/features/persistent-ast-workers/spec.md`](./spec.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -145,12 +145,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Adapter constructs one `Project` for its lifetime (not `new Project()` inside every `loadBatch`)
-- [ ] Second `loadBatch` on same adapter succeeds; prior batch files are not retained as live project source files
-- [ ] Parse gating uses syntactic diagnostics only
-- [ ] Invalid syntax / missing file still produce `ParseFailure` entries
-- [ ] Gate check passes: `pnpm exec vitest run src/complexity/project.test.ts`
-- [ ] Per-file coverage thresholds for `project.ts` still met
+- [x] Adapter constructs one `Project` for its lifetime (not `new Project()` inside every `loadBatch`)
+- [x] Second `loadBatch` on same adapter succeeds; prior batch files are not retained as live project source files
+- [x] Parse gating uses syntactic diagnostics only
+- [x] Invalid syntax / missing file still produce `ParseFailure` entries
+- [x] Gate check passes: `pnpm exec vitest run src/complexity/project.test.ts`
+- [x] Per-file coverage thresholds for `project.ts` still met
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/complexity/project.test.ts`
@@ -182,12 +182,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `analyzeBatch(input, project?)` signature available
-- [ ] Shared adapter used for two batches yields correct `results` / `functions` / `warnings`
-- [ ] Omitted adapter still works (creates own project)
-- [ ] Parse-failure path unchanged (`Failed to parse …` / `PARSE_FAILED`)
-- [ ] Gate check passes: targeted Vitest for analyze-batch / related tests
-- [ ] No edits to `mccabe.ts`
+- [x] `analyzeBatch(input, project?)` signature available
+- [x] Shared adapter used for two batches yields correct `results` / `functions` / `warnings`
+- [x] Omitted adapter still works (creates own project)
+- [x] Parse-failure path unchanged (`Failed to parse …` / `PARSE_FAILED`)
+- [x] Gate check passes: targeted Vitest for analyze-batch / related tests
+- [x] No edits to `mccabe.ts`
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/complexity/analyze-batch.test.ts src/complexity/project.test.ts` (adjust to files actually touched)
@@ -219,14 +219,14 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Multi-batch `concurrency > 1` does not call `new Worker()` once per batch (≤ concurrency workers for the call)
-- [ ] Results array aligned to input batch order
-- [ ] `concurrency === 1` never spawns `Worker` and reuses one Project across batches
-- [ ] Workers terminated after success and after rejection (no intentional leak)
-- [ ] Worker errors reject with `repoPath` + batch context
-- [ ] Empty batches → `[]` without spawn
-- [ ] `pool.test.ts` covers above; `worker.ts` remains coverage-excluded
-- [ ] Gate check passes: `pnpm exec vitest run src/complexity/pool.test.ts`
+- [x] Multi-batch `concurrency > 1` does not call `new Worker()` once per batch (≤ concurrency workers for the call)
+- [x] Results array aligned to input batch order
+- [x] `concurrency === 1` never spawns `Worker` and reuses one Project across batches
+- [x] Workers terminated after success and after rejection (no intentional leak)
+- [x] Worker errors reject with `repoPath` + batch context
+- [x] Empty batches → `[]` without spawn
+- [x] `pool.test.ts` covers above; `worker.ts` remains coverage-excluded
+- [x] Gate check passes: `pnpm exec vitest run src/complexity/pool.test.ts`
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/complexity/pool.test.ts`
@@ -258,12 +258,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Equivalence test: deep-equal `results` / `functions` / `warnings` for concurrency 1 vs ≥2
-- [ ] Discovery-order merge behavior unchanged
-- [ ] McCabe fixture expectations unchanged (existing tests green)
-- [ ] Injectable `createWorkerPool` / `concurrency` deps still work
-- [ ] No JSON schema / version `"1.0"` changes
-- [ ] Gate check passes: `pnpm exec vitest run src/complexity/`
+- [x] Equivalence test: deep-equal `results` / `functions` / `warnings` for concurrency 1 vs ≥2
+- [x] Discovery-order merge behavior unchanged
+- [x] McCabe fixture expectations unchanged (existing tests green)
+- [x] Injectable `createWorkerPool` / `concurrency` deps still work
+- [x] No JSON schema / version `"1.0"` changes
+- [x] Gate check passes: `pnpm exec vitest run src/complexity/`
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/complexity/`
@@ -295,9 +295,9 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `pnpm build && pnpm test` exits 0
-- [ ] Per-file coverage thresholds met for all included files touched by this feature
-- [ ] No silent test deletions / weakened assertions
+- [x] `pnpm build && pnpm test` exits 0
+- [x] Per-file coverage thresholds met for all included files touched by this feature
+- [x] No silent test deletions / weakened assertions
 
 **Tests**: full suite  
 **Gate**: `pnpm build && pnpm test`
@@ -329,11 +329,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `scripts/benchmark-scan.md` has an M31 section (persistent pool, Project reuse, qualitative timing, `--concurrency` note)
-- [ ] ARCHITECTURE § Complexity stage parallelism no longer claims “fresh Project per batch” / “new Worker per batch” as current behavior
-- [ ] CONCERNS § Performance reflects persistent workers + Project reuse + syntactic diagnostics
-- [ ] No `src/` / `bin/` / `tests/` changes in this task
-- [ ] Re-run gate if desired: `pnpm build && pnpm test` (docs-only should already be green)
+- [x] `scripts/benchmark-scan.md` has an M31 section (persistent pool, Project reuse, qualitative timing, `--concurrency` note)
+- [x] ARCHITECTURE § Complexity stage parallelism no longer claims “fresh Project per batch” / “new Worker per batch” as current behavior
+- [x] CONCERNS § Performance reflects persistent workers + Project reuse + syntactic diagnostics
+- [x] No `src/` / `bin/` / `tests/` changes in this task
+- [x] Re-run gate if desired: `pnpm build && pnpm test` (docs-only should already be green)
 
 **Tests**: none  
 **Gate**: `pnpm build && pnpm test` (confirm still green after doc-only edits)

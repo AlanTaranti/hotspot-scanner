@@ -80,6 +80,45 @@ Milestone 15 adds worker-thread batch processing inside `src/complexity/`. Git m
 time pnpm exec hotspot-scanner scan /path/to/large-repo --since "12 months ago" --format json > /dev/null
 ```
 
+## M31 — Persistent AST workers (complexity stage)
+
+Milestone 31 replaces M15’s per-batch worker spawn and per-batch ts-morph `Project` construction with a **persistent worker pool** and **Project reuse** inside `src/complexity/`. Git mining and scoring remain sequential; only AST analysis internals change. Rankings and JSON `"1.0"` output should be unchanged vs M15.
+
+**Before M31 (M15):** each batch → `new Worker()` → worker runs `analyzeBatch` once → exit; each `loadBatch` → `new Project()`.
+
+**After M31:** `runBatches` spawns at most `min(concurrency, batches.length)` long-lived workers with a batch queue; each worker (and the inline `concurrency === 1` path) reuses one `TsMorphProjectAdapter` / underlying `Project` across batches, clearing source files between `loadBatch` calls. Parse gating uses **syntactic diagnostics only** (`getProgram().getSyntacticDiagnostics`) — not semantic or pre-emit checks.
+
+### Benchmark notes
+
+| Field            | Notes                                                                                                      |
+| ---------------- | ---------------------------------------------------------------------------------------------------------- |
+| Concurrency      | `--concurrency <n>` (CLI) or `concurrency` in `.hotspot-scanner.json` — affects **complexity stage only** (M28 wiring unchanged) |
+| Expected effect  | Lower wall time on repos with many batches (200+ source files) by avoiding per-batch worker/Project cold start |
+| Regression check | Compare wall time before/after M31 on the same large repo; record qualitative judgment; rankings should match |
+
+```bash
+# Default concurrency — compare real time on a repo with 200+ source files
+time pnpm exec hotspot-scanner scan /path/to/large-repo --since "12 months ago" --format json > /dev/null
+
+# Optional: exercise persistent pool with explicit concurrency
+time pnpm exec hotspot-scanner scan /path/to/large-repo --since "12 months ago" --concurrency 4 --format json > /dev/null
+```
+
+## M36 — Discovery & concurrency defaults
+
+Milestone 36 improves out-of-box scan performance without new CLI flags:
+
+- **Discovery:** `discoverSourceFiles` prefers `git ls-files -z` (tracked paths) filtered by eligible extensions and PathScope; on spawn failure, falls back to the existing recursive walk with directory prune (non-git trees and tests use the fallback path).
+- **Default concurrency:** `DEFAULT_WORKER_CONCURRENCY` = `min(availableParallelism(), 8)` (raised from cap 4). Higher defaults use more memory (N workers × batch AST heap); operators on constrained hosts should use `--concurrency 1`–`4`. Precedence unchanged: **CLI > config > default**.
+
+### Benchmark notes
+
+| Field            | Notes                                                                                                      |
+| ---------------- | ---------------------------------------------------------------------------------------------------------- |
+| Discovery        | Qualitative: faster discovery on large Git monorepos vs pure walk; rankings unchanged                      |
+| Concurrency      | Default cap 8 — compare wall time and RSS vs prior cap 4 on same repo                                      |
+| Regression check | Rankings and JSON contract should match; record qualitative judgment only (no CI timing gate)                |
+
 ## What this is not
 
 - No millisecond threshold in CI

@@ -87,4 +87,62 @@ describe("discoverSourceFiles", () => {
 
     expect(files).toEqual(["src/app.ts"]);
   });
+
+  it("filters and sorts paths from injected listTrackedFiles", async () => {
+    const repoPath = await createTempRepo({
+      "src/app.ts": "export const app = 1;",
+    });
+
+    const files = await discoverSourceFiles(repoPath, undefined, {
+      listTrackedFiles: async () => [
+        "src/app.ts",
+        "src/readme.md",
+        "node_modules/pkg/index.ts",
+        "nested/deep/z.ts",
+      ],
+    });
+
+    expect(files).toEqual(["nested/deep/z.ts", "src/app.ts"]);
+  });
+
+  it("applies include scope to injected listTrackedFiles", async () => {
+    const repoPath = await createTempRepo({
+      "src/app.ts": "export const app = 1;",
+      "lib/utils.ts": "export const util = 2;",
+    });
+    const scope = createPathScope({ include: ["src/**"] });
+
+    const files = await discoverSourceFiles(repoPath, scope, {
+      listTrackedFiles: async () => ["src/app.ts", "lib/utils.ts"],
+    });
+
+    expect(files).toEqual(["src/app.ts"]);
+  });
+
+  it("returns empty array when injected listTrackedFiles yields no eligible paths", async () => {
+    const repoPath = await createTempRepo({
+      "src/app.ts": "export const app = 1;",
+    });
+
+    const files = await discoverSourceFiles(repoPath, undefined, {
+      listTrackedFiles: async () => [],
+    });
+
+    expect(files).toEqual([]);
+  });
+
+  it("falls back to walk when injected listTrackedFiles rejects", async () => {
+    const repoPath = await createTempRepo({
+      "src/app.ts": "export const app = 1;",
+      "src/other.ts": "export const other = 2;",
+    });
+
+    const files = await discoverSourceFiles(repoPath, undefined, {
+      listTrackedFiles: async () => {
+        throw new Error("not a git repository");
+      },
+    });
+
+    expect(files).toEqual(["src/app.ts", "src/other.ts"]);
+  });
 });

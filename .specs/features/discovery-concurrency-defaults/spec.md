@@ -12,10 +12,10 @@ Source discovery still walks the filesystem with directory prune (`discoverSourc
 
 ## Goals
 
-- [ ] Prefer `git ls-files` + PathScope/extension filter for discovery, with filesystem walk fallback — `src/complexity/discover.ts`
-- [ ] Raise `DEFAULT_WORKER_CONCURRENCY` to `min(availableParallelism(), 8)`; keep CLI/config override; document memory vs `--concurrency`
-- [ ] Update README, living SoT docs, and benchmark notes
-- [ ] `pnpm build && pnpm test` passing after Execute
+- [x] Prefer `git ls-files` + PathScope/extension filter for discovery, with filesystem walk fallback — `src/complexity/discover.ts`
+- [x] Raise `DEFAULT_WORKER_CONCURRENCY` to `min(availableParallelism(), 8)`; keep CLI/config override; document memory vs `--concurrency`
+- [x] Update README, living SoT docs, and benchmark notes
+- [x] `pnpm build && pnpm test` passing after Execute
 
 ## Out of Scope
 
@@ -166,7 +166,7 @@ Source discovery still walks the filesystem with directory prune (`discoverSourc
 
 ## Success Criteria
 
-- [ ] Discovery on Git repos uses `git ls-files` + PathScope; non-git / failed listing uses walk
-- [ ] `DEFAULT_WORKER_CONCURRENCY === min(availableParallelism(), 8)`; `--concurrency` still overrides
-- [ ] README + ARCHITECTURE + INTEGRATIONS + CONCERNS + benchmark notes reflect M36
-- [ ] `pnpm build && pnpm test` green
+- [x] Discovery on Git repos uses `git ls-files` + PathScope; non-git / failed listing uses walk
+- [x] `DEFAULT_WORKER_CONCURRENCY === min(availableParallelism(), 8)`; `--concurrency` still overrides
+- [x] README + ARCHITECTURE + INTEGRATIONS + CONCERNS + benchmark notes reflect M36
+- [x] `pnpm build && pnpm test` green

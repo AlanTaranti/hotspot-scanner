@@ -1,9 +1,86 @@
+import { execFileSync } from "node:child_process";
+import { cp, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  buildGitPatchLogArgv,
+  PATCH_PATHSPEC_FALLBACK_THRESHOLD,
+} from "./git/function-churn/index.js";
+import { GitLogError } from "./git/spawn.js";
 import { DEFAULT_MIN_COCHANGE } from "./scoring/index.js";
 import type { CouplingPair, ScanWarning, StaticDependencyDirection } from "./types/index.js";
 import { runScan } from "#scan";
+
+const streamGitPatchLogSpy = vi.hoisted(() => vi.fn());
+const gitMineFailure = vi.hoisted(() => ({ error: null as Error | null }));
+const analyzeFailure = vi.hoisted(() => ({ error: null as Error | null }));
+
+vi.mock("./git/index.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./git/index.js")>();
+  return {
+    ...actual,
+    createGitMiner: (
+      ...args: Parameters<typeof actual.createGitMiner>
+    ) => {
+      const miner = actual.createGitMiner(...args);
+      return {
+        mine: async (
+          opts: Parameters<typeof miner.mine>[0],
+        ) => {
+          if (gitMineFailure.error) {
+            throw gitMineFailure.error;
+          }
+          return miner.mine(opts);
+        },
+      };
+    },
+  };
+});
+
+vi.mock("./complexity/index.js", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("./complexity/index.js")>();
+  return {
+    ...actual,
+    createComplexityAnalyzer: (
+      ...args: Parameters<typeof actual.createComplexityAnalyzer>
+    ) => {
+      const analyzer = actual.createComplexityAnalyzer(...args);
+      return {
+        analyze: async (
+          opts: Parameters<typeof analyzer.analyze>[0],
+        ) => {
+          if (analyzeFailure.error) {
+            throw analyzeFailure.error;
+          }
+          return analyzer.analyze(opts);
+        },
+      };
+    },
+  };
+});
+
+vi.mock("./git/function-churn/index.js", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("./git/function-churn/index.js")>();
+  return {
+    ...actual,
+    createFunctionChurnMiner: (
+      deps: Parameters<typeof actual.createFunctionChurnMiner>[0] = {},
+    ) => {
+      const stream = deps.streamGitPatchLog ?? actual.streamGitPatchLog;
+      return actual.createFunctionChurnMiner({
+        ...deps,
+        streamGitPatchLog: (options) => {
+          streamGitPatchLogSpy(options);
+          return stream(options);
+        },
+      });
+    },
+  };
+});
 
 const smallTsFixture = join(
   fileURLToPath(new URL(".", import.meta.url)),
@@ -56,10 +133,38 @@ function assertAllCouplingEnriched(coupling: CouplingPair[]): void {
 }
 
 const EXPECTED_TOP_HOTSPOT = "src/high.ts";
+/** M34 file-mode ranking parity baseline under fixed overlap scan options. */
+const OVERLAP_FILE_SCAN_OPTIONS = {
+  repoPath: smallTsFixture,
+  since: "24 months ago",
+  granularity: "file" as const,
+  minCochange: DEFAULT_MIN_COCHANGE,
+};
+const EXPECTED_FILE_HOTSPOT_ORDER = [
+  "src/high.ts",
+  "src/medium.ts",
+  "src/low.ts",
+] as const;
+const EXPECTED_FILE_COUPLING_ORDER = [
+  ["src/low.ts", "src/medium.ts"],
+  ["src/high.ts", "src/medium.ts"],
+] as const;
+const EXPECTED_FILE_COUPLING_STRENGTHS = [0.75, 0.6] as const;
+/** M35 ranking parity baseline: churned functions on small-ts (tie-break: filePath). */
+const EXPECTED_CHURNED_FUNCTION_RANKING = [
+  { filePath: "src/high.ts", functionName: "high" },
+  { filePath: "src/low.ts", functionName: "low" },
+  { filePath: "src/medium.ts", functionName: "medium" },
+] as const;
 const WITH_RENAMES_CANONICAL_PATH = "src/c.ts";
 const WITH_RENAMES_EXPECTED_COMMITS = 5;
 const SINCE_TRUNCATION_WARNING_PREFIX =
   "Rename history before the --since window";
+
+beforeEach(() => {
+  gitMineFailure.error = null;
+  analyzeFailure.error = null;
+});
 
 describe("runScan integration", () => {
   it("returns non-empty hotspot and coupling rankings on small-ts fixture", async () => {
@@ -185,6 +290,174 @@ describe("runScan integration", () => {
     if (multiFnFile !== undefined) {
       const commitCounts = new Set(multiFnFile[1].map((fn) => fn.commitCount));
       expect(commitCounts.size).toBeGreaterThanOrEqual(1);
+    }
+  });
+});
+
+async function createIsolatedSmallTsRepo(): Promise<string> {
+  const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scan-integration-"));
+  await cp(smallTsFixture, tempDir, { recursive: true });
+  return tempDir;
+}
+
+describe("runScan integration — pipeline stage overlap (M34)", () => {
+  beforeEach(() => {
+    streamGitPatchLogSpy.mockClear();
+  });
+
+  it("preserves file-mode hotspot and coupling rankings under fixed options (HOTSPOT-370)", async () => {
+    const result = await runScan(OVERLAP_FILE_SCAN_OPTIONS);
+
+    expect(result.meta.granularity).toBe("file");
+    expect(result.meta.since).toBe(OVERLAP_FILE_SCAN_OPTIONS.since);
+    expect(result.hotspots.map((hotspot) => hotspot.filePath)).toEqual([
+      ...EXPECTED_FILE_HOTSPOT_ORDER,
+    ]);
+    expect(result.hotspots[0]!.filePath).toBe(EXPECTED_TOP_HOTSPOT);
+    expect(result.hotspots[0]!.hotspotScore).toBeGreaterThan(
+      result.hotspots[1]!.hotspotScore,
+    );
+
+    expect(result.coupling.map((pair) => [pair.fileA, pair.fileB])).toEqual([
+      ...EXPECTED_FILE_COUPLING_ORDER,
+    ]);
+    expect(result.coupling.map((pair) => pair.couplingStrength)).toEqual([
+      ...EXPECTED_FILE_COUPLING_STRENGTHS,
+    ]);
+    assertAllCouplingEnriched(result.coupling);
+  });
+
+  it("preserves function-mode churn ranking under fixed options (HOTSPOT-370)", async () => {
+    const result = await runScan({
+      repoPath: smallTsFixture,
+      since: "24 months ago",
+      granularity: "function",
+      minCochange: DEFAULT_MIN_COCHANGE,
+    });
+
+    expect(result.meta.granularity).toBe("function");
+    expect(result.hotspots).toEqual([]);
+    expect(result.functions.length).toBeGreaterThan(0);
+    expect(
+      result.functions.map((fn) => ({
+        filePath: fn.filePath,
+        functionName: fn.functionName,
+      })),
+    ).toEqual([...EXPECTED_CHURNED_FUNCTION_RANKING]);
+    assertAllCouplingEnriched(result.coupling);
+  });
+
+  it("does not spawn patch stream in file mode under overlap (HOTSPOT-371)", async () => {
+    await runScan(OVERLAP_FILE_SCAN_OPTIONS);
+
+    expect(streamGitPatchLogSpy).not.toHaveBeenCalled();
+  });
+
+  it("rejects without partial scan result when git mine fails during overlap (HOTSPOT-378)", async () => {
+    const gitError = new GitLogError(
+      smallTsFixture,
+      "git log --numstat",
+      "fatal: simulated git failure",
+    );
+    gitMineFailure.error = gitError;
+
+    try {
+      await expect(runScan(OVERLAP_FILE_SCAN_OPTIONS)).rejects.toBe(gitError);
+    } finally {
+      gitMineFailure.error = null;
+    }
+  });
+
+  it("rejects without partial scan result when complexity analyze fails during overlap (HOTSPOT-378)", async () => {
+    const cxError = new Error("complexity analyze failed");
+    analyzeFailure.error = cxError;
+
+    try {
+      await expect(runScan(OVERLAP_FILE_SCAN_OPTIONS)).rejects.toBe(cxError);
+    } finally {
+      analyzeFailure.error = null;
+    }
+  });
+});
+
+describe("runScan integration — function-mode efficiency (M35)", () => {
+  beforeEach(() => {
+    streamGitPatchLogSpy.mockClear();
+  });
+
+  it("does not spawn the patch stream in file mode (HOTSPOT-392, HOTSPOT-397)", async () => {
+    await runScan({ repoPath: smallTsFixture, granularity: "file" });
+
+    expect(streamGitPatchLogSpy).not.toHaveBeenCalled();
+  });
+
+  it("spawns pathspec-restricted patch stream in function mode (HOTSPOT-388)", async () => {
+    await runScan({ repoPath: smallTsFixture, granularity: "function" });
+
+    expect(streamGitPatchLogSpy).toHaveBeenCalledTimes(1);
+    const spawnOptions = streamGitPatchLogSpy.mock.calls[0]![0]!;
+    expect(spawnOptions.paths).toEqual(
+      expect.arrayContaining([
+        "src/high.ts",
+        "src/low.ts",
+        "src/medium.ts",
+      ]),
+    );
+    expect(spawnOptions.paths!.length).toBeLessThanOrEqual(
+      PATCH_PATHSPEC_FALLBACK_THRESHOLD,
+    );
+
+    const argv = buildGitPatchLogArgv(spawnOptions);
+    const separatorIndex = argv.indexOf("--");
+    expect(separatorIndex).toBeGreaterThan(-1);
+    expect(argv.slice(separatorIndex + 1).sort()).toEqual(
+      [...spawnOptions.paths!].sort(),
+    );
+    expect(argv).toEqual(
+      expect.arrayContaining(["-M", "-p", "--unified=0"]),
+    );
+  });
+
+  it("preserves typical churned function ranking order on small-ts (HOTSPOT-388)", async () => {
+    const result = await runScan({
+      repoPath: smallTsFixture,
+      granularity: "function",
+    });
+
+    expect(
+      result.functions.map((fn) => ({
+        filePath: fn.filePath,
+        functionName: fn.functionName,
+      })),
+    ).toEqual([...EXPECTED_CHURNED_FUNCTION_RANKING]);
+  });
+
+  it("omits zero-churn eligible files from function rankings (intentional M35 edge)", async () => {
+    const repoPath = await createIsolatedSmallTsRepo();
+    try {
+      await writeFile(
+        join(repoPath, "src/untouched.ts"),
+        "export function untouched(): number { return 0; }\n",
+        "utf8",
+      );
+      execFileSync("git", ["add", "src/untouched.ts"], { cwd: repoPath });
+
+      const fileResult = await runScan({ repoPath, granularity: "file" });
+      expect(
+        fileResult.hotspots.some((hotspot) => hotspot.filePath === "src/untouched.ts"),
+      ).toBe(true);
+
+      const functionResult = await runScan({
+        repoPath,
+        granularity: "function",
+      });
+      expect(
+        functionResult.functions.some(
+          (fn) => fn.filePath === "src/untouched.ts",
+        ),
+      ).toBe(false);
+    } finally {
+      await rm(repoPath, { recursive: true, force: true });
     }
   });
 });

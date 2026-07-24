@@ -1,5 +1,6 @@
 import { readdir, stat } from "node:fs/promises";
 import { join, relative, sep } from "node:path";
+import { listTrackedFiles } from "../git/ls-files.js";
 import {
   createPathScope,
   isPathInScope,
@@ -9,12 +10,26 @@ import {
 
 export const ELIGIBLE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx"] as const;
 
+export interface DiscoverDependencies {
+  listTrackedFiles?: (repoPath: string) => Promise<string[]>;
+}
+
 function hasEligibleExtension(fileName: string): boolean {
   return ELIGIBLE_EXTENSIONS.some((extension) => fileName.endsWith(extension));
 }
 
 function toPosixPath(filePath: string): string {
   return filePath.split(sep).join("/");
+}
+
+function filterDiscoveredPaths(paths: string[], scope: PathScope): string[] {
+  return paths
+    .filter(
+      (path) =>
+        hasEligibleExtension(path) && isPathInScope(toPosixPath(path), scope),
+    )
+    .map(toPosixPath)
+    .sort();
 }
 
 async function walkDirectory(
@@ -46,12 +61,23 @@ async function walkDirectory(
   }
 }
 
+async function discoverViaWalk(
+  repoPath: string,
+  scope: PathScope,
+): Promise<string[]> {
+  const results: string[] = [];
+  await walkDirectory(repoPath, repoPath, scope, results);
+  return results.sort();
+}
+
 /** Returns paths relative to repoPath. */
 export async function discoverSourceFiles(
   repoPath: string,
   scope?: PathScope,
+  deps: DiscoverDependencies = {},
 ): Promise<string[]> {
   const effectiveScope = scope ?? createPathScope();
+  const listTracked = deps.listTrackedFiles ?? listTrackedFiles;
 
   let repoStat;
   try {
@@ -66,7 +92,10 @@ export async function discoverSourceFiles(
     throw new Error(`repoPath is not a directory: ${repoPath}`);
   }
 
-  const results: string[] = [];
-  await walkDirectory(repoPath, repoPath, effectiveScope, results);
-  return results.sort();
+  try {
+    const trackedPaths = await listTracked(repoPath);
+    return filterDiscoveredPaths(trackedPaths, effectiveScope);
+  } catch {
+    return discoverViaWalk(repoPath, effectiveScope);
+  }
 }

@@ -4,7 +4,7 @@ import type {
 } from "../../types/index.js";
 import { PathAliasMap } from "../rename.js";
 import { functionStatsKey } from "./keys.js";
-import type { ParsedPatchCommit } from "./parse.js";
+import type { ParsedPatchCommit, ParsedPatchHunk } from "./parse.js";
 import { hunkIntersectsFunction } from "./parse.js";
 
 interface FunctionAccumulator {
@@ -47,6 +47,74 @@ export function indexFunctionsByFile(
   return byFile;
 }
 
+function sortFunctionsByLine(
+  functions: FunctionComplexityResult[],
+): FunctionComplexityResult[] {
+  return [...functions].sort((a, b) => {
+    if (a.line !== b.line) {
+      return a.line - b.line;
+    }
+    if (a.endLine !== b.endLine) {
+      return a.endLine - b.endLine;
+    }
+    return a.functionName.localeCompare(b.functionName);
+  });
+}
+
+function hunkLineSpan(hunk: ParsedPatchHunk): { start: number; end: number } {
+  let start = Number.POSITIVE_INFINITY;
+  let end = Number.NEGATIVE_INFINITY;
+  for (const line of hunk.newLinesTouched) {
+    if (line < start) {
+      start = line;
+    }
+    if (line > end) {
+      end = line;
+    }
+  }
+  return { start, end };
+}
+
+function lowerBoundByEndLine(
+  sortedFns: FunctionComplexityResult[],
+  hunkStart: number,
+): number {
+  let lo = 0;
+  let hi = sortedFns.length;
+  while (lo < hi) {
+    const mid = (lo + hi) >>> 1;
+    if (sortedFns[mid]!.endLine < hunkStart) {
+      lo = mid + 1;
+    } else {
+      hi = mid;
+    }
+  }
+  return lo;
+}
+
+export function functionsIntersectingHunk(
+  sortedFns: FunctionComplexityResult[],
+  hunk: ParsedPatchHunk,
+): FunctionComplexityResult[] {
+  const { start: hunkStart, end: hunkEnd } = hunkLineSpan(hunk);
+  if (!Number.isFinite(hunkStart)) {
+    return [];
+  }
+
+  const matches: FunctionComplexityResult[] = [];
+  const startIdx = lowerBoundByEndLine(sortedFns, hunkStart);
+  for (let i = startIdx; i < sortedFns.length; i++) {
+    const fn = sortedFns[i]!;
+    if (fn.line > hunkEnd) {
+      break;
+    }
+    if (hunkIntersectsFunction(hunk, fn.line, fn.endLine)) {
+      matches.push(fn);
+    }
+  }
+  return matches;
+}
+
 export function aggregatePatchCommit(
   commit: ParsedPatchCommit,
   functionsByFile: Map<string, FunctionComplexityResult[]>,
@@ -64,24 +132,23 @@ export function aggregatePatchCommit(
       continue;
     }
 
-    for (const fn of functions) {
-      let attributed = false;
-      for (const hunk of file.hunks) {
-        if (!hunkIntersectsFunction(hunk, fn.line, fn.endLine)) {
-          continue;
-        }
-        attributed = true;
+    const sortedFunctions = sortFunctionsByLine(functions);
+    const attributedFns = new Set<FunctionComplexityResult>();
+
+    for (const hunk of file.hunks) {
+      for (const fn of functionsIntersectingHunk(sortedFunctions, hunk)) {
+        attributedFns.add(fn);
         const entry = getOrCreateAccumulator(accumulators, fn);
         entry.stats.linesChanged += hunk.linesChanged;
       }
+    }
 
-      if (attributed) {
-        const entry = getOrCreateAccumulator(accumulators, fn);
-        if (!entry.commits.has(commit.hash)) {
-          entry.commits.add(commit.hash);
-          entry.stats.commitCount += 1;
-          entry.stats.authors.add(commit.author);
-        }
+    for (const fn of attributedFns) {
+      const entry = getOrCreateAccumulator(accumulators, fn);
+      if (!entry.commits.has(commit.hash)) {
+        entry.commits.add(commit.hash);
+        entry.stats.commitCount += 1;
+        entry.stats.authors.add(commit.author);
       }
     }
   }

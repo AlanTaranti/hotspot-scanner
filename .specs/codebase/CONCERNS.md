@@ -12,7 +12,8 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 | Rename handling (`old => new` + `PathAliasMap`; **not** `--follow`) | Global `git log --numstat` has no per-file follow; both file and function spawns use find-renames (`-M`); parse rename lines, `link()` chains, `canonicalize*()` at end; `rename-multi.txt` + `with-renames` fixtures; ambiguous paths warn (`Rename history may be incomplete for: …`) |
 | Rename blind spots (copy-paste, pre-`--since`, no `old => new`)   | M26 (RT-003): `src/git/rename-warnings.ts` — unlinked delete+add heuristic (basename relatedness, capped), `--since`+rename-link truncation warning, retained ambiguous warnings; fixtures `rename-unlinked.txt`, `rename-since-truncation.txt`; still no `--follow` globally |
 | Merge commits, deletes, numstat edge cases                        | Fixture coverage in `tests/fixtures/git-log/`                                                                                                                                                                                       |
-| Single-pass produces both `FileChangeStats` and `CoChangeEvent[]` | Unit test both outputs from same input stream                                                                                                                                                                                       |
+| Stream pair aggregation (`pair → coChangeCount`) for coupling     | M32: increment pair counts during numstat stream — do **not** retain full `coChangeEvents[]` for scoring; unit tests assert `fileStats` + `pairCounts` from same stream; `canonicalizePairCounts` at mine end |
+| Mega-commit coupling skip (`MEGA_COMMIT_UNIQUE_FILE_THRESHOLD = 100`) | M32: when unique **in-scope** canonical paths in a commit are **> 100**, skip coupling pair increments for that commit (emit `MEGA_COMMIT_SKIPPED` warnings, capped); **churn** (`FileChangeStats`) still aggregated; path scope applied before mega-guard; rankings may omit pairs from skipped commits — documented exception |
 
 ## Function churn miner (`src/git/function-churn/`, M23)
 
@@ -21,11 +22,14 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 | Concern                                                                          | Mitigation                                                                                                                              |
 | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | Patch parse must stream line-by-line (`--unified=0`)                             | No full-repo patch buffer; mock at spawn boundary                                                                                       |
+| Pathspec-restricted patch stream (M35)                                           | `buildGitPatchLogArgv` appends `--` + paths when non-empty and `paths.length ≤ PATCH_PATHSPEC_FALLBACK_THRESHOLD` (1000); empty `paths` → no spawn; over threshold → unrestricted argv (correctness over ARG_MAX); unit tests in `spawn.test.ts` / `index.test.ts` |
+| Pathspec + rename best-effort (M35)                                              | Pathspecs use canonical/current paths from scoped numstat with `-M`; overlap still working-tree `[line, endLine]` vs historical hunk lines — post-rename imprecision unchanged; M26 pós-rename overlap warning once when rename links or ambiguous paths observed; **no historical AST** |
 | Overlap uses **current** working-tree `[line, endLine]` vs historical hunk lines | M26: when rename links or ambiguous paths observed, emit pós-rename overlap confidence warning once (`formatFunctionPostRenameOverlapWarning`); file mode silent; do not invent historical AST |
 | Post-rename hunk line mismatch                                                   | `PathAliasMap` canonicalizes paths only; hunk lines stay historical vs current `[line, endLine]` — mis-attribution after moves remains possible; M26 avisos only; true fix (historical AST) deferred |
-| Nested / overlapping functions                                                   | Credit all intersecting functions; unit fixtures                                                                                        |
+| Nested / overlapping functions                                                   | Credit all intersecting functions; interval index (`functionsIntersectingHunk`) equivalence-tested vs naive `hunkIntersectsFunction`; unit fixtures in `aggregate.test.ts` |
 | `linesChanged` per intersecting hunk                                             | Full hunk `+`/`-` delta (no intra-hunk blame); document in tests                                                                        |
-| Function mode only                                                               | File mode must not spawn patch stream; integration assert                                                                               |
+| Function mode only                                                               | File mode must not spawn patch stream; integration assert in `scan.integration.test.ts` (HOTSPOT-392, HOTSPOT-397) |
+| Zero-churn eligible files omitted from function rankings (M35)                   | Intentional edge: files with no scoped file-level churn in window excluded from AST allowlist and `ScanResult.functions` (file mode still lists them in `hotspots`); integration test adds `src/untouched.ts` on isolated `small-ts` copy |
 
 ## Complexity Analyzer (`src/complexity/`)
 
@@ -37,6 +41,7 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 | `switch`: per-case vs block counting                        | Pick one definition; lock with tests                                                                                                                                                                                                                                                |
 | Function AST collection scope (M22, M29)                    | M22: class accessors, class field arrows, object-literal methods. M29: ClassExpression members (same policy as `ClassDeclaration`), object-literal get/set accessors, `=` AssignmentExpression RHS callables; skip body-less non-abstract overload/ambient stubs (implementations and abstract empty-body accessors remain). Naming table in ARCHITECTURE § Function AST collection; fixtures per construct under `tests/fixtures/complexity/`; extend **collection only** — **do not** edit McCabe decision-node kinds in `mccabe.ts` (RT-005) |
 | Invalid TS/JS syntax                                        | Warn and skip — never abort full scan; emit `PARSE_FAILED` `ScanWarning` in `meta.warnings` (M28) |
+| Function-mode AST allowlist (M35)                           | Optional `pathAllowlist` on `ComplexityAnalyzer.analyze` — discover ∩ allowlist; empty intersection → empty results without workers; file mode omits option (full discovery); unit tests in `index.test.ts` |
 | ts-morph version / exotic syntax                            | Fallback warn-skip; track in tests                                                                                                                                                                                                                                                  |
 
 ## Scoring (`src/scoring/`)
@@ -51,22 +56,29 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 | `couplingStrength = coChangeCount / min(commitsA, commitsB)`                      | Test denominator edge cases (zero commits)                                                                                              |
 | `--min-cochange` threshold                                                        | Test boundary at N-1, N, N+1                                                                                                            |
 
-## Enriched coupling (`src/scoring/enrich-coupling-static.ts`, M14)
+## Enriched coupling (`src/scoring/enrich-coupling-static.ts`, M14, M33)
 
 **Risk:** `hasStaticDependency` false negatives mislabel hidden vs expected coupling.
 
 | Concern                                                                                         | Mitigation                                                                                                                                      |
 | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | Static edge resolution gaps (relative + tsconfig aliases, M27)                                   | `enrichCouplingStaticDeps` + `TsconfigPathMap`: relative paths; nearest `tsconfig.json`/`jsconfig.json` `paths`/`baseUrl` with shallow `extends`; missing/unreadable source or unresolved alias → no edge; ranking unchanged; **`package.json` `exports`/`imports` still deferred** |
+| Repeated enrich I/O on hub files (dense pair graphs)                                            | M33: per-call peer-scoped `StaticEdgeGraph` — one read/parse per unique participant path; O(1) pair labeling via adjacency lookup — see [ARCHITECTURE § Enriched coupling](ARCHITECTURE.md#enriched-coupling-m14-m27-m33) |
 | Renamed-but-unlinked paths may report `false`                                                   | Same PathAliasMap limits as git miner; document; do not invent alias graph in scoring without an explicit milestone                             |
 
 ## Performance (cross-cutting)
 
 **Risk RT-001:** Large repos exhaust memory or time.
 
-- Git (file mode): single streaming `git log --numstat` pass (ADR-2026-020)
-- Function mode: second `git log -p --unified=0` stream for hunk overlap — both must stream line-by-line; never buffer full log/patch; file mode must not spawn the patch stream
-- AST: batch file processing with worker-thread parallelism (M15); default concurrency `min(availableParallelism(), 4)`; override via CLI `--concurrency` or config `concurrency` (M28; precedence CLI > config > default); each worker owns a fresh ts-morph `Project` per batch
+- **Pipeline overlap (M34):** file mode runs numstat mining and complexity analysis concurrently — peak RSS is **higher** than sequential stages because git stream aggregates and complexity worker/AST batches can be live at the same time; function mode still sequences numstat before complexity (M35 `pathAllowlist` needs scoped churn keys) and never overlaps function-churn with numstat; rankings and JSON contract unchanged; no CI peak-RSS gate (qualitative trade-off for operators/benchmarks)
+- **Overlap abort:** on first mining/analysis failure, `runScan()` aborts the sibling stage (`child.kill` on git spawn, worker terminate on complexity pool), awaits settlement, and rethrows the original error — avoids orphan git children/workers and partial rankings
+- Git (file mode): single streaming `git log --numstat` pass (ADR-2026-020); coupling pair counts aggregated during the stream (M32) — no retained `coChangeEvents[]` for scoring; mega-commit guard skips coupling when unique in-scope files `> 100` (churn still counted)
+- Function mode (M35): second `git log -p --unified=0` stream for hunk overlap — pathspec-restricted to churned eligible paths when under `PATCH_PATHSPEC_FALLBACK_THRESHOLD` (1000); empty allowlist skips spawn; over threshold falls back to unrestricted stream; both modes must stream line-by-line; never buffer full log/patch; **file mode must not spawn the patch stream**
+- Function mode AST (M35): complexity limited to scoped numstat churn ∩ eligible extensions via `pathAllowlist` — zero-churn eligible files intentionally omitted from `functions` output
+- Function-churn CPU (M35): interval index (`functionsIntersectingHunk`) replaces naive function×hunk nested loop hot path; semantics locked by equivalence tests vs `hunkIntersectsFunction`
+- AST: batch file processing with persistent worker-thread pool (M15 + M31); default concurrency `min(availableParallelism(), 8)` (M36; override via CLI `--concurrency` or config `concurrency` — precedence CLI > config > default); each worker (and inline `concurrency === 1` session) reuses one ts-morph `Project` across batches with source files cleared between `loadBatch` calls; parse gating locked to syntactic diagnostics only (`getSyntacticDiagnostics`) — no semantic/pre-emit work (RT-005)
+- Discovery (M36): `discoverSourceFiles` prefers `git ls-files` (tracked-only) + PathScope/extension filter; silent walk fallback on git failure or non-git trees; higher default concurrency increases peak AST heap — use `--concurrency` to lower on memory-constrained hosts
+- Enrich (M33): `enrichCouplingStaticDeps` builds a per-call peer-scoped edge cache — one read/parse per unique coupling participant; pair labeling via O(1) graph lookup (see [ARCHITECTURE § Enriched coupling](ARCHITECTURE.md#enriched-coupling-m14-m27-m33))
 - Manual benchmark before declaring v1 ready
 
 ## Diagnostics (`meta.warnings`, M28)
@@ -78,7 +90,7 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 | Severity vs exit code | Document: `info` / `warning` / `error` classify diagnostics only; scan success exits `0` with warnings |
 | Compare `meta.warnings` shape change | `ScanWarning[]` objects (not bare strings); contract tests in `tests/contract/`; reporters use `formatScanWarning()` |
 | M26 vs M28 boundary | M28 routes **existing** M26 rename messages under `RENAME_HISTORY_INCOMPLETE` — do not invent new RT-003 warning families in M28 tasks |
-| Warning code stability | M28 catalog: `EMPTY_SINCE_WINDOW`, `RENAME_HISTORY_INCOMPLETE`, `PARSE_FAILED`, `COMPARE_SINCE_MISMATCH` — document in README / ARCHITECTURE |
+| Warning code stability | M28 catalog (+ M32 `MEGA_COMMIT_SKIPPED`): `EMPTY_SINCE_WINDOW`, `RENAME_HISTORY_INCOMPLETE`, `PARSE_FAILED`, `COMPARE_SINCE_MISMATCH`, `MEGA_COMMIT_SKIPPED` — document in README / ARCHITECTURE |
 
 ## Hooks enforcement
 

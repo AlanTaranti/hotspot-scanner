@@ -52,14 +52,19 @@ describe("scoring factories", () => {
       { filePath: "src/a.ts", commitCount: 10 },
       { filePath: "src/b.ts", commitCount: 5 },
     ]);
-    const events = [
-      { commitHash: "c1", filesChanged: ["src/a.ts", "src/b.ts"] },
-      { commitHash: "c2", filesChanged: ["src/a.ts", "src/b.ts"] },
-      { commitHash: "c3", filesChanged: ["src/a.ts", "src/b.ts"] },
-    ];
+    const pairCounts = new Map([
+      [
+        "src/a.ts|src/b.ts",
+        {
+          fileA: "src/a.ts",
+          fileB: "src/b.ts",
+          coChangeCount: 3,
+        },
+      ],
+    ]);
 
     const results = createTemporalCouplingScorer().score(
-      events,
+      pairCounts,
       fileStats,
       DEFAULT_MIN_COCHANGE,
     );
@@ -85,8 +90,9 @@ describe("scoring factories", () => {
     const scorer = createTemporalCouplingScorer({ scoreCoupling: mockScore });
 
     const fileStats = buildFileStats([]);
-    scorer.score([], fileStats, 3);
+    const pairCounts = new Map();
+    scorer.score(pairCounts, fileStats, 3);
 
-    expect(mockScore).toHaveBeenCalledWith([], fileStats, 3);
+    expect(mockScore).toHaveBeenCalledWith(pairCounts, fileStats, 3);
   });
 });

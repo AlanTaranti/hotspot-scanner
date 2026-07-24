@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/pipeline-stage-overlap/design.md`](./design.md)  
 **Spec**: [`.specs/features/pipeline-stage-overlap/spec.md`](./spec.md)  
 **Context**: [`.specs/features/pipeline-stage-overlap/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -78,11 +78,11 @@ T1 ∥ T2 are `[P]` — disjoint prefixes. T3+ sequential (shared scan ownership
 
 **Done when**:
 
-- [ ] `signal` accepted on numstat stream/mine path
-- [ ] Abort kills child and does not hang the async iterator/mine promise
-- [ ] Non-abort git failures still throw `GitLogError` as today
-- [ ] Gate check passes: `pnpm exec vitest run src/git/spawn.test.ts src/git/index.test.ts`
-- [ ] Test count: no silent deletions
+- [x] `signal` accepted on numstat stream/mine path
+- [x] Abort kills child and does not hang the async iterator/mine promise
+- [x] Non-abort git failures still throw `GitLogError` as today
+- [x] Gate check passes: `pnpm exec vitest run src/git/spawn.test.ts src/git/index.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/git/spawn.test.ts src/git/index.test.ts`
@@ -106,11 +106,11 @@ T1 ∥ T2 are `[P]` — disjoint prefixes. T3+ sequential (shared scan ownership
 
 **Done when**:
 
-- [ ] `signal` accepted on analyze/pool path
-- [ ] Abort terminates in-flight workers and prevents new batch schedules
-- [ ] Successful analyze path unchanged when signal omitted/aborted-never
-- [ ] Gate check passes: `pnpm exec vitest run src/complexity`
-- [ ] Test count: no silent deletions
+- [x] `signal` accepted on analyze/pool path
+- [x] Abort terminates in-flight workers and prevents new batch schedules
+- [x] Successful analyze path unchanged when signal omitted/aborted-never
+- [x] Gate check passes: `pnpm exec vitest run src/complexity`
+- [x] Test count: no silent deletions
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/complexity`
@@ -134,14 +134,14 @@ T1 ∥ T2 are `[P]` — disjoint prefixes. T3+ sequential (shared scan ownership
 
 **Done when**:
 
-- [ ] `runScan` starts numstat and complexity concurrently (structural unit proof)
-- [ ] File mode: scoring/coupling only after both succeed
-- [ ] Function mode: churn after complexity; churn not concurrent with numstat; coupling waits for git
-- [ ] First failure aborts sibling; original error propagates; no unhandledRejection; no partial rankings
-- [ ] `ScanProgress.phase` remains only `"git" | "function-churn"`
-- [ ] File mode does not spawn function-churn
-- [ ] Gate check passes: `pnpm exec vitest run src/scan.test.ts`
-- [ ] Test count: no silent deletions
+- [x] `runScan` starts numstat and complexity concurrently (structural unit proof)
+- [x] File mode: scoring/coupling only after both succeed
+- [x] Function mode: churn after complexity; churn not concurrent with numstat; coupling waits for git
+- [x] First failure aborts sibling; original error propagates; no unhandledRejection; no partial rankings
+- [x] `ScanProgress.phase` remains only `"git" | "function-churn"`
+- [x] File mode does not spawn function-churn
+- [x] Gate check passes: `pnpm exec vitest run src/scan.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/scan.test.ts`
@@ -165,12 +165,12 @@ T1 ∥ T2 are `[P]` — disjoint prefixes. T3+ sequential (shared scan ownership
 
 **Done when**:
 
-- [ ] File-mode fixture rankings remain coherent/stable under fixed options
-- [ ] Function-mode fixture scan succeeds with expected non-empty functions where applicable
-- [ ] File mode: no function-churn/patch spawn regression
-- [ ] Failure path coverage exists (abort/reject → no rankings)
-- [ ] Gate check passes: `pnpm exec vitest run src/scan.integration.test.ts src/scan.test.ts`
-- [ ] Test count: no silent deletions
+- [x] File-mode fixture rankings remain coherent/stable under fixed options
+- [x] Function-mode fixture scan succeeds with expected non-empty functions where applicable
+- [x] File mode: no function-churn/patch spawn regression
+- [x] Failure path coverage exists (abort/reject → no rankings)
+- [x] Gate check passes: `pnpm exec vitest run src/scan.integration.test.ts src/scan.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests**: integration  
 **Gate**: `pnpm exec vitest run src/scan.integration.test.ts src/scan.test.ts`
@@ -194,10 +194,10 @@ T1 ∥ T2 are `[P]` — disjoint prefixes. T3+ sequential (shared scan ownership
 
 **Done when**:
 
-- [ ] ARCHITECTURE § Data flow describes overlap + file/function barriers + no function-churn∥numstat
-- [ ] CONCERNS § Performance documents higher peak memory vs sequential
-- [ ] Docs state rankings/JSON unchanged
-- [ ] No ROADMAP/STATE edits unless Execute session explicitly allows (planning lock)
+- [x] ARCHITECTURE § Data flow describes overlap + file/function barriers + no function-churn∥numstat
+- [x] CONCERNS § Performance documents higher peak memory vs sequential
+- [x] Docs state rankings/JSON unchanged
+- [x] No ROADMAP/STATE edits unless Execute session explicitly allows (planning lock)
 
 **Tests**: none  
 **Gate**: none (docs-only; verified in T6)
@@ -221,9 +221,9 @@ T1 ∥ T2 are `[P]` — disjoint prefixes. T3+ sequential (shared scan ownership
 
 **Done when**:
 
-- [ ] `pnpm build && pnpm test` exits 0
-- [ ] Coverage per-file thresholds intact
-- [ ] No silent test deletions vs pre-task baseline
+- [x] `pnpm build && pnpm test` exits 0
+- [x] Coverage per-file thresholds intact
+- [x] No silent test deletions vs pre-task baseline
 
 **Tests**: full suite  
 **Gate**: `pnpm build && pnpm test`

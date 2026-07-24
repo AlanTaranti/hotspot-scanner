@@ -1,5 +1,6 @@
 export type {
   CoChangeEvent,
+  CoChangePairCount,
   CompareMeta,
   CompareResult,
   ComplexityResult,

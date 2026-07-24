@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/function-mode-scan-efficiency/design.md`](./design.md)  
 **Spec**: [`.specs/features/function-mode-scan-efficiency/spec.md`](./spec.md)  
 **Context**: [`.specs/features/function-mode-scan-efficiency/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -91,11 +91,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `pathAllowlist` optional on analyze options
-- [ ] Discover ∩ allowlist semantics covered by unit tests
-- [ ] Omitting allowlist preserves prior discover-all behavior
-- [ ] Gate check passes: `pnpm exec vitest run src/complexity/index.test.ts`
-- [ ] Test count: no silent deletions vs pre-task baseline for this file
+- [x] `pathAllowlist` optional on analyze options
+- [x] Discover ∩ allowlist semantics covered by unit tests
+- [x] Omitting allowlist preserves prior discover-all behavior
+- [x] Gate check passes: `pnpm exec vitest run src/complexity/index.test.ts`
+- [x] Test count: no silent deletions vs pre-task baseline for this file
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/complexity/index.test.ts`
@@ -123,11 +123,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Hot path uses interval index / sort-sweep
-- [ ] Equivalence tests vs `hunkIntersectsFunction` semantics pass
-- [ ] Nested / multi-hunk / non-overlap covered
-- [ ] Gate check passes: `pnpm exec vitest run src/git/function-churn`
-- [ ] Test count: no silent deletions
+- [x] Hot path uses interval index / sort-sweep
+- [x] Equivalence tests vs `hunkIntersectsFunction` semantics pass
+- [x] Nested / multi-hunk / non-overlap covered
+- [x] Gate check passes: `pnpm exec vitest run src/git/function-churn`
+- [x] Test count: no silent deletions
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/git/function-churn`
@@ -155,11 +155,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Argv includes `--` + paths when under threshold
-- [ ] Empty paths → no `streamGitPatchLog` / spawn
-- [ ] Over-threshold → unrestricted stream; constant exported/documented
-- [ ] Numstat `src/git/spawn.ts` unchanged
-- [ ] Gate check passes: `pnpm exec vitest run src/git/function-churn/spawn.test.ts src/git/function-churn/index.test.ts`
+- [x] Argv includes `--` + paths when under threshold
+- [x] Empty paths → no `streamGitPatchLog` / spawn
+- [x] Over-threshold → unrestricted stream; constant exported/documented
+- [x] Numstat `src/git/spawn.ts` unchanged
+- [x] Gate check passes: `pnpm exec vitest run src/git/function-churn/spawn.test.ts src/git/function-churn/index.test.ts`
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/git/function-churn/spawn.test.ts src/git/function-churn/index.test.ts`
@@ -187,12 +187,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Function branch passes allowlist + paths
-- [ ] File branch unchanged regarding patch spawn / full AST
-- [ ] Empty allowlist safe (no patch spawn)
-- [ ] Progress phase still `function-churn`
-- [ ] Gate check passes: `pnpm exec vitest run src/scan.integration.test.ts` (and any new scan unit file)
-- [ ] Test count: no silent deletions
+- [x] Function branch passes allowlist + paths
+- [x] File branch unchanged regarding patch spawn / full AST
+- [x] Empty allowlist safe (no patch spawn)
+- [x] Progress phase still `function-churn`
+- [x] Gate check passes: `pnpm exec vitest run src/scan.integration.test.ts` (and any new scan unit file)
+- [x] Test count: no silent deletions
 
 **Tests**: unit + integration assertions  
 **Gate**: `pnpm exec vitest run src/scan.integration.test.ts`
@@ -221,10 +221,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] File-mode zero patch spawn assertion present and green
-- [ ] Function-mode pathspec (or fallback) assertion present
-- [ ] Typical ranking parity / smoke covered
-- [ ] Gate check passes: `pnpm exec vitest run src/scan.integration.test.ts`
+- [x] File-mode zero patch spawn assertion present and green
+- [x] Function-mode pathspec (or fallback) assertion present
+- [x] Typical ranking parity / smoke covered
+- [x] Gate check passes: `pnpm exec vitest run src/scan.integration.test.ts`
 
 **Tests**: integration  
 **Gate**: `pnpm exec vitest run src/scan.integration.test.ts`
@@ -252,9 +252,9 @@ flowchart LR
 
 **Done when**:
 
-- [ ] ARCHITECTURE / CONCERNS / TESTING reflect M35 behavior and intentional edges
-- [ ] Rename/pathspec + no-historical-AST called out
-- [ ] Gate check passes: `pnpm build && pnpm test`
+- [x] ARCHITECTURE / CONCERNS / TESTING reflect M35 behavior and intentional edges
+- [x] Rename/pathspec + no-historical-AST called out
+- [x] Gate check passes: `pnpm build && pnpm test`
 
 **Tests**: full gate  
 **Gate**: `pnpm build && pnpm test`
@@ -283,26 +283,26 @@ Phase 2:
 
 | Requirement ID | Task | Status |
 | -------------- | ---- | ------ |
-| HOTSPOT-380 | T3 | Pending |
-| HOTSPOT-381 | T3 | Pending |
-| HOTSPOT-382 | T3 | Pending |
-| HOTSPOT-383 | T3 | Pending |
-| HOTSPOT-384 | T4 | Pending |
-| HOTSPOT-385 | T1 | Pending |
-| HOTSPOT-386 | T1 | Pending |
-| HOTSPOT-387 | T4 | Pending |
-| HOTSPOT-388 | T5 | Pending |
-| HOTSPOT-389 | T2 | Pending |
-| HOTSPOT-390 | T2 | Pending |
-| HOTSPOT-391 | T2 | Pending |
-| HOTSPOT-392 | T4, T5 | Pending |
-| HOTSPOT-393 | T4 | Pending |
-| HOTSPOT-394 | T4 | Pending |
-| HOTSPOT-395 | T4 | Pending |
-| HOTSPOT-396 | T6 | Pending |
-| HOTSPOT-397 | T5 | Pending |
-| HOTSPOT-398 | T6 | Pending |
-| HOTSPOT-399 | T6 | Pending |
+| HOTSPOT-380 | T3 | Done |
+| HOTSPOT-381 | T3 | Done |
+| HOTSPOT-382 | T3 | Done |
+| HOTSPOT-383 | T3 | Done |
+| HOTSPOT-384 | T4 | Done |
+| HOTSPOT-385 | T1 | Done |
+| HOTSPOT-386 | T1 | Done |
+| HOTSPOT-387 | T4 | Done |
+| HOTSPOT-388 | T5 | Done |
+| HOTSPOT-389 | T2 | Done |
+| HOTSPOT-390 | T2 | Done |
+| HOTSPOT-391 | T2 | Done |
+| HOTSPOT-392 | T4, T5 | Done |
+| HOTSPOT-393 | T4 | Done |
+| HOTSPOT-394 | T4 | Done |
+| HOTSPOT-395 | T4 | Done |
+| HOTSPOT-396 | T6 | Done |
+| HOTSPOT-397 | T5 | Done |
+| HOTSPOT-398 | T6 | Done |
+| HOTSPOT-399 | T6 | Done |
 
 **Coverage:** 20 total, 20 mapped, 0 unmapped ✅
 

@@ -2,7 +2,11 @@ import { EventEmitter } from "node:events";
 import { PassThrough } from "node:stream";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { GitLogError } from "../spawn.js";
-import { buildGitPatchLogArgv, streamGitPatchLog } from "./spawn.js";
+import {
+  buildGitPatchLogArgv,
+  PATCH_PATHSPEC_FALLBACK_THRESHOLD,
+  streamGitPatchLog,
+} from "./spawn.js";
 
 vi.mock("node:child_process", () => ({
   spawn: vi.fn(),
@@ -71,6 +75,62 @@ describe("buildGitPatchLogArgv", () => {
   it("omits --since when not provided", () => {
     const argv = buildGitPatchLogArgv({ repoPath: "/repo" });
     expect(argv.some((arg) => arg.startsWith("--since="))).toBe(false);
+  });
+
+  it("appends -- and pathspecs when paths are non-empty and under threshold", () => {
+    expect(
+      buildGitPatchLogArgv({
+        repoPath: "/repo",
+        paths: ["src/a.ts", "lib/b.js"],
+      }),
+    ).toEqual([
+      "-C",
+      "/repo",
+      "log",
+      "-M",
+      "-p",
+      "--unified=0",
+      "--pretty=format:COMMIT|%H|%ad|%an",
+      "--",
+      "src/a.ts",
+      "lib/b.js",
+    ]);
+  });
+
+  it("preserves -M, -p, --unified=0, and --since when pathspecs are set", () => {
+    const argv = buildGitPatchLogArgv({
+      repoPath: "/repo",
+      since: "6 months ago",
+      paths: ["src/a.ts"],
+    });
+    expect(argv).toContain("-M");
+    expect(argv).toContain("-p");
+    expect(argv).toContain("--unified=0");
+    expect(argv).toContain("--since=6 months ago");
+    expect(argv).toContain("--");
+    expect(argv).toContain("src/a.ts");
+  });
+
+  it("omits pathspecs when paths exceed the fallback threshold", () => {
+    const paths = Array.from(
+      { length: PATCH_PATHSPEC_FALLBACK_THRESHOLD + 1 },
+      (_, i) => `src/file-${i}.ts`,
+    );
+    const argv = buildGitPatchLogArgv({ repoPath: "/repo", paths });
+    expect(argv).not.toContain("--");
+    expect(argv.filter((arg) => arg.endsWith(".ts"))).toHaveLength(0);
+  });
+
+  it("includes pathspecs at exactly the fallback threshold", () => {
+    const paths = Array.from(
+      { length: PATCH_PATHSPEC_FALLBACK_THRESHOLD },
+      (_, i) => `src/file-${i}.ts`,
+    );
+    const argv = buildGitPatchLogArgv({ repoPath: "/repo", paths });
+    expect(argv[argv.length - PATCH_PATHSPEC_FALLBACK_THRESHOLD - 1]).toBe(
+      "--",
+    );
+    expect(argv.slice(-PATCH_PATHSPEC_FALLBACK_THRESHOLD)).toEqual(paths);
   });
 });
 

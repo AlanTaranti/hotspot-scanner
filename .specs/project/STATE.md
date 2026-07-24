@@ -41,7 +41,13 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-23 | **M29 Execute complete**                                          | Function AST coverage+: ClassExpression members, object-literal get/set, assignment RHS callables, overload stub skip; McCabe decision nodes unchanged (RT-005). Specs: `.specs/features/function-ast-coverage-plus/` (Done) |
 | 2026-07-23 | **M25–M30 Execute complete**                                      | Post-v1 backlog M25–M30 all Done per ROADMAP; execution order M26→M25→M27→M28→M30→M29 |
 | 2026-07-23 | **Post-M30 perf backlog M31–M36**                                 | ROADMAP stubs for high/medium scan-performance wins (persistent AST workers, coupling stream aggregate, static enrich cache, pipeline overlap, function-mode I/O, discovery/concurrency defaults). Specs via `planner-feature` before Execute. Suggested order M31→M32→M33→M35→M34→M36. No historical AST; rankings/JSON unchanged unless mega-commit warning documented |
-| 2026-07-23 | **M31–M36 specs Planned**                                         | Six `planner-feature` sessions produced `.specs/features/{persistent-ast-workers,coupling-stream-aggregate,static-enrich-cache,pipeline-stage-overlap,function-mode-scan-efficiency,discovery-concurrency-defaults}/` with `tasks.md` Status Planned. HOTSPOT ranges 300–419 (non-overlapping). ROADMAP Specs→Planned. Execute serial order unchanged. |
+| 2026-07-23 | **M31 persistent AST workers Done**                          | Execute complete: persistent worker pool + Project reuse across batches; syntactic-only parse gating locked; output equivalence tests (c=1 vs c≥2); docs synced (benchmark-scan, ARCHITECTURE, CONCERNS). Gate green (`pnpm build && pnpm test`, 502 tests). Next: M32 coupling stream aggregate. |
+| 2026-07-23 | **M32 coupling stream aggregate Done**                       | Execute complete: stream-time `pairCounts` aggregation replaces retained `coChangeEvents[]` for scoring; mega-commit guard at >100 unique in-scope files (`MEGA_COMMIT_SKIPPED` warnings, churn still counted); `canonicalizePairCounts` + scoped miner predicate; docs synced (CONCERNS, ARCHITECTURE, README). Gate green (`pnpm build && pnpm test`, 524 tests). Next: M33 static enrich graph cache. |
+| 2026-07-23 | **M33 static enrich graph cache Done**                       | Execute complete: `buildStaticEdgeGraph` peer-scoped cache — one read/parse per participant file, O(1) pair labeling via `getStaticEdge`; removed per-pair `collectEdgesToPeer` re-read path; read-once hub test + M14/M27 equivalence hardening; docs synced (ARCHITECTURE § Enriched coupling, CONCERNS performance). Gate green (`pnpm build && pnpm test`, 533 tests). Next: M35 function-mode scan efficiency (suggested order). |
+| 2026-07-23 | **M34 pipeline stage overlap Done**                          | Execute complete: file-mode git miner ∥ complexity with shared `AbortController`; cancel on first failure; scoring/coupling after both barriers; function-churn after complexity only (never ∥ numstat); function mode numstat→complexity sequential (M35 pathAllowlist). Docs synced (ARCHITECTURE, CONCERNS, TESTING). Gate green (`pnpm build && pnpm test`, 579 tests). Next: M36 discovery defaults. |
+| 2026-07-23 | **M35 function-mode scan efficiency Done**                   | Execute complete: function-mode `pathAllowlist` on complexity (churn ∩ scope ∩ eligible ext); pathspec-restricted patch spawn with `PATCH_PATHSPEC_FALLBACK_THRESHOLD` (1000); interval-index hunk overlap in `aggregatePatchCommit`; scan wiring + integration regressions (file-mode zero patch spawn, ranking parity, zero-churn omission); docs synced (ARCHITECTURE, CONCERNS, TESTING). No historical AST. Gate green (`pnpm build && pnpm test`, 560 tests). Next: M34 pipeline stage overlap (suggested order). |
+| 2026-07-23 | **M36 discovery & concurrency defaults Done**                    | `listTrackedFiles` (`git ls-files -z`) in `src/git/`; `discoverSourceFiles` prefers Git listing with walk fallback; `DEFAULT_WORKER_CONCURRENCY` cap 4→8; living docs synced. Gate green (591 tests). |
+| 2026-07-23 | **M31–M36 Execute complete**                                 | Post-M30 perf backlog all Done per ROADMAP; execution order M31→M32→M33→M35→M34→M36; final gate 591 tests |
 
 ## Architecture decisions (ADRs)
 
@@ -49,7 +55,7 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | ------------ | ------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
 | ADR-2026-018 | CLI standalone and self-contained                | Decoupled from other tools; own release cycle                                                  |
 | ADR-2026-019 | `ts-morph` + project-owned McCabe, TS/JS-only    | Dedicated complexity packages abandoned 7–10 years; full control over decision-node definition |
-| ADR-2026-020 | Single `git log` stream feeds churn and coupling | Half the I/O on large repos; one parser produces `FileChangeStats` + `CoChangeEvent[]`         |
+| ADR-2026-020 | Single `git log` stream feeds churn and coupling | Half the I/O on large repos; one parser produces `FileChangeStats` + stream-aggregated `pairCounts` (M32) |
 | ADR-2026-021 | CLI binary `hotspot-scanner` without npm scope   | Standard pattern for scoped packages exposing a CLI                                            |
 
 ### Alternatives considered and rejected
@@ -76,9 +82,9 @@ _None._
 
 ## Active
 
-Post-v1 milestones **M7–M30 Done**. Open backlog: **M31–M36** specs **Planned** (Execute pending).
+Post-v1 milestones **M7–M36 Done**. Post-M30 perf backlog complete.
 
-Next work: review/promote `.specs/features/persistent-ast-workers/tasks.md` Status → Approved/Ready for Execute, then open a **new** session and invoke `orchestrator-implementer` for **M31**. Suggested Execute order: M31 → M32 → M33 → M35 → M34 → M36.
+Next work: v1 readiness review / distribution decision (see Deferred).
 
 ## Deferred
 

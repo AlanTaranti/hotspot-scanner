@@ -5,7 +5,10 @@ import type {
   ScanWarning,
 } from "../types/index.js";
 import { analyzeSourceFile } from "./analyze-file.js";
-import { createTsMorphProject } from "./project.js";
+import {
+  createTsMorphProject,
+  type TsMorphProjectAdapter,
+} from "./project.js";
 
 export interface BatchAnalysisInput {
   repoPath: string;
@@ -35,13 +38,14 @@ function normalizeRelativePath(repoPath: string, absolutePath: string): string {
 
 export async function analyzeBatch(
   input: BatchAnalysisInput,
+  project?: TsMorphProjectAdapter,
 ): Promise<BatchAnalysisOutput> {
   const { repoPath, batch } = input;
-  const project = createTsMorphProject({ repoPath });
+  const adapter = project ?? createTsMorphProject({ repoPath });
   const results: ComplexityResult[] = [];
   const functions: FunctionComplexityResult[] = [];
   const warnings: ScanWarning[] = [];
-  const sourceFiles = await project.loadBatch(batch);
+  const sourceFiles = await adapter.loadBatch(batch);
 
   for (const sourceFile of sourceFiles) {
     const filePath = normalizeRelativePath(repoPath, sourceFile.getFilePath());
@@ -50,7 +54,7 @@ export async function analyzeBatch(
     functions.push(...analysis.functions);
   }
 
-  for (const failure of project.getParseFailures()) {
+  for (const failure of adapter.getParseFailures()) {
     warnings.push(
       createParseFailedWarning(failure.filePath, failure.message),
     );

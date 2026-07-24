@@ -19,7 +19,7 @@ External dependencies and adapter boundaries. No network integrations in v1.
 | ----------- | ---------------------------------------------------------------------------------------------------------------------- |
 | **Role**    | Parallel batch processing in complexity stage (M15)                                                                    |
 | **Adapter** | `createWorkerPool` in `src/complexity/pool.ts`; worker entry `src/complexity/worker.ts`                                |
-| **Default** | `DEFAULT_WORKER_CONCURRENCY` = `min(availableParallelism(), 4)`                                                        |
+| **Default** | `DEFAULT_WORKER_CONCURRENCY` = `min(availableParallelism(), 8)`                                                        |
 | **Override**| CLI `--concurrency` or config `concurrency` (M28) → `runScan()` → `createComplexityAnalyzer({ concurrency })`          |
 | **Rule**    | Do not spawn worker threads outside `src/complexity/`                                                                  |
 | **Failure** | Worker error → reject `analyze()` with `repoPath` and batch path context                                               |
@@ -35,6 +35,17 @@ External dependencies and adapter boundaries. No network integrations in v1.
 | **Rule**       | Do not spawn git subprocess outside `src/git/`                                        |
 | **Failure**    | Invalid/corrupt repo → clear error, exit != 0                                         |
 | **Tests**      | Mock subprocess at `GitMiner` boundary; fixtures for parse logic                      |
+
+### Tracked file listing (M36, complexity discovery)
+
+| Aspect         | Detail                                                                              |
+| -------------- | ----------------------------------------------------------------------------------- |
+| **Role**       | `git ls-files -z` for tracked-path discovery before complexity analysis               |
+| **Adapter**    | `listTrackedFiles` in `src/git/ls-files.ts`                                         |
+| **Invocation** | `child_process.spawn` — `git -C <repoPath> ls-files -z`; null-delimited stdout parse |
+| **When**       | `discoverSourceFiles` primary path in Git repos; silent walk fallback on failure      |
+| **Failure**    | `GitLsFilesError` with `repoPath` + stderr; discover catches and falls back to walk |
+| **Tests**      | Mock `spawn` in `ls-files.test.ts`; inject `listTrackedFiles` in `discover.test.ts` |
 
 ### Function churn patch stream (M23, function mode only)
 

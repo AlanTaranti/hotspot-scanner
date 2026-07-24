@@ -1,5 +1,5 @@
 {
-  "_comment": "Fixture: coupling-pairs.json — hand-crafted. Expected order by couplingStrength desc with minCochange=3: (src/c.ts, src/d.ts), (src/a.ts, src/b.ts). Covers minCochange boundary, zero-commit denominator, within-commit dedupe.",
+  "_comment": "Fixture: coupling-pairs.json — hand-crafted. Expected order by couplingStrength desc with minCochange=3: (src/c.ts, src/d.ts), (src/a.ts, src/b.ts). Covers minCochange boundary, zero-commit denominator, pre-aggregated pair counts.",
   "minCochange": 3,
   "fileStats": [
     { "filePath": "src/a.ts", "commitCount": 10 },
@@ -8,21 +8,11 @@
     { "filePath": "src/d.ts", "commitCount": 3 },
     { "filePath": "src/orphan.ts", "commitCount": 0 }
   ],
-  "coChangeEvents": [
-    { "commitHash": "c1", "filesChanged": ["src/a.ts", "src/b.ts"] },
-    { "commitHash": "c2", "filesChanged": ["src/a.ts", "src/b.ts"] },
-    { "commitHash": "c3", "filesChanged": ["src/a.ts", "src/b.ts"] },
-    { "commitHash": "c4", "filesChanged": ["src/c.ts", "src/d.ts"] },
-    { "commitHash": "c5", "filesChanged": ["src/c.ts", "src/d.ts"] },
-    { "commitHash": "c6", "filesChanged": ["src/c.ts", "src/d.ts"] },
-    {
-      "commitHash": "c7",
-      "filesChanged": ["src/a.ts", "src/b.ts", "src/a.ts"]
-    },
-    { "commitHash": "c8", "filesChanged": ["src/a.ts", "src/orphan.ts"] },
-    { "commitHash": "c9", "filesChanged": ["src/c.ts", "src/d.ts"] },
-    { "commitHash": "c10", "filesChanged": ["src/e.ts", "src/f.ts"] },
-    { "commitHash": "c11", "filesChanged": ["src/e.ts", "src/f.ts"] }
+  "pairCounts": [
+    { "fileA": "src/a.ts", "fileB": "src/b.ts", "coChangeCount": 4 },
+    { "fileA": "src/c.ts", "fileB": "src/d.ts", "coChangeCount": 4 },
+    { "fileA": "src/a.ts", "fileB": "src/orphan.ts", "coChangeCount": 1 },
+    { "fileA": "src/e.ts", "fileB": "src/f.ts", "coChangeCount": 2 }
   ],
   "expectedOrder": [
     { "fileA": "src/c.ts", "fileB": "src/d.ts" },

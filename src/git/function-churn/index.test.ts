@@ -5,6 +5,7 @@ import {
   formatFunctionPostRenameOverlapWarning,
 } from "../rename-warnings.js";
 import { createFunctionChurnMiner } from "./index.js";
+import { PATCH_PATHSPEC_FALLBACK_THRESHOLD } from "./spawn.js";
 
 const sampleFunction = {
   filePath: "src/a.ts",
@@ -20,9 +21,8 @@ async function* emptyStream(): AsyncGenerator<string> {
 
 describe("createFunctionChurnMiner", () => {
   it("returns empty stats when no functions are provided", async () => {
-    const miner = createFunctionChurnMiner({
-      streamGitPatchLog: vi.fn(() => emptyStream()),
-    });
+    const streamGitPatchLog = vi.fn(() => emptyStream());
+    const miner = createFunctionChurnMiner({ streamGitPatchLog });
 
     const result = await miner.mine({
       repoPath: "/repo",
@@ -31,6 +31,60 @@ describe("createFunctionChurnMiner", () => {
 
     expect(result.functionStats.size).toBe(0);
     expect(result.warnings).toEqual([]);
+    expect(streamGitPatchLog).not.toHaveBeenCalled();
+  });
+
+  it("does not spawn patch stream when paths is empty", async () => {
+    const streamGitPatchLog = vi.fn(() => emptyStream());
+    const miner = createFunctionChurnMiner({ streamGitPatchLog });
+
+    const result = await miner.mine({
+      repoPath: "/repo",
+      paths: [],
+      functions: [sampleFunction],
+    });
+
+    expect(result.functionStats.size).toBe(0);
+    expect(result.warnings).toEqual([]);
+    expect(streamGitPatchLog).not.toHaveBeenCalled();
+  });
+
+  it("passes pathspecs to spawn when paths are under threshold", async () => {
+    const streamGitPatchLog = vi.fn(() => emptyStream());
+    const miner = createFunctionChurnMiner({ streamGitPatchLog });
+
+    await miner.mine({
+      repoPath: "/repo",
+      paths: ["src/a.ts", "lib/b.js"],
+      functions: [sampleFunction],
+    });
+
+    expect(streamGitPatchLog).toHaveBeenCalledWith({
+      repoPath: "/repo",
+      since: undefined,
+      paths: ["src/a.ts", "lib/b.js"],
+    });
+  });
+
+  it("falls back to unrestricted spawn argv when paths exceed threshold", async () => {
+    const paths = Array.from(
+      { length: PATCH_PATHSPEC_FALLBACK_THRESHOLD + 1 },
+      (_, i) => `src/file-${i}.ts`,
+    );
+    const streamGitPatchLog = vi.fn(() => emptyStream());
+    const miner = createFunctionChurnMiner({ streamGitPatchLog });
+
+    await miner.mine({
+      repoPath: "/repo",
+      paths,
+      functions: [sampleFunction],
+    });
+
+    expect(streamGitPatchLog).toHaveBeenCalledWith({
+      repoPath: "/repo",
+      since: undefined,
+      paths,
+    });
   });
 
   it("warns when since window has no commits", async () => {

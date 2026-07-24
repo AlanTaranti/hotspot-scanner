@@ -73,6 +73,13 @@ export interface CoChangeEvent {
   filesChanged: string[];
 }
 
+/** Unordered co-change pair tally (production coupling feed). */
+export interface CoChangePairCount {
+  fileA: string;
+  fileB: string;
+  coChangeCount: number;
+}
+
 /** Aggregate static edge direction between fileA and fileB. */
 export type StaticDependencyDirection =
   | "none"

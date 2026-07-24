@@ -1,5 +1,5 @@
 import type {
-  CoChangeEvent,
+  CoChangePairCount,
   ComplexityResult,
   CouplingPair,
   FileChangeStats,
@@ -23,7 +23,7 @@ export interface HotspotScorer {
 
 export interface TemporalCouplingScorer {
   score(
-    coChangeEvents: CoChangeEvent[],
+    pairCounts: Map<string, CoChangePairCount> | Iterable<CoChangePairCount>,
     fileStats: Map<string, FileChangeStats>,
     minCochange: number,
   ): CouplingPair[];
@@ -72,8 +72,8 @@ export function createTemporalCouplingScorer(
   const score = deps.scoreCoupling ?? scoreCoupling;
 
   return {
-    score(coChangeEvents, fileStats, minCochange) {
-      return score(coChangeEvents, fileStats, minCochange);
+    score(pairCounts, fileStats, minCochange) {
+      return score(pairCounts, fileStats, minCochange);
     },
   };
 }

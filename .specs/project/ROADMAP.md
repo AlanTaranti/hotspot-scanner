@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M30 Done** — Post-M30 perf backlog **M31–M36** specs **Planned** (Execute pending).
+Status: **M7–M36 Done** — Post-M30 perf backlog complete.
 
 ## Milestone 1 — Scaffold
 
@@ -313,78 +313,78 @@ M27 → M28 → M30 → M29
 
 ## Post-M30 backlog — scan performance
 
-RT-001 follow-ups: high- and medium-impact wall-time / memory wins identified after M15/M28. Specs **Planned** via `planner-feature` (2026-07-23). Promote each `tasks.md` Status before Execute. Rankings / formulas / JSON contract unchanged unless a milestone documents an explicit warning (e.g. mega-commit guard). No historical AST. Gate remains `pnpm build && pnpm test`; timing stays manual (`scripts/benchmark-scan.md`).
+RT-001 follow-ups: high- and medium-impact wall-time / memory wins identified after M15/M28. Specs and Execute **Done** (2026-07-23). Rankings / formulas / JSON contract unchanged except documented `MEGA_COMMIT_SKIPPED` warning. No historical AST. Gate remains `pnpm build && pnpm test`; timing stays manual (`scripts/benchmark-scan.md`).
 
-### Milestone 31 — Persistent AST workers
+### Milestone 31 — Persistent AST workers — DONE
 
 → [`.specs/features/persistent-ast-workers/spec.md`](../features/persistent-ast-workers/spec.md)  
-**Slug:** `persistent-ast-workers` | **Priority:** High | **Specs:** Planned
+**Slug:** `persistent-ast-workers` | **Priority:** High | **Specs:** Done | **Execute:** Done
 
 Reduce worker spawn and ts-morph cold-start cost on large file trees. IDs: HOTSPOT-300–313.
 
-- [ ] Persistent worker pool (N live workers + batch queue) instead of `new Worker()` per batch — `src/complexity/pool.ts`
-- [ ] Reuse ts-morph `Project` across batches in the worker — `src/complexity/project.ts` / `analyze-batch.ts`
-- [ ] Cheaper syntactic diagnostics path (`getSyntacticDiagnostics` / `getProgram()` per file) without changing McCabe decision nodes (RT-005)
-- [ ] Keep `concurrency === 1` / single-batch inline fallback; `--concurrency` semantics unchanged
-- [ ] After Execute: update `scripts/benchmark-scan.md`, CONCERNS, ARCHITECTURE
+- [x] Persistent worker pool (N live workers + batch queue) instead of `new Worker()` per batch — `src/complexity/pool.ts`
+- [x] Reuse ts-morph `Project` across batches in the worker — `src/complexity/project.ts` / `analyze-batch.ts`
+- [x] Cheaper syntactic diagnostics path (`getSyntacticDiagnostics` / `getProgram()` per file) without changing McCabe decision nodes (RT-005)
+- [x] Keep `concurrency === 1` / single-batch inline fallback; `--concurrency` semantics unchanged
+- [x] After Execute: update `scripts/benchmark-scan.md`, CONCERNS, ARCHITECTURE
 
-### Milestone 32 — Coupling stream aggregation
+### Milestone 32 — Coupling stream aggregation — DONE
 
 → [`.specs/features/coupling-stream-aggregate/spec.md`](../features/coupling-stream-aggregate/spec.md)  
-**Slug:** `coupling-stream-aggregate` | **Priority:** High | **Specs:** Planned
+**Slug:** `coupling-stream-aggregate` | **Priority:** High | **Specs:** Done
 
 Lower memory and avoid a second full pass over co-change events on large histories. IDs: HOTSPOT-320–334.
 
-- [ ] Aggregate `pair → coChangeCount` during the numstat stream (avoid retaining full `coChangeEvents[]`) — `src/git/aggregate.ts` + `src/scoring/coupling-scorer.ts`
-- [ ] Preserve ranking / `couplingStrength` for commits below the mega-commit guard
-- [ ] Guard commits with too many unique files (cap or skip + `ScanWarning`); document in CONCERNS
-- [ ] Path scope continues to filter before/during aggregation
+- [x] Aggregate `pair → coChangeCount` during the numstat stream (avoid retaining full `coChangeEvents[]`) — `src/git/aggregate.ts` + `src/scoring/coupling-scorer.ts`
+- [x] Preserve ranking / `couplingStrength` for commits below the mega-commit guard
+- [x] Guard commits with too many unique in-scope files (skip + `MEGA_COMMIT_SKIPPED` `ScanWarning` at threshold 100); document in CONCERNS
+- [x] Path scope filters before/during aggregation (`isPathInScope` callback into miner)
 
-### Milestone 33 — Static enrich graph cache
+### Milestone 33 — Static enrich graph cache — DONE
 
 → [`.specs/features/static-enrich-cache/spec.md`](../features/static-enrich-cache/spec.md)  
-**Slug:** `static-enrich-cache` | **Priority:** High | **Specs:** Planned
+**Slug:** `static-enrich-cache` | **Priority:** High | **Specs:** Done
 
 Eliminate repeated source reads/regex when labeling coupling pairs. IDs: HOTSPOT-340–348, 351.
 
-- [ ] One read/parse per file in enrich; cache resolved edges; O(1) pair lookup — `src/scoring/enrich-coupling-static.ts`
-- [ ] No ranking change; same `hasStaticDependency` / direction / kind fields
-- [ ] `package.json` `exports`/`imports` remain deferred (CONCERNS)
+- [x] One read/parse per file in enrich; cache resolved edges; O(1) pair lookup — `src/scoring/enrich-coupling-static.ts`
+- [x] No ranking change; same `hasStaticDependency` / direction / kind fields
+- [x] `package.json` `exports`/`imports` remain deferred (CONCERNS)
 
-### Milestone 34 — Pipeline stage overlap
+### Milestone 34 — Pipeline stage overlap — DONE
 
 → [`.specs/features/pipeline-stage-overlap/spec.md`](../features/pipeline-stage-overlap/spec.md)  
-**Slug:** `pipeline-stage-overlap` | **Priority:** High | **Specs:** Planned
+**Slug:** `pipeline-stage-overlap` | **Priority:** High | **Specs:** Done
 
 Overlap I/O-bound git mining with CPU-bound complexity analysis. IDs: HOTSPOT-360–379.
 
-- [ ] Overlap git miner and complexity in `src/scan.ts` with coherent cancel/error handling
-- [ ] File mode: coupling/scoring only after both complete; function mode: function-churn after complexity (needs ranges)
-- [ ] Document peak-memory trade-off; progress phases unchanged or carefully extended
-- [ ] Boundary: do **not** parallelize function-churn with numstat in this milestone (rename/alias complexity)
+- [x] Overlap git miner and complexity in `src/scan.ts` with coherent cancel/error handling
+- [x] File mode: coupling/scoring only after both complete; function mode: function-churn after complexity (needs ranges)
+- [x] Document peak-memory trade-off; progress phases unchanged or carefully extended
+- [x] Boundary: do **not** parallelize function-churn with numstat in this milestone (rename/alias complexity)
 
-### Milestone 35 — Function-mode scan efficiency
+### Milestone 35 — Function-mode scan efficiency — DONE
 
 → [`.specs/features/function-mode-scan-efficiency/spec.md`](../features/function-mode-scan-efficiency/spec.md)  
-**Slug:** `function-mode-scan-efficiency` | **Priority:** High | **Specs:** Planned
+**Slug:** `function-mode-scan-efficiency` | **Priority:** High | **Specs:** Done
 
 Cut function-mode wall time (patch stream + AST + hunk overlap). IDs: HOTSPOT-380–399.
 
-- [ ] Restrict patch stream (pathspec / only paths with churn or functions) — `src/git/function-churn/`
-- [ ] In function mode, limit AST to relevant files (churn ∩ scope) without worsening expected rankings
-- [ ] Interval index for function×hunk overlap (sort/sweep) — `src/git/function-churn/aggregate.ts`
-- [ ] File mode: zero patch spawn (regression test)
+- [x] Restrict patch stream (pathspec / only paths with churn or functions) — `src/git/function-churn/`
+- [x] In function mode, limit AST to relevant files (churn ∩ scope) without worsening expected rankings
+- [x] Interval index for function×hunk overlap (sort/sweep) — `src/git/function-churn/aggregate.ts`
+- [x] File mode: zero patch spawn (regression test)
 
 ### Milestone 36 — Discovery & concurrency defaults
 
 → [`.specs/features/discovery-concurrency-defaults/spec.md`](../features/discovery-concurrency-defaults/spec.md)  
-**Slug:** `discovery-concurrency-defaults` | **Priority:** Medium | **Specs:** Planned
+**Slug:** `discovery-concurrency-defaults` | **Priority:** Medium | **Specs:** Done | **Execute:** Done
 
 Faster source discovery and better out-of-box concurrency on multi-core machines. IDs: HOTSPOT-400–413.
 
-- [ ] Prefer `git ls-files` + `PathScope` filter for discovery, with filesystem walk fallback — `src/complexity/discover.ts`
-- [ ] Revisit `DEFAULT_WORKER_CONCURRENCY` (today `min(availableParallelism(), 4)`); document memory vs `--concurrency`
-- [ ] Update README / M28 docs / benchmark notes
+- [x] Prefer `git ls-files` + `PathScope` filter for discovery, with filesystem walk fallback — `src/complexity/discover.ts`
+- [x] Revisit `DEFAULT_WORKER_CONCURRENCY` (`min(availableParallelism(), 8)`); document memory vs `--concurrency`
+- [x] Update README / M28 docs / benchmark notes
 
 ### Suggested execution order (M31–M36)
 

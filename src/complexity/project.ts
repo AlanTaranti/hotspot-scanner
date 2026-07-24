@@ -21,14 +21,21 @@ export function createTsMorphProject(
   options: TsMorphProjectOptions,
 ): TsMorphProjectAdapter {
   let parseFailures: ParseFailure[] = [];
+  const project = new Project({
+    compilerOptions: { allowJs: true },
+    skipAddingFilesFromTsConfig: true,
+  });
+
+  function clearSourceFiles(): void {
+    for (const sourceFile of project.getSourceFiles()) {
+      project.removeSourceFile(sourceFile);
+    }
+  }
 
   return {
     async loadBatch(paths: string[]): Promise<SourceFile[]> {
       parseFailures = [];
-      const project = new Project({
-        compilerOptions: { allowJs: true },
-        skipAddingFilesFromTsConfig: true,
-      });
+      clearSourceFiles();
 
       const sourceFiles: SourceFile[] = [];
 

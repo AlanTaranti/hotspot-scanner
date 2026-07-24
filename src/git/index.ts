@@ -1,5 +1,5 @@
 import type {
-  CoChangeEvent,
+  CoChangePairCount,
   FileChangeStats,
   ScanProgress,
   ScanWarning,
@@ -9,9 +9,10 @@ import {
   createAggregateAccumulators,
 } from "./aggregate.js";
 import {
-  canonicalizeCoChangeEvents,
   canonicalizeFileStats,
+  canonicalizePairCounts,
 } from "./canonicalize.js";
+import { createMegaCommitSkippedWarnings } from "./mega-commit-warnings.js";
 import { parseGitLogStream } from "./parse.js";
 import {
   createEmptyBlindSpotSignals,
@@ -29,11 +30,13 @@ export interface GitMinerOptions {
   repoPath: string;
   since?: string;
   onProgress?: (progress: ScanProgress) => void;
+  isPathInScope?: (path: string) => boolean;
+  signal?: AbortSignal;
 }
 
 export interface GitMinerResult {
   fileStats: Map<string, FileChangeStats>;
-  coChangeEvents: CoChangeEvent[];
+  pairCounts: Map<string, CoChangePairCount>;
   warnings: ScanWarning[];
 }
 
@@ -56,9 +59,20 @@ export function createGitMiner(deps: GitMinerDependencies = {}): GitMiner {
       const blindSpotSignals = createEmptyBlindSpotSignals();
       let commitCount = 0;
 
-      for await (const commit of parseGitLogStream(stream(options))) {
+      const aggregateOptions =
+        options.isPathInScope === undefined
+          ? undefined
+          : { isPathInScope: options.isPathInScope };
+
+      for await (const commit of parseGitLogStream(
+        stream({
+          repoPath: options.repoPath,
+          since: options.since,
+          signal: options.signal,
+        }),
+      )) {
         commitCount += 1;
-        aggregateOneCommit(commit, aliasMap, accumulators);
+        aggregateOneCommit(commit, aliasMap, accumulators, aggregateOptions);
         recordBlindSpotsFromCommit(commit, blindSpotSignals);
         options.onProgress?.({ phase: "git", commitsProcessed: commitCount });
       }
@@ -85,12 +99,13 @@ export function createGitMiner(deps: GitMinerDependencies = {}): GitMiner {
         );
       }
 
+      warnings.push(
+        ...createMegaCommitSkippedWarnings(accumulators.megaCommitSkips),
+      );
+
       return {
         fileStats: canonicalizeFileStats(accumulators.fileStats, aliasMap),
-        coChangeEvents: canonicalizeCoChangeEvents(
-          accumulators.coChangeEvents,
-          aliasMap,
-        ),
+        pairCounts: canonicalizePairCounts(accumulators.pairCounts, aliasMap),
         warnings,
       };
     },

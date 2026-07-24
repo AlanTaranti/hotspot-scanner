@@ -1,13 +1,35 @@
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const readFileSyncCalls = vi.hoisted(
+  () => [] as Array<string | Buffer | URL | number>,
+);
+
+vi.mock("node:fs", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("node:fs")>();
+  return {
+    ...actual,
+    readFileSync: (
+      path: Parameters<typeof actual.readFileSync>[0],
+      options?: Parameters<typeof actual.readFileSync>[1],
+    ) => {
+      readFileSyncCalls.push(path);
+      return actual.readFileSync(path, options);
+    },
+  };
+});
+
 import type { CouplingPair } from "../types/index.js";
 import {
+  buildStaticEdgeGraph,
   enrichCouplingStaticDeps,
   extractRelativeSpecifiers,
   extractStaticReferences,
+  getStaticEdge,
 } from "./enrich-coupling-static.js";
+import { TsconfigPathMap } from "./tsconfig-path-map.js";
 
 const tempDirs: string[] = [];
 
@@ -38,6 +60,14 @@ function makePair(fileA: string, fileB: string): CouplingPair {
   };
 }
 
+function countReadsForRepoPath(
+  repoPath: string,
+  relativePath: string,
+): number {
+  const absolute = join(repoPath, relativePath);
+  return readFileSyncCalls.filter((path) => path === absolute).length;
+}
+
 function assertCouplingInvariants(pair: CouplingPair): void {
   expect(pair.hasStaticDependency).toBe(
     pair.hasRuntimeStaticDependency || pair.hasTypeOnlyStaticDependency,
@@ -61,6 +91,10 @@ afterEach(async () => {
   await Promise.all(
     tempDirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })),
   );
+});
+
+beforeEach(() => {
+  readFileSyncCalls.splice(0);
 });
 
 describe("extractRelativeSpecifiers", () => {
@@ -266,6 +300,166 @@ describe("enrichCouplingStaticDeps", () => {
     expect(enrichCouplingStaticDeps([], repoPath)).toEqual([]);
   });
 
+  it("reads a hub file at most once when it appears in many pairs", async () => {
+    const hubPath = "src/hub.ts";
+    const leafPaths = Array.from({ length: 5 }, (_, index) => `src/leaf-${index + 1}.ts`);
+
+    const files: Record<string, string> = {
+      [hubPath]: "export const hub = 1;\n",
+    };
+    for (const leafPath of leafPaths) {
+      files[leafPath] =
+        "import { hub } from './hub';\nexport const value = hub;\n";
+    }
+
+    const repoPath = await createTempRepo(files);
+
+    const pairs = leafPaths.map((leafPath) => makePair(hubPath, leafPath));
+    const enriched = enrichCouplingStaticDeps(pairs, repoPath);
+
+    expect(enriched).toHaveLength(5);
+    expect(countReadsForRepoPath(repoPath, hubPath)).toBe(1);
+    for (const pair of enriched) {
+      assertCouplingInvariants(pair);
+    }
+  });
+
+  it("does not read source files when pairs are empty", async () => {
+    const repoPath = await createTempRepo({
+      "src/a.ts": "export const a = 1;\n",
+    });
+
+    expect(enrichCouplingStaticDeps([], repoPath)).toEqual([]);
+    expect(readFileSyncCalls).toHaveLength(0);
+  });
+
+  it("preserves M14/M27 labels for direction, kinds, and alias in one enrich call", async () => {
+    const repoPath = await createTempRepo({
+      "tsconfig.json": JSON.stringify({
+        compilerOptions: {
+          baseUrl: ".",
+          paths: {
+            "@app/*": ["src/*"],
+          },
+        },
+      }),
+      "src/a-to-b-consumer.ts":
+        "import { v } from './a-to-b-provider';\nexport const x = v;\n",
+      "src/a-to-b-provider.ts": "export const v = 1;\n",
+      "src/b-to-a-only.ts": "export const x = 1;\n",
+      "src/b-to-a-consumer.ts":
+        "import { x } from './b-to-a-only';\nexport const y = x;\n",
+      "src/cyclic-a.ts": "import { b } from './cyclic-b';\nexport const a = b;\n",
+      "src/cyclic-b.ts": "import { a } from './cyclic-a';\nexport const b = a;\n",
+      "src/type-src.ts": "import type { T } from './type-dst';\nexport type S = T;\n",
+      "src/type-dst.ts": "export type T = number;\n",
+      "src/reexport.ts": "export * from './reexport-target';\n",
+      "src/reexport-target.ts": "export const value = 1;\n",
+      "src/alias-consumer.ts":
+        "import { value } from '@app/alias-target';\nexport const out = value;\n",
+      "src/alias-target.ts": "export const value = 42;\n",
+      "src/isolated-a.ts": "export const a = 1;\n",
+      "src/isolated-b.ts": "export const b = 2;\n",
+    });
+
+    const input: CouplingPair[] = [
+      {
+        ...makePair("src/a-to-b-consumer.ts", "src/a-to-b-provider.ts"),
+        coChangeCount: 4,
+        couplingStrength: 0.8,
+      },
+      {
+        ...makePair("src/b-to-a-only.ts", "src/b-to-a-consumer.ts"),
+        coChangeCount: 3,
+        couplingStrength: 0.6,
+      },
+      {
+        ...makePair("src/cyclic-a.ts", "src/cyclic-b.ts"),
+        coChangeCount: 5,
+        couplingStrength: 1,
+      },
+      {
+        ...makePair("src/type-src.ts", "src/type-dst.ts"),
+        coChangeCount: 2,
+        couplingStrength: 0.4,
+      },
+      {
+        ...makePair("src/reexport.ts", "src/reexport-target.ts"),
+        coChangeCount: 7,
+        couplingStrength: 0.9,
+      },
+      {
+        ...makePair("src/alias-consumer.ts", "src/alias-target.ts"),
+        coChangeCount: 6,
+        couplingStrength: 0.7,
+      },
+      {
+        ...makePair("src/isolated-a.ts", "src/isolated-b.ts"),
+        coChangeCount: 1,
+        couplingStrength: 0.1,
+      },
+    ];
+
+    const pairs = enrichCouplingStaticDeps(input, repoPath);
+
+    expect(pairs).toHaveLength(7);
+    expect(pairs.map((pair) => pair.fileA)).toEqual(input.map((pair) => pair.fileA));
+    expect(pairs.map((pair) => pair.coChangeCount)).toEqual(
+      input.map((pair) => pair.coChangeCount),
+    );
+    expect(pairs.map((pair) => pair.couplingStrength)).toEqual(
+      input.map((pair) => pair.couplingStrength),
+    );
+
+    const byKey = (fileA: string, fileB: string) =>
+      pairs.find((pair) => pair.fileA === fileA && pair.fileB === fileB)!;
+
+    expect(
+      byKey("src/a-to-b-consumer.ts", "src/a-to-b-provider.ts"),
+    ).toMatchObject({
+      hasStaticDependency: true,
+      staticDependencyDirection: "a-to-b",
+      hasRuntimeStaticDependency: true,
+      hasTypeOnlyStaticDependency: false,
+      hasReExportStaticDependency: false,
+    });
+    expect(byKey("src/b-to-a-only.ts", "src/b-to-a-consumer.ts")).toMatchObject({
+      staticDependencyDirection: "b-to-a",
+      hasRuntimeStaticDependency: true,
+    });
+    expect(byKey("src/cyclic-a.ts", "src/cyclic-b.ts")).toMatchObject({
+      staticDependencyDirection: "both",
+      hasRuntimeStaticDependency: true,
+    });
+    expect(byKey("src/type-src.ts", "src/type-dst.ts")).toMatchObject({
+      staticDependencyDirection: "a-to-b",
+      hasRuntimeStaticDependency: false,
+      hasTypeOnlyStaticDependency: true,
+      hasReExportStaticDependency: false,
+    });
+    expect(byKey("src/reexport.ts", "src/reexport-target.ts")).toMatchObject({
+      staticDependencyDirection: "a-to-b",
+      hasReExportStaticDependency: true,
+      hasRuntimeStaticDependency: true,
+      hasTypeOnlyStaticDependency: false,
+    });
+    expect(byKey("src/alias-consumer.ts", "src/alias-target.ts")).toMatchObject({
+      staticDependencyDirection: "a-to-b",
+      hasRuntimeStaticDependency: true,
+    });
+    expect(byKey("src/isolated-a.ts", "src/isolated-b.ts")).toMatchObject({
+      hasStaticDependency: false,
+      staticDependencyDirection: "none",
+      hasRuntimeStaticDependency: false,
+      hasTypeOnlyStaticDependency: false,
+      hasReExportStaticDependency: false,
+    });
+
+    for (const pair of pairs) {
+      assertCouplingInvariants(pair);
+    }
+  });
+
   it("sets direction b-to-a when only fileB references fileA", async () => {
     const repoPath = await createTempRepo({
       "src/a.ts": "export const a = 1;\n",
@@ -457,5 +651,137 @@ describe("enrichCouplingStaticDeps", () => {
     for (const pair of pairs) {
       assertCouplingInvariants(pair);
     }
+  });
+});
+
+describe("buildStaticEdgeGraph", () => {
+  function buildGraph(
+    repoPath: string,
+    peerPaths: string[],
+  ): ReturnType<typeof buildStaticEdgeGraph> {
+    const pathMap = new TsconfigPathMap(repoPath);
+    return buildStaticEdgeGraph(new Set(peerPaths), repoPath, pathMap);
+  }
+
+  it("records a one-way runtime edge from importer to peer", async () => {
+    const repoPath = await createTempRepo({
+      "src/consumer.ts":
+        "import { low } from './provider';\nexport const value = low();\n",
+      "src/provider.ts": "export function low(): number { return 1; }\n",
+    });
+
+    const graph = buildGraph(repoPath, ["src/consumer.ts", "src/provider.ts"]);
+
+    expect(getStaticEdge(graph, "src/consumer.ts", "src/provider.ts")).toEqual({
+      hasRuntimeStaticDependency: true,
+      hasTypeOnlyStaticDependency: false,
+      hasReExportStaticDependency: false,
+    });
+    expect(getStaticEdge(graph, "src/provider.ts", "src/consumer.ts")).toBeUndefined();
+  });
+
+  it("records edges in both directions when files reference each other", async () => {
+    const repoPath = await createTempRepo({
+      "src/a.ts": "import { b } from './b';\nexport const a = b;\n",
+      "src/b.ts": "import { a } from './a';\nexport const b = a;\n",
+    });
+
+    const graph = buildGraph(repoPath, ["src/a.ts", "src/b.ts"]);
+
+    expect(getStaticEdge(graph, "src/a.ts", "src/b.ts")).toEqual({
+      hasRuntimeStaticDependency: true,
+      hasTypeOnlyStaticDependency: false,
+      hasReExportStaticDependency: false,
+    });
+    expect(getStaticEdge(graph, "src/b.ts", "src/a.ts")).toEqual({
+      hasRuntimeStaticDependency: true,
+      hasTypeOnlyStaticDependency: false,
+      hasReExportStaticDependency: false,
+    });
+  });
+
+  it("OR-aggregates runtime, type-only, and re-export kind flags on the same edge", async () => {
+    const repoPath = await createTempRepo({
+      "src/a.ts": [
+        "import { value } from './b';",
+        "import type { B } from './b';",
+        "export * from './b';",
+        "export const a = value;",
+      ].join("\n"),
+      "src/b.ts": "export type B = { value: number };\nexport const value = 1;\n",
+    });
+
+    const graph = buildGraph(repoPath, ["src/a.ts", "src/b.ts"]);
+
+    expect(getStaticEdge(graph, "src/a.ts", "src/b.ts")).toEqual({
+      hasRuntimeStaticDependency: true,
+      hasTypeOnlyStaticDependency: true,
+      hasReExportStaticDependency: true,
+    });
+  });
+
+  it("flags type-only and re-export edges without runtime dependency", async () => {
+    const repoPath = await createTempRepo({
+      "src/a.ts": "export type { B } from './b';\n",
+      "src/b.ts": "export type B = { value: number };\n",
+    });
+
+    const graph = buildGraph(repoPath, ["src/a.ts", "src/b.ts"]);
+
+    expect(getStaticEdge(graph, "src/a.ts", "src/b.ts")).toEqual({
+      hasRuntimeStaticDependency: false,
+      hasTypeOnlyStaticDependency: true,
+      hasReExportStaticDependency: true,
+    });
+  });
+
+  it("produces no outbound edges when the source file is missing", async () => {
+    const repoPath = await createTempRepo({
+      "src/exists.ts": "export const ok = true;\n",
+    });
+
+    const graph = buildGraph(repoPath, ["src/missing.ts", "src/exists.ts"]);
+
+    expect(graph.has("src/missing.ts")).toBe(false);
+    expect(getStaticEdge(graph, "src/missing.ts", "src/exists.ts")).toBeUndefined();
+  });
+
+  it("resolves relative and tsconfig alias specifiers to peer targets", async () => {
+    const repoPath = await createTempRepo({
+      "tsconfig.json": JSON.stringify({
+        compilerOptions: {
+          baseUrl: ".",
+          paths: {
+            "@app/*": ["src/*"],
+          },
+        },
+      }),
+      "src/relative-consumer.ts":
+        "import { value } from './provider';\nexport const out = value;\n",
+      "src/alias-consumer.ts":
+        "import { value } from '@app/provider';\nexport const out = value;\n",
+      "src/provider.ts": "export const value = 42;\n",
+    });
+
+    const graph = buildGraph(repoPath, [
+      "src/relative-consumer.ts",
+      "src/alias-consumer.ts",
+      "src/provider.ts",
+    ]);
+
+    expect(
+      getStaticEdge(graph, "src/relative-consumer.ts", "src/provider.ts"),
+    ).toEqual({
+      hasRuntimeStaticDependency: true,
+      hasTypeOnlyStaticDependency: false,
+      hasReExportStaticDependency: false,
+    });
+    expect(
+      getStaticEdge(graph, "src/alias-consumer.ts", "src/provider.ts"),
+    ).toEqual({
+      hasRuntimeStaticDependency: true,
+      hasTypeOnlyStaticDependency: false,
+      hasReExportStaticDependency: false,
+    });
   });
 });

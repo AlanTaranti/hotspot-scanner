@@ -3,8 +3,13 @@ import { createInterface } from "node:readline";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { createEmptySinceWindowWarning, createRenameHistoryIncompleteWarning } from "./rename-warnings.js";
+import { createScanWarning } from "../diagnostics/logger.js";
+import {
+  createEmptySinceWindowWarning,
+  createRenameHistoryIncompleteWarning,
+} from "./rename-warnings.js";
 import { createGitMiner } from "./index.js";
+import { MEGA_COMMIT_SKIPPED_CODE } from "./mega-commit-warnings.js";
 
 const fixturesDir = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -33,8 +38,22 @@ function streamFromLines(lines: string[]) {
   };
 }
 
+function makeMegaCommitLines(
+  hash: string,
+  fileCount: number,
+  prefix = "src/file",
+): string[] {
+  const lines = [
+    `COMMIT|${hash}|Mon Jan 1 00:00:00 2024 +0000|Alice`,
+  ];
+  for (let index = 0; index < fileCount; index += 1) {
+    lines.push(`1\t1\t${prefix}${index}.ts`);
+  }
+  return lines;
+}
+
 describe("createGitMiner", () => {
-  it("mines basic fixture into fileStats and coChangeEvents", async () => {
+  it("mines basic fixture into fileStats and pairCounts", async () => {
     const lines = await fixtureLines("basic.txt");
     const miner = createGitMiner({
       streamGitLog: () => streamFromLines(lines)(),
@@ -43,7 +62,12 @@ describe("createGitMiner", () => {
     const result = await miner.mine({ repoPath: "/fixture" });
 
     expect(result.warnings).toEqual([]);
-    expect(result.coChangeEvents).toHaveLength(3);
+    expect(result.pairCounts.size).toBe(1);
+    expect(result.pairCounts.get("src/a.ts|src/b.ts")).toEqual({
+      fileA: "src/a.ts",
+      fileB: "src/b.ts",
+      coChangeCount: 1,
+    });
 
     const aStats = result.fileStats.get("src/a.ts");
     expect(aStats?.commitCount).toBe(2);
@@ -113,7 +137,7 @@ describe("createGitMiner", () => {
     expect(result.fileStats.has("src/a.ts")).toBe(false);
   });
 
-  it("includes deleted file in merge-delete co-change event", async () => {
+  it("includes deleted file in fileStats and merge pair counts", async () => {
     const lines = await fixtureLines("merge-delete.txt");
     const miner = createGitMiner({
       streamGitLog: () => streamFromLines(lines)(),
@@ -121,18 +145,13 @@ describe("createGitMiner", () => {
 
     const result = await miner.mine({ repoPath: "/fixture" });
 
-    const deleteEvent = result.coChangeEvents.find(
-      (event) =>
-        event.commitHash === "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-    );
-    expect(deleteEvent?.filesChanged).toContain("src/remove.ts");
+    expect(result.pairCounts.size).toBe(1);
+    expect(result.pairCounts.get("src/keep.ts|src/other.ts")).toEqual({
+      fileA: "src/keep.ts",
+      fileB: "src/other.ts",
+      coChangeCount: 1,
+    });
     expect(result.fileStats.get("src/remove.ts")?.commitCount).toBe(1);
-
-    const mergeEvent = result.coChangeEvents.find(
-      (event) =>
-        event.commitHash === "ffffffffffffffffffffffffffffffffffffffff",
-    );
-    expect(mergeEvent?.filesChanged).toEqual(["src/keep.ts", "src/other.ts"]);
     expect(result.fileStats.get("src/keep.ts")?.commitCount).toBe(2);
   });
 
@@ -161,7 +180,7 @@ describe("createGitMiner", () => {
     });
 
     expect(result.fileStats.size).toBe(0);
-    expect(result.coChangeEvents).toEqual([]);
+    expect(result.pairCounts.size).toBe(0);
     expect(result.warnings).toContainEqual(createEmptySinceWindowWarning());
   });
 
@@ -196,7 +215,7 @@ describe("createGitMiner", () => {
     });
 
     const result = await miner.mine({ repoPath: "/fixture" });
-    expect(result.coChangeEvents.length).toBe(3500);
+    expect(result.pairCounts.size).toBe(0);
     expect(result.fileStats.size).toBe(50);
   });
 
@@ -225,5 +244,91 @@ describe("createGitMiner", () => {
         ),
       ]),
     );
+  });
+
+  it("emits MEGA_COMMIT_SKIPPED warnings for mega commits", async () => {
+    const lines = makeMegaCommitLines(
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      101,
+    );
+    const miner = createGitMiner({
+      streamGitLog: () => streamFromLines(lines)(),
+    });
+
+    const result = await miner.mine({ repoPath: "/fixture" });
+
+    expect(result.pairCounts.size).toBe(0);
+    expect(result.fileStats.size).toBe(101);
+    expect(result.warnings).toContainEqual(
+      createScanWarning(
+        MEGA_COMMIT_SKIPPED_CODE,
+        "Mega-commit skipped for coupling (101 unique in-scope files > 100): bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      ),
+    );
+  });
+
+  it("emits no MEGA_COMMIT_SKIPPED warnings when no commit exceeds threshold", async () => {
+    const lines = makeMegaCommitLines(
+      "cccccccccccccccccccccccccccccccccccccccc",
+      100,
+    );
+    const miner = createGitMiner({
+      streamGitLog: () => streamFromLines(lines)(),
+    });
+
+    const result = await miner.mine({ repoPath: "/fixture" });
+
+    expect(result.pairCounts.size).toBe((100 * 99) / 2);
+    expect(
+      result.warnings.some(
+        (warning) => warning.code === MEGA_COMMIT_SKIPPED_CODE,
+      ),
+    ).toBe(false);
+  });
+
+  it("forwards signal to streamGitLog", async () => {
+    const controller = new AbortController();
+    let receivedSignal: AbortSignal | undefined;
+
+    const miner = createGitMiner({
+      streamGitLog: async function* (options) {
+        receivedSignal = options.signal;
+        yield "COMMIT|abc|Mon Jan 1 00:00:00 2024 +0000|Alice";
+      },
+    });
+
+    await miner.mine({ repoPath: "/fixture", signal: controller.signal });
+
+    expect(receivedSignal).toBe(controller.signal);
+  });
+
+  it("applies isPathInScope before mega-guard and pair aggregation", async () => {
+    const inScopeFiles = Array.from({ length: 3 }, (_, index) => `in/file${index}.ts`);
+    const outOfScopeFiles = Array.from(
+      { length: 150 },
+      (_, index) => `out/file${index}.ts`,
+    );
+    const lines = [
+      "COMMIT|dddddddddddddddddddddddddddddddddddddddd|Mon Jan 1 00:00:00 2024 +0000|Alice",
+      ...[...outOfScopeFiles, ...inScopeFiles].map(
+        (path) => `1\t1\t${path}`,
+      ),
+    ];
+    const miner = createGitMiner({
+      streamGitLog: () => streamFromLines(lines)(),
+    });
+
+    const result = await miner.mine({
+      repoPath: "/fixture",
+      isPathInScope: (path) => path.startsWith("in/"),
+    });
+
+    expect(result.pairCounts.size).toBe(3);
+    expect(result.fileStats.size).toBe(3);
+    expect(
+      result.warnings.some(
+        (warning) => warning.code === MEGA_COMMIT_SKIPPED_CODE,
+      ),
+    ).toBe(false);
   });
 });

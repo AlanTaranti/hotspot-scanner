@@ -2,7 +2,7 @@
 
 **Design**: [`.specs/features/static-enrich-cache/design.md`](./design.md)  
 **Spec**: [`.specs/features/static-enrich-cache/spec.md`](./spec.md)  
-**Status**: Planned  
+**Status**: Done  
 **Module owner**: `src/scoring/` (`enrich-coupling-static` + tests)
 
 ---
@@ -105,11 +105,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `buildStaticEdgeGraph(peerPaths, repoPath, pathMap)` (name flexible) exists and returns a directed adjacency structure with kind flags
-- [ ] Edges only target paths in the peer set that exist on disk under M27 resolution rules
-- [ ] Unit tests cover: one-way edge, both directions, type-only vs runtime vs re-export OR, missing file → no outbound edges, alias + relative hits
-- [ ] Gate check passes: `pnpm test -- src/scoring/enrich-coupling-static.test.ts` (and sibling test file if created)
-- [ ] Test count: no silent deletions of existing enrich cases
+- [x] `buildStaticEdgeGraph(peerPaths, repoPath, pathMap)` (name flexible) exists and returns a directed adjacency structure with kind flags
+- [x] Edges only target paths in the peer set that exist on disk under M27 resolution rules
+- [x] Unit tests cover: one-way edge, both directions, type-only vs runtime vs re-export OR, missing file → no outbound edges, alias + relative hits
+- [x] Gate check passes: `pnpm test -- src/scoring/enrich-coupling-static.test.ts` (and sibling test file if created)
+- [x] Test count: no silent deletions of existing enrich cases
 
 **Tests**: unit  
 **Gate**: `pnpm test -- src/scoring/enrich-coupling-static.test.ts`
@@ -141,14 +141,14 @@ pnpm test -- src/scoring/enrich-coupling-static.test.ts
 
 **Done when**:
 
-- [ ] `enrichCouplingStaticDeps(pairs, repoPath)` still exported with the same signature
-- [ ] Empty `pairs` → `[]` without building a graph / reading sources
-- [ ] Pair labeling uses graph lookup (no re-extract of peer source per pair)
-- [ ] Existing semantic tests remain green (relative, alias, direction, kinds, invariants)
-- [ ] No `ts-morph` import under `src/scoring/`
-- [ ] No `package.json` exports/imports resolution added
-- [ ] `couplingStrength` / `coChangeCount` / pair order preserved from input
-- [ ] Gate check passes: `pnpm test -- src/scoring/enrich-coupling-static.test.ts`
+- [x] `enrichCouplingStaticDeps(pairs, repoPath)` still exported with the same signature
+- [x] Empty `pairs` → `[]` without building a graph / reading sources
+- [x] Pair labeling uses graph lookup (no re-extract of peer source per pair)
+- [x] Existing semantic tests remain green (relative, alias, direction, kinds, invariants)
+- [x] No `ts-morph` import under `src/scoring/`
+- [x] No `package.json` exports/imports resolution added
+- [x] `couplingStrength` / `coChangeCount` / pair order preserved from input
+- [x] Gate check passes: `pnpm test -- src/scoring/enrich-coupling-static.test.ts`
 
 **Tests**: unit  
 **Gate**: `pnpm test -- src/scoring/enrich-coupling-static.test.ts`
@@ -183,10 +183,10 @@ pnpm test -- src/scoring/enrich-coupling-static.test.ts
 
 **Done when**:
 
-- [ ] Test: hub + ≥5 leaf pairs → hub path `readFileSync` count === 1 (or equivalent injectable counter)
-- [ ] Test: empty pairs → no source reads
-- [ ] Existing direction/kind/alias cases still assert invariants via `assertCouplingInvariants` (or equivalent)
-- [ ] Gate check passes: `pnpm test -- src/scoring/enrich-coupling-static.test.ts`
+- [x] Test: hub + ≥5 leaf pairs → hub path `readFileSync` count === 1 (or equivalent injectable counter)
+- [x] Test: empty pairs → no source reads
+- [x] Existing direction/kind/alias cases still assert invariants via `assertCouplingInvariants` (or equivalent)
+- [x] Gate check passes: `pnpm test -- src/scoring/enrich-coupling-static.test.ts`
 
 **Tests**: unit  
 **Gate**: `pnpm test -- src/scoring/enrich-coupling-static.test.ts`
@@ -218,10 +218,10 @@ pnpm test -- src/scoring/enrich-coupling-static.test.ts
 
 **Done when**:
 
-- [ ] ARCHITECTURE states enrich builds a per-call edge cache / one read-parse per peer file / O(1) labeling
-- [ ] CONCERNS notes M33 mitigation for repeated enrich I/O (or links to ARCHITECTURE)
-- [ ] Deferred exports/imports still called out as deferred
-- [ ] No application code changes in this task
+- [x] ARCHITECTURE states enrich builds a per-call edge cache / one read-parse per peer file / O(1) labeling
+- [x] CONCERNS notes M33 mitigation for repeated enrich I/O (or links to ARCHITECTURE)
+- [x] Deferred exports/imports still called out as deferred
+- [x] No application code changes in this task
 
 **Tests**: none  
 **Gate**: none (docs-only; verified in T5)
@@ -249,9 +249,9 @@ pnpm test -- src/scoring/enrich-coupling-static.test.ts
 
 **Done when**:
 
-- [ ] `pnpm build && pnpm test` exits 0
-- [ ] No coverage threshold regressions on `src/scoring/enrich-coupling-static.ts` (and sibling if any)
-- [ ] Optional smoke: `pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts --format json` exits 0
+- [x] `pnpm build && pnpm test` exits 0
+- [x] No coverage threshold regressions on `src/scoring/enrich-coupling-static.ts` (and sibling if any)
+- [x] Optional smoke: `pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts --format json` exits 0
 
 **Tests**: full suite  
 **Gate**: `pnpm build && pnpm test`
@@ -294,12 +294,7 @@ No parallel `[P]` tasks — single module owner (`src/scoring/` enrich path) to 
 
 ## Handoff
 
-Planning session ends here (**Status: Planned**).
+Execute complete (**Status: Done**).
 
-Next steps for a **separate** development session:
-
-1. Review `spec.md` / `design.md` / `tasks.md`
-2. Promote Status to `Approved` or `Ready for Execute`
-3. Invoke `orchestrator-implementer` for Execute phases A→F
-4. Final gate: `pnpm build && pnpm test`
-5. ROADMAP/STATE sync deferred until Execute (per planning instructions)
+- ROADMAP M33 marked Done; STATE.md updated
+- Proposed commit: `perf(scoring): cache static enrich edges per pass`

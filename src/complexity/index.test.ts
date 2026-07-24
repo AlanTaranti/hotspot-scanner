@@ -184,8 +184,12 @@ describe("createComplexityAnalyzer", () => {
   it("produces identical output with concurrency 1 vs higher concurrency", async () => {
     const files: Record<string, string> = {};
     for (let index = 0; index < DEFAULT_BATCH_SIZE + 2; index += 1) {
-      files[`file-${String(index).padStart(3, "0")}.ts`] =
-        `export const value${index} = ${index};`;
+      const fileName = `file-${String(index).padStart(3, "0")}.ts`;
+      if (index % 7 === 0) {
+        files[fileName] = `export function fn${index}(x: boolean) { return x ? 1 : 0; }`;
+      } else {
+        files[fileName] = `export const value${index} = ${index};`;
+      }
     }
     const repoPath = await createTempRepo(files);
 
@@ -195,6 +199,9 @@ describe("createComplexityAnalyzer", () => {
     const sequentialResult = await sequential.analyze({ repoPath });
     const parallelResult = await parallel.analyze({ repoPath });
 
+    expect(parallelResult.results).toEqual(sequentialResult.results);
+    expect(parallelResult.functions).toEqual(sequentialResult.functions);
+    expect(parallelResult.warnings).toEqual(sequentialResult.warnings);
     expect(parallelResult).toEqual(sequentialResult);
   });
 
@@ -233,6 +240,29 @@ describe("createComplexityAnalyzer", () => {
         ),
       ),
     ).toBe(true);
+  });
+
+  it("produces identical parse-failure output for concurrency 1 vs higher concurrency", async () => {
+    const files: Record<string, string> = {};
+    for (let index = 0; index < DEFAULT_BATCH_SIZE + 1; index += 1) {
+      const fileName = `file-${String(index).padStart(3, "0")}.ts`;
+      if (index === 10 || index === DEFAULT_BATCH_SIZE) {
+        files[fileName] = "export const broken = {{{";
+      } else {
+        files[fileName] = `export const value${index} = ${index};`;
+      }
+    }
+
+    const repoPath = await createTempRepo(files);
+    const sequential = createComplexityAnalyzer({ concurrency: 1 });
+    const parallel = createComplexityAnalyzer({ concurrency: 2 });
+
+    const sequentialResult = await sequential.analyze({ repoPath });
+    const parallelResult = await parallel.analyze({ repoPath });
+
+    expect(parallelResult.results).toEqual(sequentialResult.results);
+    expect(parallelResult.functions).toEqual(sequentialResult.functions);
+    expect(parallelResult.warnings).toEqual(sequentialResult.warnings);
   });
 
   it("orders merged results by discovery index after parallel batches", async () => {
@@ -305,6 +335,88 @@ describe("createComplexityAnalyzer", () => {
     ]);
   });
 
+  it("analyzes only paths in pathAllowlist intersecting discovery", async () => {
+    const runBatches = vi.fn(async (_repoPath: string, batches: string[][]) => [
+      {
+        results: batches[0]!.map((filePath) => ({
+          filePath,
+          cyclomaticComplexity: 1,
+          functionCount: 0,
+        })),
+        functions: [],
+        warnings: [],
+      },
+    ]);
+    const createWorkerPool = vi.fn(() => ({ runBatches }));
+    const discoverSourceFiles = vi.fn(async () => [
+      "a.ts",
+      "b.ts",
+      "c.ts",
+    ]);
+
+    const analyzer = createComplexityAnalyzer({
+      discoverSourceFiles,
+      createWorkerPool,
+    });
+
+    const result = await analyzer.analyze({
+      repoPath: fixtureDir,
+      pathAllowlist: ["b.ts", "missing.ts"],
+    });
+
+    expect(discoverSourceFiles).toHaveBeenCalledTimes(1);
+    expect(runBatches).toHaveBeenCalledWith(fixtureDir, [["b.ts"]], undefined);
+    expect(result.results.map((entry) => entry.filePath)).toEqual(["b.ts"]);
+  });
+
+  it("returns empty result without workers when pathAllowlist intersection is empty", async () => {
+    const createWorkerPool = vi.fn(() => ({
+      runBatches: vi.fn(async () => []),
+    }));
+    const discoverSourceFiles = vi.fn(async () => ["a.ts", "b.ts"]);
+
+    const analyzer = createComplexityAnalyzer({
+      discoverSourceFiles,
+      createWorkerPool,
+    });
+
+    const result = await analyzer.analyze({
+      repoPath: fixtureDir,
+      pathAllowlist: [],
+    });
+
+    expect(result).toEqual({
+      results: [],
+      functions: [],
+      warnings: [],
+    } satisfies ComplexityAnalyzerResult);
+    expect(createWorkerPool).not.toHaveBeenCalled();
+  });
+
+  it("returns empty result without workers when pathAllowlist has no discovered paths", async () => {
+    const createWorkerPool = vi.fn(() => ({
+      runBatches: vi.fn(async () => []),
+    }));
+    const discoverSourceFiles = vi.fn(async () => ["a.ts", "b.ts"]);
+
+    const analyzer = createComplexityAnalyzer({
+      discoverSourceFiles,
+      createWorkerPool,
+    });
+
+    const result = await analyzer.analyze({
+      repoPath: fixtureDir,
+      pathAllowlist: ["only-not-discovered.ts"],
+    });
+
+    expect(result).toEqual({
+      results: [],
+      functions: [],
+      warnings: [],
+    } satisfies ComplexityAnalyzerResult);
+    expect(createWorkerPool).not.toHaveBeenCalled();
+  });
+
   it("sorts warnings with non-standard messages without throwing", async () => {
     const runBatches = vi.fn(async () => [
       {
@@ -331,5 +443,31 @@ describe("createComplexityAnalyzer", () => {
 
     expect(warnings).toHaveLength(1);
     expect(warnings[0]?.message).toBe("custom warning without parse prefix");
+  });
+
+  it("forwards signal to worker pool runBatches", async () => {
+    const controller = new AbortController();
+    const runBatches = vi.fn(async () => [
+      { results: [], functions: [], warnings: [] },
+    ]);
+    const createWorkerPool = vi.fn(() => ({ runBatches }));
+    const discoverSourceFiles = vi.fn(async () => ["a.ts", "b.ts"]);
+
+    const analyzer = createComplexityAnalyzer({
+      discoverSourceFiles,
+      createWorkerPool,
+      concurrency: 2,
+    });
+
+    await analyzer.analyze({
+      repoPath: fixtureDir,
+      signal: controller.signal,
+    });
+
+    expect(runBatches).toHaveBeenCalledWith(
+      fixtureDir,
+      expect.any(Array),
+      controller.signal,
+    );
   });
 });

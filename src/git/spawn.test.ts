@@ -17,9 +17,15 @@ function createMockChild(stdoutLines: string[], exitCode = 0, stderr = "") {
   const child = new EventEmitter() as EventEmitter & {
     stdout: PassThrough;
     stderr: PassThrough;
+    kill: ReturnType<typeof vi.fn>;
   };
   child.stdout = stdout;
   child.stderr = stderrStream;
+  child.kill = vi.fn(() => {
+    stdout.destroy();
+    stderrStream.destroy();
+    child.emit("close", exitCode);
+  });
 
   mockedSpawn.mockReturnValueOnce(child as never);
 
@@ -33,6 +39,37 @@ function createMockChild(stdoutLines: string[], exitCode = 0, stderr = "") {
     }
     stderrStream.end();
     child.emit("close", exitCode);
+  });
+
+  return child;
+}
+
+function createSlowMockChild(firstLine: string, remainingLines: string[]) {
+  const stdout = new PassThrough();
+  const stderrStream = new PassThrough();
+  const child = new EventEmitter() as EventEmitter & {
+    stdout: PassThrough;
+    stderr: PassThrough;
+    kill: ReturnType<typeof vi.fn>;
+  };
+  child.stdout = stdout;
+  child.stderr = stderrStream;
+  child.kill = vi.fn(() => {
+    stdout.destroy();
+    stderrStream.destroy();
+    child.emit("close", 0);
+  });
+
+  mockedSpawn.mockReturnValueOnce(child as never);
+
+  queueMicrotask(() => {
+    stdout.write(`${firstLine}\n`);
+    for (const line of remainingLines) {
+      stdout.write(`${line}\n`);
+    }
+    stdout.end();
+    stderrStream.end();
+    child.emit("close", 0);
   });
 
   return child;
@@ -115,5 +152,44 @@ describe("streamGitLog", () => {
         }
       })(),
     ).rejects.toThrow(/unknown error/);
+  });
+
+  it("throws AbortError when signal is already aborted", async () => {
+    createMockChild(["line1"], 0);
+    const controller = new AbortController();
+    controller.abort();
+
+    await expect(
+      (async () => {
+        for await (const _line of streamGitLog({
+          repoPath: "/repo",
+          signal: controller.signal,
+        })) {
+          // consume
+        }
+      })(),
+    ).rejects.toMatchObject({ name: "AbortError" });
+  });
+
+  it("aborts mid-stream, kills child, and does not hang", async () => {
+    const child = createSlowMockChild("line1", ["line2", "line3"]);
+    const controller = new AbortController();
+
+    const consumePromise = (async () => {
+      const collected: string[] = [];
+      for await (const line of streamGitLog({
+        repoPath: "/repo",
+        signal: controller.signal,
+      })) {
+        collected.push(line);
+        if (collected.length === 1) {
+          controller.abort();
+        }
+      }
+      return collected;
+    })();
+
+    await expect(consumePromise).rejects.toMatchObject({ name: "AbortError" });
+    expect(child.kill).toHaveBeenCalled();
   });
 });

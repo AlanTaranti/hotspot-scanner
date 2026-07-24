@@ -1,6 +1,9 @@
 import { access, stat } from "node:fs/promises";
 import { join } from "node:path";
-import { createComplexityAnalyzer } from "./complexity/index.js";
+import {
+  createComplexityAnalyzer,
+  ELIGIBLE_EXTENSIONS,
+} from "./complexity/index.js";
 import {
   loadHotspotScannerConfig,
   mergeScanOptions,
@@ -9,14 +12,36 @@ import {
 } from "./config/index.js";
 import { createGitMiner } from "./git/index.js";
 import { createFunctionChurnMiner } from "./git/function-churn/index.js";
-import { createPathScope, filterGitMinerResult } from "./paths/index.js";
+import {
+  createPathScope,
+  filterGitMinerResult,
+  isPathInScope,
+} from "./paths/index.js";
 import {
   createFunctionHotspotScorer,
   createHotspotScorer,
   createTemporalCouplingScorer,
   enrichCouplingStaticDeps,
 } from "./scoring/index.js";
-import type { ScanOptions, ScanResult, ScanWarning } from "./types/index.js";
+import type {
+  FileChangeStats,
+  ScanOptions,
+  ScanResult,
+  ScanWarning,
+} from "./types/index.js";
+
+export function buildFunctionModePathAllowlist(
+  fileStats: Map<string, FileChangeStats>,
+  eligibleExtensions: readonly string[],
+): string[] {
+  const paths: string[] = [];
+  for (const filePath of fileStats.keys()) {
+    if (eligibleExtensions.some((extension) => filePath.endsWith(extension))) {
+      paths.push(filePath);
+    }
+  }
+  return paths.sort();
+}
 
 export const DEFAULT_SINCE = "12 months ago";
 export const DEFAULT_TOP = 20;
@@ -107,42 +132,80 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
   const onWarning = options.onWarning;
   const collectedWarnings: ScanWarning[] = [];
 
+  const granularity = merged.granularity;
   const miner = createGitMiner();
-  const rawGit = await miner.mine({
+  const analyzer = createComplexityAnalyzer({ concurrency: merged.concurrency });
+  const abortController = new AbortController();
+  const signal = abortController.signal;
+
+  const gitPromise = miner.mine({
     repoPath: options.repoPath,
     since,
     onProgress: options.onProgress,
+    isPathInScope: (p) => isPathInScope(p, scope),
+    signal,
   });
+
+  let functionModePathAllowlist: string[] | undefined;
+
+  const cxPromise = (async () => {
+    const analyzeOptions: Parameters<typeof analyzer.analyze>[0] = {
+      repoPath: options.repoPath,
+      scope,
+      signal,
+    };
+
+    if (granularity === "function") {
+      const rawGit = await gitPromise;
+      const { fileStats } = filterGitMinerResult(rawGit, scope);
+      functionModePathAllowlist = buildFunctionModePathAllowlist(
+        fileStats,
+        ELIGIBLE_EXTENSIONS,
+      );
+      analyzeOptions.pathAllowlist = functionModePathAllowlist;
+    }
+
+    return analyzer.analyze(analyzeOptions);
+  })();
+
+  let rawGit;
+  let cxResult;
+  try {
+    [rawGit, cxResult] = await Promise.all([gitPromise, cxPromise]);
+  } catch (error) {
+    abortController.abort();
+    await Promise.allSettled([gitPromise, cxPromise]);
+    throw error;
+  }
+
   const {
     fileStats,
-    coChangeEvents,
+    pairCounts,
     warnings: gitWarnings,
   } = filterGitMinerResult(rawGit, scope);
 
+  if (granularity === "function" && functionModePathAllowlist === undefined) {
+    functionModePathAllowlist = buildFunctionModePathAllowlist(
+      fileStats,
+      ELIGIBLE_EXTENSIONS,
+    );
+  }
+
+  const { results, functions: functionComplexity, warnings: complexityWarnings } =
+    cxResult;
+
   collectedWarnings.push(...gitWarnings);
   forwardWarnings(gitWarnings, onWarning);
-
-  const analyzer = createComplexityAnalyzer({ concurrency: merged.concurrency });
-  const {
-    results,
-    functions: functionComplexity,
-    warnings: complexityWarnings,
-  } = await analyzer.analyze({
-    repoPath: options.repoPath,
-    scope,
-  });
-
   collectedWarnings.push(...complexityWarnings);
   forwardWarnings(complexityWarnings, onWarning);
 
   const scoredCoupling = createTemporalCouplingScorer().score(
-    coChangeEvents,
+    pairCounts,
     fileStats,
     minCochange,
   );
   const coupling = enrichCouplingStaticDeps(scoredCoupling, options.repoPath);
 
-  const granularity = merged.granularity;
   const scannedAt = new Date().toISOString();
 
   if (granularity === "function") {
@@ -151,6 +214,7 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
       repoPath: options.repoPath,
       since,
       functions: functionComplexity,
+      paths: functionModePathAllowlist,
       onProgress: options.onProgress,
     });
 

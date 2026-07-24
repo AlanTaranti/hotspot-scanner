@@ -65,20 +65,64 @@ describe("createTsMorphProject", () => {
     expect(project.getParseFailures()[0]?.filePath).toBe("missing.ts");
   });
 
-  it("processes at most one batch per loadBatch call", async () => {
+  it("reuses one Project across sequential loadBatch calls", async () => {
     const repoPath = await createTempRepo({
       "a.ts": "export const a = 1;",
       "b.ts": "export const b = 2;",
     });
-    const project = createTsMorphProject({ repoPath });
+    const adapter = createTsMorphProject({ repoPath });
 
-    const firstBatch = await project.loadBatch(["a.ts"]);
-    const secondBatch = await project.loadBatch(["b.ts"]);
-
+    const firstBatch = await adapter.loadBatch(["a.ts"]);
     expect(firstBatch).toHaveLength(1);
-    expect(secondBatch).toHaveLength(1);
     expect(firstBatch[0]?.getBaseName()).toBe("a.ts");
+    const sharedProject = firstBatch[0]?.getProject();
+
+    const secondBatch = await adapter.loadBatch(["b.ts"]);
+    expect(secondBatch).toHaveLength(1);
     expect(secondBatch[0]?.getBaseName()).toBe("b.ts");
+    expect(secondBatch[0]?.getProject()).toBe(sharedProject);
+  });
+
+  it("clears prior batch source files before loading the next batch", async () => {
+    const repoPath = await createTempRepo({
+      "a.ts": "export const a = 1;",
+      "b.ts": "export const b = 2;",
+    });
+    const adapter = createTsMorphProject({ repoPath });
+
+    const firstBatch = await adapter.loadBatch(["a.ts"]);
+    await adapter.loadBatch(["b.ts"]);
+
+    const liveSourceFiles = firstBatch[0]
+      ?.getProject()
+      .getSourceFiles()
+      .map((sourceFile) => sourceFile.getBaseName());
+
+    expect(liveSourceFiles).toEqual(["b.ts"]);
+  });
+
+  it("uses syntactic diagnostics only for parse gating", async () => {
+    const repoPath = await createTempRepo({
+      "valid.ts": "export function ok() { return 1; }",
+    });
+    const { Project } = await import("ts-morph");
+    const programProto = Object.getPrototypeOf(new Project().getProgram());
+    const syntacticSpy = vi.spyOn(programProto, "getSyntacticDiagnostics");
+    const semanticSpy = vi.spyOn(programProto, "getSemanticDiagnostics");
+    const preEmitSpy = vi.spyOn(Project.prototype, "getPreEmitDiagnostics");
+    const adapter = createTsMorphProject({ repoPath });
+
+    try {
+      await adapter.loadBatch(["valid.ts"]);
+
+      expect(syntacticSpy).toHaveBeenCalled();
+      expect(semanticSpy).not.toHaveBeenCalled();
+      expect(preEmitSpy).not.toHaveBeenCalled();
+    } finally {
+      syntacticSpy.mockRestore();
+      semanticSpy.mockRestore();
+      preEmitSpy.mockRestore();
+    }
   });
 
   it("records non-Error values from addSourceFileAtPath failures", async () => {

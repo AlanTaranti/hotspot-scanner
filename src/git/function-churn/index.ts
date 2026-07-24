@@ -23,6 +23,8 @@ import { streamGitPatchLog, type FunctionChurnSpawnOptions } from "./spawn.js";
 export interface FunctionChurnMinerOptions {
   repoPath: string;
   since?: string;
+  /** Relative paths for git pathspecs; empty → no patch spawn */
+  paths?: string[];
   functions: FunctionComplexityResult[];
   onProgress?: (progress: ScanProgress) => void;
 }
@@ -55,6 +57,10 @@ export function createFunctionChurnMiner(
         return { functionStats: new Map(), warnings };
       }
 
+      if (options.paths !== undefined && options.paths.length === 0) {
+        return { functionStats: new Map(), warnings };
+      }
+
       const aliasMap = new PathAliasMap();
       const accumulators = createFunctionChurnAccumulators();
       const functionsByFile = indexFunctionsByFile(options.functions);
@@ -62,7 +68,11 @@ export function createFunctionChurnMiner(
       let renameLinkObserved = false;
 
       for await (const commit of parsePatchLogStream(
-        stream({ repoPath: options.repoPath, since: options.since }),
+        stream({
+          repoPath: options.repoPath,
+          since: options.since,
+          paths: options.paths,
+        }),
       )) {
         commitCount += 1;
         for (const file of commit.files) {
@@ -105,4 +115,8 @@ export function createFunctionChurnMiner(
 
 export { functionStatsKey } from "./keys.js";
 export { hunkIntersectsFunction, parsePatchLogStream } from "./parse.js";
-export { buildGitPatchLogArgv, streamGitPatchLog } from "./spawn.js";
+export {
+  buildGitPatchLogArgv,
+  PATCH_PATHSPEC_FALLBACK_THRESHOLD,
+  streamGitPatchLog,
+} from "./spawn.js";

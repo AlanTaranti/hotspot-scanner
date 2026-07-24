@@ -31,11 +31,14 @@ interface StaticReference {
   isReExport: boolean;
 }
 
-interface StaticEdgeKinds {
+export interface StaticEdgeKinds {
   hasRuntimeStaticDependency: boolean;
   hasTypeOnlyStaticDependency: boolean;
   hasReExportStaticDependency: boolean;
 }
+
+/** fromRepoRelative → toRepoRelative → kinds (OR-aggregated per directed edge) */
+export type StaticEdgeGraph = Map<string, Map<string, StaticEdgeKinds>>;
 
 const STRUCTURED_REFERENCE_PATTERNS: ReadonlyArray<{
   pattern: RegExp;
@@ -229,42 +232,121 @@ function resolvesToPeer(
   return false;
 }
 
-function collectEdgesToPeer(
-  filePath: string,
-  peerPath: string,
+const EMPTY_EDGE_KINDS: StaticEdgeKinds = {
+  hasRuntimeStaticDependency: false,
+  hasTypeOnlyStaticDependency: false,
+  hasReExportStaticDependency: false,
+};
+
+function mergeReferenceIntoEdgeKinds(
+  kinds: StaticEdgeKinds,
+  reference: StaticReference,
+): StaticEdgeKinds {
+  return {
+    hasRuntimeStaticDependency:
+      kinds.hasRuntimeStaticDependency || !reference.isTypeOnly,
+    hasTypeOnlyStaticDependency:
+      kinds.hasTypeOnlyStaticDependency || reference.isTypeOnly,
+    hasReExportStaticDependency:
+      kinds.hasReExportStaticDependency || reference.isReExport,
+  };
+}
+
+export function getStaticEdge(
+  graph: StaticEdgeGraph,
+  from: string,
+  to: string,
+): StaticEdgeKinds | undefined {
+  return graph.get(normalizeRepoPath(from))?.get(normalizeRepoPath(to));
+}
+
+export function buildStaticEdgeGraph(
+  peerPaths: ReadonlySet<string>,
   repoPath: string,
   pathMap: TsconfigPathMap,
-): StaticReference[] {
-  const source = readSourceSafe(repoPath, filePath);
-  if (source === null) {
-    return [];
-  }
+): StaticEdgeGraph {
+  const graph: StaticEdgeGraph = new Map();
+  const peers = [...peerPaths].map(normalizeRepoPath);
 
-  const edges: StaticReference[] = [];
+  for (const fromPath of peers) {
+    if (!isSourceFile(fromPath)) {
+      continue;
+    }
 
-  for (const reference of extractStaticReferences(source)) {
-    if (resolvesToPeer(filePath, reference.specifier, peerPath, repoPath, pathMap)) {
-      edges.push(reference);
+    const source = readSourceSafe(repoPath, fromPath);
+    if (source === null) {
+      continue;
+    }
+
+    const outbound = new Map<string, StaticEdgeKinds>();
+
+    for (const reference of extractStaticReferences(source)) {
+      for (const toPath of peers) {
+        if (
+          !resolvesToPeer(
+            fromPath,
+            reference.specifier,
+            toPath,
+            repoPath,
+            pathMap,
+          )
+        ) {
+          continue;
+        }
+
+        const existing = outbound.get(toPath) ?? EMPTY_EDGE_KINDS;
+        outbound.set(toPath, mergeReferenceIntoEdgeKinds(existing, reference));
+      }
+    }
+
+    if (outbound.size > 0) {
+      graph.set(fromPath, outbound);
     }
   }
 
-  return edges;
+  return graph;
+}
+
+function mergeEdgeKinds(
+  a: StaticEdgeKinds,
+  b: StaticEdgeKinds,
+): StaticEdgeKinds {
+  return {
+    hasRuntimeStaticDependency:
+      a.hasRuntimeStaticDependency || b.hasRuntimeStaticDependency,
+    hasTypeOnlyStaticDependency:
+      a.hasTypeOnlyStaticDependency || b.hasTypeOnlyStaticDependency,
+    hasReExportStaticDependency:
+      a.hasReExportStaticDependency || b.hasReExportStaticDependency,
+  };
+}
+
+function collectPeerPaths(pairs: CouplingPair[]): Set<string> {
+  const paths = new Set<string>();
+  for (const pair of pairs) {
+    paths.add(normalizeRepoPath(pair.fileA));
+    paths.add(normalizeRepoPath(pair.fileB));
+  }
+  return paths;
 }
 
 function aggregateEdgeKinds(
-  edges: StaticReference[],
+  aToB: StaticEdgeKinds | undefined,
+  bToA: StaticEdgeKinds | undefined,
 ): StaticEdgeKinds & { hasStaticDependency: boolean } {
-  const hasRuntimeStaticDependency = edges.some((edge) => !edge.isTypeOnly);
-  const hasTypeOnlyStaticDependency = edges.some((edge) => edge.isTypeOnly);
-  const hasReExportStaticDependency = edges.some((edge) => edge.isReExport);
+  let kinds = EMPTY_EDGE_KINDS;
+  if (aToB) {
+    kinds = mergeEdgeKinds(kinds, aToB);
+  }
+  if (bToA) {
+    kinds = mergeEdgeKinds(kinds, bToA);
+  }
   const hasStaticDependency =
-    hasRuntimeStaticDependency || hasTypeOnlyStaticDependency;
+    kinds.hasRuntimeStaticDependency || kinds.hasTypeOnlyStaticDependency;
 
   return {
+    ...kinds,
     hasStaticDependency,
-    hasRuntimeStaticDependency,
-    hasTypeOnlyStaticDependency,
-    hasReExportStaticDependency,
   };
 }
 
@@ -284,32 +366,17 @@ function computeDirection(
   return "none";
 }
 
-function enrichPair(
-  pair: CouplingPair,
-  repoPath: string,
-  pathMap: TsconfigPathMap,
-): CouplingPair {
-  const edgesAToB = collectEdgesToPeer(
-    pair.fileA,
-    pair.fileB,
-    repoPath,
-    pathMap,
-  );
-  const edgesBToA = collectEdgesToPeer(
-    pair.fileB,
-    pair.fileA,
-    repoPath,
-    pathMap,
-  );
-  const allEdges = [...edgesAToB, ...edgesBToA];
-  const kinds = aggregateEdgeKinds(allEdges);
+function enrichPair(pair: CouplingPair, graph: StaticEdgeGraph): CouplingPair {
+  const aToB = getStaticEdge(graph, pair.fileA, pair.fileB);
+  const bToA = getStaticEdge(graph, pair.fileB, pair.fileA);
+  const kinds = aggregateEdgeKinds(aToB, bToA);
 
   return {
     ...pair,
     ...kinds,
     staticDependencyDirection: computeDirection(
-      edgesAToB.length > 0,
-      edgesBToA.length > 0,
+      aToB !== undefined,
+      bToA !== undefined,
     ),
   };
 }
@@ -323,6 +390,11 @@ export function enrichCouplingStaticDeps(
   }
 
   const pathMap = new TsconfigPathMap(repoPath);
+  const graph = buildStaticEdgeGraph(
+    collectPeerPaths(pairs),
+    repoPath,
+    pathMap,
+  );
 
-  return pairs.map((pair) => enrichPair(pair, repoPath, pathMap));
+  return pairs.map((pair) => enrichPair(pair, graph));
 }

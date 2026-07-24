@@ -65,7 +65,7 @@ hotspot-scanner scan <path> [options]
 | `--include <glob>`  | —               | Include only paths matching glob (repeatable)                                  |
 | `--exclude <glob>`  | —               | Exclude paths matching glob (repeatable, additive)                             |
 | `--config <path>`   | —               | Load config from explicit file (skips parent-directory discovery)              |
-| `--concurrency`     | `min(availableParallelism(), 4)` | Complexity analyzer worker-pool size (positive integer ≥ 1)              |
+| `--concurrency`     | `min(availableParallelism(), 8)` | Complexity analyzer worker-pool size (positive integer ≥ 1)              |
 
 ### Examples
 
@@ -171,10 +171,10 @@ const delta: CompareResult = compareScanResults(baseline, result);
 ## How it works
 
 ```
-git log --numstat (streaming) → complexity (McCabe) → scoring (file hotspots or function hunk-overlap churn) → coupling + static enrich → table / JSON / markdown / CSV
+git log --numstat (streaming) ∥ complexity (McCabe) [file mode] → scoring (file hotspots or function hunk-overlap churn) → coupling + static enrich → table / JSON / markdown / CSV
 ```
 
-1. **Git Change Miner** — streams `git log -M --numstat` to aggregate per-file churn and co-change events (file-mode hotspot ranking uses these stats directly); parses `old => new` rename lines into a `PathAliasMap` to canonicalize paths (no global `git log --follow`); emits rename-confidence warnings when history may be incomplete
+1. **Git Change Miner** — streams `git log -M --numstat` to aggregate per-file churn and coupling pair counts (`pair → coChangeCount` during the stream — no retained per-commit event array for scoring); parses `old => new` rename lines into a `PathAliasMap` to canonicalize paths (no global `git log --follow`); skips coupling increments for mega-commits (> 100 unique in-scope files per commit) while still counting churn; emits rename-confidence and mega-commit warnings when applicable
 2. **Complexity Analyzer** — computes McCabe cyclomatic complexity over the working-tree AST via ts-morph
 3. **Scoring** — file mode ranks hotspots from file churn + complexity; function mode (`--granularity function`) runs a second `git log -M -p --unified=0` patch stream and attributes commits whose hunks overlap each function's current line range — per-function churn is **not** inherited from parent-file stats; coupling pairs are ranked from the numstat pass in both modes
 4. **Static coupling enricher** — sets static-dependency fields on each coupling pair from working-tree import/export/require edges (relative paths + tsconfig/jsconfig `paths`/`baseUrl`; direction and edge-kind flags)
@@ -190,7 +190,11 @@ Churn is measured as raw commit count (not relative code churn). Complexity is c
 
 ### Performance and diagnostics
 
-**Concurrency.** The complexity stage processes files in parallel via a bounded `worker_threads` pool. Default pool size is `min(os.availableParallelism(), 4)` (same as `DEFAULT_WORKER_CONCURRENCY` in code). Override with `--concurrency <n>` or the `concurrency` key in `.hotspot-scanner.json` — precedence is **CLI > config > default**. Invalid values (non-integer or less than 1) exit non-zero before the scan starts.
+**Concurrency.** The complexity stage processes files in parallel via a bounded `worker_threads` pool. Default pool size is `min(os.availableParallelism(), 8)` (same as `DEFAULT_WORKER_CONCURRENCY` in code). Higher concurrency uses more memory (N workers × batch AST heap); lower with `--concurrency 1`–`4` on memory-constrained hosts. Override with `--concurrency <n>` or the `concurrency` key in `.hotspot-scanner.json` — precedence is **CLI > config > default**. Invalid values (non-integer or less than 1) exit non-zero before the scan starts.
+
+**Source discovery.** In Git repositories, complexity discovery prefers `git ls-files` (tracked paths only) filtered by eligible extensions and PathScope; on spawn failure it falls back to a recursive filesystem walk with directory prune (same as non-git trees).
+
+**Mega-commit guard (coupling).** Commits with more than 100 unique in-scope files skip coupling pair increments (churn still counted) and may emit `MEGA_COMMIT_SKIPPED` warnings. This prevents `C(n, 2)` pair explosion on bulk commits; coupling rankings may omit pairs from those commits.
 
 **Progress (stderr).** During long git streams, the CLI logs throttled progress every 1,000 commits per phase:
 
@@ -205,7 +209,7 @@ Format: `Processing <phase> commit <N>...` (e.g. `Processing function-churn comm
 
 **Severity vs exit code.** `severity` classifies diagnostics only. A successful scan exits `0` even when warnings are present. Hard failures (invalid repo, git error, bad CLI args) still exit non-zero per the table below.
 
-**M28 warning codes** (stable `code` field for filtering and docs):
+**M28 + M32 warning codes** (stable `code` field for filtering and docs):
 
 | Code | Interpretation |
 | ---- | -------------- |
@@ -213,6 +217,7 @@ Format: `Processing <phase> commit <N>...` (e.g. `Processing function-churn comm
 | `RENAME_HISTORY_INCOMPLETE` | Rename tracking incomplete for one or more paths — churn may be split; includes M26 rename-confidence messages (ambiguous chain, unlinked delete+add, `--since` truncation, function-mode overlap confidence) |
 | `PARSE_FAILED` | A source file could not be parsed for complexity — file skipped; fix syntax or exclude the path |
 | `COMPARE_SINCE_MISMATCH` | Baseline and current scan used different `--since` values — rank deltas are less comparable |
+| `MEGA_COMMIT_SKIPPED` | One or more commits exceeded 100 unique in-scope files — those commits did not contribute to coupling pair counts (churn still counted); coupling rankings may omit pairs from bulk commits |
 
 **M26 boundary.** M28 routes **existing** rename and parse warnings into `ScanWarning` with codes above. It does **not** add new rename-confidence message families beyond M26 (RT-003). See [Rename confidence (M26)](#rename-confidence-m26) below for message patterns.
 

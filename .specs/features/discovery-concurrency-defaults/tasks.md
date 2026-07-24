@@ -3,7 +3,7 @@
 **Spec**: [`.specs/features/discovery-concurrency-defaults/spec.md`](./spec.md)  
 **Design**: [`.specs/features/discovery-concurrency-defaults/design.md`](./design.md)  
 **Context**: [`.specs/features/discovery-concurrency-defaults/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -111,12 +111,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `listTrackedFiles(repoPath)` spawns only inside `src/git/`
-- [ ] Argv includes `-C`, `ls-files`, `-z`
-- [ ] Null-delimited stdout parsed into path strings; separators normalized to `/`
-- [ ] Non-zero exit / spawn error rejects with repoPath context
-- [ ] Unit tests mock spawn — no real git required for the happy/error matrix
-- [ ] Gate check passes: `pnpm exec vitest run src/git/ls-files.test.ts`
+- [x] `listTrackedFiles(repoPath)` spawns only inside `src/git/`
+- [x] Argv includes `-C`, `ls-files`, `-z`
+- [x] Null-delimited stdout parsed into path strings; separators normalized to `/`
+- [x] Non-zero exit / spawn error rejects with repoPath context
+- [x] Unit tests mock spawn — no real git required for the happy/error matrix
+- [x] Gate check passes: `pnpm exec vitest run src/git/ls-files.test.ts`
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/git/ls-files.test.ts`
@@ -144,13 +144,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Production path prefers Git listing before walk
-- [ ] Success path: extensions + PathScope + sorted posix relatives; empty Git list → `[]` (no walk merge)
-- [ ] Failure path: silent walk fallback; default excludes + include still honored
-- [ ] No `child_process` import in `discover.ts`
-- [ ] Existing non-git temp-dir tests still pass
-- [ ] New tests cover inject-success filter and inject-reject fallback
-- [ ] Gate check passes: `pnpm exec vitest run src/complexity/discover.test.ts`
+- [x] Production path prefers Git listing before walk
+- [x] Success path: extensions + PathScope + sorted posix relatives; empty Git list → `[]` (no walk merge)
+- [x] Failure path: silent walk fallback; default excludes + include still honored
+- [x] No `child_process` import in `discover.ts`
+- [x] Existing non-git temp-dir tests still pass
+- [x] New tests cover inject-success filter and inject-reject fallback
+- [x] Gate check passes: `pnpm exec vitest run src/complexity/discover.test.ts`
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/complexity/discover.test.ts`
@@ -178,10 +178,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Cap literal is `8` (not `4`) in `pool.ts` only
-- [ ] `DEFAULT_WORKER_CONCURRENCY === Math.min(availableParallelism(), 8)`
-- [ ] Existing merge-options tests still pass without hardcoded `4`
-- [ ] Gate check passes: `pnpm exec vitest run src/complexity/pool.test.ts src/config/merge-options.test.ts`
+- [x] Cap literal is `8` (not `4`) in `pool.ts` only
+- [x] `DEFAULT_WORKER_CONCURRENCY === Math.min(availableParallelism(), 8)`
+- [x] Existing merge-options tests still pass without hardcoded `4`
+- [x] Gate check passes: `pnpm exec vitest run src/complexity/pool.test.ts src/config/merge-options.test.ts`
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/complexity/pool.test.ts src/config/merge-options.test.ts`
@@ -209,12 +209,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] README flag table + concurrency prose say cap **8** and memory guidance
-- [ ] ARCHITECTURE discovery + default concurrency statements updated (incl. ls-files preference)
-- [ ] INTEGRATIONS worker_threads default row says `min(availableParallelism(), 8)`
-- [ ] CONCERNS Performance bullet updated (cap 8 + override note)
-- [ ] `scripts/benchmark-scan.md` has an M36 note (discovery + default concurrency); still no CI timing gate
-- [ ] No edits to ROADMAP/STATE in this task (planner deferred; sync on Execute Done)
+- [x] README flag table + concurrency prose say cap **8** and memory guidance
+- [x] ARCHITECTURE discovery + default concurrency statements updated (incl. ls-files preference)
+- [x] INTEGRATIONS worker_threads default row says `min(availableParallelism(), 8)`
+- [x] CONCERNS Performance bullet updated (cap 8 + override note)
+- [x] `scripts/benchmark-scan.md` has an M36 note (discovery + default concurrency); still no CI timing gate
+- [x] No edits to ROADMAP/STATE in this task (planner deferred; sync on Execute Done)
 
 **Tests**: none  
 **Gate**: none (docs-only; verified in T5)
@@ -242,9 +242,9 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `pnpm build && pnpm test` exits 0
-- [ ] Coverage thresholds still met (per-file)
-- [ ] No silent test deletions (test count not unexpectedly down)
+- [x] `pnpm build && pnpm test` exits 0
+- [x] Coverage thresholds still met (per-file)
+- [x] No silent test deletions (test count not unexpectedly down)
 
 **Tests**: full suite  
 **Gate**: `pnpm build && pnpm test`

@@ -1,7 +1,7 @@
 # Milestone 33 — Static Enrich Graph Cache Design
 
 **Spec**: [`.specs/features/static-enrich-cache/spec.md`](./spec.md)  
-**Status**: Draft (planning)  
+**Status**: Done  
 **Sister designs**: [enriched-coupling (M14)](../enriched-coupling/design.md), [coupling-enrichment (M27)](../coupling-enrichment/design.md)
 
 ---

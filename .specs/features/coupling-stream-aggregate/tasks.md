@@ -2,7 +2,7 @@
 
 **Design**: [`.specs/features/coupling-stream-aggregate/design.md`](./design.md)  
 **Spec**: [`.specs/features/coupling-stream-aggregate/spec.md`](./spec.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -128,9 +128,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] `CoChangePairCount` defined and exported
-- [ ] `CoChangeEvent` still exported
-- [ ] Typecheck consumers can import the new type (later tasks compile against it)
+- [x] `CoChangePairCount` defined and exported
+- [x] `CoChangeEvent` still exported
+- [x] Typecheck consumers can import the new type (later tasks compile against it)
 
 **Tests**: none (types excluded from coverage)
 
@@ -160,11 +160,11 @@ flowchart TD
 
 **Done when**:
 
-- [ ] No scoring-path retention of `coChangeEvents[]` in accumulators
-- [ ] Commit with 100 unique in-scope files increments pairs; 101 skips pairs
-- [ ] Mega skip still increments `fileStats.commitCount` / lines / authors
-- [ ] Scope callback reduces unique set before mega-guard and pair increments
-- [ ] Unit tests cover pair math, threshold boundary, scope+mega interaction
+- [x] No scoring-path retention of `coChangeEvents[]` in accumulators
+- [x] Commit with 100 unique in-scope files increments pairs; 101 skips pairs
+- [x] Mega skip still increments `fileStats.commitCount` / lines / authors
+- [x] Scope callback reduces unique set before mega-guard and pair increments
+- [x] Unit tests cover pair math, threshold boundary, scope+mega interaction
 
 **Tests**: unit (`src/git/aggregate.test.ts`)
 
@@ -194,9 +194,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Rename-chain fixtures yield merged pair keys under final canonical paths
-- [ ] Counts sum when two pre-canonical keys collapse
-- [ ] Unit tests assert remap + merge
+- [x] Rename-chain fixtures yield merged pair keys under final canonical paths
+- [x] Counts sum when two pre-canonical keys collapse
+- [x] Unit tests assert remap + merge
 
 **Tests**: unit (`src/git/canonicalize.test.ts`)
 
@@ -226,10 +226,10 @@ flowchart TD
 
 **Done when**:
 
-- [ ] `mine()` returns `pairCounts` + structured warnings including mega skips when applicable
-- [ ] Empty mega case emits no `MEGA_COMMIT_SKIPPED`
-- [ ] Existing rename / empty-since warning tests still pass
-- [ ] Large-synthetic / basic miner tests updated for pairCounts
+- [x] `mine()` returns `pairCounts` + structured warnings including mega skips when applicable
+- [x] Empty mega case emits no `MEGA_COMMIT_SKIPPED`
+- [x] Existing rename / empty-since warning tests still pass
+- [x] Large-synthetic / basic miner tests updated for pairCounts
 
 **Tests**: unit
 
@@ -259,9 +259,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Out-of-scope endpoints drop pairs
-- [ ] Warnings pass through unchanged
-- [ ] Unit tests rewritten for pair map
+- [x] Out-of-scope endpoints drop pairs
+- [x] Warnings pass through unchanged
+- [x] Unit tests rewritten for pair map
 
 **Tests**: unit
 
@@ -291,9 +291,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] No production dependence on `CoChangeEvent[]` inside `scoreCoupling`
-- [ ] Prior fixture expectations still hold
-- [ ] Zero-denominator and min-cochange boundary tests still pass
+- [x] No production dependence on `CoChangeEvent[]` inside `scoreCoupling`
+- [x] Prior fixture expectations still hold
+- [x] Zero-denominator and min-cochange boundary tests still pass
 
 **Tests**: unit
 
@@ -323,9 +323,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Scan path compiles and uses pairCounts end-to-end
-- [ ] Mega warnings appear in `ScanResult.meta.warnings` when fixture triggers skip
-- [ ] Existing integration scans still exit `0` with coherent coupling
+- [x] Scan path compiles and uses pairCounts end-to-end
+- [x] Mega warnings appear in `ScanResult.meta.warnings` when fixture triggers skip
+- [x] Existing integration scans still exit `0` with coherent coupling
 
 **Tests**: unit (+ integration if existing cases require updates)
 
@@ -355,9 +355,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] CONCERNS documents mega-guard + stream pair aggregation
-- [ ] ARCHITECTURE + README list `MEGA_COMMIT_SKIPPED`
-- [ ] Pipeline prose no longer claims scoring depends on retained `CoChangeEvent[]`
+- [x] CONCERNS documents mega-guard + stream pair aggregation
+- [x] ARCHITECTURE + README list `MEGA_COMMIT_SKIPPED`
+- [x] Pipeline prose no longer claims scoring depends on retained `CoChangeEvent[]`
 
 **Tests**: none
 
@@ -388,9 +388,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] `pnpm build && pnpm test` passes
-- [ ] No production path retains full `coChangeEvents[]` for coupling scoring
-- [ ] All tasks T1–T8 Done when checked
+- [x] `pnpm build && pnpm test` passes
+- [x] No production path retains full `coChangeEvents[]` for coupling scoring
+- [x] All tasks T1–T8 Done when checked
 
 **Tests**: full suite
 

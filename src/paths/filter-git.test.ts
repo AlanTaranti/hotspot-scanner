@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { CoChangeEvent, FileChangeStats } from "../types/index.js";
+import type { CoChangePairCount, FileChangeStats } from "../types/index.js";
 import { filterGitMinerResult } from "./filter-git.js";
 import { createPathScope } from "./scope.js";
 
@@ -19,6 +19,17 @@ function makeFileStats(
   return map;
 }
 
+function makePairCounts(
+  entries: Array<[string, string, number]>,
+): Map<string, CoChangePairCount> {
+  const map = new Map<string, CoChangePairCount>();
+  for (const [fileA, fileB, coChangeCount] of entries) {
+    const key = `${fileA}|${fileB}`;
+    map.set(key, { fileA, fileB, coChangeCount });
+  }
+  return map;
+}
+
 describe("filterGitMinerResult", () => {
   const scope = createPathScope();
 
@@ -29,7 +40,7 @@ describe("filterGitMinerResult", () => {
           ["src/app.ts", {}],
           ["node_modules/pkg/index.ts", {}],
         ]),
-        coChangeEvents: [],
+        pairCounts: new Map(),
         warnings: [],
       },
       scope,
@@ -38,13 +49,8 @@ describe("filterGitMinerResult", () => {
     expect([...result.fileStats.keys()]).toEqual(["src/app.ts"]);
   });
 
-  it("filters coChangeEvents to in-scope files only", () => {
-    const events: CoChangeEvent[] = [
-      {
-        commitHash: "abc",
-        filesChanged: ["src/a.ts", "src/b.ts", "node_modules/x.ts"],
-      },
-    ];
+  it("keeps pairCounts when both endpoints are in scope", () => {
+    const pairCounts = makePairCounts([["src/a.ts", "src/b.ts", 3]]);
 
     const result = filterGitMinerResult(
       {
@@ -52,40 +58,37 @@ describe("filterGitMinerResult", () => {
           ["src/a.ts", {}],
           ["src/b.ts", {}],
         ]),
-        coChangeEvents: events,
+        pairCounts,
         warnings: [],
       },
       scope,
     );
 
-    expect(result.coChangeEvents).toEqual([
-      { commitHash: "abc", filesChanged: ["src/a.ts", "src/b.ts"] },
+    expect([...result.pairCounts.values()]).toEqual([
+      { fileA: "src/a.ts", fileB: "src/b.ts", coChangeCount: 3 },
     ]);
   });
 
-  it("drops coChangeEvents with fewer than 2 in-scope files", () => {
+  it("drops pairCounts when either endpoint is out of scope", () => {
     const result = filterGitMinerResult(
       {
         fileStats: makeFileStats([["src/a.ts", {}]]),
-        coChangeEvents: [
-          {
-            commitHash: "partial",
-            filesChanged: ["src/a.ts", "node_modules/x.ts"],
-          },
-        ],
+        pairCounts: makePairCounts([
+          ["src/a.ts", "node_modules/x.ts", 2],
+        ]),
         warnings: [],
       },
       scope,
     );
 
-    expect(result.coChangeEvents).toEqual([]);
+    expect(result.pairCounts.size).toBe(0);
   });
 
   it("passes warnings through unchanged", () => {
     const result = filterGitMinerResult(
       {
         fileStats: new Map(),
-        coChangeEvents: [],
+        pairCounts: new Map(),
         warnings: ["git warning"],
       },
       scope,
@@ -98,42 +101,33 @@ describe("filterGitMinerResult", () => {
     const result = filterGitMinerResult(
       {
         fileStats: makeFileStats([["dist/bundle.js", {}]]),
-        coChangeEvents: [
-          {
-            commitHash: "x",
-            filesChanged: ["dist/a.js", "dist/b.js"],
-          },
-        ],
+        pairCounts: makePairCounts([["dist/a.js", "dist/b.js", 1]]),
         warnings: [],
       },
       scope,
     );
 
     expect(result.fileStats.size).toBe(0);
-    expect(result.coChangeEvents).toEqual([]);
+    expect(result.pairCounts.size).toBe(0);
   });
 
-  it("deduplicates in-scope files in coChangeEvents", () => {
+  it("preserves coChangeCount for in-scope pairs", () => {
     const result = filterGitMinerResult(
       {
         fileStats: makeFileStats([
           ["src/a.ts", {}],
           ["src/b.ts", {}],
         ]),
-        coChangeEvents: [
-          {
-            commitHash: "dup",
-            filesChanged: ["src/a.ts", "src/a.ts", "src/b.ts"],
-          },
-        ],
+        pairCounts: makePairCounts([["src/a.ts", "src/b.ts", 7]]),
         warnings: [],
       },
       scope,
     );
 
-    expect(result.coChangeEvents[0]!.filesChanged).toEqual([
-      "src/a.ts",
-      "src/b.ts",
-    ]);
+    expect(result.pairCounts.get("src/a.ts|src/b.ts")).toEqual({
+      fileA: "src/a.ts",
+      fileB: "src/b.ts",
+      coChangeCount: 7,
+    });
   });
 });

@@ -13,12 +13,12 @@ Additionally, a single mega-commit touching hundreds of unique files expands to 
 
 ## Goals
 
-- [ ] Aggregate `pair → coChangeCount` during the numstat stream; do **not** retain a full `coChangeEvents[]` for scoring
-- [ ] Preserve `couplingStrength` formula and ranking order for all commits below the mega-commit guard
-- [ ] Guard commits with too many unique (in-scope) files: **skip** coupling contribution + structured `ScanWarning`; document in CONCERNS
-- [ ] Path scope filters **before/during** pair aggregation (and mega-guard), preserving M7 coupling semantics for non-mega commits
-- [ ] Streaming line-by-line numstat parse retained (RT-001 / ADR-2026-020)
-- [ ] `pnpm build && pnpm test` green after Execute
+- [x] Aggregate `pair → coChangeCount` during the numstat stream; do **not** retain a full `coChangeEvents[]` for scoring
+- [x] Preserve `couplingStrength` formula and ranking order for all commits below the mega-commit guard
+- [x] Guard commits with too many unique (in-scope) files: **skip** coupling contribution + structured `ScanWarning`; document in CONCERNS
+- [x] Path scope filters **before/during** pair aggregation (and mega-guard), preserving M7 coupling semantics for non-mega commits
+- [x] Streaming line-by-line numstat parse retained (RT-001 / ADR-2026-020)
+- [x] `pnpm build && pnpm test` green after Execute
 
 ## Out of Scope
 
@@ -168,21 +168,21 @@ Additionally, a single mega-commit touching hundreds of unique files expands to 
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| HOTSPOT-320 | P1: Stream-time pair aggregation | Tasks | Pending |
-| HOTSPOT-321 | P1: Stream-time pair aggregation (`GitMinerResult` shape) | Tasks | Pending |
-| HOTSPOT-322 | P1: Stream-time pair aggregation (finalize canonicalize pairs) | Tasks | Pending |
-| HOTSPOT-323 | P1: Preserved ranking below mega-guard | Tasks | Pending |
-| HOTSPOT-324 | P1: Formula / min-cochange unchanged | Tasks | Pending |
-| HOTSPOT-325 | P1: Mega-commit skip rule (threshold 100) | Tasks | Pending |
-| HOTSPOT-326 | P1: Churn still aggregated on mega-commit | Tasks | Pending |
-| HOTSPOT-327 | P1: `MEGA_COMMIT_SKIPPED` warnings + cap | Tasks | Pending |
-| HOTSPOT-328 | P1: Scope predicate into aggregation | Tasks | Pending |
-| HOTSPOT-329 | P1: In-scope mega-guard semantics | Tasks | Pending |
-| HOTSPOT-330 | P1: `filterGitMinerResult` pair-count defense | Tasks | Pending |
-| HOTSPOT-331 | P1: `scoreCoupling` accepts pair counts | Tasks | Pending |
-| HOTSPOT-332 | P1: `runScan` / scorer wiring | Tasks | Pending |
-| HOTSPOT-333 | P2: CONCERNS / Performance docs | Tasks | Pending |
-| HOTSPOT-334 | P2: Warning catalog + ARCHITECTURE | Tasks | Pending |
+| HOTSPOT-320 | P1: Stream-time pair aggregation | Tasks | Done |
+| HOTSPOT-321 | P1: Stream-time pair aggregation (`GitMinerResult` shape) | Tasks | Done |
+| HOTSPOT-322 | P1: Stream-time pair aggregation (finalize canonicalize pairs) | Tasks | Done |
+| HOTSPOT-323 | P1: Preserved ranking below mega-guard | Tasks | Done |
+| HOTSPOT-324 | P1: Formula / min-cochange unchanged | Tasks | Done |
+| HOTSPOT-325 | P1: Mega-commit skip rule (threshold 100) | Tasks | Done |
+| HOTSPOT-326 | P1: Churn still aggregated on mega-commit | Tasks | Done |
+| HOTSPOT-327 | P1: `MEGA_COMMIT_SKIPPED` warnings + cap | Tasks | Done |
+| HOTSPOT-328 | P1: Scope predicate into aggregation | Tasks | Done |
+| HOTSPOT-329 | P1: In-scope mega-guard semantics | Tasks | Done |
+| HOTSPOT-330 | P1: `filterGitMinerResult` pair-count defense | Tasks | Done |
+| HOTSPOT-331 | P1: `scoreCoupling` accepts pair counts | Tasks | Done |
+| HOTSPOT-332 | P1: `runScan` / scorer wiring | Tasks | Done |
+| HOTSPOT-333 | P2: CONCERNS / Performance docs | Tasks | Done |
+| HOTSPOT-334 | P2: Warning catalog + ARCHITECTURE | Tasks | Done |
 
 **ID range used:** HOTSPOT-320 … HOTSPOT-334 (HOTSPOT-335–339 reserved unused)  
 **Coverage:** 15 total, mapped in tasks.md
@@ -191,8 +191,8 @@ Additionally, a single mega-commit touching hundreds of unique files expands to 
 
 ## Success Criteria
 
-- [ ] Production coupling path does not retain full `coChangeEvents[]` through mine → score
-- [ ] Non-mega fixtures produce identical coupling rankings to pre-M32
-- [ ] Mega-commit fixtures skip pair updates and emit `MEGA_COMMIT_SKIPPED`
-- [ ] Path-scoped mega-guard uses in-scope unique file counts
-- [ ] CONCERNS documents the guard; `pnpm build && pnpm test` passes
+- [x] Production coupling path does not retain full `coChangeEvents[]` through mine → score
+- [x] Non-mega fixtures produce identical coupling rankings to pre-M32
+- [x] Mega-commit fixtures skip pair updates and emit `MEGA_COMMIT_SKIPPED`
+- [x] Path-scoped mega-guard uses in-scope unique file counts
+- [x] CONCERNS documents the guard; `pnpm build && pnpm test` passes

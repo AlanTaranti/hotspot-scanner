@@ -13,13 +13,13 @@
 
 ## Goals
 
-- [ ] One source **read** and one **parse** (reference extract) per unique file touched by the enrich pass
-- [ ] Cache resolved directed edges (with kind flags) for the enrich pass; label pairs via **O(1)** adjacency lookup
-- [ ] Preserve exact public labeling semantics: `hasStaticDependency`, `staticDependencyDirection`, kind flags, and invariants
-- [ ] Leave temporal ranking (`couplingStrength`, `coChangeCount`, pair order) unchanged
-- [ ] Keep `package.json` `exports`/`imports` deferred (CONCERNS)
-- [ ] No ts-morph under `src/scoring/`
-- [ ] `pnpm build && pnpm test` passing after Execute
+- [x] One source **read** and one **parse** (reference extract) per unique file touched by the enrich pass
+- [x] Cache resolved directed edges (with kind flags) for the enrich pass; label pairs via **O(1)** adjacency lookup
+- [x] Preserve exact public labeling semantics: `hasStaticDependency`, `staticDependencyDirection`, kind flags, and invariants
+- [x] Leave temporal ranking (`couplingStrength`, `coChangeCount`, pair order) unchanged
+- [x] Keep `package.json` `exports`/`imports` deferred (CONCERNS)
+- [x] No ts-morph under `src/scoring/`
+- [x] `pnpm build && pnpm test` passing after Execute
 
 ## Out of Scope
 
@@ -130,16 +130,16 @@
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| HOTSPOT-340 | P1: One read/parse per file | Tasks | Pending |
-| HOTSPOT-341 | P1: Cached edges + O(1) lookup | Tasks | Pending |
-| HOTSPOT-342 | P1: Cached edges + O(1) lookup | Tasks | Pending |
-| HOTSPOT-343 | P1: Behavioral equivalence | Tasks | Pending |
-| HOTSPOT-344 | P1: Behavioral equivalence | Tasks | Pending |
-| HOTSPOT-345 | P1: Behavioral equivalence | Tasks | Pending |
-| HOTSPOT-346 | P1: Behavioral equivalence | Tasks | Pending |
-| HOTSPOT-347 | P1: Behavioral equivalence | Tasks | Pending |
-| HOTSPOT-348 | P1: One read/parse per file | Tasks | Pending |
-| HOTSPOT-351 | P2: Document cache behavior | Tasks | Pending |
+| HOTSPOT-340 | P1: One read/parse per file | Tasks | Done |
+| HOTSPOT-341 | P1: Cached edges + O(1) lookup | Tasks | Done |
+| HOTSPOT-342 | P1: Cached edges + O(1) lookup | Tasks | Done |
+| HOTSPOT-343 | P1: Behavioral equivalence | Tasks | Done |
+| HOTSPOT-344 | P1: Behavioral equivalence | Tasks | Done |
+| HOTSPOT-345 | P1: Behavioral equivalence | Tasks | Done |
+| HOTSPOT-346 | P1: Behavioral equivalence | Tasks | Done |
+| HOTSPOT-347 | P1: Behavioral equivalence | Tasks | Done |
+| HOTSPOT-348 | P1: One read/parse per file | Tasks | Done |
+| HOTSPOT-351 | P2: Document cache behavior | Tasks | Done |
 
 **ID format:** `HOTSPOT-NNN`  
 **Reserved unused in range:** HOTSPOT-349, HOTSPOT-350, HOTSPOT-352–359 (available for Execute splits if needed)  
@@ -149,8 +149,8 @@
 
 ## Success Criteria
 
-- [ ] Hub-file / multi-pair fixtures show one read per unique source path
-- [ ] Existing enrich unit tests pass without semantic assertion changes (except new cache tests)
-- [ ] No new public fields; no schema/reporter diffs required
-- [ ] `package.json` exports/imports still deferred
-- [ ] `pnpm build && pnpm test` green after Execute
+- [x] Hub-file / multi-pair fixtures show one read per unique source path
+- [x] Existing enrich unit tests pass without semantic assertion changes (except new cache tests)
+- [x] No new public fields; no schema/reporter diffs required
+- [x] `package.json` exports/imports still deferred
+- [x] `pnpm build && pnpm test` green after Execute

@@ -17,6 +17,9 @@ import { DEFAULT_BATCH_SIZE } from "./project.js";
 export interface ComplexityAnalyzerOptions {
   repoPath: string;
   scope?: PathScope;
+  /** When set, analyze only discovered paths in this allowlist (discover ∩ allowlist). */
+  pathAllowlist?: readonly string[];
+  signal?: AbortSignal;
 }
 
 export interface ComplexityAnalyzerResult {
@@ -137,10 +140,14 @@ export function createComplexityAnalyzer(
   const poolFactory = deps.createWorkerPool ?? createWorkerPool;
 
   return {
-    async analyze({ repoPath, scope }) {
+    async analyze({ repoPath, scope, pathAllowlist, signal }) {
       await validateRepoPath(repoPath);
 
-      const filePaths = await discover(repoPath, scope);
+      let filePaths = await discover(repoPath, scope);
+      if (pathAllowlist) {
+        const allowlistSet = new Set(pathAllowlist);
+        filePaths = filePaths.filter((filePath) => allowlistSet.has(filePath));
+      }
       if (filePaths.length === 0) {
         return { results: [], functions: [], warnings: [] };
       }
@@ -155,7 +162,7 @@ export function createComplexityAnalyzer(
       const pool: WorkerPool = poolFactory({
         concurrency: effectiveConcurrency,
       });
-      const batchOutputs = await pool.runBatches(repoPath, batches);
+      const batchOutputs = await pool.runBatches(repoPath, batches, signal);
 
       return mergeBatchOutputs(batchOutputs, filePathIndex);
     },
