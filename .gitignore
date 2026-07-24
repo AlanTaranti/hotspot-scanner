@@ -9,3 +9,4 @@ src/version.ts
 .cursor/hooks-state/
 src/**/*.js
 src/**/*.js.map
+coverage-*
