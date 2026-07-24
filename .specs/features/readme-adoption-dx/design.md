@@ -1,7 +1,7 @@
 # Milestone 37 — README Adoption DX Design
 
 **Spec**: [`.specs/features/readme-adoption-dx/spec.md`](./spec.md)  
-**Status**: Planned  
+**Status**: Done  
 **Depth**: Thin (docs + asset + `package.json` keywords only — no `src/` architecture change)  
 **Sister**: [product-docs-sync](../product-docs-sync/design.md) (M25)
 

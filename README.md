@@ -1,42 +1,45 @@
 # hotspot-scanner
 
-Local CLI for TypeScript/JavaScript maintenance hotspot analysis.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](https://nodejs.org/)
+[![GitHub](https://img.shields.io/badge/github-taranti%2Fhotspot-scanner-181717?logo=github)](https://github.com/taranti/hotspot-scanner)
 
-**hotspot-scanner** helps developers and tech leads prioritize refactoring targets without commercial tooling. It ranks files (or functions) by combining cyclomatic complexity, Git churn, and temporal coupling — entirely on your machine, with no network calls.
+**Package:** `@vitals/hotspot-scanner` · **CLI command:** `hotspot-scanner`
 
-## Features
+## The problem
 
-- **Hotspot ranking** — harmonic mean of complexity and churn to surface actively maintained complex code
-- **Temporal coupling** — find file pairs that co-change together; static enrichment flags import edges (`hasStaticDependency`), direction (`a→b` / `b→a` / `both`), and edge kinds (runtime, type-only, re-export) including tsconfig `paths` aliases
-- **Function granularity** — rank individual functions with `--granularity function`; per-function churn comes from hunk overlap on a patch stream, not inherited parent-file stats
-- **Scan compare** — diff current results against a saved baseline JSON (`--baseline`)
-- **Streaming Git parse** — file mode streams `git log --numstat` for churn and coupling; function mode adds a patch stream (`git log -p --unified=0`) for per-function hunk attribution
-- **Path scoping** — default excludes for `node_modules`, `.git`, `dist`, `coverage`, `build`, `.next`, `out`, `vendor`, `storybook-static`, and `__snapshots__`; optional `--include` / `--exclude` globs (additive on defaults)
-- **Repo config file** — optional `.hotspot-scanner.json` discovered at the scan target or in a parent directory; `--config <path>` for explicit CI paths (CLI flags override)
-- **Flexible output** — CLI table, JSON, GitHub-flavored markdown, or multi-file CSV bundle
+Tech leads need to prioritize refactoring work but struggle to see which TypeScript/JavaScript files are hardest to maintain and which file pairs change together without a static import link.
 
-## Requirements
+## The solution
 
-| Requirement | Version               |
-| ----------- | --------------------- |
-| Node.js     | 22+                   |
-| git         | required at scan time |
-| pnpm        | for development       |
+**hotspot-scanner** is a local CLI that ranks maintenance hotspots by combining cyclomatic complexity, Git churn, and temporal coupling. It runs entirely on your machine — no hosted service, no telemetry, no network calls during a scan.
 
-## Installation
+> **Privacy:** Analysis runs 100% locally. The scanner reads your Git history and source files on disk; it does not phone home. (Cloning and installing the tool itself requires network access to fetch this repository.)
 
-```bash
-git clone <repo-url>
-cd hotspot-scanner
-pnpm install
-pnpm build
-```
+## Table of contents
+
+- [Quick start](#quick-start)
+- [Use this when…](#use-this-when)
+- [How it works](#how-it-works)
+- [Essential flags](#essential-flags)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Output formats](#output-formats)
+- [Compare / baseline](#compare)
+- [Programmatic API](#programmatic-api)
+- [Advanced](#advanced)
+- [Limitations](#limitations)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Quick start
 
-Scan a repository:
-
 ```bash
+git clone https://github.com/taranti/hotspot-scanner.git
+cd hotspot-scanner
+pnpm install
+pnpm build
 pnpm exec hotspot-scanner scan /path/to/your-repo
 ```
 
@@ -46,45 +49,80 @@ Try the bundled fixture:
 pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts
 ```
 
-## CLI reference
+**Example output** (fixture `small-ts`, truncated):
 
 ```
-hotspot-scanner scan <path> [options]
+Scan window: 12 months ago (scanned 2026-07-24T12:59:45.114Z)
+
+Top Hotspots
+Rank  File                      Score     Cpx   CpxN      Churn  ChurnN  Funcs  Authors
+----  ------------------------  --------  ----  --------  -----  ------  -----  -------
+   1  src/high.ts                 0.5590    14    1.0000      5  0.3879      1        1
+   2  src/medium.ts               0.5119     3    0.3440      7  1.0000      1        1
+   3  src/low.ts                  0.0000     1    0.0000      4  0.0000      1        1
+
+Top Coupling Pairs
+Rank  File A                    File B                    Strength  Co-changes  StaticDep  Direction  Kinds
+----  ------------------------  ------------------------  --------  ----------  ---------  ---------  ----------------------
+   1  src/low.ts                src/medium.ts               0.7500           3         no       none  —
+   2  src/high.ts               src/medium.ts               0.6000           3        yes        a→b  runtime
 ```
 
-| Flag                | Default         | Description                                                                    |
-| ------------------- | --------------- | ------------------------------------------------------------------------------ |
-| `<path>`            | —               | Repository path (required)                                                     |
-| `--since`           | `12 months ago` | Git history window                                                             |
-| `--format`          | `table`         | Output format: `table`, `json`, `markdown`, or `csv` (csv requires `--output`) |
-| `--granularity`     | `file`          | Ranking granularity: `file` or `function`                                      |
-| `--output <path>`   | —               | Write report to file instead of stdout (required for `--format csv`)           |
-| `--baseline <path>` | —               | Compare scan against baseline JSON from a prior run                            |
-| `--top`             | `20`            | Top N rows in table/markdown output (ignored for json/csv)                     |
-| `--min-cochange`    | `3`             | Minimum co-change count for coupling pairs                                     |
-| `--include <glob>`  | —               | Include only paths matching glob (repeatable)                                  |
-| `--exclude <glob>`  | —               | Exclude paths matching glob (repeatable, additive)                             |
-| `--config <path>`   | —               | Load config from explicit file (skips parent-directory discovery)              |
-| `--concurrency`     | `min(availableParallelism(), 8)` | Complexity analyzer worker-pool size (positive integer ≥ 1)              |
+![CLI table output from fixture small-ts](docs/assets/cli-table-small-ts.png)
 
-### Examples
+## Use this when…
+
+| Workflow | When to run | Example |
+| -------- | ----------- | ------- |
+| **Weekly triage** | You want a ranked list of files to refactor this sprint | `hotspot-scanner scan . --since "3 months ago" --top 10` |
+| **Baseline / compare** | You want to track hotspot drift between scans over time | `hotspot-scanner scan . --format json --output baseline.json` then `hotspot-scanner scan . --baseline baseline.json` |
+| **Markdown in a PR** | You want a shareable report attached to a review | `hotspot-scanner scan . --format markdown --output report.md` |
+
+## How it works
+
+```
+git log (streaming) → complexity (McCabe) → scoring (hotspot + coupling) → report (table / JSON / markdown / CSV)
+```
+
+1. **Git Change Miner** — streams `git log --numstat` for per-file churn and coupling pair counts
+2. **Complexity Analyzer** — McCabe cyclomatic complexity over the working-tree AST via ts-morph
+3. **Scoring** — harmonic mean of normalized complexity and churn; coupling strength from co-change counts
+4. **Reporter** — table, JSON, markdown, or CSV bundle
+
+See [Advanced](#advanced) for concurrency, mega-commit guard, rename confidence, and the full flag reference.
+
+## Essential flags
+
+| Flag | Default | Description |
+| ---- | ------- | ----------- |
+| `--since` | `12 months ago` | Git history window |
+| `--format` | `table` | `table`, `json`, `markdown`, or `csv` |
+| `--top` | `20` | Top N rows in table/markdown (ignored for json/csv) |
+| `--baseline` | — | Compare against a saved baseline JSON |
+| `--output` | — | Write report to file (required for `--format csv`) |
+
+Full CLI reference: [Advanced → CLI reference](#cli-reference).
+
+## Requirements
+
+| Requirement | Version |
+| ----------- | ------- |
+| Node.js | 22+ |
+| git | required at scan time |
+| pnpm | for development |
+
+## Installation
 
 ```bash
-hotspot-scanner scan . --since "6 months ago"
-hotspot-scanner scan . --format json --top 10  # --top ignored; full arrays exported
-hotspot-scanner scan . --granularity function --format json
-hotspot-scanner scan . --format markdown --output report.md
-# CSV bundle (writes report.meta.json, report.hotspots.csv, report.coupling.csv)
-hotspot-scanner scan . --format csv --output report.csv
-hotspot-scanner scan . --format json --output baseline.json
-hotspot-scanner scan . --baseline baseline.json --format markdown
-# Compare CSV bundle (writes compare.meta.json + six data CSVs)
-hotspot-scanner scan . --baseline baseline.json --format csv --output compare.csv
-hotspot-scanner scan . --include "src/**" --exclude "**/*.test.ts"
-hotspot-scanner scan . --concurrency 1   # sequential complexity batches (debug / low-memory)
+git clone https://github.com/taranti/hotspot-scanner.git
+cd hotspot-scanner
+pnpm install
+pnpm build
 ```
 
-## Configuration file
+Official install path is clone + build from source. npm registry install is not available yet.
+
+## Configuration
 
 Optional **`.hotspot-scanner.json`** supplies shared scan defaults. Discovery filename is **only** `.hotspot-scanner.json` (not `.hotspotrc` or alternate names).
 
@@ -94,15 +132,15 @@ Optional **`.hotspot-scanner.json`** supplies shared scan defaults. Discovery fi
 
 **Precedence:** CLI flags **>** config file **>** built-in defaults. `--config` only selects which file is read — it does not change option-value precedence.
 
-| Key           | Maps to          | Type                     |
-| ------------- | ---------------- | ------------------------ |
-| `since`       | `--since`        | string                   |
-| `include`     | `--include`      | string array (globs)     |
-| `exclude`     | `--exclude`      | string array (globs)     |
-| `granularity` | `--granularity`  | `"file"` or `"function"` |
-| `minCochange` | `--min-cochange` | positive integer         |
-| `top`         | `--top`          | positive integer         |
-| `concurrency` | `--concurrency`  | positive integer         |
+| Key | Maps to | Type |
+| --- | ------- | ---- |
+| `since` | `--since` | string |
+| `include` | `--include` | string array (globs) |
+| `exclude` | `--exclude` | string array (globs) |
+| `granularity` | `--granularity` | `"file"` or `"function"` |
+| `minCochange` | `--min-cochange` | positive integer |
+| `top` | `--top` | positive integer |
+| `concurrency` | `--concurrency` | positive integer |
 
 `format`, `output`, and `baseline` are **CLI-only** — they cannot be set in the config file. Unknown keys are ignored. Invalid JSON or invalid values exit non-zero with a clear error.
 
@@ -135,106 +173,7 @@ hotspot-scanner scan . --config /ci/hotspot-scanner.json --since "3 months ago" 
 
 `runScan()` uses the same discovery rules (`configPath` or parent walk from `repoPath`); explicit option values win over the loaded file.
 
-## Programmatic API
-
-Import from the package entry point:
-
-```typescript
-import {
-  runScan,
-  compareScanResults,
-  loadBaseline,
-  parseScanResult,
-} from "@vitals/hotspot-scanner";
-import type {
-  ScanOptions,
-  ScanResult,
-  CompareResult,
-} from "@vitals/hotspot-scanner";
-
-const result: ScanResult = await runScan({
-  repoPath: "/path/to/repo",
-  since: "12 months ago",
-  granularity: "file",
-  minCochange: 3,
-  onWarning: (warning) =>
-    console.warn(`[${warning.code ?? "warning"}] ${warning.message}`),
-});
-
-// Compare against a saved baseline
-const baseline = await loadBaseline("baseline.json");
-const delta: CompareResult = compareScanResults(baseline, result);
-```
-
-`runScan()` returns a typed `ScanResult` with full ranked arrays (no `--top` slicing). The CLI applies `--top` only when rendering table or markdown. Public exports also include domain types (`HotspotScore`, `CouplingPair`, `ScanMeta`, etc.) — see `src/index.ts`.
-
-## How it works
-
-```
-git log --numstat (streaming) ∥ complexity (McCabe) [file mode] → scoring (file hotspots or function hunk-overlap churn) → coupling + static enrich → table / JSON / markdown / CSV
-```
-
-1. **Git Change Miner** — streams `git log -M --numstat` to aggregate per-file churn and coupling pair counts (`pair → coChangeCount` during the stream — no retained per-commit event array for scoring); parses `old => new` rename lines into a `PathAliasMap` to canonicalize paths (no global `git log --follow`); skips coupling increments for mega-commits (> 100 unique in-scope files per commit) while still counting churn; emits rename-confidence and mega-commit warnings when applicable
-2. **Complexity Analyzer** — computes McCabe cyclomatic complexity over the working-tree AST via ts-morph
-3. **Scoring** — file mode ranks hotspots from file churn + complexity; function mode (`--granularity function`) runs a second `git log -M -p --unified=0` patch stream and attributes commits whose hunks overlap each function's current line range — per-function churn is **not** inherited from parent-file stats; coupling pairs are ranked from the numstat pass in both modes
-4. **Static coupling enricher** — sets static-dependency fields on each coupling pair from working-tree import/export/require edges (relative paths + tsconfig/jsconfig `paths`/`baseUrl`; direction and edge-kind flags)
-5. **Reporter** — renders table, JSON, markdown, or CSV bundle output
-
-### Scoring
-
-- **Hotspot score:** `2 × normalize(complexity) × normalize(churn) / (normalize(complexity) + normalize(churn))` — harmonic mean after log1p + min-max normalization per scan
-- **Coupling strength:** `coChangeCount / min(commitsA, commitsB)`
-- **Static dependency:** `hasStaticDependency` is `true` when either file has a resolvable static import/export/require to the other; `staticDependencyDirection` and kind flags (`hasRuntimeStaticDependency`, `hasTypeOnlyStaticDependency`, `hasReExportStaticDependency`) add triage detail; ranking is unchanged
-
-Churn is measured as raw commit count (not relative code churn). Complexity is computed from the current working tree, not historical file versions.
-
-### Performance and diagnostics
-
-**Concurrency.** The complexity stage processes files in parallel via a bounded `worker_threads` pool. Default pool size is `min(os.availableParallelism(), 8)` (same as `DEFAULT_WORKER_CONCURRENCY` in code). Higher concurrency uses more memory (N workers × batch AST heap); lower with `--concurrency 1`–`4` on memory-constrained hosts. Override with `--concurrency <n>` or the `concurrency` key in `.hotspot-scanner.json` — precedence is **CLI > config > default**. Invalid values (non-integer or less than 1) exit non-zero before the scan starts.
-
-**Source discovery.** In Git repositories, complexity discovery prefers `git ls-files` (tracked paths only) filtered by eligible extensions and PathScope; on spawn failure it falls back to a recursive filesystem walk with directory prune (same as non-git trees).
-
-**Mega-commit guard (coupling).** Commits with more than 100 unique in-scope files skip coupling pair increments (churn still counted) and may emit `MEGA_COMMIT_SKIPPED` warnings. This prevents `C(n, 2)` pair explosion on bulk commits; coupling rankings may omit pairs from those commits.
-
-**Progress (stderr).** During long git streams, the CLI logs throttled progress every 1,000 commits per phase:
-
-| `phase`            | When emitted                         |
-| ------------------ | ------------------------------------ |
-| `git`              | File-mode numstat stream (`--numstat`) |
-| `function-churn`   | Function-mode patch stream (`-p --unified=0`) |
-
-Format: `Processing <phase> commit <N>...` (e.g. `Processing function-churn commit 1,000...`). Complexity batching does not emit progress lines in v1.
-
-**Warnings (`meta.warnings`).** Scan and compare JSON include structured warnings on `meta.warnings` — an array of `{ severity, message, code? }` objects (`ScanWarning`). The CLI also prints each warning to stderr with a severity prefix (`info:`, `warning:`, `error:`). Programmatic callers receive the same objects via `onWarning`.
-
-**Severity vs exit code.** `severity` classifies diagnostics only. A successful scan exits `0` even when warnings are present. Hard failures (invalid repo, git error, bad CLI args) still exit non-zero per the table below.
-
-**M28 + M32 warning codes** (stable `code` field for filtering and docs):
-
-| Code | Interpretation |
-| ---- | -------------- |
-| `EMPTY_SINCE_WINDOW` | No commits in the `--since` window — rankings may be empty or sparse; widen the window |
-| `RENAME_HISTORY_INCOMPLETE` | Rename tracking incomplete for one or more paths — churn may be split; includes M26 rename-confidence messages (ambiguous chain, unlinked delete+add, `--since` truncation, function-mode overlap confidence) |
-| `PARSE_FAILED` | A source file could not be parsed for complexity — file skipped; fix syntax or exclude the path |
-| `COMPARE_SINCE_MISMATCH` | Baseline and current scan used different `--since` values — rank deltas are less comparable |
-| `MEGA_COMMIT_SKIPPED` | One or more commits exceeded 100 unique in-scope files — those commits did not contribute to coupling pair counts (churn still counted); coupling rankings may omit pairs from bulk commits |
-
-**M26 boundary.** M28 routes **existing** rename and parse warnings into `ScanWarning` with codes above. It does **not** add new rename-confidence message families beyond M26 (RT-003). See [Rename confidence (M26)](#rename-confidence-m26) below for message patterns.
-
-Find-renames (`-M`) is enabled on git log spawns so real renames can unify churn under canonical paths. The scanner does **not** use global `git log --follow`.
-
-### Rename confidence (M26)
-
-Rename blind-spot messages are emitted with `code: "RENAME_HISTORY_INCOMPLETE"`. Typical human-readable patterns:
-
-| Message pattern | When |
-| --------------- | ---- |
-| `Rename history may be incomplete for: …` | Ambiguous rename chain (`PathAliasMap`) |
-| `Suspected unlinked rename (no git rename metadata): …` | Same-commit delete+add that looks like a move but git emitted no `=>` line |
-| `Rename history before the --since window (…) may be missing under canonical paths` | `--since` is set and at least one rename link was seen in the window |
-| Function overlap confidence (function mode only) | Rename links or ambiguous paths during per-function hunk attribution |
-
-## Output
+## Output formats
 
 ### Table
 
@@ -260,19 +199,19 @@ Rank  File A                    File B                    Strength  Co-changes  
 
 Published JSON Schema files live under [`schemas/`](schemas/):
 
-| Schema                                                       | TypeScript type |
-| ------------------------------------------------------------ | --------------- |
-| [`schemas/scan-result.json`](schemas/scan-result.json)       | `ScanResult`    |
+| Schema | TypeScript type |
+| ------ | --------------- |
+| [`schemas/scan-result.json`](schemas/scan-result.json) | `ScanResult` |
 | [`schemas/compare-result.json`](schemas/compare-result.json) | `CompareResult` |
 
 Use these schemas to validate CLI output or baselines in your own pipelines.
 
 `--granularity` selects the active ranking array:
 
-| Mode             | Active array | Inactive array  | `meta.granularity` |
-| ---------------- | ------------ | --------------- | ------------------ |
-| `file` (default) | `hotspots`   | `functions: []` | `"file"`           |
-| `function`       | `functions`  | `hotspots: []`  | `"function"`       |
+| Mode | Active array | Inactive array | `meta.granularity` |
+| ---- | ------------ | -------------- | ------------------ |
+| `file` (default) | `hotspots` | `functions: []` | `"file"` |
+| `function` | `functions` | `hotspots: []` | `"function"` |
 
 `coupling` is always file-pair ranked in both modes. **`--top` does not slice JSON** — all ranked entities are exported for scripting and baselines.
 
@@ -320,7 +259,6 @@ Use these schemas to validate CLI output or baselines in your own pipelines.
   }
 }
 ```
-```
 
 Save a baseline for compare mode:
 
@@ -338,23 +276,23 @@ hotspot-scanner scan . --format json --output baseline.json
 
 **Scan bundle** (`--output out/report.csv`):
 
-| File                      | Contents                                                       |
-| ------------------------- | -------------------------------------------------------------- |
-| `out/report.meta.json`    | Scan metadata (`since`, `scannedAt`, `granularity`)            |
+| File | Contents |
+| ---- | -------- |
+| `out/report.meta.json` | Scan metadata (`since`, `scannedAt`, `granularity`) |
 | `out/report.hotspots.csv` | File-mode ranking (or `report.functions.csv` in function mode) |
 | `out/report.coupling.csv` | Coupling pairs (includes `staticDependencyDirection` and kind columns) |
 
 **Compare bundle** (`--baseline baseline.json --format csv --output out/compare.csv`):
 
-| File                                    | Contents                                         |
-| --------------------------------------- | ------------------------------------------------ |
-| `out/compare.meta.json`                 | Baseline/current metadata and warnings           |
-| `out/compare.hotspots.new.csv`          | New hotspots (or `functions.*` in function mode) |
-| `out/compare.hotspots.removed.csv`      | Removed hotspots                                 |
+| File | Contents |
+| ---- | -------- |
+| `out/compare.meta.json` | Baseline/current metadata and warnings |
+| `out/compare.hotspots.new.csv` | New hotspots (or `functions.*` in function mode) |
+| `out/compare.hotspots.removed.csv` | Removed hotspots |
 | `out/compare.hotspots.rank-changed.csv` | Rank changes with baseline/current/delta columns |
-| `out/compare.coupling.new.csv`          | New coupling pairs                               |
-| `out/compare.coupling.removed.csv`      | Removed coupling pairs                           |
-| `out/compare.coupling.rank-changed.csv` | Coupling rank changes                            |
+| `out/compare.coupling.new.csv` | New coupling pairs |
+| `out/compare.coupling.removed.csv` | Removed coupling pairs |
+| `out/compare.coupling.rank-changed.csv` | Coupling rank changes |
 
 Empty sections produce header-only CSV files. Data files have no section title rows.
 
@@ -410,19 +348,172 @@ Delta sections classify entities as **new**, **removed**, or **rank changed** fo
 
 ### Exit codes
 
-| Code | Meaning                                    |
-| ---- | ------------------------------------------ |
-| `0`  | Scan completed successfully                |
-| `2`  | Invalid usage (missing command, bad flags) |
-| `1`  | Runtime error (invalid path, git failure)  |
+| Code | Meaning |
+| ---- | ------- |
+| `0` | Scan completed successfully |
+| `2` | Invalid usage (missing command, bad flags) |
+| `1` | Runtime error (invalid path, git failure) |
 
-## Development
+## Programmatic API
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, quality gates, and contribution workflow.
+Import from the package entry point:
+
+```typescript
+import {
+  runScan,
+  compareScanResults,
+  loadBaseline,
+  parseScanResult,
+} from "@vitals/hotspot-scanner";
+import type {
+  ScanOptions,
+  ScanResult,
+  CompareResult,
+} from "@vitals/hotspot-scanner";
+
+const result: ScanResult = await runScan({
+  repoPath: "/path/to/repo",
+  since: "12 months ago",
+  granularity: "file",
+  minCochange: 3,
+  onWarning: (warning) =>
+    console.warn(`[${warning.code ?? "warning"}] ${warning.message}`),
+});
+
+// Compare against a saved baseline
+const baseline = await loadBaseline("baseline.json");
+const delta: CompareResult = compareScanResults(baseline, result);
+```
+
+`runScan()` returns a typed `ScanResult` with full ranked arrays (no `--top` slicing). The CLI applies `--top` only when rendering table or markdown. Public exports also include domain types (`HotspotScore`, `CouplingPair`, `ScanMeta`, etc.) — see `src/index.ts`.
+
+## Advanced
+
+### Pipeline detail
+
+```
+git log --numstat (streaming) ∥ complexity (McCabe) [file mode] → scoring (file hotspots or function hunk-overlap churn) → coupling + static enrich → table / JSON / markdown / CSV
+```
+
+1. **Git Change Miner** — streams `git log -M --numstat` to aggregate per-file churn and coupling pair counts (`pair → coChangeCount` during the stream — no retained per-commit event array for scoring); parses `old => new` rename lines into a `PathAliasMap` to canonicalize paths (no global `git log --follow`); skips coupling increments for mega-commits (> 100 unique in-scope files per commit) while still counting churn; emits rename-confidence and mega-commit warnings when applicable
+2. **Complexity Analyzer** — computes McCabe cyclomatic complexity over the working-tree AST via ts-morph
+3. **Scoring** — file mode ranks hotspots from file churn + complexity; function mode (`--granularity function`) runs a second `git log -M -p --unified=0` patch stream and attributes commits whose hunks overlap each function's current line range — per-function churn is **not** inherited from parent-file stats; coupling pairs are ranked from the numstat pass in both modes
+4. **Static coupling enricher** — sets static-dependency fields on each coupling pair from working-tree import/export/require edges (relative paths + tsconfig/jsconfig `paths`/`baseUrl`; direction and edge-kind flags)
+5. **Reporter** — renders table, JSON, markdown, or CSV bundle output
+
+#### Scoring
+
+- **Hotspot score:** `2 × normalize(complexity) × normalize(churn) / (normalize(complexity) + normalize(churn))` — harmonic mean after log1p + min-max normalization per scan
+- **Coupling strength:** `coChangeCount / min(commitsA, commitsB)`
+- **Static dependency:** `hasStaticDependency` is `true` when either file has a resolvable static import/export/require to the other; `staticDependencyDirection` and kind flags (`hasRuntimeStaticDependency`, `hasTypeOnlyStaticDependency`, `hasReExportStaticDependency`) add triage detail; ranking is unchanged
+
+Churn is measured as raw commit count (not relative code churn). Complexity is computed from the current working tree, not historical file versions.
+
+### Performance and diagnostics
+
+**Concurrency.** The complexity stage processes files in parallel via a bounded `worker_threads` pool. Default pool size is `min(os.availableParallelism(), 8)` (same as `DEFAULT_WORKER_CONCURRENCY` in code). Higher concurrency uses more memory (N workers × batch AST heap); lower with `--concurrency 1`–`4` on memory-constrained hosts. Override with `--concurrency <n>` or the `concurrency` key in `.hotspot-scanner.json` — precedence is **CLI > config > default**. Invalid values (non-integer or less than 1) exit non-zero before the scan starts.
+
+**Source discovery.** In Git repositories, complexity discovery prefers `git ls-files` (tracked paths only) filtered by eligible extensions and PathScope; on spawn failure it falls back to a recursive filesystem walk with directory prune (same as non-git trees).
+
+**Mega-commit guard (coupling).** Commits with more than 100 unique in-scope files skip coupling pair increments (churn still counted) and may emit `MEGA_COMMIT_SKIPPED` warnings. This prevents `C(n, 2)` pair explosion on bulk commits; coupling rankings may omit pairs from those commits.
+
+**Progress (stderr).** During long git streams, the CLI logs throttled progress every 1,000 commits per phase:
+
+| `phase` | When emitted |
+| ------- | ------------ |
+| `git` | File-mode numstat stream (`--numstat`) |
+| `function-churn` | Function-mode patch stream (`-p --unified=0`) |
+
+Format: `Processing <phase> commit <N>...` (e.g. `Processing function-churn commit 1,000...`). Complexity batching does not emit progress lines.
+
+**Warnings (`meta.warnings`).** Scan and compare JSON include structured warnings on `meta.warnings` — an array of `{ severity, message, code? }` objects (`ScanWarning`). The CLI also prints each warning to stderr with a severity prefix (`info:`, `warning:`, `error:`). Programmatic callers receive the same objects via `onWarning`.
+
+**Severity vs exit code.** `severity` classifies diagnostics only. A successful scan exits `0` even when warnings are present. Hard failures (invalid repo, git error, bad CLI args) still exit non-zero per the [exit codes table](#exit-codes).
+
+#### Warning codes
+
+Stable `code` field for filtering and docs:
+
+| Code | Interpretation |
+| ---- | -------------- |
+| `EMPTY_SINCE_WINDOW` | No commits in the `--since` window — rankings may be empty or sparse; widen the window |
+| `RENAME_HISTORY_INCOMPLETE` | Rename tracking incomplete for one or more paths — churn may be split; includes rename-confidence messages (ambiguous chain, unlinked delete+add, `--since` truncation, function-mode overlap confidence) |
+| `PARSE_FAILED` | A source file could not be parsed for complexity — file skipped; fix syntax or exclude the path |
+| `COMPARE_SINCE_MISMATCH` | Baseline and current scan used different `--since` values — rank deltas are less comparable |
+| `MEGA_COMMIT_SKIPPED` | One or more commits exceeded 100 unique in-scope files — those commits did not contribute to coupling pair counts (churn still counted); coupling rankings may omit pairs from bulk commits |
+
+Find-renames (`-M`) is enabled on git log spawns so real renames can unify churn under canonical paths. The scanner does **not** use global `git log --follow`.
+
+#### Rename confidence
+
+Rename blind-spot messages are emitted with `code: "RENAME_HISTORY_INCOMPLETE"`. Typical human-readable patterns:
+
+| Message pattern | When |
+| --------------- | ---- |
+| `Rename history may be incomplete for: …` | Ambiguous rename chain (`PathAliasMap`) |
+| `Suspected unlinked rename (no git rename metadata): …` | Same-commit delete+add that looks like a move but git emitted no `=>` line |
+| `Rename history before the --since window (…) may be missing under canonical paths` | `--since` is set and at least one rename link was seen in the window |
+| Function overlap confidence (function mode only) | Rename links or ambiguous paths during per-function hunk attribution |
+
+### Features
+
+- **Hotspot ranking** — harmonic mean of complexity and churn to surface actively maintained complex code
+- **Temporal coupling** — find file pairs that co-change together; static enrichment flags import edges (`hasStaticDependency`), direction (`a→b` / `b→a` / `both`), and edge kinds (runtime, type-only, re-export) including tsconfig `paths` aliases
+- **Function granularity** — rank individual functions with `--granularity function`; per-function churn comes from hunk overlap on a patch stream, not inherited parent-file stats
+- **Scan compare** — diff current results against a saved baseline JSON (`--baseline`)
+- **Streaming Git parse** — file mode streams `git log --numstat` for churn and coupling; function mode adds a patch stream (`git log -p --unified=0`) for per-function hunk attribution
+- **Path scoping** — default excludes for `node_modules`, `.git`, `dist`, `coverage`, `build`, `.next`, `out`, `vendor`, `storybook-static`, and `__snapshots__`; optional `--include` / `--exclude` globs (additive on defaults)
+- **Repo config file** — optional `.hotspot-scanner.json` discovered at the scan target or in a parent directory; `--config <path>` for explicit CI paths (CLI flags override)
+- **Flexible output** — CLI table, JSON, GitHub-flavored markdown, or multi-file CSV bundle
+
+### CLI reference
+
+```
+hotspot-scanner scan <path> [options]
+```
+
+| Flag | Default | Description |
+| ---- | ------- | ----------- |
+| `<path>` | — | Repository path (required) |
+| `--since` | `12 months ago` | Git history window |
+| `--format` | `table` | Output format: `table`, `json`, `markdown`, or `csv` (csv requires `--output`) |
+| `--granularity` | `file` | Ranking granularity: `file` or `function` |
+| `--output <path>` | — | Write report to file instead of stdout (required for `--format csv`) |
+| `--baseline <path>` | — | Compare scan against baseline JSON from a prior run |
+| `--top` | `20` | Top N rows in table/markdown output (ignored for json/csv) |
+| `--min-cochange` | `3` | Minimum co-change count for coupling pairs |
+| `--include <glob>` | — | Include only paths matching glob (repeatable) |
+| `--exclude <glob>` | — | Exclude paths matching glob (repeatable, additive) |
+| `--config <path>` | — | Load config from explicit file (skips parent-directory discovery) |
+| `--concurrency` | `min(availableParallelism(), 8)` | Complexity analyzer worker-pool size (positive integer ≥ 1) |
+
+#### Examples
 
 ```bash
-pnpm build && pnpm test
+hotspot-scanner scan . --since "6 months ago"
+hotspot-scanner scan . --format json --top 10  # --top ignored; full arrays exported
+hotspot-scanner scan . --granularity function --format json
+hotspot-scanner scan . --format markdown --output report.md
+# CSV bundle (writes report.meta.json, report.hotspots.csv, report.coupling.csv)
+hotspot-scanner scan . --format csv --output report.csv
+hotspot-scanner scan . --format json --output baseline.json
+hotspot-scanner scan . --baseline baseline.json --format markdown
+# Compare CSV bundle (writes compare.meta.json + six data CSVs)
+hotspot-scanner scan . --baseline baseline.json --format csv --output compare.csv
+hotspot-scanner scan . --include "src/**" --exclude "**/*.test.ts"
+hotspot-scanner scan . --concurrency 1   # sequential complexity batches (debug / low-memory)
 ```
+
+## Limitations
+
+- **TypeScript/JavaScript only** — other languages are not analyzed
+- **Commit-count churn** — churn is measured as raw commit count per file, not relative lines-of-code changed
+- **Node.js 22+** — older Node versions are not supported (`engines.node >= 22`)
+- **Git required** — the scanner shells out to `git log` at scan time; non-git trees use filesystem walk only for discovery
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for local setup, quality gates, and contribution workflow.
 
 ## License
 

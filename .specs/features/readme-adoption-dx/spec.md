@@ -12,12 +12,12 @@ The README is accurate enough for maintainers but weak for first-time adoption: 
 
 ## Goals
 
-- [ ] Fix the duplicate fence so all README sections render
-- [ ] Restructure a **single** README: short top for adoption DX; Advanced (or deep linked sections) for detail
-- [ ] Add real versioned CLI table asset under `docs/assets/` from fixture `small-ts`
-- [ ] Replace `<repo-url>` with the real GitHub clone URL; keep clone + `pnpm install` + `pnpm build` as the official path
-- [ ] Expand `package.json` `keywords` for discovery prep (no publish)
-- [ ] No `src/` / `bin/` behavior changes
+- [x] Fix the duplicate fence so all README sections render
+- [x] Restructure a **single** README: short top for adoption DX; Advanced (or deep linked sections) for detail
+- [x] Add real versioned CLI table asset under `docs/assets/` from fixture `small-ts`
+- [x] Replace `<repo-url>` with the real GitHub clone URL; keep clone + `pnpm install` + `pnpm build` as the official path
+- [x] Expand `package.json` `keywords` for discovery prep (no publish)
+- [x] No `src/` / `bin/` behavior changes
 
 ## Out of Scope
 
@@ -429,9 +429,9 @@ The README is accurate enough for maintainers but weak for first-time adoption: 
 
 ## Success Criteria
 
-- [ ] README renders fully on GitHub (no fence truncation)
-- [ ] First ~60 lines convey problem, solution, sample output, and asset
-- [ ] Clone URL is real; no npm primary install; no npm version badge
-- [ ] User-facing jargon (M26/M28/M32/RT-003) and “v1” framing removed from README
-- [ ] `docs/assets/` holds a real CLI table capture
-- [ ] `pnpm build && pnpm test` green after Execute
+- [x] README renders fully on GitHub (no fence truncation)
+- [x] First ~60 lines convey problem, solution, sample output, and asset
+- [x] Clone URL is real; no npm primary install; no npm version badge
+- [x] User-facing jargon (M26/M28/M32/RT-003) and “v1” framing removed from README
+- [x] `docs/assets/` holds a real CLI table capture
+- [x] `pnpm build && pnpm test` green after Execute

@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/readme-adoption-dx/spec.md`](./spec.md)  
 **Design**: [`.specs/features/readme-adoption-dx/design.md`](./design.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Large / docs-only — thin design; sister [product-docs-sync](../product-docs-sync/tasks.md). **Do not Execute in the planning session.**
 
 ---
@@ -93,9 +93,9 @@ T3–T5 all own `README.md` — **not** `[P]`. T1 ‖ T2 only.
 
 **Done when**:
 
-- [ ] `docs/assets/` exists in repo
-- [ ] At least one real CLI table capture file is present (not a TODO placeholder)
-- [ ] Capture was produced from a `small-ts` scan (command recorded in commit message or brief asset note optional)
+- [x] `docs/assets/` exists in repo
+- [x] At least one real CLI table capture file is present (not a TODO placeholder)
+- [x] Capture was produced from a `small-ts` scan (command recorded in commit message or brief asset note optional)
 
 **Tests**: none
 
@@ -129,10 +129,10 @@ ls -la docs/assets/
 
 **Done when**:
 
-- [ ] No double-close fence around the large JSON example; following sections render
-- [ ] README and CONTRIBUTING have zero `<repo-url>` placeholders
-- [ ] Clone URL matches GitHub repo from package.json
-- [ ] No npx/npm install presented as official path
+- [x] No double-close fence around the large JSON example; following sections render
+- [x] README and CONTRIBUTING have zero `<repo-url>` placeholders
+- [x] Clone URL matches GitHub repo from package.json
+- [x] No npx/npm install presented as official path
 
 **Tests**: none
 
@@ -167,13 +167,13 @@ rg -n 'github.com/taranti/hotspot-scanner' README.md CONTRIBUTING.md
 
 **Done when**:
 
-- [ ] Cover distinguishes `@vitals/hotspot-scanner` (package) vs `hotspot-scanner` (bin)
-- [ ] Badges present without npm version/downloads badge
-- [ ] Opening is problem → solution + short local/TS-JS positioning
-- [ ] Privacy / 100% local callout near top
-- [ ] TOC links major sections
-- [ ] Sample table output appears in first ~60 lines; asset image referenced early
-- [ ] Quick start still uses `pnpm exec hotspot-scanner` (or built bin), not scoped name as argv0
+- [x] Cover distinguishes `@vitals/hotspot-scanner` (package) vs `hotspot-scanner` (bin)
+- [x] Badges present without npm version/downloads badge
+- [x] Opening is problem → solution + short local/TS-JS positioning
+- [x] Privacy / 100% local callout near top
+- [x] TOC links major sections
+- [x] Sample table output appears in first ~60 lines; asset image referenced early
+- [x] Quick start still uses `pnpm exec hotspot-scanner` (or built bin), not scoped name as argv0
 
 **Tests**: none
 
@@ -202,10 +202,10 @@ rg -n 'github.com/taranti/hotspot-scanner' README.md CONTRIBUTING.md
 
 **Done when**:
 
-- [ ] Top How it works is a short pipeline summary
-- [ ] Advanced section exists and holds former deep concurrency/mega-commit/rename detail (content preserved, may still need jargon pass in T5)
-- [ ] Workflows block covers triage / baseline / PR markdown with command hints
-- [ ] Essential flags early; full reference not duplicated thrice
+- [x] Top How it works is a short pipeline summary
+- [x] Advanced section exists and holds former deep concurrency/mega-commit/rename detail (content preserved, may still need jargon pass in T5)
+- [x] Workflows block covers triage / baseline / PR markdown with command hints
+- [x] Essential flags early; full reference not duplicated thrice
 
 **Tests**: none
 
@@ -234,10 +234,10 @@ rg -n 'github.com/taranti/hotspot-scanner' README.md CONTRIBUTING.md
 
 **Done when**:
 
-- [ ] `rg 'M26|M28|M32|RT-003' README.md` is empty
-- [ ] No user-facing “v1” product framing remains in README
-- [ ] Programmatic API sits after CLI/baseline (or linked per AC)
-- [ ] Limitations section present with four constraints; TOC links it
+- [x] `rg 'M26|M28|M32|RT-003' README.md` is empty
+- [x] No user-facing “v1” product framing remains in README
+- [x] Programmatic API sits after CLI/baseline (or linked per AC)
+- [x] Limitations section present with four constraints; TOC links it
 
 **Tests**: none
 
@@ -272,9 +272,9 @@ rg -n 'Limitations|Programmatic' README.md
 
 **Done when**:
 
-- [ ] README points to CONTRIBUTING for contribute/setup depth
-- [ ] `keywords` expanded beyond the original four; includes design-oriented discovery terms
-- [ ] No publish/registry install docs added
+- [x] README points to CONTRIBUTING for contribute/setup depth
+- [x] `keywords` expanded beyond the original four; includes design-oriented discovery terms
+- [x] No publish/registry install docs added
 
 **Tests**: none
 
@@ -303,10 +303,10 @@ rg -n 'Limitations|Programmatic' README.md
 
 **Done when**:
 
-- [ ] All design verification greps pass
-- [ ] Diff has no intentional `src/` / `bin/` behavior changes
-- [ ] `pnpm build && pnpm test` passes
-- [ ] On Execute completion: ROADMAP M37 bullets `[x]`; tasks.md Status `Done`; STATE Active updated
+- [x] All design verification greps pass
+- [x] Diff has no intentional `src/` / `bin/` behavior changes
+- [x] `pnpm build && pnpm test` passes
+- [x] On Execute completion: ROADMAP M37 bullets `[x]`; tasks.md Status `Done`; STATE Active updated
 
 **Tests**: none
 
@@ -366,8 +366,6 @@ Phase 3:
 
 ---
 
-## Handoff (planning complete)
+## Handoff (Execute complete)
 
-Status is **Planned**. Promote to `Approved` / `Ready for Execute` in a **new** session, then invoke `orchestrator-implementer`.
-
-Expected final gate: `pnpm build && pnpm test`
+Status is **Done**. Gate: `pnpm build && pnpm test` green.

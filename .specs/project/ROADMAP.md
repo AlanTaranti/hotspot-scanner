@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M36 Done** — Post-M30 perf backlog complete. Next planned: **M37** README adoption DX (Specs Planned; npm publish deferred).
+Status: **M7–M37 Done** — Post-M30 perf backlog complete. M37 README adoption DX Done.
 
 ## Milestone 1 — Scaffold
 
@@ -396,17 +396,17 @@ Workers and coupling/enrich first (isolated wins); function-mode I/O next; stage
 
 ## Post-M36 backlog — adoption / distribution
 
-### Milestone 37 — README Adoption DX — Specs Planned
+### Milestone 37 — README Adoption DX — DONE
 
 → [`.specs/features/readme-adoption-dx/spec.md`](../features/readme-adoption-dx/spec.md)  
-**Slug:** `readme-adoption-dx` | **Priority:** High | **Specs:** Planned | **Execute:** Pending  
+**Slug:** `readme-adoption-dx` | **Priority:** High | **Specs:** Done | **Execute:** Done  
 **IDs:** HOTSPOT-420–440 | **Sister:** [product-docs-sync](../features/product-docs-sync/spec.md) (M25)
 
 Improve GitHub-facing adoption DX without npm publish. Official install remains `git clone` + `pnpm install` + `pnpm build` using the real GitHub URL. **npm / npx / publish install path is future backlog (not M37).**
 
-- [ ] Fix duplicate Markdown fence; restore rendering of following sections
-- [ ] Opening: problem → solution; package vs bin naming; TOC; badges (no npm version)
-- [ ] Sample CLI table + real `docs/assets/` screenshot from fixture `small-ts` in first ~60 lines
-- [ ] Short top + Advanced detail; slim How it works; workflows; privacy; Limitations
-- [ ] Remove user-facing M26/M28/M32/RT-003 jargon and “v1” framing; keep stable warning `code`s
-- [ ] Real clone URL; CONTRIBUTING pointer/dedupe; expand `package.json` keywords (no publish)
+- [x] Fix duplicate Markdown fence; restore rendering of following sections
+- [x] Opening: problem → solution; package vs bin naming; TOC; badges (no npm version)
+- [x] Sample CLI table + real `docs/assets/` screenshot from fixture `small-ts` in first ~60 lines
+- [x] Short top + Advanced detail; slim How it works; workflows; privacy; Limitations
+- [x] Remove user-facing M26/M28/M32/RT-003 jargon and “v1” framing; keep stable warning `code`s
+- [x] Real clone URL; CONTRIBUTING pointer/dedupe; expand `package.json` keywords (no publish)

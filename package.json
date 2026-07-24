@@ -41,7 +41,15 @@
     "hotspot",
     "complexity",
     "git",
-    "maintenance"
+    "maintenance",
+    "temporal-coupling",
+    "cyclomatic-complexity",
+    "refactoring",
+    "typescript",
+    "javascript",
+    "cli",
+    "code-churn",
+    "tech-debt"
   ],
   "author": "Alan Taranti",
   "license": "MIT",

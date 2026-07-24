@@ -48,7 +48,7 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-23 | **M35 function-mode scan efficiency Done**                   | Execute complete: function-mode `pathAllowlist` on complexity (churn ∩ scope ∩ eligible ext); pathspec-restricted patch spawn with `PATCH_PATHSPEC_FALLBACK_THRESHOLD` (1000); interval-index hunk overlap in `aggregatePatchCommit`; scan wiring + integration regressions (file-mode zero patch spawn, ranking parity, zero-churn omission); docs synced (ARCHITECTURE, CONCERNS, TESTING). No historical AST. Gate green (`pnpm build && pnpm test`, 560 tests). Next: M34 pipeline stage overlap (suggested order). |
 | 2026-07-23 | **M36 discovery & concurrency defaults Done**                    | `listTrackedFiles` (`git ls-files -z`) in `src/git/`; `discoverSourceFiles` prefers Git listing with walk fallback; `DEFAULT_WORKER_CONCURRENCY` cap 4→8; living docs synced. Gate green (591 tests). |
 | 2026-07-23 | **M31–M36 Execute complete**                                 | Post-M30 perf backlog all Done per ROADMAP; execution order M31→M32→M33→M35→M34→M36; final gate 591 tests |
-| 2026-07-24 | **M37 README Adoption DX — Specs Planned**                   | Docs-only adoption milestone: single README restructure + `docs/assets/` CLI capture + keywords; IDs HOTSPOT-420–440. Specs: `.specs/features/readme-adoption-dx/` (Status Planned). Sister M25 product-docs-sync. |
+| 2026-07-24 | **M37 README Adoption DX Done**                              | Execute complete: README restructure (problem→solution, TOC, badges, sample output, `docs/assets/` CLI capture), real clone URL, jargon/v1 cleanup, Advanced section, Limitations, keywords expanded. Docs-only; gate green (`pnpm build && pnpm test`). Specs: `.specs/features/readme-adoption-dx/` (Done). npm publish still deferred. |
 | 2026-07-24 | **npm / npx publish install deferred (not M37)**             | Critical #1 and Medium #13 (npx/pnpm dlx) stay future backlog until a publish decision. M37 install story: real GitHub clone URL from `package.json` (`https://github.com/taranti/hotspot-scanner.git`) + `pnpm install` + `pnpm build` only — do not invent registry install path. |
 
 ## Architecture decisions (ADRs)
@@ -84,9 +84,7 @@ _None._
 
 ## Active
 
-Post-v1 milestones **M7–M36 Done**. Post-M30 perf backlog complete.
-
-**M37** `readme-adoption-dx` — planning complete (`tasks.md` Status **Planned**). Next: promote Status → invoke `orchestrator-implementer` in a new session.
+Post-v1 milestones **M7–M37 Done**. Post-M30 perf backlog complete. M37 README adoption DX Done.
 
 ## Deferred
 

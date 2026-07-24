@@ -18,7 +18,7 @@ Thank you for your interest in contributing. This document explains how to set u
 ## Local setup
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/taranti/hotspot-scanner.git
 cd hotspot-scanner
 pnpm install
 pnpm build
