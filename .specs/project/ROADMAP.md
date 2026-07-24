@@ -146,9 +146,9 @@ Prefer balanced dual-signal files (actively complex + churned) over spiky one-ax
 → [`.specs/features/format-scoped-top/spec.md`](../features/format-scoped-top/spec.md)  
 **Slug:** `format-scoped-top` | **Priority:** Medium | **Specs:** Done
 
-- [ ] `--top` limits output only for `--format table`, `--format markdown`
-- [ ] `--format json` (scan and compare) outputs full ranked arrays; `--top` is ignored
-- [ ] Compare: classification still uses full rankings; slicing applies only to table/markdown delta display
+- [x] `--top` limits output only for `--format table`, `--format markdown`
+- [x] `--format json` (scan and compare) outputs full ranked arrays; `--top` is ignored
+- [x] Compare: classification still uses full rankings; slicing applies only to table/markdown delta display
 
 ### Milestone 17 — CSV Export
 

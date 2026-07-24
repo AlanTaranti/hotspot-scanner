@@ -137,7 +137,11 @@ export function createCliProgram(): Command {
       "--baseline <path>",
       "Compare scan against baseline JSON from a prior run",
     )
-    .option("--top <n>", "Top N results per ranking", String(DEFAULT_TOP))
+    .option(
+      "--top <n>",
+      "Top N rows in table/markdown output (ignored for json/csv)",
+      String(DEFAULT_TOP),
+    )
     .option(
       "--min-cochange <n>",
       "Minimum co-change count for coupling pairs",

@@ -18,7 +18,7 @@ pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo>
 With flags:
 
 ```bash
-pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --since "12 months ago" --format json --top 20
+pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --since "12 months ago" --format json --top 20  # --top ignored; full arrays
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --granularity function --format json
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format markdown --output /tmp/report.md
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format csv --output /tmp/report.csv
@@ -49,7 +49,7 @@ See [AGENTS.md](../../../AGENTS.md) § Validation.
 | `--granularity <mode>` | Ranking granularity: `file` or `function` | `file` |
 | `--output <path>` | Write report to file (any format) | stdout |
 | `--baseline <path>` | Compare against saved baseline JSON | — |
-| `--top <N>` | Limit ranking items | TBD |
+| `--top <N>` | Limit table/markdown rows (ignored for json/csv) | `20` |
 | `--min-cochange <N>` | Min co-changes for coupling pairs | TBD |
 
 Test relevant flags when the feature scope touches CLI.

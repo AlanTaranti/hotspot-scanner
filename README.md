@@ -57,7 +57,7 @@ hotspot-scanner scan <path> [options]
 | `--granularity` | `file` | Ranking granularity: `file` or `function` |
 | `--output <path>` | — | Write report to file instead of stdout |
 | `--baseline <path>` | — | Compare scan against baseline JSON from a prior run |
-| `--top` | `20` | Top N results per ranking section |
+| `--top` | `20` | Top N rows in table/markdown output (ignored for json/csv) |
 | `--min-cochange` | `3` | Minimum co-change count for coupling pairs |
 | `--include <glob>` | — | Include only paths matching glob (repeatable) |
 | `--exclude <glob>` | — | Exclude paths matching glob (repeatable, additive) |
@@ -66,7 +66,7 @@ hotspot-scanner scan <path> [options]
 
 ```bash
 hotspot-scanner scan . --since "6 months ago"
-hotspot-scanner scan . --format json --top 10
+hotspot-scanner scan . --format json --top 10  # --top ignored; full arrays exported
 hotspot-scanner scan . --granularity function --format json
 hotspot-scanner scan . --format markdown --output report.md
 hotspot-scanner scan . --format csv --output report.csv

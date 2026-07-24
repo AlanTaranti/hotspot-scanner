@@ -20,6 +20,7 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-22 | Hotspot combiner: **harmonic mean** `2ch/(c+h)` | Favors balanced dual-signal files over one-axis outliers; same log1p+min-max normalization (M8) |
 | 2026-07-22 | Expose **`authorCount`** (bus factor) in hotspot output | Derived from `FileChangeStats.authors` Set size; `authors` list remains internal (M9) |
 | 2026-07-22 | Function-mode ranking: **hotspotScore with inherited file churn** | Same harmonic combiner as file mode; per-function McCabe + parent file `commitCount`; no per-function git history in v1 (M11) |
+| 2026-07-23 | **`--top` scoped to table/markdown only** | JSON and CSV export full ranked arrays; `--top` ignored for machine-readable formats (M16). **Breaking change:** pre-M16 `--format json --top N` returned at most N items per array; post-M16 JSON always returns full arrays |
 
 ## Architecture decisions (ADRs)
 

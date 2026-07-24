@@ -13,11 +13,11 @@ Data pipelines and baseline export (`--format json --output`) need complete rank
 
 ## Goals
 
-- [ ] `--top` limits output only for `--format table` and `--format markdown` (scan and compare)
-- [ ] `--format json` outputs full ranked arrays; `--top` is ignored (scan and compare)
-- [ ] `--format csv` behavior unchanged from M17 (`--top` ignored)
-- [ ] Compare classification uses full rankings; slicing applies only to table/markdown delta display
-- [ ] `pnpm build && pnpm test` passing after Execute
+- [x] `--top` limits output only for `--format table` and `--format markdown` (scan and compare)
+- [x] `--format json` outputs full ranked arrays; `--top` is ignored (scan and compare)
+- [x] `--format csv` behavior unchanged from M17 (`--top` ignored)
+- [x] Compare classification uses full rankings; slicing applies only to table/markdown delta display
+- [x] `pnpm build && pnpm test` passing after Execute
 
 ## Out of Scope
 
@@ -171,12 +171,12 @@ Explicitly excluded. Documented to prevent scope creep.
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| HOTSPOT-129 | P1: Scan JSON ignores `--top` | Tasks T1 | Planned |
-| HOTSPOT-130 | P1: Compare JSON ignores `--top` | Tasks T1 | Planned |
-| HOTSPOT-131 | P1: Table/markdown retain slicing | Tasks T1 | Planned |
-| HOTSPOT-132 | P1: Reporter factory dispatch | Tasks T1 | Planned |
-| HOTSPOT-133 | P1: Tests | Tasks T1, T2 | Planned |
-| HOTSPOT-134 | P1: CLI help and documentation sync | Tasks T2, T3 | Planned |
+| HOTSPOT-129 | P1: Scan JSON ignores `--top` | Tasks T1 | Done |
+| HOTSPOT-130 | P1: Compare JSON ignores `--top` | Tasks T1 | Done |
+| HOTSPOT-131 | P1: Table/markdown retain slicing | Tasks T1 | Done |
+| HOTSPOT-132 | P1: Reporter factory dispatch | Tasks T1 | Done |
+| HOTSPOT-133 | P1: Tests | Tasks T1, T2 | Done |
+| HOTSPOT-134 | P1: CLI help and documentation sync | Tasks T2, T3 | Done |
 
 **Coverage:** 6 total, 6 mapped to tasks, 0 unmapped
 
@@ -184,8 +184,8 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Success Criteria
 
-- [ ] All P1 acceptance criteria verifiable via Vitest + fixtures (no human judgment)
-- [ ] `pnpm build && pnpm test` passes after Execute
-- [ ] `src/report/index.ts` behavior matches ARCHITECTURE.md format-scoped `--top` policy
-- [ ] `orchestrator-implementer` can execute T1–T4 without ambiguous scope
-- [ ] No changes to scoring, normalization, compare engine, or JSON/CompareResult schemas
+- [x] All P1 acceptance criteria verifiable via Vitest + fixtures (no human judgment)
+- [x] `pnpm build && pnpm test` passes after Execute
+- [x] `src/report/index.ts` behavior matches ARCHITECTURE.md format-scoped `--top` policy
+- [x] `orchestrator-implementer` can execute T1–T4 without ambiguous scope
+- [x] No changes to scoring, normalization, compare engine, or JSON/CompareResult schemas

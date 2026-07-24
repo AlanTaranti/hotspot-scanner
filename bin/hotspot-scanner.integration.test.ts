@@ -352,6 +352,101 @@ describe("hotspot-scanner CLI integration", () => {
     expect(dataRows.length).toBeGreaterThan(1);
   });
 
+  it("exports all hotspot rows with --top 1 --format json", async () => {
+    const { chunks } = captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      smallTsFixture,
+      "--format",
+      "json",
+      "--top",
+      "1",
+    ]);
+
+    const parsed = JSON.parse(chunks.join("")) as {
+      hotspots: unknown[];
+      coupling: unknown[];
+    };
+    expect(parsed.hotspots.length).toBeGreaterThan(1);
+    expect(parsed.coupling.length).toBeGreaterThan(0);
+  });
+
+  it("exports full compare JSON with --top 1 --format json --baseline", async () => {
+    const dir = await createTempDir();
+    const baselinePath = join(dir, "baseline.json");
+    const baselineCapture = captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      smallTsFixture,
+      "--format",
+      "json",
+      "--output",
+      baselinePath,
+    ]);
+    baselineCapture.restore();
+
+    const { chunks } = captureStdout();
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      smallTsFixture,
+      "--format",
+      "json",
+      "--top",
+      "1",
+      "--baseline",
+      baselinePath,
+    ]);
+
+    const parsed = JSON.parse(chunks.join("")) as {
+      hotspots: {
+        new: unknown[];
+        removed: unknown[];
+        rankChanged: unknown[];
+      };
+      coupling: {
+        new: unknown[];
+        removed: unknown[];
+        rankChanged: unknown[];
+      };
+    };
+
+    const { chunks: fullChunks } = captureStdout();
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      smallTsFixture,
+      "--format",
+      "json",
+      "--baseline",
+      baselinePath,
+    ]);
+    const fullParsed = JSON.parse(fullChunks.join("")) as typeof parsed;
+
+    expect(parsed.hotspots.new).toHaveLength(fullParsed.hotspots.new.length);
+    expect(parsed.hotspots.removed).toHaveLength(
+      fullParsed.hotspots.removed.length,
+    );
+    expect(parsed.hotspots.rankChanged).toHaveLength(
+      fullParsed.hotspots.rankChanged.length,
+    );
+    expect(parsed.coupling.new).toHaveLength(fullParsed.coupling.new.length);
+    expect(parsed.coupling.removed).toHaveLength(
+      fullParsed.coupling.removed.length,
+    );
+    expect(parsed.coupling.rankChanged).toHaveLength(
+      fullParsed.coupling.rankChanged.length,
+    );
+  });
+
   it("writes compare CSV to file with --baseline on small-ts fixture", async () => {
     const dir = await createTempDir();
     const baselinePath = join(dir, "baseline.json");

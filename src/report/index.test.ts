@@ -70,14 +70,24 @@ describe("createReporter", () => {
     expect(output).toContain("Rank Changed Hotspots");
   });
 
-  it("renders JSON output", () => {
+  it("renders JSON output with full arrays when top is set", () => {
     const output = createReporter().render(loadFixture(), {
       format: "json",
       top: 2,
     });
     const parsed = JSON.parse(output) as ScanResult;
 
-    expect(parsed.hotspots).toHaveLength(2);
+    expect(parsed.hotspots).toHaveLength(3);
+    expect(parsed.coupling).toHaveLength(2);
+  });
+
+  it("renders JSON output with full arrays when top is omitted", () => {
+    const output = createReporter().render(loadFixture(), {
+      format: "json",
+    });
+    const parsed = JSON.parse(output) as ScanResult;
+
+    expect(parsed.hotspots).toHaveLength(3);
     expect(parsed.coupling).toHaveLength(2);
   });
 
@@ -136,15 +146,29 @@ describe("createReporter", () => {
     expect(output).toContain("## Rank Changed Functions");
   });
 
-  it("renders compare JSON output", () => {
-    const output = createReporter().renderCompare(loadCompareResult(), {
+  it("renders compare JSON output with full delta arrays when top is set", () => {
+    const compareResult = loadCompareResult();
+    const output = createReporter().renderCompare(compareResult, {
       format: "json",
-      top: 2,
+      top: 1,
     });
     const parsed = JSON.parse(output);
 
     expect(parsed.version).toBe("1.0");
-    expect(parsed.hotspots.new).toHaveLength(1);
+    expect(parsed.hotspots.new).toHaveLength(compareResult.hotspots.new.length);
+    expect(parsed.hotspots.removed).toHaveLength(
+      compareResult.hotspots.removed.length,
+    );
+    expect(parsed.hotspots.rankChanged).toHaveLength(
+      compareResult.hotspots.rankChanged.length,
+    );
+    expect(parsed.coupling.new).toHaveLength(compareResult.coupling.new.length);
+    expect(parsed.coupling.removed).toHaveLength(
+      compareResult.coupling.removed.length,
+    );
+    expect(parsed.coupling.rankChanged).toHaveLength(
+      compareResult.coupling.rankChanged.length,
+    );
   });
 
   it("renders compare table output", () => {

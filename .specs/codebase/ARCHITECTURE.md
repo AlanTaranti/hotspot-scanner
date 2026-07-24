@@ -118,14 +118,14 @@ Each `FunctionHotspotScore` entry carries per-function McCabe plus inherited fil
 | `hotspotScore`, `complexityNormalized`, `churnNormalized` | harmonic combiner over all functions (same formula as file mode) |
 | `commitCount`, `linesChanged`, `authorCount` | parent file `FileChangeStats` (inherited) |
 
-`coupling` remains file-pair ranked in both modes. `--top` slices the active ranking array at render time via `sliceScanResult`.
+`coupling` remains file-pair ranked in both modes. `--top` slices the active ranking array at render time via `sliceScanResult` for **table and markdown only**; JSON and CSV receive full arrays.
 
 ## Export formats (M10, M17)
 
 - **`--format markdown`** — GFM report with hotspot and coupling tables (includes `linesChanged` column)
 - **`--format csv`** — multi-block RFC 4180 CSV with metadata, hotspots/functions, and coupling sections; `--top` ignored (full export)
 - **`--output <path>`** — write report to file for any format (`table`, `json`, `markdown`, `csv`); stdout silent for report content
-- **Reporter module**: `renderMarkdown()` in `src/report/markdown.ts`; `renderCsv()` / `renderCompareCsv()` in `src/report/csv.ts` and `compare-csv.ts`; `createReporter()` dispatches by format (CSV bypasses slice helpers)
+- **Reporter module**: `renderMarkdown()` in `src/report/markdown.ts`; `renderCsv()` / `renderCompareCsv()` in `src/report/csv.ts` and `compare-csv.ts`; `createReporter()` dispatches by format (JSON and CSV bypass slice helpers; table/markdown slice via `sliceScanResult` / `sliceCompareResult`)
 - **Path validation**: parent directory must exist; directory targets rejected; overwrite is default
 
 ## Scan compare (M13)
@@ -135,5 +135,5 @@ Each `FunctionHotspotScore` entry carries per-function McCabe plus inherited fil
 - **CompareResult** schema (`version: "1.0"`): separate from `ScanResult`; sections for hotspots/functions (mode-dependent) and coupling pairs
 - **Entity keys**: file path for hotspots; `filePath + functionName + line` for functions; canonical `(fileA, fileB)` for coupling
 - **Guards**: granularity mismatch → hard error; `since` mismatch → warning in `meta.warnings` (stderr + report)
-- **`--top`** on compare output slices delta arrays at render time via `sliceCompareResult()` — classification uses full rankings
-- **Reporter**: `createReporter().renderCompare()` dispatches to `compare-table`, `compare-json`, `compare-markdown`, `compare-csv` (CSV bypasses slice helpers; `--top` ignored)
+- **`--top`** on compare output slices delta arrays at render time via `sliceCompareResult()` for **table and markdown only** — classification uses full rankings; JSON and CSV receive unsliced deltas
+- **Reporter**: `createReporter().renderCompare()` dispatches to `compare-table`, `compare-json`, `compare-markdown`, `compare-csv` (JSON and CSV bypass slice helpers; `--top` ignored)

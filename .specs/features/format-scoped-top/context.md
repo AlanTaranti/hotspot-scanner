@@ -1,7 +1,7 @@
 # Milestone 16 — Format-Scoped Top Limit Context
 
 **Spec**: [`.specs/features/format-scoped-top/spec.md`](./spec.md)  
-**Status**: Planned
+**Status**: Done
 
 Captured decisions for M16. No open gray areas — all choices confirmed from ROADMAP M16 and M17 precedent.
 

@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/format-scoped-top/spec.md`](./spec.md)  
 **Context**: [`.specs/features/format-scoped-top/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 

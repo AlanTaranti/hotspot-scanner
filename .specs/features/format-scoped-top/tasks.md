@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/format-scoped-top/design.md`](./design.md)  
 **Spec**: [`.specs/features/format-scoped-top/spec.md`](./spec.md)  
 **Context**: [`.specs/features/format-scoped-top/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -76,15 +76,15 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `render(..., { format: "json", top: 2 })` returns JSON with all 3 hotspot rows from fixture
-- [ ] `render(..., { format: "json", top: 2 })` returns JSON with all coupling rows from fixture
-- [ ] `renderCompare(..., { format: "json", top: 1 })` returns unsliced delta arrays (match raw `CompareResult` section lengths)
-- [ ] `render(..., { format: "table", top: 2 })` still limits visible hotspot rows
-- [ ] `render(..., { format: "markdown", top: 2 })` still limits visible hotspot rows
-- [ ] `renderCompare(..., { format: "table", top: 2 })` still slices delta display
-- [ ] `render(..., { format: "csv", top: 1 })` still exports all hotspot rows (M17 regression)
-- [ ] Function mode: `render(..., { format: "table", top: 2 })` slices `functions`, not `hotspots`
-- [ ] `sliceScanResult` and `sliceCompareResult` files unchanged
+- [x] `render(..., { format: "json", top: 2 })` returns JSON with all 3 hotspot rows from fixture
+- [x] `render(..., { format: "json", top: 2 })` returns JSON with all coupling rows from fixture
+- [x] `renderCompare(..., { format: "json", top: 1 })` returns unsliced delta arrays (match raw `CompareResult` section lengths)
+- [x] `render(..., { format: "table", top: 2 })` still limits visible hotspot rows
+- [x] `render(..., { format: "markdown", top: 2 })` still limits visible hotspot rows
+- [x] `renderCompare(..., { format: "table", top: 2 })` still slices delta display
+- [x] `render(..., { format: "csv", top: 1 })` still exports all hotspot rows (M17 regression)
+- [x] Function mode: `render(..., { format: "table", top: 2 })` slices `functions`, not `hotspots`
+- [x] `sliceScanResult` and `sliceCompareResult` files unchanged
 
 **Tests**: `index.test.ts` — JSON full export (scan + compare), table/markdown slice preserved, CSV regression, function mode slice
 
@@ -111,11 +111,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Commander `--top` help mentions table/markdown scope and json/csv ignored
-- [ ] Integration: `scan small-ts --format json --top 1` exits `0` and parsed JSON has `hotspots.length > 1`
-- [ ] Integration: `scan small-ts --baseline <file> --format json --top 1` exits `0` and compare JSON sections are unsliced vs pre-render `CompareResult`
-- [ ] `--top` validation (positive integer) unchanged
-- [ ] Table/markdown integration behavior unchanged
+- [x] Commander `--top` help mentions table/markdown scope and json/csv ignored
+- [x] Integration: `scan small-ts --format json --top 1` exits `0` and parsed JSON has `hotspots.length > 1`
+- [x] Integration: `scan small-ts --baseline <file> --format json --top 1` exits `0` and compare JSON sections are unsliced vs pre-render `CompareResult`
+- [x] `--top` validation (positive integer) unchanged
+- [x] Table/markdown integration behavior unchanged
 
 **Tests**: `bin/hotspot-scanner.integration.test.ts` — JSON full export scan + compare; optional help text check in `bin/hotspot-scanner.test.ts`
 
@@ -142,11 +142,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] STATE.md records `--top` scoped to table/markdown; notes JSON pre-M16 slicing removed
-- [ ] ARCHITECTURE.md consistently documents format-scoped `--top` (no ambiguous global slice statement)
-- [ ] README.md `--top` flag description matches new semantics
-- [ ] vitals-cli-validation skill includes JSON full-export example with `--top` present
-- [ ] ROADMAP M16 implementation checkboxes marked `[x]` on Execute Done
+- [x] STATE.md records `--top` scoped to table/markdown; notes JSON pre-M16 slicing removed
+- [x] ARCHITECTURE.md consistently documents format-scoped `--top` (no ambiguous global slice statement)
+- [x] README.md `--top` flag description matches new semantics
+- [x] vitals-cli-validation skill includes JSON full-export example with `--top` present
+- [x] ROADMAP M16 implementation checkboxes marked `[x]` on Execute Done
 
 **Tests**: Doc review; grep `--top` in listed files
 
@@ -173,9 +173,9 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `pnpm build` succeeds
-- [ ] `pnpm test` succeeds with coverage thresholds met
-- [ ] No regressions in scan without `--baseline` (integration smoke)
+- [x] `pnpm build` succeeds
+- [x] `pnpm test` succeeds with coverage thresholds met
+- [x] No regressions in scan without `--baseline` (integration smoke)
 
 **Tests**: Full project gate
 

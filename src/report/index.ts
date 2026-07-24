@@ -26,10 +26,11 @@ export function createReporter(): Reporter {
       if (options.format === "csv") {
         return renderCsv(result);
       }
+      if (options.format === "json") {
+        return renderJson(result);
+      }
       const sliced = sliceScanResult(result, options.top);
       switch (options.format) {
-        case "json":
-          return renderJson(sliced);
         case "markdown":
           return renderMarkdown(sliced);
         default:
@@ -40,10 +41,11 @@ export function createReporter(): Reporter {
       if (options.format === "csv") {
         return renderCompareCsv(result);
       }
+      if (options.format === "json") {
+        return renderCompareJson(result);
+      }
       const sliced = sliceCompareResult(result, options.top);
       switch (options.format) {
-        case "json":
-          return renderCompareJson(sliced);
         case "markdown":
           return renderCompareMarkdown(sliced);
         default:
