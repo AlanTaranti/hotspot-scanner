@@ -48,10 +48,13 @@ describe("renderMarkdown", () => {
     const output = renderMarkdown(loadFixture());
 
     expect(output).toContain(
-      "| Rank | File A | File B | Strength | Co-changes |",
+      "| Rank | File A | File B | Strength | Co-changes | Has static |",
     );
     expect(output).toContain(
-      "| 1 | src/a.ts | src/b.ts | 0.7500 | 5 |",
+      "| 1 | src/a.ts | src/b.ts | 0.7500 | 5 | yes |",
+    );
+    expect(output).toContain(
+      "| 2 | src/c.ts | src/d.ts | 0.5000 | 3 | no |",
     );
   });
 
@@ -78,6 +81,7 @@ describe("renderMarkdown", () => {
           fileB: "src/z.ts",
           coChangeCount: 3,
           couplingStrength: 0.6,
+          hasStaticDependency: true,
         },
       ],
       meta: {

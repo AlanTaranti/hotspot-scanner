@@ -62,6 +62,8 @@ const lowTs = `export function low(): number {
 }
 `;
 
+let lowTsMutable = lowTs;
+
 let mediumTs = `export function medium(value: number): number {
   if (value > 0) {
     return value * 2;
@@ -73,7 +75,9 @@ let mediumTs = `export function medium(value: number): number {
 }
 `;
 
-let highTs = `export function high(a: number, b: number, c: number): number {
+let highTs = `import { medium } from "./medium";
+
+export function high(a: number, b: number, c: number): number {
   if (a > 0) {
     if (b > 0) {
       for (let i = 0; i < a; i++) {
@@ -96,7 +100,7 @@ let highTs = `export function high(a: number, b: number, c: number): number {
         return a * b;
     }
   }
-  return a && b ? a + b : (c ?? 0);
+  return a && b ? a + b : (c ?? medium(0));
 }
 `;
 
@@ -117,7 +121,7 @@ parent = createRef(
 );
 
 parent = createRef(
-  createTree({ "src/low.ts": lowTs, "src/medium.ts": mediumTs }),
+  createTree({ "src/low.ts": lowTsMutable, "src/medium.ts": mediumTs }),
   "add medium.ts",
   parent,
   "2026-02-15T10:00:00",
@@ -125,7 +129,7 @@ parent = createRef(
 
 parent = createRef(
   createTree({
-    "src/low.ts": lowTs,
+    "src/low.ts": lowTsMutable,
     "src/medium.ts": mediumTs,
     "src/high.ts": highTs,
   }),
@@ -139,7 +143,7 @@ for (let i = 1; i <= 3; i++) {
   const mediumWithCochange = mediumTs + `\n// co-change ${i}\n`;
   parent = createRef(
     createTree({
-      "src/low.ts": lowTs,
+      "src/low.ts": lowTsMutable,
       "src/medium.ts": mediumWithCochange,
       "src/high.ts": highTs,
     }),
@@ -150,10 +154,28 @@ for (let i = 1; i <= 3; i++) {
   mediumTs = mediumWithCochange;
 }
 
+for (let i = 1; i <= 3; i++) {
+  const lowWithCochange = lowTsMutable + `\n// medium-low co-change ${i}\n`;
+  const mediumWithLowCochange =
+    mediumTs + `\n// medium-low co-change ${i}\n`;
+  parent = createRef(
+    createTree({
+      "src/low.ts": lowWithCochange,
+      "src/medium.ts": mediumWithLowCochange,
+      "src/high.ts": highTs,
+    }),
+    `co-change medium and low (${i})`,
+    parent,
+    `2026-0${6 + i}-01T10:00:00`,
+  );
+  lowTsMutable = lowWithCochange;
+  mediumTs = mediumWithLowCochange;
+}
+
 highTs += "\n// extra churn on high\n";
 parent = createRef(
   createTree({
-    "src/low.ts": lowTs,
+    "src/low.ts": lowTsMutable,
     "src/medium.ts": mediumTs,
     "src/high.ts": highTs,
   }),

@@ -1,13 +1,19 @@
 import { access, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { createComplexityAnalyzer } from "./complexity/index.js";
+import {
+  loadHotspotScannerConfig,
+  mergeScanOptions,
+  type HotspotScannerConfig,
+  type MergedScanConfig,
+} from "./config/index.js";
 import { createGitMiner } from "./git/index.js";
 import { createPathScope, filterGitMinerResult } from "./paths/index.js";
 import {
   createFunctionHotspotScorer,
   createHotspotScorer,
   createTemporalCouplingScorer,
-  DEFAULT_MIN_COCHANGE,
+  enrichCouplingStaticDeps,
 } from "./scoring/index.js";
 import type { ScanOptions, ScanResult } from "./types/index.js";
 
@@ -36,17 +42,51 @@ export async function validateGitRepository(repoPath: string): Promise<void> {
   }
 }
 
+function pickCliOverrides(options: ScanOptions): HotspotScannerConfig {
+  const cli: HotspotScannerConfig = {};
+
+  if (options.since !== undefined) {
+    cli.since = options.since;
+  }
+  if (options.include !== undefined) {
+    cli.include = options.include;
+  }
+  if (options.exclude !== undefined) {
+    cli.exclude = options.exclude;
+  }
+  if (options.granularity !== undefined) {
+    cli.granularity = options.granularity;
+  }
+  if (options.minCochange !== undefined) {
+    cli.minCochange = options.minCochange;
+  }
+  if (options.top !== undefined) {
+    cli.top = options.top;
+  }
+
+  return cli;
+}
+
+export async function resolveScanConfig(
+  options: ScanOptions,
+): Promise<MergedScanConfig> {
+  const config = await loadHotspotScannerConfig(options.repoPath);
+  return mergeScanOptions({ config, cli: pickCliOverrides(options) });
+}
+
 export async function runScan(options: ScanOptions): Promise<ScanResult> {
   await validateRepoPath(options.repoPath);
   await validateGitRepository(options.repoPath);
 
+  const merged = await resolveScanConfig(options);
+
   const scope = createPathScope({
-    include: options.include,
-    exclude: options.exclude,
+    include: merged.include,
+    exclude: merged.exclude,
   });
 
-  const since = options.since ?? DEFAULT_SINCE;
-  const minCochange = options.minCochange ?? DEFAULT_MIN_COCHANGE;
+  const since = merged.since;
+  const minCochange = merged.minCochange;
   const onWarning = options.onWarning;
 
   const miner = createGitMiner();
@@ -73,13 +113,14 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
     onWarning?.(message);
   }
 
-  const coupling = createTemporalCouplingScorer().score(
+  const scoredCoupling = createTemporalCouplingScorer().score(
     coChangeEvents,
     fileStats,
     minCochange,
   );
+  const coupling = enrichCouplingStaticDeps(scoredCoupling, options.repoPath);
 
-  const granularity = options.granularity ?? "file";
+  const granularity = merged.granularity;
   const scannedAt = new Date().toISOString();
 
   if (granularity === "function") {

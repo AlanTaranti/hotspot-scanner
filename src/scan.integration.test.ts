@@ -30,6 +30,38 @@ describe("runScan integration", () => {
     expect(topCoupling.coChangeCount).toBeGreaterThanOrEqual(
       DEFAULT_MIN_COCHANGE,
     );
+    for (const pair of result.coupling) {
+      expect(typeof pair.hasStaticDependency).toBe("boolean");
+    }
+  });
+
+  it("enriches coupling pairs with import-linked and co-change-only cases", async () => {
+    const result = await runScan({ repoPath: smallTsFixture });
+
+    const highMedium = result.coupling.find(
+      (pair) =>
+        pair.fileA === "src/high.ts" && pair.fileB === "src/medium.ts",
+    );
+    const lowMedium = result.coupling.find(
+      (pair) => pair.fileA === "src/low.ts" && pair.fileB === "src/medium.ts",
+    );
+
+    expect(highMedium).toBeDefined();
+    expect(highMedium!.hasStaticDependency).toBe(true);
+    expect(lowMedium).toBeDefined();
+    expect(lowMedium!.hasStaticDependency).toBe(false);
+  });
+
+  it("preserves temporal coupling ranking order after static enrichment", async () => {
+    const result = await runScan({ repoPath: smallTsFixture });
+
+    expect(result.coupling.map((pair) => [pair.fileA, pair.fileB])).toEqual([
+      ["src/low.ts", "src/medium.ts"],
+      ["src/high.ts", "src/medium.ts"],
+    ]);
+    expect(result.coupling.map((pair) => pair.couplingStrength)).toEqual([
+      0.75, 0.6,
+    ]);
   });
 
   it("forwards git progress and warnings via callbacks", async () => {

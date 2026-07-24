@@ -9,7 +9,7 @@ alwaysApply: false
 Seguir [INTEGRATIONS.md](../../.specs/codebase/INTEGRATIONS.md):
 
 - **ts-morph** — único ponto de acesso à AST; mock na fronteira `ComplexityAnalyzer`, não em scorers ou reporter.
-- **git** — subprocess ou simple-git encapsulado em `GitMiner`; não spawnar git fora de `src/git/`.
+- **git** — `child_process.spawn` encapsulado em `GitMiner`; não spawnar git fora de `src/git/`.
 - **commander** — parsing CLI em `bin/hotspot-scanner.ts`; sem lógica de domínio no bin.
 
 ## Regras

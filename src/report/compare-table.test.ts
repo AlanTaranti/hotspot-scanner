@@ -36,6 +36,16 @@ describe("renderCompareTable", () => {
     expect(output).toContain("src/medium.ts");
   });
 
+  it("renders StaticDep column in coupling sections", () => {
+    const output = renderCompareTable(
+      loadCompareResult("compare-baseline-file.json", "compare-current-file.json"),
+    );
+
+    expect(output).toContain("StaticDep");
+    expect(output).toContain("yes");
+    expect(output).toContain("no");
+  });
+
   it("renders function mode sections", () => {
     const output = renderCompareTable(
       loadCompareResult(

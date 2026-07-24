@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vitals.dev/hotspot-scanner/schemas/scan-result.json",
+  "title": "ScanResult",
+  "description": "Full scan output from hotspot-scanner (JSON format).",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["version", "hotspots", "functions", "coupling", "meta"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "hotspots": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/HotspotScore"
+      }
+    },
+    "functions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/FunctionHotspotScore"
+      }
+    },
+    "coupling": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CouplingPair"
+      }
+    },
+    "meta": {
+      "$ref": "#/$defs/ScanMeta"
+    }
+  },
+  "$defs": {
+    "ScanGranularity": {
+      "type": "string",
+      "enum": ["file", "function"]
+    },
+    "HotspotScore": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "filePath",
+        "complexityNormalized",
+        "churnNormalized",
+        "hotspotScore",
+        "cyclomaticComplexity",
+        "functionCount",
+        "commitCount",
+        "linesChanged",
+        "authorCount"
+      ],
+      "properties": {
+        "filePath": { "type": "string" },
+        "complexityNormalized": { "type": "number" },
+        "churnNormalized": { "type": "number" },
+        "hotspotScore": { "type": "number" },
+        "cyclomaticComplexity": { "type": "number" },
+        "functionCount": { "type": "integer" },
+        "commitCount": { "type": "integer" },
+        "linesChanged": { "type": "integer" },
+        "authorCount": { "type": "integer" }
+      }
+    },
+    "FunctionHotspotScore": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "filePath",
+        "functionName",
+        "line",
+        "complexity",
+        "complexityNormalized",
+        "churnNormalized",
+        "hotspotScore",
+        "commitCount",
+        "linesChanged",
+        "authorCount"
+      ],
+      "properties": {
+        "filePath": { "type": "string" },
+        "functionName": { "type": "string" },
+        "line": { "type": "integer" },
+        "complexity": { "type": "number" },
+        "complexityNormalized": { "type": "number" },
+        "churnNormalized": { "type": "number" },
+        "hotspotScore": { "type": "number" },
+        "commitCount": { "type": "integer" },
+        "linesChanged": { "type": "integer" },
+        "authorCount": { "type": "integer" }
+      }
+    },
+    "CouplingPair": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "fileA",
+        "fileB",
+        "coChangeCount",
+        "couplingStrength",
+        "hasStaticDependency"
+      ],
+      "properties": {
+        "fileA": { "type": "string" },
+        "fileB": { "type": "string" },
+        "coChangeCount": { "type": "integer" },
+        "couplingStrength": { "type": "number" },
+        "hasStaticDependency": { "type": "boolean" }
+      }
+    },
+    "ScanMeta": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["since", "scannedAt", "granularity"],
+      "properties": {
+        "since": { "type": "string" },
+        "scannedAt": { "type": "string" },
+        "granularity": { "$ref": "#/$defs/ScanGranularity" }
+      }
+    }
+  }
+}

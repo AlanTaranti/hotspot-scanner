@@ -48,6 +48,14 @@ describe("renderTable", () => {
     expect(output).toContain("0.7500");
   });
 
+  it("renders StaticDep column in coupling section", () => {
+    const output = renderTable(loadFixture());
+
+    expect(output).toContain("StaticDep");
+    expect(output).toContain("yes");
+    expect(output).toContain("no");
+  });
+
   it("shows raw metric columns in hotspots section", () => {
     const output = renderTable(loadFixture());
 
@@ -95,6 +103,7 @@ describe("renderTable", () => {
           fileB: "src/other/also/very/long/path/name.ts",
           couplingStrength: 0.25,
           coChangeCount: 4,
+          hasStaticDependency: false,
         },
       ],
       meta: {

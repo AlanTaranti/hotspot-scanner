@@ -33,16 +33,27 @@ flowchart TB
 ## Data flow (scan)
 
 1. CLI parses flags (`--since`, `--format`, `--granularity`, `--top`, `--min-cochange`, `--include`, `--exclude`, `--output`, `--baseline`) and calls `runScan()` in `src/scan.ts`
-2. **`runScan()`** validates `repoPath`, checks `.git` exists, builds a shared `PathScope` (`src/paths/`), then runs stages sequentially:
+2. **Config resolution (M21)** — before pipeline stages, `runScan()` loads `<repoPath>/.hotspot-scanner.json` via `loadHotspotScannerConfig()` (`src/config/`). Missing file → built-in defaults only (not an error). CLI builds explicit overrides separately; `mergeScanOptions()` applies **CLI > config > defaults** for `since`, `include`, `exclude`, `granularity`, `minCochange`, `top`. `format`, `output`, and `baseline` are CLI-only. Invalid JSON or bad types throw `ConfigError` (non-zero exit). Unknown keys are ignored.
+3. **`runScan()`** validates `repoPath`, checks `.git` exists, builds a shared `PathScope` (`src/paths/`), then runs stages sequentially:
    - **Git Change Miner** — one `git log --numstat` stream → `FileChangeStats` + `CoChangeEvent[]`; output filtered by `PathScope` via `filterGitMinerResult()`; forwards warnings and `onProgress`
    - **Complexity Analyzer** — discovers in-scope TS/JS files on the main thread (directory prune + file filter), chunks into batches of 50, dispatches batches to a bounded `worker_threads` pool (`createWorkerPool`, default concurrency `min(availableParallelism(), 4)`), each worker runs a fresh ts-morph `Project` per batch → merged `ComplexityResult[]` + `FunctionComplexityResult[]` in discovery order; forwards warnings
    - **Scoring branch** on `granularity` (default `file`):
      - **file** — `createHotspotScorer()` → `ScanResult.hotspots`
      - **function** — `createFunctionHotspotScorer()` with inherited file churn → `ScanResult.functions`
    - **Temporal Coupling Scorer** — file-pair ranked `coupling` (unchanged in both modes)
-3. CLI passes `ScanResult` to **Reporter** for table, JSON, markdown, or CSV output (`--top` applied at render time for table/markdown only; ignored for JSON and CSV)
-4. With `--output <path>`, CLI writes the rendered report to file (UTF-8) instead of stdout; stderr diagnostics unchanged
-5. With `--baseline <file>`, CLI loads a prior `ScanResult` JSON, runs `compareScanResults()`, and renders a **CompareResult** delta via `renderCompare()` (same format/output transport as normal scan)
+   - **Static coupling enricher** — `enrichCouplingStaticDeps()` sets `hasStaticDependency` on each pair by scanning working-tree sources for resolvable static `import`/`export … from`/`require` edges (relative resolution only; missing/unreadable source → `false`; does not change ranking)
+4. CLI passes `ScanResult` to **Reporter** for table, JSON, markdown, or CSV output (`--top` applied at render time for table/markdown only; ignored for JSON and CSV)
+5. With `--output <path>`, CLI writes the rendered report to file (UTF-8) instead of stdout; stderr diagnostics unchanged
+6. With `--baseline <file>`, CLI loads a prior `ScanResult` JSON, runs `compareScanResults()`, and renders a **CompareResult** delta via `renderCompare()` (same format/output transport as normal scan)
+
+### Config file (M21)
+
+- **Filename:** `.hotspot-scanner.json` only — not `.hotspotrc`, not dual lookup
+- **Discovery:** `<repoPath>/.hotspot-scanner.json` — no parent-directory walk
+- **Keys:** `since`, `include`, `exclude`, `granularity`, `minCochange`, `top` — map to the same semantics as CLI flags
+- **Precedence:** CLI flag explicitly provided → config key present → built-in default (`DEFAULT_SINCE`, `DEFAULT_TOP`, `DEFAULT_MIN_COCHANGE`, granularity `file`)
+- **CLI-only:** `format`, `output`, `baseline`
+- **Module:** `src/config/` (`load-config.ts`, `merge-options.ts`); `ConfigError` on invalid JSON or value types; unknown keys ignored
 
 ### Path scoping (M7)
 
@@ -79,7 +90,7 @@ flowchart LR
 
 ## Orchestration
 
-`src/scan.ts` is the pipeline orchestrator: `createGitMiner` → `createComplexityAnalyzer` → (`createHotspotScorer` | `createFunctionHotspotScorer`) + `createTemporalCouplingScorer`. It returns a typed `ScanResult` with full ranked lists. `bin/hotspot-scanner.ts` is a thin CLI wrapper (flags only, no domain logic).
+`src/scan.ts` is the pipeline orchestrator: `createGitMiner` → `createComplexityAnalyzer` → (`createHotspotScorer` | `createFunctionHotspotScorer`) + `createTemporalCouplingScorer` → `enrichCouplingStaticDeps`. It returns a typed `ScanResult` with full ranked lists. `bin/hotspot-scanner.ts` is a thin CLI wrapper (flags only, no domain logic).
 
 Integration validation: `tests/fixtures/repos/small-ts/` (see [TESTING.md](./TESTING.md) § Integration).
 
@@ -99,7 +110,22 @@ Each `HotspotScore` entry in `ScanResult.hotspots` carries normalized scores plu
 | `linesChanged` | `FileChangeStats` | yes | no |
 | `authorCount` | `FileChangeStats.authors.size` | yes | yes (Authors) |
 
-JSON `version` remains `"1.0"` (additive fields). Coupling schema unchanged from M5.
+JSON `version` remains `"1.0"` (additive fields).
+
+## Enriched coupling (M14)
+
+After temporal coupling scoring, `enrichCouplingStaticDeps()` (`src/scoring/enrich-coupling-static.ts`) inspects working-tree sources under `repoPath` and sets `hasStaticDependency` on each `CouplingPair`. Ranking (`couplingStrength`, `coChangeCount`, order) is unchanged — enrichment is post-score only.
+
+| Field | Source | JSON | Table / markdown | CSV |
+| ----- | ------ | ---- | ---------------- | --- |
+| `fileA`, `fileB` | coupling scorer | yes | yes | yes |
+| `coChangeCount`, `couplingStrength` | coupling scorer | yes | yes | yes |
+| `hasStaticDependency` | static import/export/require resolution | yes (`boolean`) | yes (`yes`/`no` as `StaticDep`) | yes (`true`/`false`) |
+
+- **Detection:** resolvable static `import`/`export … from`/`require` string from either file to the other; bare package specifiers alone do not set the flag
+- **Resolution:** relative paths only (extensionless + common TS/JS extensions / `index`); no tsconfig `paths` or package `exports`
+- **Errors:** missing or unreadable source → `false`; scan continues (optional `onWarning`)
+- **Downstream:** JSON Schema requires `hasStaticDependency` on coupling items — see [JSON Contract (M20)](#json-contract-m20)
 
 ## Function granularity (M11)
 
@@ -120,6 +146,25 @@ Each `FunctionHotspotScore` entry carries per-function McCabe plus inherited fil
 
 `coupling` remains file-pair ranked in both modes. `--top` slices the active ranking array at render time via `sliceScanResult` for **table and markdown only**; JSON and CSV receive full arrays.
 
+### Function AST collection (M22)
+
+`collectFunctionsInScope` in `analyze-file.ts` enumerates callable bodies for per-function McCabe and file-level sums. M22 extended collection beyond M11 without changing the McCabe decision-node definition in `mccabe.ts` — only **which** nodes are collected.
+
+| Construct | Collected | `functionName` |
+| --------- | --------- | -------------- |
+| `function foo()` | yes (M11) | `foo` |
+| `class Foo { bar() {} }` | yes (M11) | `bar` |
+| `constructor() {}` | yes (M11) | `constructor` |
+| `const foo = () => {}` | yes (M11) | `foo` |
+| Anonymous arrow / function expression | yes (M11) | `<anonymous>:L{line}` |
+| `get foo()` / `set foo()` | yes (M22) | `foo` (bare accessor name; disambiguate getter/setter by `line`) |
+| `class C { foo = () => {} }` or `foo = function() {}` | yes (M22) | `foo` |
+| `const o = { bar() {} }` | yes (M22) | `bar` |
+| `const o = { baz: () => {} }` | yes (M22) | `baz` |
+| Object property anonymous function | yes (M22) | `<anonymous>:L{line}` |
+
+Nested object literals recurse with the same policy as nested functions. Non-callable property initializers are skipped. Fixtures with manually verified complexities: `tests/fixtures/complexity/getters-setters.ts`, `class-field-arrows.ts`, `object-literal-methods.ts`. Naming SoT: [function-granularity/context.md](../features/function-granularity/context.md) (M11 base) + [function-ast-coverage/context.md](../features/function-ast-coverage/context.md) (M22 extensions).
+
 ## Export formats (M10, M17, M18)
 
 - **`--format markdown`** — GFM report with hotspot and coupling tables (includes `linesChanged` column)
@@ -130,10 +175,24 @@ Each `FunctionHotspotScore` entry carries per-function McCabe plus inherited fil
 - **Reporter module**: `CsvBundle` type in `src/report/csv-bundle.ts`; `renderCsv()` / `renderCompareCsv()` in `csv.ts` / `compare-csv.ts`; `createReporter()` returns `string | CsvBundle` (JSON and CSV bypass slice helpers; table/markdown slice via `sliceScanResult` / `sliceCompareResult`)
 - **Path validation**: parent directory must exist; directory targets rejected; overwrite is default
 
+## JSON Contract (M20)
+
+Published JSON Schema files under `schemas/` define the CLI JSON contract:
+
+| File | Root type |
+| ---- | --------- |
+| `schemas/scan-result.json` | `ScanResult` |
+| `schemas/compare-result.json` | `CompareResult` |
+
+- **Coupling items** require `hasStaticDependency` (boolean) in both schemas
+- **`additionalProperties: true`** on objects for forward compatibility; `required` lists enforce the minimum contract
+- **Contract tests** (`tests/contract/`) validate scan and compare JSON against these schemas in CI
+- **Baseline loading** (`loadBaseline()` / `parseScanResult()` in `src/compare/load-baseline.ts`): strong structural validation on nested hotspot, function, and coupling items — not only top-level keys. Wrong types or missing required fields (including `hasStaticDependency`) throw `BaselineError` with a path-specific message; coupling items missing `hasStaticDependency` instruct the user to re-scan with a current scanner version. Pre-M14 baselines are not auto-migrated.
+
 ## Scan compare (M13)
 
 - **`--baseline <path>`** — compare current scan against a saved `ScanResult` JSON (from a prior `--format json --output` run)
-- **Compare module** (`src/compare/`): `loadBaseline()` validates and parses baseline JSON; `compareScanResults()` classifies entities as `new`, `removed`, or `rankChanged`
+- **Compare module** (`src/compare/`): `loadBaseline()` validates and parses baseline JSON (see [JSON Contract (M20)](#json-contract-m20)); `compareScanResults()` classifies entities as `new`, `removed`, or `rankChanged`
 - **CompareResult** schema (`version: "1.0"`): separate from `ScanResult`; sections for hotspots/functions (mode-dependent) and coupling pairs
 - **Entity keys**: file path for hotspots; `filePath + functionName + line` for functions; canonical `(fileA, fileB)` for coupling
 - **Guards**: granularity mismatch → hard error; `since` mismatch → warning in `meta.warnings` (stderr + report)

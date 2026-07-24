@@ -45,13 +45,15 @@
       "fileA": "src/a.ts",
       "fileB": "src/b.ts",
       "coChangeCount": 5,
-      "couplingStrength": 0.75
+      "couplingStrength": 0.75,
+      "hasStaticDependency": true
     },
     {
       "fileA": "src/c.ts",
       "fileB": "src/d.ts",
       "coChangeCount": 3,
-      "couplingStrength": 0.5
+      "couplingStrength": 0.5,
+      "hasStaticDependency": false
     }
   ],
   "meta": {

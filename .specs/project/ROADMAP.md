@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M18 CSV Bundle complete** — specs Planned for M14, M19–M22; backlog Execute: M14 → M19 → M20 → M21 → M22 → M23 → M24.
+Status: **M22 Function AST Coverage complete** — post-v1 milestones M7–M22 Done; backlog Execute: M23 → M24.
 
 ## Milestone 1 — Scaffold
 
@@ -121,10 +121,10 @@ Prefer balanced dual-signal files (actively complex + churned) over spiky one-ax
 ### Milestone 14 — Enriched Coupling
 
 → [`.specs/features/enriched-coupling/spec.md`](../features/enriched-coupling/spec.md)  
-**Slug:** `enriched-coupling` | **Priority:** High | **Specs:** Planned
+**Slug:** `enriched-coupling` | **Priority:** High | **Specs:** Done
 
-- [ ] Static import analysis between coupled file pairs
-- [ ] Output field `hasStaticDependency: boolean` on `CouplingPair`
+- [x] Static import analysis between coupled file pairs
+- [x] Output field `hasStaticDependency: boolean` on `CouplingPair`
 
 ### Milestone 15 — AST Parallelization
 
@@ -172,39 +172,41 @@ Breaking redesign of `--format csv`: multi-file stem bundle + `{stem}.meta.json`
 ### Milestone 19 — Documentation Sync
 
 → [`.specs/features/docs-sync/spec.md`](../features/docs-sync/spec.md)  
-**Slug:** `docs-sync` | **Priority:** Medium | **Specs:** Planned
+**Slug:** `docs-sync` | **Priority:** Medium | **Specs:** Done
 
-- [ ] Sync [PROJECT.md](PROJECT.md) with post-v1 reality (no simple-git, commander implemented, features M7–M18)
-- [ ] Fix stale status in ROADMAP header and `design.md`/`spec.md` for Done milestones (e.g. csv-bundle `Status: Planned`)
-- [ ] Update [README.md](../../README.md): full JSON (M9/M11), compare JSON, programmatic API, markdown/csv formats
-- [ ] Fix [INTEGRATIONS.md](../codebase/INTEGRATIONS.md): `child_process.spawn` only (remove `simple-git` mention)
+- [x] Sync [PROJECT.md](PROJECT.md) with post-v1 reality (no simple-git, commander implemented, features M7–M18)
+- [x] Fix stale status in ROADMAP header and `design.md`/`spec.md` for Done milestones (e.g. csv-bundle `Status: Planned`)
+- [x] Update [README.md](../../README.md): full JSON (M9/M11), compare JSON, programmatic API, markdown/csv formats
+- [x] Fix [INTEGRATIONS.md](../codebase/INTEGRATIONS.md): `child_process.spawn` only (remove `simple-git` mention)
 
 ### Milestone 20 — JSON Contract
 
 → [`.specs/features/json-contract/spec.md`](../features/json-contract/spec.md)  
-**Slug:** `json-contract` | **Priority:** High | **Specs:** Planned
+**Slug:** `json-contract` | **Priority:** High | **Specs:** Done
 
-- [ ] Publish JSON Schema for `ScanResult` and `CompareResult` (e.g. `schemas/scan-result.json`)
-- [ ] Strong validation in `loadBaseline()` (`src/compare/load-baseline.ts`) — reject malformed JSON with clear error
-- [ ] Contract tests: CLI `--format json` output and compare match schema
-- [ ] Schemas require M14 `hasStaticDependency` on coupling items
+- [x] Publish JSON Schema for `ScanResult` and `CompareResult` (`schemas/scan-result.json`, `schemas/compare-result.json`)
+- [x] Strong validation in `loadBaseline()` (`src/compare/load-baseline.ts`) — reject malformed JSON with clear error
+- [x] Contract tests: CLI `--format json` output and compare match schema
+- [x] Schemas require M14 `hasStaticDependency` on coupling items
 
 ### Milestone 21 — Config File
 
 → [`.specs/features/config-file/spec.md`](../features/config-file/spec.md)  
-**Slug:** `config-file` | **Priority:** High | **Specs:** Planned
+**Slug:** `config-file` | **Priority:** High | **Specs:** Done
 
-- [ ] Support **only** `.hotspot-scanner.json` (not `.hotspotrc`, not dual lookup) with keys: `since`, `include`, `exclude`, `granularity`, `minCochange`, `top`
-- [ ] Precedence: CLI flags > config file > defaults
-- [ ] Document in README and ARCHITECTURE
+- [x] Support **only** `.hotspot-scanner.json` (not `.hotspotrc`, not dual lookup) with keys: `since`, `include`, `exclude`, `granularity`, `minCochange`, `top`
+- [x] Precedence: CLI flags > config file > defaults
+- [x] Document in README and ARCHITECTURE
 
-### Milestone 22 — Function AST Coverage
+### Milestone 22 — Function AST Coverage — DONE
 
 → [`.specs/features/function-ast-coverage/spec.md`](../features/function-ast-coverage/spec.md)  
-**Slug:** `function-ast-coverage` | **Priority:** Medium | **Specs:** Planned
+**Slug:** `function-ast-coverage` | **Priority:** Medium | **Specs:** Done
 
-- [ ] Extend `src/complexity/analyze-file.ts` for getters/setters, class field arrows, object-literal methods
-- [ ] McCabe fixtures per construct; do not change existing decision-node definition
+Extended `collectFunctionsInScope` / `resolveFunctionName` for getters, setters, class field arrows, and object-literal methods; McCabe decision-node definition unchanged; naming and fixtures locked per [function-ast-coverage/context.md](../features/function-ast-coverage/context.md).
+
+- [x] Extend `src/complexity/analyze-file.ts` for getters/setters, class field arrows, object-literal methods
+- [x] McCabe fixtures per construct; do not change existing decision-node definition
 
 ### Milestone 23 — Per-Function Git Churn
 

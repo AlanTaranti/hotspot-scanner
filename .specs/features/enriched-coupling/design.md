@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/enriched-coupling/spec.md`](./spec.md)  
 **Context**: [`.specs/features/enriched-coupling/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 

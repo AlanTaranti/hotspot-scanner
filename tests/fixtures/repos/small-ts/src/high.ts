@@ -1,3 +1,5 @@
+import { medium } from "./medium";
+
 export function high(a: number, b: number, c: number): number {
   if (a > 0) {
     if (b > 0) {
@@ -21,7 +23,7 @@ export function high(a: number, b: number, c: number): number {
         return a * b;
     }
   }
-  return a && b ? a + b : (c ?? 0);
+  return a && b ? a + b : (c ?? medium(0));
 }
 
 // co-change 1

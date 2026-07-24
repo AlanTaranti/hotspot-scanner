@@ -79,6 +79,11 @@ describe("hotspot-scanner CLI integration", () => {
     expect(parsed.hotspots.length).toBeGreaterThanOrEqual(1);
     expect(Array.isArray(parsed.coupling)).toBe(true);
     expect(parsed.coupling.length).toBeGreaterThanOrEqual(1);
+    for (const pair of parsed.coupling as Array<{
+      hasStaticDependency: boolean;
+    }>) {
+      expect(typeof pair.hasStaticDependency).toBe("boolean");
+    }
     expect(parsed.meta.since).toBeTruthy();
     expect(parsed.meta.scannedAt).toBeTruthy();
   });
@@ -334,7 +339,7 @@ describe("hotspot-scanner CLI integration", () => {
       "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,lines",
     );
     expect(couplingContent.split("\n")[0]).toBe(
-      "rank,fileA,fileB,strength,coChanges",
+      "rank,fileA,fileB,strength,coChanges,hasStaticDependency",
     );
   });
 

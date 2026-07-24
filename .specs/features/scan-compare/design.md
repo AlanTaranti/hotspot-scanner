@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/scan-compare/spec.md`](./spec.md)  
 **Context**: [`.specs/features/scan-compare/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 

@@ -68,7 +68,10 @@ describe("renderCompareCsv", () => {
       "baselineRank,currentRank,rankDelta,file,score,cpx,cpxN,churn,churnN,funcs,authors",
     );
     expect(bundle["coupling.new.csv"]!.split("\n")[0]).toBe(
-      "rank,fileA,fileB,strength,coChanges",
+      "rank,fileA,fileB,strength,coChanges,hasStaticDependency",
+    );
+    expect(bundle["coupling.rank-changed.csv"]!.split("\n")[0]).toBe(
+      "baselineRank,currentRank,rankDelta,fileA,fileB,strength,coChanges,hasStaticDependency",
     );
   });
 

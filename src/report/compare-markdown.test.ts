@@ -33,6 +33,16 @@ describe("renderCompareMarkdown", () => {
     expect(output).toContain("## New Coupling Pairs");
   });
 
+  it("renders Has static column in coupling tables", () => {
+    const output = renderCompareMarkdown(
+      loadCompareResult("compare-baseline-file.json", "compare-current-file.json"),
+    );
+
+    expect(output).toContain("| Has static |");
+    expect(output).toContain("| yes |");
+    expect(output).toContain("| no |");
+  });
+
   it("escapes pipe characters in markdown cells", () => {
     const baseline = JSON.parse(
       readFileSync(join(fixturesDir, "compare-baseline-file.json"), "utf8"),

@@ -7,12 +7,18 @@ import {
   compareScanResults,
   loadBaseline,
 } from "#compare";
+import {
+  ConfigError,
+  loadHotspotScannerConfig,
+  mergeScanOptions,
+  type HotspotScannerConfig,
+} from "../src/config/index.js";
 import { logWarning, maybeLogProgress } from "#diagnostics";
 import { createReporter } from "#report";
 import type { CsvBundle } from "#report";
 import { DEFAULT_MIN_COCHANGE } from "#scoring";
 import { DEFAULT_SINCE, DEFAULT_TOP, runScan } from "#scan";
-import type { ScanGranularity } from "../src/types/index.js";
+import type { ScanGranularity, ScanOptions } from "../src/types/index.js";
 
 export type OutputFormat = "table" | "json" | "markdown" | "csv";
 
@@ -137,6 +143,77 @@ export function validateScopePatterns(patterns: string[], flagName: string): voi
   }
 }
 
+function isExplicitCliOption(cmd: Command, optionName: string): boolean {
+  return cmd.getOptionValueSource(optionName) === "cli";
+}
+
+export function buildCliConfigOverrides(
+  cmd: Command,
+  options: Record<string, unknown>,
+): HotspotScannerConfig {
+  const cli: HotspotScannerConfig = {};
+
+  if (isExplicitCliOption(cmd, "since")) {
+    cli.since = options.since as string;
+  }
+  if (isExplicitCliOption(cmd, "granularity")) {
+    cli.granularity = parseGranularity(options.granularity as string);
+  }
+  if (isExplicitCliOption(cmd, "top")) {
+    cli.top = parsePositiveInteger(options.top as string, "--top");
+  }
+  if (isExplicitCliOption(cmd, "minCochange")) {
+    cli.minCochange = parsePositiveInteger(
+      options.minCochange as string,
+      "--min-cochange",
+    );
+  }
+  if (isExplicitCliOption(cmd, "include")) {
+    const includePatterns = options.include as string[];
+    validateScopePatterns(includePatterns, "--include");
+    cli.include = includePatterns;
+  }
+  if (isExplicitCliOption(cmd, "exclude")) {
+    const excludePatterns = options.exclude as string[];
+    validateScopePatterns(excludePatterns, "--exclude");
+    cli.exclude = excludePatterns;
+  }
+
+  return cli;
+}
+
+function buildScanOptions(
+  repoPath: string,
+  cliOverrides: HotspotScannerConfig,
+  callbacks: Pick<ScanOptions, "onWarning" | "onProgress">,
+): ScanOptions {
+  const scanOptions: ScanOptions = {
+    repoPath,
+    ...callbacks,
+  };
+
+  if (cliOverrides.since !== undefined) {
+    scanOptions.since = cliOverrides.since;
+  }
+  if (cliOverrides.include !== undefined) {
+    scanOptions.include = cliOverrides.include;
+  }
+  if (cliOverrides.exclude !== undefined) {
+    scanOptions.exclude = cliOverrides.exclude;
+  }
+  if (cliOverrides.granularity !== undefined) {
+    scanOptions.granularity = cliOverrides.granularity;
+  }
+  if (cliOverrides.minCochange !== undefined) {
+    scanOptions.minCochange = cliOverrides.minCochange;
+  }
+  if (cliOverrides.top !== undefined) {
+    scanOptions.top = cliOverrides.top;
+  }
+
+  return scanOptions;
+}
+
 export function createCliProgram(): Command {
   const program = new Command();
 
@@ -146,7 +223,9 @@ export function createCliProgram(): Command {
 
   program
     .command("scan")
-    .description("Run hotspot and coupling analysis on a repository")
+    .description(
+      "Run hotspot and coupling analysis on a repository (reads .hotspot-scanner.json from repo root)",
+    )
     .argument("<path>", "Repository path")
     .option("--since <period>", "Git history window", DEFAULT_SINCE)
     .option("--format <format>", "Output format: table|json|markdown|csv (csv requires --output)", "table")
@@ -182,37 +261,26 @@ export function createCliProgram(): Command {
       collectGlob,
       [] as string[],
     )
-    .action(async (repoPath: string, options) => {
+    .action(async function (repoPath: string, options) {
+      const cmd = this as Command;
       const format = parseFormat(options.format);
-      const granularity = parseGranularity(options.granularity);
-      const top = parsePositiveInteger(options.top, "--top");
-      const minCochange = parsePositiveInteger(
-        options.minCochange,
-        "--min-cochange",
-      );
-      const includePatterns = options.include as string[];
-      const excludePatterns = options.exclude as string[];
-      validateScopePatterns(includePatterns, "--include");
-      validateScopePatterns(excludePatterns, "--exclude");
+      const cliOverrides = buildCliConfigOverrides(cmd, options);
+      const fileConfig = await loadHotspotScannerConfig(repoPath);
+      const merged = mergeScanOptions({ config: fileConfig, cli: cliOverrides });
+      const top = merged.top;
 
       const baselinePath = options.baseline as string | undefined;
       if (baselinePath !== undefined) {
         await validateBaselinePath(baselinePath);
       }
 
-      const result = await runScan({
-        repoPath,
-        since: options.since,
-        top,
-        minCochange,
-        format,
-        granularity,
-        include: includePatterns.length > 0 ? includePatterns : undefined,
-        exclude: excludePatterns.length > 0 ? excludePatterns : undefined,
-        onWarning: logWarning,
-        onProgress: ({ commitsProcessed }) =>
-          maybeLogProgress(commitsProcessed),
-      });
+      const result = await runScan(
+        buildScanOptions(repoPath, cliOverrides, {
+          onWarning: logWarning,
+          onProgress: ({ commitsProcessed }) =>
+            maybeLogProgress(commitsProcessed),
+        }),
+      );
 
       const reporter = createReporter();
       const outputPath = options.output as string | undefined;
@@ -265,7 +333,8 @@ async function main(): Promise<void> {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     console.error(message);
-    const exitCode = error instanceof CliUsageError ? 2 : 1;
+    const exitCode =
+      error instanceof CliUsageError || error instanceof ConfigError ? 2 : 1;
     process.exit(exitCode);
   }
 }

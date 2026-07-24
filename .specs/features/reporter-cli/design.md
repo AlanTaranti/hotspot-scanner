@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/reporter-cli/spec.md`](./spec.md)  
 **Context**: [`.specs/features/reporter-cli/context.md`](./context.md)  
-**Status**: Draft
+**Status**: Done
 
 ---
 

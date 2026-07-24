@@ -13,11 +13,11 @@ JSON output and `--baseline` loading are only loosely validated (top-level keys)
 
 ## Goals
 
-- [ ] Publish JSON Schema for `ScanResult` and `CompareResult` under `schemas/`
-- [ ] Strong validation in `loadBaseline()` / `parseScanResult()` — reject malformed JSON with clear `BaselineError`
-- [ ] Contract tests: CLI `--format json` scan and compare output validates against schemas
-- [ ] Schemas include M14 `hasStaticDependency` (boolean, required on coupling items)
-- [ ] `pnpm build && pnpm test` passing after Execute
+- [x] Publish JSON Schema for `ScanResult` and `CompareResult` under `schemas/`
+- [x] Strong validation in `loadBaseline()` / `parseScanResult()` — reject malformed JSON with clear `BaselineError`
+- [x] Contract tests: CLI `--format json` scan and compare output validates against schemas
+- [x] Schemas include M14 `hasStaticDependency` (boolean, required on coupling items)
+- [x] `pnpm build && pnpm test` passing after Execute
 
 ## Out of Scope
 
@@ -126,14 +126,14 @@ JSON output and `--baseline` loading are only loosely validated (top-level keys)
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| HOTSPOT-158 | P1: scan-result schema | Tasks T1 | Pending |
-| HOTSPOT-159 | P1: compare-result schema + hasStaticDependency | Tasks T1 | Pending |
-| HOTSPOT-160 | P1: Strong parseScanResult | Tasks T2 | Pending |
-| HOTSPOT-161 | P1: BaselineError messages | Tasks T2 | Pending |
-| HOTSPOT-162 | P1: Scan JSON contract test | Tasks T3 | Pending |
-| HOTSPOT-163 | P1: Compare JSON contract test | Tasks T3 | Pending |
-| HOTSPOT-164 | P1: Documentation | Tasks T4 | Pending |
-| HOTSPOT-165 | P1: Package/README visibility | Tasks T4 | Pending |
+| HOTSPOT-158 | P1: scan-result schema | Tasks T1 | Done |
+| HOTSPOT-159 | P1: compare-result schema + hasStaticDependency | Tasks T1 | Done |
+| HOTSPOT-160 | P1: Strong parseScanResult | Tasks T2 | Done |
+| HOTSPOT-161 | P1: BaselineError messages | Tasks T2 | Done |
+| HOTSPOT-162 | P1: Scan JSON contract test | Tasks T3 | Done |
+| HOTSPOT-163 | P1: Compare JSON contract test | Tasks T3 | Done |
+| HOTSPOT-164 | P1: Documentation | Tasks T4 | Done |
+| HOTSPOT-165 | P1: Package/README visibility | Tasks T4 | Done |
 
 **Coverage:** 8 total, 8 mapped to tasks, 0 unmapped
 
@@ -141,7 +141,7 @@ JSON output and `--baseline` loading are only loosely validated (top-level keys)
 
 ## Success Criteria
 
-- [ ] `schemas/*.json` compile and match domain types including `hasStaticDependency`
-- [ ] Malformed baselines rejected with clear errors
-- [ ] Contract tests green for scan + compare JSON
-- [ ] `pnpm build && pnpm test` green
+- [x] `schemas/*.json` compile and match domain types including `hasStaticDependency`
+- [x] Malformed baselines rejected with clear errors
+- [x] Contract tests green for scan + compare JSON
+- [x] `pnpm build && pnpm test` green

@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/function-ast-coverage/design.md`](./design.md)  
 **Spec**: [`.specs/features/function-ast-coverage/spec.md`](./spec.md)  
 **Context**: [`.specs/features/function-ast-coverage/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -61,10 +61,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] New constructs appear in `analyzeSourceFile` results
-- [ ] Naming matches context.md
-- [ ] No semantic change to McCabe decision nodes
-- [ ] Unit tests green
+- [x] New constructs appear in `analyzeSourceFile` results
+- [x] Naming matches context.md
+- [x] No semantic change to McCabe decision nodes
+- [x] Unit tests green
 
 **Tests**: unit
 
@@ -86,9 +86,9 @@ flowchart LR
 
 **Done when**:
 
-- [ ] At least one fixture per new construct family with documented expected complexity
-- [ ] Prior decision-node fixtures still pass (updated only where newly collected nodes exist)
-- [ ] Tests green
+- [x] At least one fixture per new construct family with documented expected complexity
+- [x] Prior decision-node fixtures still pass (updated only where newly collected nodes exist)
+- [x] Tests green
 
 **Tests**: unit / complexity fixture tests
 
@@ -108,8 +108,8 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Docs mention new constructs
-- [ ] Full gate green
+- [x] Docs mention new constructs
+- [x] Full gate green
 
 **Tests**: none
 

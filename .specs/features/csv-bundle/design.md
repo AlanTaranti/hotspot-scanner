@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/csv-bundle/spec.md`](./spec.md)  
 **Context**: [`.specs/features/csv-bundle/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Supersedes**: M17 multi-block single-file layout in [csv-export/design.md](../csv-export/design.md) (column sets reused; title rows and blank-line join dropped)
 
 ---

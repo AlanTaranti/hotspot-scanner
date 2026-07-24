@@ -1,7 +1,7 @@
 # Milestone 2 — Git Change Miner Design
 
 **Spec**: [`.specs/features/git-change-miner/spec.md`](./spec.md)  
-**Status**: Draft
+**Status**: Done
 
 ---
 

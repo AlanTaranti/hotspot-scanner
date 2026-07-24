@@ -11,11 +11,11 @@ Project docs still describe pre-v1 or mid-backlog reality: `PROJECT.md` mentions
 
 ## Goals
 
-- [ ] Align `PROJECT.md` with post-v1 + M7–M18 capabilities
-- [ ] Fix stale Status/header text on Done milestones (ROADMAP + feature `spec.md`/`design.md`/`tasks.md` where wrong)
-- [ ] Update `README.md` for full JSON (M9/M11), compare JSON, programmatic API, markdown/csv (incl. M18 bundle)
-- [ ] Fix `INTEGRATIONS.md` Git section: `child_process.spawn` only — remove `simple-git`
-- [ ] No application code changes under `src/`, `bin/`, or behavior tests (docs + status metadata only)
+- [x] Align `PROJECT.md` with post-v1 + M7–M18 capabilities
+- [x] Fix stale Status/header text on Done milestones (ROADMAP + feature `spec.md`/`design.md`/`tasks.md` where wrong)
+- [x] Update `README.md` for full JSON (M9/M11), compare JSON, programmatic API, markdown/csv (incl. M18 bundle)
+- [x] Fix `INTEGRATIONS.md` Git section: `child_process.spawn` only — remove `simple-git`
+- [x] No application code changes under `src/`, `bin/`, or behavior tests (docs + status metadata only)
 
 ## Out of Scope
 
@@ -121,11 +121,11 @@ Project docs still describe pre-v1 or mid-backlog reality: `PROJECT.md` mentions
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| HOTSPOT-153 | P1: PROJECT.md | Tasks T1 | Pending |
-| HOTSPOT-154 | P1: Stale status | Tasks T2 | Pending |
-| HOTSPOT-155 | P1: README | Tasks T3 | Pending |
-| HOTSPOT-156 | P1: INTEGRATIONS.md | Tasks T1 | Pending |
-| HOTSPOT-157 | P1: Consistency + ROADMAP | Tasks T4 | Pending |
+| HOTSPOT-153 | P1: PROJECT.md | Tasks T1 | Done |
+| HOTSPOT-154 | P1: Stale status | Tasks T2 | Done |
+| HOTSPOT-155 | P1: README | Tasks T3 | Done |
+| HOTSPOT-156 | P1: INTEGRATIONS.md | Tasks T1 | Done |
+| HOTSPOT-157 | P1: Consistency + ROADMAP | Tasks T4 | Done |
 
 **Coverage:** 5 total, 5 mapped to tasks, 0 unmapped
 
@@ -133,7 +133,7 @@ Project docs still describe pre-v1 or mid-backlog reality: `PROJECT.md` mentions
 
 ## Success Criteria
 
-- [ ] No active `simple-git` guidance in PROJECT.md / INTEGRATIONS.md
-- [ ] README covers JSON, compare, API, markdown/csv bundle
-- [ ] Stale Planned statuses on Done milestones corrected
-- [ ] Docs-only diff — no `src/` / `bin/` behavior changes
+- [x] No active `simple-git` guidance in PROJECT.md / INTEGRATIONS.md
+- [x] README covers JSON, compare, API, markdown/csv bundle
+- [x] Stale Planned statuses on Done milestones corrected
+- [x] Docs-only diff — no `src/` / `bin/` behavior changes

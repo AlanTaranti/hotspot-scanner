@@ -82,6 +82,7 @@ export function scoreCoupling(
       fileB: pair.fileB,
       coChangeCount: pair.coChangeCount,
       couplingStrength: pair.coChangeCount / denominator,
+      hasStaticDependency: false,
     });
   }
 

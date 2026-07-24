@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/enriched-coupling/design.md`](./design.md)  
 **Spec**: [`.specs/features/enriched-coupling/spec.md`](./spec.md)  
 **Context**: [`.specs/features/enriched-coupling/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -97,8 +97,8 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `CouplingPair` includes `hasStaticDependency: boolean`
-- [ ] `pnpm build` succeeds **or** only expected breakages are in scoring/report until T2/T3 (prefer fix scorer to set `false` temporarily in T1 if that keeps build green)
+- [x] `CouplingPair` includes `hasStaticDependency: boolean`
+- [x] `pnpm build` succeeds **or** only expected breakages are in scoring/report until T2/T3 (prefer fix scorer to set `false` temporarily in T1 if that keeps build green)
 
 **Tests**: none (types layer)
 
@@ -125,12 +125,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Enricher sets correct boolean for fixture sources
-- [ ] Missing/unreadable → `false`, no throw
-- [ ] Bare package import alone does not yield `true` for unrelated peer
-- [ ] No ts-morph imports under `src/scoring/`
-- [ ] Gate check passes: targeted vitest for enricher
-- [ ] Test count: enricher tests pass (no silent deletions)
+- [x] Enricher sets correct boolean for fixture sources
+- [x] Missing/unreadable → `false`, no throw
+- [x] Bare package import alone does not yield `true` for unrelated peer
+- [x] No ts-morph imports under `src/scoring/`
+- [x] Gate check passes: targeted vitest for enricher
+- [x] Test count: enricher tests pass (no silent deletions)
 
 **Tests**: unit — `enrich-coupling-static.test.ts`
 
@@ -157,11 +157,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] JSON coupling objects include the field in reporter fixtures
-- [ ] Table/markdown show yes/no (or equivalent) column
-- [ ] CSV header includes `hasStaticDependency`
-- [ ] Compare coupling rows include the field/column
-- [ ] Reporter unit tests updated and green
+- [x] JSON coupling objects include the field in reporter fixtures
+- [x] Table/markdown show yes/no (or equivalent) column
+- [x] CSV header includes `hasStaticDependency`
+- [x] Compare coupling rows include the field/column
+- [x] Reporter unit tests updated and green
 
 **Tests**: unit — affected `src/report/*.test.ts`
 
@@ -188,10 +188,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `runScan()` coupling entries always have boolean set
-- [ ] Integration/fixture covers at least one `true` and one `false` case (or documented fixture limitation with unit coverage compensating)
-- [ ] Ranking order of pairs unchanged for same temporal inputs
-- [ ] Targeted tests pass
+- [x] `runScan()` coupling entries always have boolean set
+- [x] Integration/fixture covers at least one `true` and one `false` case (or documented fixture limitation with unit coverage compensating)
+- [x] Ranking order of pairs unchanged for same temporal inputs
+- [x] Targeted tests pass
 
 **Tests**: integration + any scan unit tests
 
@@ -218,9 +218,9 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Docs mention `hasStaticDependency`
-- [ ] Full gate passes: `pnpm build && pnpm test`
-- [ ] No silent test deletions
+- [x] Docs mention `hasStaticDependency`
+- [x] Full gate passes: `pnpm build && pnpm test`
+- [x] No silent test deletions
 
 **Tests**: none (docs) — full suite via gate
 

@@ -1,7 +1,9 @@
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { cp, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { HOTSPOT_SCANNER_CONFIG_FILENAME } from "../src/config/index.js";
 import * as diagnostics from "#diagnostics";
 import * as report from "#report";
 import * as scan from "#scan";
@@ -18,6 +20,17 @@ import {
   validateOutputPath,
   validateScopePatterns,
 } from "./hotspot-scanner.js";
+
+const smallTsFixture = join(
+  fileURLToPath(new URL(".", import.meta.url)),
+  "../tests/fixtures/repos/small-ts",
+);
+
+async function createIsolatedSmallTsRepo(): Promise<string> {
+  const tempDir = await mkdtemp(join(tmpdir(), "hotspot-cli-config-"));
+  await cp(smallTsFixture, tempDir, { recursive: true });
+  return tempDir;
+}
 
 function captureStdout(): { chunks: string[]; restore: () => void } {
   const chunks: string[] = [];
@@ -397,7 +410,7 @@ describe("runCli", () => {
         "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,lines",
       );
       expect(couplingContent.split("\n")[0]).toBe(
-        "rank,fileA,fileB,strength,coChanges",
+        "rank,fileA,fileB,strength,coChanges,hasStaticDependency",
       );
     } finally {
       await rm(tempDir, { recursive: true, force: true });
@@ -578,6 +591,133 @@ describe("runCli", () => {
         "-1",
       ]),
     ).rejects.toThrow(CliUsageError);
+  });
+
+  it("forwards only explicit CLI overrides to runScan when config is present", async () => {
+    const repoPath = await createIsolatedSmallTsRepo();
+    try {
+      await writeFile(
+        join(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
+        JSON.stringify({ since: "6 months ago", top: 5 }),
+        "utf8",
+      );
+      const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
+        version: "1.0",
+        hotspots: [],
+        functions: [],
+        coupling: [],
+        meta: {
+          since: "6 months ago",
+          scannedAt: "2026-01-01T00:00:00.000Z",
+          granularity: "file",
+        },
+      });
+      captureStdout();
+
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        repoPath,
+        "--format",
+        "table",
+      ]);
+
+      expect(runScanSpy).toHaveBeenCalledWith({
+        repoPath,
+        onWarning: expect.any(Function),
+        onProgress: expect.any(Function),
+      });
+    } finally {
+      await rm(repoPath, { recursive: true, force: true });
+    }
+  });
+
+  it("CLI --since overrides repo config", async () => {
+    const repoPath = await createIsolatedSmallTsRepo();
+    try {
+      await writeFile(
+        join(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
+        JSON.stringify({ since: "6 months ago" }),
+        "utf8",
+      );
+      const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
+        version: "1.0",
+        hotspots: [],
+        functions: [],
+        coupling: [],
+        meta: {
+          since: "1 week ago",
+          scannedAt: "2026-01-01T00:00:00.000Z",
+          granularity: "file",
+        },
+      });
+      captureStdout();
+
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        repoPath,
+        "--since",
+        "1 week ago",
+        "--format",
+        "table",
+      ]);
+
+      expect(runScanSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          repoPath,
+          since: "1 week ago",
+        }),
+      );
+    } finally {
+      await rm(repoPath, { recursive: true, force: true });
+    }
+  });
+
+  it("uses config top for reporter when CLI omits --top", async () => {
+    const repoPath = await createIsolatedSmallTsRepo();
+    try {
+      await writeFile(
+        join(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
+        JSON.stringify({ top: 5 }),
+        "utf8",
+      );
+      vi.spyOn(scan, "runScan").mockResolvedValue({
+        version: "1.0",
+        hotspots: [],
+        functions: [],
+        coupling: [],
+        meta: {
+          since: "12 months ago",
+          scannedAt: "2026-01-01T00:00:00.000Z",
+          granularity: "file",
+        },
+      });
+      const render = vi.fn(() => "table-output\n");
+      vi.spyOn(report, "createReporter").mockReturnValue({
+        render,
+        renderCompare: vi.fn(),
+      });
+      captureStdout();
+
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        repoPath,
+        "--format",
+        "table",
+      ]);
+
+      expect(render).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ top: 5 }),
+      );
+    } finally {
+      await rm(repoPath, { recursive: true, force: true });
+    }
   });
 
   it("forwards include and exclude patterns to runScan", async () => {

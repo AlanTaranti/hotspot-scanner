@@ -77,6 +77,7 @@ export function createTemporalCouplingScorer(
   };
 }
 
+export { enrichCouplingStaticDeps } from "./enrich-coupling-static.js";
 export { scoreCoupling } from "./coupling-scorer.js";
 export { scoreFunctionHotspots } from "./function-hotspot-scorer.js";
 export { scoreHotspots } from "./hotspot-scorer.js";

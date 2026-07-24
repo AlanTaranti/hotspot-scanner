@@ -12,6 +12,10 @@ function formatScore(value: number): string {
   return value.toFixed(SCORE_DECIMALS);
 }
 
+function formatStaticDep(value: boolean): string {
+  return value ? "yes" : "no";
+}
+
 function escapeCell(value: string): string {
   return value.replace(/\|/g, "\\|");
 }
@@ -136,14 +140,14 @@ function renderCouplingTable(
 
   const rankHeader = includeRank ? "| Rank | " : "| ";
   lines.push(
-    `${rankHeader}File A | File B | Strength | Co-changes |`,
-    `${includeRank ? "| ---: | " : "| "}--- | --- | ---: | ---: |`,
+    `${rankHeader}File A | File B | Strength | Co-changes | Has static |`,
+    `${includeRank ? "| ---: | " : "| "}--- | --- | ---: | ---: | :---: |`,
   );
 
   for (const [index, pair] of items.entries()) {
     const rankCell = includeRank ? `${index + 1} | ` : "";
     lines.push(
-      `| ${rankCell}${escapeCell(pair.fileA)} | ${escapeCell(pair.fileB)} | ${formatScore(pair.couplingStrength)} | ${pair.coChangeCount} |`,
+      `| ${rankCell}${escapeCell(pair.fileA)} | ${escapeCell(pair.fileB)} | ${formatScore(pair.couplingStrength)} | ${pair.coChangeCount} | ${formatStaticDep(pair.hasStaticDependency)} |`,
     );
   }
 
@@ -162,13 +166,13 @@ function renderRankChangedCouplingTable(
   }
 
   lines.push(
-    "| Baseline Rank | Current Rank | Δ | File A | File B | Strength | Co-changes |",
-    "| ---: | ---: | ---: | --- | --- | ---: | ---: |",
+    "| Baseline Rank | Current Rank | Δ | File A | File B | Strength | Co-changes | Has static |",
+    "| ---: | ---: | ---: | --- | --- | ---: | ---: | :---: |",
   );
 
   for (const change of items) {
     lines.push(
-      `| ${change.baselineRank} | ${change.currentRank} | ${change.rankDelta} | ${escapeCell(change.entity.fileA)} | ${escapeCell(change.entity.fileB)} | ${formatScore(change.entity.couplingStrength)} | ${change.entity.coChangeCount} |`,
+      `| ${change.baselineRank} | ${change.currentRank} | ${change.rankDelta} | ${escapeCell(change.entity.fileA)} | ${escapeCell(change.entity.fileB)} | ${formatScore(change.entity.couplingStrength)} | ${change.entity.coChangeCount} | ${formatStaticDep(change.entity.hasStaticDependency)} |`,
     );
   }
 

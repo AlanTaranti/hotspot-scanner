@@ -68,6 +68,7 @@ export interface CouplingPair {
   fileB: string;
   coChangeCount: number;
   couplingStrength: number;
+  hasStaticDependency: boolean;
 }
 
 /** Scan granularity for ranking output. */

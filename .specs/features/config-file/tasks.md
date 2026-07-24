@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/config-file/design.md`](./design.md)  
 **Spec**: [`.specs/features/config-file/spec.md`](./spec.md)  
 **Context**: [`.specs/features/config-file/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -61,10 +61,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Only `.hotspot-scanner.json` is read (no `.hotspotrc`)
-- [ ] Precedence tests pass
-- [ ] Invalid config throws clear errors
-- [ ] Unknown keys ignored
+- [x] Only `.hotspot-scanner.json` is read (no `.hotspotrc`)
+- [x] Precedence tests pass
+- [x] Invalid config throws clear errors
+- [x] Unknown keys ignored
 
 **Tests**: unit
 
@@ -86,10 +86,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Scan picks up repo config automatically
-- [ ] CLI flag overrides config
-- [ ] Programmatic `runScan` honors config at `repoPath` when options omit fields
-- [ ] Tests green
+- [x] Scan picks up repo config automatically
+- [x] CLI flag overrides config
+- [x] Programmatic `runScan` honors config at `repoPath` when options omit fields
+- [x] Tests green
 
 **Tests**: unit + CLI/integration as appropriate
 
@@ -109,8 +109,8 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Docs match locked decisions (no `.hotspotrc`)
-- [ ] Full gate green
+- [x] Docs match locked decisions (no `.hotspotrc`)
+- [x] Full gate green
 
 **Tests**: none
 

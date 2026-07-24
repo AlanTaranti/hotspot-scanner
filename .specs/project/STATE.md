@@ -26,7 +26,7 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-23 | **M21 config file: `.hotspot-scanner.json` only** | User locked — not `.hotspotrc`, not dual lookup. Precedence: CLI flags > config file > defaults. Keys: `since`, `include`, `exclude`, `granularity`, `minCochange`, `top`. Load from `repoPath` root only (no parent walk). Specs: `.specs/features/config-file/` |
 | 2026-07-23 | **M14 enriched coupling: post-score boolean** | After `scoreCoupling`, set `hasStaticDependency` via relative import/export/require resolution (no ts-morph in scoring; no path aliases). Missing source → `false`. Additive under JSON `version: "1.0"`. Specs: `.specs/features/enriched-coupling/` |
 | 2026-07-23 | **M20 schemas require `hasStaticDependency`** | Reject baselines missing the field (re-scan). Ajv preferred as devDependency for contract tests; deepen `parseScanResult`. Execute after M14. Specs: `.specs/features/json-contract/` |
-| 2026-07-23 | **M14–M22 specs Planned** | Planner session created feature folders for M14, M19, M20, M21, M22 (`tasks.md` Status: Planned). Execute order: M14 → M19 → M20 → M21 → M22. M23/M24 out of this planning batch |
+| 2026-07-23 | **M14–M22 Execute complete** | M14 enriched coupling, M19 docs sync, M20 JSON schemas, M21 config file, M22 function AST coverage — all Done per ROADMAP |
 
 ## Architecture decisions (ADRs)
 

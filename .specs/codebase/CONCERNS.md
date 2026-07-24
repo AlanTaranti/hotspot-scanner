@@ -21,6 +21,7 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 |---------|------------|
 | Decision nodes: if/else, loops, switch cases, catch, `&&`/`||`/`??`, ternary | Document exact definition; fixture per construct |
 | `switch`: per-case vs block counting | Pick one definition; lock with tests |
+| Function AST collection scope (M22) | Collect getters/setters, class field arrows, object-literal methods; naming table in ARCHITECTURE § Function AST collection; fixtures `getters-setters.ts`, `class-field-arrows.ts`, `object-literal-methods.ts`; **do not** change McCabe decision nodes when extending collection |
 | Invalid TS/JS syntax | Warn and skip — never abort full scan |
 | ts-morph version / exotic syntax | Fallback warn-skip; track in tests |
 

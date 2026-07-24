@@ -1,7 +1,7 @@
 # Milestone 3 — Complexity Analyzer Design
 
 **Spec**: [`.specs/features/complexity-analyzer/spec.md`](./spec.md)  
-**Status**: Draft
+**Status**: Done
 
 ---
 

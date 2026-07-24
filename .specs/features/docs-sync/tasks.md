@@ -1,7 +1,7 @@
 # Milestone 19 — Documentation Sync Tasks
 
 **Spec**: [`.specs/features/docs-sync/spec.md`](./spec.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Medium / docs-only — no `design.md`
 
 ---
@@ -61,9 +61,9 @@ flowchart LR
 
 **Done when**:
 
-- [ ] PROJECT.md has no simple-git; commander not TBD
-- [ ] PROJECT.md scope lists shipped post-v1 capabilities through M18 at summary level
-- [ ] INTEGRATIONS.md Git = spawn only
+- [x] PROJECT.md has no simple-git; commander not TBD
+- [x] PROJECT.md scope lists shipped post-v1 capabilities through M18 at summary level
+- [x] INTEGRATIONS.md Git = spawn only
 
 **Tests**: none
 
@@ -85,9 +85,9 @@ flowchart LR
 
 **Done when**:
 
-- [ ] csv-bundle (and other verified Done) Status fields are `Done`
-- [ ] ROADMAP header not contradictory
-- [ ] Backlog Planned features untouched
+- [x] csv-bundle (and other verified Done) Status fields are `Done`
+- [x] ROADMAP header not contradictory
+- [x] Backlog Planned features untouched
 
 **Tests**: none
 
@@ -109,8 +109,8 @@ flowchart LR
 
 **Done when**:
 
-- [ ] README sections/examples cover JSON, compare, API, markdown, csv bundle
-- [ ] No obsolete simple-git or pre-harmonic product formula as current score
+- [x] README sections/examples cover JSON, compare, API, markdown, csv bundle
+- [x] No obsolete simple-git or pre-harmonic product formula as current score
 
 **Tests**: none
 
@@ -130,9 +130,9 @@ flowchart LR
 
 **Done when**:
 
-- [ ] M19 checklist items `[x]`
-- [ ] STACK/INTEGRATIONS/PROJECT agree on Git spawn
-- [ ] `pnpm build && pnpm test` passes
+- [x] M19 checklist items `[x]`
+- [x] STACK/INTEGRATIONS/PROJECT agree on Git spawn
+- [x] `pnpm build && pnpm test` passes
 
 **Tests**: none (full gate sanity)
 

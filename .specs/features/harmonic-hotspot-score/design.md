@@ -1,7 +1,7 @@
 # Milestone 8 — Harmonic Hotspot Score Design
 
 **Spec**: [`.specs/features/harmonic-hotspot-score/spec.md`](./spec.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 

@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vitals.dev/hotspot-scanner/schemas/compare-result.json",
+  "title": "CompareResult",
+  "description": "Compare output from hotspot-scanner (baseline vs current scan).",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["version", "granularity", "hotspots", "functions", "coupling", "meta"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "granularity": {
+      "$ref": "scan-result.json#/$defs/ScanGranularity"
+    },
+    "hotspots": {
+      "$ref": "#/$defs/HotspotCompareSection"
+    },
+    "functions": {
+      "$ref": "#/$defs/FunctionCompareSection"
+    },
+    "coupling": {
+      "$ref": "#/$defs/CouplingCompareSection"
+    },
+    "meta": {
+      "$ref": "#/$defs/CompareMeta"
+    }
+  },
+  "$defs": {
+    "RankChangeHotspot": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["entity", "baselineRank", "currentRank", "rankDelta"],
+      "properties": {
+        "entity": {
+          "$ref": "scan-result.json#/$defs/HotspotScore"
+        },
+        "baselineRank": { "type": "integer" },
+        "currentRank": { "type": "integer" },
+        "rankDelta": { "type": "integer" }
+      }
+    },
+    "RankChangeFunction": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["entity", "baselineRank", "currentRank", "rankDelta"],
+      "properties": {
+        "entity": {
+          "$ref": "scan-result.json#/$defs/FunctionHotspotScore"
+        },
+        "baselineRank": { "type": "integer" },
+        "currentRank": { "type": "integer" },
+        "rankDelta": { "type": "integer" }
+      }
+    },
+    "RankChangeCoupling": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["entity", "baselineRank", "currentRank", "rankDelta"],
+      "properties": {
+        "entity": {
+          "$ref": "scan-result.json#/$defs/CouplingPair"
+        },
+        "baselineRank": { "type": "integer" },
+        "currentRank": { "type": "integer" },
+        "rankDelta": { "type": "integer" }
+      }
+    },
+    "HotspotCompareSection": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["new", "removed", "rankChanged"],
+      "properties": {
+        "new": {
+          "type": "array",
+          "items": {
+            "$ref": "scan-result.json#/$defs/HotspotScore"
+          }
+        },
+        "removed": {
+          "type": "array",
+          "items": {
+            "$ref": "scan-result.json#/$defs/HotspotScore"
+          }
+        },
+        "rankChanged": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RankChangeHotspot"
+          }
+        }
+      }
+    },
+    "FunctionCompareSection": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["new", "removed", "rankChanged"],
+      "properties": {
+        "new": {
+          "type": "array",
+          "items": {
+            "$ref": "scan-result.json#/$defs/FunctionHotspotScore"
+          }
+        },
+        "removed": {
+          "type": "array",
+          "items": {
+            "$ref": "scan-result.json#/$defs/FunctionHotspotScore"
+          }
+        },
+        "rankChanged": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RankChangeFunction"
+          }
+        }
+      }
+    },
+    "CouplingCompareSection": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["new", "removed", "rankChanged"],
+      "properties": {
+        "new": {
+          "type": "array",
+          "items": {
+            "$ref": "scan-result.json#/$defs/CouplingPair"
+          }
+        },
+        "removed": {
+          "type": "array",
+          "items": {
+            "$ref": "scan-result.json#/$defs/CouplingPair"
+          }
+        },
+        "rankChanged": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RankChangeCoupling"
+          }
+        }
+      }
+    },
+    "CompareMeta": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["baseline", "current", "warnings"],
+      "properties": {
+        "baseline": {
+          "$ref": "scan-result.json#/$defs/ScanMeta"
+        },
+        "current": {
+          "$ref": "scan-result.json#/$defs/ScanMeta"
+        },
+        "warnings": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}

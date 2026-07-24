@@ -6,6 +6,10 @@ function formatScore(value: number): string {
   return value.toFixed(SCORE_DECIMALS);
 }
 
+function formatStaticDep(value: boolean): string {
+  return value ? "yes" : "no";
+}
+
 function padEnd(value: string, width: number): string {
   return value.length >= width ? value.slice(0, width) : value.padEnd(width);
 }
@@ -80,8 +84,8 @@ function renderFunctionsSection(result: ScanResult): string[] {
 function renderCouplingSection(result: ScanResult): string[] {
   const lines = [
     "Top Coupling Pairs",
-    "Rank  File A                    File B                    Strength  Co-changes",
-    "----  ------------------------  ------------------------  --------  ----------",
+    "Rank  File A                    File B                    Strength  Co-changes  StaticDep",
+    "----  ------------------------  ------------------------  --------  ----------  ---------",
   ];
 
   if (result.coupling.length === 0) {
@@ -97,6 +101,7 @@ function renderCouplingSection(result: ScanResult): string[] {
         padEnd(pair.fileB, 24),
         padStart(formatScore(pair.couplingStrength), 8),
         padStart(String(pair.coChangeCount), 10),
+        padStart(formatStaticDep(pair.hasStaticDependency), 9),
       ].join("  "),
     );
   }

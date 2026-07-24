@@ -12,11 +12,11 @@ Teams repeat the same CLI flags (`--since`, includes/excludes, granularity, thre
 
 ## Goals
 
-- [ ] Support **only** `.hotspot-scanner.json` at `repoPath` with keys: `since`, `include`, `exclude`, `granularity`, `minCochange`, `top`
-- [ ] Precedence: **CLI > config > defaults**
-- [ ] Document in README and ARCHITECTURE
-- [ ] Record decisions in `context.md` (done at planning) and STATE.md
-- [ ] `pnpm build && pnpm test` after Execute
+- [x] Support **only** `.hotspot-scanner.json` at `repoPath` with keys: `since`, `include`, `exclude`, `granularity`, `minCochange`, `top`
+- [x] Precedence: **CLI > config > defaults**
+- [x] Document in README and ARCHITECTURE
+- [x] Record decisions in `context.md` (done at planning) and STATE.md
+- [x] `pnpm build && pnpm test` after Execute
 
 ## Out of Scope
 
@@ -127,14 +127,14 @@ Teams repeat the same CLI flags (`--since`, includes/excludes, granularity, thre
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| HOTSPOT-166 | P1: Load config | Tasks T1 | Pending |
-| HOTSPOT-167 | P1: Invalid config errors | Tasks T1 | Pending |
-| HOTSPOT-168 | P1: Precedence | Tasks T1, T2 | Pending |
-| HOTSPOT-169 | P1: Key mapping | Tasks T1 | Pending |
-| HOTSPOT-170 | P1: Unknown keys ignored | Tasks T1 | Pending |
-| HOTSPOT-171 | P1: CLI / runScan wiring | Tasks T2 | Pending |
-| HOTSPOT-172 | P1: README/ARCHITECTURE | Tasks T3 | Pending |
-| HOTSPOT-173 | P1: Help + ROADMAP | Tasks T3 | Pending |
+| HOTSPOT-166 | P1: Load config | Tasks T1 | Done |
+| HOTSPOT-167 | P1: Invalid config errors | Tasks T1 | Done |
+| HOTSPOT-168 | P1: Precedence | Tasks T1, T2 | Done |
+| HOTSPOT-169 | P1: Key mapping | Tasks T1 | Done |
+| HOTSPOT-170 | P1: Unknown keys ignored | Tasks T1 | Done |
+| HOTSPOT-171 | P1: CLI / runScan wiring | Tasks T2 | Done |
+| HOTSPOT-172 | P1: README/ARCHITECTURE | Tasks T3 | Done |
+| HOTSPOT-173 | P1: Help + ROADMAP | Tasks T3 | Done |
 
 **Coverage:** 8 total, 8 mapped to tasks, 0 unmapped
 
@@ -142,7 +142,7 @@ Teams repeat the same CLI flags (`--since`, includes/excludes, granularity, thre
 
 ## Success Criteria
 
-- [ ] Only `.hotspot-scanner.json` supported
-- [ ] Precedence proven by tests
-- [ ] Docs match locked decisions
-- [ ] Full gate green
+- [x] Only `.hotspot-scanner.json` supported
+- [x] Precedence proven by tests
+- [x] Docs match locked decisions
+- [x] Full gate green

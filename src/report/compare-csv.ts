@@ -117,6 +117,7 @@ function renderCouplingRows(
     pair.fileB,
     formatScore(pair.couplingStrength),
     String(pair.coChangeCount),
+    String(pair.hasStaticDependency),
   ]);
 }
 
@@ -131,6 +132,7 @@ function renderRankChangedCouplingRows(
     change.entity.fileB,
     formatScore(change.entity.couplingStrength),
     String(change.entity.coChangeCount),
+    String(change.entity.hasStaticDependency),
   ]);
 }
 
@@ -188,7 +190,14 @@ const RANK_CHANGED_FUNCTION_HEADER = [
   "authors",
 ];
 
-const COUPLING_HEADER = ["rank", "fileA", "fileB", "strength", "coChanges"];
+const COUPLING_HEADER = [
+  "rank",
+  "fileA",
+  "fileB",
+  "strength",
+  "coChanges",
+  "hasStaticDependency",
+];
 
 const RANK_CHANGED_COUPLING_HEADER = [
   "baselineRank",
@@ -198,6 +207,7 @@ const RANK_CHANGED_COUPLING_HEADER = [
   "fileB",
   "strength",
   "coChanges",
+  "hasStaticDependency",
 ];
 
 export function renderCompareCsv(result: CompareResult): CsvBundle {

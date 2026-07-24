@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/json-contract/spec.md`](./spec.md)  
 **Context**: [`.specs/features/json-contract/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 

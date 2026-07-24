@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/config-file/spec.md`](./spec.md)  
 **Context**: [`.specs/features/config-file/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 

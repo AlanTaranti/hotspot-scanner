@@ -88,13 +88,21 @@ function renderFunctionsCsv(result: ScanResult): string {
 }
 
 function renderCouplingCsv(result: ScanResult): string {
-  const header = ["rank", "fileA", "fileB", "strength", "coChanges"];
+  const header = [
+    "rank",
+    "fileA",
+    "fileB",
+    "strength",
+    "coChanges",
+    "hasStaticDependency",
+  ];
   const rows = result.coupling.map((pair, index) => [
     String(index + 1),
     pair.fileA,
     pair.fileB,
     formatScore(pair.couplingStrength),
     String(pair.coChangeCount),
+    String(pair.hasStaticDependency),
   ]);
 
   return renderCsvFile(header, rows);

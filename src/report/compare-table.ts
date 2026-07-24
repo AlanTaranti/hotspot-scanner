@@ -12,6 +12,10 @@ function formatScore(value: number): string {
   return value.toFixed(SCORE_DECIMALS);
 }
 
+function formatStaticDep(value: boolean): string {
+  return value ? "yes" : "no";
+}
+
 function padEnd(value: string, width: number): string {
   return value.length >= width ? value.slice(0, width) : value.padEnd(width);
 }
@@ -128,6 +132,7 @@ function renderCouplingRows(items: CouplingPair[], includeRank: boolean): string
       padEnd(pair.fileB, 24),
       padStart(formatScore(pair.couplingStrength), 8),
       padStart(String(pair.coChangeCount), 10),
+      padStart(formatStaticDep(pair.hasStaticDependency), 9),
     ].join("  "),
   );
 }
@@ -148,6 +153,7 @@ function renderRankChangedCouplingRows(
       padEnd(change.entity.fileB, 24),
       padStart(formatScore(change.entity.couplingStrength), 8),
       padStart(String(change.entity.coChangeCount), 10),
+      padStart(formatStaticDep(change.entity.hasStaticDependency), 9),
     ].join("  "),
   );
 }
@@ -196,9 +202,9 @@ function renderFunctionSections(result: CompareResult): string[] {
 
 function renderCouplingSections(result: CompareResult): string[] {
   const header =
-    "Rank  File A                    File B                    Strength  Co-changes";
+    "Rank  File A                    File B                    Strength  Co-changes  StaticDep";
   const rankChangedHeader =
-    "Baseline  Current  Delta  File A                    File B                    Strength  Co-changes";
+    "Baseline  Current  Delta  File A                    File B                    Strength  Co-changes  StaticDep";
 
   return [
     "=== New Coupling Pairs ===",

@@ -50,6 +50,7 @@ describe("renderJson", () => {
       fileB: "src/b.ts",
       coChangeCount: 5,
       couplingStrength: 0.75,
+      hasStaticDependency: true,
     });
     expect(output.endsWith("\n")).toBe(true);
     expect(output).not.toContain("authors");

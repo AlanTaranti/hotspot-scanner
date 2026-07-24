@@ -11,13 +11,18 @@ const fixturePath = join(
   "../../tests/fixtures/report/sample-result.json",
 );
 
+function loadFixture(): Record<string, unknown> {
+  return JSON.parse(readFileSync(fixturePath, "utf8")) as Record<string, unknown>;
+}
+
 describe("parseScanResult", () => {
-  it("accepts valid M11 ScanResult JSON", () => {
-    const raw = JSON.parse(readFileSync(fixturePath, "utf8"));
+  it("accepts valid M14 ScanResult JSON", () => {
+    const raw = loadFixture();
     const result = parseScanResult(raw);
 
     expect(result.version).toBe("1.0");
     expect(result.hotspots).toHaveLength(3);
+    expect(result.coupling[0]?.hasStaticDependency).toBe(true);
     expect(result.meta.granularity).toBe("file");
   });
 
@@ -27,14 +32,14 @@ describe("parseScanResult", () => {
   });
 
   it("rejects unsupported version", () => {
-    const raw = JSON.parse(readFileSync(fixturePath, "utf8"));
+    const raw = loadFixture();
     expect(() => parseScanResult({ ...raw, version: "2.0" })).toThrow(
       /Unsupported baseline version/,
     );
   });
 
   it("rejects missing required keys", () => {
-    const raw = JSON.parse(readFileSync(fixturePath, "utf8"));
+    const raw = loadFixture();
     const { hotspots: _hotspots, ...withoutHotspots } = raw;
     expect(() => parseScanResult(withoutHotspots)).toThrow(/hotspots/);
 
@@ -49,30 +54,140 @@ describe("parseScanResult", () => {
   });
 
   it("rejects invalid meta fields", () => {
-    const raw = JSON.parse(readFileSync(fixturePath, "utf8"));
+    const raw = loadFixture();
     expect(() =>
       parseScanResult({
         ...raw,
-        meta: { ...raw.meta, since: 12 },
+        meta: { ...(raw.meta as Record<string, unknown>), since: 12 },
       }),
     ).toThrow(/meta.since must be a string/);
 
     expect(() =>
       parseScanResult({
         ...raw,
-        meta: { ...raw.meta, scannedAt: null },
+        meta: { ...(raw.meta as Record<string, unknown>), scannedAt: null },
       }),
     ).toThrow(/meta.scannedAt must be a string/);
   });
 
   it("rejects invalid granularity", () => {
-    const raw = JSON.parse(readFileSync(fixturePath, "utf8"));
+    const raw = loadFixture();
     expect(() =>
       parseScanResult({
         ...raw,
-        meta: { ...raw.meta, granularity: "module" },
+        meta: { ...(raw.meta as Record<string, unknown>), granularity: "module" },
       }),
     ).toThrow(/Invalid baseline meta.granularity/);
+  });
+
+  it("rejects invalid hotspot items", () => {
+    const raw = loadFixture();
+    const hotspots = [...(raw.hotspots as unknown[])];
+
+    hotspots[0] = "not-an-object";
+    expect(() => parseScanResult({ ...raw, hotspots })).toThrow(/hotspots\[0\] must be an object/);
+
+    hotspots[0] = { ...(raw.hotspots as Record<string, unknown>[])[0] };
+    delete (hotspots[0] as Record<string, unknown>).filePath;
+    expect(() => parseScanResult({ ...raw, hotspots })).toThrow(
+      /hotspots\[0\] is missing required field: filePath/,
+    );
+
+    hotspots[0] = {
+      ...(raw.hotspots as Record<string, unknown>[])[0],
+      hotspotScore: "high",
+    };
+    expect(() => parseScanResult({ ...raw, hotspots })).toThrow(
+      /hotspots\[0\]\.hotspotScore must be a number/,
+    );
+
+    hotspots[0] = {
+      ...(raw.hotspots as Record<string, unknown>[])[0],
+      commitCount: 1.5,
+    };
+    expect(() => parseScanResult({ ...raw, hotspots })).toThrow(
+      /hotspots\[0\]\.commitCount must be an integer/,
+    );
+  });
+
+  it("rejects invalid function items", () => {
+    const raw = loadFixture();
+    const functions = [
+      {
+        filePath: "src/foo.ts",
+        functionName: "bar",
+        line: 10,
+        complexity: 3,
+        complexityNormalized: 0.5,
+        churnNormalized: 0.4,
+        hotspotScore: 0.45,
+        commitCount: 2,
+        linesChanged: 20,
+        authorCount: 1,
+      },
+    ];
+
+    functions[0] = { ...functions[0], line: "ten" };
+    expect(() => parseScanResult({ ...raw, functions })).toThrow(
+      /functions\[0\]\.line must be an integer/,
+    );
+
+    const incomplete = { ...functions[0], line: 10 };
+    delete (incomplete as Record<string, unknown>).functionName;
+    expect(() => parseScanResult({ ...raw, functions: [incomplete] })).toThrow(
+      /functions\[0\] is missing required field: functionName/,
+    );
+  });
+
+  it("rejects invalid coupling items", () => {
+    const raw = loadFixture();
+    const coupling = [...(raw.coupling as unknown[])];
+
+    coupling[0] = null;
+    expect(() => parseScanResult({ ...raw, coupling })).toThrow(
+      /coupling\[0\] must be an object/,
+    );
+
+    coupling[0] = { ...(raw.coupling as Record<string, unknown>[])[0] };
+    delete (coupling[0] as Record<string, unknown>).fileA;
+    expect(() => parseScanResult({ ...raw, coupling })).toThrow(
+      /coupling\[0\] is missing required field: fileA/,
+    );
+
+    coupling[0] = {
+      ...(raw.coupling as Record<string, unknown>[])[0],
+      couplingStrength: "strong",
+    };
+    expect(() => parseScanResult({ ...raw, coupling })).toThrow(
+      /coupling\[0\]\.couplingStrength must be a number/,
+    );
+  });
+
+  it("rejects coupling items missing hasStaticDependency with re-scan hint", () => {
+    const raw = loadFixture();
+    const coupling = (raw.coupling as Record<string, unknown>[]).map((item) => {
+      const { hasStaticDependency: _hasStaticDependency, ...withoutFlag } = item;
+      return withoutFlag;
+    });
+
+    expect(() => parseScanResult({ ...raw, coupling })).toThrow(BaselineError);
+    expect(() => parseScanResult({ ...raw, coupling })).toThrow(
+      /coupling\[0\] is missing required field: hasStaticDependency/,
+    );
+    expect(() => parseScanResult({ ...raw, coupling })).toThrow(/Re-scan/);
+  });
+
+  it("rejects coupling items with wrong hasStaticDependency type", () => {
+    const raw = loadFixture();
+    const coupling = [...(raw.coupling as unknown[])];
+    coupling[1] = {
+      ...(raw.coupling as Record<string, unknown>[])[1],
+      hasStaticDependency: "false",
+    };
+
+    expect(() => parseScanResult({ ...raw, coupling })).toThrow(
+      /coupling\[1\]\.hasStaticDependency must be a boolean/,
+    );
   });
 });
 
@@ -81,6 +196,9 @@ describe("loadBaseline", () => {
     const result = await loadBaseline(fixturePath);
     expect(result.version).toBe("1.0");
     expect(result.hotspots[0]?.filePath).toBe("src/hot.ts");
+    expect(result.coupling.every((pair) => typeof pair.hasStaticDependency === "boolean")).toBe(
+      true,
+    );
   });
 
   it("throws on missing file", async () => {
@@ -103,6 +221,24 @@ describe("loadBaseline", () => {
       await expect(loadBaseline(invalidPath)).rejects.toThrow(
         /Failed to parse baseline JSON/,
       );
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("throws on baseline missing hasStaticDependency", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
+    const invalidPath = join(tempDir, "pre-m14-baseline.json");
+    const raw = loadFixture();
+    const coupling = (raw.coupling as Record<string, unknown>[]).map((item) => {
+      const { hasStaticDependency: _hasStaticDependency, ...withoutFlag } = item;
+      return withoutFlag;
+    });
+    await writeFile(invalidPath, JSON.stringify({ ...raw, coupling }), "utf8");
+    try {
+      await expect(loadBaseline(invalidPath)).rejects.toThrow(BaselineError);
+      await expect(loadBaseline(invalidPath)).rejects.toThrow(/hasStaticDependency/);
+      await expect(loadBaseline(invalidPath)).rejects.toThrow(/Re-scan/);
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }

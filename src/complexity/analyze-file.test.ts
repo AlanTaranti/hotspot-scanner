@@ -177,4 +177,198 @@ describe("analyzeSourceFile", () => {
       complexity: 3,
     });
   });
+
+  it("collects class getters and setters with bare accessor names", () => {
+    const result = analyzeSource(`
+      class Example {
+        get foo() {
+          return 1;
+        }
+        set foo(value: number) {
+          if (value > 0) {}
+        }
+      }
+    `);
+
+    const fooEntries = result.functions.filter((fn) => fn.functionName === "foo");
+    expect(fooEntries).toHaveLength(2);
+    expect(fooEntries[0]).toMatchObject({ functionName: "foo", complexity: 1 });
+    expect(fooEntries[1]).toMatchObject({ functionName: "foo", complexity: 2 });
+    expect(fooEntries[0]!.line).not.toBe(fooEntries[1]!.line);
+  });
+
+  it("collects abstract getters without body using empty-body policy", () => {
+    const result = analyzeSource(`
+      abstract class Example {
+        abstract get foo(): number;
+      }
+    `);
+
+    expect(result.functions).toHaveLength(1);
+    expect(result.functions[0]).toMatchObject({
+      functionName: "foo",
+      complexity: 1,
+    });
+  });
+
+  it("collects class field arrow and function initializers", () => {
+    const result = analyzeSource(`
+      class Example {
+        arrowField = () => 1;
+        fnField = function named() {
+          return 2;
+        };
+        notAFunction = 42;
+      }
+    `);
+
+    expect(result.functions).toHaveLength(2);
+    expect(result.functions.map((fn) => fn.functionName).sort()).toEqual([
+      "arrowField",
+      "fnField",
+    ]);
+  });
+
+  it("collects object-literal methods and function-valued properties", () => {
+    const result = analyzeSource(`
+      const handlers = {
+        bar() {
+          return 1;
+        },
+        baz: () => {
+          if (true) return 2;
+          return 3;
+        },
+      };
+    `);
+
+    expect(result.functions).toHaveLength(2);
+    expect(result.functions.find((fn) => fn.functionName === "bar")).toMatchObject({
+      functionName: "bar",
+      complexity: 1,
+    });
+    expect(result.functions.find((fn) => fn.functionName === "baz")).toMatchObject({
+      functionName: "baz",
+      complexity: 2,
+    });
+  });
+
+  it("collects nested object-literal methods recursively", () => {
+    const result = analyzeSource(`
+      const nested = {
+        outer() {
+          return {
+            inner() {
+              return 1;
+            },
+          };
+        },
+      };
+    `);
+
+    expect(result.functions).toHaveLength(2);
+    expect(result.functions.map((fn) => fn.functionName).sort()).toEqual([
+      "inner",
+      "outer",
+    ]);
+  });
+
+  it("collects object-literal properties with non-identifier keys", () => {
+    const result = analyzeSource(`
+      const handlers = {
+        "string-key"() {
+          return 1;
+        },
+        ["computed-key"]: () => 2,
+      };
+    `);
+
+    expect(result.functions).toHaveLength(2);
+    expect(result.functions.map((fn) => fn.functionName).sort()).toEqual([
+      '"string-key"',
+      '["computed-key"]',
+    ]);
+  });
+});
+
+describe("complexity fixtures (M22 constructs)", () => {
+  it("locks McCabe values for getters and setters", () => {
+    const result = analyzeFixture("getters-setters.ts");
+
+    expect(result.file).toEqual({
+      filePath: "getters-setters.ts",
+      functionCount: 3,
+      cyclomaticComplexity: 6,
+    });
+
+    const countEntries = result.functions.filter((fn) => fn.functionName === "count");
+    expect(countEntries).toHaveLength(2);
+    expect(countEntries[0]).toMatchObject({
+      functionName: "count",
+      line: 9,
+      complexity: 1,
+    });
+    expect(countEntries[1]).toMatchObject({
+      functionName: "count",
+      line: 13,
+      complexity: 2,
+    });
+    expect(result.functions.find((fn) => fn.functionName === "label")).toMatchObject({
+      functionName: "label",
+      line: 19,
+      complexity: 3,
+    });
+  });
+
+  it("locks McCabe values for class field arrows", () => {
+    const result = analyzeFixture("class-field-arrows.ts");
+
+    expect(result.file).toEqual({
+      filePath: "class-field-arrows.ts",
+      functionCount: 3,
+      cyclomaticComplexity: 5,
+    });
+
+    expect(result.functions.find((fn) => fn.functionName === "simple")).toMatchObject({
+      functionName: "simple",
+      line: 9,
+      complexity: 1,
+    });
+    expect(result.functions.find((fn) => fn.functionName === "branch")).toMatchObject({
+      functionName: "branch",
+      line: 10,
+      complexity: 2,
+    });
+    expect(result.functions.find((fn) => fn.functionName === "fnField")).toMatchObject({
+      functionName: "fnField",
+      line: 14,
+      complexity: 2,
+    });
+  });
+
+  it("locks McCabe values for object-literal methods", () => {
+    const result = analyzeFixture("object-literal-methods.ts");
+
+    expect(result.file).toEqual({
+      filePath: "object-literal-methods.ts",
+      functionCount: 3,
+      cyclomaticComplexity: 4,
+    });
+
+    expect(result.functions.find((fn) => fn.functionName === "bar")).toMatchObject({
+      functionName: "bar",
+      line: 9,
+      complexity: 1,
+    });
+    expect(result.functions.find((fn) => fn.functionName === "baz")).toMatchObject({
+      functionName: "baz",
+      line: 12,
+      complexity: 2,
+    });
+    expect(result.functions.find((fn) => fn.functionName === "inner")).toMatchObject({
+      functionName: "inner",
+      line: 17,
+      complexity: 1,
+    });
+  });
 });

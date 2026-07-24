@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/json-contract/design.md`](./design.md)  
 **Spec**: [`.specs/features/json-contract/spec.md`](./spec.md)  
 **Context**: [`.specs/features/json-contract/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Prerequisite**: M14 Execute complete (producers emit `hasStaticDependency`)
 
 ---
@@ -66,9 +66,9 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Both schema files exist and describe required fields
-- [ ] Coupling item requires boolean `hasStaticDependency`
-- [ ] Schemas are valid JSON
+- [x] Both schema files exist and describe required fields
+- [x] Coupling item requires boolean `hasStaticDependency`
+- [x] Schemas are valid JSON
 
 **Tests**: none yet (T3) — optional quick Ajv compile if dep already added
 
@@ -90,10 +90,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Invalid nested items rejected
-- [ ] Missing `hasStaticDependency` rejected with actionable message
-- [ ] Valid M14-shaped fixture loads
-- [ ] Unit tests green
+- [x] Invalid nested items rejected
+- [x] Missing `hasStaticDependency` rejected with actionable message
+- [x] Valid M14-shaped fixture loads
+- [x] Unit tests green
 
 **Tests**: unit — `load-baseline.test.ts`
 
@@ -115,9 +115,9 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Scan JSON validates
-- [ ] Compare JSON validates
-- [ ] Failure mode demonstrated if a required field stripped in a negative test (optional but recommended)
+- [x] Scan JSON validates
+- [x] Compare JSON validates
+- [x] Failure mode demonstrated if a required field stripped in a negative test (optional but recommended)
 
 **Tests**: contract
 
@@ -137,8 +137,8 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Docs reference schemas
-- [ ] Full gate green
+- [x] Docs reference schemas
+- [x] Full gate green
 
 **Tests**: none
 

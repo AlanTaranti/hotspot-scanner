@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/ast-parallelization/spec.md`](./spec.md)  
 **Context**: [`.specs/features/ast-parallelization/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 

@@ -13,7 +13,11 @@ export default defineConfig({
   },
   test: {
     globalSetup: ["tests/fixtures/repos/global-setup.ts"],
-    include: ["src/**/*.test.ts", "bin/**/*.test.ts"],
+    include: [
+      "src/**/*.test.ts",
+      "bin/**/*.test.ts",
+      "tests/contract/**/*.test.ts",
+    ],
     exclude: ["tests/fixtures/**", "node_modules/**", "dist/**"],
     coverage: {
       provider: "v8",
