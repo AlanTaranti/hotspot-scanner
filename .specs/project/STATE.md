@@ -29,6 +29,8 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-23 | **M20 schemas require `hasStaticDependency`** | Reject baselines missing the field (re-scan). Ajv preferred as devDependency for contract tests; deepen `parseScanResult`. Execute after M14. Specs: `.specs/features/json-contract/` |
 | 2026-07-23 | **M14–M22 Execute complete** | M14 enriched coupling, M19 docs sync, M20 JSON schemas, M21 config file, M22 function AST coverage — all Done per ROADMAP |
 | 2026-07-23 | **M23 planning complete** | Specs Planned — `per-function-churn` (HOTSPOT-181–193); Execute deferred to separate `orchestrator-implementer` session after Status promotion |
+| 2026-07-23 | **M24 Package DX — Scope B + ESLint/Prettier** | Prep-only publish metadata; `files` includes `schemas/`; ESLint flat config; Prettier with `format` + `format:check`; `engines.node >= 22`; no CI, no `dev` script, no AGENTS.md gate change; registry vs Git-install stays Deferred. Specs: `.specs/features/package-dx/` (Status Planned, HOTSPOT-194–202) |
+| 2026-07-23 | **M24 `repository.url` default** | No git remote / README URL at planning time — locked default `git+https://github.com/taranti/hotspot-scanner.git` in context.md; replace with origin at Execute if available |
 
 ## Architecture decisions (ADRs)
 
@@ -59,6 +61,11 @@ _None._
 ## Lessons
 
 - Vitest vs original Jest mention: document in TESTING.md, do not silently diverge.
+
+## Active
+
+- **Planning / next Execute:** M24 `package-dx` — specs Planned (HOTSPOT-194–202); promote `tasks.md` Status then `orchestrator-implementer` in a new session
+- **Also Planned (prior):** M23 `per-function-churn` — specs Planned (HOTSPOT-181–193); Execute when prioritized
 
 ## Deferred
 

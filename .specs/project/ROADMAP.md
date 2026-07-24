@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M23 Per-Function Git Churn Planned** — post-v1 milestones M7–M22 Done; M23 specs Planned (Execute next); backlog: M24.
+Status: **M24 Package DX Planned** — post-v1 milestones M7–M22 Done; M23 per-function-churn specs Planned; M24 package-dx specs Planned (Execute after Status promotion).
 
 ## Milestone 1 — Scaffold
 
@@ -219,13 +219,16 @@ Hunk-overlap attribution on `git log` patch stream (`--unified=0`) in `--granula
 - [ ] `scoreFunctionHotspots` uses per-function churn map (stop inheriting `FileChangeStats`); wire in `runScan` function branch only
 - [ ] Living docs (ARCHITECTURE / CONCERNS / TESTING) + `pnpm build && pnpm test`
 
-### Milestone 24 — Package DX
+### Milestone 24 — Package DX — Specs Planned
 
-**Slug (planned):** `package-dx` | **Priority:** Medium
+→ [`.specs/features/package-dx/spec.md`](../features/package-dx/spec.md)  
+**Slug:** `package-dx` | **Priority:** Medium | **Specs:** Planned (`tasks.md` Status: Planned)
 
-- [ ] Scripts: `typecheck`, `lint` (optionally `format`, `dev`)
-- [ ] `package.json`: `engines.node >= 22`, `files`, `repository` (publish prep)
-- [ ] Document in CONTRIBUTING
+Publish-prep + contributor DX only (no `npm publish`, no CI, no `dev` script). Locked decisions: [package-dx/context.md](../features/package-dx/context.md). Scope B: `files` allowlist **includes `schemas/`** (closes M20 json-contract thread). IDs: HOTSPOT-194–202. Project gate remains `pnpm build && pnpm test`.
+
+- [ ] Scripts: `typecheck`, `lint`, `format` + `format:check` (Prettier; ESLint flat config)
+- [ ] `package.json`: `engines.node >= 22`, `repository`, `files` including `dist/`, `schemas/`, LICENSE, README
+- [ ] Document typecheck/lint/format in CONTRIBUTING alongside gate; keep “no CI in v1”; sync STACK/CONVENTIONS
 
 ### Suggested execution order
 
