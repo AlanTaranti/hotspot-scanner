@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M24 Package DX Done** — post-v1 milestones M7–M24 Done. Next backlog: **M25–M30** (stubs; specs Pending until `planner-feature`). **Suggested execution starts at M26** (then M25 → M27 → M28 → M30 → M29).
+Status: **M24 Package DX Done** — post-v1 milestones M7–M24 Done. Next backlog: **M25–M30** (specs Planned; Execute not started). **Suggested execution starts at M26** (then M25 → M27 → M28 → M30 → M29).
 
 ## Milestone 1 — Scaffold
 
@@ -238,11 +238,12 @@ M14 → M19 → M20 → M21 → M22 → M23 → M24
 
 ## Post-M24 backlog
 
-Stubs only — no `.specs/features/<slug>/` until promoted via `planner-feature`. M12 (CI fail-on-score) remains intentionally absent (see STATE.md).
+Specs Planned via `planner-feature` (2026-07-23). Checkboxes remain open until Execute. M12 (CI fail-on-score) remains intentionally absent (see STATE.md).
 
 ### Milestone 25 — Product docs sync
 
-**Slug:** `product-docs-sync` | **Priority:** High | **Specs:** Pending
+→ [`.specs/features/product-docs-sync/spec.md`](../features/product-docs-sync/spec.md)  
+**Slug:** `product-docs-sync` | **Priority:** High | **Specs:** Done
 
 Align living product docs with shipped M19–M24 reality.
 
@@ -252,7 +253,8 @@ Align living product docs with shipped M19–M24 reality.
 
 ### Milestone 26 — Rename confidence (RT-003)
 
-**Slug:** `rename-confidence` | **Priority:** High | **Specs:** Pending
+→ [`.specs/features/rename-confidence/spec.md`](../features/rename-confidence/spec.md)  
+**Slug:** `rename-confidence` | **Priority:** High | **Specs:** Done
 
 Improve trust of file- and function-mode rankings after renames/moves. Ordered scope (avisos only — no historical AST). Tracked gaps: [CONCERNS.md](../codebase/CONCERNS.md) (Git miner rename blind spots + function churn pós-rename).
 
@@ -263,7 +265,8 @@ Improve trust of file- and function-mode rankings after renames/moves. Ordered s
 
 ### Milestone 27 — Coupling enrichment
 
-**Slug:** `coupling-enrichment` | **Priority:** High | **Specs:** Pending
+→ [`.specs/features/coupling-enrichment/spec.md`](../features/coupling-enrichment/spec.md)  
+**Slug:** `coupling-enrichment` | **Priority:** High | **Specs:** Done
 
 Richer `hasStaticDependency` signal for monorepos and refactor triage.
 
@@ -273,7 +276,8 @@ Richer `hasStaticDependency` signal for monorepos and refactor triage.
 
 ### Milestone 28 — Performance & diagnostics UX
 
-**Slug:** `perf-diagnostics-ux` | **Priority:** Medium | **Specs:** Pending
+→ [`.specs/features/perf-diagnostics-ux/spec.md`](../features/perf-diagnostics-ux/spec.md)  
+**Slug:** `perf-diagnostics-ux` | **Priority:** Medium | **Specs:** Done
 
 Operator control and clearer scan feedback on large repos.
 
@@ -283,21 +287,23 @@ Operator control and clearer scan feedback on large repos.
 
 ### Milestone 29 — Function AST coverage+
 
-**Slug:** `function-ast-coverage-plus` | **Priority:** Medium | **Specs:** Pending
+→ [`.specs/features/function-ast-coverage-plus/spec.md`](../features/function-ast-coverage-plus/spec.md)  
+**Slug:** `function-ast-coverage-plus` | **Priority:** Medium | **Specs:** Done
 
-Extend function collection beyond M22 without changing McCabe decision nodes.
+Extend function collection beyond M22 without changing McCabe decision nodes. Locked constructs: [function-ast-coverage-plus/context.md](../features/function-ast-coverage-plus/context.md).
 
-- [ ] Additional constructs (e.g. constructors, overloads — exact set locked in planner)
+- [ ] Additional constructs (ClassExpression members, object-literal get/set, assignment RHS callables, skip body-less overload stubs — not constructors/namespaces as “new”)
 - [ ] Naming table + McCabe fixtures per construct; no decision-node drift (RT-005)
 
 ### Milestone 30 — Path & config DX
 
-**Slug:** `path-config-dx` | **Priority:** Medium | **Specs:** Pending
+→ [`.specs/features/path-config-dx/spec.md`](../features/path-config-dx/spec.md)  
+**Slug:** `path-config-dx` | **Priority:** Medium | **Specs:** Done
 
-Better defaults and config discovery for real monorepos.
+Better defaults and config discovery for real monorepos. Locked decisions: [path-config-dx/context.md](../features/path-config-dx/context.md).
 
-- [ ] Extra default excludes (e.g. `.next`, `out`, `vendor`, `storybook-static`, `__snapshots__` — exact set locked in planner)
-- [ ] Config parent-directory walk and/or `--config <path>` (preserve CLI > config > defaults)
+- [ ] Extra default excludes (`.next`, `out`, `vendor`, `storybook-static`, `__snapshots__`)
+- [ ] Config parent-directory walk and `--config <path>` (preserve CLI > config > defaults)
 
 ### Suggested execution order (M25–M30)
 

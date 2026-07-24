@@ -33,6 +33,7 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-23 | **M24 `repository.url` default**                                  | No git remote / README URL at planning time — locked default `git+https://github.com/taranti/hotspot-scanner.git` in context.md; replace with origin at Execute if available                                                                                                                                                                                                                              |
 | 2026-07-23 | **Post-M24 backlog stubs M25–M30**                                | ROADMAP-only stubs (no feature specs until `planner-feature`); order M25→M26→M27→M28→M30→M29; CONCERNS aligned to PathAliasMap renames + dual-stream / scan-relative / enriched-coupling limits                                                                                                                                                                                                         |
 | 2026-07-23 | **Backlog reordered: M26 before M25**                             | Prioritize RT-003 / function-rename avisos (blind spots → function pós-rename warnings) before product-docs-sync; paths enrichment remains M27; suggested order M26→M25→M27→M28→M30→M29                                                                                                                                                                                                                    |
+| 2026-07-23 | **M25–M30 specs Planned via planner-feature**                     | Feature dirs under `.specs/features/<slug>/` with Status Planned; HOTSPOT-203–290 ranges; ROADMAP Specs Done (planning); Execute not started — order M26→M25→M27→M28→M30→M29                                                                                                                                                                                                                              |
 
 ## Architecture decisions (ADRs)
 
@@ -67,14 +68,14 @@ _None._
 
 ## Active
 
-Post-M24 backlog (ROADMAP stubs; specs Pending):
+Post-M24 backlog (specs **Planned**; Execute not started). Suggested order:
 
-1. **M26** `rename-confidence` — ① blind spots → ②/③ function avisos
-2. **M25** `product-docs-sync` — sync PROJECT.md / remaining doc drift
-3. **M27** `coupling-enrichment` — path aliases, direction, import type, re-exports
-4. **M28** `perf-diagnostics-ux` — `--concurrency`, function-mode progress, warnings UX
-5. **M30** `path-config-dx` — default excludes + config parent walk / `--config`
-6. **M29** `function-ast-coverage-plus` — more function AST constructs (after M30 in suggested order)
+1. **M26** [`rename-confidence`](../features/rename-confidence/) — RT-003 avisos + fixtures + `-M` (HOTSPOT-203–210)
+2. **M25** [`product-docs-sync`](../features/product-docs-sync/) — PROJECT/README/ARCHITECTURE drift (HOTSPOT-221–226)
+3. **M27** [`coupling-enrichment`](../features/coupling-enrichment/) — paths, direction, import type, re-exports (HOTSPOT-231–242)
+4. **M28** [`perf-diagnostics-ux`](../features/perf-diagnostics-ux/) — `--concurrency`, function progress, warning severity (HOTSPOT-251–265)
+5. **M30** [`path-config-dx`](../features/path-config-dx/) — default excludes + parent walk / `--config` (HOTSPOT-266–277)
+6. **M29** [`function-ast-coverage-plus`](../features/function-ast-coverage-plus/) — ClassExpression / object get-set / assignment RHS / overload stubs (HOTSPOT-281–290)
 
 ## Deferred
 
