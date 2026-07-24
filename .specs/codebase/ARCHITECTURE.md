@@ -120,12 +120,14 @@ Each `FunctionHotspotScore` entry carries per-function McCabe plus inherited fil
 
 `coupling` remains file-pair ranked in both modes. `--top` slices the active ranking array at render time via `sliceScanResult` for **table and markdown only**; JSON and CSV receive full arrays.
 
-## Export formats (M10, M17)
+## Export formats (M10, M17, M18)
 
 - **`--format markdown`** — GFM report with hotspot and coupling tables (includes `linesChanged` column)
-- **`--format csv`** — multi-block RFC 4180 CSV with metadata, hotspots/functions, and coupling sections; `--top` ignored (full export)
-- **`--output <path>`** — write report to file for any format (`table`, `json`, `markdown`, `csv`); stdout silent for report content
-- **Reporter module**: `renderMarkdown()` in `src/report/markdown.ts`; `renderCsv()` / `renderCompareCsv()` in `src/report/csv.ts` and `compare-csv.ts`; `createReporter()` dispatches by format (JSON and CSV bypass slice helpers; table/markdown slice via `sliceScanResult` / `sliceCompareResult`)
+- **`--format csv`** — multi-file CSV bundle (M18): `renderCsv()` / `renderCompareCsv()` return a `CsvBundle` (`Record<suffix, content>`); CLI derives stem from `--output` and writes `{stem}.meta.json` plus ranking/coupling CSVs; **requires `--output`**; `--top` ignored (full export); no section title rows
+- **Scan bundle** (`--output out/report.csv`): `out/report.meta.json`, `out/report.hotspots.csv` or `out/report.functions.csv`, `out/report.coupling.csv`
+- **Compare bundle** (`--output out/compare.csv`): `out/compare.meta.json` plus six data CSVs (`hotspots.*` or `functions.*`, plus `coupling.*`); empty sections are header-only files
+- **`--output <path>`** — write report to file (`table`, `json`, `markdown`, `csv`); stdout silent for report content; csv is the only format that **requires** `--output`
+- **Reporter module**: `CsvBundle` type in `src/report/csv-bundle.ts`; `renderCsv()` / `renderCompareCsv()` in `csv.ts` / `compare-csv.ts`; `createReporter()` returns `string | CsvBundle` (JSON and CSV bypass slice helpers; table/markdown slice via `sliceScanResult` / `sliceCompareResult`)
 - **Path validation**: parent directory must exist; directory targets rejected; overwrite is default
 
 ## Scan compare (M13)

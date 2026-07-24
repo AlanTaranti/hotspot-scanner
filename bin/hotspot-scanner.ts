@@ -9,6 +9,7 @@ import {
 } from "#compare";
 import { logWarning, maybeLogProgress } from "#diagnostics";
 import { createReporter } from "#report";
+import type { CsvBundle } from "#report";
 import { DEFAULT_MIN_COCHANGE } from "#scoring";
 import { DEFAULT_SINCE, DEFAULT_TOP, runScan } from "#scan";
 import type { ScanGranularity } from "../src/types/index.js";
@@ -90,8 +91,30 @@ export async function validateBaselinePath(baselinePath: string): Promise<void> 
   }
 }
 
+function ensureTrailingNewline(content: string): string {
+  return content.endsWith("\n") ? content : `${content}\n`;
+}
+
+export function deriveCsvStem(outputPath: string): string {
+  if (outputPath.endsWith(".csv")) {
+    return outputPath.slice(0, -4);
+  }
+  return outputPath;
+}
+
+export async function writeCsvBundle(
+  stem: string,
+  bundle: CsvBundle,
+): Promise<void> {
+  await Promise.all(
+    Object.entries(bundle).map(([suffix, content]) =>
+      writeFile(`${stem}.${suffix}`, ensureTrailingNewline(content), "utf8"),
+    ),
+  );
+}
+
 function writeReport(output: string, outputPath?: string): Promise<void> {
-  const content = output.endsWith("\n") ? output : `${output}\n`;
+  const content = ensureTrailingNewline(output);
   if (outputPath) {
     return writeFile(outputPath, content, "utf8");
   }
@@ -126,13 +149,13 @@ export function createCliProgram(): Command {
     .description("Run hotspot and coupling analysis on a repository")
     .argument("<path>", "Repository path")
     .option("--since <period>", "Git history window", DEFAULT_SINCE)
-    .option("--format <format>", "Output format: table|json|markdown|csv", "table")
+    .option("--format <format>", "Output format: table|json|markdown|csv (csv requires --output)", "table")
     .option(
       "--granularity <mode>",
       "Ranking granularity: file or function",
       "file",
     )
-    .option("--output <path>", "Write report to file instead of stdout")
+    .option("--output <path>", "Write report to file instead of stdout (required for --format csv)")
     .option(
       "--baseline <path>",
       "Compare scan against baseline JSON from a prior run",
@@ -192,7 +215,15 @@ export function createCliProgram(): Command {
       });
 
       const reporter = createReporter();
-      let output: string;
+      const outputPath = options.output as string | undefined;
+
+      if (format === "csv" && outputPath === undefined) {
+        throw new CliUsageError(
+          "--format csv requires --output (writes a multi-file CSV bundle)",
+        );
+      }
+
+      let output: string | CsvBundle;
       if (baselinePath !== undefined) {
         const baseline = await loadBaseline(baselinePath);
         const compareResult = compareScanResults(baseline, result);
@@ -203,11 +234,16 @@ export function createCliProgram(): Command {
       } else {
         output = reporter.render(result, { format, top });
       }
-      const outputPath = options.output as string | undefined;
-      if (outputPath) {
-        await validateOutputPath(outputPath);
+
+      if (format === "csv") {
+        await validateOutputPath(outputPath!);
+        await writeCsvBundle(deriveCsvStem(outputPath!), output as CsvBundle);
+      } else {
+        if (outputPath) {
+          await validateOutputPath(outputPath);
+        }
+        await writeReport(output as string, outputPath);
       }
-      await writeReport(output, outputPath);
     });
 
   return program;

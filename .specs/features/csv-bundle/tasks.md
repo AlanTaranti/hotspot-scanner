@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/csv-bundle/design.md`](./design.md)  
 **Spec**: [`.specs/features/csv-bundle/spec.md`](./spec.md)  
 **Context**: [`.specs/features/csv-bundle/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -100,15 +100,15 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `CsvBundle` type exported from `src/report/csv-bundle.ts`
-- [ ] `renderCsv()` returns `CsvBundle` (not a multi-block string)
-- [ ] Keys: `meta.json` + `coupling.csv` + exactly one of `hotspots.csv` | `functions.csv`
-- [ ] Each CSV body is header + data only (no title row)
-- [ ] Empty ranking/coupling → header-only file content still present in bundle
-- [ ] `meta.json` parseable JSON with `kind: "scan"` and fields per design
-- [ ] Scores: 4 decimals; integers: no decimals; escaping via `csv-utils`
-- [ ] `--top` N/A at this layer (full arrays from caller) — unit fixture uses full result
-- [ ] No `fs` imports in report modules touched
+- [x] `CsvBundle` type exported from `src/report/csv-bundle.ts`
+- [x] `renderCsv()` returns `CsvBundle` (not a multi-block string)
+- [x] Keys: `meta.json` + `coupling.csv` + exactly one of `hotspots.csv` | `functions.csv`
+- [x] Each CSV body is header + data only (no title row)
+- [x] Empty ranking/coupling → header-only file content still present in bundle
+- [x] `meta.json` parseable JSON with `kind: "scan"` and fields per design
+- [x] Scores: 4 decimals; integers: no decimals; escaping via `csv-utils`
+- [x] `--top` N/A at this layer (full arrays from caller) — unit fixture uses full result
+- [x] No `fs` imports in report modules touched
 
 **Tests**: `csv.test.ts` — keys, headers, granularity XOR, empty sections, no title rows, special-char paths
 
@@ -135,12 +135,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] File mode keys: `meta.json` + `hotspots.{new,removed,rank-changed}.csv` + `coupling.{new,removed,rank-changed}.csv`
-- [ ] Function mode uses `functions.*` instead of `hotspots.*` (never both)
-- [ ] All six data files always present (header-only when empty)
-- [ ] `meta.json` has `kind: "compare"`, baseline/current fields, `warnings` array
-- [ ] Removed rows: empty `rank` cell; rank-changed includes `baselineRank`, `currentRank`, `rankDelta`
-- [ ] No title rows; `csv-utils` escaping preserved
+- [x] File mode keys: `meta.json` + `hotspots.{new,removed,rank-changed}.csv` + `coupling.{new,removed,rank-changed}.csv`
+- [x] Function mode uses `functions.*` instead of `hotspots.*` (never both)
+- [x] All six data files always present (header-only when empty)
+- [x] `meta.json` has `kind: "compare"`, baseline/current fields, `warnings` array
+- [x] Removed rows: empty `rank` cell; rank-changed includes `baselineRank`, `currentRank`, `rankDelta`
+- [x] No title rows; `csv-utils` escaping preserved
 
 **Tests**: `compare-csv.test.ts` — file mode, function mode, empty sections, removed rank, special characters
 
@@ -167,15 +167,15 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `createReporter().render(..., { format: "csv" })` returns `CsvBundle`
-- [ ] `createReporter().renderCompare(..., { format: "csv" })` returns `CsvBundle`
-- [ ] `table` / `json` / `markdown` still return `string`
-- [ ] `top: 1` with csv still yields full ranking rows in bundle contents
-- [ ] `--format csv` without `--output` → `CliUsageError` (exit path covered in unit test)
-- [ ] `--format csv --output <tmp>/report.csv` writes `report.meta.json`, `report.hotspots.csv` (or functions), `report.coupling.csv`
-- [ ] Compare csv writes six data files + meta under stem
-- [ ] Non-csv `--output` / stdout behavior unchanged
-- [ ] Help text documents csv requires `--output` / multi-file bundle
+- [x] `createReporter().render(..., { format: "csv" })` returns `CsvBundle`
+- [x] `createReporter().renderCompare(..., { format: "csv" })` returns `CsvBundle`
+- [x] `table` / `json` / `markdown` still return `string`
+- [x] `top: 1` with csv still yields full ranking rows in bundle contents
+- [x] `--format csv` without `--output` → `CliUsageError` (exit path covered in unit test)
+- [x] `--format csv --output <tmp>/report.csv` writes `report.meta.json`, `report.hotspots.csv` (or functions), `report.coupling.csv`
+- [x] Compare csv writes six data files + meta under stem
+- [x] Non-csv `--output` / stdout behavior unchanged
+- [x] Help text documents csv requires `--output` / multi-file bundle
 
 **Tests**: `index.test.ts` — union dispatch, top ignored; `bin/hotspot-scanner.test.ts` — missing output error, stem expansion multi-write, overwrite
 
@@ -202,13 +202,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `--format csv --output <tmp>/report.csv` exits `0`
-- [ ] Files exist: `report.meta.json`, `report.hotspots.csv` (or functions), `report.coupling.csv`
-- [ ] Hotspots/functions CSV first line is header (not a title); no multi-block blank-line join required
-- [ ] `--baseline ... --format csv --output <tmp>/compare.csv` exits `0` with six data CSVs + meta
-- [ ] `--format csv` without `--output` exits `!= 0`
-- [ ] `--top 1 --format csv --output` ranking file still contains all hotspot data rows when fixture has multiple
-- [ ] Temp files cleaned up in `afterEach`
+- [x] `--format csv --output <tmp>/report.csv` exits `0`
+- [x] Files exist: `report.meta.json`, `report.hotspots.csv` (or functions), `report.coupling.csv`
+- [x] Hotspots/functions CSV first line is header (not a title); no multi-block blank-line join required
+- [x] `--baseline ... --format csv --output <tmp>/compare.csv` exits `0` with six data CSVs + meta
+- [x] `--format csv` without `--output` exits `!= 0`
+- [x] `--top 1 --format csv --output` ranking file still contains all hotspot data rows when fixture has multiple
+- [x] Temp files cleaned up in `afterEach`
 
 **Tests**: `bin/hotspot-scanner.integration.test.ts` — CSV bundle scan + compare + require output
 
@@ -235,12 +235,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] ARCHITECTURE.md documents `CsvBundle`, multi-file layout, `--format csv` requires `--output`, `--top` ignored
-- [ ] STRUCTURE.md lists `csv-bundle.ts` (if present) and updated csv module roles
-- [ ] README.md describes CSV bundle paths and required `--output`
-- [ ] vitals-cli-validation includes CSV bundle example commands
-- [ ] ROADMAP M18 implementation checkboxes marked `[x]` on Execute Done; Specs remain Done/Planned per sync rules
-- [ ] `pnpm build && pnpm test` passes
+- [x] ARCHITECTURE.md documents `CsvBundle`, multi-file layout, `--format csv` requires `--output`, `--top` ignored
+- [x] STRUCTURE.md lists `csv-bundle.ts` (if present) and updated csv module roles
+- [x] README.md describes CSV bundle paths and required `--output`
+- [x] vitals-cli-validation includes CSV bundle example commands
+- [x] ROADMAP M18 implementation checkboxes marked `[x]` on Execute Done; Specs remain Done/Planned per sync rules
+- [x] `pnpm build && pnpm test` passes
 
 **Tests**: Full project gate
 

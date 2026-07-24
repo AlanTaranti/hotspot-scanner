@@ -166,15 +166,15 @@ Prefer balanced dual-signal files (actively complex + churned) over spiky one-ax
 ### Milestone 18 — CSV Bundle Export
 
 → [`.specs/features/csv-bundle/spec.md`](../features/csv-bundle/spec.md)  
-**Slug:** `csv-bundle` | **Priority:** Medium | **Specs:** Planned
+**Slug:** `csv-bundle` | **Priority:** Medium | **Specs:** Done
 
 Breaking redesign of `--format csv`: multi-file stem bundle + `{stem}.meta.json` sidecar (replaces M17 multi-block single file).
 
-- [ ] `CsvBundle` return type from `renderCsv()` / `renderCompareCsv()`; reporter stays pure (no `fs`)
-- [ ] Scan bundle: `{stem}.meta.json` + `{stem}.hotspots.csv`|`{stem}.functions.csv` + `{stem}.coupling.csv`
-- [ ] Compare bundle: always 6 data CSVs + meta (empty = header-only); hierarchical names
-- [ ] `--format csv` requires `--output` (`CliUsageError` otherwise); CLI stem expansion + multi-write
-- [ ] No title rows; reuse M17 column sets + `csv-utils`; `--top` ignored; no legacy multi-block flag
+- [x] `CsvBundle` return type from `renderCsv()` / `renderCompareCsv()`; reporter stays pure (no `fs`)
+- [x] Scan bundle: `{stem}.meta.json` + `{stem}.hotspots.csv`|`{stem}.functions.csv` + `{stem}.coupling.csv`
+- [x] Compare bundle: always 6 data CSVs + meta (empty = header-only); hierarchical names
+- [x] `--format csv` requires `--output` (`CliUsageError` otherwise); CLI stem expansion + multi-write
+- [x] No title rows; reuse M17 column sets + `csv-utils`; `--top` ignored; no legacy multi-block flag
 
 ### Suggested execution order
 

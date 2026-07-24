@@ -48,26 +48,32 @@ function loadFunctionCompareResult(): CompareResult {
 }
 
 describe("createReporter", () => {
-  it("renders CSV output with all hotspots when top is set", () => {
+  it("renders CSV bundle with all hotspots when top is set", () => {
     const output = createReporter().render(loadFixture(), {
       format: "csv",
       top: 1,
     });
 
-    expect(output).toContain("Top Hotspots");
-    expect(output).toContain("1,src/hot.ts,0.8500");
-    expect(output).toContain("2,src/medium.ts,0.3000");
-    expect(output).toContain("3,src/cold.ts,0.0200");
+    expect(typeof output).toBe("object");
+    expect(output).toHaveProperty("hotspots.csv");
+    expect(output).toHaveProperty("meta.json");
+    expect(output).toHaveProperty("coupling.csv");
+    const hotspotsCsv = (output as Record<string, string>)["hotspots.csv"]!;
+    expect(hotspotsCsv).toContain("1,src/hot.ts,0.8500");
+    expect(hotspotsCsv).toContain("2,src/medium.ts,0.3000");
+    expect(hotspotsCsv).toContain("3,src/cold.ts,0.0200");
   });
 
-  it("renders compare CSV output with all sections when top is set", () => {
+  it("renders compare CSV bundle with all sections when top is set", () => {
     const output = createReporter().renderCompare(loadCompareResult(), {
       format: "csv",
       top: 1,
     });
 
-    expect(output).toContain("New Hotspots");
-    expect(output).toContain("Rank Changed Hotspots");
+    expect(typeof output).toBe("object");
+    expect(output).toHaveProperty("hotspots.new.csv");
+    expect(output).toHaveProperty("hotspots.rank-changed.csv");
+    expect(output).toHaveProperty("coupling.new.csv");
   });
 
   it("renders JSON output with full arrays when top is set", () => {

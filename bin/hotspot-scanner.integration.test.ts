@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { access, mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -300,7 +300,7 @@ describe("hotspot-scanner CLI integration", () => {
     expect(Array.isArray(parsed.meta.warnings)).toBe(true);
   });
 
-  it("writes CSV report to file with --output on small-ts fixture", async () => {
+  it("writes CSV bundle to stem-derived files with --output on small-ts fixture", async () => {
     const dir = await createTempDir();
     const outputPath = join(dir, "report.csv");
     const { chunks } = captureStdout();
@@ -317,10 +317,40 @@ describe("hotspot-scanner CLI integration", () => {
     ]);
 
     expect(chunks.join("")).toBe("");
-    const content = await readFile(outputPath, "utf8");
-    expect(content).toContain("key,value");
-    expect(content).toContain("Top Hotspots");
-    expect(content).toContain("Top Coupling Pairs");
+    const metaPath = join(dir, "report.meta.json");
+    const hotspotsPath = join(dir, "report.hotspots.csv");
+    const couplingPath = join(dir, "report.coupling.csv");
+
+    await expect(access(metaPath)).resolves.toBeUndefined();
+    await expect(access(hotspotsPath)).resolves.toBeUndefined();
+    await expect(access(couplingPath)).resolves.toBeUndefined();
+
+    const meta = JSON.parse(await readFile(metaPath, "utf8")) as { kind: string };
+    const hotspotsContent = await readFile(hotspotsPath, "utf8");
+    const couplingContent = await readFile(couplingPath, "utf8");
+
+    expect(meta.kind).toBe("scan");
+    expect(hotspotsContent.split("\n")[0]).toBe(
+      "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,lines",
+    );
+    expect(couplingContent.split("\n")[0]).toBe(
+      "rank,fileA,fileB,strength,coChanges",
+    );
+  });
+
+  it("fails when --format csv is used without --output", async () => {
+    captureStdout();
+
+    await expect(
+      runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        smallTsFixture,
+        "--format",
+        "csv",
+      ]),
+    ).rejects.toThrow(/--format csv requires --output/);
   });
 
   it("exports all hotspot rows with --top 1 --format csv", async () => {
@@ -341,12 +371,11 @@ describe("hotspot-scanner CLI integration", () => {
       outputPath,
     ]);
 
-    const content = await readFile(outputPath, "utf8");
-    const hotspotSection = content.split("Top Hotspots")[1]?.split(
-      "Top Coupling Pairs",
-    )[0];
-    expect(hotspotSection).toBeDefined();
-    const dataRows = hotspotSection!
+    const hotspotsContent = await readFile(
+      join(dir, "report-top.hotspots.csv"),
+      "utf8",
+    );
+    const dataRows = hotspotsContent
       .split("\n")
       .filter((line) => /^\d+,src\//.test(line));
     expect(dataRows.length).toBeGreaterThan(1);
@@ -447,7 +476,7 @@ describe("hotspot-scanner CLI integration", () => {
     );
   });
 
-  it("writes compare CSV to file with --baseline on small-ts fixture", async () => {
+  it("writes compare CSV bundle with --baseline on small-ts fixture", async () => {
     const dir = await createTempDir();
     const baselinePath = join(dir, "baseline.json");
     const comparePath = join(dir, "compare.csv");
@@ -479,9 +508,30 @@ describe("hotspot-scanner CLI integration", () => {
     ]);
 
     expect(chunks.join("")).toBe("");
-    const content = await readFile(comparePath, "utf8");
-    expect(content).toContain("Compare Metadata");
-    expect(content).toContain("New Hotspots");
+
+    const stem = join(dir, "compare");
+    const expectedFiles = [
+      "compare.meta.json",
+      "compare.hotspots.new.csv",
+      "compare.hotspots.removed.csv",
+      "compare.hotspots.rank-changed.csv",
+      "compare.coupling.new.csv",
+      "compare.coupling.removed.csv",
+      "compare.coupling.rank-changed.csv",
+    ];
+
+    for (const file of expectedFiles) {
+      await expect(access(join(dir, file))).resolves.toBeUndefined();
+    }
+
+    const meta = JSON.parse(await readFile(`${stem}.meta.json`, "utf8")) as {
+      kind: string;
+    };
+    expect(meta.kind).toBe("compare");
+    const newHotspots = await readFile(`${stem}.hotspots.new.csv`, "utf8");
+    expect(newHotspots.split("\n")[0]).toBe(
+      "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors",
+    );
   });
 
   it("scan without --baseline remains unchanged regression guard", async () => {

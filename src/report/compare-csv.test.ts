@@ -22,80 +22,93 @@ function loadCompareResult(baselineName: string, currentName: string) {
 }
 
 describe("renderCompareCsv", () => {
-  it("renders compare metadata block", () => {
-    const output = renderCompareCsv(
+  it("returns CsvBundle with meta.json and six data files in file mode", () => {
+    const bundle = renderCompareCsv(
       loadCompareResult("compare-baseline-file.json", "compare-current-file.json"),
     );
 
-    expect(output).toContain("Compare Metadata");
-    expect(output).toContain("key,value");
-    expect(output).toContain("granularity,file");
-    expect(output).toContain("baseline_scanned_at");
-    expect(output).toContain("current_scanned_at");
+    expect(bundle).toHaveProperty("meta.json");
+    expect(bundle).toHaveProperty("hotspots.new.csv");
+    expect(bundle).toHaveProperty("hotspots.removed.csv");
+    expect(bundle).toHaveProperty("hotspots.rank-changed.csv");
+    expect(bundle).toHaveProperty("coupling.new.csv");
+    expect(bundle).toHaveProperty("coupling.removed.csv");
+    expect(bundle).toHaveProperty("coupling.rank-changed.csv");
+    expect(bundle).not.toHaveProperty("functions.new.csv");
   });
 
-  it("renders file mode hotspot and coupling sections", () => {
-    const output = renderCompareCsv(
+  it("meta.json is parseable compare metadata", () => {
+    const bundle = renderCompareCsv(
+      loadCompareResult("compare-baseline-file.json", "compare-current-file.json"),
+    );
+    const meta = JSON.parse(bundle["meta.json"]!) as {
+      kind: string;
+      granularity: string;
+      baseline_scanned_at: string;
+      current_scanned_at: string;
+      warnings: string[];
+    };
+
+    expect(meta.kind).toBe("compare");
+    expect(meta.granularity).toBe("file");
+    expect(meta.baseline_scanned_at).toBeDefined();
+    expect(meta.current_scanned_at).toBeDefined();
+    expect(Array.isArray(meta.warnings)).toBe(true);
+  });
+
+  it("file mode data CSVs have header rows without title rows", () => {
+    const bundle = renderCompareCsv(
       loadCompareResult("compare-baseline-file.json", "compare-current-file.json"),
     );
 
-    expect(output).toContain("New Hotspots");
-    expect(output).toContain("Removed Hotspots");
-    expect(output).toContain("Rank Changed Hotspots");
-    expect(output).toContain("New Coupling Pairs");
-    expect(output).toContain("Removed Coupling Pairs");
-    expect(output).toContain("Rank Changed Coupling Pairs");
-    expect(output).toContain(
+    expect(bundle["hotspots.new.csv"]!.split("\n")[0]).toBe(
+      "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors",
+    );
+    expect(bundle["hotspots.rank-changed.csv"]!.split("\n")[0]).toBe(
       "baselineRank,currentRank,rankDelta,file,score,cpx,cpxN,churn,churnN,funcs,authors",
     );
+    expect(bundle["coupling.new.csv"]!.split("\n")[0]).toBe(
+      "rank,fileA,fileB,strength,coChanges",
+    );
   });
 
-  it("renders function mode sections", () => {
-    const output = renderCompareCsv(
+  it("renders function mode with functions.* keys instead of hotspots.*", () => {
+    const bundle = renderCompareCsv(
       loadCompareResult(
         "compare-baseline-function.json",
         "compare-current-function.json",
       ),
     );
 
-    expect(output).toContain("granularity,function");
-    expect(output).toContain("New Functions");
-    expect(output).toContain("Removed Functions");
-    expect(output).toContain("Rank Changed Functions");
-    expect(output).not.toContain("New Hotspots");
+    expect(bundle).toHaveProperty("functions.new.csv");
+    expect(bundle).toHaveProperty("functions.removed.csv");
+    expect(bundle).toHaveProperty("functions.rank-changed.csv");
+    expect(bundle).not.toHaveProperty("hotspots.new.csv");
+    const meta = JSON.parse(bundle["meta.json"]!) as { granularity: string };
+    expect(meta.granularity).toBe("function");
   });
 
   it("renders removed sections with empty rank cell", () => {
-    const output = renderCompareCsv(
+    const bundle = renderCompareCsv(
       loadCompareResult("compare-baseline-file.json", "compare-current-file.json"),
     );
 
-    const removedSection = output.split("Removed Hotspots")[1]?.split(
-      "Rank Changed Hotspots",
-    )[0];
-    expect(removedSection).toBeDefined();
-    const dataRows = removedSection!
-      .split("\n")
-      .filter((line) => line.includes("src/") && line.startsWith(","));
+    const lines = bundle["hotspots.removed.csv"]!.split("\n").slice(1);
+    const dataRows = lines.filter((line) => line.includes("src/") && line.startsWith(","));
     expect(dataRows.length).toBeGreaterThan(0);
   });
 
   it("renders rank-changed rows with baselineRank, currentRank, rankDelta", () => {
-    const output = renderCompareCsv(
+    const bundle = renderCompareCsv(
       loadCompareResult("compare-baseline-file.json", "compare-current-file.json"),
     );
 
-    const rankChangedSection = output.split("Rank Changed Hotspots")[1]?.split(
-      "New Coupling Pairs",
-    )[0];
-    expect(rankChangedSection).toBeDefined();
-    const dataRows = rankChangedSection!
-      .split("\n")
-      .filter((line) => /^\d+,\d+,-?\d+,/.test(line));
+    const lines = bundle["hotspots.rank-changed.csv"]!.split("\n").slice(1);
+    const dataRows = lines.filter((line) => /^\d+,\d+,-?\d+,/.test(line));
     expect(dataRows.length).toBeGreaterThan(0);
   });
 
-  it("renders empty sections with title and header only", () => {
+  it("renders empty sections as header-only CSV files", () => {
     const baseline = JSON.parse(
       readFileSync(join(fixturesDir, "compare-baseline-file.json"), "utf8"),
     ) as ScanResult;
@@ -104,22 +117,16 @@ describe("renderCompareCsv", () => {
       meta: { ...baseline.meta, scannedAt: "2026-07-22T11:00:00.000Z" },
     });
 
-    const output = renderCompareCsv(result);
+    const bundle = renderCompareCsv(result);
+    const lines = bundle["hotspots.new.csv"]!.split("\n");
 
-    expect(output).toContain("New Hotspots");
-    expect(output).toContain(
+    expect(lines).toHaveLength(1);
+    expect(lines[0]).toBe(
       "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors",
     );
-    const newSection = output.split("New Hotspots")[1]?.split(
-      "Removed Hotspots",
-    )[0];
-    const dataRows = newSection!
-      .split("\n")
-      .filter((line) => line.startsWith("1,") || line.startsWith("2,"));
-    expect(dataRows).toHaveLength(0);
   });
 
-  it("includes warning rows in metadata", () => {
+  it("includes warnings array in meta.json", () => {
     const baseline = JSON.parse(
       readFileSync(join(fixturesDir, "compare-baseline-file.json"), "utf8"),
     ) as ScanResult;
@@ -129,10 +136,10 @@ describe("renderCompareCsv", () => {
     const result = compareScanResults(baseline, current);
     result.meta.warnings = ["baseline window differs", "stale baseline"];
 
-    const output = renderCompareCsv(result);
+    const bundle = renderCompareCsv(result);
+    const meta = JSON.parse(bundle["meta.json"]!) as { warnings: string[] };
 
-    expect(output).toContain("warning,baseline window differs");
-    expect(output).toContain("warning,stale baseline");
+    expect(meta.warnings).toEqual(["baseline window differs", "stale baseline"]);
   });
 
   it("escapes special characters in file paths", () => {
@@ -153,7 +160,8 @@ describe("renderCompareCsv", () => {
       ],
     };
 
-    const output = renderCompareCsv(compareScanResults(baseline, withSpecial));
-    expect(output).toContain('"src/""weird"",path.ts"');
+    const bundle = renderCompareCsv(compareScanResults(baseline, withSpecial));
+    const allContent = Object.values(bundle).join("\n");
+    expect(allContent).toContain('"src/""weird"",path.ts"');
   });
 });

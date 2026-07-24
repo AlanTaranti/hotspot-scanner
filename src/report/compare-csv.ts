@@ -5,6 +5,7 @@ import type {
   HotspotScore,
   RankChange,
 } from "../types/index.js";
+import type { CsvBundle } from "./csv-bundle.js";
 import { formatCsvRow } from "./csv-utils.js";
 
 const SCORE_DECIMALS = 4;
@@ -13,32 +14,25 @@ function formatScore(value: number): string {
   return value.toFixed(SCORE_DECIMALS);
 }
 
-function renderSection(
-  title: string,
-  header: string[],
-  rows: string[][],
-): string[] {
-  const lines = [formatCsvRow([title]), formatCsvRow(header)];
+function renderCsvFile(header: string[], rows: string[][]): string {
+  const lines = [formatCsvRow(header)];
   for (const row of rows) {
     lines.push(formatCsvRow(row));
   }
-  return lines;
+  return lines.join("\n");
 }
 
-function renderMetadataSection(result: CompareResult): string[] {
-  const rows: string[][] = [
-    ["granularity", result.granularity],
-    ["baseline_scanned_at", result.meta.baseline.scannedAt],
-    ["baseline_since", result.meta.baseline.since],
-    ["current_scanned_at", result.meta.current.scannedAt],
-    ["current_since", result.meta.current.since],
-  ];
-
-  for (const warning of result.meta.warnings) {
-    rows.push(["warning", warning]);
-  }
-
-  return renderSection("Compare Metadata", ["key", "value"], rows);
+function renderCompareMeta(result: CompareResult): string {
+  const meta = {
+    kind: "compare" as const,
+    granularity: result.granularity,
+    baseline_scanned_at: result.meta.baseline.scannedAt,
+    baseline_since: result.meta.baseline.since,
+    current_scanned_at: result.meta.current.scannedAt,
+    current_since: result.meta.current.since,
+    warnings: result.meta.warnings,
+  };
+  return `${JSON.stringify(meta, null, 2)}\n`;
 }
 
 function renderHotspotRows(
@@ -206,64 +200,50 @@ const RANK_CHANGED_COUPLING_HEADER = [
   "coChanges",
 ];
 
-export function renderCompareCsv(result: CompareResult): string {
-  const sections = [renderMetadataSection(result)];
-
-  if (result.granularity === "function") {
-    sections.push(
-      renderSection(
-        "New Functions",
-        FUNCTION_HEADER,
-        renderFunctionRows(result.functions.new, true),
-      ),
-      renderSection(
-        "Removed Functions",
-        FUNCTION_HEADER,
-        renderFunctionRows(result.functions.removed, false),
-      ),
-      renderSection(
-        "Rank Changed Functions",
-        RANK_CHANGED_FUNCTION_HEADER,
-        renderRankChangedFunctionRows(result.functions.rankChanged),
-      ),
-    );
-  } else {
-    sections.push(
-      renderSection(
-        "New Hotspots",
-        HOTSPOT_HEADER,
-        renderHotspotRows(result.hotspots.new, true),
-      ),
-      renderSection(
-        "Removed Hotspots",
-        HOTSPOT_HEADER,
-        renderHotspotRows(result.hotspots.removed, false),
-      ),
-      renderSection(
-        "Rank Changed Hotspots",
-        RANK_CHANGED_HOTSPOT_HEADER,
-        renderRankChangedHotspotRows(result.hotspots.rankChanged),
-      ),
-    );
-  }
-
-  sections.push(
-    renderSection(
-      "New Coupling Pairs",
+export function renderCompareCsv(result: CompareResult): CsvBundle {
+  const bundle: Record<string, string> = {
+    "meta.json": renderCompareMeta(result),
+    "coupling.new.csv": renderCsvFile(
       COUPLING_HEADER,
       renderCouplingRows(result.coupling.new, true),
     ),
-    renderSection(
-      "Removed Coupling Pairs",
+    "coupling.removed.csv": renderCsvFile(
       COUPLING_HEADER,
       renderCouplingRows(result.coupling.removed, false),
     ),
-    renderSection(
-      "Rank Changed Coupling Pairs",
+    "coupling.rank-changed.csv": renderCsvFile(
       RANK_CHANGED_COUPLING_HEADER,
       renderRankChangedCouplingRows(result.coupling.rankChanged),
     ),
-  );
+  };
 
-  return sections.map((section) => section.join("\n")).join("\n\n");
+  if (result.granularity === "function") {
+    bundle["functions.new.csv"] = renderCsvFile(
+      FUNCTION_HEADER,
+      renderFunctionRows(result.functions.new, true),
+    );
+    bundle["functions.removed.csv"] = renderCsvFile(
+      FUNCTION_HEADER,
+      renderFunctionRows(result.functions.removed, false),
+    );
+    bundle["functions.rank-changed.csv"] = renderCsvFile(
+      RANK_CHANGED_FUNCTION_HEADER,
+      renderRankChangedFunctionRows(result.functions.rankChanged),
+    );
+  } else {
+    bundle["hotspots.new.csv"] = renderCsvFile(
+      HOTSPOT_HEADER,
+      renderHotspotRows(result.hotspots.new, true),
+    );
+    bundle["hotspots.removed.csv"] = renderCsvFile(
+      HOTSPOT_HEADER,
+      renderHotspotRows(result.hotspots.removed, false),
+    );
+    bundle["hotspots.rank-changed.csv"] = renderCsvFile(
+      RANK_CHANGED_HOTSPOT_HEADER,
+      renderRankChangedHotspotRows(result.hotspots.rankChanged),
+    );
+  }
+
+  return bundle;
 }

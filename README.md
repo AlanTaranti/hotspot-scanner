@@ -53,9 +53,9 @@ hotspot-scanner scan <path> [options]
 |------|---------|-------------|
 | `<path>` | — | Repository path (required) |
 | `--since` | `12 months ago` | Git history window |
-| `--format` | `table` | Output format: `table`, `json`, `markdown`, or `csv` |
+| `--format` | `table` | Output format: `table`, `json`, `markdown`, or `csv` (csv requires `--output`) |
 | `--granularity` | `file` | Ranking granularity: `file` or `function` |
-| `--output <path>` | — | Write report to file instead of stdout |
+| `--output <path>` | — | Write report to file instead of stdout (required for `--format csv`) |
 | `--baseline <path>` | — | Compare scan against baseline JSON from a prior run |
 | `--top` | `20` | Top N rows in table/markdown output (ignored for json/csv) |
 | `--min-cochange` | `3` | Minimum co-change count for coupling pairs |
@@ -69,9 +69,11 @@ hotspot-scanner scan . --since "6 months ago"
 hotspot-scanner scan . --format json --top 10  # --top ignored; full arrays exported
 hotspot-scanner scan . --granularity function --format json
 hotspot-scanner scan . --format markdown --output report.md
+# CSV bundle (writes report.meta.json, report.hotspots.csv, report.coupling.csv)
 hotspot-scanner scan . --format csv --output report.csv
 hotspot-scanner scan . --format json --output baseline.json
 hotspot-scanner scan . --baseline baseline.json --format markdown
+# Compare CSV bundle (writes compare.meta.json + six data CSVs)
 hotspot-scanner scan . --baseline baseline.json --format csv --output compare.csv
 hotspot-scanner scan . --include "src/**" --exclude "**/*.test.ts"
 ```

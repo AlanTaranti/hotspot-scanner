@@ -9,6 +9,7 @@ import {
   CliUsageError,
   collectGlob,
   createCliProgram,
+  deriveCsvStem,
   parseFormat,
   parseGranularity,
   parsePositiveInteger,
@@ -334,7 +335,13 @@ describe("runCli", () => {
     expect(chunks.join("")).toBe("table-without-newline\n");
   });
 
-  it("writes CSV report to file when --output and --format csv are set", async () => {
+  it("deriveCsvStem strips lowercase .csv suffix once", () => {
+    expect(deriveCsvStem("out/report.csv")).toBe("out/report");
+    expect(deriveCsvStem("out/report")).toBe("out/report");
+    expect(deriveCsvStem("out/report.CSV")).toBe("out/report.CSV");
+  });
+
+  it("writes CSV bundle to stem-derived files when --output and --format csv are set", async () => {
     const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
     const outputPath = join(tempDir, "report.csv");
     vi.spyOn(scan, "runScan").mockResolvedValue({
@@ -375,14 +382,47 @@ describe("runCli", () => {
       ]);
 
       expect(chunks.join("")).toBe("");
-      const fileContent = await import("node:fs/promises").then((fs) =>
-        fs.readFile(outputPath, "utf8"),
+      const fs = await import("node:fs/promises");
+      const metaContent = await fs.readFile(join(tempDir, "report.meta.json"), "utf8");
+      const hotspotsContent = await fs.readFile(
+        join(tempDir, "report.hotspots.csv"),
+        "utf8",
       );
-      expect(fileContent).toContain("key,value");
-      expect(fileContent).toContain("Top Hotspots");
+      const couplingContent = await fs.readFile(
+        join(tempDir, "report.coupling.csv"),
+        "utf8",
+      );
+      expect(JSON.parse(metaContent).kind).toBe("scan");
+      expect(hotspotsContent.split("\n")[0]).toBe(
+        "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,lines",
+      );
+      expect(couplingContent.split("\n")[0]).toBe(
+        "rank,fileA,fileB,strength,coChanges",
+      );
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
+  });
+
+  it("throws CliUsageError when --format csv is used without --output", async () => {
+    vi.spyOn(scan, "runScan").mockResolvedValue({
+      version: "1.0",
+      hotspots: [],
+      functions: [],
+      coupling: [],
+      meta: {
+        since: "12 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "file",
+      },
+    });
+
+    await expect(
+      runCli(["node", "hotspot-scanner", "scan", ".", "--format", "csv"]),
+    ).rejects.toThrow(CliUsageError);
+    await expect(
+      runCli(["node", "hotspot-scanner", "scan", ".", "--format", "csv"]),
+    ).rejects.toThrow(/--format csv requires --output/);
   });
 
   it("writes report to file when --output is set", async () => {

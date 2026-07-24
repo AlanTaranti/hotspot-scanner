@@ -12,13 +12,13 @@ M17 shipped `--format csv` as one multi-block file (title rows + blank-line join
 
 ## Goals
 
-- [ ] `--format csv` emits a **stem-derived multi-file bundle** (not a single multi-block CSV)
-- [ ] Metadata only in `{stem}.meta.json` (never inside CSV data files)
-- [ ] Scan: ranking CSV + coupling CSV + meta; compare: always 6 data CSVs + meta
-- [ ] `--format csv` **requires** `--output`; else `CliUsageError`
-- [ ] Breaking replace of M17 layout — no legacy flag
-- [ ] Reporter stays pure; CLI expands stem and writes N files
-- [ ] `pnpm build && pnpm test` passing after Execute
+- [x] `--format csv` emits a **stem-derived multi-file bundle** (not a single multi-block CSV)
+- [x] Metadata only in `{stem}.meta.json` (never inside CSV data files)
+- [x] Scan: ranking CSV + coupling CSV + meta; compare: always 6 data CSVs + meta
+- [x] `--format csv` **requires** `--output`; else `CliUsageError`
+- [x] Breaking replace of M17 layout — no legacy flag
+- [x] Reporter stays pure; CLI expands stem and writes N files
+- [x] `pnpm build && pnpm test` passing after Execute
 
 ## Out of Scope
 

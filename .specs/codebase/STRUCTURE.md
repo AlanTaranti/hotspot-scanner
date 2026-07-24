@@ -29,7 +29,7 @@ hotspot-scanner/
 | `src/complexity/` | implemented | ComplexityAnalyzer — McCabe via ts-morph (`discover`, `project`, `mccabe`, `analyze-file`) |
 | `src/scoring/` | implemented | HotspotScorer, FunctionHotspotScorer, TemporalCouplingScorer — `normalize`, `hotspot-scorer`, `function-hotspot-scorer`, `coupling-scorer` |
 | `src/diagnostics/` | implemented | stderr logger — warnings + throttled progress |
-| `src/report/` | implemented | Reporter — `slice`, `json`, `table`, `markdown`, `csv-utils`, `csv`, `slice-compare`, `compare-*` + `createReporter()` factory (`render` + `renderCompare`) |
+| `src/report/` | implemented | Reporter — `slice`, `json`, `table`, `markdown`, `csv-utils`, `csv-bundle`, `csv`, `slice-compare`, `compare-*` + `createReporter()` factory (`render` + `renderCompare`; CSV returns `CsvBundle`) |
 | `src/compare/` | implemented | Baseline loader, entity keys, `compareScanResults()` engine |
 | `src/scan.ts` | implemented | `runScan()` — pipeline orchestration with granularity branch |
 | `src/types/` | implemented | FileChangeStats, HotspotScore, ScanOptions, ScanResult, etc. |

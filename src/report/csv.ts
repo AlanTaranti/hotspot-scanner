@@ -1,4 +1,5 @@
 import type { ScanResult } from "../types/index.js";
+import type { CsvBundle } from "./csv-bundle.js";
 import { formatCsvRow } from "./csv-utils.js";
 
 const SCORE_DECIMALS = 4;
@@ -7,32 +8,26 @@ function formatScore(value: number): string {
   return value.toFixed(SCORE_DECIMALS);
 }
 
-function renderSection(
-  title: string,
-  header: string[],
-  rows: string[][],
-): string[] {
-  const lines = [formatCsvRow([title]), formatCsvRow(header)];
+function renderCsvFile(header: string[], rows: string[][]): string {
+  const lines = [formatCsvRow(header)];
   for (const row of rows) {
     lines.push(formatCsvRow(row));
   }
-  return lines;
+  return lines.join("\n");
 }
 
-function renderMetadataSection(result: ScanResult): string[] {
-  const rows: string[][] = [
-    ["scan_window", result.meta.since],
-    ["scanned_at", result.meta.scannedAt],
-  ];
-
-  if (result.meta.granularity === "function") {
-    rows.push(["granularity", "function"]);
-  }
-
-  return renderSection("Metadata", ["key", "value"], rows);
+function renderScanMeta(result: ScanResult): string {
+  const meta = {
+    kind: "scan" as const,
+    scan_window: result.meta.since,
+    scanned_at: result.meta.scannedAt,
+    granularity:
+      result.meta.granularity === "function" ? ("function" as const) : ("file" as const),
+  };
+  return `${JSON.stringify(meta, null, 2)}\n`;
 }
 
-function renderHotspotsSection(result: ScanResult): string[] {
+function renderHotspotsCsv(result: ScanResult): string {
   const header = [
     "rank",
     "file",
@@ -58,10 +53,10 @@ function renderHotspotsSection(result: ScanResult): string[] {
     String(hotspot.linesChanged),
   ]);
 
-  return renderSection("Top Hotspots", header, rows);
+  return renderCsvFile(header, rows);
 }
 
-function renderFunctionsSection(result: ScanResult): string[] {
+function renderFunctionsCsv(result: ScanResult): string {
   const header = [
     "rank",
     "file",
@@ -89,10 +84,10 @@ function renderFunctionsSection(result: ScanResult): string[] {
     String(fn.linesChanged),
   ]);
 
-  return renderSection("Top Functions", header, rows);
+  return renderCsvFile(header, rows);
 }
 
-function renderCouplingSection(result: ScanResult): string[] {
+function renderCouplingCsv(result: ScanResult): string {
   const header = ["rank", "fileA", "fileB", "strength", "coChanges"];
   const rows = result.coupling.map((pair, index) => [
     String(index + 1),
@@ -102,19 +97,20 @@ function renderCouplingSection(result: ScanResult): string[] {
     String(pair.coChangeCount),
   ]);
 
-  return renderSection("Top Coupling Pairs", header, rows);
+  return renderCsvFile(header, rows);
 }
 
-export function renderCsv(result: ScanResult): string {
-  const sections = [renderMetadataSection(result)];
+export function renderCsv(result: ScanResult): CsvBundle {
+  const bundle: Record<string, string> = {
+    "meta.json": renderScanMeta(result),
+    "coupling.csv": renderCouplingCsv(result),
+  };
 
   if (result.meta.granularity === "function") {
-    sections.push(renderFunctionsSection(result));
+    bundle["functions.csv"] = renderFunctionsCsv(result);
   } else {
-    sections.push(renderHotspotsSection(result));
+    bundle["hotspots.csv"] = renderHotspotsCsv(result);
   }
 
-  sections.push(renderCouplingSection(result));
-
-  return sections.map((section) => section.join("\n")).join("\n\n");
+  return bundle;
 }
