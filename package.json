@@ -13,7 +13,8 @@
     "#diagnostics": "./dist/diagnostics/index.js",
     "#report": "./dist/report/index.js",
     "#scoring": "./dist/scoring/index.js",
-    "#compare": "./dist/compare/index.js"
+    "#compare": "./dist/compare/index.js",
+    "#config": "./dist/config/index.js"
   },
   "files": [
     "dist",

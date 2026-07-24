@@ -1,5 +1,18 @@
 import { describe, expect, it, vi } from "vitest";
+import {
+  createEmptySinceWindowWarning,
+  createRenameHistoryIncompleteWarning,
+  formatFunctionPostRenameOverlapWarning,
+} from "../rename-warnings.js";
 import { createFunctionChurnMiner } from "./index.js";
+
+const sampleFunction = {
+  filePath: "src/a.ts",
+  functionName: "fn",
+  line: 1,
+  endLine: 5,
+  complexity: 1,
+};
 
 async function* emptyStream(): AsyncGenerator<string> {
   // no commits
@@ -39,9 +52,7 @@ describe("createFunctionChurnMiner", () => {
       ],
     });
 
-    expect(result.warnings).toContain(
-      "No commits found in the specified --since window.",
-    );
+    expect(result.warnings).toContainEqual(createEmptySinceWindowWarning());
   });
 
   it("reports progress when commits are processed", async () => {
@@ -72,6 +83,96 @@ describe("createFunctionChurnMiner", () => {
       onProgress,
     });
 
-    expect(onProgress).toHaveBeenCalledWith({ commitsProcessed: 1 });
+    expect(onProgress).toHaveBeenCalledWith({
+      phase: "function-churn",
+      commitsProcessed: 1,
+    });
+  });
+
+  it("does not emit pós-rename overlap warning without rename or ambiguous signals", async () => {
+    async function* oneCommit(): AsyncGenerator<string> {
+      yield "COMMIT|abc|2024-01-01|Alice";
+      yield "diff --git a/src/a.ts b/src/a.ts";
+      yield "@@ -1 +1 @@";
+      yield "-x";
+      yield "+y";
+    }
+
+    const miner = createFunctionChurnMiner({
+      streamGitPatchLog: vi.fn(() => oneCommit()),
+    });
+
+    const result = await miner.mine({
+      repoPath: "/repo",
+      functions: [sampleFunction],
+    });
+
+    expect(result.warnings).not.toContainEqual(
+      createRenameHistoryIncompleteWarning(
+        formatFunctionPostRenameOverlapWarning(),
+      ),
+    );
+  });
+
+  it("emits pós-rename overlap warning when a rename link is observed", async () => {
+    async function* renameCommit(): AsyncGenerator<string> {
+      yield "COMMIT|ddd|2024-01-01|Dev";
+      yield "src/old.ts => src/a.ts";
+      yield "";
+      yield "COMMIT|eee|2024-01-02|Dev";
+      yield "diff --git a/src/a.ts b/src/a.ts";
+      yield "@@ -1 +1 @@";
+      yield "-x";
+      yield "+y";
+    }
+
+    const miner = createFunctionChurnMiner({
+      streamGitPatchLog: vi.fn(() => renameCommit()),
+    });
+
+    const result = await miner.mine({
+      repoPath: "/repo",
+      functions: [sampleFunction],
+    });
+
+    expect(result.warnings).toContainEqual(
+      createRenameHistoryIncompleteWarning(
+        formatFunctionPostRenameOverlapWarning(),
+      ),
+    );
+  });
+
+  it("emits pós-rename overlap warning when ambiguous rename paths are detected", async () => {
+    async function* conflictingRenames(): AsyncGenerator<string> {
+      yield "COMMIT|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|2024-01-01|Alice";
+      yield "a.ts => b.ts";
+      yield "";
+      yield "COMMIT|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb|2024-01-02|Bob";
+      yield "b.ts => a.ts";
+      yield "";
+    }
+
+    const miner = createFunctionChurnMiner({
+      streamGitPatchLog: vi.fn(() => conflictingRenames()),
+    });
+
+    const result = await miner.mine({
+      repoPath: "/repo",
+      functions: [sampleFunction],
+    });
+
+    expect(result.warnings).toEqual(
+      expect.arrayContaining([
+        createRenameHistoryIncompleteWarning(
+          "Rename history may be incomplete for: a.ts",
+        ),
+        createRenameHistoryIncompleteWarning(
+          "Rename history may be incomplete for: b.ts",
+        ),
+        createRenameHistoryIncompleteWarning(
+          formatFunctionPostRenameOverlapWarning(),
+        ),
+      ]),
+    );
   });
 });

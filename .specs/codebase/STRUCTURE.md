@@ -12,7 +12,7 @@ hotspot-scanner/
 │   ├── scoring/                 # HotspotScorer + TemporalCouplingScorer
 │   ├── diagnostics/             # stderr warnings + progress logging
 │   ├── report/                  # CLI table + JSON + markdown + CSV reporter
-│   ├── config/                  # .hotspot-scanner.json load + CLI/config merge
+│   ├── config/                  # .hotspot-scanner.json load (walk or explicit path) + merge
 │   ├── scan.ts                  # Pipeline orchestration
 │   ├── types/                   # Domain types (no runtime logic)
 │   └── index.ts                 # Public library API (optional)
@@ -25,14 +25,14 @@ hotspot-scanner/
 
 | Path                     | Status      | Role                                                                                                                                                                                               |
 | ------------------------ | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `bin/hotspot-scanner.ts` | implemented | Commander CLI — `scan <path>` with `--since`, `--format`, `--granularity`, `--top`, `--min-cochange`, `--output`, `--baseline`                                                                     |
+| `bin/hotspot-scanner.ts` | implemented | Commander CLI — `scan <path>` with `--since`, `--format`, `--granularity`, `--top`, `--min-cochange`, `--include`, `--exclude`, `--config`, `--concurrency`, `--output`, `--baseline`               |
 | `src/git/`               | implemented | GitMiner — `spawn`, `parse`, `rename`, `aggregate`, `canonicalize`; `function-churn/` for M23 patch overlap                                                                                        |
 | `src/complexity/`        | implemented | ComplexityAnalyzer — McCabe via ts-morph (`discover`, `project`, `mccabe`, `analyze-file`)                                                                                                         |
-| `src/scoring/`           | implemented | HotspotScorer, FunctionHotspotScorer, TemporalCouplingScorer, static coupling enricher — `normalize`, `hotspot-scorer`, `function-hotspot-scorer`, `coupling-scorer`, `enrich-coupling-static`     |
+| `src/scoring/`           | implemented | HotspotScorer, FunctionHotspotScorer, TemporalCouplingScorer, static coupling enricher — `normalize`, `hotspot-scorer`, `function-hotspot-scorer`, `coupling-scorer`, `enrich-coupling-static`, `tsconfig-path-map` |
 | `src/diagnostics/`       | implemented | stderr logger — warnings + throttled progress                                                                                                                                                      |
-| `src/report/`            | implemented | Reporter — `slice`, `json`, `table`, `markdown`, `csv-utils`, `csv-bundle`, `csv`, `slice-compare`, `compare-*` + `createReporter()` factory (`render` + `renderCompare`; CSV returns `CsvBundle`) |
+| `src/report/`            | implemented | Reporter — `slice`, `json`, `table`, `markdown`, `coupling-format`, `csv-utils`, `csv-bundle`, `csv`, `slice-compare`, `compare-*` + `createReporter()` factory (`render` + `renderCompare`; CSV returns `CsvBundle`) |
 | `src/compare/`           | implemented | Baseline loader, entity keys, `compareScanResults()` engine                                                                                                                                        |
-| `src/config/`            | implemented | `.hotspot-scanner.json` loader (`loadHotspotScannerConfig`), `mergeScanOptions` (CLI > config > defaults), `ConfigError`                                                                           |
+| `src/config/`            | implemented | `.hotspot-scanner.json` loader — parent walk or explicit `configPath` (`loadHotspotScannerConfig`), `mergeScanOptions` (CLI > config > defaults), `ConfigError`                                    |
 | `src/scan.ts`            | implemented | `runScan()` — config resolution + pipeline orchestration with granularity branch                                                                                                                   |
 | `src/types/`             | implemented | FileChangeStats, HotspotScore, ScanOptions, ScanResult, etc.                                                                                                                                       |
 | `src/index.ts`           | implemented | Public API — `runScan`, `loadBaseline`, `compareScanResults`, types, `PACKAGE_NAME`                                                                                                                |

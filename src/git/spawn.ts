@@ -27,6 +27,7 @@ export function buildGitLogArgv(options: GitLogSpawnOptions): string[] {
     "-C",
     options.repoPath,
     "log",
+    "-M",
     "--numstat",
     "--pretty=format:COMMIT|%H|%ad|%an",
   ];

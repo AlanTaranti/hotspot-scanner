@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/product-docs-sync/spec.md`](./spec.md)  
 **Context**: [`.specs/features/product-docs-sync/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Depth**: Thin (docs / Status metadata only — no `src/` architecture change)
 
 ---

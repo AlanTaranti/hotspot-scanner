@@ -10,7 +10,7 @@ External dependencies and adapter boundaries. No network integrations in v1.
 | **Adapter** | `ComplexityAnalyzer` in `src/complexity/` (`project.ts` batch adapter) |
 | **Version** | `ts-morph@^28` (runtime dependency)                                    |
 | **Rule**    | Do not import ts-morph outside `src/complexity/`                       |
-| **Failure** | Invalid syntax → log warning, skip file (see CONCERNS.md)              |
+| **Failure** | Invalid syntax → `PARSE_FAILED` `ScanWarning`, skip file (see CONCERNS.md)                                             |
 | **Tests**   | Mock at adapter boundary; use fixture TS files for real AST tests      |
 
 ## worker_threads (Node.js built-in)
@@ -19,6 +19,8 @@ External dependencies and adapter boundaries. No network integrations in v1.
 | ----------- | ---------------------------------------------------------------------------------------------------------------------- |
 | **Role**    | Parallel batch processing in complexity stage (M15)                                                                    |
 | **Adapter** | `createWorkerPool` in `src/complexity/pool.ts`; worker entry `src/complexity/worker.ts`                                |
+| **Default** | `DEFAULT_WORKER_CONCURRENCY` = `min(availableParallelism(), 4)`                                                        |
+| **Override**| CLI `--concurrency` or config `concurrency` (M28) → `runScan()` → `createComplexityAnalyzer({ concurrency })`          |
 | **Rule**    | Do not spawn worker threads outside `src/complexity/`                                                                  |
 | **Failure** | Worker error → reject `analyze()` with `repoPath` and batch path context                                               |
 | **Tests**   | Mock `createWorkerPool` at `ComplexityAnalyzer` boundary; `worker.ts` excluded from coverage (runs in separate thread) |

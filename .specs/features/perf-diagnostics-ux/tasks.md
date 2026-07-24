@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/perf-diagnostics-ux/design.md`](./design.md)  
 **Spec**: [`.specs/features/perf-diagnostics-ux/spec.md`](./spec.md)  
 **Context**: [`.specs/features/perf-diagnostics-ux/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -169,9 +169,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Types match [design.md](./design.md) / [context.md](./context.md) and are exported from the types barrel
-- [ ] `ScanMeta.warnings` and `CompareMeta.warnings` are typed as `ScanWarning[]`
-- [ ] `ScanOptions.onProgress` / `onWarning` use `ScanProgress` / `ScanWarning`
+- [x] Types match [design.md](./design.md) / [context.md](./context.md) and are exported from the types barrel
+- [x] `ScanMeta.warnings` and `CompareMeta.warnings` are typed as `ScanWarning[]`
+- [x] `ScanOptions.onProgress` / `onWarning` use `ScanProgress` / `ScanWarning`
 
 **Tests**: none (types layer excluded from coverage)  
 **Gate**: none for T1 alone — orchestrator must complete Phase 2 (T2–T6) before expecting a green typecheck/build; do not mark the feature Done on T1
@@ -199,9 +199,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Unit tests cover severity prefixes and phase-labeled progress + throttle
-- [ ] Gate check passes: `pnpm test -- src/diagnostics`
-- [ ] Test count does not silently drop
+- [x] Unit tests cover severity prefixes and phase-labeled progress + throttle
+- [x] Gate check passes: `pnpm test -- src/diagnostics`
+- [x] Test count does not silently drop
 
 **Tests**: unit  
 **Gate**: `pnpm test -- src/diagnostics`
@@ -229,9 +229,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Merge tests cover default, config-only, CLI override
-- [ ] Invalid config concurrency throws `ConfigError`
-- [ ] Gate check passes: `pnpm test -- src/config`
+- [x] Merge tests cover default, config-only, CLI override
+- [x] Invalid config concurrency throws `ConfigError`
+- [x] Gate check passes: `pnpm test -- src/config`
 
 **Tests**: unit  
 **Gate**: `pnpm test -- src/config`
@@ -259,9 +259,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Progress tests assert `phase`
-- [ ] Warning tests assert `severity` + `code`
-- [ ] Gate check passes: `pnpm test -- src/git`
+- [x] Progress tests assert `phase`
+- [x] Warning tests assert `severity` + `code`
+- [x] Gate check passes: `pnpm test -- src/git`
 
 **Tests**: unit  
 **Gate**: `pnpm test -- src/git`
@@ -289,8 +289,8 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Invalid-syntax fixture yields structured `PARSE_FAILED` warning
-- [ ] Gate check passes: `pnpm test -- src/complexity`
+- [x] Invalid-syntax fixture yields structured `PARSE_FAILED` warning
+- [x] Gate check passes: `pnpm test -- src/complexity`
 
 **Tests**: unit  
 **Gate**: `pnpm test -- src/complexity`
@@ -318,8 +318,8 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Compare test asserts structured warning (not bare string)
-- [ ] Gate check passes: `pnpm test -- src/compare`
+- [x] Compare test asserts structured warning (not bare string)
+- [x] Gate check passes: `pnpm test -- src/compare`
 
 **Tests**: unit  
 **Gate**: `pnpm test -- src/compare`
@@ -347,9 +347,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] `meta.warnings` always present (array, possibly empty)
-- [ ] Analyzer receives merged concurrency
-- [ ] Gate check passes: `pnpm test -- src/scan`
+- [x] `meta.warnings` always present (array, possibly empty)
+- [x] Analyzer receives merged concurrency
+- [x] Gate check passes: `pnpm test -- src/scan`
 
 **Tests**: unit (+ integration assertions in same files as needed)  
 **Gate**: `pnpm test -- src/scan`
@@ -377,8 +377,8 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Reporter tests pass with object warnings
-- [ ] Gate check passes: `pnpm test -- src/report`
+- [x] Reporter tests pass with object warnings
+- [x] Gate check passes: `pnpm test -- src/report`
 
 **Tests**: unit  
 **Gate**: `pnpm test -- src/report`
@@ -406,8 +406,8 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Contract tests assert `ScanWarning` shape
-- [ ] Gate check passes: `pnpm test -- tests/contract`
+- [x] Contract tests assert `ScanWarning` shape
+- [x] Gate check passes: `pnpm test -- tests/contract`
 
 **Tests**: contract  
 **Gate**: `pnpm test -- tests/contract`
@@ -435,10 +435,10 @@ flowchart TD
 
 **Done when**:
 
-- [ ] `--help` lists `--concurrency`
-- [ ] Invalid value exits ≠ 0
-- [ ] Function-mode `--format json` includes `meta.warnings` array of objects
-- [ ] Gate check passes: `pnpm test -- bin/`
+- [x] `--help` lists `--concurrency`
+- [x] Invalid value exits ≠ 0
+- [x] Function-mode `--format json` includes `meta.warnings` array of objects
+- [x] Gate check passes: `pnpm test -- bin/`
 
 **Tests**: CLI unit + integration  
 **Gate**: `pnpm test -- bin/`
@@ -466,10 +466,10 @@ flowchart TD
 
 **Done when**:
 
-- [ ] README documents `--concurrency` default `min(availableParallelism(), 4)`
-- [ ] Warning codes table present with one-line interpretation each
-- [ ] ARCHITECTURE/CONCERNS mention CLI override + structured `meta.warnings`
-- [ ] M26 boundary called out
+- [x] README documents `--concurrency` default `min(availableParallelism(), 4)`
+- [x] Warning codes table present with one-line interpretation each
+- [x] ARCHITECTURE/CONCERNS mention CLI override + structured `meta.warnings`
+- [x] M26 boundary called out
 
 **Tests**: N/A — doc review  
 **Gate**: none (full gate in T12)
@@ -497,10 +497,10 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Manual/CLI spot-check: `pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts --concurrency 1 --format json` exits 0
-- [ ] Invalid concurrency exits ≠ 0
-- [ ] Gate check passes: `pnpm build && pnpm test`
-- [ ] All HOTSPOT-251..265 acceptance covered
+- [x] Manual/CLI spot-check: `pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts --concurrency 1 --format json` exits 0
+- [x] Invalid concurrency exits ≠ 0
+- [x] Gate check passes: `pnpm build && pnpm test`
+- [x] All HOTSPOT-251..265 acceptance covered
 
 **Tests**: full suite  
 **Gate**: `pnpm build && pnpm test`

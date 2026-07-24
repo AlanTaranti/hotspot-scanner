@@ -12,11 +12,11 @@ Living product docs still lag shipped M19–M24. `PROJECT.md` claims scope throu
 
 ## Goals
 
-- [ ] Align `PROJECT.md` shipped scope and backlog with reality through M24
-- [ ] Fix rename / `--follow` and M23 function-churn drift in README and ARCHITECTURE Key constraints
-- [ ] Correct stale `Status: Planned` on Done feature design artifacts (M22–M24 at minimum)
-- [ ] Verify ROADMAP header and STATE Active prose match delivered + post-M24 backlog stubs (parent owns final Specs link sync)
-- [ ] No application behavior changes under `src/`, `bin/`, or tests
+- [x] Align `PROJECT.md` shipped scope and backlog with reality through M24
+- [x] Fix rename / `--follow` and M23 function-churn drift in README and ARCHITECTURE Key constraints
+- [x] Correct stale `Status: Planned` on Done feature design artifacts (M22–M24 at minimum)
+- [x] Verify ROADMAP header and STATE Active prose match delivered + post-M24 backlog stubs (parent owns final Specs link sync)
+- [x] No application behavior changes under `src/`, `bin/`, or tests
 
 ## Out of Scope
 
@@ -152,12 +152,12 @@ Living product docs still lag shipped M19–M24. `PROJECT.md` claims scope throu
 
 | Requirement ID | Story                              | Phase  | Status  |
 | -------------- | ---------------------------------- | ------ | ------- |
-| HOTSPOT-221    | P1: PROJECT.md through M24         | Tasks T1 | Pending |
-| HOTSPOT-222    | P1: Rename / `--follow` accuracy   | Tasks T2 | Pending |
-| HOTSPOT-223    | P1: README function-mode gaps      | Tasks T3 | Pending |
-| HOTSPOT-224    | P1: Stale Status on Done designs   | Tasks T4 | Pending |
-| HOTSPOT-225    | P1: ROADMAP / STATE prose          | Tasks T5 | Pending |
-| HOTSPOT-226    | P1: Docs-only + project gate       | Tasks T5 | Pending |
+| HOTSPOT-221    | P1: PROJECT.md through M24         | Tasks T1 | Done |
+| HOTSPOT-222    | P1: Rename / `--follow` accuracy   | Tasks T2 | Done |
+| HOTSPOT-223    | P1: README function-mode gaps      | Tasks T3 | Done |
+| HOTSPOT-224    | P1: Stale Status on Done designs   | Tasks T4 | Done |
+| HOTSPOT-225    | P1: ROADMAP / STATE prose          | Tasks T5 | Done |
+| HOTSPOT-226    | P1: Docs-only + project gate       | Tasks T5 | Done |
 
 **ID range reserved:** HOTSPOT-221–HOTSPOT-230 (unused: 227–230)  
 **Coverage:** 6 total, 6 mapped to tasks, 0 unmapped
@@ -166,9 +166,9 @@ Living product docs still lag shipped M19–M24. `PROJECT.md` claims scope throu
 
 ## Success Criteria
 
-- [ ] PROJECT.md shipped through M24; no “M20–M22 planned” backlog line
-- [ ] README + ARCHITECTURE Key constraints document PathAliasMap / not `--follow`
-- [ ] README describes function-mode hunk-overlap churn (M23)
-- [ ] Done M22–M24 `design.md` Status = Done
-- [ ] ROADMAP header / STATE Active prose consistent with delivered + stubs
-- [ ] `pnpm build && pnpm test` passes; no scanner behavior change
+- [x] PROJECT.md shipped through M24; no “M20–M22 planned” backlog line
+- [x] README + ARCHITECTURE Key constraints document PathAliasMap / not `--follow`
+- [x] README describes function-mode hunk-overlap churn (M23)
+- [x] Done M22–M24 `design.md` Status = Done
+- [x] ROADMAP header / STATE Active prose consistent with delivered + stubs
+- [x] `pnpm build && pnpm test` passes; no scanner behavior change

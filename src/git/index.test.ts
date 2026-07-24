@@ -3,6 +3,7 @@ import { createInterface } from "node:readline";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { createEmptySinceWindowWarning, createRenameHistoryIncompleteWarning } from "./rename-warnings.js";
 import { createGitMiner } from "./index.js";
 
 const fixturesDir = join(
@@ -65,6 +66,51 @@ describe("createGitMiner", () => {
     expect(result.fileStats.get("src/c.ts")?.commitCount).toBe(3);
     expect(result.fileStats.has("src/a.ts")).toBe(false);
     expect(result.fileStats.has("src/b.ts")).toBe(false);
+    expect(result.warnings).not.toContainEqual(
+      createRenameHistoryIncompleteWarning(
+        "Suspected unlinked rename (no git rename metadata): src/old/foo.ts -> lib/foo.ts",
+      ),
+    );
+  });
+
+  it("warns on unlinked copy-paste rename from rename-unlinked fixture", async () => {
+    const lines = await fixtureLines("rename-unlinked.txt");
+    const miner = createGitMiner({
+      streamGitLog: () => streamFromLines(lines)(),
+    });
+
+    const result = await miner.mine({ repoPath: "/fixture" });
+
+    expect(result.warnings).toContainEqual(
+      createRenameHistoryIncompleteWarning(
+        "Suspected unlinked rename (no git rename metadata): src/old/foo.ts -> lib/foo.ts",
+      ),
+    );
+    expect(result.fileStats.get("src/old/foo.ts")?.commitCount).toBe(1);
+    expect(result.fileStats.get("src/old/foo.ts")?.linesChanged).toBe(10);
+    expect(result.fileStats.get("lib/foo.ts")?.commitCount).toBe(1);
+    expect(result.fileStats.get("lib/foo.ts")?.linesChanged).toBe(10);
+  });
+
+  it("warns on since truncation from rename-since-truncation fixture", async () => {
+    const lines = await fixtureLines("rename-since-truncation.txt");
+    const miner = createGitMiner({
+      streamGitLog: () => streamFromLines(lines)(),
+    });
+
+    const result = await miner.mine({
+      repoPath: "/fixture",
+      since: "12 months ago",
+    });
+
+    expect(result.warnings).toContainEqual(
+      createRenameHistoryIncompleteWarning(
+        "Rename history before the --since window (12 months ago) may be missing under canonical paths",
+      ),
+    );
+    expect(result.fileStats.get("src/b.ts")?.commitCount).toBe(1);
+    expect(result.fileStats.get("src/b.ts")?.linesChanged).toBe(1);
+    expect(result.fileStats.has("src/a.ts")).toBe(false);
   });
 
   it("includes deleted file in merge-delete co-change event", async () => {
@@ -116,26 +162,29 @@ describe("createGitMiner", () => {
 
     expect(result.fileStats.size).toBe(0);
     expect(result.coChangeEvents).toEqual([]);
-    expect(result.warnings).toContain(
-      "No commits found in the specified --since window.",
-    );
+    expect(result.warnings).toContainEqual(createEmptySinceWindowWarning());
   });
 
   it("invokes onProgress once per parsed commit", async () => {
     const lines = await fixtureLines("basic.txt");
-    const progressCalls: number[] = [];
+    const progressCalls: Array<{ phase: string; commitsProcessed: number }> =
+      [];
     const miner = createGitMiner({
       streamGitLog: () => streamFromLines(lines)(),
     });
 
     await miner.mine({
       repoPath: "/fixture",
-      onProgress: ({ commitsProcessed }) => {
-        progressCalls.push(commitsProcessed);
+      onProgress: (progress) => {
+        progressCalls.push(progress);
       },
     });
 
-    expect(progressCalls).toEqual([1, 2, 3]);
+    expect(progressCalls).toEqual([
+      { phase: "git", commitsProcessed: 1 },
+      { phase: "git", commitsProcessed: 2 },
+      { phase: "git", commitsProcessed: 3 },
+    ]);
   });
 
   it("processes large-synthetic fixture without buffering entire log", async () => {
@@ -149,5 +198,32 @@ describe("createGitMiner", () => {
     const result = await miner.mine({ repoPath: "/fixture" });
     expect(result.coChangeEvents.length).toBe(3500);
     expect(result.fileStats.size).toBe(50);
+  });
+
+  it("emits ambiguous-path warnings for conflicting rename chains", async () => {
+    const lines = [
+      "COMMIT|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|Mon Jan 1 00:00:00 2024 +0000|Alice",
+      "a.ts => b.ts",
+      "0\t0\tb.ts",
+      "COMMIT|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb|Tue Jan 2 00:00:00 2024 +0000|Bob",
+      "b.ts => a.ts",
+      "0\t0\ta.ts",
+    ];
+    const miner = createGitMiner({
+      streamGitLog: () => streamFromLines(lines)(),
+    });
+
+    const result = await miner.mine({ repoPath: "/fixture" });
+
+    expect(result.warnings).toEqual(
+      expect.arrayContaining([
+        createRenameHistoryIncompleteWarning(
+          "Rename history may be incomplete for: a.ts",
+        ),
+        createRenameHistoryIncompleteWarning(
+          "Rename history may be incomplete for: b.ts",
+        ),
+      ]),
+    );
   });
 });

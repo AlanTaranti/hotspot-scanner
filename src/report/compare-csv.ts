@@ -5,6 +5,10 @@ import type {
   HotspotScore,
   RankChange,
 } from "../types/index.js";
+import {
+  COUPLING_ENRICHMENT_CSV_COLUMNS,
+  couplingEnrichmentCsvValues,
+} from "./coupling-format.js";
 import type { CsvBundle } from "./csv-bundle.js";
 import { formatCsvRow } from "./csv-utils.js";
 
@@ -118,6 +122,7 @@ function renderCouplingRows(
     formatScore(pair.couplingStrength),
     String(pair.coChangeCount),
     String(pair.hasStaticDependency),
+    ...couplingEnrichmentCsvValues(pair),
   ]);
 }
 
@@ -133,6 +138,7 @@ function renderRankChangedCouplingRows(
     formatScore(change.entity.couplingStrength),
     String(change.entity.coChangeCount),
     String(change.entity.hasStaticDependency),
+    ...couplingEnrichmentCsvValues(change.entity),
   ]);
 }
 
@@ -197,6 +203,7 @@ const COUPLING_HEADER = [
   "strength",
   "coChanges",
   "hasStaticDependency",
+  ...COUPLING_ENRICHMENT_CSV_COLUMNS,
 ];
 
 const RANK_CHANGED_COUPLING_HEADER = [
@@ -208,6 +215,7 @@ const RANK_CHANGED_COUPLING_HEADER = [
   "strength",
   "coChanges",
   "hasStaticDependency",
+  ...COUPLING_ENRICHMENT_CSV_COLUMNS,
 ];
 
 export function renderCompareCsv(result: CompareResult): CsvBundle {

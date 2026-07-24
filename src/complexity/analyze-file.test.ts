@@ -300,6 +300,146 @@ describe("analyzeSourceFile", () => {
       '["computed-key"]',
     ]);
   });
+
+  it("collects ClassExpression members with ClassDeclaration-equivalent kinds and names", () => {
+    const result = analyzeSource(`
+      const Example = class {
+        constructor() {}
+        method() {
+          return 1;
+        }
+        get foo() {
+          return 2;
+        }
+        set foo(value: number) {
+          if (value > 0) {}
+        }
+        arrowField = () => 3;
+      };
+    `);
+
+    expect(result.functions).toHaveLength(5);
+    expect(result.functions.map((fn) => fn.functionName).sort()).toEqual([
+      "arrowField",
+      "constructor",
+      "foo",
+      "foo",
+      "method",
+    ]);
+    const fooEntries = result.functions.filter((fn) => fn.functionName === "foo");
+    expect(fooEntries).toHaveLength(2);
+    expect(fooEntries[0]!.line).not.toBe(fooEntries[1]!.line);
+  });
+
+  it("collects object-literal get/set accessors with bare names", () => {
+    const result = analyzeSource(`
+      const handlers = {
+        get foo() {
+          return 1;
+        },
+        set foo(value: number) {
+          if (value > 0) {}
+        },
+      };
+    `);
+
+    const fooEntries = result.functions.filter((fn) => fn.functionName === "foo");
+    expect(fooEntries).toHaveLength(2);
+    expect(fooEntries[0]).toMatchObject({ functionName: "foo", complexity: 1 });
+    expect(fooEntries[1]).toMatchObject({ functionName: "foo", complexity: 2 });
+    expect(fooEntries[0]!.line).not.toBe(fooEntries[1]!.line);
+  });
+
+  it("collects assignment RHS callables with naming per context.md", () => {
+    const result = analyzeSource(`
+      handler = function named() {
+        return 1;
+      };
+      exports.foo = function() {
+        return 2;
+      };
+      obj.fn = () => 3;
+      obj[key] = () => 4;
+    `);
+
+    expect(result.functions).toHaveLength(4);
+    expect(
+      result.functions.find((fn) => fn.functionName === "handler"),
+    ).toMatchObject({
+      functionName: "handler",
+      complexity: 1,
+    });
+    expect(
+      result.functions.find((fn) => fn.functionName === "foo"),
+    ).toMatchObject({
+      functionName: "foo",
+      complexity: 1,
+    });
+    expect(
+      result.functions.find((fn) => fn.functionName === "fn"),
+    ).toMatchObject({
+      functionName: "fn",
+      complexity: 1,
+    });
+    const anonymous = result.functions.find((fn) =>
+      fn.functionName.startsWith("<anonymous>:L"),
+    );
+    expect(anonymous).toBeDefined();
+    expect(anonymous?.complexity).toBe(1);
+  });
+
+  it("does not collect assignment RHS callables for compound assignment operators", () => {
+    const result = analyzeSource(`
+      let count = 0;
+      count += () => 1;
+      obj.fn ||= () => 2;
+    `);
+
+    expect(result.functions).toHaveLength(0);
+  });
+
+  it("skips body-less non-abstract overload stubs but keeps abstract empty-body accessors", () => {
+    const result = analyzeSource(`
+      function overloaded(x: string): string;
+      function overloaded(x: number): number;
+      function overloaded(x: string | number) {
+        if (typeof x === "string") return x;
+        return x;
+      }
+
+      class Example {
+        method(x: string): string;
+        method(x: number): number;
+        method(x: string | number) {
+          return String(x);
+        }
+      }
+
+      abstract class AbstractExample {
+        abstract get foo(): number;
+      }
+    `);
+
+    expect(result.functions).toHaveLength(3);
+    expect(
+      result.functions.find((fn) => fn.functionName === "overloaded"),
+    ).toMatchObject({
+      functionName: "overloaded",
+      complexity: 2,
+    });
+    expect(
+      result.functions.find((fn) => fn.functionName === "method"),
+    ).toMatchObject({
+      functionName: "method",
+      complexity: 1,
+    });
+    expect(
+      result.functions.find((fn) => fn.functionName === "foo"),
+    ).toMatchObject({
+      functionName: "foo",
+      complexity: 1,
+    });
+  });
 });
 
 describe("complexity fixtures (M22 constructs)", () => {
@@ -396,6 +536,190 @@ describe("complexity fixtures (M22 constructs)", () => {
       functionName: "inner",
       line: 17,
       complexity: 1,
+    });
+  });
+});
+
+describe("complexity fixtures (M29 constructs)", () => {
+  it("locks McCabe values for ClassExpression members", () => {
+    const result = analyzeFixture("class-expressions.ts");
+
+    expect(result.file).toEqual({
+      filePath: "class-expressions.ts",
+      functionCount: 5,
+      cyclomaticComplexity: 7,
+    });
+
+    expect(
+      result.functions.find((fn) => fn.functionName === "constructor"),
+    ).toMatchObject({
+      functionName: "constructor",
+      line: 11,
+      complexity: 1,
+    });
+    expect(
+      result.functions.find((fn) => fn.functionName === "method"),
+    ).toMatchObject({
+      functionName: "method",
+      line: 12,
+      complexity: 2,
+    });
+    const countEntries = result.functions.filter(
+      (fn) => fn.functionName === "count",
+    );
+    expect(countEntries).toHaveLength(2);
+    expect(countEntries[0]).toMatchObject({
+      functionName: "count",
+      line: 16,
+      complexity: 1,
+    });
+    expect(countEntries[1]).toMatchObject({
+      functionName: "count",
+      line: 19,
+      complexity: 2,
+    });
+    expect(
+      result.functions.find((fn) => fn.functionName === "arrowField"),
+    ).toMatchObject({
+      functionName: "arrowField",
+      line: 24,
+      complexity: 1,
+    });
+  });
+
+  it("locks McCabe values for object-literal accessors", () => {
+    const result = analyzeFixture("object-literal-accessors.ts");
+
+    expect(result.file).toEqual({
+      filePath: "object-literal-accessors.ts",
+      functionCount: 3,
+      cyclomaticComplexity: 6,
+    });
+
+    const fooEntries = result.functions.filter(
+      (fn) => fn.functionName === "foo",
+    );
+    expect(fooEntries).toHaveLength(2);
+    expect(fooEntries[0]).toMatchObject({
+      functionName: "foo",
+      line: 9,
+      complexity: 1,
+    });
+    expect(fooEntries[1]).toMatchObject({
+      functionName: "foo",
+      line: 12,
+      complexity: 2,
+    });
+    expect(
+      result.functions.find((fn) => fn.functionName === "label"),
+    ).toMatchObject({
+      functionName: "label",
+      line: 17,
+      complexity: 3,
+    });
+  });
+
+  it("locks McCabe values for assignment RHS callables", () => {
+    const result = analyzeFixture("assignment-callables.ts");
+
+    expect(result.file).toEqual({
+      filePath: "assignment-callables.ts",
+      functionCount: 4,
+      cyclomaticComplexity: 6,
+    });
+
+    expect(
+      result.functions.find((fn) => fn.functionName === "handler"),
+    ).toMatchObject({
+      functionName: "handler",
+      line: 9,
+      complexity: 2,
+    });
+    expect(
+      result.functions.find((fn) => fn.functionName === "foo"),
+    ).toMatchObject({
+      functionName: "foo",
+      line: 14,
+      complexity: 1,
+    });
+    expect(
+      result.functions.find((fn) => fn.functionName === "fn"),
+    ).toMatchObject({
+      functionName: "fn",
+      line: 18,
+      complexity: 2,
+    });
+    expect(
+      result.functions.find((fn) => fn.functionName === "<anonymous>:L20"),
+    ).toMatchObject({
+      functionName: "<anonymous>:L20",
+      line: 20,
+      complexity: 1,
+    });
+  });
+
+  it("locks implementation-only McCabe for overloads (stubs excluded)", () => {
+    const result = analyzeFixture("overloads.ts");
+
+    expect(result.file).toEqual({
+      filePath: "overloads.ts",
+      functionCount: 3,
+      cyclomaticComplexity: 4,
+    });
+
+    expect(result.functions).toHaveLength(3);
+    expect(
+      result.functions.find((fn) => fn.functionName === "overloaded"),
+    ).toMatchObject({
+      functionName: "overloaded",
+      line: 11,
+      complexity: 2,
+    });
+    expect(
+      result.functions.find((fn) => fn.functionName === "method"),
+    ).toMatchObject({
+      functionName: "method",
+      line: 19,
+      complexity: 1,
+    });
+    expect(
+      result.functions.find((fn) => fn.functionName === "foo"),
+    ).toMatchObject({
+      functionName: "foo",
+      line: 25,
+      complexity: 1,
+    });
+  });
+
+  it("locks namespace and module function collection (HOTSPOT-290)", () => {
+    const result = analyzeFixture("namespace-module.ts");
+
+    expect(result.file).toEqual({
+      filePath: "namespace-module.ts",
+      functionCount: 3,
+      cyclomaticComplexity: 5,
+    });
+
+    expect(
+      result.functions.find((fn) => fn.functionName === "f"),
+    ).toMatchObject({
+      functionName: "f",
+      line: 10,
+      complexity: 2,
+    });
+    expect(
+      result.functions.find((fn) => fn.functionName === "g"),
+    ).toMatchObject({
+      functionName: "g",
+      line: 15,
+      complexity: 1,
+    });
+    expect(
+      result.functions.find((fn) => fn.functionName === "h"),
+    ).toMatchObject({
+      functionName: "h",
+      line: 19,
+      complexity: 2,
     });
   });
 });

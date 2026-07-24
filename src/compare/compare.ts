@@ -8,6 +8,7 @@ import type {
   HotspotScore,
   RankChange,
   ScanResult,
+  ScanWarning,
 } from "../types/index.js";
 import { couplingKey, functionKey, hotspotKey } from "./keys.js";
 
@@ -140,11 +141,13 @@ export function compareScanResults(
     );
   }
 
-  const warnings: string[] = [];
+  const warnings: ScanWarning[] = [];
   if (baseline.meta.since !== current.meta.since) {
-    warnings.push(
-      `Warning: baseline and current use different --since windows (baseline: "${baseline.meta.since}", current: "${current.meta.since}").`,
-    );
+    warnings.push({
+      severity: "warning",
+      code: "COMPARE_SINCE_MISMATCH",
+      message: `Baseline and current use different --since windows (baseline: "${baseline.meta.since}", current: "${current.meta.since}").`,
+    });
   }
 
   const granularity = baseline.meta.granularity;

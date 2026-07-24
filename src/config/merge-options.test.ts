@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { DEFAULT_WORKER_CONCURRENCY } from "../complexity/pool.js";
 import { DEFAULT_SINCE, DEFAULT_TOP } from "../scan.js";
 import { DEFAULT_MIN_COCHANGE } from "../scoring/index.js";
 import { mergeScanOptions } from "./merge-options.js";
@@ -11,6 +12,7 @@ describe("mergeScanOptions", () => {
     granularity: "function" as const,
     minCochange: 5,
     top: 10,
+    concurrency: 3,
   };
 
   it("uses built-in defaults when config and cli are absent", () => {
@@ -21,6 +23,7 @@ describe("mergeScanOptions", () => {
       granularity: "file",
       minCochange: DEFAULT_MIN_COCHANGE,
       top: DEFAULT_TOP,
+      concurrency: DEFAULT_WORKER_CONCURRENCY,
     });
   });
 
@@ -32,6 +35,7 @@ describe("mergeScanOptions", () => {
       granularity: "function",
       minCochange: 5,
       top: 10,
+      concurrency: 3,
     });
   });
 
@@ -46,6 +50,7 @@ describe("mergeScanOptions", () => {
           granularity: "file",
           minCochange: 2,
           top: 50,
+          concurrency: 1,
         },
       }),
     ).toEqual({
@@ -55,6 +60,7 @@ describe("mergeScanOptions", () => {
       granularity: "file",
       minCochange: 2,
       top: 50,
+      concurrency: 1,
     });
   });
 
@@ -71,6 +77,7 @@ describe("mergeScanOptions", () => {
       granularity: "file",
       minCochange: DEFAULT_MIN_COCHANGE,
       top: 25,
+      concurrency: DEFAULT_WORKER_CONCURRENCY,
     });
   });
 
@@ -87,6 +94,7 @@ describe("mergeScanOptions", () => {
       granularity: "file",
       minCochange: DEFAULT_MIN_COCHANGE,
       top: DEFAULT_TOP,
+      concurrency: DEFAULT_WORKER_CONCURRENCY,
     });
   });
 
@@ -103,6 +111,30 @@ describe("mergeScanOptions", () => {
       granularity: "file",
       minCochange: DEFAULT_MIN_COCHANGE,
       top: DEFAULT_TOP,
+      concurrency: DEFAULT_WORKER_CONCURRENCY,
+    });
+  });
+
+  it("uses DEFAULT_WORKER_CONCURRENCY when concurrency is unset", () => {
+    expect(mergeScanOptions({})).toMatchObject({
+      concurrency: DEFAULT_WORKER_CONCURRENCY,
+    });
+  });
+
+  it("uses config concurrency over default", () => {
+    expect(mergeScanOptions({ config: { concurrency: 2 } })).toMatchObject({
+      concurrency: 2,
+    });
+  });
+
+  it("uses cli concurrency over config and default", () => {
+    expect(
+      mergeScanOptions({
+        config: { concurrency: 2 },
+        cli: { concurrency: 8 },
+      }),
+    ).toMatchObject({
+      concurrency: 8,
     });
   });
 });

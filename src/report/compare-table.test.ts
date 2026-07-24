@@ -39,7 +39,7 @@ describe("renderCompareTable", () => {
     expect(output).toContain("src/medium.ts");
   });
 
-  it("renders StaticDep column in coupling sections", () => {
+  it("renders StaticDep, Direction, and Kinds columns in coupling sections", () => {
     const output = renderCompareTable(
       loadCompareResult(
         "compare-baseline-file.json",
@@ -48,8 +48,13 @@ describe("renderCompareTable", () => {
     );
 
     expect(output).toContain("StaticDep");
+    expect(output).toContain("Direction");
+    expect(output).toContain("Kinds");
     expect(output).toContain("yes");
     expect(output).toContain("no");
+    expect(output).toContain("a→b");
+    expect(output).toContain("runtime");
+    expect(output).toContain("—");
   });
 
   it("renders function mode sections", () => {
@@ -64,6 +69,34 @@ describe("renderCompareTable", () => {
     expect(output).toContain("=== Removed Functions ===");
     expect(output).toContain("=== Rank Changed Functions ===");
     expect(output).toContain("newHandler");
+  });
+
+  it("renders compare warnings with severity and optional code", () => {
+    const baseline = JSON.parse(
+      readFileSync(join(fixturesDir, "compare-baseline-file.json"), "utf8"),
+    ) as ScanResult;
+    const current = JSON.parse(
+      readFileSync(join(fixturesDir, "compare-current-file.json"), "utf8"),
+    ) as ScanResult;
+    const result = compareScanResults(baseline, current);
+    result.meta.warnings = [
+      {
+        severity: "warning",
+        code: "COMPARE_SINCE_MISMATCH",
+        message: "baseline window differs",
+      },
+      {
+        severity: "info",
+        message: "stale baseline",
+      },
+    ];
+
+    const output = renderCompareTable(result);
+
+    expect(output).toContain(
+      "warning: [COMPARE_SINCE_MISMATCH] baseline window differs",
+    );
+    expect(output).toContain("info: stale baseline");
   });
 
   it("renders empty sections without throwing", () => {

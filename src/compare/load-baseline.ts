@@ -1,10 +1,13 @@
 import { readFile } from "node:fs/promises";
 import type {
   CouplingPair,
+  DiagnosticSeverity,
   FunctionHotspotScore,
   HotspotScore,
   ScanGranularity,
   ScanResult,
+  ScanWarning,
+  StaticDependencyDirection,
 } from "../types/index.js";
 
 export class BaselineError extends Error {
@@ -72,6 +75,50 @@ function assertBoolean(value: unknown, path: string): boolean {
     throw new BaselineError(`Baseline ${path} must be a boolean`);
   }
   return value;
+}
+
+const COUPLING_RESCAN_HINT =
+  " Re-scan with a current hotspot-scanner version to regenerate the baseline.";
+
+function requireCouplingField(
+  record: Record<string, unknown>,
+  key: string,
+  path: string,
+): unknown {
+  if (!(key in record)) {
+    throw new BaselineError(
+      `Baseline ${path} is missing required field: ${key}.${COUPLING_RESCAN_HINT}`,
+    );
+  }
+  return record[key];
+}
+
+const STATIC_DEPENDENCY_DIRECTIONS = new Set<StaticDependencyDirection>([
+  "none",
+  "a-to-b",
+  "b-to-a",
+  "both",
+]);
+
+const DIAGNOSTIC_SEVERITIES = new Set<DiagnosticSeverity>([
+  "info",
+  "warning",
+  "error",
+]);
+
+function assertStaticDependencyDirection(
+  value: unknown,
+  path: string,
+): StaticDependencyDirection {
+  if (
+    typeof value !== "string" ||
+    !STATIC_DEPENDENCY_DIRECTIONS.has(value as StaticDependencyDirection)
+  ) {
+    throw new BaselineError(
+      `Baseline ${path} must be one of: none, a-to-b, b-to-a, both`,
+    );
+  }
+  return value as StaticDependencyDirection;
 }
 
 function assertHotspot(item: unknown, index: number): HotspotScore {
@@ -170,12 +217,6 @@ function assertCouplingPair(item: unknown, index: number): CouplingPair {
   const path = `coupling[${index}]`;
   const record = assertRecord(item, path);
 
-  if (!("hasStaticDependency" in record)) {
-    throw new BaselineError(
-      `Baseline ${path} is missing required field: hasStaticDependency. Re-scan with a current hotspot-scanner version to regenerate the baseline.`,
-    );
-  }
-
   return {
     fileA: assertString(requireKey(record, "fileA", path), `${path}.fileA`),
     fileB: assertString(requireKey(record, "fileB", path), `${path}.fileB`),
@@ -188,8 +229,24 @@ function assertCouplingPair(item: unknown, index: number): CouplingPair {
       `${path}.couplingStrength`,
     ),
     hasStaticDependency: assertBoolean(
-      record.hasStaticDependency,
+      requireCouplingField(record, "hasStaticDependency", path),
       `${path}.hasStaticDependency`,
+    ),
+    staticDependencyDirection: assertStaticDependencyDirection(
+      requireCouplingField(record, "staticDependencyDirection", path),
+      `${path}.staticDependencyDirection`,
+    ),
+    hasRuntimeStaticDependency: assertBoolean(
+      requireCouplingField(record, "hasRuntimeStaticDependency", path),
+      `${path}.hasRuntimeStaticDependency`,
+    ),
+    hasTypeOnlyStaticDependency: assertBoolean(
+      requireCouplingField(record, "hasTypeOnlyStaticDependency", path),
+      `${path}.hasTypeOnlyStaticDependency`,
+    ),
+    hasReExportStaticDependency: assertBoolean(
+      requireCouplingField(record, "hasReExportStaticDependency", path),
+      `${path}.hasReExportStaticDependency`,
     ),
   };
 }
@@ -219,6 +276,32 @@ function assertCoupling(value: unknown): CouplingPair[] {
     );
   }
   return value.map((item, index) => assertCouplingPair(item, index));
+}
+
+function assertScanWarning(value: unknown, index: number): ScanWarning {
+  const path = `meta.warnings[${index}]`;
+  const record = assertRecord(value, path);
+  const severity = assertString(requireKey(record, "severity", path), `${path}.severity`);
+  if (!DIAGNOSTIC_SEVERITIES.has(severity as DiagnosticSeverity)) {
+    throw new BaselineError(
+      `Baseline ${path}.severity must be one of: info, warning, error`,
+    );
+  }
+  const warning: ScanWarning = {
+    severity: severity as DiagnosticSeverity,
+    message: assertString(requireKey(record, "message", path), `${path}.message`),
+  };
+  if ("code" in record) {
+    warning.code = assertString(record.code, `${path}.code`);
+  }
+  return warning;
+}
+
+function assertWarnings(value: unknown): ScanWarning[] {
+  if (!Array.isArray(value)) {
+    throw new BaselineError("Baseline meta.warnings must be an array");
+  }
+  return value.map((item, index) => assertScanWarning(item, index));
 }
 
 export function parseScanResult(json: unknown): ScanResult {
@@ -259,6 +342,7 @@ export function parseScanResult(json: unknown): ScanResult {
       since: json.meta.since,
       scannedAt: json.meta.scannedAt,
       granularity: json.meta.granularity,
+      warnings: assertWarnings(json.meta.warnings),
     },
   };
 }

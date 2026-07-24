@@ -26,10 +26,10 @@
 
 ## Scope
 
-**Shipped (v1 + post-v1 through M18):**
+**Shipped (v1 + post-v1 through M24):**
 
 - `hotspot-scanner scan <path>` with `--since`, `--format`, `--top`, `--min-cochange`, `--baseline`, `--output`, `--granularity`, `--include`, `--exclude`
-- Git Change Miner (single streaming `git log` pass)
+- Git Change Miner: streaming numstat `git log` pass for file churn and coupling; function mode adds a patch stream (`git log -p --unified=0`) for per-function hunk-overlap churn (M23)
 - Complexity Analyzer (McCabe over ts-morph AST; worker-thread batches)
 - Hotspot Scorer + Temporal Coupling Scorer
 - CLI table, JSON, markdown, and CSV bundle output
@@ -42,13 +42,18 @@
 - Enriched coupling: `hasStaticDependency` on coupling pairs (M14)
 - Format-scoped `--top`: limits table/markdown only; JSON/CSV export full rankings (M16)
 - CSV bundle: multi-file stem + `{stem}.meta.json` sidecar; `--format csv` requires `--output` (M18)
+- JSON contract: published schemas for `ScanResult` and `CompareResult`; strict baseline validation (M20)
+- Config file: `.hotspot-scanner.json` with CLI > config > defaults precedence (M21)
+- Extended function AST: getters/setters, class field arrows, object-literal methods (M22)
+- Per-function Git churn: hunk-overlap attribution on patch stream in function mode (M23)
+- Package DX: `typecheck`/`lint`/`format` scripts, `engines.node >= 22`, publish `files` allowlist including `schemas/` (M24)
 
 **Excludes / backlog:**
 
 - CI/CD gate, dashboard, persistence between runs
 - Languages beyond TS/JS
 - Relative code churn (decision closed — raw commit count only)
-- JSON schema contract (M20), config file (M21), extended function AST (M22) — planned
+- Post-M24 work: see [ROADMAP.md](ROADMAP.md) stubs M25–M30 (product docs sync, coupling enrichment, perf diagnostics, function AST+, path/config DX). M26 rename-confidence warnings are Done — see ROADMAP M26.
 
 ## References
 

@@ -51,6 +51,10 @@ describe("renderJson", () => {
       coChangeCount: 5,
       couplingStrength: 0.75,
       hasStaticDependency: true,
+      staticDependencyDirection: "a-to-b",
+      hasRuntimeStaticDependency: true,
+      hasTypeOnlyStaticDependency: false,
+      hasReExportStaticDependency: false,
     });
     expect(output.endsWith("\n")).toBe(true);
     expect(output).not.toContain("authors");

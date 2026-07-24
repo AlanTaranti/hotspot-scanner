@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/function-ast-coverage/spec.md`](./spec.md)  
 **Context**: [`.specs/features/function-ast-coverage/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 

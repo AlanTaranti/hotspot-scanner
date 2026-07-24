@@ -44,14 +44,18 @@ describe("renderMarkdown", () => {
     );
   });
 
-  it("renders coupling table with formatted values", () => {
+  it("renders coupling table with formatted values including direction and kinds", () => {
     const output = renderMarkdown(loadFixture());
 
     expect(output).toContain(
-      "| Rank | File A | File B | Strength | Co-changes | Has static |",
+      "| Rank | File A | File B | Strength | Co-changes | Has static | Direction | Kinds |",
     );
-    expect(output).toContain("| 1 | src/a.ts | src/b.ts | 0.7500 | 5 | yes |");
-    expect(output).toContain("| 2 | src/c.ts | src/d.ts | 0.5000 | 3 | no |");
+    expect(output).toContain(
+      "| 1 | src/a.ts | src/b.ts | 0.7500 | 5 | yes | a→b | runtime |",
+    );
+    expect(output).toContain(
+      "| 2 | src/c.ts | src/d.ts | 0.5000 | 3 | no | none | — |",
+    );
   });
 
   it("escapes pipe characters in file paths", () => {
@@ -78,6 +82,10 @@ describe("renderMarkdown", () => {
           coChangeCount: 3,
           couplingStrength: 0.6,
           hasStaticDependency: true,
+          staticDependencyDirection: "b-to-a",
+          hasRuntimeStaticDependency: false,
+          hasTypeOnlyStaticDependency: true,
+          hasReExportStaticDependency: false,
         },
       ],
       meta: {

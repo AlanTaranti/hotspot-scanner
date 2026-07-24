@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/rename-confidence/spec.md`](./spec.md)  
 **Context**: [`.specs/features/rename-confidence/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 

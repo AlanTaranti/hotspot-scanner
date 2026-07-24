@@ -1,3 +1,4 @@
+import { DEFAULT_WORKER_CONCURRENCY } from "../complexity/pool.js";
 import { DEFAULT_SINCE, DEFAULT_TOP } from "../scan.js";
 import { DEFAULT_MIN_COCHANGE } from "../scoring/index.js";
 import type { ScanGranularity } from "../types/index.js";
@@ -10,6 +11,7 @@ export interface MergedScanConfig {
   granularity: ScanGranularity;
   minCochange: number;
   top: number;
+  concurrency: number;
 }
 
 export interface MergeScanOptionsInput {
@@ -60,5 +62,10 @@ export function mergeScanOptions(
       DEFAULT_MIN_COCHANGE,
     ),
     top: pickRequired(cli.top, config?.top, DEFAULT_TOP),
+    concurrency: pickRequired(
+      cli.concurrency,
+      config?.concurrency,
+      DEFAULT_WORKER_CONCURRENCY,
+    ),
   };
 }

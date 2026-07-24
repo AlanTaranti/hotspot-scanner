@@ -6,6 +6,11 @@ export const DEFAULT_EXCLUDE_PATTERNS = [
   "dist/**",
   "coverage/**",
   "build/**",
+  "**/.next/**",
+  "**/out/**",
+  "**/vendor/**",
+  "**/storybook-static/**",
+  "**/__snapshots__/**",
 ] as const;
 
 export interface PathScope {

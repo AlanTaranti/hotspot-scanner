@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/coupling-enrichment/design.md`](./design.md)  
 **Spec**: [`.specs/features/coupling-enrichment/spec.md`](./spec.md)  
 **Context**: [`.specs/features/coupling-enrichment/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -134,9 +134,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] `StaticDependencyDirection` exported
-- [ ] `CouplingPair` includes all four new fields with correct types
-- [ ] `pnpm exec tsc --noEmit` succeeds **or** only expected breakages are in scoring/report/compare until T3–T5 (document in task notes if temporary `as` casts are used — remove by T6)
+- [x] `StaticDependencyDirection` exported
+- [x] `CouplingPair` includes all four new fields with correct types
+- [x] `pnpm exec tsc --noEmit` succeeds **or** only expected breakages are in scoring/report/compare until T3–T5 (document in task notes if temporary `as` casts are used — remove by T6)
 
 **Tests**: none (types layer)
 
@@ -163,12 +163,12 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Nearest-config walk + `paths`/`baseUrl` resolution covered by unit tests
-- [ ] Missing/invalid config → empty/null resolve (no throw)
-- [ ] No `typescript` / `ts-morph` runtime imports
-- [ ] No imports from `src/git/rename` / PathAliasMap
-- [ ] Gate check passes: targeted vitest
-- [ ] Test count: new path-map tests pass (no silent deletions elsewhere)
+- [x] Nearest-config walk + `paths`/`baseUrl` resolution covered by unit tests
+- [x] Missing/invalid config → empty/null resolve (no throw)
+- [x] No `typescript` / `ts-morph` runtime imports
+- [x] No imports from `src/git/rename` / PathAliasMap
+- [x] Gate check passes: targeted vitest
+- [x] Test count: new path-map tests pass (no silent deletions elsewhere)
 
 **Tests**: unit — `tsconfig-path-map.test.ts`
 
@@ -195,14 +195,14 @@ flowchart TD
 
 **Done when**:
 
-- [ ] All four direction values tested
-- [ ] Type-only-only / runtime / re-export / mixed cases tested
-- [ ] Alias path sets edge when peer matches; bare package without paths does not
-- [ ] Invariants from context.md asserted in tests
-- [ ] Ranking fields (`coChangeCount`, `couplingStrength`) and input order preserved
-- [ ] No PathAliasMap / ts-morph imports
-- [ ] Gate check passes: enricher + path-map tests
-- [ ] Test count: enricher suite grows; prior relative cases still pass
+- [x] All four direction values tested
+- [x] Type-only-only / runtime / re-export / mixed cases tested
+- [x] Alias path sets edge when peer matches; bare package without paths does not
+- [x] Invariants from context.md asserted in tests
+- [x] Ranking fields (`coChangeCount`, `couplingStrength`) and input order preserved
+- [x] No PathAliasMap / ts-morph imports
+- [x] Gate check passes: enricher + path-map tests
+- [x] Test count: enricher suite grows; prior relative cases still pass
 
 **Tests**: unit — `enrich-coupling-static.test.ts` (and path-map still green)
 
@@ -229,11 +229,11 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Schema requires all new fields; compare schema still `$ref`s CouplingPair
-- [ ] Missing any new field → BaselineError with re-scan hint
-- [ ] Wrong types rejected
-- [ ] Contract tests green against updated fixtures
-- [ ] Gate check passes: compare + contract vitest
+- [x] Schema requires all new fields; compare schema still `$ref`s CouplingPair
+- [x] Missing any new field → BaselineError with re-scan hint
+- [x] Wrong types rejected
+- [x] Contract tests green against updated fixtures
+- [x] Gate check passes: compare + contract vitest
 
 **Tests**: unit + contract — `load-baseline.test.ts`, `tests/contract/`
 
@@ -260,10 +260,10 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Table/markdown include Direction and Kinds
-- [ ] CSV headers include the four new field names
-- [ ] Compare coupling rows include new columns/fields
-- [ ] Reporter unit tests updated and green
+- [x] Table/markdown include Direction and Kinds
+- [x] CSV headers include the four new field names
+- [x] Compare coupling rows include new columns/fields
+- [x] Reporter unit tests updated and green
 
 **Tests**: unit — `src/report/` tests touching coupling
 
@@ -290,10 +290,10 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Integration/unit scan assert: alias-linked pair → `hasStaticDependency: true` + expected direction
-- [ ] All coupling objects in scan JSON include new required fields
-- [ ] No edits to `src/git/rename.ts` / PathAliasMap
-- [ ] Targeted tests pass
+- [x] Integration/unit scan assert: alias-linked pair → `hasStaticDependency: true` + expected direction
+- [x] All coupling objects in scan JSON include new required fields
+- [x] No edits to `src/git/rename.ts` / PathAliasMap
+- [x] Targeted tests pass
 
 **Tests**: integration (+ unit updates for CouplingPair fixtures)
 
@@ -320,10 +320,10 @@ flowchart TD
 
 **Done when**:
 
-- [ ] ARCHITECTURE documents new CouplingPair fields + paths alias behavior
-- [ ] CONCERNS reflects paths mitigation (exports gap may remain)
-- [ ] Gate check passes: `pnpm build && pnpm test`
-- [ ] Test count: no silent deletions vs pre-task baseline
+- [x] ARCHITECTURE documents new CouplingPair fields + paths alias behavior
+- [x] CONCERNS reflects paths mitigation (exports gap may remain)
+- [x] Gate check passes: `pnpm build && pnpm test`
+- [x] Test count: no silent deletions vs pre-task baseline
 
 **Tests**: full suite via gate
 

@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/path-config-dx/design.md`](./design.md)  
 **Spec**: [`.specs/features/path-config-dx/spec.md`](./spec.md)  
 **Context**: [`.specs/features/path-config-dx/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -81,11 +81,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Patterns include `**/.next/**`, `**/out/**`, `**/vendor/**`, `**/storybook-static/**`, `**/__snapshots__/**`
-- [ ] M7 patterns unchanged in form (`node_modules/**`, `.git/**`, `dist/**`, `coverage/**`, `build/**`)
-- [ ] Tests assert nested example paths are out of scope / pruned
-- [ ] Gate check passes: `pnpm exec vitest run src/paths/`
-- [ ] Test count does not drop silently
+- [x] Patterns include `**/.next/**`, `**/out/**`, `**/vendor/**`, `**/storybook-static/**`, `**/__snapshots__/**`
+- [x] M7 patterns unchanged in form (`node_modules/**`, `.git/**`, `dist/**`, `coverage/**`, `build/**`)
+- [x] Tests assert nested example paths are out of scope / pruned
+- [x] Gate check passes: `pnpm exec vitest run src/paths/`
+- [x] Test count does not drop silently
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/paths/`
@@ -117,12 +117,12 @@ pnpm exec vitest run src/paths/
 
 **Done when**:
 
-- [ ] Walk loads nearest `.hotspot-scanner.json` above `repoPath`
-- [ ] Discovery miss returns `null`
-- [ ] `configPath` loads that file only; ENOENT throws `ConfigError`
-- [ ] Walk never opens `.hotspotrc` or other names
-- [ ] Gate check passes: `pnpm exec vitest run src/config/`
-- [ ] Test count does not drop silently
+- [x] Walk loads nearest `.hotspot-scanner.json` above `repoPath`
+- [x] Discovery miss returns `null`
+- [x] `configPath` loads that file only; ENOENT throws `ConfigError`
+- [x] Walk never opens `.hotspotrc` or other names
+- [x] Gate check passes: `pnpm exec vitest run src/config/`
+- [x] Test count does not drop silently
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/config/`
@@ -154,12 +154,12 @@ pnpm exec vitest run src/config/
 
 **Done when**:
 
-- [ ] `--config` and `ScanOptions.configPath` honored end-to-end
-- [ ] Bin and `runScan` discovery args match (no divergent config)
-- [ ] CLI flag overrides config values from walked or explicit file
-- [ ] `--help` mentions `--config`
-- [ ] Gate check passes: `pnpm exec vitest run src/config/ src/paths/ src/scan.ts bin/hotspot-scanner.test.ts` (adjust to actual scan test paths)
-- [ ] Test count does not drop silently
+- [x] `--config` and `ScanOptions.configPath` honored end-to-end
+- [x] Bin and `runScan` discovery args match (no divergent config)
+- [x] CLI flag overrides config values from walked or explicit file
+- [x] `--help` mentions `--config`
+- [x] Gate check passes: `pnpm exec vitest run src/config/ src/paths/ src/scan.ts bin/hotspot-scanner.test.ts` (adjust to actual scan test paths)
+- [x] Test count does not drop silently
 
 **Tests**: unit + CLI  
 **Gate**: `pnpm exec vitest run src/config/ src/paths/ src/scan.ts bin/hotspot-scanner.test.ts`
@@ -192,9 +192,9 @@ pnpm exec hotspot-scanner scan --help   # shows --config
 
 **Done when**:
 
-- [ ] Docs match locked decisions (no `.hotspotrc`; walk + `--config` described)
-- [ ] Default exclude list in ARCHITECTURE includes M30 names
-- [ ] Full gate green: `pnpm build && pnpm test`
+- [x] Docs match locked decisions (no `.hotspotrc`; walk + `--config` described)
+- [x] Default exclude list in ARCHITECTURE includes M30 names
+- [x] Full gate green: `pnpm build && pnpm test`
 
 **Tests**: none (docs)  
 **Gate**: `pnpm build && pnpm test`

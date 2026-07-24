@@ -5,6 +5,8 @@ export type {
   ComplexityResult,
   CouplingCompareSection,
   CouplingPair,
+  DiagnosticSeverity,
+  StaticDependencyDirection,
   FileChangeStats,
   FileComplexityResult,
   FunctionCompareSection,
@@ -17,5 +19,8 @@ export type {
   ScanMeta,
   ScanOptions,
   ScanGranularity,
+  ScanProgress,
+  ScanProgressPhase,
   ScanResult,
+  ScanWarning,
 } from "./domain.js";

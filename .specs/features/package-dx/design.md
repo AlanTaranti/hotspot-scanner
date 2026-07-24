@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/package-dx/spec.md`](./spec.md)  
 **Context**: [`.specs/features/package-dx/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Depth**: Light (tooling / package metadata — no `src/` architecture change)
 
 ---

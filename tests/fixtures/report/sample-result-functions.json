@@ -46,19 +46,28 @@
       "fileB": "src/b.ts",
       "coChangeCount": 5,
       "couplingStrength": 0.75,
-      "hasStaticDependency": true
+      "hasStaticDependency": true,
+      "staticDependencyDirection": "a-to-b",
+      "hasRuntimeStaticDependency": true,
+      "hasTypeOnlyStaticDependency": false,
+      "hasReExportStaticDependency": false
     },
     {
       "fileA": "src/c.ts",
       "fileB": "src/d.ts",
       "coChangeCount": 3,
       "couplingStrength": 0.5,
-      "hasStaticDependency": false
+      "hasStaticDependency": false,
+      "staticDependencyDirection": "none",
+      "hasRuntimeStaticDependency": false,
+      "hasTypeOnlyStaticDependency": false,
+      "hasReExportStaticDependency": false
     }
   ],
   "meta": {
     "since": "6 months ago",
     "scannedAt": "2026-07-22T11:00:00.000Z",
-    "granularity": "function"
+    "granularity": "function",
+    "warnings": []
   }
 }

@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/function-ast-coverage-plus/design.md`](./design.md)  
 **Spec**: [`.specs/features/function-ast-coverage-plus/spec.md`](./spec.md)  
 **Context**: [`.specs/features/function-ast-coverage-plus/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -76,13 +76,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] ClassExpression members appear with ClassDeclaration-equivalent kinds and names
-- [ ] Object-literal get/set appear with bare accessor names
-- [ ] Assignment RHS callables collected and named per context.md (`=` only)
-- [ ] Body-less non-abstract overload stubs excluded; abstract empty-body policy preserved
-- [ ] No semantic change to McCabe decision nodes (`mccabe.ts` untouched or comment-only)
-- [ ] Unit tests cover the four behaviors above
-- [ ] Gate check passes: `pnpm exec vitest run src/complexity/analyze-file.test.ts`
+- [x] ClassExpression members appear with ClassDeclaration-equivalent kinds and names
+- [x] Object-literal get/set appear with bare accessor names
+- [x] Assignment RHS callables collected and named per context.md (`=` only)
+- [x] Body-less non-abstract overload stubs excluded; abstract empty-body policy preserved
+- [x] No semantic change to McCabe decision nodes (`mccabe.ts` untouched or comment-only)
+- [x] Unit tests cover the four behaviors above
+- [x] Gate check passes: `pnpm exec vitest run src/complexity/analyze-file.test.ts`
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/complexity/analyze-file.test.ts`
@@ -114,11 +114,11 @@ pnpm exec vitest run src/complexity/analyze-file.test.ts
 
 **Done when**:
 
-- [ ] At least one fixture per new construct family (ClassExpression, object-literal accessors, assignment callables, overloads) with documented expected complexity
-- [ ] Overload fixture asserts stub signatures are absent and implementation complexity is locked
-- [ ] Optional namespace/module fixture locks existing behavior (or explicitly skipped with note if deferred)
-- [ ] Prior decision-node fixtures still pass (updated only where M29 intentionally changes counts)
-- [ ] Gate check passes: `pnpm exec vitest run src/complexity/`
+- [x] At least one fixture per new construct family (ClassExpression, object-literal accessors, assignment callables, overloads) with documented expected complexity
+- [x] Overload fixture asserts stub signatures are absent and implementation complexity is locked
+- [x] Optional namespace/module fixture locks existing behavior (or explicitly skipped with note if deferred)
+- [x] Prior decision-node fixtures still pass (updated only where M29 intentionally changes counts)
+- [x] Gate check passes: `pnpm exec vitest run src/complexity/`
 
 **Tests**: unit / complexity fixture tests  
 **Gate**: `pnpm exec vitest run src/complexity/`
@@ -150,9 +150,9 @@ pnpm exec vitest run src/complexity/
 
 **Done when**:
 
-- [ ] ARCHITECTURE naming/collection table includes M29 constructs + overload-skip note
-- [ ] CONCERNS notes M29 collection extension without inviting McCabe decision-node edits
-- [ ] Full gate green: `pnpm build && pnpm test`
+- [x] ARCHITECTURE naming/collection table includes M29 constructs + overload-skip note
+- [x] CONCERNS notes M29 collection extension without inviting McCabe decision-node edits
+- [x] Full gate green: `pnpm build && pnpm test`
 
 **Tests**: none  
 **Gate**: `pnpm build && pnpm test`

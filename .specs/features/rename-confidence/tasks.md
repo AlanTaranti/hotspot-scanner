@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/rename-confidence/design.md`](./design.md)  
 **Spec**: [`.specs/features/rename-confidence/spec.md`](./spec.md)  
 **Context**: [`.specs/features/rename-confidence/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -115,10 +115,10 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Exported formatters + `pathsLookLikeRename` (or equivalent) match design intent
-- [ ] Unit tests cover formatting, basename relatedness, and max-pair capping
-- [ ] Gate check passes: `pnpm build && pnpm test -- src/git/rename-warnings.test.ts`
-- [ ] Test count: no silent deletions in this file’s suite
+- [x] Exported formatters + `pathsLookLikeRename` (or equivalent) match design intent
+- [x] Unit tests cover formatting, basename relatedness, and max-pair capping
+- [x] Gate check passes: `pnpm build && pnpm test -- src/git/rename-warnings.test.ts`
+- [x] Test count: no silent deletions in this file’s suite
 
 **Tests**: unit  
 **Gate**: `pnpm build && pnpm test -- src/git/rename-warnings.test.ts`
@@ -145,11 +145,11 @@ flowchart TD
 
 **Done when**:
 
-- [ ] File miner argv includes find-renames (`-M` or `--find-renames`) and does **not** include `--follow`
-- [ ] Unlinked suspected rename + `--since`+renameLink warnings covered by unit tests (fixture stream injection OK)
-- [ ] Ambiguous-path warnings still emitted
-- [ ] Gate check passes: `pnpm build && pnpm test -- src/git/`
-- [ ] Test count: no silent deletions under `src/git/` (excluding function-churn if run filtered)
+- [x] File miner argv includes find-renames (`-M` or `--find-renames`) and does **not** include `--follow`
+- [x] Unlinked suspected rename + `--since`+renameLink warnings covered by unit tests (fixture stream injection OK)
+- [x] Ambiguous-path warnings still emitted
+- [x] Gate check passes: `pnpm build && pnpm test -- src/git/`
+- [x] Test count: no silent deletions under `src/git/` (excluding function-churn if run filtered)
 
 **Tests**: unit  
 **Gate**: `pnpm build && pnpm test -- src/git/spawn.test.ts src/git/index.test.ts src/git/rename-warnings.test.ts`
@@ -177,10 +177,10 @@ flowchart TD
 
 **Done when**:
 
-- [ ] At least one unlinked/copy-paste style fixture exists with documented expected warning
-- [ ] Tests assert miner warnings/churn behavior for that fixture
-- [ ] Gate check passes: `pnpm build && pnpm test -- src/git/index.test.ts`
-- [ ] Test count: no silent deletions
+- [x] At least one unlinked/copy-paste style fixture exists with documented expected warning
+- [x] Tests assert miner warnings/churn behavior for that fixture
+- [x] Gate check passes: `pnpm build && pnpm test -- src/git/index.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests**: unit  
 **Gate**: `pnpm build && pnpm test -- src/git/index.test.ts`
@@ -207,11 +207,11 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Patch argv includes find-renames; no `--follow`
-- [ ] Warning present when rename observed; absent otherwise
-- [ ] File-mode scan path unchanged (no function warning without function miner)
-- [ ] Gate check passes: `pnpm build && pnpm test -- src/git/function-churn/`
-- [ ] Test count: no silent deletions
+- [x] Patch argv includes find-renames; no `--follow`
+- [x] Warning present when rename observed; absent otherwise
+- [x] File-mode scan path unchanged (no function warning without function miner)
+- [x] Gate check passes: `pnpm build && pnpm test -- src/git/function-churn/`
+- [x] Test count: no silent deletions
 
 **Tests**: unit  
 **Gate**: `pnpm build && pnpm test -- src/git/function-churn/`
@@ -239,11 +239,11 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Fixture history documented; bootstrap reproducible
-- [ ] Integration/E2E asserts unified churn under canonical final path with `-M` enabled miners
-- [ ] Expected warnings documented and asserted where applicable
-- [ ] Gate check passes: `pnpm build && pnpm test --` (targeted integration test path)
-- [ ] Manual spot-check optional: `pnpm exec hotspot-scanner scan tests/fixtures/repos/with-renames`
+- [x] Fixture history documented; bootstrap reproducible
+- [x] Integration/E2E asserts unified churn under canonical final path with `-M` enabled miners
+- [x] Expected warnings documented and asserted where applicable
+- [x] Gate check passes: `pnpm build && pnpm test --` (targeted integration test path)
+- [x] Manual spot-check optional: `pnpm exec hotspot-scanner scan tests/fixtures/repos/with-renames`
 
 **Tests**: integration  
 **Gate**: `pnpm build && pnpm test -- src/scan.integration.test.ts` (or the concrete test file Execute adds — update this line if a dedicated file is created)
@@ -270,10 +270,10 @@ flowchart TD
 
 **Done when**:
 
-- [ ] ARCHITECTURE mentions find-renames + warning families; still forbids global `--follow`
-- [ ] CONCERNS reflects warning mitigation for covered blind spots + function avisos
-- [ ] TESTING lists new fixtures
-- [ ] No src/bin behavior changes in this task
+- [x] ARCHITECTURE mentions find-renames + warning families; still forbids global `--follow`
+- [x] CONCERNS reflects warning mitigation for covered blind spots + function avisos
+- [x] TESTING lists new fixtures
+- [x] No src/bin behavior changes in this task
 
 **Tests**: none  
 **Gate**: N/A (docs); verified by T7 full gate still green
@@ -300,9 +300,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] `pnpm build && pnpm test` passes
-- [ ] No intentional test deletions vs pre-feature baseline
-- [ ] Spec success criteria checklist satisfied
+- [x] `pnpm build && pnpm test` passes
+- [x] No intentional test deletions vs pre-feature baseline
+- [x] Spec success criteria checklist satisfied
 
 **Tests**: full suite  
 **Gate**: `pnpm build && pnpm test`

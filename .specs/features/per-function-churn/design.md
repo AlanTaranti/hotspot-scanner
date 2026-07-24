@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/per-function-churn/spec.md`](./spec.md)  
 **Context**: [`.specs/features/per-function-churn/context.md`](./context.md)  
-**Status**: Planned (planning session — not Execute)
+**Status**: Done
 
 ---
 

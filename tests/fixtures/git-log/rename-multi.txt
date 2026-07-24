@@ -1,5 +1,7 @@
-# rename-multi.txt — file renamed twice: a.ts -> b.ts -> c.ts
+# rename-multi.txt — file renamed twice: a.ts -> b.ts -> c.ts (linked renames with =>)
+# Provenance: hand-crafted valid git log --numstat --name-only format
 # Expected: canonical path c.ts has commitCount=3 (initial edit + 2 renames/commits)
+# Expected warnings: none (no unlinked blind-spot warnings; linked renames unify churn)
 
 COMMIT|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|Mon Jan 1 00:00:00 2024 +0000|Alice
 5	0	src/a.ts

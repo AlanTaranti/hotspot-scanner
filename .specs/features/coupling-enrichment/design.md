@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/coupling-enrichment/spec.md`](./spec.md)  
 **Context**: [`.specs/features/coupling-enrichment/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Sister designs**: [enriched-coupling (M14)](../enriched-coupling/design.md), [json-contract (M20)](../json-contract/design.md)
 
 ---

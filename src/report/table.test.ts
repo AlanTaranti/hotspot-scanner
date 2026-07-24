@@ -48,12 +48,17 @@ describe("renderTable", () => {
     expect(output).toContain("0.7500");
   });
 
-  it("renders StaticDep column in coupling section", () => {
+  it("renders StaticDep, Direction, and Kinds columns in coupling section", () => {
     const output = renderTable(loadFixture());
 
     expect(output).toContain("StaticDep");
+    expect(output).toContain("Direction");
+    expect(output).toContain("Kinds");
     expect(output).toContain("yes");
     expect(output).toContain("no");
+    expect(output).toContain("a→b");
+    expect(output).toContain("runtime");
+    expect(output).toContain("—");
   });
 
   it("shows raw metric columns in hotspots section", () => {
@@ -104,6 +109,10 @@ describe("renderTable", () => {
           couplingStrength: 0.25,
           coChangeCount: 4,
           hasStaticDependency: false,
+          staticDependencyDirection: "none",
+          hasRuntimeStaticDependency: false,
+          hasTypeOnlyStaticDependency: false,
+          hasReExportStaticDependency: false,
         },
       ],
       meta: {

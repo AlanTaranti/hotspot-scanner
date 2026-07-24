@@ -3,6 +3,7 @@ import type { PathScope } from "../paths/scope.js";
 import type {
   ComplexityResult,
   FunctionComplexityResult,
+  ScanWarning,
 } from "../types/index.js";
 import type { BatchAnalysisOutput } from "./analyze-batch.js";
 import { discoverSourceFiles } from "./discover.js";
@@ -21,7 +22,7 @@ export interface ComplexityAnalyzerOptions {
 export interface ComplexityAnalyzerResult {
   results: ComplexityResult[];
   functions: FunctionComplexityResult[];
-  warnings: string[];
+  warnings: ScanWarning[];
 }
 
 export interface ComplexityAnalyzerDependencies {
@@ -68,12 +69,23 @@ function buildFilePathIndex(filePaths: string[]): Map<string, number> {
   return index;
 }
 
-function parseWarningFilePath(warning: string): string {
+function normalizeParseWarning(warning: ScanWarning | string): ScanWarning {
+  if (typeof warning === "string") {
+    return {
+      code: "PARSE_FAILED",
+      severity: "warning",
+      message: warning,
+    };
+  }
+  return warning;
+}
+
+function parseWarningFilePath(warning: ScanWarning): string {
   const prefix = "Failed to parse ";
-  if (!warning.startsWith(prefix)) {
+  if (!warning.message.startsWith(prefix)) {
     return "";
   }
-  const rest = warning.slice(prefix.length);
+  const rest = warning.message.slice(prefix.length);
   const colonIndex = rest.indexOf(": ");
   return colonIndex === -1 ? rest : rest.slice(0, colonIndex);
 }
@@ -84,12 +96,12 @@ function mergeBatchOutputs(
 ): ComplexityAnalyzerResult {
   const results: ComplexityResult[] = [];
   const functions: FunctionComplexityResult[] = [];
-  const warnings: string[] = [];
+  const warnings: ScanWarning[] = [];
 
   for (const output of batchOutputs) {
     results.push(...output.results);
     functions.push(...output.functions);
-    warnings.push(...output.warnings);
+    warnings.push(...output.warnings.map(normalizeParseWarning));
   }
 
   const discoveryIndex = (filePath: string): number =>

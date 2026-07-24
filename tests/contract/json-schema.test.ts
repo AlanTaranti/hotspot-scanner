@@ -46,6 +46,17 @@ function loadScanFixture(name: string): ScanResult {
   return fixture;
 }
 
+function expectScanWarningShape(
+  warning: unknown,
+): asserts warning is { severity: string; message: string; code?: string } {
+  expect(warning).toEqual(
+    expect.objectContaining({
+      severity: expect.stringMatching(/^(info|warning|error)$/),
+      message: expect.any(String),
+    }),
+  );
+}
+
 describe("JSON schema contract", () => {
   const { validateScan, validateCompare } = createValidators();
 
@@ -54,6 +65,10 @@ describe("JSON schema contract", () => {
     const json = JSON.parse(renderJson(result)) as ScanResult;
 
     expect(validateScan(json)).toBe(true);
+    expect(Array.isArray(json.meta.warnings)).toBe(true);
+    for (const warning of json.meta.warnings) {
+      expectScanWarningShape(warning);
+    }
   });
 
   it("compareScanResults output validates against compare-result.json", () => {
@@ -62,6 +77,72 @@ describe("JSON schema contract", () => {
     const result = compareScanResults(baseline, current);
 
     expect(validateCompare(result)).toBe(true);
+    expect(Array.isArray(result.meta.warnings)).toBe(true);
+    for (const warning of result.meta.warnings) {
+      expectScanWarningShape(warning);
+    }
+  });
+
+  it("compare since-mismatch warning matches ScanWarning shape", () => {
+    const baseline = loadScanFixture("compare-baseline-file.json");
+    const current = loadScanFixture("compare-current-file.json");
+    const currentDifferentSince: ScanResult = {
+      ...current,
+      meta: { ...current.meta, since: "12 months ago" },
+    };
+
+    const result = compareScanResults(baseline, currentDifferentSince);
+
+    expect(validateCompare(result)).toBe(true);
+    expect(result.meta.warnings).toHaveLength(1);
+    expect(result.meta.warnings[0]).toEqual({
+      severity: "warning",
+      code: "COMPARE_SINCE_MISMATCH",
+      message: expect.stringMatching(/different --since windows/),
+    });
+  });
+
+  it("rejects scan JSON missing meta.warnings", async () => {
+    const result = await runScan({ repoPath: smallTsFixture });
+    const json = JSON.parse(renderJson(result)) as ScanResult;
+    const invalid = structuredClone(json);
+    delete (invalid.meta as { warnings?: unknown }).warnings;
+
+    expect(validateScan(invalid)).toBe(false);
+    expect(validateScan.errors?.length).toBeGreaterThan(0);
+  });
+
+  it("rejects scan JSON with string meta.warnings entries", async () => {
+    const result = await runScan({ repoPath: smallTsFixture });
+    const json = JSON.parse(renderJson(result)) as ScanResult;
+    const invalid = structuredClone(json);
+    (invalid.meta as { warnings: unknown }).warnings = ["legacy string warning"];
+
+    expect(validateScan(invalid)).toBe(false);
+    expect(validateScan.errors?.length).toBeGreaterThan(0);
+  });
+
+  it("rejects scan JSON with invalid ScanWarning severity", async () => {
+    const result = await runScan({ repoPath: smallTsFixture });
+    const json = JSON.parse(renderJson(result)) as ScanResult;
+    const invalid = structuredClone(json);
+    invalid.meta.warnings = [
+      { severity: "critical" as "warning", message: "bad severity" },
+    ];
+
+    expect(validateScan(invalid)).toBe(false);
+    expect(validateScan.errors?.length).toBeGreaterThan(0);
+  });
+
+  it("rejects compare JSON with string meta.warnings entries", () => {
+    const baseline = loadScanFixture("compare-baseline-file.json");
+    const current = loadScanFixture("compare-current-file.json");
+    const result = compareScanResults(baseline, current);
+    const invalid = structuredClone(result);
+    (invalid.meta as { warnings: unknown }).warnings = ["since mismatch"];
+
+    expect(validateCompare(invalid)).toBe(false);
+    expect(validateCompare.errors?.length).toBeGreaterThan(0);
   });
 
   it("rejects scan JSON missing a required coupling field", async () => {
@@ -72,6 +153,33 @@ describe("JSON schema contract", () => {
     const invalid = structuredClone(json);
     const firstPair = invalid.coupling[0]!;
     delete (firstPair as { hasStaticDependency?: boolean }).hasStaticDependency;
+
+    expect(validateScan(invalid)).toBe(false);
+    expect(validateScan.errors?.length).toBeGreaterThan(0);
+  });
+
+  it("rejects scan JSON missing coupling enrichment fields", async () => {
+    const result = await runScan({ repoPath: smallTsFixture });
+    const json = JSON.parse(renderJson(result)) as ScanResult;
+
+    expect(json.coupling.length).toBeGreaterThan(0);
+    const invalid = structuredClone(json);
+    const firstPair = invalid.coupling[0]!;
+    delete (firstPair as { staticDependencyDirection?: string })
+      .staticDependencyDirection;
+
+    expect(validateScan(invalid)).toBe(false);
+    expect(validateScan.errors?.length).toBeGreaterThan(0);
+  });
+
+  it("rejects scan JSON with invalid staticDependencyDirection", async () => {
+    const result = await runScan({ repoPath: smallTsFixture });
+    const json = JSON.parse(renderJson(result)) as ScanResult;
+
+    expect(json.coupling.length).toBeGreaterThan(0);
+    const invalid = structuredClone(json);
+    invalid.coupling[0]!.staticDependencyDirection =
+      "mutual" as ScanResult["coupling"][number]["staticDependencyDirection"];
 
     expect(validateScan(invalid)).toBe(false);
     expect(validateScan.errors?.length).toBeGreaterThan(0);

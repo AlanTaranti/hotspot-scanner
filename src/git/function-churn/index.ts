@@ -1,7 +1,15 @@
 import type {
   FunctionChangeStats,
   FunctionComplexityResult,
+  ScanProgress,
+  ScanWarning,
 } from "../../types/index.js";
+import {
+  createEmptySinceWindowWarning,
+  createRenameHistoryIncompleteWarning,
+  formatAmbiguousRenameWarnings,
+  formatFunctionPostRenameOverlapWarning,
+} from "../rename-warnings.js";
 import { PathAliasMap } from "../rename.js";
 import {
   aggregatePatchCommit,
@@ -12,20 +20,16 @@ import {
 import { parsePatchLogStream } from "./parse.js";
 import { streamGitPatchLog, type FunctionChurnSpawnOptions } from "./spawn.js";
 
-export interface FunctionChurnMinerProgress {
-  commitsProcessed: number;
-}
-
 export interface FunctionChurnMinerOptions {
   repoPath: string;
   since?: string;
   functions: FunctionComplexityResult[];
-  onProgress?: (progress: FunctionChurnMinerProgress) => void;
+  onProgress?: (progress: ScanProgress) => void;
 }
 
 export interface FunctionChurnMinerResult {
   functionStats: Map<string, FunctionChangeStats>;
-  warnings: string[];
+  warnings: ScanWarning[];
 }
 
 export interface FunctionChurnMiner {
@@ -45,7 +49,7 @@ export function createFunctionChurnMiner(
 
   return {
     async mine(options) {
-      const warnings: string[] = [];
+      const warnings: ScanWarning[] = [];
 
       if (options.functions.length === 0) {
         return { functionStats: new Map(), warnings };
@@ -55,21 +59,40 @@ export function createFunctionChurnMiner(
       const accumulators = createFunctionChurnAccumulators();
       const functionsByFile = indexFunctionsByFile(options.functions);
       let commitCount = 0;
+      let renameLinkObserved = false;
 
       for await (const commit of parsePatchLogStream(
         stream({ repoPath: options.repoPath, since: options.since }),
       )) {
         commitCount += 1;
+        for (const file of commit.files) {
+          if (file.renameFrom !== undefined) {
+            renameLinkObserved = true;
+          }
+        }
         aggregatePatchCommit(commit, functionsByFile, aliasMap, accumulators);
-        options.onProgress?.({ commitsProcessed: commitCount });
+        options.onProgress?.({
+          phase: "function-churn",
+          commitsProcessed: commitCount,
+        });
       }
 
       if (commitCount === 0 && options.since !== undefined) {
-        warnings.push("No commits found in the specified --since window.");
+        warnings.push(createEmptySinceWindowWarning());
       }
 
-      for (const path of aliasMap.getAmbiguousPaths()) {
-        warnings.push(`Rename history may be incomplete for: ${path}`);
+      const ambiguousPaths = aliasMap.getAmbiguousPaths();
+      warnings.push(
+        ...formatAmbiguousRenameWarnings(ambiguousPaths).map(
+          createRenameHistoryIncompleteWarning,
+        ),
+      );
+      if (renameLinkObserved || ambiguousPaths.length > 0) {
+        warnings.push(
+          createRenameHistoryIncompleteWarning(
+            formatFunctionPostRenameOverlapWarning(),
+          ),
+        );
       }
 
       return {

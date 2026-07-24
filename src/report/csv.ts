@@ -1,4 +1,8 @@
 import type { ScanResult } from "../types/index.js";
+import {
+  COUPLING_ENRICHMENT_CSV_COLUMNS,
+  couplingEnrichmentCsvValues,
+} from "./coupling-format.js";
 import type { CsvBundle } from "./csv-bundle.js";
 import { formatCsvRow } from "./csv-utils.js";
 
@@ -97,6 +101,7 @@ function renderCouplingCsv(result: ScanResult): string {
     "strength",
     "coChanges",
     "hasStaticDependency",
+    ...COUPLING_ENRICHMENT_CSV_COLUMNS,
   ];
   const rows = result.coupling.map((pair, index) => [
     String(index + 1),
@@ -105,6 +110,7 @@ function renderCouplingCsv(result: ScanResult): string {
     formatScore(pair.couplingStrength),
     String(pair.coChangeCount),
     String(pair.hasStaticDependency),
+    ...couplingEnrichmentCsvValues(pair),
   ]);
 
   return renderCsvFile(header, rows);

@@ -87,6 +87,21 @@ describe("parseGitLogStream", () => {
     });
   });
 
+  it("parses embedded rename metadata from git -M numstat paths", async () => {
+    const commits = await parseLines([
+      "COMMIT|abc|Mon Jan 1 00:00:00 2024 +0000|Alice",
+      "0\t0\tsrc/{a.ts => b.ts}",
+      "",
+    ]);
+
+    expect(commits[0]!.files[0]).toEqual({
+      path: "src/b.ts",
+      additions: 0,
+      deletions: 0,
+      renameFrom: "src/a.ts",
+    });
+  });
+
   it("yields multiple commits from one stream", async () => {
     const commits = await parseLines([
       "COMMIT|aaa|Mon Jan 1 00:00:00 2024 +0000|Alice",

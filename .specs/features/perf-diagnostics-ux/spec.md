@@ -14,10 +14,10 @@ M28 adds operator concurrency control, phase-aware progress for function-mode mi
 
 ## Goals
 
-- [ ] CLI `--concurrency` (and config key) wired to the complexity worker pool; default documented and unchanged
-- [ ] Phase-aware progress for `git` and `function-churn` streams (patch-stream clearly labeled)
-- [ ] Structured `ScanWarning` with severity; `ScanResult.meta.warnings` + compare meta migration; stderr prefixes; interpretation docs
-- [ ] `pnpm build && pnpm test` passing after Execute
+- [x] CLI `--concurrency` (and config key) wired to the complexity worker pool; default documented and unchanged
+- [x] Phase-aware progress for `git` and `function-churn` streams (patch-stream clearly labeled)
+- [x] Structured `ScanWarning` with severity; `ScanResult.meta.warnings` + compare meta migration; stderr prefixes; interpretation docs
+- [x] `pnpm build && pnpm test` passing after Execute
 
 ## Out of Scope
 
@@ -154,21 +154,21 @@ M28 adds operator concurrency control, phase-aware progress for function-mode mi
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| HOTSPOT-251 | P1: CLI `--concurrency` | Tasks | Pending |
-| HOTSPOT-252 | P1: Config `concurrency` + merge | Tasks | Pending |
-| HOTSPOT-253 | P1: Wire concurrency into analyzer via scan | Tasks | Pending |
-| HOTSPOT-254 | P1: Document default concurrency | Tasks | Pending |
-| HOTSPOT-255 | P1: Progress `phase` on miners | Tasks | Pending |
-| HOTSPOT-256 | P1: Phase-labeled stderr progress | Tasks | Pending |
-| HOTSPOT-257 | P1: Per-phase throttle | Tasks | Pending |
-| HOTSPOT-258 | P1: `ScanWarning` type + severity | Tasks | Pending |
-| HOTSPOT-259 | P1: `ScanResult.meta.warnings` | Tasks | Pending |
-| HOTSPOT-260 | P1: Severity-aware stderr | Tasks | Pending |
-| HOTSPOT-261 | P1: Compare `meta.warnings` as `ScanWarning[]` | Tasks | Pending |
-| HOTSPOT-262 | P1: Interpretation docs | Tasks | Pending |
-| HOTSPOT-263 | P1: Map existing sites to codes | Tasks | Pending |
-| HOTSPOT-264 | P1: Living docs (ARCHITECTURE/CONCERNS/…) | Tasks | Pending |
-| HOTSPOT-265 | P2: Integration + full gate | Tasks | Pending |
+| HOTSPOT-251 | P1: CLI `--concurrency` | Tasks | Done |
+| HOTSPOT-252 | P1: Config `concurrency` + merge | Tasks | Done |
+| HOTSPOT-253 | P1: Wire concurrency into analyzer via scan | Tasks | Done |
+| HOTSPOT-254 | P1: Document default concurrency | Tasks | Done |
+| HOTSPOT-255 | P1: Progress `phase` on miners | Tasks | Done |
+| HOTSPOT-256 | P1: Phase-labeled stderr progress | Tasks | Done |
+| HOTSPOT-257 | P1: Per-phase throttle | Tasks | Done |
+| HOTSPOT-258 | P1: `ScanWarning` type + severity | Tasks | Done |
+| HOTSPOT-259 | P1: `ScanResult.meta.warnings` | Tasks | Done |
+| HOTSPOT-260 | P1: Severity-aware stderr | Tasks | Done |
+| HOTSPOT-261 | P1: Compare `meta.warnings` as `ScanWarning[]` | Tasks | Done |
+| HOTSPOT-262 | P1: Interpretation docs | Tasks | Done |
+| HOTSPOT-263 | P1: Map existing sites to codes | Tasks | Done |
+| HOTSPOT-264 | P1: Living docs (ARCHITECTURE/CONCERNS/…) | Tasks | Done |
+| HOTSPOT-265 | P2: Integration + full gate | Tasks | Done |
 
 **ID format:** `HOTSPOT-NNN`  
 **Coverage:** 15 total — all mapped in Tasks phase
@@ -177,8 +177,8 @@ M28 adds operator concurrency control, phase-aware progress for function-mode mi
 
 ## Success Criteria
 
-- [ ] Operators can set `--concurrency` / config and see documented default
-- [ ] Function-mode stderr progress distinguishes `git` vs `function-churn`
-- [ ] Scan and compare JSON expose structured `meta.warnings` with severity
-- [ ] Interpretation docs cover M28 codes; M26 boundary respected
-- [ ] `pnpm build && pnpm test` green
+- [x] Operators can set `--concurrency` / config and see documented default
+- [x] Function-mode stderr progress distinguishes `git` vs `function-churn`
+- [x] Scan and compare JSON expose structured `meta.warnings` with severity
+- [x] Interpretation docs cover M28 codes; M26 boundary respected
+- [x] `pnpm build && pnpm test` green

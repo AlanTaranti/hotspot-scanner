@@ -4,6 +4,7 @@ export {
   loadHotspotScannerConfig,
   parseHotspotScannerConfig,
   type HotspotScannerConfig,
+  type LoadConfigOptions,
 } from "./load-config.js";
 export {
   mergeScanOptions,

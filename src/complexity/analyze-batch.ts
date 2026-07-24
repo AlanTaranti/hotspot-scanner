@@ -2,6 +2,7 @@ import { relative, sep } from "node:path";
 import type {
   ComplexityResult,
   FunctionComplexityResult,
+  ScanWarning,
 } from "../types/index.js";
 import { analyzeSourceFile } from "./analyze-file.js";
 import { createTsMorphProject } from "./project.js";
@@ -14,7 +15,18 @@ export interface BatchAnalysisInput {
 export interface BatchAnalysisOutput {
   results: ComplexityResult[];
   functions: FunctionComplexityResult[];
-  warnings: string[];
+  warnings: ScanWarning[];
+}
+
+function createParseFailedWarning(
+  filePath: string,
+  errorMessage: string,
+): ScanWarning {
+  return {
+    code: "PARSE_FAILED",
+    severity: "warning",
+    message: `Failed to parse ${filePath}: ${errorMessage}`,
+  };
 }
 
 function normalizeRelativePath(repoPath: string, absolutePath: string): string {
@@ -28,7 +40,7 @@ export async function analyzeBatch(
   const project = createTsMorphProject({ repoPath });
   const results: ComplexityResult[] = [];
   const functions: FunctionComplexityResult[] = [];
-  const warnings: string[] = [];
+  const warnings: ScanWarning[] = [];
   const sourceFiles = await project.loadBatch(batch);
 
   for (const sourceFile of sourceFiles) {
@@ -39,7 +51,9 @@ export async function analyzeBatch(
   }
 
   for (const failure of project.getParseFailures()) {
-    warnings.push(`Failed to parse ${failure.filePath}: ${failure.message}`);
+    warnings.push(
+      createParseFailedWarning(failure.filePath, failure.message),
+    );
   }
 
   return { results, functions, warnings };

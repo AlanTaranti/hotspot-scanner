@@ -180,7 +180,16 @@ describe("hotspot-scanner CLI integration", () => {
         hotspotScore: number;
       }>;
       coupling: unknown[];
-      meta: { since: string; scannedAt: string; granularity: string };
+      meta: {
+        since: string;
+        scannedAt: string;
+        granularity: string;
+        warnings: Array<{
+          severity: string;
+          message: string;
+          code?: string;
+        }>;
+      };
     };
 
     expect(parsed.version).toBe("1.0");
@@ -195,6 +204,46 @@ describe("hotspot-scanner CLI integration", () => {
       hotspotScore: expect.any(Number),
     });
     expect(Array.isArray(parsed.coupling)).toBe(true);
+    expect(Array.isArray(parsed.meta.warnings)).toBe(true);
+    for (const warning of parsed.meta.warnings) {
+      expect(warning).toMatchObject({
+        severity: expect.any(String),
+        message: expect.any(String),
+      });
+    }
+  });
+
+  it("exits 0 with --concurrency 1 on small-ts fixture", async () => {
+    const { chunks } = captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      smallTsFixture,
+      "--concurrency",
+      "1",
+      "--format",
+      "json",
+    ]);
+
+    const parsed = JSON.parse(chunks.join("")) as { version: string };
+    expect(parsed.version).toBe("1.0");
+  });
+
+  it("rejects invalid --concurrency on small-ts fixture", async () => {
+    captureStdout();
+
+    await expect(
+      runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        smallTsFixture,
+        "--concurrency",
+        "0",
+      ]),
+    ).rejects.toThrow(/--concurrency must be a positive integer/);
   });
 
   it("prints markdown with Top Functions section in function mode", async () => {
@@ -286,7 +335,7 @@ describe("hotspot-scanner CLI integration", () => {
         removed: unknown[];
         rankChanged: unknown[];
       };
-      meta: { baseline: unknown; current: unknown; warnings: string[] };
+      meta: { baseline: unknown; current: unknown; warnings: Array<{ severity: string; message: string }> };
     };
 
     expect(parsed.version).toBe("1.0");
@@ -341,7 +390,7 @@ describe("hotspot-scanner CLI integration", () => {
       "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,lines",
     );
     expect(couplingContent.split("\n")[0]).toBe(
-      "rank,fileA,fileB,strength,coChanges,hasStaticDependency",
+      "rank,fileA,fileB,strength,coChanges,hasStaticDependency,staticDependencyDirection,hasRuntimeStaticDependency,hasTypeOnlyStaticDependency,hasReExportStaticDependency",
     );
   });
 

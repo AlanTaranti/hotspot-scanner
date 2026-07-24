@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import type { ScanGranularity } from "../types/index.js";
 
 export const HOTSPOT_SCANNER_CONFIG_FILENAME = ".hotspot-scanner.json";
@@ -11,6 +11,7 @@ const KNOWN_KEYS = new Set([
   "granularity",
   "minCochange",
   "top",
+  "concurrency",
 ]);
 
 export class ConfigError extends Error {
@@ -27,6 +28,12 @@ export interface HotspotScannerConfig {
   granularity?: ScanGranularity;
   minCochange?: number;
   top?: number;
+  concurrency?: number;
+}
+
+export interface LoadConfigOptions {
+  /** When set, load this file and skip parent walk. Missing → ConfigError. */
+  configPath?: string;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -108,25 +115,35 @@ export function parseHotspotScannerConfig(raw: unknown): HotspotScannerConfig {
       case "top":
         config.top = assertPositiveInteger(value, key);
         break;
+      case "concurrency":
+        config.concurrency = assertPositiveInteger(value, key);
+        break;
     }
   }
 
   return config;
 }
 
-export async function loadHotspotScannerConfig(
-  repoPath: string,
+function isEnoent(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    "code" in error &&
+    (error as NodeJS.ErrnoException).code === "ENOENT"
+  );
+}
+
+async function loadConfigAtPath(
+  configPath: string,
+  onMissing: "error" | "null",
 ): Promise<HotspotScannerConfig | null> {
-  const configPath = join(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME);
   let content: string;
   try {
     content = await readFile(configPath, "utf8");
   } catch (error) {
-    if (
-      error instanceof Error &&
-      "code" in error &&
-      (error as NodeJS.ErrnoException).code === "ENOENT"
-    ) {
+    if (isEnoent(error)) {
+      if (onMissing === "error") {
+        throw new ConfigError(`Config file not found: ${configPath}`);
+      }
       return null;
     }
     throw error;
@@ -136,8 +153,32 @@ export async function loadHotspotScannerConfig(
   try {
     parsed = JSON.parse(content);
   } catch {
-    throw new ConfigError(`Invalid JSON in ${HOTSPOT_SCANNER_CONFIG_FILENAME}`);
+    throw new ConfigError(`Invalid JSON in ${configPath}`);
   }
 
   return parseHotspotScannerConfig(parsed);
+}
+
+export async function loadHotspotScannerConfig(
+  repoPath: string,
+  options?: LoadConfigOptions,
+): Promise<HotspotScannerConfig | null> {
+  if (options?.configPath) {
+    return loadConfigAtPath(options.configPath, "error");
+  }
+
+  let dir = resolve(repoPath);
+  while (true) {
+    const candidatePath = join(dir, HOTSPOT_SCANNER_CONFIG_FILENAME);
+    const loaded = await loadConfigAtPath(candidatePath, "null");
+    if (loaded !== null) {
+      return loaded;
+    }
+
+    const parent = dirname(dir);
+    if (parent === dir) {
+      return null;
+    }
+    dir = parent;
+  }
 }

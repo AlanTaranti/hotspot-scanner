@@ -1,13 +1,14 @@
 import type { ScanResult } from "../types/index.js";
+import {
+  formatDirection,
+  formatKinds,
+  formatStaticDep,
+} from "./coupling-format.js";
 
 const SCORE_DECIMALS = 4;
 
 function formatScore(value: number): string {
   return value.toFixed(SCORE_DECIMALS);
-}
-
-function formatStaticDep(value: boolean): string {
-  return value ? "yes" : "no";
 }
 
 function escapeCell(value: string): string {
@@ -67,13 +68,13 @@ function renderCouplingSection(result: ScanResult): string[] {
   }
 
   lines.push(
-    "| Rank | File A | File B | Strength | Co-changes | Has static |",
-    "| ---: | --- | --- | ---: | ---: | :---: |",
+    "| Rank | File A | File B | Strength | Co-changes | Has static | Direction | Kinds |",
+    "| ---: | --- | --- | ---: | ---: | :---: | :---: | --- |",
   );
 
   for (const [index, pair] of result.coupling.entries()) {
     lines.push(
-      `| ${index + 1} | ${escapeCell(pair.fileA)} | ${escapeCell(pair.fileB)} | ${formatScore(pair.couplingStrength)} | ${pair.coChangeCount} | ${formatStaticDep(pair.hasStaticDependency)} |`,
+      `| ${index + 1} | ${escapeCell(pair.fileA)} | ${escapeCell(pair.fileB)} | ${formatScore(pair.couplingStrength)} | ${pair.coChangeCount} | ${formatStaticDep(pair.hasStaticDependency)} | ${formatDirection(pair.staticDependencyDirection)} | ${formatKinds(pair)} |`,
     );
   }
 

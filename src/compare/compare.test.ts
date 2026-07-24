@@ -110,7 +110,11 @@ describe("compareScanResults", () => {
 
     const result = compareScanResults(baseline, currentDifferentSince);
     expect(result.meta.warnings).toHaveLength(1);
-    expect(result.meta.warnings[0]).toMatch(/different --since windows/);
+    expect(result.meta.warnings[0]).toEqual({
+      severity: "warning",
+      code: "COMPARE_SINCE_MISMATCH",
+      message: expect.stringMatching(/different --since windows/),
+    });
   });
 
   it("treats empty baseline as all new entities", () => {

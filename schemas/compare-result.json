@@ -162,7 +162,7 @@
         },
         "warnings": {
           "type": "array",
-          "items": { "type": "string" }
+          "items": { "$ref": "scan-result.json#/$defs/ScanWarning" }
         }
       }
     }

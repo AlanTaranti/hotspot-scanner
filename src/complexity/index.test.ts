@@ -87,9 +87,15 @@ describe("createComplexityAnalyzer", () => {
     });
 
     expect(findResult(results, "invalid-syntax.ts")).toBeUndefined();
-    expect(
-      warnings.some((warning) => warning.includes("invalid-syntax.ts")),
-    ).toBe(true);
+    expect(warnings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "PARSE_FAILED",
+          severity: "warning",
+          message: expect.stringContaining("invalid-syntax.ts"),
+        }),
+      ]),
+    );
   });
 
   it("throws when repoPath is invalid", async () => {
@@ -210,14 +216,19 @@ describe("createComplexityAnalyzer", () => {
     expect(results).toHaveLength(DEFAULT_BATCH_SIZE + 1 - 2);
     expect(warnings).toHaveLength(2);
     expect(
-      warnings.every((warning) => warning.startsWith("Failed to parse ")),
+      warnings.every(
+        (warning) =>
+          warning.code === "PARSE_FAILED" &&
+          warning.severity === "warning" &&
+          warning.message.startsWith("Failed to parse "),
+      ),
     ).toBe(true);
-    expect(warnings.some((warning) => warning.includes("file-010.ts"))).toBe(
-      true,
-    );
+    expect(
+      warnings.some((warning) => warning.message.includes("file-010.ts")),
+    ).toBe(true);
     expect(
       warnings.some((warning) =>
-        warning.includes(
+        warning.message.includes(
           `file-${String(DEFAULT_BATCH_SIZE).padStart(3, "0")}.ts`,
         ),
       ),
@@ -250,5 +261,75 @@ describe("createComplexityAnalyzer", () => {
       "switch.ts",
       "if-else.ts",
     ]);
+  });
+
+  it("rejects non-existent repoPath", async () => {
+    const analyzer = createComplexityAnalyzer();
+    await expect(
+      analyzer.analyze({ repoPath: "/nonexistent/path/that/does/not/exist" }),
+    ).rejects.toThrow("repoPath does not exist or is not accessible");
+  });
+
+  it("rejects repoPath that is not a directory", async () => {
+    const filePath = await createTempRepo({ "only-file.ts": "export const x = 1;" });
+    const analyzer = createComplexityAnalyzer();
+    await expect(
+      analyzer.analyze({ repoPath: join(filePath, "only-file.ts") }),
+    ).rejects.toThrow("repoPath is not a directory");
+  });
+
+  it("normalizes legacy string warnings from worker pool output", async () => {
+    const runBatches = vi.fn(async () => [
+      {
+        results: [],
+        functions: [],
+        warnings: ["Failed to parse legacy.ts: Unexpected token"],
+      },
+    ]);
+    const createWorkerPool = vi.fn(() => ({ runBatches }));
+    const discoverSourceFiles = vi.fn(async () => ["legacy.ts"]);
+
+    const analyzer = createComplexityAnalyzer({
+      discoverSourceFiles,
+      createWorkerPool,
+    });
+
+    const { warnings } = await analyzer.analyze({ repoPath: fixtureDir });
+
+    expect(warnings).toEqual([
+      {
+        code: "PARSE_FAILED",
+        severity: "warning",
+        message: "Failed to parse legacy.ts: Unexpected token",
+      },
+    ]);
+  });
+
+  it("sorts warnings with non-standard messages without throwing", async () => {
+    const runBatches = vi.fn(async () => [
+      {
+        results: [],
+        functions: [],
+        warnings: [
+          {
+            code: "PARSE_FAILED",
+            severity: "warning",
+            message: "custom warning without parse prefix",
+          },
+        ],
+      },
+    ]);
+    const createWorkerPool = vi.fn(() => ({ runBatches }));
+    const discoverSourceFiles = vi.fn(async () => ["a.ts"]);
+
+    const analyzer = createComplexityAnalyzer({
+      discoverSourceFiles,
+      createWorkerPool,
+    });
+
+    const { warnings } = await analyzer.analyze({ repoPath: fixtureDir });
+
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]?.message).toBe("custom warning without parse prefix");
   });
 });

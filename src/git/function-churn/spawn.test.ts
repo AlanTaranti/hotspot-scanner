@@ -49,10 +49,17 @@ describe("buildGitPatchLogArgv", () => {
       "-C",
       "/repo",
       "log",
+      "-M",
       "-p",
       "--unified=0",
       "--pretty=format:COMMIT|%H|%ad|%an",
     ]);
+  });
+
+  it("includes find-renames (-M) and omits --follow", () => {
+    const argv = buildGitPatchLogArgv({ repoPath: "/repo" });
+    expect(argv).toContain("-M");
+    expect(argv).not.toContain("--follow");
   });
 
   it("adds --since when provided", () => {

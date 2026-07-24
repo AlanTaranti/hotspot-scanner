@@ -7,13 +7,19 @@ import {
 } from "./scope.js";
 
 describe("DEFAULT_EXCLUDE_PATTERNS", () => {
-  it("includes node_modules, .git, dist, coverage, build", () => {
-    const patterns = DEFAULT_EXCLUDE_PATTERNS.join(" ");
-    expect(patterns).toContain("node_modules");
-    expect(patterns).toContain(".git");
-    expect(patterns).toContain("dist");
-    expect(patterns).toContain("coverage");
-    expect(patterns).toContain("build");
+  it("includes M7 and M30 monorepo patterns", () => {
+    expect(DEFAULT_EXCLUDE_PATTERNS).toEqual([
+      "node_modules/**",
+      ".git/**",
+      "dist/**",
+      "coverage/**",
+      "build/**",
+      "**/.next/**",
+      "**/out/**",
+      "**/vendor/**",
+      "**/storybook-static/**",
+      "**/__snapshots__/**",
+    ]);
   });
 });
 
@@ -44,6 +50,25 @@ describe("isPathInScope", () => {
     expect(isPathInScope("build/output.js", defaultScope)).toBe(false);
   });
 
+  it("excludes nested monorepo build and snapshot paths", () => {
+    expect(
+      isPathInScope("apps/web/.next/static/chunk.js", defaultScope),
+    ).toBe(false);
+    expect(isPathInScope("apps/site/out/page.html", defaultScope)).toBe(false);
+    expect(isPathInScope("services/api/vendor/lib.go", defaultScope)).toBe(
+      false,
+    );
+    expect(
+      isPathInScope("packages/ui/storybook-static/index.html", defaultScope),
+    ).toBe(false);
+    expect(
+      isPathInScope(
+        "packages/ui/src/__snapshots__/Button.test.ts.snap",
+        defaultScope,
+      ),
+    ).toBe(false);
+  });
+
   it("includes eligible paths outside excludes", () => {
     expect(isPathInScope("src/app.ts", defaultScope)).toBe(true);
     expect(isPathInScope("lib/utils.ts", defaultScope)).toBe(true);
@@ -69,8 +94,8 @@ describe("isPathInScope", () => {
   });
 
   it("applies user exclude additively", () => {
-    const scope = createPathScope({ exclude: ["vendor/**"] });
-    expect(isPathInScope("vendor/lib.ts", scope)).toBe(false);
+    const scope = createPathScope({ exclude: ["generated/**"] });
+    expect(isPathInScope("generated/lib.ts", scope)).toBe(false);
     expect(isPathInScope("src/app.ts", scope)).toBe(true);
   });
 });
@@ -82,6 +107,20 @@ describe("shouldPruneDirectory", () => {
     expect(shouldPruneDirectory("node_modules", defaultScope)).toBe(true);
     expect(shouldPruneDirectory(".git", defaultScope)).toBe(true);
     expect(shouldPruneDirectory("dist", defaultScope)).toBe(true);
+  });
+
+  it("prunes nested monorepo directories", () => {
+    expect(shouldPruneDirectory("apps/web/.next", defaultScope)).toBe(true);
+    expect(shouldPruneDirectory("apps/site/out", defaultScope)).toBe(true);
+    expect(shouldPruneDirectory("services/api/vendor", defaultScope)).toBe(
+      true,
+    );
+    expect(
+      shouldPruneDirectory("packages/ui/storybook-static", defaultScope),
+    ).toBe(true);
+    expect(
+      shouldPruneDirectory("packages/ui/src/__snapshots__", defaultScope),
+    ).toBe(true);
   });
 
   it("returns false for in-scope directories", () => {

@@ -100,24 +100,53 @@
         "fileB",
         "coChangeCount",
         "couplingStrength",
-        "hasStaticDependency"
+        "hasStaticDependency",
+        "staticDependencyDirection",
+        "hasRuntimeStaticDependency",
+        "hasTypeOnlyStaticDependency",
+        "hasReExportStaticDependency"
       ],
       "properties": {
         "fileA": { "type": "string" },
         "fileB": { "type": "string" },
         "coChangeCount": { "type": "integer" },
         "couplingStrength": { "type": "number" },
-        "hasStaticDependency": { "type": "boolean" }
+        "hasStaticDependency": { "type": "boolean" },
+        "staticDependencyDirection": {
+          "type": "string",
+          "enum": ["none", "a-to-b", "b-to-a", "both"]
+        },
+        "hasRuntimeStaticDependency": { "type": "boolean" },
+        "hasTypeOnlyStaticDependency": { "type": "boolean" },
+        "hasReExportStaticDependency": { "type": "boolean" }
+      }
+    },
+    "DiagnosticSeverity": {
+      "type": "string",
+      "enum": ["info", "warning", "error"]
+    },
+    "ScanWarning": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["severity", "message"],
+      "properties": {
+        "severity": { "$ref": "#/$defs/DiagnosticSeverity" },
+        "message": { "type": "string" },
+        "code": { "type": "string" }
       }
     },
     "ScanMeta": {
       "type": "object",
       "additionalProperties": true,
-      "required": ["since", "scannedAt", "granularity"],
+      "required": ["since", "scannedAt", "granularity", "warnings"],
       "properties": {
         "since": { "type": "string" },
         "scannedAt": { "type": "string" },
-        "granularity": { "$ref": "#/$defs/ScanGranularity" }
+        "granularity": { "$ref": "#/$defs/ScanGranularity" },
+        "warnings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ScanWarning" }
+        }
       }
     }
   }

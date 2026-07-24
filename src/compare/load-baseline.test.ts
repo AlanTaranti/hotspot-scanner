@@ -30,7 +30,67 @@ describe("parseScanResult", () => {
     expect(result.version).toBe("1.0");
     expect(result.hotspots).toHaveLength(3);
     expect(result.coupling[0]?.hasStaticDependency).toBe(true);
+    expect(result.coupling[0]?.staticDependencyDirection).toBe("a-to-b");
+    expect(result.coupling[0]?.hasRuntimeStaticDependency).toBe(true);
+    expect(result.coupling[1]?.staticDependencyDirection).toBe("none");
     expect(result.meta.granularity).toBe("file");
+    expect(result.meta.warnings).toEqual([]);
+  });
+
+  it("parses structured meta.warnings", () => {
+    const raw = loadFixture();
+    const result = parseScanResult({
+      ...raw,
+      meta: {
+        ...(raw.meta as Record<string, unknown>),
+        warnings: [
+          {
+            severity: "warning",
+            message: "parse failed for src/bad.ts",
+            code: "PARSE_FAILED",
+          },
+        ],
+      },
+    });
+
+    expect(result.meta.warnings).toEqual([
+      {
+        severity: "warning",
+        message: "parse failed for src/bad.ts",
+        code: "PARSE_FAILED",
+      },
+    ]);
+  });
+
+  it("rejects invalid meta.warnings", () => {
+    const raw = loadFixture();
+
+    expect(() =>
+      parseScanResult({
+        ...raw,
+        meta: { ...(raw.meta as Record<string, unknown>), warnings: "none" },
+      }),
+    ).toThrow(/meta.warnings must be an array/);
+
+    expect(() =>
+      parseScanResult({
+        ...raw,
+        meta: {
+          ...(raw.meta as Record<string, unknown>),
+          warnings: [{ severity: "critical", message: "bad" }],
+        },
+      }),
+    ).toThrow(/meta.warnings\[0\]\.severity must be one of/);
+
+    expect(() =>
+      parseScanResult({
+        ...raw,
+        meta: {
+          ...(raw.meta as Record<string, unknown>),
+          warnings: [{ severity: "info", message: 42 }],
+        },
+      }),
+    ).toThrow(/meta.warnings\[0\]\.message must be a string/);
   });
 
   it("rejects malformed JSON root", () => {
@@ -190,6 +250,57 @@ describe("parseScanResult", () => {
     expect(() => parseScanResult({ ...raw, coupling })).toThrow(/Re-scan/);
   });
 
+  it("rejects coupling items missing enrichment fields with re-scan hint", () => {
+    const raw = loadFixture();
+    const coupling = (raw.coupling as Record<string, unknown>[]).map(
+      (item, index) => {
+        if (index !== 0) {
+          return item;
+        }
+        const {
+          staticDependencyDirection: _direction,
+          hasRuntimeStaticDependency: _runtime,
+          hasTypeOnlyStaticDependency: _typeOnly,
+          hasReExportStaticDependency: _reExport,
+          ...withoutEnrichment
+        } = item;
+        return withoutEnrichment;
+      },
+    );
+
+    expect(() => parseScanResult({ ...raw, coupling })).toThrow(BaselineError);
+    expect(() => parseScanResult({ ...raw, coupling })).toThrow(
+      /coupling\[0\] is missing required field: staticDependencyDirection/,
+    );
+    expect(() => parseScanResult({ ...raw, coupling })).toThrow(/Re-scan/);
+  });
+
+  it("rejects coupling items with invalid staticDependencyDirection", () => {
+    const raw = loadFixture();
+    const coupling = [...(raw.coupling as unknown[])];
+    coupling[0] = {
+      ...(raw.coupling as Record<string, unknown>[])[0],
+      staticDependencyDirection: "mutual",
+    };
+
+    expect(() => parseScanResult({ ...raw, coupling })).toThrow(
+      /coupling\[0\]\.staticDependencyDirection must be one of/,
+    );
+  });
+
+  it("rejects coupling items with wrong enrichment boolean types", () => {
+    const raw = loadFixture();
+    const coupling = [...(raw.coupling as unknown[])];
+    coupling[0] = {
+      ...(raw.coupling as Record<string, unknown>[])[0],
+      hasRuntimeStaticDependency: "true",
+    };
+
+    expect(() => parseScanResult({ ...raw, coupling })).toThrow(
+      /coupling\[0\]\.hasRuntimeStaticDependency must be a boolean/,
+    );
+  });
+
   it("rejects coupling items with wrong hasStaticDependency type", () => {
     const raw = loadFixture();
     const coupling = [...(raw.coupling as unknown[])];
@@ -211,7 +322,12 @@ describe("loadBaseline", () => {
     expect(result.hotspots[0]?.filePath).toBe("src/hot.ts");
     expect(
       result.coupling.every(
-        (pair) => typeof pair.hasStaticDependency === "boolean",
+        (pair) =>
+          typeof pair.hasStaticDependency === "boolean" &&
+          typeof pair.staticDependencyDirection === "string" &&
+          typeof pair.hasRuntimeStaticDependency === "boolean" &&
+          typeof pair.hasTypeOnlyStaticDependency === "boolean" &&
+          typeof pair.hasReExportStaticDependency === "boolean",
       ),
     ).toBe(true);
   });

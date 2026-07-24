@@ -5,15 +5,17 @@ import type {
   HotspotScore,
   RankChange,
 } from "../types/index.js";
+import {
+  formatDirection,
+  formatKinds,
+  formatStaticDep,
+} from "./coupling-format.js";
+import { formatScanWarning } from "./warning-format.js";
 
 const SCORE_DECIMALS = 4;
 
 function formatScore(value: number): string {
   return value.toFixed(SCORE_DECIMALS);
-}
-
-function formatStaticDep(value: boolean): string {
-  return value ? "yes" : "no";
 }
 
 function escapeCell(value: string): string {
@@ -140,14 +142,14 @@ function renderCouplingTable(
 
   const rankHeader = includeRank ? "| Rank | " : "| ";
   lines.push(
-    `${rankHeader}File A | File B | Strength | Co-changes | Has static |`,
-    `${includeRank ? "| ---: | " : "| "}--- | --- | ---: | ---: | :---: |`,
+    `${rankHeader}File A | File B | Strength | Co-changes | Has static | Direction | Kinds |`,
+    `${includeRank ? "| ---: | " : "| "}--- | --- | ---: | ---: | :---: | :---: | --- |`,
   );
 
   for (const [index, pair] of items.entries()) {
     const rankCell = includeRank ? `${index + 1} | ` : "";
     lines.push(
-      `| ${rankCell}${escapeCell(pair.fileA)} | ${escapeCell(pair.fileB)} | ${formatScore(pair.couplingStrength)} | ${pair.coChangeCount} | ${formatStaticDep(pair.hasStaticDependency)} |`,
+      `| ${rankCell}${escapeCell(pair.fileA)} | ${escapeCell(pair.fileB)} | ${formatScore(pair.couplingStrength)} | ${pair.coChangeCount} | ${formatStaticDep(pair.hasStaticDependency)} | ${formatDirection(pair.staticDependencyDirection)} | ${formatKinds(pair)} |`,
     );
   }
 
@@ -166,13 +168,13 @@ function renderRankChangedCouplingTable(
   }
 
   lines.push(
-    "| Baseline Rank | Current Rank | Δ | File A | File B | Strength | Co-changes | Has static |",
-    "| ---: | ---: | ---: | --- | --- | ---: | ---: | :---: |",
+    "| Baseline Rank | Current Rank | Δ | File A | File B | Strength | Co-changes | Has static | Direction | Kinds |",
+    "| ---: | ---: | ---: | --- | --- | ---: | ---: | :---: | :---: | --- |",
   );
 
   for (const change of items) {
     lines.push(
-      `| ${change.baselineRank} | ${change.currentRank} | ${change.rankDelta} | ${escapeCell(change.entity.fileA)} | ${escapeCell(change.entity.fileB)} | ${formatScore(change.entity.couplingStrength)} | ${change.entity.coChangeCount} | ${formatStaticDep(change.entity.hasStaticDependency)} |`,
+      `| ${change.baselineRank} | ${change.currentRank} | ${change.rankDelta} | ${escapeCell(change.entity.fileA)} | ${escapeCell(change.entity.fileB)} | ${formatScore(change.entity.couplingStrength)} | ${change.entity.coChangeCount} | ${formatStaticDep(change.entity.hasStaticDependency)} | ${formatDirection(change.entity.staticDependencyDirection)} | ${formatKinds(change.entity)} |`,
     );
   }
 
@@ -189,7 +191,7 @@ export function renderCompareMarkdown(result: CompareResult): string {
   ];
 
   for (const warning of result.meta.warnings) {
-    lines.push(`> ${warning}`, "");
+    lines.push(`> ${formatScanWarning(warning)}`, "");
   }
 
   if (result.granularity === "function") {

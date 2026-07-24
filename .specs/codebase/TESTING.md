@@ -79,9 +79,27 @@ coverage: {
 | Git Miner      | Rename, merge, delete cases                          | Vitest + `tests/fixtures/git-log/`                                                           |
 | Function churn | Hunk overlap, nested credit                          | Vitest + `tests/fixtures/git-patch/`                                                         |
 | Complexity     | Known McCabe values                                  | Vitest + `tests/fixtures/complexity/`                                                        |
-| CLI            | Flag defaults and invalid args                       | Vitest; mock `process.exit`                                                                  |
-| Integration    | Full scan on fixture repo                            | Vitest + `tests/fixtures/repos/small-ts/` (primary E2E); P2: `with-renames/`, `merge-heavy/` |
+| CLI            | Flag defaults, `--concurrency`, invalid args           | Vitest; mock `process.exit`                                                                  |
+| Integration    | Full scan on fixture repo                            | Vitest + `tests/fixtures/repos/small-ts/` (primary E2E); `with-renames/` (M26 rename confidence E2E); P2: `merge-heavy/` |
 | Performance    | Large repo timing                                    | Manual benchmark (not CI)                                                                    |
+
+## Git Miner fixtures (`tests/fixtures/git-log/`)
+
+Hand-crafted `git log --numstat --name-only` line streams injected at the miner spawn boundary. Headers document expected warnings and churn outcomes.
+
+| Fixture | Purpose |
+| ------- | ------- |
+| `basic.txt` | Baseline numstat parse; no rename warnings |
+| `rename-multi.txt` | Linked rename chain (`a.ts` → `b.ts` → `c.ts`); canonical `c.ts` churn; no blind-spot warnings |
+| `rename-unlinked.txt` | Copy-paste delete+add (no `=>`); expects unlinked-rename warning; churn split across paths |
+| `rename-since-truncation.txt` | In-window rename link; use with `since` option → truncation warning |
+| `merge-delete.txt` | Merge commits and deletes |
+| `binary.txt` | Binary file numstat edge cases |
+| `large-synthetic.txt` | Streaming / memory regression |
+
+**Repo fixture (M26):** `tests/fixtures/repos/with-renames/` — content-preserving `git mv` chain; E2E asserts unified canonical churn under `src/c.ts`, find-renames enabled, and documented file-miner warnings. See fixture `README.md` for expected outcomes. Integration: `src/scan.integration.test.ts`.
+
+**Function churn:** patch-stream fixtures under `tests/fixtures/git-patch/`; rename / ambiguous cases assert pós-rename overlap warning in `src/git/function-churn/*.test.ts`.
 
 ## Mock boundaries
 
@@ -97,6 +115,8 @@ pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug> --since "12 months ag
 ```
 
 See skill `vitals-cli-validation` for exit codes and flag matrix.
+
+**M28 diagnostics:** integration tests assert `meta.warnings` as `ScanWarning[]` objects; contract tests (`tests/contract/json-schema.test.ts`) validate `$defs.ScanWarning` on scan and compare JSON. Invalid `--concurrency` exits non-zero before scan.
 
 ## Integrity rules
 

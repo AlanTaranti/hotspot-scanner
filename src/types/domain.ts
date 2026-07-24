@@ -73,21 +73,58 @@ export interface CoChangeEvent {
   filesChanged: string[];
 }
 
+/** Aggregate static edge direction between fileA and fileB. */
+export type StaticDependencyDirection =
+  | "none"
+  | "a-to-b"
+  | "b-to-a"
+  | "both";
+
 /** Ranked temporal coupling pair. */
 export interface CouplingPair {
   fileA: string;
   fileB: string;
   coChangeCount: number;
   couplingStrength: number;
+  /** True iff any static edge exists (runtime and/or type-only). */
   hasStaticDependency: boolean;
+  /** Aggregate edge direction between fileA and fileB. */
+  staticDependencyDirection: StaticDependencyDirection;
+  /** At least one non-type-only static edge (value import / require / value re-export). */
+  hasRuntimeStaticDependency: boolean;
+  /** At least one `import type` / `export type … from` edge. */
+  hasTypeOnlyStaticDependency: boolean;
+  /** At least one `export … from` / `export * from` / `export type … from` re-export edge. */
+  hasReExportStaticDependency: boolean;
 }
 
 /** Scan granularity for ranking output. */
 export type ScanGranularity = "file" | "function";
 
+/** Diagnostic severity for warnings and stderr prefixes. */
+export type DiagnosticSeverity = "info" | "warning" | "error";
+
+/** Progress phase for git streaming miners. */
+export type ScanProgressPhase = "git" | "function-churn";
+
+/** Phase-aware progress from git / function-churn miners. */
+export interface ScanProgress {
+  phase: ScanProgressPhase;
+  commitsProcessed: number;
+}
+
+/** Structured scan warning with optional stable code. */
+export interface ScanWarning {
+  severity: DiagnosticSeverity;
+  message: string;
+  code?: string;
+}
+
 /** Scan input — flags optional until M5. */
 export interface ScanOptions {
   repoPath: string;
+  /** Explicit config file path; skips parent walk when set. */
+  configPath?: string;
   since?: string;
   top?: number;
   minCochange?: number;
@@ -95,8 +132,9 @@ export interface ScanOptions {
   granularity?: ScanGranularity;
   include?: string[];
   exclude?: string[];
-  onWarning?: (message: string) => void;
-  onProgress?: (progress: { commitsProcessed: number }) => void;
+  concurrency?: number;
+  onWarning?: (warning: ScanWarning) => void;
+  onProgress?: (progress: ScanProgress) => void;
 }
 
 /** Scan metadata included in every result. */
@@ -104,6 +142,7 @@ export interface ScanMeta {
   since: string;
   scannedAt: string;
   granularity: ScanGranularity;
+  warnings: ScanWarning[];
 }
 
 /** Full scan output (JSON schema). */
@@ -149,7 +188,7 @@ export interface CouplingCompareSection {
 export interface CompareMeta {
   baseline: ScanMeta;
   current: ScanMeta;
-  warnings: string[];
+  warnings: ScanWarning[];
 }
 
 /** Full compare output (JSON schema). */

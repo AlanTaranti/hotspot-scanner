@@ -13,12 +13,12 @@ After M22, `analyze-file.ts` still under-counts idiomatic TS/JS callables: **Cla
 
 ## Goals
 
-- [ ] Collect ClassExpression members with the same policy as ClassDeclaration
-- [ ] Collect object-literal get/set accessors
-- [ ] Collect AssignmentExpression RHS ArrowFunction / FunctionExpression with locked naming
-- [ ] Skip body-less non-abstract overload/ambient function & method stubs
-- [ ] McCabe fixtures per new construct family; no `mccabe.ts` decision-node drift
-- [ ] Naming table documented (ARCHITECTURE + context); `pnpm build && pnpm test` green
+- [x] Collect ClassExpression members with the same policy as ClassDeclaration
+- [x] Collect object-literal get/set accessors
+- [x] Collect AssignmentExpression RHS ArrowFunction / FunctionExpression with locked naming
+- [x] Skip body-less non-abstract overload/ambient function & method stubs
+- [x] McCabe fixtures per new construct family; no `mccabe.ts` decision-node drift
+- [x] Naming table documented (ARCHITECTURE + context); `pnpm build && pnpm test` green
 
 ## Out of Scope
 
@@ -162,16 +162,16 @@ After M22, `analyze-file.ts` still under-counts idiomatic TS/JS callables: **Cla
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| HOTSPOT-281 | P1: ClassExpression members | Tasks T1 | Pending |
-| HOTSPOT-282 | P1: Object-literal accessors | Tasks T1 | Pending |
-| HOTSPOT-283 | P1: Assignment RHS callables | Tasks T1 | Pending |
-| HOTSPOT-284 | P1: Overload stub skip | Tasks T1 | Pending |
-| HOTSPOT-285 | P1: Naming extensions | Tasks T1, T3 | Pending |
-| HOTSPOT-286 | P1: Fixtures per construct | Tasks T2 | Pending |
-| HOTSPOT-287 | P1: McCabe / collection regression | Tasks T1, T2 | Pending |
-| HOTSPOT-288 | P1: ARCHITECTURE/CONCERNS docs | Tasks T3 | Pending |
-| HOTSPOT-289 | P1: Full gate | Tasks T3 | Pending |
-| HOTSPOT-290 | P2: Namespace/module fixture | Tasks T2 | Pending |
+| HOTSPOT-281 | P1: ClassExpression members | Tasks T1 | Done |
+| HOTSPOT-282 | P1: Object-literal accessors | Tasks T1 | Done |
+| HOTSPOT-283 | P1: Assignment RHS callables | Tasks T1 | Done |
+| HOTSPOT-284 | P1: Overload stub skip | Tasks T1 | Done |
+| HOTSPOT-285 | P1: Naming extensions | Tasks T1, T3 | Done |
+| HOTSPOT-286 | P1: Fixtures per construct | Tasks T2 | Done |
+| HOTSPOT-287 | P1: McCabe / collection regression | Tasks T1, T2 | Done |
+| HOTSPOT-288 | P1: ARCHITECTURE/CONCERNS docs | Tasks T3 | Done |
+| HOTSPOT-289 | P1: Full gate | Tasks T3 | Done |
+| HOTSPOT-290 | P2: Namespace/module fixture | Tasks T2 | Done |
 
 **Coverage:** 10 total (HOTSPOT-281–290), 10 mapped to tasks, 0 unmapped. Unused range HOTSPOT-291–295 reserved / unused (gaps OK).
 
@@ -179,8 +179,8 @@ After M22, `analyze-file.ts` still under-counts idiomatic TS/JS callables: **Cla
 
 ## Success Criteria
 
-- [ ] Locked construct set from context.md implemented
-- [ ] Naming matches context.md; M11/M22 rows unchanged
-- [ ] `mccabe.ts` decision definition unchanged
-- [ ] Fixtures lock McCabe per new family; overload stubs excluded
-- [ ] Full gate `pnpm build && pnpm test` green
+- [x] Locked construct set from context.md implemented
+- [x] Naming matches context.md; M11/M22 rows unchanged
+- [x] `mccabe.ts` decision definition unchanged
+- [x] Fixtures lock McCabe per new family; overload stubs excluded
+- [x] Full gate `pnpm build && pnpm test` green

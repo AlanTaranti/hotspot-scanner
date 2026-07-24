@@ -1,0 +1,9 @@
+# rename-since-truncation.txt — in-window rename link (src/a.ts => src/b.ts)
+# Provenance: hand-crafted valid git log --numstat --name-only format
+# Use with miner.mine({ since: "12 months ago" }) to assert truncation warning
+# Expected warning: Rename history before the --since window (12 months ago) may be missing under canonical paths
+# Expected churn: canonical path src/b.ts commitCount=1 linesChanged=1
+
+COMMIT|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|Mon Jan 1 00:00:00 2024 +0000|Alice
+src/a.ts => src/b.ts
+1	0	src/b.ts

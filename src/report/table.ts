@@ -1,13 +1,14 @@
 import type { ScanResult } from "../types/index.js";
+import {
+  formatDirection,
+  formatKinds,
+  formatStaticDep,
+} from "./coupling-format.js";
 
 const SCORE_DECIMALS = 4;
 
 function formatScore(value: number): string {
   return value.toFixed(SCORE_DECIMALS);
-}
-
-function formatStaticDep(value: boolean): string {
-  return value ? "yes" : "no";
 }
 
 function padEnd(value: string, width: number): string {
@@ -84,8 +85,8 @@ function renderFunctionsSection(result: ScanResult): string[] {
 function renderCouplingSection(result: ScanResult): string[] {
   const lines = [
     "Top Coupling Pairs",
-    "Rank  File A                    File B                    Strength  Co-changes  StaticDep",
-    "----  ------------------------  ------------------------  --------  ----------  ---------",
+    "Rank  File A                    File B                    Strength  Co-changes  StaticDep  Direction  Kinds",
+    "----  ------------------------  ------------------------  --------  ----------  ---------  ---------  ----------------------",
   ];
 
   if (result.coupling.length === 0) {
@@ -102,6 +103,8 @@ function renderCouplingSection(result: ScanResult): string[] {
         padStart(formatScore(pair.couplingStrength), 8),
         padStart(String(pair.coChangeCount), 10),
         padStart(formatStaticDep(pair.hasStaticDependency), 9),
+        padStart(formatDirection(pair.staticDependencyDirection), 9),
+        padEnd(formatKinds(pair), 22),
       ].join("  "),
     );
   }

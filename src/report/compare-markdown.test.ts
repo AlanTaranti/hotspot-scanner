@@ -36,7 +36,7 @@ describe("renderCompareMarkdown", () => {
     expect(output).toContain("## New Coupling Pairs");
   });
 
-  it("renders Has static column in coupling tables", () => {
+  it("renders Has static, Direction, and Kinds columns in coupling tables", () => {
     const output = renderCompareMarkdown(
       loadCompareResult(
         "compare-baseline-file.json",
@@ -44,9 +44,12 @@ describe("renderCompareMarkdown", () => {
       ),
     );
 
-    expect(output).toContain("| Has static |");
+    expect(output).toContain("| Has static | Direction | Kinds |");
     expect(output).toContain("| yes |");
     expect(output).toContain("| no |");
+    expect(output).toContain("| a→b |");
+    expect(output).toContain("| runtime |");
+    expect(output).toContain("| — |");
   });
 
   it("escapes pipe characters in markdown cells", () => {
@@ -82,6 +85,29 @@ describe("renderCompareMarkdown", () => {
 
     expect(output).toContain("## New Functions");
     expect(output).toContain("## Rank Changed Functions");
+  });
+
+  it("renders compare warnings as blockquotes with severity", () => {
+    const baseline = JSON.parse(
+      readFileSync(join(fixturesDir, "compare-baseline-file.json"), "utf8"),
+    ) as ScanResult;
+    const current = JSON.parse(
+      readFileSync(join(fixturesDir, "compare-current-file.json"), "utf8"),
+    ) as ScanResult;
+    const result = compareScanResults(baseline, current);
+    result.meta.warnings = [
+      {
+        severity: "error",
+        code: "COMPARE_SINCE_MISMATCH",
+        message: "baseline window differs",
+      },
+    ];
+
+    const output = renderCompareMarkdown(result);
+
+    expect(output).toContain(
+      "> error: [COMPARE_SINCE_MISMATCH] baseline window differs",
+    );
   });
 
   it("renders empty sections as _No results._", () => {

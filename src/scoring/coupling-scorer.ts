@@ -87,6 +87,10 @@ export function scoreCoupling(
       coChangeCount: pair.coChangeCount,
       couplingStrength: pair.coChangeCount / denominator,
       hasStaticDependency: false,
+      staticDependencyDirection: "none",
+      hasRuntimeStaticDependency: false,
+      hasTypeOnlyStaticDependency: false,
+      hasReExportStaticDependency: false,
     });
   }
 

@@ -1,4 +1,9 @@
-import type { CoChangeEvent, FileChangeStats } from "../types/index.js";
+import type {
+  CoChangeEvent,
+  FileChangeStats,
+  ScanProgress,
+  ScanWarning,
+} from "../types/index.js";
 import {
   aggregateOneCommit,
   createAggregateAccumulators,
@@ -8,23 +13,28 @@ import {
   canonicalizeFileStats,
 } from "./canonicalize.js";
 import { parseGitLogStream } from "./parse.js";
+import {
+  createEmptyBlindSpotSignals,
+  createEmptySinceWindowWarning,
+  createRenameHistoryIncompleteWarning,
+  formatAmbiguousRenameWarnings,
+  formatSinceTruncationWarning,
+  formatUnlinkedRenameWarnings,
+  recordBlindSpotsFromCommit,
+} from "./rename-warnings.js";
 import { PathAliasMap } from "./rename.js";
 import { streamGitLog, type GitLogSpawnOptions } from "./spawn.js";
-
-export interface GitMinerProgress {
-  commitsProcessed: number;
-}
 
 export interface GitMinerOptions {
   repoPath: string;
   since?: string;
-  onProgress?: (progress: GitMinerProgress) => void;
+  onProgress?: (progress: ScanProgress) => void;
 }
 
 export interface GitMinerResult {
   fileStats: Map<string, FileChangeStats>;
   coChangeEvents: CoChangeEvent[];
-  warnings: string[];
+  warnings: ScanWarning[];
 }
 
 export interface GitMiner {
@@ -40,23 +50,39 @@ export function createGitMiner(deps: GitMinerDependencies = {}): GitMiner {
 
   return {
     async mine(options) {
-      const warnings: string[] = [];
+      const warnings: ScanWarning[] = [];
       const aliasMap = new PathAliasMap();
       const accumulators = createAggregateAccumulators();
+      const blindSpotSignals = createEmptyBlindSpotSignals();
       let commitCount = 0;
 
       for await (const commit of parseGitLogStream(stream(options))) {
         commitCount += 1;
         aggregateOneCommit(commit, aliasMap, accumulators);
-        options.onProgress?.({ commitsProcessed: commitCount });
+        recordBlindSpotsFromCommit(commit, blindSpotSignals);
+        options.onProgress?.({ phase: "git", commitsProcessed: commitCount });
       }
 
       if (commitCount === 0 && options.since !== undefined) {
-        warnings.push("No commits found in the specified --since window.");
+        warnings.push(createEmptySinceWindowWarning());
       }
 
-      for (const path of aliasMap.getAmbiguousPaths()) {
-        warnings.push(`Rename history may be incomplete for: ${path}`);
+      warnings.push(
+        ...formatAmbiguousRenameWarnings(aliasMap.getAmbiguousPaths()).map(
+          createRenameHistoryIncompleteWarning,
+        ),
+      );
+      warnings.push(
+        ...formatUnlinkedRenameWarnings(
+          blindSpotSignals.unlinkedSuspectedRenames,
+        ).map(createRenameHistoryIncompleteWarning),
+      );
+      if (options.since !== undefined && blindSpotSignals.renameLinkCount > 0) {
+        warnings.push(
+          createRenameHistoryIncompleteWarning(
+            formatSinceTruncationWarning(options.since),
+          ),
+        );
       }
 
       return {

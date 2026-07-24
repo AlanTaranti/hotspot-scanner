@@ -9,7 +9,7 @@ import {
   loadHotspotScannerConfig,
   mergeScanOptions,
   type HotspotScannerConfig,
-} from "../src/config/index.js";
+} from "#config";
 import { logWarning, maybeLogProgress } from "#diagnostics";
 import { createReporter } from "#report";
 import type { CsvBundle } from "#report";
@@ -177,6 +177,12 @@ export function buildCliConfigOverrides(
       "--min-cochange",
     );
   }
+  if (isExplicitCliOption(cmd, "concurrency")) {
+    cli.concurrency = parsePositiveInteger(
+      options.concurrency as string,
+      "--concurrency",
+    );
+  }
   if (isExplicitCliOption(cmd, "include")) {
     const includePatterns = options.include as string[];
     validateScopePatterns(includePatterns, "--include");
@@ -195,11 +201,16 @@ function buildScanOptions(
   repoPath: string,
   cliOverrides: HotspotScannerConfig,
   callbacks: Pick<ScanOptions, "onWarning" | "onProgress">,
+  configPath?: string,
 ): ScanOptions {
   const scanOptions: ScanOptions = {
     repoPath,
     ...callbacks,
   };
+
+  if (configPath !== undefined) {
+    scanOptions.configPath = configPath;
+  }
 
   if (cliOverrides.since !== undefined) {
     scanOptions.since = cliOverrides.since;
@@ -219,6 +230,9 @@ function buildScanOptions(
   if (cliOverrides.top !== undefined) {
     scanOptions.top = cliOverrides.top;
   }
+  if (cliOverrides.concurrency !== undefined) {
+    scanOptions.concurrency = cliOverrides.concurrency;
+  }
 
   return scanOptions;
 }
@@ -233,7 +247,7 @@ export function createCliProgram(): Command {
   program
     .command("scan")
     .description(
-      "Run hotspot and coupling analysis on a repository (reads .hotspot-scanner.json from repo root)",
+      "Run hotspot and coupling analysis on a repository (discovers .hotspot-scanner.json upward; use --config for explicit path)",
     )
     .argument("<path>", "Repository path")
     .option("--since <period>", "Git history window", DEFAULT_SINCE)
@@ -266,6 +280,10 @@ export function createCliProgram(): Command {
       String(DEFAULT_MIN_COCHANGE),
     )
     .option(
+      "--concurrency <n>",
+      "Complexity worker pool size (positive integer)",
+    )
+    .option(
       "--include <glob>",
       "Include only paths matching glob (repeatable)",
       collectGlob,
@@ -277,11 +295,20 @@ export function createCliProgram(): Command {
       collectGlob,
       [] as string[],
     )
+    .option(
+      "--config <path>",
+      "Load config from explicit file (skip parent walk)",
+    )
     .action(async function (repoPath: string, options) {
       const cmd = this as Command;
       const format = parseFormat(options.format);
+      const configPath = isExplicitCliOption(cmd, "config")
+        ? (options.config as string)
+        : undefined;
       const cliOverrides = buildCliConfigOverrides(cmd, options);
-      const fileConfig = await loadHotspotScannerConfig(repoPath);
+      const fileConfig = await loadHotspotScannerConfig(repoPath, {
+        configPath,
+      });
       const merged = mergeScanOptions({
         config: fileConfig,
         cli: cliOverrides,
@@ -294,11 +321,16 @@ export function createCliProgram(): Command {
       }
 
       const result = await runScan(
-        buildScanOptions(repoPath, cliOverrides, {
-          onWarning: logWarning,
-          onProgress: ({ commitsProcessed }) =>
-            maybeLogProgress(commitsProcessed),
-        }),
+        buildScanOptions(
+          repoPath,
+          cliOverrides,
+          {
+            onWarning: logWarning,
+            onProgress: ({ phase, commitsProcessed }) =>
+              maybeLogProgress(phase, commitsProcessed),
+          },
+          configPath,
+        ),
       );
 
       const reporter = createReporter();

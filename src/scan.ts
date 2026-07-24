@@ -16,7 +16,7 @@ import {
   createTemporalCouplingScorer,
   enrichCouplingStaticDeps,
 } from "./scoring/index.js";
-import type { ScanOptions, ScanResult } from "./types/index.js";
+import type { ScanOptions, ScanResult, ScanWarning } from "./types/index.js";
 
 export const DEFAULT_SINCE = "12 months ago";
 export const DEFAULT_TOP = 20;
@@ -66,14 +66,28 @@ function pickCliOverrides(options: ScanOptions): HotspotScannerConfig {
   if (options.top !== undefined) {
     cli.top = options.top;
   }
+  if (options.concurrency !== undefined) {
+    cli.concurrency = options.concurrency;
+  }
 
   return cli;
+}
+
+function forwardWarnings(
+  warnings: ScanWarning[],
+  onWarning?: (warning: ScanWarning) => void,
+): void {
+  for (const warning of warnings) {
+    onWarning?.(warning);
+  }
 }
 
 export async function resolveScanConfig(
   options: ScanOptions,
 ): Promise<MergedScanConfig> {
-  const config = await loadHotspotScannerConfig(options.repoPath);
+  const config = await loadHotspotScannerConfig(options.repoPath, {
+    configPath: options.configPath,
+  });
   return mergeScanOptions({ config, cli: pickCliOverrides(options) });
 }
 
@@ -91,6 +105,7 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
   const since = merged.since;
   const minCochange = merged.minCochange;
   const onWarning = options.onWarning;
+  const collectedWarnings: ScanWarning[] = [];
 
   const miner = createGitMiner();
   const rawGit = await miner.mine({
@@ -104,11 +119,10 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
     warnings: gitWarnings,
   } = filterGitMinerResult(rawGit, scope);
 
-  for (const message of gitWarnings) {
-    onWarning?.(message);
-  }
+  collectedWarnings.push(...gitWarnings);
+  forwardWarnings(gitWarnings, onWarning);
 
-  const analyzer = createComplexityAnalyzer();
+  const analyzer = createComplexityAnalyzer({ concurrency: merged.concurrency });
   const {
     results,
     functions: functionComplexity,
@@ -118,9 +132,8 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
     scope,
   });
 
-  for (const message of complexityWarnings) {
-    onWarning?.(message);
-  }
+  collectedWarnings.push(...complexityWarnings);
+  forwardWarnings(complexityWarnings, onWarning);
 
   const scoredCoupling = createTemporalCouplingScorer().score(
     coChangeEvents,
@@ -141,9 +154,8 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
       onProgress: options.onProgress,
     });
 
-    for (const message of churnWarnings) {
-      onWarning?.(message);
-    }
+    collectedWarnings.push(...churnWarnings);
+    forwardWarnings(churnWarnings, onWarning);
 
     const functions = createFunctionHotspotScorer().score(
       functionStats,
@@ -159,6 +171,7 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
         since,
         scannedAt,
         granularity,
+        warnings: collectedWarnings,
       },
     };
   }
@@ -174,6 +187,7 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
       since,
       scannedAt,
       granularity: "file",
+      warnings: collectedWarnings,
     },
   };
 }

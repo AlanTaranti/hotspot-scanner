@@ -3,7 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { compareScanResults } from "../compare/compare.js";
-import type { ScanResult } from "../types/index.js";
+import type { ScanResult, ScanWarning } from "../types/index.js";
 import { renderCompareCsv } from "./compare-csv.js";
 
 const fixturesDir = join(
@@ -20,6 +20,11 @@ function loadCompareResult(baselineName: string, currentName: string) {
   ) as ScanResult;
   return compareScanResults(baseline, current);
 }
+
+const COUPLING_CSV_HEADER =
+  "rank,fileA,fileB,strength,coChanges,hasStaticDependency,staticDependencyDirection,hasRuntimeStaticDependency,hasTypeOnlyStaticDependency,hasReExportStaticDependency";
+const RANK_CHANGED_COUPLING_CSV_HEADER =
+  "baselineRank,currentRank,rankDelta,fileA,fileB,strength,coChanges,hasStaticDependency,staticDependencyDirection,hasRuntimeStaticDependency,hasTypeOnlyStaticDependency,hasReExportStaticDependency";
 
 describe("renderCompareCsv", () => {
   it("returns CsvBundle with meta.json and six data files in file mode", () => {
@@ -52,7 +57,7 @@ describe("renderCompareCsv", () => {
       granularity: string;
       baseline_scanned_at: string;
       current_scanned_at: string;
-      warnings: string[];
+      warnings: ScanWarning[];
     };
 
     expect(meta.kind).toBe("compare");
@@ -76,11 +81,9 @@ describe("renderCompareCsv", () => {
     expect(bundle["hotspots.rank-changed.csv"]!.split("\n")[0]).toBe(
       "baselineRank,currentRank,rankDelta,file,score,cpx,cpxN,churn,churnN,funcs,authors",
     );
-    expect(bundle["coupling.new.csv"]!.split("\n")[0]).toBe(
-      "rank,fileA,fileB,strength,coChanges,hasStaticDependency",
-    );
+    expect(bundle["coupling.new.csv"]!.split("\n")[0]).toBe(COUPLING_CSV_HEADER);
     expect(bundle["coupling.rank-changed.csv"]!.split("\n")[0]).toBe(
-      "baselineRank,currentRank,rankDelta,fileA,fileB,strength,coChanges,hasStaticDependency",
+      RANK_CHANGED_COUPLING_CSV_HEADER,
     );
   });
 
@@ -154,14 +157,31 @@ describe("renderCompareCsv", () => {
       readFileSync(join(fixturesDir, "compare-current-file.json"), "utf8"),
     ) as ScanResult;
     const result = compareScanResults(baseline, current);
-    result.meta.warnings = ["baseline window differs", "stale baseline"];
+    result.meta.warnings = [
+      {
+        severity: "warning",
+        code: "COMPARE_SINCE_MISMATCH",
+        message: "baseline window differs",
+      },
+      {
+        severity: "info",
+        message: "stale baseline",
+      },
+    ];
 
     const bundle = renderCompareCsv(result);
-    const meta = JSON.parse(bundle["meta.json"]!) as { warnings: string[] };
+    const meta = JSON.parse(bundle["meta.json"]!) as { warnings: ScanWarning[] };
 
     expect(meta.warnings).toEqual([
-      "baseline window differs",
-      "stale baseline",
+      {
+        severity: "warning",
+        code: "COMPARE_SINCE_MISMATCH",
+        message: "baseline window differs",
+      },
+      {
+        severity: "info",
+        message: "stale baseline",
+      },
     ]);
   });
 

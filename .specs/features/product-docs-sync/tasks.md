@@ -3,7 +3,7 @@
 **Spec**: [`.specs/features/product-docs-sync/spec.md`](./spec.md)  
 **Design**: [`.specs/features/product-docs-sync/design.md`](./design.md)  
 **Context**: [`.specs/features/product-docs-sync/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Medium / docs-only — thin design; sister [docs-sync](../docs-sync/tasks.md)
 
 ---
@@ -84,10 +84,10 @@ T2 and T3 both touch `README.md` — **not** `[P]`; sequential to avoid merge co
 
 **Done when**:
 
-- [ ] Shipped heading says through **M24** (not M18)
-- [ ] Shipped bullets include summary of M20 schemas, M21 config file, M22 function AST, M23 per-function hunk churn, M24 package DX (plus existing M7–M18; M14 coupling flag if coupling listed)
-- [ ] No “M20 / M21 / M22 — planned” (or equivalent) under Excludes / backlog
-- [ ] True non-goals retained (CI gate, non-TS/JS, relative churn)
+- [x] Shipped heading says through **M24** (not M18)
+- [x] Shipped bullets include summary of M20 schemas, M21 config file, M22 function AST, M23 per-function hunk churn, M24 package DX (plus existing M7–M18; M14 coupling flag if coupling listed)
+- [x] No “M20 / M21 / M22 — planned” (or equivalent) under Excludes / backlog
+- [x] True non-goals retained (CI gate, non-TS/JS, relative churn)
 
 **Tests**: none
 
@@ -120,9 +120,9 @@ rg -n 'through M2|M20|M21|M22|planned|backlog' .specs/project/PROJECT.md
 
 **Done when**:
 
-- [ ] ARCHITECTURE Key constraints mentions `PathAliasMap` / `old => new` and not-`--follow`
-- [ ] README documents same rename model briefly
-- [ ] No active recommendation to use `--follow` for global mining in those files
+- [x] ARCHITECTURE Key constraints mentions `PathAliasMap` / `old => new` and not-`--follow`
+- [x] README documents same rename model briefly
+- [x] No active recommendation to use `--follow` for global mining in those files
 
 **Tests**: none
 
@@ -155,9 +155,9 @@ rg -n -- '--follow|PathAliasMap|old => new' README.md .specs/codebase/ARCHITECTU
 
 **Done when**:
 
-- [ ] README states function-mode churn is hunk overlap / patch stream — not inherited file `FileChangeStats`
-- [ ] README does not claim a single Git pass covers function-mode churn
-- [ ] Existing M19–M24 product sections left consistent (schemas, config, CSV bundle)
+- [x] README states function-mode churn is hunk overlap / patch stream — not inherited file `FileChangeStats`
+- [x] README does not claim a single Git pass covers function-mode churn
+- [x] Existing M19–M24 product sections left consistent (schemas, config, CSV bundle)
 
 **Tests**: none
 
@@ -186,9 +186,9 @@ rg -n -- '--follow|PathAliasMap|old => new' README.md .specs/codebase/ARCHITECTU
 
 **Done when**:
 
-- [ ] Listed M22–M24 `design.md` Status fields are `Done`
-- [ ] No remaining `Status: Planned` on those three design files
-- [ ] Post-M24 / non-Done features not marked Done
+- [x] Listed M22–M24 `design.md` Status fields are `Done`
+- [x] No remaining `Status: Planned` on those three design files
+- [x] Post-M24 / non-Done features not marked Done
 
 **Tests**: none
 
@@ -221,11 +221,11 @@ rg -n 'Status: Planned' .specs/features/function-ast-coverage/ .specs/features/p
 
 **Done when**:
 
-- [ ] ROADMAP header / STATE Active prose consistent with M24 Done and post-M24 stubs (M26 listed before M25 in Active)
-- [ ] Stale “Status Planned” Decision rows for Done milestones corrected or noted for parent
-- [ ] M25 checklist items `[x]` when work complete (Specs URL optional — parent may add)
-- [ ] Diff has no intentional `src/` / `bin/` / test-logic behavior changes
-- [ ] Gate check passes: `pnpm build && pnpm test`
+- [x] ROADMAP header / STATE Active prose consistent with M24 Done and post-M24 stubs (M26 listed before M25 in Active)
+- [x] Stale “Status Planned” Decision rows for Done milestones corrected or noted for parent
+- [x] M25 checklist items `[x]` when work complete (Specs URL optional — parent may add)
+- [x] Diff has no intentional `src/` / `bin/` / test-logic behavior changes
+- [x] Gate check passes: `pnpm build && pnpm test`
 
 **Tests**: none (full gate sanity)
 

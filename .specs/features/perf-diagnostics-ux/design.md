@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/perf-diagnostics-ux/spec.md`](./spec.md)  
 **Context**: [`.specs/features/perf-diagnostics-ux/context.md`](./context.md)  
-**Status**: Draft (planning) — ready for Tasks
+**Status**: Done
 
 ---
 

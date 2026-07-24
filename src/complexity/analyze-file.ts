@@ -1,11 +1,67 @@
 import {
   Node,
+  SyntaxKind,
   type Node as TsMorphNode,
   type ObjectLiteralExpression,
   type SourceFile,
 } from "ts-morph";
 import type { FileComplexityResult } from "../types/index.js";
 import { complexityForFunction } from "./mccabe.js";
+
+function isBodyLessNonAbstractStub(node: TsMorphNode): boolean {
+  if (!Node.isFunctionDeclaration(node) && !Node.isMethodDeclaration(node)) {
+    return false;
+  }
+  if (node.getBody()) {
+    return false;
+  }
+  return !node.hasModifier(SyntaxKind.AbstractKeyword);
+}
+
+function pushCallableMember(
+  member: TsMorphNode,
+  functions: TsMorphNode[],
+): void {
+  if (isBodyLessNonAbstractStub(member)) {
+    return;
+  }
+  functions.push(member);
+  const body =
+    Node.isMethodDeclaration(member) ||
+    Node.isConstructorDeclaration(member) ||
+    Node.isGetAccessorDeclaration(member) ||
+    Node.isSetAccessorDeclaration(member) ||
+    Node.isFunctionDeclaration(member)
+      ? member.getBody()
+      : undefined;
+  if (body) {
+    collectFunctionsInScope(body, functions);
+  }
+}
+
+function collectClassLikeMembers(
+  classLike: { getMembers(): TsMorphNode[] },
+  functions: TsMorphNode[],
+): void {
+  for (const member of classLike.getMembers()) {
+    if (
+      Node.isMethodDeclaration(member) ||
+      Node.isConstructorDeclaration(member) ||
+      Node.isGetAccessorDeclaration(member) ||
+      Node.isSetAccessorDeclaration(member)
+    ) {
+      pushCallableMember(member, functions);
+      continue;
+    }
+
+    if (Node.isPropertyDeclaration(member)) {
+      const initializer = member.getInitializer();
+      if (initializer) {
+        collectCallableInitializer(initializer, functions);
+      }
+    }
+  }
+}
 
 function collectCallableInitializer(
   initializer: TsMorphNode,
@@ -23,6 +79,11 @@ function collectCallableInitializer(
     return;
   }
 
+  if (Node.isClassExpression(initializer)) {
+    collectClassLikeMembers(initializer, functions);
+    return;
+  }
+
   if (Node.isObjectLiteralExpression(initializer)) {
     collectFromObjectLiteral(initializer, functions);
   }
@@ -34,11 +95,15 @@ function collectFromObjectLiteral(
 ): void {
   for (const property of objectLiteral.getProperties()) {
     if (Node.isMethodDeclaration(property)) {
-      functions.push(property);
-      const body = property.getBody();
-      if (body) {
-        collectFunctionsInScope(body, functions);
-      }
+      pushCallableMember(property, functions);
+      continue;
+    }
+
+    if (
+      Node.isGetAccessorDeclaration(property) ||
+      Node.isSetAccessorDeclaration(property)
+    ) {
+      pushCallableMember(property, functions);
       continue;
     }
 
@@ -52,6 +117,30 @@ function collectFromObjectLiteral(
   }
 }
 
+function collectAssignmentRhsCallable(
+  binaryExpression: TsMorphNode,
+  functions: TsMorphNode[],
+): boolean {
+  if (!Node.isBinaryExpression(binaryExpression)) {
+    return false;
+  }
+  if (
+    binaryExpression.getOperatorToken().getKind() !== SyntaxKind.EqualsToken
+  ) {
+    return false;
+  }
+  const rhs = binaryExpression.getRight();
+  if (!Node.isArrowFunction(rhs) && !Node.isFunctionExpression(rhs)) {
+    return false;
+  }
+  functions.push(rhs);
+  const body = rhs.getBody();
+  if (body) {
+    collectFunctionsInScope(body, functions);
+  }
+  return true;
+}
+
 function collectFunctionsInScope(
   scope: TsMorphNode,
   functions: TsMorphNode[],
@@ -62,11 +151,7 @@ function collectFunctionsInScope(
       Node.isMethodDeclaration(child) ||
       Node.isConstructorDeclaration(child)
     ) {
-      functions.push(child);
-      const body = child.getBody();
-      if (body) {
-        collectFunctionsInScope(body, functions);
-      }
+      pushCallableMember(child, functions);
       return;
     }
 
@@ -81,28 +166,7 @@ function collectFunctionsInScope(
     }
 
     if (Node.isClassDeclaration(child)) {
-      for (const member of child.getMembers()) {
-        if (
-          Node.isMethodDeclaration(member) ||
-          Node.isConstructorDeclaration(member) ||
-          Node.isGetAccessorDeclaration(member) ||
-          Node.isSetAccessorDeclaration(member)
-        ) {
-          functions.push(member);
-          const body = member.getBody();
-          if (body) {
-            collectFunctionsInScope(body, functions);
-          }
-          continue;
-        }
-
-        if (Node.isPropertyDeclaration(member)) {
-          const initializer = member.getInitializer();
-          if (initializer) {
-            collectCallableInitializer(initializer, functions);
-          }
-        }
-      }
+      collectClassLikeMembers(child, functions);
       return;
     }
 
@@ -111,8 +175,28 @@ function collectFunctionsInScope(
       return;
     }
 
+    if (
+      Node.isBinaryExpression(child) &&
+      collectAssignmentRhsCallable(child, functions)
+    ) {
+      return;
+    }
+
     collectFunctionsInScope(child, functions);
   });
+}
+
+function resolveAssignmentLhsName(
+  lhs: TsMorphNode,
+  fallbackLine: number,
+): string {
+  if (Node.isIdentifier(lhs)) {
+    return lhs.getText();
+  }
+  if (Node.isPropertyAccessExpression(lhs)) {
+    return lhs.getName();
+  }
+  return `<anonymous>:L${fallbackLine}`;
 }
 
 function resolveFunctionName(node: TsMorphNode): string {
@@ -137,6 +221,11 @@ function resolveFunctionName(node: TsMorphNode): string {
   }
   if (Node.isPropertyAssignment(parent)) {
     return parent.getName() ?? `<anonymous>:L${node.getStartLineNumber()}`;
+  }
+  if (Node.isBinaryExpression(parent)) {
+    if (parent.getOperatorToken().getKind() === SyntaxKind.EqualsToken) {
+      return resolveAssignmentLhsName(parent.getLeft(), node.getStartLineNumber());
+    }
   }
   return `<anonymous>:L${node.getStartLineNumber()}`;
 }

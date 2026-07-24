@@ -5,15 +5,17 @@ import type {
   HotspotScore,
   RankChange,
 } from "../types/index.js";
+import {
+  formatDirection,
+  formatKinds,
+  formatStaticDep,
+} from "./coupling-format.js";
+import { formatScanWarning } from "./warning-format.js";
 
 const SCORE_DECIMALS = 4;
 
 function formatScore(value: number): string {
   return value.toFixed(SCORE_DECIMALS);
-}
-
-function formatStaticDep(value: boolean): string {
-  return value ? "yes" : "no";
 }
 
 function padEnd(value: string, width: number): string {
@@ -136,6 +138,8 @@ function renderCouplingRows(
       padStart(formatScore(pair.couplingStrength), 8),
       padStart(String(pair.coChangeCount), 10),
       padStart(formatStaticDep(pair.hasStaticDependency), 9),
+      padStart(formatDirection(pair.staticDependencyDirection), 9),
+      padEnd(formatKinds(pair), 22),
     ].join("  "),
   );
 }
@@ -157,6 +161,11 @@ function renderRankChangedCouplingRows(
       padStart(formatScore(change.entity.couplingStrength), 8),
       padStart(String(change.entity.coChangeCount), 10),
       padStart(formatStaticDep(change.entity.hasStaticDependency), 9),
+      padStart(
+        formatDirection(change.entity.staticDependencyDirection),
+        9,
+      ),
+      padEnd(formatKinds(change.entity), 22),
     ].join("  "),
   );
 }
@@ -205,9 +214,9 @@ function renderFunctionSections(result: CompareResult): string[] {
 
 function renderCouplingSections(result: CompareResult): string[] {
   const header =
-    "Rank  File A                    File B                    Strength  Co-changes  StaticDep";
+    "Rank  File A                    File B                    Strength  Co-changes  StaticDep  Direction  Kinds";
   const rankChangedHeader =
-    "Baseline  Current  Delta  File A                    File B                    Strength  Co-changes  StaticDep";
+    "Baseline  Current  Delta  File A                    File B                    Strength  Co-changes  StaticDep  Direction  Kinds";
 
   return [
     "=== New Coupling Pairs ===",
@@ -232,7 +241,7 @@ export function renderCompareTable(result: CompareResult): string {
   ];
 
   for (const warning of result.meta.warnings) {
-    lines.push(warning);
+    lines.push(formatScanWarning(warning));
   }
 
   lines.push("");

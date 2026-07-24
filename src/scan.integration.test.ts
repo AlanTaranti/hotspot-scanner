@@ -2,6 +2,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it, vi } from "vitest";
 import { DEFAULT_MIN_COCHANGE } from "./scoring/index.js";
+import type { CouplingPair, ScanWarning, StaticDependencyDirection } from "./types/index.js";
 import { runScan } from "#scan";
 
 const smallTsFixture = join(
@@ -9,7 +10,56 @@ const smallTsFixture = join(
   "../tests/fixtures/repos/small-ts",
 );
 
+const aliasCouplingFixture = join(
+  fileURLToPath(new URL(".", import.meta.url)),
+  "../tests/fixtures/repos/alias-coupling",
+);
+
+const withRenamesFixture = join(
+  fileURLToPath(new URL(".", import.meta.url)),
+  "../tests/fixtures/repos/with-renames",
+);
+
+const STATIC_DEPENDENCY_DIRECTIONS: StaticDependencyDirection[] = [
+  "none",
+  "a-to-b",
+  "b-to-a",
+  "both",
+];
+
+function assertCompleteCouplingEnrichment(pair: CouplingPair): void {
+  expect(typeof pair.hasStaticDependency).toBe("boolean");
+  expect(STATIC_DEPENDENCY_DIRECTIONS).toContain(
+    pair.staticDependencyDirection,
+  );
+  expect(typeof pair.hasRuntimeStaticDependency).toBe("boolean");
+  expect(typeof pair.hasTypeOnlyStaticDependency).toBe("boolean");
+  expect(typeof pair.hasReExportStaticDependency).toBe("boolean");
+  expect(pair.hasStaticDependency).toBe(
+    pair.hasRuntimeStaticDependency || pair.hasTypeOnlyStaticDependency,
+  );
+
+  if (pair.staticDependencyDirection === "none") {
+    expect(pair.hasStaticDependency).toBe(false);
+    expect(pair.hasRuntimeStaticDependency).toBe(false);
+    expect(pair.hasTypeOnlyStaticDependency).toBe(false);
+    expect(pair.hasReExportStaticDependency).toBe(false);
+  } else {
+    expect(pair.hasStaticDependency).toBe(true);
+  }
+}
+
+function assertAllCouplingEnriched(coupling: CouplingPair[]): void {
+  for (const pair of coupling) {
+    assertCompleteCouplingEnrichment(pair);
+  }
+}
+
 const EXPECTED_TOP_HOTSPOT = "src/high.ts";
+const WITH_RENAMES_CANONICAL_PATH = "src/c.ts";
+const WITH_RENAMES_EXPECTED_COMMITS = 5;
+const SINCE_TRUNCATION_WARNING_PREFIX =
+  "Rename history before the --since window";
 
 describe("runScan integration", () => {
   it("returns non-empty hotspot and coupling rankings on small-ts fixture", async () => {
@@ -30,13 +80,12 @@ describe("runScan integration", () => {
     expect(topCoupling.coChangeCount).toBeGreaterThanOrEqual(
       DEFAULT_MIN_COCHANGE,
     );
-    for (const pair of result.coupling) {
-      expect(typeof pair.hasStaticDependency).toBe("boolean");
-    }
+    assertAllCouplingEnriched(result.coupling);
   });
 
   it("enriches coupling pairs with import-linked and co-change-only cases", async () => {
     const result = await runScan({ repoPath: smallTsFixture });
+    assertAllCouplingEnriched(result.coupling);
 
     const highMedium = result.coupling.find(
       (pair) => pair.fileA === "src/high.ts" && pair.fileB === "src/medium.ts",
@@ -47,12 +96,16 @@ describe("runScan integration", () => {
 
     expect(highMedium).toBeDefined();
     expect(highMedium!.hasStaticDependency).toBe(true);
+    expect(highMedium!.staticDependencyDirection).toBe("a-to-b");
+    expect(highMedium!.hasRuntimeStaticDependency).toBe(true);
     expect(lowMedium).toBeDefined();
     expect(lowMedium!.hasStaticDependency).toBe(false);
+    expect(lowMedium!.staticDependencyDirection).toBe("none");
   });
 
   it("preserves temporal coupling ranking order after static enrichment", async () => {
     const result = await runScan({ repoPath: smallTsFixture });
+    assertAllCouplingEnriched(result.coupling);
 
     expect(result.coupling.map((pair) => [pair.fileA, pair.fileB])).toEqual([
       ["src/low.ts", "src/medium.ts"],
@@ -67,14 +120,20 @@ describe("runScan integration", () => {
     const onProgress = vi.fn();
     const onWarning = vi.fn();
 
-    await runScan({
+    const result = await runScan({
       repoPath: smallTsFixture,
       onProgress,
       onWarning,
     });
 
-    expect(onProgress).toHaveBeenCalled();
+    expect(onProgress).toHaveBeenCalledWith(
+      expect.objectContaining({
+        phase: "git",
+        commitsProcessed: expect.any(Number),
+      }),
+    );
     expect(onWarning).not.toHaveBeenCalled();
+    expect(result.meta.warnings).toEqual([]);
   });
 
   it("limits output paths when include scope is set", async () => {
@@ -99,6 +158,7 @@ describe("runScan integration", () => {
     expect(result.hotspots).toEqual([]);
     expect(result.functions.length).toBeGreaterThan(0);
     expect(result.coupling.length).toBeGreaterThanOrEqual(1);
+    assertAllCouplingEnriched(result.coupling);
 
     const topFunction = result.functions[0]!;
     expect(topFunction.functionName).toBeTruthy();
@@ -126,5 +186,93 @@ describe("runScan integration", () => {
       const commitCounts = new Set(multiFnFile[1].map((fn) => fn.commitCount));
       expect(commitCounts.size).toBeGreaterThanOrEqual(1);
     }
+  });
+});
+
+describe("runScan integration — alias-coupling fixture", () => {
+  it("enriches alias-linked co-changing pair with direction and kind flags", async () => {
+    const result = await runScan({ repoPath: aliasCouplingFixture });
+    assertAllCouplingEnriched(result.coupling);
+
+    const consumerProvider = result.coupling.find(
+      (pair) =>
+        pair.fileA === "src/consumer.ts" && pair.fileB === "src/provider.ts",
+    );
+    const consumerOrphan = result.coupling.find(
+      (pair) =>
+        pair.fileA === "src/consumer.ts" && pair.fileB === "src/orphan.ts",
+    );
+
+    expect(consumerProvider).toBeDefined();
+    expect(consumerProvider!.hasStaticDependency).toBe(true);
+    expect(consumerProvider!.staticDependencyDirection).toBe("a-to-b");
+    expect(consumerProvider!.hasRuntimeStaticDependency).toBe(true);
+    expect(consumerProvider!.hasTypeOnlyStaticDependency).toBe(false);
+    expect(consumerProvider!.hasReExportStaticDependency).toBe(false);
+
+    expect(consumerOrphan).toBeDefined();
+    expect(consumerOrphan!.hasStaticDependency).toBe(false);
+    expect(consumerOrphan!.staticDependencyDirection).toBe("none");
+  });
+
+  it("preserves temporal coupling ranking after alias enrichment", async () => {
+    const result = await runScan({ repoPath: aliasCouplingFixture });
+    assertAllCouplingEnriched(result.coupling);
+
+    expect(result.coupling.map((pair) => [pair.fileA, pair.fileB])).toEqual([
+      ["src/consumer.ts", "src/orphan.ts"],
+      ["src/consumer.ts", "src/provider.ts"],
+    ]);
+    expect(result.coupling.map((pair) => pair.couplingStrength)).toEqual([
+      0.75, 0.75,
+    ]);
+  });
+});
+
+describe("runScan integration — with-renames fixture", () => {
+  it("unifies churn under the canonical final path when find-renames links the chain", async () => {
+    const result = await runScan({
+      repoPath: withRenamesFixture,
+      since: "24 months ago",
+    });
+
+    const canonical = result.hotspots.find(
+      (hotspot) => hotspot.filePath === WITH_RENAMES_CANONICAL_PATH,
+    );
+    expect(canonical).toBeDefined();
+    expect(canonical!.commitCount).toBe(WITH_RENAMES_EXPECTED_COMMITS);
+
+    const legacyPaths = result.hotspots.map((hotspot) => hotspot.filePath);
+    expect(legacyPaths).not.toContain("src/a.ts");
+    expect(legacyPaths).not.toContain("src/b.ts");
+  });
+
+  it("emits since-truncation warning and no blind-spot warnings for linked renames", async () => {
+    const warnings: ScanWarning[] = [];
+
+    const result = await runScan({
+      repoPath: withRenamesFixture,
+      since: "24 months ago",
+      onWarning: (warning) => warnings.push(warning),
+    });
+
+    expect(
+      warnings.some(
+        (warning) =>
+          warning.code === "RENAME_HISTORY_INCOMPLETE" &&
+          warning.message.startsWith(SINCE_TRUNCATION_WARNING_PREFIX),
+      ),
+    ).toBe(true);
+    expect(
+      warnings.some((warning) =>
+        warning.message.startsWith("Suspected unlinked rename"),
+      ),
+    ).toBe(false);
+    expect(
+      warnings.some((warning) =>
+        warning.message.startsWith("Rename history may be incomplete for:"),
+      ),
+    ).toBe(false);
+    expect(result.meta.warnings).toEqual(warnings);
   });
 });

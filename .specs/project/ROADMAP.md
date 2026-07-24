@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M24 Package DX Done** — post-v1 milestones M7–M24 Done. Next backlog: **M25–M30** (specs Planned; Execute not started). **Suggested execution starts at M26** (then M25 → M27 → M28 → M30 → M29).
+Status: **M29 Function AST Coverage+ Done** — post-v1 milestones M7–M30 Done.
 
 ## Milestone 1 — Scaffold
 
@@ -240,71 +240,71 @@ M14 → M19 → M20 → M21 → M22 → M23 → M24
 
 Specs Planned via `planner-feature` (2026-07-23). Checkboxes remain open until Execute. M12 (CI fail-on-score) remains intentionally absent (see STATE.md).
 
-### Milestone 25 — Product docs sync
+### Milestone 25 — Product docs sync — DONE
 
 → [`.specs/features/product-docs-sync/spec.md`](../features/product-docs-sync/spec.md)  
 **Slug:** `product-docs-sync` | **Priority:** High | **Specs:** Done
 
 Align living product docs with shipped M19–M24 reality.
 
-- [ ] Sync [PROJECT.md](PROJECT.md) (shipped through M24; remove stale “M20–M22 planned” backlog)
-- [ ] Fix remaining rename/`--follow` drift in README / ARCHITECTURE Key constraints if still present
-- [ ] Confirm ROADMAP header and STATE Active match delivered + backlog stubs
+- [x] Sync [PROJECT.md](PROJECT.md) (shipped through M24; remove stale “M20–M22 planned” backlog)
+- [x] Fix remaining rename/`--follow` drift in README / ARCHITECTURE Key constraints if still present
+- [x] Confirm ROADMAP header and STATE Active match delivered + backlog stubs
 
-### Milestone 26 — Rename confidence (RT-003)
+### Milestone 26 — Rename confidence (RT-003) — DONE
 
 → [`.specs/features/rename-confidence/spec.md`](../features/rename-confidence/spec.md)  
 **Slug:** `rename-confidence` | **Priority:** High | **Specs:** Done
 
 Improve trust of file- and function-mode rankings after renames/moves. Ordered scope (avisos only — no historical AST). Tracked gaps: [CONCERNS.md](../codebase/CONCERNS.md) (Git miner rename blind spots + function churn pós-rename).
 
-1. **Rename blind spots** — actionable warnings when history may be incomplete (copy-paste, pre-`--since`, no `old => new`); stronger file-miner fixtures
-2. **Function-mode pós-rename (avisos)** — document + emit warning/confidence when hunk overlap uses current `[line, endLine]` vs historical hunks / mis-attribution after moves (**do not** invent historical AST)
+- [x] **Rename blind spots** — actionable warnings when history may be incomplete (copy-paste, pre-`--since`, no `old => new`); stronger file-miner fixtures
+- [x] **Function-mode pós-rename (avisos)** — document + emit warning/confidence when hunk overlap uses current `[line, endLine]` vs historical hunks / mis-attribution after moves (**do not** invent historical AST)
 
 **Boundary:** M26 owns RT-003 / function-rename warnings. M28 keeps generic `--concurrency` / progress / warning-severity consolidation (do not duplicate RT-003 scope here). Paths/`exports` enrichment stays **M27**.
 
-### Milestone 27 — Coupling enrichment
+### Milestone 27 — Coupling enrichment — DONE
 
 → [`.specs/features/coupling-enrichment/spec.md`](../features/coupling-enrichment/spec.md)  
-**Slug:** `coupling-enrichment` | **Priority:** High | **Specs:** Done
+**Slug:** `coupling-enrichment` | **Priority:** High | **Specs:** Done | **Execute:** Done
 
 Richer `hasStaticDependency` signal for monorepos and refactor triage.
 
-- [ ] Resolve tsconfig `paths` (and related aliases) when flagging static edges
-- [ ] Direction of dependency (A→B / B→A / both)
-- [ ] Distinguish `import type` vs runtime edges; handle re-exports explicitly
+- [x] Resolve tsconfig `paths` (and related aliases) when flagging static edges
+- [x] Direction of dependency (A→B / B→A / both)
+- [x] Distinguish `import type` vs runtime edges; handle re-exports explicitly
 
-### Milestone 28 — Performance & diagnostics UX
+### Milestone 28 — Performance & diagnostics UX — DONE
 
 → [`.specs/features/perf-diagnostics-ux/spec.md`](../features/perf-diagnostics-ux/spec.md)  
 **Slug:** `perf-diagnostics-ux` | **Priority:** Medium | **Specs:** Done
 
 Operator control and clearer scan feedback on large repos.
 
-- [ ] CLI `--concurrency` (complexity worker pool; document default)
-- [ ] Progress reporting in function mode (patch-stream phase)
-- [ ] Consolidate warning UX / `meta.warnings` severity and interpretation docs
+- [x] CLI `--concurrency` (complexity worker pool; document default)
+- [x] Progress reporting in function mode (patch-stream phase)
+- [x] Consolidate warning UX / `meta.warnings` severity and interpretation docs
 
 ### Milestone 29 — Function AST coverage+
 
 → [`.specs/features/function-ast-coverage-plus/spec.md`](../features/function-ast-coverage-plus/spec.md)  
-**Slug:** `function-ast-coverage-plus` | **Priority:** Medium | **Specs:** Done
+**Slug:** `function-ast-coverage-plus` | **Priority:** Medium | **Specs:** Done | **Execute:** Done
 
 Extend function collection beyond M22 without changing McCabe decision nodes. Locked constructs: [function-ast-coverage-plus/context.md](../features/function-ast-coverage-plus/context.md).
 
-- [ ] Additional constructs (ClassExpression members, object-literal get/set, assignment RHS callables, skip body-less overload stubs — not constructors/namespaces as “new”)
-- [ ] Naming table + McCabe fixtures per construct; no decision-node drift (RT-005)
+- [x] Additional constructs (ClassExpression members, object-literal get/set, assignment RHS callables, skip body-less overload stubs — not constructors/namespaces as “new”)
+- [x] Naming table + McCabe fixtures per construct; no decision-node drift (RT-005)
 
 ### Milestone 30 — Path & config DX
 
 → [`.specs/features/path-config-dx/spec.md`](../features/path-config-dx/spec.md)  
-**Slug:** `path-config-dx` | **Priority:** Medium | **Specs:** Done
+**Slug:** `path-config-dx` | **Priority:** Medium | **Specs:** Done | **Execute:** Done
 
 Better defaults and config discovery for real monorepos. Locked decisions: [path-config-dx/context.md](../features/path-config-dx/context.md).
 
-- [ ] Extra default excludes (`.next`, `out`, `vendor`, `storybook-static`, `__snapshots__`)
-- [ ] Config parent-directory walk and `--config <path>` (preserve CLI > config > defaults)
+- [x] Extra default excludes (`.next`, `out`, `vendor`, `storybook-static`, `__snapshots__`)
+- [x] Config parent-directory walk and `--config <path>` (preserve CLI > config > defaults)
 
-### Suggested execution order (M25–M30)
+### Suggested execution order (M27–M30)
 
-M26 → M25 → M27 → M28 → M30 → M29
+M27 → M28 → M30 → M29

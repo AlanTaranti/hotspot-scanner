@@ -1,6 +1,6 @@
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   ConfigError,
@@ -16,7 +16,9 @@ async function withTempRepo(
   const repoPath = await mkdtemp(join(tmpdir(), "hotspot-config-"));
   try {
     for (const [name, content] of Object.entries(files)) {
-      await writeFile(join(repoPath, name), content, "utf8");
+      const filePath = join(repoPath, name);
+      await mkdir(dirname(filePath), { recursive: true });
+      await writeFile(filePath, content, "utf8");
     }
     await run(repoPath);
   } finally {
@@ -34,6 +36,7 @@ describe("parseHotspotScannerConfig", () => {
         granularity: "function",
         minCochange: 5,
         top: 10,
+        concurrency: 2,
       }),
     ).toEqual({
       since: "6 months ago",
@@ -42,6 +45,7 @@ describe("parseHotspotScannerConfig", () => {
       granularity: "function",
       minCochange: 5,
       top: 10,
+      concurrency: 2,
     });
   });
 
@@ -126,6 +130,24 @@ describe("parseHotspotScannerConfig", () => {
     expect(() => parseHotspotScannerConfig({ top: -1 })).toThrow(/"top"/);
     expect(() => parseHotspotScannerConfig({ top: "20" })).toThrow(/"top"/);
   });
+
+  it("rejects non-positive concurrency", () => {
+    expect(() => parseHotspotScannerConfig({ concurrency: 0 })).toThrow(
+      ConfigError,
+    );
+    expect(() => parseHotspotScannerConfig({ concurrency: 0 })).toThrow(
+      /"concurrency"/,
+    );
+    expect(() => parseHotspotScannerConfig({ concurrency: -1 })).toThrow(
+      /"concurrency"/,
+    );
+    expect(() => parseHotspotScannerConfig({ concurrency: 1.5 })).toThrow(
+      /"concurrency"/,
+    );
+    expect(() => parseHotspotScannerConfig({ concurrency: "2" })).toThrow(
+      /"concurrency"/,
+    );
+  });
 });
 
 describe("loadHotspotScannerConfig", () => {
@@ -166,7 +188,105 @@ describe("loadHotspotScannerConfig", () => {
     );
   });
 
-  it("reads only .hotspot-scanner.json, not .hotspotrc", async () => {
+  it("walks parents and loads nearest ancestor config", async () => {
+    await withTempRepo(
+      {
+        [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({
+          since: "workspace default",
+          top: 20,
+        }),
+        "repo/nested/.gitkeep": "",
+      },
+      async (repoPath) => {
+        const nestedRepoPath = join(repoPath, "repo", "nested");
+        await expect(loadHotspotScannerConfig(nestedRepoPath)).resolves.toEqual({
+          since: "workspace default",
+          top: 20,
+        });
+      },
+    );
+  });
+
+  it("prefers repo-local config over ancestor config", async () => {
+    await withTempRepo(
+      {
+        [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({
+          since: "workspace default",
+          top: 20,
+        }),
+        [`repo/${HOTSPOT_SCANNER_CONFIG_FILENAME}`]: JSON.stringify({
+          since: "repo override",
+          top: 5,
+        }),
+      },
+      async (repoPath) => {
+        const repoLocalPath = join(repoPath, "repo");
+        await expect(loadHotspotScannerConfig(repoLocalPath)).resolves.toEqual({
+          since: "repo override",
+          top: 5,
+        });
+      },
+    );
+  });
+
+  it("loads explicit configPath and skips parent walk", async () => {
+    await withTempRepo(
+      {
+        [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({
+          since: "walked config",
+          top: 99,
+        }),
+        "explicit/.hotspot-scanner.json": JSON.stringify({
+          since: "explicit config",
+          top: 7,
+        }),
+      },
+      async (repoPath) => {
+        const explicitPath = join(repoPath, "explicit", ".hotspot-scanner.json");
+        const nestedRepoPath = join(repoPath, "repo", "nested");
+        await expect(
+          loadHotspotScannerConfig(nestedRepoPath, { configPath: explicitPath }),
+        ).resolves.toEqual({
+          since: "explicit config",
+          top: 7,
+        });
+      },
+    );
+  });
+
+  it("throws ConfigError when explicit configPath is missing", async () => {
+    await withTempRepo({}, async (repoPath) => {
+      const missingPath = join(repoPath, "missing.json");
+      await expect(
+        loadHotspotScannerConfig(repoPath, { configPath: missingPath }),
+      ).rejects.toThrow(ConfigError);
+      await expect(
+        loadHotspotScannerConfig(repoPath, { configPath: missingPath }),
+      ).rejects.toThrow(/Config file not found/);
+    });
+  });
+
+  it("ignores .hotspotrc on parent walk and loads .hotspot-scanner.json", async () => {
+    await withTempRepo(
+      {
+        ".hotspotrc": JSON.stringify({ since: "from-rc", top: 99 }),
+        [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({
+          since: "from-json",
+          top: 5,
+        }),
+        "repo/nested/.gitkeep": "",
+      },
+      async (repoPath) => {
+        const nestedRepoPath = join(repoPath, "repo", "nested");
+        await expect(loadHotspotScannerConfig(nestedRepoPath)).resolves.toEqual({
+          since: "from-json",
+          top: 5,
+        });
+      },
+    );
+  });
+
+  it("reads only .hotspot-scanner.json at repoPath, not .hotspotrc", async () => {
     await withTempRepo(
       {
         ".hotspotrc": JSON.stringify({ since: "from-rc", top: 99 }),

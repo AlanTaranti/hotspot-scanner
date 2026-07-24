@@ -22,6 +22,9 @@ function loadFunctionFixture(): ScanResult {
   return JSON.parse(readFileSync(functionFixturePath, "utf8")) as ScanResult;
 }
 
+const COUPLING_CSV_HEADER =
+  "rank,fileA,fileB,strength,coChanges,hasStaticDependency,staticDependencyDirection,hasRuntimeStaticDependency,hasTypeOnlyStaticDependency,hasReExportStaticDependency";
+
 describe("renderCsv", () => {
   it("returns CsvBundle with meta.json, hotspots.csv, and coupling.csv in file mode", () => {
     const bundle = renderCsv(loadFixture());
@@ -61,14 +64,12 @@ describe("renderCsv", () => {
   it("coupling.csv has correct header and data", () => {
     const bundle = renderCsv(loadFixture());
 
+    expect(bundle["coupling.csv"]).toContain(COUPLING_CSV_HEADER);
     expect(bundle["coupling.csv"]).toContain(
-      "rank,fileA,fileB,strength,coChanges,hasStaticDependency",
+      "1,src/a.ts,src/b.ts,0.7500,5,true,a-to-b,true,false,false",
     );
     expect(bundle["coupling.csv"]).toContain(
-      "1,src/a.ts,src/b.ts,0.7500,5,true",
-    );
-    expect(bundle["coupling.csv"]).toContain(
-      "2,src/c.ts,src/d.ts,0.5000,3,false",
+      "2,src/c.ts,src/d.ts,0.5000,3,false,none,false,false,false",
     );
   });
 
@@ -108,9 +109,7 @@ describe("renderCsv", () => {
 
     const couplingLines = bundle["coupling.csv"]!.split("\n");
     expect(couplingLines).toHaveLength(1);
-    expect(couplingLines[0]).toBe(
-      "rank,fileA,fileB,strength,coChanges,hasStaticDependency",
-    );
+    expect(couplingLines[0]).toBe(COUPLING_CSV_HEADER);
   });
 
   it("escapes file paths with special characters", () => {

@@ -1,0 +1,8 @@
+# rename-unlinked.txt — copy-paste move: delete src/old/foo.ts + add lib/foo.ts (no =>)
+# Provenance: hand-crafted valid git log --numstat --name-only format
+# Expected warning: Suspected unlinked rename (no git rename metadata): src/old/foo.ts -> lib/foo.ts
+# Expected churn: split — src/old/foo.ts commitCount=1 linesChanged=10; lib/foo.ts commitCount=1 linesChanged=10
+
+COMMIT|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|Mon Jan 1 00:00:00 2024 +0000|Alice
+0	10	src/old/foo.ts
+10	0	lib/foo.ts

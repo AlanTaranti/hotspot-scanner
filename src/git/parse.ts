@@ -14,6 +14,8 @@ export interface ParsedCommit {
 
 const COMMIT_HEADER_RE = /^COMMIT\|([0-9a-f]+)\|(.+)\|(.+)$/;
 const RENAME_LINE_RE = /^(.+) => (.+)$/;
+/** git log -M --numstat embeds renames as `dir/{old => new}` in the path column */
+const NUMSTAT_EMBEDDED_RENAME_RE = /^(.*)\{([^/}]+) => ([^/}]+)\}$/;
 
 function parseNumstatLine(line: string): ParsedFileChange | null {
   const tab1 = line.indexOf("\t");
@@ -27,10 +29,23 @@ function parseNumstatLine(line: string): ParsedFileChange | null {
 
   const additionsRaw = line.slice(0, tab1);
   const deletionsRaw = line.slice(tab1 + 1, tab2);
-  const path = line.slice(tab2 + 1);
+  let path = line.slice(tab2 + 1);
 
   const additions = additionsRaw === "-" ? null : Number(additionsRaw);
   const deletions = deletionsRaw === "-" ? null : Number(deletionsRaw);
+
+  const embeddedRename = NUMSTAT_EMBEDDED_RENAME_RE.exec(path);
+  if (embeddedRename) {
+    const prefix = embeddedRename[1]!;
+    const fromName = embeddedRename[2]!;
+    const toName = embeddedRename[3]!;
+    return {
+      path: `${prefix}${toName}`,
+      additions,
+      deletions,
+      renameFrom: `${prefix}${fromName}`,
+    };
+  }
 
   return { path, additions, deletions };
 }
@@ -103,14 +118,6 @@ export async function* parseGitLogStream(
       continue;
     }
 
-    const renameMatch = RENAME_LINE_RE.exec(line);
-    if (renameMatch) {
-      flushPendingRename();
-      pendingRenameFrom = renameMatch[1]!.trim();
-      pendingRenameTo = renameMatch[2]!.trim();
-      continue;
-    }
-
     const numstat = parseNumstatLine(line);
     if (numstat) {
       if (pendingRenameFrom !== undefined) {
@@ -122,6 +129,15 @@ export async function* parseGitLogStream(
         pendingRenameTo = undefined;
       }
       current.files.push(numstat);
+      continue;
+    }
+
+    const renameMatch = RENAME_LINE_RE.exec(line);
+    if (renameMatch) {
+      flushPendingRename();
+      pendingRenameFrom = renameMatch[1]!.trim();
+      pendingRenameTo = renameMatch[2]!.trim();
+      continue;
     }
   }
 

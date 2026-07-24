@@ -11,6 +11,7 @@ export function buildGitPatchLogArgv(
     "-C",
     options.repoPath,
     "log",
+    "-M",
     "-p",
     "--unified=0",
     "--pretty=format:COMMIT|%H|%ad|%an",
