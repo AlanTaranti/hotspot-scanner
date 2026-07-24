@@ -74,7 +74,7 @@ Config file: `<repoPath>/.hotspot-scanner.json` only (`since`, `include`, `exclu
 | Invalid git repo          | Clear error, exit != 0                    |
 | Invalid TS/JS syntax      | Warning, skip file                        |
 | Insufficient history      | Warning, proceed with available data      |
-| File renames              | Handle via `--follow`; warn if incomplete |
+| File renames              | `old => new` + `PathAliasMap` (not `--follow`); warn if incomplete |
 | Bad baseline / schema     | `BaselineError`, exit != 0                |
 | Invalid config JSON/types | `ConfigError`, exit != 0                  |
 

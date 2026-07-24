@@ -31,6 +31,7 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-23 | **M23 Execute complete**                                          | Per-function hunk-overlap churn in function mode; supersedes M11 inherited churn for function `commitCount`/`linesChanged`/`authorCount`                                                                                                                                                                                                                                                                  |
 | 2026-07-23 | **M24 Execute complete**                                          | Package DX: typecheck/lint/format scripts, publish metadata (`engines`, `repository`, `files` with `schemas/`); gate unchanged                                                                                                                                                                                                                                                                            |
 | 2026-07-23 | **M24 `repository.url` default**                                  | No git remote / README URL at planning time — locked default `git+https://github.com/taranti/hotspot-scanner.git` in context.md; replace with origin at Execute if available                                                                                                                                                                                                                              |
+| 2026-07-23 | **Post-M24 backlog stubs M25–M30**                                | ROADMAP-only stubs (no feature specs until `planner-feature`); order M25→M26→M27→M28→M30→M29; CONCERNS aligned to PathAliasMap renames + dual-stream / scan-relative / enriched-coupling limits                                                                                                                                                                                                         |
 
 ## Architecture decisions (ADRs)
 
@@ -61,10 +62,18 @@ _None._
 ## Lessons
 
 - Vitest vs original Jest mention: document in TESTING.md, do not silently diverge.
+- 2026-07-23: Working-tree inventory (no commit) — tree clean at `main` @ `ce33b2c` (`chore(format): apply Prettier across repository`); earlier conversation git snapshot was stale. Nothing to stage.
 
 ## Active
 
-_None — M23–M24 Execute complete._
+Post-M24 backlog (ROADMAP stubs; specs Pending):
+
+1. **M25** `product-docs-sync` — sync PROJECT.md / remaining doc drift
+2. **M26** `rename-confidence` — RT-003 file + function
+3. **M27** `coupling-enrichment` — path aliases, direction, import type, re-exports
+4. **M28** `perf-diagnostics-ux` — `--concurrency`, function-mode progress, warnings UX
+5. **M30** `path-config-dx` — default excludes + config parent walk / `--config`
+6. **M29** `function-ast-coverage-plus` — more function AST constructs (after M30 in suggested order)
 
 ## Deferred
 

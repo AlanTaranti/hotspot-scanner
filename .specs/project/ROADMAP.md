@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M24 Package DX Done** — post-v1 milestones M7–M24 Done.
+Status: **M24 Package DX Done** — post-v1 milestones M7–M24 Done. Next backlog: **M25–M30** (stubs; specs Pending until `planner-feature`).
 
 ## Milestone 1 — Scaffold
 
@@ -230,6 +230,74 @@ Publish-prep + contributor DX only (no `npm publish`, no CI, no `dev` script). L
 - [x] `package.json`: `engines.node >= 22`, `repository`, `files` including `dist/`, `schemas/`, LICENSE, README
 - [x] Document typecheck/lint/format in CONTRIBUTING alongside gate; keep “no CI in v1”; sync STACK/CONVENTIONS
 
-### Suggested execution order
+### Suggested execution order (historical — M14–M24)
 
 M14 → M19 → M20 → M21 → M22 → M23 → M24
+
+---
+
+## Post-M24 backlog
+
+Stubs only — no `.specs/features/<slug>/` until promoted via `planner-feature`. M12 (CI fail-on-score) remains intentionally absent (see STATE.md).
+
+### Milestone 25 — Product docs sync
+
+**Slug:** `product-docs-sync` | **Priority:** High | **Specs:** Pending
+
+Align living product docs with shipped M19–M24 reality.
+
+- [ ] Sync [PROJECT.md](PROJECT.md) (shipped through M24; remove stale “M20–M22 planned” backlog)
+- [ ] Fix remaining rename/`--follow` drift in README / ARCHITECTURE Key constraints if still present
+- [ ] Confirm ROADMAP header and STATE Active match delivered + backlog stubs
+
+### Milestone 26 — Rename confidence (RT-003)
+
+**Slug:** `rename-confidence` | **Priority:** High | **Specs:** Pending
+
+Improve trust of file- and function-mode rankings after renames/moves.
+
+- [ ] Stronger fixtures and warnings for ambiguous / incomplete rename history (file miner)
+- [ ] Document and tighten function-mode post-rename hunk vs current `[line, endLine]` imprecision
+- [ ] Surface actionable confidence / warning UX for rename blind spots (copy-paste, pre-`--since`)
+
+### Milestone 27 — Coupling enrichment
+
+**Slug:** `coupling-enrichment` | **Priority:** High | **Specs:** Pending
+
+Richer `hasStaticDependency` signal for monorepos and refactor triage.
+
+- [ ] Resolve tsconfig `paths` (and related aliases) when flagging static edges
+- [ ] Direction of dependency (A→B / B→A / both)
+- [ ] Distinguish `import type` vs runtime edges; handle re-exports explicitly
+
+### Milestone 28 — Performance & diagnostics UX
+
+**Slug:** `perf-diagnostics-ux` | **Priority:** Medium | **Specs:** Pending
+
+Operator control and clearer scan feedback on large repos.
+
+- [ ] CLI `--concurrency` (complexity worker pool; document default)
+- [ ] Progress reporting in function mode (patch-stream phase)
+- [ ] Consolidate warning UX / `meta.warnings` severity and interpretation docs
+
+### Milestone 29 — Function AST coverage+
+
+**Slug:** `function-ast-coverage-plus` | **Priority:** Medium | **Specs:** Pending
+
+Extend function collection beyond M22 without changing McCabe decision nodes.
+
+- [ ] Additional constructs (e.g. constructors, overloads — exact set locked in planner)
+- [ ] Naming table + McCabe fixtures per construct; no decision-node drift (RT-005)
+
+### Milestone 30 — Path & config DX
+
+**Slug:** `path-config-dx` | **Priority:** Medium | **Specs:** Pending
+
+Better defaults and config discovery for real monorepos.
+
+- [ ] Extra default excludes (e.g. `.next`, `out`, `vendor`, `storybook-static`, `__snapshots__` — exact set locked in planner)
+- [ ] Config parent-directory walk and/or `--config <path>` (preserve CLI > config > defaults)
+
+### Suggested execution order (M25–M30)
+
+M25 → M26 → M27 → M28 → M30 → M29
