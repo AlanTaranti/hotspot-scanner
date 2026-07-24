@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M22 Function AST Coverage complete** — post-v1 milestones M7–M22 Done; backlog Execute: M23 → M24.
+Status: **M23 Per-Function Git Churn Planned** — post-v1 milestones M7–M22 Done; M23 specs Planned (Execute next); backlog: M24.
 
 ## Milestone 1 — Scaffold
 
@@ -208,12 +208,16 @@ Extended `collectFunctionsInScope` / `resolveFunctionName` for getters, setters,
 - [x] Extend `src/complexity/analyze-file.ts` for getters/setters, class field arrows, object-literal methods
 - [x] McCabe fixtures per construct; do not change existing decision-node definition
 
-### Milestone 23 — Per-Function Git Churn
+### Milestone 23 — Per-Function Git Churn — Specs Planned
 
-**Slug (planned):** `per-function-churn` | **Priority:** Medium
+→ [`.specs/features/per-function-churn/spec.md`](../features/per-function-churn/spec.md)  
+**Slug:** `per-function-churn` | **Priority:** Medium | **Specs:** Planned (`tasks.md` Status: Planned)
 
-- [ ] Per-function churn in `--granularity function` mode (replace inherited file churn — M11 decision)
-- [ ] Approach TBD in spec (e.g. blame-lite by function line range); out of scope: historical AST per commit
+Hunk-overlap attribution on `git log` patch stream (`--unified=0`) in `--granularity function` only; replaces M11 inherited file churn. Locked decisions: [per-function-churn/context.md](../features/per-function-churn/context.md). Out of scope: historical AST per commit. IDs: HOTSPOT-181–193.
+
+- [ ] Emit `endLine` on `FunctionComplexityResult`; function-mode hunk-overlap miner under `src/git/function-churn/`
+- [ ] `scoreFunctionHotspots` uses per-function churn map (stop inheriting `FileChangeStats`); wire in `runScan` function branch only
+- [ ] Living docs (ARCHITECTURE / CONCERNS / TESTING) + `pnpm build && pnpm test`
 
 ### Milestone 24 — Package DX
 
