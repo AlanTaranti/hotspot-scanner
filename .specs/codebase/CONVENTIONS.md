@@ -19,13 +19,29 @@
 
 ## Build conventions
 
-| Artifact | Compiler | Output |
-|----------|----------|--------|
-| `src/**` | `tsc` (`tsconfig.json`, `rootDir: src`, `outDir: dist`) | `dist/` |
-| `bin/hotspot-scanner.ts` | `tsc -p tsconfig.bin.json` (separate project) | `dist/bin/` |
+| Artifact                 | Compiler                                                | Output      |
+| ------------------------ | ------------------------------------------------------- | ----------- |
+| `src/**`                 | `tsc` (`tsconfig.json`, `rootDir: src`, `outDir: dist`) | `dist/`     |
+| `bin/hotspot-scanner.ts` | `tsc -p tsconfig.bin.json` (separate project)           | `dist/bin/` |
 
 - **Do not** add `bin/` to root `tsconfig.json` `include` — use `tsconfig.bin.json`
 - `pnpm build` runs `tsc && tsc -p tsconfig.bin.json`
+- `pnpm typecheck` runs `tsc --noEmit && tsc --noEmit -p tsconfig.bin.json`
+
+## Lint and format (M24)
+
+| Script         | Command              | Notes                                                                             |
+| -------------- | -------------------- | --------------------------------------------------------------------------------- |
+| `lint`         | `eslint .`           | Flat config: `eslint.config.mjs`; ignores `dist/`, `coverage/`, `tests/fixtures/` |
+| `format`       | `prettier --write .` | Mutates tree                                                                      |
+| `format:check` | `prettier --check .` | CI-style check                                                                    |
+
+Project **Done gate** remains `pnpm build && pnpm test` only (see AGENTS.md). Lint/format are recommended locally (CONTRIBUTING).
+
+## Package metadata (M24)
+
+- `engines.node`: `>=22`
+- `files`: includes `dist`, `schemas`, `LICENSE`, `README.md` (schemas ship for M20 JSON contract consumers)
 
 ## CLI conventions
 

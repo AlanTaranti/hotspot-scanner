@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Project } from "ts-morph";
@@ -48,9 +47,17 @@ describe("analyzeSourceFile", () => {
       cyclomaticComplexity: 3,
     });
     expect(result.functions).toHaveLength(2);
-    expect(result.functions.map((fn) => fn.complexity).reduce((a, b) => a + b, 0)).toBe(
-      result.file.cyclomaticComplexity,
-    );
+    expect(
+      result.functions.map((fn) => fn.complexity).reduce((a, b) => a + b, 0),
+    ).toBe(result.file.cyclomaticComplexity);
+    const outer = result.functions.find((fn) => fn.functionName === "outer");
+    const inner = result.functions.find((fn) => fn.functionName === "inner");
+    expect(outer).toBeDefined();
+    expect(inner).toBeDefined();
+    expect(outer!.line).toBeLessThan(inner!.line);
+    expect(outer!.endLine).toBeGreaterThanOrEqual(inner!.endLine);
+    expect(inner!.line).toBeGreaterThanOrEqual(outer!.line);
+    expect(inner!.endLine).toBeLessThanOrEqual(outer!.endLine);
   });
 
   it("counts class methods and assigned arrow functions", () => {
@@ -114,9 +121,7 @@ describe("analyzeSourceFile", () => {
   it("resolves function names per naming conventions", () => {
     const result = analyzeFixture("function-naming.ts");
 
-    const byName = new Map(
-      result.functions.map((fn) => [fn.functionName, fn]),
-    );
+    const byName = new Map(result.functions.map((fn) => [fn.functionName, fn]));
 
     expect(byName.get("namedFunction")).toMatchObject({
       functionName: "namedFunction",
@@ -190,7 +195,9 @@ describe("analyzeSourceFile", () => {
       }
     `);
 
-    const fooEntries = result.functions.filter((fn) => fn.functionName === "foo");
+    const fooEntries = result.functions.filter(
+      (fn) => fn.functionName === "foo",
+    );
     expect(fooEntries).toHaveLength(2);
     expect(fooEntries[0]).toMatchObject({ functionName: "foo", complexity: 1 });
     expect(fooEntries[1]).toMatchObject({ functionName: "foo", complexity: 2 });
@@ -243,11 +250,15 @@ describe("analyzeSourceFile", () => {
     `);
 
     expect(result.functions).toHaveLength(2);
-    expect(result.functions.find((fn) => fn.functionName === "bar")).toMatchObject({
+    expect(
+      result.functions.find((fn) => fn.functionName === "bar"),
+    ).toMatchObject({
       functionName: "bar",
       complexity: 1,
     });
-    expect(result.functions.find((fn) => fn.functionName === "baz")).toMatchObject({
+    expect(
+      result.functions.find((fn) => fn.functionName === "baz"),
+    ).toMatchObject({
       functionName: "baz",
       complexity: 2,
     });
@@ -301,7 +312,9 @@ describe("complexity fixtures (M22 constructs)", () => {
       cyclomaticComplexity: 6,
     });
 
-    const countEntries = result.functions.filter((fn) => fn.functionName === "count");
+    const countEntries = result.functions.filter(
+      (fn) => fn.functionName === "count",
+    );
     expect(countEntries).toHaveLength(2);
     expect(countEntries[0]).toMatchObject({
       functionName: "count",
@@ -313,7 +326,9 @@ describe("complexity fixtures (M22 constructs)", () => {
       line: 13,
       complexity: 2,
     });
-    expect(result.functions.find((fn) => fn.functionName === "label")).toMatchObject({
+    expect(
+      result.functions.find((fn) => fn.functionName === "label"),
+    ).toMatchObject({
       functionName: "label",
       line: 19,
       complexity: 3,
@@ -329,17 +344,23 @@ describe("complexity fixtures (M22 constructs)", () => {
       cyclomaticComplexity: 5,
     });
 
-    expect(result.functions.find((fn) => fn.functionName === "simple")).toMatchObject({
+    expect(
+      result.functions.find((fn) => fn.functionName === "simple"),
+    ).toMatchObject({
       functionName: "simple",
       line: 9,
       complexity: 1,
     });
-    expect(result.functions.find((fn) => fn.functionName === "branch")).toMatchObject({
+    expect(
+      result.functions.find((fn) => fn.functionName === "branch"),
+    ).toMatchObject({
       functionName: "branch",
       line: 10,
       complexity: 2,
     });
-    expect(result.functions.find((fn) => fn.functionName === "fnField")).toMatchObject({
+    expect(
+      result.functions.find((fn) => fn.functionName === "fnField"),
+    ).toMatchObject({
       functionName: "fnField",
       line: 14,
       complexity: 2,
@@ -355,17 +376,23 @@ describe("complexity fixtures (M22 constructs)", () => {
       cyclomaticComplexity: 4,
     });
 
-    expect(result.functions.find((fn) => fn.functionName === "bar")).toMatchObject({
+    expect(
+      result.functions.find((fn) => fn.functionName === "bar"),
+    ).toMatchObject({
       functionName: "bar",
       line: 9,
       complexity: 1,
     });
-    expect(result.functions.find((fn) => fn.functionName === "baz")).toMatchObject({
+    expect(
+      result.functions.find((fn) => fn.functionName === "baz"),
+    ).toMatchObject({
       functionName: "baz",
       line: 12,
       complexity: 2,
     });
-    expect(result.functions.find((fn) => fn.functionName === "inner")).toMatchObject({
+    expect(
+      result.functions.find((fn) => fn.functionName === "inner"),
+    ).toMatchObject({
       functionName: "inner",
       line: 17,
       complexity: 1,

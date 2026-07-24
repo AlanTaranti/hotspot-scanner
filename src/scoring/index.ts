@@ -3,6 +3,7 @@ import type {
   ComplexityResult,
   CouplingPair,
   FileChangeStats,
+  FunctionChangeStats,
   FunctionComplexityResult,
   FunctionHotspotScore,
   HotspotScore,
@@ -30,7 +31,7 @@ export interface TemporalCouplingScorer {
 
 export interface FunctionHotspotScorer {
   score(
-    fileStats: Map<string, FileChangeStats>,
+    functionStats: Map<string, FunctionChangeStats>,
     functions: FunctionComplexityResult[],
   ): FunctionHotspotScore[];
 }
@@ -59,8 +60,8 @@ export function createFunctionHotspotScorer(
   const score = deps.scoreFunctionHotspots ?? scoreFunctionHotspots;
 
   return {
-    score(fileStats, functions) {
-      return score(fileStats, functions);
+    score(functionStats, functions) {
+      return score(functionStats, functions);
     },
   };
 }

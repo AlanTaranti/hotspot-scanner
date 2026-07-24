@@ -15,9 +15,26 @@
     "#scoring": "./dist/scoring/index.js",
     "#compare": "./dist/compare/index.js"
   },
+  "files": [
+    "dist",
+    "schemas",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/taranti/hotspot-scanner.git"
+  },
   "scripts": {
     "build": "tsc && tsc -p tsconfig.bin.json",
-    "test": "vitest run --coverage"
+    "test": "vitest run --coverage",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.bin.json",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "keywords": [
     "hotspot",
@@ -28,12 +45,18 @@
   "author": "Alan Taranti",
   "license": "MIT",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@tsconfig/node22": "^22.0.5",
     "@types/node": "^22.20.0",
     "@types/picomatch": "^4.0.3",
     "@vitest/coverage-v8": "^4.1.9",
     "ajv": "^8.20.0",
+    "eslint": "^10.7.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.7.0",
+    "prettier": "^3.9.6",
     "typescript": "^6.0.3",
+    "typescript-eslint": "^8.65.0",
     "vitest": "^4.1.9"
   },
   "dependencies": {

@@ -153,6 +153,7 @@ export function analyzeSourceFile(
     filePath: resolvedPath,
     functionName: resolveFunctionName(node),
     line: node.getStartLineNumber(),
+    endLine: node.getEndLineNumber(),
     complexity: complexityForFunction(node),
   }));
 

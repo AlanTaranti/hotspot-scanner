@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/per-function-churn/design.md`](./design.md)  
 **Spec**: [`.specs/features/per-function-churn/spec.md`](./spec.md)  
 **Context**: [`.specs/features/per-function-churn/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -43,37 +43,37 @@ flowchart LR
 
 | Task | Depends on (task body) | Diagram shows | Match |
 | ---- | ---------------------- | ------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | None | Root | ✅ |
-| T3 | T1, T2 | T1→T3, T2→T3 | ✅ |
-| T4 | T3 | T3→T4 | ✅ |
-| T5 | T4 | T4→T5 | ✅ |
-| T6 | T5 | T5→T6 | ✅ |
-| T7 | T6 | T6→T7 | ✅ |
+| T1   | None                   | Root          | ✅    |
+| T2   | None                   | Root          | ✅    |
+| T3   | T1, T2                 | T1→T3, T2→T3  | ✅    |
+| T4   | T3                     | T3→T4         | ✅    |
+| T5   | T4                     | T4→T5         | ✅    |
+| T6   | T5                     | T5→T6         | ✅    |
+| T7   | T6                     | T6→T7         | ✅    |
 
 ### Path Conflict Check
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | `src/complexity/` (+ `src/types/`) | `domain.ts`, `analyze-file.ts`, tests | None vs T2 |
-| T2 | `src/git/function-churn/` | spawn only under function-churn | Disjoint from T1; do **not** edit numstat `spawn.ts` argv |
-| T3 | `src/git/function-churn/` | parse, aggregate, index, fixtures | After T2 — same prefix, sequential |
-| T4 | `src/scoring/` | `function-hotspot-scorer.ts`, index, tests | Disjoint after T3 type export |
-| T5 | `src/scan.ts` | scan + scan tests | Sole scan owner |
-| T6 | integration / CLI | fixture repos or scan/bin tests | After T5 |
-| T7 | docs | `.specs/codebase/*`, ROADMAP, STATE | After T6 |
+| Task | Module owner                       | Paths                                      | Conflict                                                  |
+| ---- | ---------------------------------- | ------------------------------------------ | --------------------------------------------------------- |
+| T1   | `src/complexity/` (+ `src/types/`) | `domain.ts`, `analyze-file.ts`, tests      | None vs T2                                                |
+| T2   | `src/git/function-churn/`          | spawn only under function-churn            | Disjoint from T1; do **not** edit numstat `spawn.ts` argv |
+| T3   | `src/git/function-churn/`          | parse, aggregate, index, fixtures          | After T2 — same prefix, sequential                        |
+| T4   | `src/scoring/`                     | `function-hotspot-scorer.ts`, index, tests | Disjoint after T3 type export                             |
+| T5   | `src/scan.ts`                      | scan + scan tests                          | Sole scan owner                                           |
+| T6   | integration / CLI                  | fixture repos or scan/bin tests            | After T5                                                  |
+| T7   | docs                               | `.specs/codebase/*`, ROADMAP, STATE        | After T6                                                  |
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task `Tests` | Match |
-| ---- | ---------- | ---------------------- | ------------ | ----- |
-| T1 | complexity analyze-file | unit | unit | ✅ |
-| T2 | git spawn (function-churn) | unit | unit | ✅ |
-| T3 | git parse/aggregate | unit + fixtures | unit | ✅ |
-| T4 | scoring | unit | unit | ✅ |
-| T5 | scan orchestration | integration / unit | unit + integration assertions | ✅ |
-| T6 | CLI / scan integration | integration | integration | ✅ |
-| T7 | docs | full gate | full gate | ✅ |
+| Task | Code layer                 | TESTING.md expectation | Task `Tests`                  | Match |
+| ---- | -------------------------- | ---------------------- | ----------------------------- | ----- |
+| T1   | complexity analyze-file    | unit                   | unit                          | ✅    |
+| T2   | git spawn (function-churn) | unit                   | unit                          | ✅    |
+| T3   | git parse/aggregate        | unit + fixtures        | unit                          | ✅    |
+| T4   | scoring                    | unit                   | unit                          | ✅    |
+| T5   | scan orchestration         | integration / unit     | unit + integration assertions | ✅    |
+| T6   | CLI / scan integration     | integration            | integration                   | ✅    |
+| T7   | docs                       | full gate              | full gate                     | ✅    |
 
 ---
 
@@ -325,19 +325,19 @@ Phase 3 (Sequential):
 
 | Requirement ID | Task(s) |
 | -------------- | ------- |
-| HOTSPOT-181 | T1 |
-| HOTSPOT-182 | T3 |
-| HOTSPOT-183 | T2, T5 |
-| HOTSPOT-184 | T3 |
-| HOTSPOT-185 | T4 |
-| HOTSPOT-186 | T5 |
-| HOTSPOT-187 | T3 |
-| HOTSPOT-188 | T3 |
-| HOTSPOT-189 | T5, T6 |
-| HOTSPOT-190 | T2 |
-| HOTSPOT-191 | T3 |
-| HOTSPOT-192 | T7 |
-| HOTSPOT-193 | T6, T7 |
+| HOTSPOT-181    | T1      |
+| HOTSPOT-182    | T3      |
+| HOTSPOT-183    | T2, T5  |
+| HOTSPOT-184    | T3      |
+| HOTSPOT-185    | T4      |
+| HOTSPOT-186    | T5      |
+| HOTSPOT-187    | T3      |
+| HOTSPOT-188    | T3      |
+| HOTSPOT-189    | T5, T6  |
+| HOTSPOT-190    | T2      |
+| HOTSPOT-191    | T3      |
+| HOTSPOT-192    | T7      |
+| HOTSPOT-193    | T6, T7  |
 
 **Coverage:** 13 / 13 mapped — no unmapped P1 IDs
 
@@ -345,15 +345,15 @@ Phase 3 (Sequential):
 
 ## Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | endLine type + emit | ✅ Granular |
-| T2 | spawn only | ✅ Granular |
-| T3 | parse+aggregate+fixtures (cohesive git submodule) | ✅ OK cohesive |
-| T4 | scorer signature + tests | ✅ Granular |
-| T5 | scan wiring | ✅ Granular |
-| T6 | integration/CLI | ✅ Granular |
-| T7 | docs + full gate | ✅ Granular |
+| Task | Scope                                             | Status         |
+| ---- | ------------------------------------------------- | -------------- |
+| T1   | endLine type + emit                               | ✅ Granular    |
+| T2   | spawn only                                        | ✅ Granular    |
+| T3   | parse+aggregate+fixtures (cohesive git submodule) | ✅ OK cohesive |
+| T4   | scorer signature + tests                          | ✅ Granular    |
+| T5   | scan wiring                                       | ✅ Granular    |
+| T6   | integration/CLI                                   | ✅ Granular    |
+| T7   | docs + full gate                                  | ✅ Granular    |
 
 ---
 

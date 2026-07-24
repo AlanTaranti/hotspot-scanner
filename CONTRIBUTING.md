@@ -9,11 +9,11 @@ Thank you for your interest in contributing. This document explains how to set u
 
 ## Prerequisites
 
-| Requirement | Version |
-|-------------|---------|
-| Node.js | 22+ |
-| pnpm | latest stable |
-| git | required at runtime for scans |
+| Requirement | Version                       |
+| ----------- | ----------------------------- |
+| Node.js     | 22+                           |
+| pnpm        | latest stable                 |
+| git         | required at runtime for scans |
 
 ## Local setup
 
@@ -37,16 +37,26 @@ pnpm build && pnpm test
 
 This is the required acceptance bar for all contributions. There is no CI pipeline in v1 — local verification is what reviewers expect.
 
+### Recommended local checks (optional)
+
+These scripts help catch issues earlier; they are **not** part of the required Done gate in AGENTS.md:
+
+```bash
+pnpm typecheck    # TypeScript for src/ and bin/ without emit
+pnpm lint         # ESLint (flat config at eslint.config.mjs)
+pnpm format:check # Prettier verification (use pnpm format to fix)
+```
+
 ### Coverage thresholds
 
 Per-file coverage applies to all `src/**` and `bin/**` files, except `src/types/**`:
 
-| Metric | Minimum |
-|--------|---------|
-| Lines | 90% |
-| Functions | 90% |
-| Branches | 80% |
-| Statements | 80% |
+| Metric     | Minimum |
+| ---------- | ------- |
+| Lines      | 90%     |
+| Functions  | 90%     |
+| Branches   | 80%     |
+| Statements | 80%     |
 
 Do not lower thresholds, skip tests, or weaken assertions to pass the gate. A falling test count is a potential regression — investigate before merging.
 
@@ -59,10 +69,10 @@ pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts
 pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts --since "12 months ago" --format json
 ```
 
-| Exit code | Meaning |
-|-----------|---------|
-| `0` | Scan completed successfully |
-| `!= 0` | Invalid repo/path, git error, or invalid CLI arguments |
+| Exit code | Meaning                                                |
+| --------- | ------------------------------------------------------ |
+| `0`       | Scan completed successfully                            |
+| `!= 0`    | Invalid repo/path, git error, or invalid CLI arguments |
 
 ## How to contribute
 
@@ -125,12 +135,12 @@ hotspot-scanner/
 
 External dependencies must stay inside their adapter modules (see [.specs/codebase/INTEGRATIONS.md](.specs/codebase/INTEGRATIONS.md)):
 
-| Dependency | Allowed location |
-|------------|------------------|
-| `ts-morph` | `src/complexity/` only |
-| `git` subprocess | `src/git/` only |
-| `picomatch` | `src/paths/` only |
-| `commander` | `bin/hotspot-scanner.ts` only |
+| Dependency       | Allowed location              |
+| ---------------- | ----------------------------- |
+| `ts-morph`       | `src/complexity/` only        |
+| `git` subprocess | `src/git/` only               |
+| `picomatch`      | `src/paths/` only             |
+| `commander`      | `bin/hotspot-scanner.ts` only |
 
 In tests, mock at adapter boundaries — not in scorers, reporter, or `scan.ts`. New runtime dependencies require design justification and an entry in `INTEGRATIONS.md`.
 
@@ -138,11 +148,11 @@ In tests, mock at adapter boundaries — not in scorers, reporter, or `scan.ts`.
 
 Changes to these modules need extra care and targeted fixtures (see [.specs/codebase/CONCERNS.md](.specs/codebase/CONCERNS.md)):
 
-| Module | Risk |
-|--------|------|
-| `src/git/` | Streaming parse, renames, merges — incorrect parsing distorts all downstream scores |
-| `src/complexity/` | McCabe decision-node definition — bugs silently change rankings |
-| `src/scoring/` | Normalization and formula changes — ranking order can shift without obvious failures |
+| Module            | Risk                                                                                 |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| `src/git/`        | Streaming parse, renames, merges — incorrect parsing distorts all downstream scores  |
+| `src/complexity/` | McCabe decision-node definition — bugs silently change rankings                      |
+| `src/scoring/`    | Normalization and formula changes — ranking order can shift without obvious failures |
 
 ## Commits and pull requests
 
@@ -152,14 +162,14 @@ Changes to these modules need extra care and targeted fixtures (see [.specs/code
 
 ## Documentation map
 
-| Topic | Document |
-|-------|----------|
-| Module layout | [.specs/codebase/STRUCTURE.md](.specs/codebase/STRUCTURE.md) |
-| Pipeline / data flow | [.specs/codebase/ARCHITECTURE.md](.specs/codebase/ARCHITECTURE.md) |
-| Testing & coverage | [.specs/codebase/TESTING.md](.specs/codebase/TESTING.md) |
+| Topic                 | Document                                                           |
+| --------------------- | ------------------------------------------------------------------ |
+| Module layout         | [.specs/codebase/STRUCTURE.md](.specs/codebase/STRUCTURE.md)       |
+| Pipeline / data flow  | [.specs/codebase/ARCHITECTURE.md](.specs/codebase/ARCHITECTURE.md) |
+| Testing & coverage    | [.specs/codebase/TESTING.md](.specs/codebase/TESTING.md)           |
 | External dependencies | [.specs/codebase/INTEGRATIONS.md](.specs/codebase/INTEGRATIONS.md) |
-| Fragile areas | [.specs/codebase/CONCERNS.md](.specs/codebase/CONCERNS.md) |
-| Conventions | [.specs/codebase/CONVENTIONS.md](.specs/codebase/CONVENTIONS.md) |
-| Decisions | [.specs/project/STATE.md](.specs/project/STATE.md) |
-| Roadmap | [.specs/project/ROADMAP.md](.specs/project/ROADMAP.md) |
-| AI/agent workflow | [AGENTS.md](AGENTS.md) |
+| Fragile areas         | [.specs/codebase/CONCERNS.md](.specs/codebase/CONCERNS.md)         |
+| Conventions           | [.specs/codebase/CONVENTIONS.md](.specs/codebase/CONVENTIONS.md)   |
+| Decisions             | [.specs/project/STATE.md](.specs/project/STATE.md)                 |
+| Roadmap               | [.specs/project/ROADMAP.md](.specs/project/ROADMAP.md)             |
+| AI/agent workflow     | [AGENTS.md](AGENTS.md)                                             |

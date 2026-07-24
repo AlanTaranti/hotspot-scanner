@@ -9,6 +9,7 @@ export type {
   FileComplexityResult,
   FunctionCompareSection,
   FunctionComplexityResult,
+  FunctionChangeStats,
   FunctionHotspotScore,
   HotspotCompareSection,
   HotspotScore,

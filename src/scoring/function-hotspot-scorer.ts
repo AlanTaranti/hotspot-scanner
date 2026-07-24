@@ -1,8 +1,9 @@
 import type {
-  FileChangeStats,
+  FunctionChangeStats,
   FunctionComplexityResult,
   FunctionHotspotScore,
 } from "../types/index.js";
+import { functionStatsKey } from "../git/function-churn/keys.js";
 import { normalizeLogMinMax } from "./normalize.js";
 
 function compareFunctionHotspotScores(
@@ -19,7 +20,7 @@ function compareFunctionHotspotScores(
 }
 
 export function scoreFunctionHotspots(
-  fileStats: Map<string, FileChangeStats>,
+  functionStats: Map<string, FunctionChangeStats>,
   functions: FunctionComplexityResult[],
 ): FunctionHotspotScore[] {
   if (functions.length === 0) {
@@ -27,19 +28,29 @@ export function scoreFunctionHotspots(
   }
 
   const complexityValues = functions.map((entry) => entry.complexity);
-  const churnValues = functions.map(
-    (entry) => fileStats.get(entry.filePath)?.commitCount ?? 0,
-  );
+  const churnValues = functions.map((entry) => {
+    const key = functionStatsKey(
+      entry.filePath,
+      entry.functionName,
+      entry.line,
+    );
+    return functionStats.get(key)?.commitCount ?? 0;
+  });
 
   const complexityNormalized = normalizeLogMinMax(complexityValues);
   const churnNormalized = normalizeLogMinMax(churnValues);
 
   return functions
     .map((entry, index) => {
-      const c = complexityNormalized[index]!;
-      const h = churnNormalized[index]!;
+      const c = complexityNormalized[index];
+      const h = churnNormalized[index];
       const hotspotScore = c + h === 0 ? 0 : (2 * c * h) / (c + h);
-      const stats = fileStats.get(entry.filePath);
+      const key = functionStatsKey(
+        entry.filePath,
+        entry.functionName,
+        entry.line,
+      );
+      const stats = functionStats.get(key);
 
       return {
         filePath: entry.filePath,

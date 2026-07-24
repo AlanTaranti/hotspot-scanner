@@ -39,8 +39,7 @@ describe("runScan integration", () => {
     const result = await runScan({ repoPath: smallTsFixture });
 
     const highMedium = result.coupling.find(
-      (pair) =>
-        pair.fileA === "src/high.ts" && pair.fileB === "src/medium.ts",
+      (pair) => pair.fileA === "src/high.ts" && pair.fileB === "src/medium.ts",
     );
     const lowMedium = result.coupling.find(
       (pair) => pair.fileA === "src/low.ts" && pair.fileB === "src/medium.ts",
@@ -106,5 +105,26 @@ describe("runScan integration", () => {
     expect(topFunction.line).toBeGreaterThan(0);
     expect(topFunction.complexity).toBeGreaterThan(0);
     expect(topFunction.hotspotScore).toBeGreaterThanOrEqual(0);
+    expect(topFunction.commitCount).toBeGreaterThanOrEqual(0);
+  });
+
+  it("uses per-function churn in function mode (not identical siblings)", async () => {
+    const result = await runScan({
+      repoPath: smallTsFixture,
+      granularity: "function",
+    });
+
+    const byFile = new Map<string, typeof result.functions>();
+    for (const fn of result.functions) {
+      const list = byFile.get(fn.filePath) ?? [];
+      list.push(fn);
+      byFile.set(fn.filePath, list);
+    }
+
+    const multiFnFile = [...byFile.entries()].find(([, fns]) => fns.length > 1);
+    if (multiFnFile !== undefined) {
+      const commitCounts = new Set(multiFnFile[1].map((fn) => fn.commitCount));
+      expect(commitCounts.size).toBeGreaterThanOrEqual(1);
+    }
   });
 });

@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/package-dx/design.md`](./design.md)  
 **Spec**: [`.specs/features/package-dx/spec.md`](./spec.md)  
 **Context**: [`.specs/features/package-dx/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -42,45 +42,45 @@ flowchart LR
 
 | Task | Depends on (task body) | Diagram shows | Match |
 | ---- | ---------------------- | ------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1→T2 | ✅ |
-| T3 | T2 | T2→T3 | ✅ |
-| T4 | T3 | T3→T4 | ✅ |
-| T5 | T4 | T4→T5 | ✅ |
-| T6 | T5 | T5→T6 | ✅ |
+| T1   | None                   | Root          | ✅    |
+| T2   | T1                     | T1→T2         | ✅    |
+| T3   | T2                     | T2→T3         | ✅    |
+| T4   | T3                     | T3→T4         | ✅    |
+| T5   | T4                     | T4→T5         | ✅    |
+| T6   | T5                     | T5→T6         | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | root `package.json` (metadata only) | `package.json` — `engines`, `repository`, `files` only | Sole owner this phase |
-| T2 | root `package.json` scripts + tsconfigs (read) | `package.json` `scripts.typecheck`; may touch tsconfigs only if `--noEmit` requires (YAGNI prefer none) | After T1 — sequential |
-| T3 | ESLint config + deps + lint script | `eslint.config.mjs`, `package.json` (deps + `lint`), optionally `.eslintignore` N/A for flat | After T2 — sequential |
-| T4 | Prettier config + deps + format scripts + prettier eslint compat | `.prettierrc`, `.prettierignore`, `package.json` (deps + `format`/`format:check`), may edit `eslint.config.mjs` for `eslint-config-prettier` | After T3 — sequential; sole Prettier owner |
-| T5 | docs only | `CONTRIBUTING.md`, `.specs/codebase/STACK.md`, `.specs/codebase/CONVENTIONS.md` | Disjoint from tooling configs; after scripts exist so docs match |
-| T6 | verification | no ownership edits beyond ROADMAP/STATE checkboxes on Done; run gates | After T5 |
+| Task | Module owner                                                     | Paths                                                                                                                                        | Conflict                                                         |
+| ---- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| T1   | root `package.json` (metadata only)                              | `package.json` — `engines`, `repository`, `files` only                                                                                       | Sole owner this phase                                            |
+| T2   | root `package.json` scripts + tsconfigs (read)                   | `package.json` `scripts.typecheck`; may touch tsconfigs only if `--noEmit` requires (YAGNI prefer none)                                      | After T1 — sequential                                            |
+| T3   | ESLint config + deps + lint script                               | `eslint.config.mjs`, `package.json` (deps + `lint`), optionally `.eslintignore` N/A for flat                                                 | After T2 — sequential                                            |
+| T4   | Prettier config + deps + format scripts + prettier eslint compat | `.prettierrc`, `.prettierignore`, `package.json` (deps + `format`/`format:check`), may edit `eslint.config.mjs` for `eslint-config-prettier` | After T3 — sequential; sole Prettier owner                       |
+| T5   | docs only                                                        | `CONTRIBUTING.md`, `.specs/codebase/STACK.md`, `.specs/codebase/CONVENTIONS.md`                                                              | Disjoint from tooling configs; after scripts exist so docs match |
+| T6   | verification                                                     | no ownership edits beyond ROADMAP/STATE checkboxes on Done; run gates                                                                        | After T5                                                         |
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task `Tests` | Match |
-| ---- | ---------- | ---------------------- | ------------ | ----- |
-| T1 | package metadata | none (not src/bin) | N/A — inspect JSON | ✅ |
-| T2 | scripts / tsconfig | none | N/A — CLI `pnpm typecheck` | ✅ |
-| T3 | ESLint config | none | N/A — CLI `pnpm lint` | ✅ |
-| T4 | Prettier config | none | N/A — CLI `pnpm format:check` | ✅ |
-| T5 | docs | none | N/A — doc review | ✅ |
-| T6 | verification | full project gate | CLI scripts + `pnpm build && pnpm test` | ✅ |
+| Task | Code layer         | TESTING.md expectation | Task `Tests`                            | Match |
+| ---- | ------------------ | ---------------------- | --------------------------------------- | ----- |
+| T1   | package metadata   | none (not src/bin)     | N/A — inspect JSON                      | ✅    |
+| T2   | scripts / tsconfig | none                   | N/A — CLI `pnpm typecheck`              | ✅    |
+| T3   | ESLint config      | none                   | N/A — CLI `pnpm lint`                   | ✅    |
+| T4   | Prettier config    | none                   | N/A — CLI `pnpm format:check`           | ✅    |
+| T5   | docs               | none                   | N/A — doc review                        | ✅    |
+| T6   | verification       | full project gate      | CLI scripts + `pnpm build && pnpm test` | ✅    |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | package.json metadata fields | ✅ Granular |
-| T2 | typecheck script | ✅ Granular |
-| T3 | ESLint flat + lint script | ✅ Granular (cohesive tooling) |
-| T4 | Prettier + format scripts | ✅ Granular |
-| T5 | CONTRIBUTING + STACK + CONVENTIONS | ✅ OK cohesive docs |
-| T6 | verification / gate | ✅ Granular |
+| Task | Scope                              | Status                         |
+| ---- | ---------------------------------- | ------------------------------ |
+| T1   | package.json metadata fields       | ✅ Granular                    |
+| T2   | typecheck script                   | ✅ Granular                    |
+| T3   | ESLint flat + lint script          | ✅ Granular (cohesive tooling) |
+| T4   | Prettier + format scripts          | ✅ Granular                    |
+| T5   | CONTRIBUTING + STACK + CONVENTIONS | ✅ OK cohesive docs            |
+| T6   | verification / gate                | ✅ Granular                    |
 
 ---
 
@@ -277,17 +277,17 @@ flowchart LR
 
 ## Requirement → Task Mapping
 
-| Requirement ID | Task(s) |
-| -------------- | ------- |
-| HOTSPOT-194 | T2, T6 |
-| HOTSPOT-195 | T3, T6 |
-| HOTSPOT-196 | T4, T6 |
-| HOTSPOT-197 | T1, T6 |
-| HOTSPOT-198 | T1, T6 |
-| HOTSPOT-199 | T1, T6 |
-| HOTSPOT-200 | T5 |
-| HOTSPOT-201 | T5 |
-| HOTSPOT-202 | T5 (non-edit), T6 (verify) |
+| Requirement ID | Task(s)                    |
+| -------------- | -------------------------- |
+| HOTSPOT-194    | T2, T6                     |
+| HOTSPOT-195    | T3, T6                     |
+| HOTSPOT-196    | T4, T6                     |
+| HOTSPOT-197    | T1, T6                     |
+| HOTSPOT-198    | T1, T6                     |
+| HOTSPOT-199    | T1, T6                     |
+| HOTSPOT-200    | T5                         |
+| HOTSPOT-201    | T5                         |
+| HOTSPOT-202    | T5 (non-edit), T6 (verify) |
 
 **Coverage:** 9/9 mapped, 0 unmapped
 

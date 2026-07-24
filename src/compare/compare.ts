@@ -30,12 +30,6 @@ const EMPTY_FUNCTION_SECTION: FunctionCompareSection = {
   rankChanged: [],
 };
 
-const EMPTY_COUPLING_SECTION: CouplingCompareSection = {
-  new: [],
-  removed: [],
-  rankChanged: [],
-};
-
 interface RankedEntity<T> {
   entity: T;
   rank: number;
@@ -113,7 +107,9 @@ function compareHotspots(
   baseline: HotspotScore[],
   current: HotspotScore[],
 ): HotspotCompareSection {
-  return compareRankedSections(baseline, current, (item) => hotspotKey(item.filePath));
+  return compareRankedSections(baseline, current, (item) =>
+    hotspotKey(item.filePath),
+  );
 }
 
 function compareFunctions(

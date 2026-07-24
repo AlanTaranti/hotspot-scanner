@@ -8,6 +8,7 @@ import {
   type MergedScanConfig,
 } from "./config/index.js";
 import { createGitMiner } from "./git/index.js";
+import { createFunctionChurnMiner } from "./git/function-churn/index.js";
 import { createPathScope, filterGitMinerResult } from "./paths/index.js";
 import {
   createFunctionHotspotScorer,
@@ -30,7 +31,9 @@ async function validateRepoPath(repoPath: string): Promise<void> {
     if (error instanceof Error && error.message.includes("repoPath")) {
       throw error;
     }
-    throw new Error(`repoPath does not exist or is not accessible: ${repoPath}`);
+    throw new Error(
+      `repoPath does not exist or is not accessible: ${repoPath}`,
+    );
   }
 }
 
@@ -95,16 +98,22 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
     since,
     onProgress: options.onProgress,
   });
-  const { fileStats, coChangeEvents, warnings: gitWarnings } =
-    filterGitMinerResult(rawGit, scope);
+  const {
+    fileStats,
+    coChangeEvents,
+    warnings: gitWarnings,
+  } = filterGitMinerResult(rawGit, scope);
 
   for (const message of gitWarnings) {
     onWarning?.(message);
   }
 
   const analyzer = createComplexityAnalyzer();
-  const { results, functions: functionComplexity, warnings: complexityWarnings } =
-    await analyzer.analyze({
+  const {
+    results,
+    functions: functionComplexity,
+    warnings: complexityWarnings,
+  } = await analyzer.analyze({
     repoPath: options.repoPath,
     scope,
   });
@@ -124,8 +133,20 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
   const scannedAt = new Date().toISOString();
 
   if (granularity === "function") {
+    const churnMiner = createFunctionChurnMiner();
+    const { functionStats, warnings: churnWarnings } = await churnMiner.mine({
+      repoPath: options.repoPath,
+      since,
+      functions: functionComplexity,
+      onProgress: options.onProgress,
+    });
+
+    for (const message of churnWarnings) {
+      onWarning?.(message);
+    }
+
     const functions = createFunctionHotspotScorer().score(
-      fileStats,
+      functionStats,
       functionComplexity,
     );
 

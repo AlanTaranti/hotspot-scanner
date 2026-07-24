@@ -14,17 +14,17 @@ git log (stream) → complexity (ts-morph) → scoring (+ static coupling enrich
 optional: loadBaseline → compareScanResults → compare report
 ```
 
-| Stage | Module | Key components |
-| ----- | ------ | -------------- |
-| Git | `src/git/` | `GitMiner` — single `git log` pass, streaming parse |
-| Complexity | `src/complexity/` | `ComplexityAnalyzer` — McCabe over ts-morph AST |
-| Scoring | `src/scoring/` | `HotspotScorer`, `FunctionHotspotScorer`, `TemporalCouplingScorer`, `enrichCouplingStaticDeps` |
-| Config | `src/config/` | `.hotspot-scanner.json` + `mergeScanOptions` (CLI > config > defaults) |
-| Compare | `src/compare/` | `loadBaseline`, `compareScanResults` |
-| Report | `src/report/` | table, JSON, markdown, CSV bundle (+ compare variants) |
-| Orchestration | `src/scan.ts` | `runScan()` |
-| CLI | `bin/hotspot-scanner.ts` | commander — flags only, no domain logic |
-| Schemas | `schemas/` | `scan-result.json`, `compare-result.json` |
+| Stage         | Module                   | Key components                                                                                 |
+| ------------- | ------------------------ | ---------------------------------------------------------------------------------------------- |
+| Git           | `src/git/`               | `GitMiner` — single `git log` pass, streaming parse                                            |
+| Complexity    | `src/complexity/`        | `ComplexityAnalyzer` — McCabe over ts-morph AST                                                |
+| Scoring       | `src/scoring/`           | `HotspotScorer`, `FunctionHotspotScorer`, `TemporalCouplingScorer`, `enrichCouplingStaticDeps` |
+| Config        | `src/config/`            | `.hotspot-scanner.json` + `mergeScanOptions` (CLI > config > defaults)                         |
+| Compare       | `src/compare/`           | `loadBaseline`, `compareScanResults`                                                           |
+| Report        | `src/report/`            | table, JSON, markdown, CSV bundle (+ compare variants)                                         |
+| Orchestration | `src/scan.ts`            | `runScan()`                                                                                    |
+| CLI           | `bin/hotspot-scanner.ts` | commander — flags only, no domain logic                                                        |
+| Schemas       | `schemas/`               | `scan-result.json`, `compare-result.json`                                                      |
 
 ## Data model (in-memory)
 
@@ -43,7 +43,7 @@ optional: loadBaseline → compareScanResults → compare report
 
 - Formulas SoT: [CONCERNS.md](../../../.specs/codebase/CONCERNS.md) — `hotspotScore = 2ch / (c + h)`; `couplingStrength = coChangeCount / min(commitsA, commitsB)`
 - Churn = raw commit count (not relative code churn)
-- Function mode: complexity normalized across functions; churn inherited from parent file `commitCount` until M23
+- Function mode: complexity normalized across functions; churn from per-function hunk overlap (`FunctionChurnMiner`, M23)
 - `CouplingPair.hasStaticDependency` set post-score (ranking unchanged)
 - Threshold: `--min-cochange` / `DEFAULT_MIN_COCHANGE = 3`
 
@@ -53,30 +53,30 @@ List and definition SoT: [CONCERNS.md](../../../.specs/codebase/CONCERNS.md) / [
 
 ## CLI flags
 
-| Flag | Purpose |
-| ---- | ------- |
-| `scan <path>` | Target repository |
-| `--since <period>` | Git history window (default ~12 months) |
-| `--format <fmt>` | `table` \| `json` \| `markdown` \| `csv` |
-| `--granularity <mode>` | `file` (default) or `function` |
-| `--top <N>` | Slice rankings for **table/markdown only**; ignored for json/csv |
-| `--min-cochange <N>` | Coupling pair threshold (default 3) |
-| `--include` / `--exclude` | Path scoping (repeatable) |
-| `--output <path>` | Write report to file; **required** for `--format csv` |
-| `--baseline <file>` | Compare against prior `ScanResult` JSON |
+| Flag                      | Purpose                                                          |
+| ------------------------- | ---------------------------------------------------------------- |
+| `scan <path>`             | Target repository                                                |
+| `--since <period>`        | Git history window (default ~12 months)                          |
+| `--format <fmt>`          | `table` \| `json` \| `markdown` \| `csv`                         |
+| `--granularity <mode>`    | `file` (default) or `function`                                   |
+| `--top <N>`               | Slice rankings for **table/markdown only**; ignored for json/csv |
+| `--min-cochange <N>`      | Coupling pair threshold (default 3)                              |
+| `--include` / `--exclude` | Path scoping (repeatable)                                        |
+| `--output <path>`         | Write report to file; **required** for `--format csv`            |
+| `--baseline <file>`       | Compare against prior `ScanResult` JSON                          |
 
 Config file: `<repoPath>/.hotspot-scanner.json` only (`since`, `include`, `exclude`, `granularity`, `minCochange`, `top`). CLI-only: `format`, `output`, `baseline`.
 
 ## Failure modes
 
-| Case | Response |
-| ---- | -------- |
-| Invalid git repo | Clear error, exit != 0 |
-| Invalid TS/JS syntax | Warning, skip file |
-| Insufficient history | Warning, proceed with available data |
-| File renames | Handle via `--follow`; warn if incomplete |
-| Bad baseline / schema | `BaselineError`, exit != 0 |
-| Invalid config JSON/types | `ConfigError`, exit != 0 |
+| Case                      | Response                                  |
+| ------------------------- | ----------------------------------------- |
+| Invalid git repo          | Clear error, exit != 0                    |
+| Invalid TS/JS syntax      | Warning, skip file                        |
+| Insufficient history      | Warning, proceed with available data      |
+| File renames              | Handle via `--follow`; warn if incomplete |
+| Bad baseline / schema     | `BaselineError`, exit != 0                |
+| Invalid config JSON/types | `ConfigError`, exit != 0                  |
 
 ## Output JSON contract
 

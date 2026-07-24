@@ -39,7 +39,7 @@ flowchart TB
    - **Complexity Analyzer** — discovers in-scope TS/JS files on the main thread (directory prune + file filter), chunks into batches of 50, dispatches batches to a bounded `worker_threads` pool (`createWorkerPool`, default concurrency `min(availableParallelism(), 4)`), each worker runs a fresh ts-morph `Project` per batch → merged `ComplexityResult[]` + `FunctionComplexityResult[]` in discovery order; forwards warnings
    - **Scoring branch** on `granularity` (default `file`):
      - **file** — `createHotspotScorer()` → `ScanResult.hotspots`
-     - **function** — `createFunctionHotspotScorer()` with inherited file churn → `ScanResult.functions`
+     - **function** — `createFunctionChurnMiner()` (patch stream, hunk overlap) → `createFunctionHotspotScorer()` with per-function churn → `ScanResult.functions`
    - **Temporal Coupling Scorer** — file-pair ranked `coupling` (unchanged in both modes)
    - **Static coupling enricher** — `enrichCouplingStaticDeps()` sets `hasStaticDependency` on each pair by scanning working-tree sources for resolvable static `import`/`export … from`/`require` edges (relative resolution only; missing/unreadable source → `false`; does not change ranking)
 4. CLI passes `ScanResult` to **Reporter** for table, JSON, markdown, or CSV output (`--top` applied at render time for table/markdown only; ignored for JSON and CSV)
@@ -65,7 +65,7 @@ flowchart TB
 
 ## Key constraints
 
-- Single Git log pass (ADR-2026-020)
+- Single **numstat** Git log pass for file churn and coupling (ADR-2026-020); function mode adds a **second** patch stream (`git log -p --unified=0`) only for per-function churn attribution
 - Working-tree AST only (not historical file versions)
 - Invalid TS/JS: warn and skip — do not abort scan
 - Streaming required for large repos (RT-001)
@@ -98,17 +98,17 @@ Integration validation: `tests/fixtures/repos/small-ts/` (see [TESTING.md](./TES
 
 Each `HotspotScore` entry in `ScanResult.hotspots` carries normalized scores plus raw metrics:
 
-| Field | Source | JSON | Table |
-| ----- | ------ | ---- | ----- |
-| `filePath` | complexity entry | yes | yes |
-| `hotspotScore` | harmonic mean of normalized c/h | yes | yes |
-| `complexityNormalized` | log1p+min-max | yes | yes (CpxN) |
-| `churnNormalized` | log1p+min-max | yes | yes (ChurnN) |
-| `cyclomaticComplexity` | `ComplexityResult` | yes | yes (Cpx) |
-| `functionCount` | `ComplexityResult` | yes | yes (Funcs) |
-| `commitCount` | `FileChangeStats` | yes | yes (Churn) |
-| `linesChanged` | `FileChangeStats` | yes | no |
-| `authorCount` | `FileChangeStats.authors.size` | yes | yes (Authors) |
+| Field                  | Source                          | JSON | Table         |
+| ---------------------- | ------------------------------- | ---- | ------------- |
+| `filePath`             | complexity entry                | yes  | yes           |
+| `hotspotScore`         | harmonic mean of normalized c/h | yes  | yes           |
+| `complexityNormalized` | log1p+min-max                   | yes  | yes (CpxN)    |
+| `churnNormalized`      | log1p+min-max                   | yes  | yes (ChurnN)  |
+| `cyclomaticComplexity` | `ComplexityResult`              | yes  | yes (Cpx)     |
+| `functionCount`        | `ComplexityResult`              | yes  | yes (Funcs)   |
+| `commitCount`          | `FileChangeStats`               | yes  | yes (Churn)   |
+| `linesChanged`         | `FileChangeStats`               | yes  | no            |
+| `authorCount`          | `FileChangeStats.authors.size`  | yes  | yes (Authors) |
 
 JSON `version` remains `"1.0"` (additive fields).
 
@@ -116,33 +116,35 @@ JSON `version` remains `"1.0"` (additive fields).
 
 After temporal coupling scoring, `enrichCouplingStaticDeps()` (`src/scoring/enrich-coupling-static.ts`) inspects working-tree sources under `repoPath` and sets `hasStaticDependency` on each `CouplingPair`. Ranking (`couplingStrength`, `coChangeCount`, order) is unchanged — enrichment is post-score only.
 
-| Field | Source | JSON | Table / markdown | CSV |
-| ----- | ------ | ---- | ---------------- | --- |
-| `fileA`, `fileB` | coupling scorer | yes | yes | yes |
-| `coChangeCount`, `couplingStrength` | coupling scorer | yes | yes | yes |
-| `hasStaticDependency` | static import/export/require resolution | yes (`boolean`) | yes (`yes`/`no` as `StaticDep`) | yes (`true`/`false`) |
+| Field                               | Source                                  | JSON            | Table / markdown                | CSV                  |
+| ----------------------------------- | --------------------------------------- | --------------- | ------------------------------- | -------------------- |
+| `fileA`, `fileB`                    | coupling scorer                         | yes             | yes                             | yes                  |
+| `coChangeCount`, `couplingStrength` | coupling scorer                         | yes             | yes                             | yes                  |
+| `hasStaticDependency`               | static import/export/require resolution | yes (`boolean`) | yes (`yes`/`no` as `StaticDep`) | yes (`true`/`false`) |
 
 - **Detection:** resolvable static `import`/`export … from`/`require` string from either file to the other; bare package specifiers alone do not set the flag
 - **Resolution:** relative paths only (extensionless + common TS/JS extensions / `index`); no tsconfig `paths` or package `exports`
 - **Errors:** missing or unreadable source → `false`; scan continues (optional `onWarning`)
 - **Downstream:** JSON Schema requires `hasStaticDependency` on coupling items — see [JSON Contract (M20)](#json-contract-m20)
 
-## Function granularity (M11)
+## Function granularity (M11, M23)
 
 `--granularity file|function` (default `file`) selects the active ranking array in `ScanResult`:
 
-| Mode | Active array | Inactive array | `meta.granularity` |
-| ---- | ------------ | -------------- | ------------------ |
-| `file` | `hotspots: HotspotScore[]` | `functions: []` | `"file"` |
-| `function` | `functions: FunctionHotspotScore[]` | `hotspots: []` | `"function"` |
+| Mode       | Active array                        | Inactive array  | `meta.granularity` |
+| ---------- | ----------------------------------- | --------------- | ------------------ |
+| `file`     | `hotspots: HotspotScore[]`          | `functions: []` | `"file"`           |
+| `function` | `functions: FunctionHotspotScore[]` | `hotspots: []`  | `"function"`       |
 
-Each `FunctionHotspotScore` entry carries per-function McCabe plus inherited file churn:
+Each `FunctionHotspotScore` entry carries per-function McCabe plus **per-function churn** (M23 hunk overlap):
 
-| Field | Source |
-| ----- | ------ |
-| `filePath`, `functionName`, `line`, `complexity` | `FunctionComplexityResult` from complexity analyzer |
-| `hotspotScore`, `complexityNormalized`, `churnNormalized` | harmonic combiner over all functions (same formula as file mode) |
-| `commitCount`, `linesChanged`, `authorCount` | parent file `FileChangeStats` (inherited) |
+| Field                                                     | Source                                                                                                          |
+| --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `filePath`, `functionName`, `line`, `complexity`          | `FunctionComplexityResult` from complexity analyzer (`endLine` is pipeline-internal for overlap)                |
+| `hotspotScore`, `complexityNormalized`, `churnNormalized` | harmonic combiner over all functions (same formula as file mode)                                                |
+| `commitCount`, `linesChanged`, `authorCount`              | `FunctionChangeStats` from hunk-overlap miner (`src/git/function-churn/`) — **not** inherited parent file stats |
+
+**Function-mode git:** after complexity, `createFunctionChurnMiner()` streams `git log -p --unified=0`, attributes commits whose hunks intersect each function's current `[line, endLine]`, then `scoreFunctionHotspots()` consumes the per-function map. File mode does **not** spawn the patch stream.
 
 `coupling` remains file-pair ranked in both modes. `--top` slices the active ranking array at render time via `sliceScanResult` for **table and markdown only**; JSON and CSV receive full arrays.
 
@@ -150,18 +152,18 @@ Each `FunctionHotspotScore` entry carries per-function McCabe plus inherited fil
 
 `collectFunctionsInScope` in `analyze-file.ts` enumerates callable bodies for per-function McCabe and file-level sums. M22 extended collection beyond M11 without changing the McCabe decision-node definition in `mccabe.ts` — only **which** nodes are collected.
 
-| Construct | Collected | `functionName` |
-| --------- | --------- | -------------- |
-| `function foo()` | yes (M11) | `foo` |
-| `class Foo { bar() {} }` | yes (M11) | `bar` |
-| `constructor() {}` | yes (M11) | `constructor` |
-| `const foo = () => {}` | yes (M11) | `foo` |
-| Anonymous arrow / function expression | yes (M11) | `<anonymous>:L{line}` |
-| `get foo()` / `set foo()` | yes (M22) | `foo` (bare accessor name; disambiguate getter/setter by `line`) |
-| `class C { foo = () => {} }` or `foo = function() {}` | yes (M22) | `foo` |
-| `const o = { bar() {} }` | yes (M22) | `bar` |
-| `const o = { baz: () => {} }` | yes (M22) | `baz` |
-| Object property anonymous function | yes (M22) | `<anonymous>:L{line}` |
+| Construct                                             | Collected | `functionName`                                                   |
+| ----------------------------------------------------- | --------- | ---------------------------------------------------------------- |
+| `function foo()`                                      | yes (M11) | `foo`                                                            |
+| `class Foo { bar() {} }`                              | yes (M11) | `bar`                                                            |
+| `constructor() {}`                                    | yes (M11) | `constructor`                                                    |
+| `const foo = () => {}`                                | yes (M11) | `foo`                                                            |
+| Anonymous arrow / function expression                 | yes (M11) | `<anonymous>:L{line}`                                            |
+| `get foo()` / `set foo()`                             | yes (M22) | `foo` (bare accessor name; disambiguate getter/setter by `line`) |
+| `class C { foo = () => {} }` or `foo = function() {}` | yes (M22) | `foo`                                                            |
+| `const o = { bar() {} }`                              | yes (M22) | `bar`                                                            |
+| `const o = { baz: () => {} }`                         | yes (M22) | `baz`                                                            |
+| Object property anonymous function                    | yes (M22) | `<anonymous>:L{line}`                                            |
 
 Nested object literals recurse with the same policy as nested functions. Non-callable property initializers are skipped. Fixtures with manually verified complexities: `tests/fixtures/complexity/getters-setters.ts`, `class-field-arrows.ts`, `object-literal-methods.ts`. Naming SoT: [function-granularity/context.md](../features/function-granularity/context.md) (M11 base) + [function-ast-coverage/context.md](../features/function-ast-coverage/context.md) (M22 extensions).
 
@@ -179,9 +181,9 @@ Nested object literals recurse with the same policy as nested functions. Non-cal
 
 Published JSON Schema files under `schemas/` define the CLI JSON contract:
 
-| File | Root type |
-| ---- | --------- |
-| `schemas/scan-result.json` | `ScanResult` |
+| File                          | Root type       |
+| ----------------------------- | --------------- |
+| `schemas/scan-result.json`    | `ScanResult`    |
 | `schemas/compare-result.json` | `CompareResult` |
 
 - **Coupling items** require `hasStaticDependency` (boolean) in both schemas

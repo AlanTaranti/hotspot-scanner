@@ -20,7 +20,18 @@ export interface FunctionComplexityResult {
   filePath: string;
   functionName: string;
   line: number;
+  endLine: number;
   complexity: number;
+}
+
+/** Per-function churn from hunk-overlap attribution (function mode only). */
+export interface FunctionChangeStats {
+  filePath: string;
+  functionName: string;
+  line: number;
+  commitCount: number;
+  linesChanged: number;
+  authors: Set<string>;
 }
 
 /** Per-file complexity analysis with per-function breakdown. */

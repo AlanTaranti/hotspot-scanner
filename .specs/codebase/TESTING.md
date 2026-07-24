@@ -24,27 +24,27 @@ Config: `vitest.config.ts` at repo root.
 
 ### Provider and output
 
-| Setting | Value |
-|---------|-------|
-| Provider | `v8` (`@vitest/coverage-v8`) |
-| Output dir | `coverage/` (gitignored) |
+| Setting    | Value                        |
+| ---------- | ---------------------------- |
+| Provider   | `v8` (`@vitest/coverage-v8`) |
+| Output dir | `coverage/` (gitignored)     |
 
 ### Included / excluded files
 
-| Config key | Patterns |
-|------------|----------|
-| `coverage.include` | `src/**/*.ts`, `bin/**/*.ts` |
+| Config key         | Patterns                                                                |
+| ------------------ | ----------------------------------------------------------------------- |
+| `coverage.include` | `src/**/*.ts`, `bin/**/*.ts`                                            |
 | `coverage.exclude` | `src/types/**`, `src/complexity/worker.ts`, `**/*.test.ts`, `**/*.d.ts` |
 
 ### `coverage.thresholds` (global, per-file)
 
-| Setting | Value |
-|---------|-------|
-| `perFile` | `true` |
-| `lines` | ≥ 90% |
-| `functions` | ≥ 90% |
-| `branches` | ≥ 80% |
-| `statements` | ≥ 80% |
+| Setting      | Value  |
+| ------------ | ------ |
+| `perFile`    | `true` |
+| `lines`      | ≥ 90%  |
+| `functions`  | ≥ 90%  |
+| `branches`   | ≥ 80%  |
+| `statements` | ≥ 80%  |
 
 **Threshold behavior:**
 
@@ -73,18 +73,19 @@ coverage: {
 
 ## Test layers
 
-| Layer | What | Tools |
-|-------|------|-------|
-| Unit | Scoring formulas, git log line parsing, McCabe nodes | Vitest + fixtures |
-| Git Miner | Rename, merge, delete cases | Vitest + `tests/fixtures/git-log/` |
-| Complexity | Known McCabe values | Vitest + `tests/fixtures/complexity/` |
-| CLI | Flag defaults and invalid args | Vitest; mock `process.exit` |
-| Integration | Full scan on fixture repo | Vitest + `tests/fixtures/repos/small-ts/` (primary E2E); P2: `with-renames/`, `merge-heavy/` |
-| Performance | Large repo timing | Manual benchmark (not CI) |
+| Layer          | What                                                 | Tools                                                                                        |
+| -------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Unit           | Scoring formulas, git log line parsing, McCabe nodes | Vitest + fixtures                                                                            |
+| Git Miner      | Rename, merge, delete cases                          | Vitest + `tests/fixtures/git-log/`                                                           |
+| Function churn | Hunk overlap, nested credit                          | Vitest + `tests/fixtures/git-patch/`                                                         |
+| Complexity     | Known McCabe values                                  | Vitest + `tests/fixtures/complexity/`                                                        |
+| CLI            | Flag defaults and invalid args                       | Vitest; mock `process.exit`                                                                  |
+| Integration    | Full scan on fixture repo                            | Vitest + `tests/fixtures/repos/small-ts/` (primary E2E); P2: `with-renames/`, `merge-heavy/` |
+| Performance    | Large repo timing                                    | Manual benchmark (not CI)                                                                    |
 
 ## Mock boundaries
 
-- Mock **git** only at `GitMiner` adapter boundary — not in scorers or reporter
+- Mock **git** at `GitMiner` and `FunctionChurnMiner` adapter boundaries — not in scorers or reporter
 - Mock **ts-morph** only at `ComplexityAnalyzer` adapter boundary
 - Pipeline integration tests use real fixtures where practical
 

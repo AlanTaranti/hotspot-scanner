@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M24 Package DX Planned** — post-v1 milestones M7–M22 Done; M23 per-function-churn specs Planned; M24 package-dx specs Planned (Execute after Status promotion).
+Status: **M24 Package DX Done** — post-v1 milestones M7–M24 Done.
 
 ## Milestone 1 — Scaffold
 
@@ -208,27 +208,27 @@ Extended `collectFunctionsInScope` / `resolveFunctionName` for getters, setters,
 - [x] Extend `src/complexity/analyze-file.ts` for getters/setters, class field arrows, object-literal methods
 - [x] McCabe fixtures per construct; do not change existing decision-node definition
 
-### Milestone 23 — Per-Function Git Churn — Specs Planned
+### Milestone 23 — Per-Function Git Churn — DONE
 
 → [`.specs/features/per-function-churn/spec.md`](../features/per-function-churn/spec.md)  
-**Slug:** `per-function-churn` | **Priority:** Medium | **Specs:** Planned (`tasks.md` Status: Planned)
+**Slug:** `per-function-churn` | **Priority:** Medium | **Specs:** Done
 
 Hunk-overlap attribution on `git log` patch stream (`--unified=0`) in `--granularity function` only; replaces M11 inherited file churn. Locked decisions: [per-function-churn/context.md](../features/per-function-churn/context.md). Out of scope: historical AST per commit. IDs: HOTSPOT-181–193.
 
-- [ ] Emit `endLine` on `FunctionComplexityResult`; function-mode hunk-overlap miner under `src/git/function-churn/`
-- [ ] `scoreFunctionHotspots` uses per-function churn map (stop inheriting `FileChangeStats`); wire in `runScan` function branch only
-- [ ] Living docs (ARCHITECTURE / CONCERNS / TESTING) + `pnpm build && pnpm test`
+- [x] Emit `endLine` on `FunctionComplexityResult`; function-mode hunk-overlap miner under `src/git/function-churn/`
+- [x] `scoreFunctionHotspots` uses per-function churn map (stop inheriting `FileChangeStats`); wire in `runScan` function branch only
+- [x] Living docs (ARCHITECTURE / CONCERNS / TESTING) + `pnpm build && pnpm test`
 
-### Milestone 24 — Package DX — Specs Planned
+### Milestone 24 — Package DX — DONE
 
 → [`.specs/features/package-dx/spec.md`](../features/package-dx/spec.md)  
-**Slug:** `package-dx` | **Priority:** Medium | **Specs:** Planned (`tasks.md` Status: Planned)
+**Slug:** `package-dx` | **Priority:** Medium | **Specs:** Done
 
 Publish-prep + contributor DX only (no `npm publish`, no CI, no `dev` script). Locked decisions: [package-dx/context.md](../features/package-dx/context.md). Scope B: `files` allowlist **includes `schemas/`** (closes M20 json-contract thread). IDs: HOTSPOT-194–202. Project gate remains `pnpm build && pnpm test`.
 
-- [ ] Scripts: `typecheck`, `lint`, `format` + `format:check` (Prettier; ESLint flat config)
-- [ ] `package.json`: `engines.node >= 22`, `repository`, `files` including `dist/`, `schemas/`, LICENSE, README
-- [ ] Document typecheck/lint/format in CONTRIBUTING alongside gate; keep “no CI in v1”; sync STACK/CONVENTIONS
+- [x] Scripts: `typecheck`, `lint`, `format` + `format:check` (Prettier; ESLint flat config)
+- [x] `package.json`: `engines.node >= 22`, `repository`, `files` including `dist/`, `schemas/`, LICENSE, README
+- [x] Document typecheck/lint/format in CONTRIBUTING alongside gate; keep “no CI in v1”; sync STACK/CONVENTIONS
 
 ### Suggested execution order
 
