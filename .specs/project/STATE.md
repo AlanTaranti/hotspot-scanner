@@ -64,6 +64,17 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-24 | **M43 monorepo-path-detect Done** | Execute complete: `resolveMonorepoScanPath` via `git rev-parse --show-toplevel`; nested path remount + auto-include `{prefix}/**` unless CLI `--include` (synthetic CLI beats config); config discovery from original requestPath; `MONOREPO_PATH_REMOUNT` info warning; `monorepo-nested` fixture + integration/CLI smoke. Gate green (`pnpm build && pnpm test`, 855 tests). Specs: `.specs/features/monorepo-path-detect/` (Done). |
 | 2026-07-24 | **M43 monorepo-path-detect Specs Planned**               | Medium–Large Specify→Design→Tasks complete. Locked: nested path → `git rev-parse --show-toplevel` remount; auto-include `{prefix}/**` unless CLI `--include` (synthetic CLI include beats config); config discovery from original requestPath; `MONOREPO_PATH_REMOUNT` info warning; no workspace-yaml/nx. Specs: `.specs/features/monorepo-path-detect/` (`Status: Planned`). IDs HOTSPOT-570–589. No Execute in planning session. |
 | 2026-07-24 | **M46 exclude-tests-by-default Planned (Large)** | Intentional breaking default: PathScope excludes locked test globs + `**/__tests__/**` by default. Opt-in `--include-tests` / `ScanOptions.includeTests` lifts **only** built-in test patterns (artifact defaults + user `--exclude` remain). No config key; no `--no-default-excludes`. JSON contract unchanged. Specs: `.specs/features/exclude-tests-by-default/` (`context.md`, `spec.md`, `design.md`, `tasks.md` Status **Planned**). IDs HOTSPOT-640–657. No Execute in planning session. |
+| 2026-07-24 | **Post-M46 backlog M47–M55 stubbed (depth A)** | Thematic milestones after M46: M47 git-scale-pathspecs; M48 scope-extensions-excludes; M49 pipeline-perf-controls; M50 ranking-accuracy-plus; M51 scan-observability; M52 doctor-scope-parity; M53 compare-interpretation; M54 cli-adoption-extras; M55 api-trust-docs. Full specs Planned for M47/M50/M51/M52; stubs for M48/M49/M53/M54/M55. Execute order: M46→M47→M52→M48→M50→M51→M49→M55→M53→M54. IDs start HOTSPOT-660+. |
+| 2026-07-24 | **M47 git-scale-pathspecs Specs Planned (Large)** | Replace M35 count-based unrestricted patch fallback with **sequential** pathspec batches (patch stream only; numstat unchanged / ADR-2026-020). Disjoint chunk merge — no per-function double-count; ARG_MAX emergency unrestricted only after half-size retry + warning. Mega-commit: `--mega-commit-threshold` + config `megaCommitThreshold` (default 100); skip coupling + warn unchanged (no sampling). Dry-run warns when `eligibleFileCount > 1000`. Specs: `.specs/features/git-scale-pathspecs/` (`Status: Planned`). IDs HOTSPOT-660–686 (687–689 reserved). No Execute in planning session. |
+| 2026-07-24 | **Reject format/output in config (Post-M46)** | User backlog item rejected — M21 lock: `format`, `output`, `baseline`, hooks remain CLI-only. Not a milestone. |
+| 2026-07-24 | **M53 will override M41 “no compare triage”** | Planned intentional reopen: compare triage hints + compare `--explain` + `--strict` on `COMPARE_SINCE_MISMATCH`. Spec when promoting M53. |
+| 2026-07-24 | **M50 revisits M35 zero-churn omission (D6)** | Function-mode includes zero-churn-file functions (full AST discovery; patch pathspecs stay churn-only). Ranking/normalization universe grows — intentional; invert HOTSPOT-387/398 omission tests. |
+| 2026-07-24 | **M50 reopens M29 IIFE/callback omit** | Function AST collects call-argument callbacks and IIFEs; McCabe decision nodes unchanged (RT-005). |
+| 2026-07-24 | **M50 ranking-accuracy-plus Specs Planned (Large)** | Specify→Design→Tasks complete. Locked: heuristic unlinked-rename `PathAliasMap.link` + stable `RENAME_HISTORY_INCOMPLETE`; enrich canonicalize via PathAliasMap (reopen M27); PARSE_FAILED stub hotspots `parseFailed` score 0 excluded from norm universe; callbacks/IIFEs; zero-churn functions (revisit M35 D6). Specs: `.specs/features/ranking-accuracy-plus/` (`Status: Planned`). IDs HOTSPOT-730–769. No Execute in planning session. |
+| 2026-07-24 | **M51 `--verbose` = git argv only** | Narrow reopen of M38 omit-general-`--verbose`; spawn-layer argv trace only — not full debug logging. |
+| 2026-07-24 | **M51 scan-observability specs Planned (Large)** | Specify→Design→Tasks complete. Locked: SIGINT→130 / SIGTERM→143; no partial report; function-churn AbortSignal gap closed; additive `meta.timings` under JSON `1.0`; warning rollup in exec summary; `doctor --format json`; `--verbose` git argv only (`--quiet` wins). Specs: `.specs/features/scan-observability/` (`tasks.md` Status **Planned**). IDs HOTSPOT-770–799. No Execute in planning session. |
+| 2026-07-24 | **M51 SIGINT completes M34 cancel gap** | M34 sibling-abort only; M51 adds process signal → shared AbortSignal through numstat, complexity pool, and function-churn patch spawn. |
+| 2026-07-24 | **M52 doctor-scope-parity Planned (Medium)** | Doctor shares `resolveScanPipelineContext` + PathScope/`previewScanScope` inventory with scan/dry-run; new `scope` finding; M46 `includeTests` forward-compat; no doctor JSON (M51). Specs: `.specs/features/doctor-scope-parity/` (`tasks.md` Status **Planned**). IDs HOTSPOT-800–815 (+816–819 reserved). No Execute in planning session. Prefer Execute after M46. |
 
 ## Architecture decisions (ADRs)
 
@@ -86,6 +97,7 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | Language-agnostic LOC-only approach                       | ADR-2026-019                       | Defeats precision goal of v1                                                   |
 | Separate `git log` queries per signal                     | ADR-2026-020                       | Doubles I/O cost on large repos (RT-001)                                       |
 | Relative code churn (`linesChanged / fileSize`)           | Raw commit count (Decisions table) | Moving denominator problem; aggravates RT-003 rename distortion; closed for v1 |
+| `format` / `output` / `baseline` in `.hotspot-scanner.json` | CLI-only (M21)                     | Rendering/transport stay in CLI; config holds scan parameters only (Post-M46 reject) |
 
 ## Blockers
 
@@ -100,11 +112,13 @@ _None._
 
 **M7–M45 Done.** Post-M37 user DX backlog (M38–M45) **complete** as of 2026-07-24.
 
-**Next:** **M46** `exclude-tests-by-default` — specs **Planned** (HOTSPOT-640–657). Promote `tasks.md` Status → Approved/Ready, then Execute in a new session via `orchestrator-implementer`.
+**Next Execute:** **M46** `exclude-tests-by-default` — specs **Planned** (HOTSPOT-640–657). Promote `tasks.md` Status → Approved/Ready, then Execute via `orchestrator-implementer`.
+
+**Planned backlog:** Post-M46 **M47–M55** (see ROADMAP). Full specs **Planned** for M47/M50/M51/**M52** (`doctor-scope-parity`); stubs for M48/M49/M53/M54/M55. M52 Execute after M46 preferred.
 
 ## Deferred
 
 - **npm publish / npx / `pnpm dlx` install path** — future backlog (explicitly out of M37/M38–M45). Decide private registry vs public npm vs Git-only distribution later; until then official use path is GitHub clone + pnpm build.
 - npm private registry vs Git install distribution (superseded wording retained as umbrella for publish decision)
 - **CI recipes / fail-on stable deltas / SARIF** (DX items 20–23) — not in M38–M45
-- **Historical AST post-rename** (item 28) — do not prioritize (CONCERNS)
+- **Historical AST post-rename** (item 28 / Post-M46 accuracy ask) — **do not prioritize**; M26 avisos only; no milestone number (CONCERNS unmitigated matrix). True fix = per-commit function ranges — effort A.

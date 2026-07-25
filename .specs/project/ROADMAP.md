@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M45 Done** — Post-M37 user DX backlog **complete** (M38–M45 Execute done). **M46** exclude-tests-by-default — specs **Planned** (Execute pending).
+Status: **M7–M45 Done** — Post-M37 user DX backlog **complete** (M38–M45 Execute done). **M46** exclude-tests-by-default — specs **Planned** (Execute pending). **M47** / **M50** / **M51** / **M52** (`doctor-scope-parity`) — specs **Planned**. **Post-M46 backlog:** M48/M49/M53/M54/M55 stub-only until promoted.
 
 ## Milestone 1 — Scaffold
 
@@ -552,3 +552,123 @@ Intentional breaking default: test globs / `__tests__/**` excluded from PathScop
 - [ ] Wire `ScanOptions.includeTests` through `runScan`, `previewScanScope` (dry-run line), `scan` / `baseline save` / `compare`
 - [ ] Docs: ARCHITECTURE, README, `docs/recipes.md` (drop redundant `--exclude "**/*.test.ts"`); STATE decision log
 - [ ] Unit/CLI tests on scope + preview + flag forward; no new fixture repo; gate `pnpm build && pnpm test`
+
+---
+
+## Post-M46 backlog — scale, accuracy, observability, DX
+
+Depth A: thematic milestones. **M46 unchanged** (Execute first). **M47** Specify→Design→Tasks **Planned**. Full specs also for **M50 / M51 / M52**; **M48 / M49 / M53 / M54 / M55** remain ROADMAP stubs until `planner-feature` before Execute.
+
+**Rejected (not a milestone):** `format` / `output` in `.hotspot-scanner.json` — M21 CLI-only lock (see STATE).  
+**Deferred (no milestone):** Historical AST post-rename — do not prioritize (CONCERNS / STATE).
+
+### Suggested execution order (M46–M55)
+
+M46 → M47 → M52 → M48 → M50 → M51 → M49 → M55 → M53 → M54
+
+### Milestone 47 — Git Scale Pathspecs
+
+→ [`.specs/features/git-scale-pathspecs/spec.md`](../features/git-scale-pathspecs/spec.md)
+**Slug:** `git-scale-pathspecs` | **Priority:** High | **Specs:** Planned
+**IDs:** HOTSPOT-660–689 (687–689 reserved) | **Depth:** Large
+**Sisters:** function-mode-scan-efficiency (M35), coupling-stream-aggregate (M32), cli-init-doctor-dry-run (M39 dry-run)
+**Artifacts:** [context.md](../features/git-scale-pathspecs/context.md) · [spec.md](../features/git-scale-pathspecs/spec.md) · [design.md](../features/git-scale-pathspecs/design.md) · [tasks.md](../features/git-scale-pathspecs/tasks.md) (`Status: Planned`)
+
+Replace M35 count-based unrestricted patch fallback with sequential pathspec batches (patch stream only; numstat unchanged). Configurable mega-commit threshold (default 100, skip+warn unchanged). Dry-run warns when eligible files > 1000.
+
+- [ ] Batch git pathspecs when allowlist > `PATCH_PATHSPEC_FALLBACK_THRESHOLD` (1000); avoid unrestricted fallback except documented emergency path
+- [ ] Configurable mega-commit unique-file threshold (CLI + optional config key; default 100); document over-threshold policy
+- [ ] Dry-run / `previewScanScope` warns when eligible path count exceeds pathspec threshold
+
+### Milestone 48 — Scope Extensions & Artifact Excludes
+
+**Slug:** `scope-extensions-excludes` | **Priority:** Medium | **Specs:** Stub (planner before Execute)  
+**IDs:** HOTSPOT-690–709 | **Depth:** Small  
+**Sisters:** path-scoping (M7), path-config-dx (M30), exclude-tests-by-default (M46)
+
+- [ ] Add `.mjs` / `.cjs` to eligible source extensions (discovery, complexity, git intersection)
+- [ ] Expand default artifact excludes (`.turbo`, `.cache`, and related YAGNI-cut dirs from M30)
+
+### Milestone 49 — Pipeline Perf Controls
+
+**Slug:** `pipeline-perf-controls` | **Priority:** Medium | **Specs:** Stub (planner before Execute)  
+**IDs:** HOTSPOT-710–729 | **Depth:** Medium  
+**Sisters:** pipeline-stage-overlap (M34), ast-parallelization (M15), scripts/benchmark-scan.md
+
+- [ ] `--sequential` / `--no-overlap` disables M34 git∥complexity overlap
+- [ ] Automated benchmark harness (`pnpm bench` or script); wall-clock + counts; **not** part of `pnpm test` gate
+
+### Milestone 50 — Ranking Accuracy Plus
+
+→ [`.specs/features/ranking-accuracy-plus/spec.md`](../features/ranking-accuracy-plus/spec.md)  
+**Slug:** `ranking-accuracy-plus` | **Priority:** High | **Specs:** Planned  
+**IDs:** HOTSPOT-730–769 | **Depth:** Large  
+**Sisters:** rename-confidence (M26), coupling-enrichment (M27), function-ast-coverage-plus (M29), function-mode-scan-efficiency (M35)
+
+**Artifacts:** [context.md](../features/ranking-accuracy-plus/context.md) · [spec.md](../features/ranking-accuracy-plus/spec.md) · [design.md](../features/ranking-accuracy-plus/design.md) · [tasks.md](../features/ranking-accuracy-plus/tasks.md) (`Status: Planned`)
+
+- [ ] Stronger unlinked-rename linking in git miner (RT-003; prefer stable warning `code`s)
+- [ ] Apply `PathAliasMap` in static coupling enrich (rename-aware peer paths)
+- [ ] Include `PARSE_FAILED` files in hotspot ranking (flagged; score 0)
+- [ ] Function AST: collect callbacks / IIFEs / related callables (extends M29; McCabe decision nodes unchanged — RT-005)
+- [ ] Function-mode: include zero-churn-file functions (intentional revisit of M35 D6)
+
+### Milestone 51 — Scan Observability
+
+→ [`.specs/features/scan-observability/spec.md`](../features/scan-observability/spec.md)  
+**Slug:** `scan-observability` | **Priority:** High | **Specs:** Planned  
+**IDs:** HOTSPOT-770–799 | **Depth:** Large (schema + CLI + SIGINT + function-churn abort)  
+**Sisters:** perf-diagnostics-ux (M28), pipeline-stage-overlap (M34 — SIGINT was out of scope), cli-surface-polish (M38 — general `--verbose` omitted), output-interpretation-ux (M41)  
+**Artifacts:** [context.md](../features/scan-observability/context.md) · [spec.md](../features/scan-observability/spec.md) · [design.md](../features/scan-observability/design.md) · [tasks.md](../features/scan-observability/tasks.md) (`Status: Planned`)
+
+- [ ] SIGINT/SIGTERM → shared `AbortController`; clean cancel; no zombie git children/workers (exit 130/143)
+- [ ] Additive `meta.timings` per pipeline stage under JSON `version: "1.0"`
+- [ ] Warning count/code summary in table + markdown executive summary (scan + compare)
+- [ ] `doctor --format json` (structured findings; text default)
+- [ ] `--verbose` scoped to git spawn argv trace only (narrow reopen of M38 omit; `--quiet` wins)
+
+### Milestone 52 — Doctor Scope Parity
+
+→ [`.specs/features/doctor-scope-parity/spec.md`](../features/doctor-scope-parity/spec.md)  
+**Slug:** `doctor-scope-parity` | **Priority:** Medium | **Specs:** Planned  
+**IDs:** HOTSPOT-800–819 | **Depth:** Medium  
+**Sisters:** cli-init-doctor-dry-run (M39), monorepo-path-detect (M43), exclude-tests-by-default (M46); note M51 `doctor --format json` (additive `scope` finding)
+
+**Artifacts:** [context.md](../features/doctor-scope-parity/context.md) · [spec.md](../features/doctor-scope-parity/spec.md) · [design.md](../features/doctor-scope-parity/design.md) · [tasks.md](../features/doctor-scope-parity/tasks.md) (Status: **Planned**)
+
+Doctor remount + PathScope / eligible-count parity with dry-run and `runScan`. Shared `createScanPathScope` + `previewScanScope` for inventory. Forward-compat with M46 `includeTests`. **Out of scope:** doctor JSON (M51), PathScope default changes (M46), workspace yaml.
+
+- [ ] `runDoctor` uses `resolveScanPipelineContext` (M43 remount, M46 test-exclude defaults when applicable)
+- [ ] Doctor, dry-run, and `runScan` share one prelude chain (config merge, path scope, eligible-count semantics)
+- [ ] Doctor `scope` finding — eligible count matches `previewScanScope`
+- [ ] Optional doctor `--include-tests` when M46 Done
+
+### Milestone 53 — Compare Interpretation
+
+**Slug:** `compare-interpretation` | **Priority:** Medium | **Specs:** Stub (planner before Execute)  
+**IDs:** HOTSPOT-820–839 | **Depth:** Medium  
+**Sisters:** output-interpretation-ux (M41), explain-and-scan-feedback (M42), scan-compare (M13)
+
+- [ ] Compare table/markdown triage hints (delta-aware; **intentional override** of M41 “no compare triage”)
+- [ ] `--explain` for compare targets (rank delta / new-removed on stderr)
+- [ ] `--strict` treats `COMPARE_SINCE_MISMATCH` as hard error (exit ≠ 0)
+
+### Milestone 54 — CLI Adoption Extras
+
+**Slug:** `cli-adoption-extras` | **Priority:** Low | **Specs:** Stub (planner before Execute)  
+**IDs:** HOTSPOT-840–859 | **Depth:** Small  
+**Sisters:** cli-surface-polish (M38), path-config-dx (M30)
+
+- [ ] Shell completion (bash/zsh/fish)
+- [ ] Prefer recipes / config `exclude` over new `.hotspotignore` file format (YAGNI unless Specify proves need)
+
+### Milestone 55 — API Trust Docs
+
+**Slug:** `api-trust-docs` | **Priority:** Medium | **Specs:** Stub (planner before Execute)  
+**IDs:** HOTSPOT-860–889 | **Depth:** Small  
+**Sisters:** adoption-docs-package-exports (M45), config-file (M21), package-dx (M24)
+
+- [ ] Export `previewScanScope`, `runDoctor` (+ types) from package entry
+- [ ] Warn on unknown config keys (warn-only; keep forward-compat)
+- [ ] Wire `tests/fixtures/repos/merge-heavy` into integration suite
+- [ ] Docs: README “zero network” callout; `SECURITY.md`; baseline-in-artifacts; `--only` filtered JSON ≠ baseline
