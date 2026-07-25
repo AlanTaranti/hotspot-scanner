@@ -45,8 +45,84 @@ describe("createWorkerPool", () => {
   }
 
   it("returns empty array for no batches", async () => {
+    const onProgress = vi.fn();
     const pool = createWorkerPool({ concurrency: 2 });
-    await expect(pool.runBatches("/tmp/repo", [])).resolves.toEqual([]);
+    await expect(pool.runBatches("/tmp/repo", [], undefined, onProgress)).resolves.toEqual([]);
+    expect(onProgress).not.toHaveBeenCalled();
+  });
+
+  it("emits complexity progress after each batch when concurrency is 1", async () => {
+    const repoPath = await createTempRepo({
+      "a.ts": "export const a = 1;",
+      "b.ts": "export const b = 2;",
+      "c.ts": "export const c = 3;",
+    });
+
+    const onProgress = vi.fn();
+    const pool = createWorkerPool({ concurrency: 1 });
+    const batches = [["a.ts", "b.ts"], ["c.ts"]];
+    await pool.runBatches(repoPath, batches, undefined, onProgress);
+
+    expect(onProgress).toHaveBeenCalledTimes(2);
+    expect(onProgress).toHaveBeenNthCalledWith(1, {
+      phase: "complexity",
+      commitsProcessed: 0,
+      filesProcessed: 2,
+      batchesProcessed: 1,
+      totalFiles: 3,
+      totalBatches: 2,
+    });
+    expect(onProgress).toHaveBeenNthCalledWith(2, {
+      phase: "complexity",
+      commitsProcessed: 0,
+      filesProcessed: 3,
+      batchesProcessed: 2,
+      totalFiles: 3,
+      totalBatches: 2,
+    });
+  });
+
+  it("emits complexity progress as worker batches complete", async () => {
+    const repoPath = await createTempRepo({
+      "a.ts": "export const a = 1;",
+      "b.ts": "export const b = 2;",
+      "c.ts": "export const c = 3;",
+    });
+
+    const onProgress = vi.fn();
+    const pool = createWorkerPool({ concurrency: 2 });
+    const batches = [["a.ts"], ["b.ts"], ["c.ts"]];
+    await pool.runBatches(repoPath, batches, undefined, onProgress);
+
+    expect(onProgress).toHaveBeenCalledTimes(3);
+    expect(onProgress.mock.calls.map((call) => call[0])).toEqual(
+      expect.arrayContaining([
+        {
+          phase: "complexity",
+          commitsProcessed: 0,
+          filesProcessed: 1,
+          batchesProcessed: 1,
+          totalFiles: 3,
+          totalBatches: 3,
+        },
+        {
+          phase: "complexity",
+          commitsProcessed: 0,
+          filesProcessed: 2,
+          batchesProcessed: 2,
+          totalFiles: 3,
+          totalBatches: 3,
+        },
+        {
+          phase: "complexity",
+          commitsProcessed: 0,
+          filesProcessed: 3,
+          batchesProcessed: 3,
+          totalFiles: 3,
+          totalBatches: 3,
+        },
+      ]),
+    );
   });
 
   it("processes batches inline when concurrency is 1 without spawning workers", async () => {

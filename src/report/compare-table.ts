@@ -4,18 +4,115 @@ import type {
   FunctionHotspotScore,
   HotspotScore,
   RankChange,
+  ScanGranularity,
 } from "../types/index.js";
+import { paintScore, paintStaticDep } from "./color.js";
 import {
   formatDirection,
   formatKinds,
   formatStaticDep,
 } from "./coupling-format.js";
+import { renderTableGlossary } from "./glossary.js";
+import {
+  ALL_REPORT_SECTIONS,
+  includesSection,
+  normalizeOnly,
+  type ReportSection,
+} from "./only.js";
+import { buildCompareExecutiveSummary } from "./summary.js";
 import { formatScanWarning } from "./warning-format.js";
+
+export interface CompareRenderOptions {
+  only?: readonly ReportSection[];
+  color?: boolean;
+  /** Full compare result before slice; defaults to displayed for summary totals. */
+  full?: CompareResult;
+}
+
+export type CompareSectionVisibility = {
+  hotspots: boolean;
+  functions: boolean;
+  coupling: boolean;
+};
+
+function isUnfiltered(onlySet: ReadonlySet<ReportSection>): boolean {
+  return onlySet.size === ALL_REPORT_SECTIONS.length;
+}
+
+/** Section visibility for table/markdown/CSV (granularity-aware when unfiltered). */
+export function resolveCompareRenderSections(
+  onlySet: ReadonlySet<ReportSection>,
+  granularity: ScanGranularity,
+): CompareSectionVisibility {
+  if (isUnfiltered(onlySet)) {
+    return {
+      hotspots: granularity === "file",
+      functions: granularity === "function",
+      coupling: true,
+    };
+  }
+
+  return {
+    hotspots: includesSection(onlySet, "hotspots"),
+    functions: includesSection(onlySet, "functions"),
+    coupling: includesSection(onlySet, "coupling"),
+  };
+}
+
+/** Section visibility for JSON export (all keys when unfiltered). */
+export function resolveCompareExportSections(
+  onlySet: ReadonlySet<ReportSection>,
+): CompareSectionVisibility {
+  if (isUnfiltered(onlySet)) {
+    return { hotspots: true, functions: true, coupling: true };
+  }
+
+  return {
+    hotspots: includesSection(onlySet, "hotspots"),
+    functions: includesSection(onlySet, "functions"),
+    coupling: includesSection(onlySet, "coupling"),
+  };
+}
 
 const SCORE_DECIMALS = 4;
 
-function formatScore(value: number): string {
-  return value.toFixed(SCORE_DECIMALS);
+function padVisible(value: string, width: number, align: "start" | "end"): string {
+  if (value.length >= width) {
+    return value.slice(0, width);
+  }
+  return align === "start" ? value.padStart(width) : value.padEnd(width);
+}
+
+function formatPlainScoreCell(value: number, width: number): string {
+  return padVisible(value.toFixed(SCORE_DECIMALS), width, "start");
+}
+
+function formatScoreCell(
+  value: number,
+  width: number,
+  colorEnabled: boolean,
+): string {
+  const plain = value.toFixed(SCORE_DECIMALS);
+  if (!colorEnabled) {
+    return padVisible(plain, width, "start");
+  }
+  const colored = paintScore(value, true);
+  const padLen = Math.max(0, width - plain.length);
+  return `${" ".repeat(padLen)}${colored}`;
+}
+
+function formatStaticDepCell(
+  hasStaticDependency: boolean,
+  width: number,
+  colorEnabled: boolean,
+): string {
+  const plain = formatStaticDep(hasStaticDependency);
+  if (!colorEnabled) {
+    return padVisible(plain, width, "start");
+  }
+  const colored = paintStaticDep(plain, true);
+  const padLen = Math.max(0, width - plain.length);
+  return `${" ".repeat(padLen)}${colored}`;
 }
 
 function padEnd(value: string, width: number): string {
@@ -29,6 +126,7 @@ function padStart(value: string, width: number): string {
 function renderHotspotRows(
   items: HotspotScore[],
   includeRank: boolean,
+  colorEnabled: boolean,
 ): string[] {
   if (items.length === 0) {
     return ["  (none)"];
@@ -38,11 +136,11 @@ function renderHotspotRows(
     [
       includeRank ? padStart(String(index + 1), 4) : padStart("", 4),
       padEnd(hotspot.filePath, 24),
-      padStart(formatScore(hotspot.hotspotScore), 8),
+      formatScoreCell(hotspot.hotspotScore, 8, colorEnabled),
       padStart(String(hotspot.cyclomaticComplexity), 4),
-      padStart(formatScore(hotspot.complexityNormalized), 8),
+      formatPlainScoreCell(hotspot.complexityNormalized, 8),
       padStart(String(hotspot.commitCount), 5),
-      padStart(formatScore(hotspot.churnNormalized), 6),
+      formatPlainScoreCell(hotspot.churnNormalized, 6),
       padStart(String(hotspot.functionCount), 5),
       padStart(String(hotspot.authorCount), 7),
     ].join("  "),
@@ -51,6 +149,7 @@ function renderHotspotRows(
 
 function renderRankChangedHotspotRows(
   items: RankChange<HotspotScore>[],
+  colorEnabled: boolean,
 ): string[] {
   if (items.length === 0) {
     return ["  (none)"];
@@ -62,11 +161,11 @@ function renderRankChangedHotspotRows(
       padStart(String(change.currentRank), 8),
       padStart(String(change.rankDelta), 5),
       padEnd(change.entity.filePath, 24),
-      padStart(formatScore(change.entity.hotspotScore), 8),
+      formatScoreCell(change.entity.hotspotScore, 8, colorEnabled),
       padStart(String(change.entity.cyclomaticComplexity), 4),
-      padStart(formatScore(change.entity.complexityNormalized), 8),
+      formatPlainScoreCell(change.entity.complexityNormalized, 8),
       padStart(String(change.entity.commitCount), 5),
-      padStart(formatScore(change.entity.churnNormalized), 6),
+      formatPlainScoreCell(change.entity.churnNormalized, 6),
       padStart(String(change.entity.functionCount), 5),
       padStart(String(change.entity.authorCount), 7),
     ].join("  "),
@@ -76,6 +175,7 @@ function renderRankChangedHotspotRows(
 function renderFunctionRows(
   items: FunctionHotspotScore[],
   includeRank: boolean,
+  colorEnabled: boolean,
 ): string[] {
   if (items.length === 0) {
     return ["  (none)"];
@@ -87,11 +187,11 @@ function renderFunctionRows(
       padEnd(fn.filePath, 24),
       padEnd(fn.functionName, 20),
       padStart(String(fn.line), 4),
-      padStart(formatScore(fn.hotspotScore), 8),
+      formatScoreCell(fn.hotspotScore, 8, colorEnabled),
       padStart(String(fn.complexity), 4),
-      padStart(formatScore(fn.complexityNormalized), 8),
+      formatPlainScoreCell(fn.complexityNormalized, 8),
       padStart(String(fn.commitCount), 5),
-      padStart(formatScore(fn.churnNormalized), 6),
+      formatPlainScoreCell(fn.churnNormalized, 6),
       padStart(String(fn.authorCount), 7),
     ].join("  "),
   );
@@ -99,6 +199,7 @@ function renderFunctionRows(
 
 function renderRankChangedFunctionRows(
   items: RankChange<FunctionHotspotScore>[],
+  colorEnabled: boolean,
 ): string[] {
   if (items.length === 0) {
     return ["  (none)"];
@@ -112,11 +213,11 @@ function renderRankChangedFunctionRows(
       padEnd(change.entity.filePath, 24),
       padEnd(change.entity.functionName, 20),
       padStart(String(change.entity.line), 4),
-      padStart(formatScore(change.entity.hotspotScore), 8),
+      formatScoreCell(change.entity.hotspotScore, 8, colorEnabled),
       padStart(String(change.entity.complexity), 4),
-      padStart(formatScore(change.entity.complexityNormalized), 8),
+      formatPlainScoreCell(change.entity.complexityNormalized, 8),
       padStart(String(change.entity.commitCount), 5),
-      padStart(formatScore(change.entity.churnNormalized), 6),
+      formatPlainScoreCell(change.entity.churnNormalized, 6),
       padStart(String(change.entity.authorCount), 7),
     ].join("  "),
   );
@@ -125,6 +226,7 @@ function renderRankChangedFunctionRows(
 function renderCouplingRows(
   items: CouplingPair[],
   includeRank: boolean,
+  colorEnabled: boolean,
 ): string[] {
   if (items.length === 0) {
     return ["  (none)"];
@@ -135,9 +237,9 @@ function renderCouplingRows(
       includeRank ? padStart(String(index + 1), 4) : padStart("", 4),
       padEnd(pair.fileA, 24),
       padEnd(pair.fileB, 24),
-      padStart(formatScore(pair.couplingStrength), 8),
+      formatScoreCell(pair.couplingStrength, 8, colorEnabled),
       padStart(String(pair.coChangeCount), 10),
-      padStart(formatStaticDep(pair.hasStaticDependency), 9),
+      formatStaticDepCell(pair.hasStaticDependency, 9, colorEnabled),
       padStart(formatDirection(pair.staticDependencyDirection), 9),
       padEnd(formatKinds(pair), 22),
     ].join("  "),
@@ -146,6 +248,7 @@ function renderCouplingRows(
 
 function renderRankChangedCouplingRows(
   items: RankChange<CouplingPair>[],
+  colorEnabled: boolean,
 ): string[] {
   if (items.length === 0) {
     return ["  (none)"];
@@ -158,9 +261,9 @@ function renderRankChangedCouplingRows(
       padStart(String(change.rankDelta), 5),
       padEnd(change.entity.fileA, 24),
       padEnd(change.entity.fileB, 24),
-      padStart(formatScore(change.entity.couplingStrength), 8),
+      formatScoreCell(change.entity.couplingStrength, 8, colorEnabled),
       padStart(String(change.entity.coChangeCount), 10),
-      padStart(formatStaticDep(change.entity.hasStaticDependency), 9),
+      formatStaticDepCell(change.entity.hasStaticDependency, 9, colorEnabled),
       padStart(
         formatDirection(change.entity.staticDependencyDirection),
         9,
@@ -170,7 +273,10 @@ function renderRankChangedCouplingRows(
   );
 }
 
-function renderHotspotSections(result: CompareResult): string[] {
+function renderHotspotSections(
+  result: CompareResult,
+  colorEnabled: boolean,
+): string[] {
   const header =
     "Rank  File                      Score     Cpx   CpxN      Churn  ChurnN  Funcs  Authors";
   const rankChangedHeader =
@@ -179,19 +285,22 @@ function renderHotspotSections(result: CompareResult): string[] {
   return [
     "=== New Hotspots ===",
     header,
-    ...renderHotspotRows(result.hotspots.new, true),
+    ...renderHotspotRows(result.hotspots.new, true, colorEnabled),
     "",
     "=== Removed Hotspots ===",
     header,
-    ...renderHotspotRows(result.hotspots.removed, false),
+    ...renderHotspotRows(result.hotspots.removed, false, colorEnabled),
     "",
     "=== Rank Changed Hotspots ===",
     rankChangedHeader,
-    ...renderRankChangedHotspotRows(result.hotspots.rankChanged),
+    ...renderRankChangedHotspotRows(result.hotspots.rankChanged, colorEnabled),
   ];
 }
 
-function renderFunctionSections(result: CompareResult): string[] {
+function renderFunctionSections(
+  result: CompareResult,
+  colorEnabled: boolean,
+): string[] {
   const header =
     "Rank  File                      Function              Line  Score     Cpx   CpxN      Churn  ChurnN  Authors";
   const rankChangedHeader =
@@ -200,19 +309,22 @@ function renderFunctionSections(result: CompareResult): string[] {
   return [
     "=== New Functions ===",
     header,
-    ...renderFunctionRows(result.functions.new, true),
+    ...renderFunctionRows(result.functions.new, true, colorEnabled),
     "",
     "=== Removed Functions ===",
     header,
-    ...renderFunctionRows(result.functions.removed, false),
+    ...renderFunctionRows(result.functions.removed, false, colorEnabled),
     "",
     "=== Rank Changed Functions ===",
     rankChangedHeader,
-    ...renderRankChangedFunctionRows(result.functions.rankChanged),
+    ...renderRankChangedFunctionRows(result.functions.rankChanged, colorEnabled),
   ];
 }
 
-function renderCouplingSections(result: CompareResult): string[] {
+function renderCouplingSections(
+  result: CompareResult,
+  colorEnabled: boolean,
+): string[] {
   const header =
     "Rank  File A                    File B                    Strength  Co-changes  StaticDep  Direction  Kinds";
   const rankChangedHeader =
@@ -221,23 +333,30 @@ function renderCouplingSections(result: CompareResult): string[] {
   return [
     "=== New Coupling Pairs ===",
     header,
-    ...renderCouplingRows(result.coupling.new, true),
+    ...renderCouplingRows(result.coupling.new, true, colorEnabled),
     "",
     "=== Removed Coupling Pairs ===",
     header,
-    ...renderCouplingRows(result.coupling.removed, false),
+    ...renderCouplingRows(result.coupling.removed, false, colorEnabled),
     "",
     "=== Rank Changed Coupling Pairs ===",
     rankChangedHeader,
-    ...renderRankChangedCouplingRows(result.coupling.rankChanged),
+    ...renderRankChangedCouplingRows(result.coupling.rankChanged, colorEnabled),
   ];
 }
 
-export function renderCompareTable(result: CompareResult): string {
+export function renderCompareTable(
+  result: CompareResult,
+  options?: CompareRenderOptions,
+): string {
+  const onlySet = normalizeOnly(options?.only);
+  const sections = resolveCompareRenderSections(onlySet, result.granularity);
+  const full = options?.full ?? result;
+  const colorEnabled = options?.color === true;
+
   const lines = [
     "Scan Compare Report",
-    `Baseline scanned: ${result.meta.baseline.scannedAt}  Since: ${result.meta.baseline.since}`,
-    `Current scanned:  ${result.meta.current.scannedAt}  Since: ${result.meta.current.since}`,
+    ...buildCompareExecutiveSummary(full, result),
   ];
 
   for (const warning of result.meta.warnings) {
@@ -246,12 +365,18 @@ export function renderCompareTable(result: CompareResult): string {
 
   lines.push("");
 
-  if (result.granularity === "function") {
-    lines.push(...renderFunctionSections(result));
-  } else {
-    lines.push(...renderHotspotSections(result));
+  if (sections.hotspots) {
+    lines.push(...renderHotspotSections(result, colorEnabled), "");
   }
 
-  lines.push("", ...renderCouplingSections(result), "");
+  if (sections.functions) {
+    lines.push(...renderFunctionSections(result, colorEnabled), "");
+  }
+
+  if (sections.coupling) {
+    lines.push(...renderCouplingSections(result, colorEnabled), "");
+  }
+
+  lines.push(...renderTableGlossary(), "");
   return lines.join("\n");
 }

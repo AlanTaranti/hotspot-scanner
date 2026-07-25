@@ -1,29 +1,85 @@
 #!/usr/bin/env node
-import { access, stat, writeFile } from "node:fs/promises";
-import { dirname } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { Command } from "commander";
-import { compareScanResults, loadBaseline } from "#compare";
+import { Command, CommanderError } from "commander";
 import {
   ConfigError,
+  InitError,
   loadHotspotScannerConfig,
   mergeScanOptions,
+  writeInitConfig,
   type HotspotScannerConfig,
 } from "#config";
-import { logWarning, maybeLogProgress } from "#diagnostics";
-import { createReporter } from "#report";
-import type { CsvBundle } from "#report";
+import {
+  createReporter,
+  formatExplainBlock,
+  normalizeExplainPath,
+  parseExplainTarget,
+} from "#report";
+import type { ExplainTarget, ReportSection } from "#report";
 import { DEFAULT_MIN_COCHANGE } from "#scoring";
-import { DEFAULT_SINCE, DEFAULT_TOP, runScan } from "#scan";
-import type { ScanGranularity, ScanOptions } from "../src/types/index.js";
+import {
+  DEFAULT_SINCE,
+  DEFAULT_TOP,
+  formatScanScopePreview,
+  previewScanScope,
+} from "#scan";
+import { runDoctor, type DoctorFinding } from "#doctor";
+import type { ScanGranularity, ScanResult } from "../src/types/index.js";
+import {
+  buildScanOptions,
+  CliUsageError,
+  DEFAULT_BASELINE_OUTPUT,
+  executeCompareAndRender,
+  executeScan,
+  writeBaselineJson,
+  writeRenderedOutput,
+} from "./scan-actions.js";
+
+export {
+  CliUsageError,
+  DEFAULT_BASELINE_OUTPUT,
+  deriveCsvStem,
+  validateBaselinePath,
+  validateOutputPath,
+  writeCsvBundle,
+} from "./scan-actions.js";
 
 export type OutputFormat = "table" | "json" | "markdown" | "csv";
 
-export class CliUsageError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "CliUsageError";
+export function resolvePackageVersion(): string {
+  const moduleDir = dirname(fileURLToPath(import.meta.url));
+  for (const relative of ["../package.json", "../../package.json"]) {
+    const pkgPath = join(moduleDir, relative);
+    if (!existsSync(pkgPath)) {
+      continue;
+    }
+    const pkg = JSON.parse(readFileSync(pkgPath, "utf8")) as {
+      version?: string;
+    };
+    if (typeof pkg.version === "string") {
+      return pkg.version;
+    }
   }
+  throw new Error("Could not resolve package.json version");
+}
+
+export class CliExitError extends Error {
+  readonly exitCode: number;
+
+  constructor(exitCode: number) {
+    super(`CLI exited with code ${exitCode}`);
+    this.name = "CliExitError";
+    this.exitCode = exitCode;
+  }
+}
+
+function formatDoctorFindings(findings: DoctorFinding[]): string {
+  const lines = findings.map(
+    (finding) => `${finding.status}: ${finding.message}`,
+  );
+  return `${lines.join("\n")}\n`;
 }
 
 export function parsePositiveInteger(value: string, flagName: string): number {
@@ -57,79 +113,49 @@ export function parseGranularity(value: string): ScanGranularity {
   );
 }
 
-export async function validateOutputPath(outputPath: string): Promise<void> {
-  if (outputPath.length === 0) {
-    throw new CliUsageError("--output path must not be empty");
-  }
-
-  try {
-    const outputStat = await stat(outputPath);
-    if (outputStat.isDirectory()) {
-      throw new CliUsageError(`--output path is a directory: ${outputPath}`);
-    }
-  } catch (error) {
-    if (error instanceof CliUsageError) {
-      throw error;
-    }
-    const parentDir = dirname(outputPath);
-    try {
-      await access(parentDir);
-    } catch {
-      throw new CliUsageError(
-        `--output parent directory does not exist: ${parentDir}`,
-      );
-    }
-  }
-}
-
-export async function validateBaselinePath(
-  baselinePath: string,
-): Promise<void> {
-  if (baselinePath.length === 0) {
-    throw new CliUsageError("--baseline path must not be empty");
-  }
-
-  let baselineStat;
-  try {
-    baselineStat = await stat(baselinePath);
-  } catch {
-    throw new CliUsageError(`--baseline file does not exist: ${baselinePath}`);
-  }
-
-  if (baselineStat.isDirectory()) {
-    throw new CliUsageError(`--baseline path is a directory: ${baselinePath}`);
-  }
-}
-
 function ensureTrailingNewline(content: string): string {
   return content.endsWith("\n") ? content : `${content}\n`;
 }
 
-export function deriveCsvStem(outputPath: string): string {
-  if (outputPath.endsWith(".csv")) {
-    return outputPath.slice(0, -4);
+export function validateExplainTarget(
+  target: ExplainTarget,
+  granularity: ScanGranularity,
+): void {
+  if (granularity === "file" && target.kind === "function") {
+    throw new CliUsageError(
+      "--explain path:function requires --granularity function",
+    );
   }
-  return outputPath;
 }
 
-export async function writeCsvBundle(
-  stem: string,
-  bundle: CsvBundle,
-): Promise<void> {
-  await Promise.all(
-    Object.entries(bundle).map(([suffix, content]) =>
-      writeFile(`${stem}.${suffix}`, ensureTrailingNewline(content), "utf8"),
-    ),
+function normalizeExplainTarget(
+  target: ExplainTarget,
+  repoPath: string,
+): ExplainTarget {
+  if (target.kind === "function") {
+    return {
+      kind: "function",
+      filePath: normalizeExplainPath(target.filePath, repoPath),
+      functionName: target.functionName,
+    };
+  }
+  return {
+    kind: "file",
+    filePath: normalizeExplainPath(target.filePath, repoPath),
+  };
+}
+
+function writeExplainBlock(
+  result: ScanResult,
+  explainRaw: string,
+  repoPath: string,
+): void {
+  const target = normalizeExplainTarget(
+    parseExplainTarget(explainRaw),
+    repoPath,
   );
-}
-
-function writeReport(output: string, outputPath?: string): Promise<void> {
-  const content = ensureTrailingNewline(output);
-  if (outputPath) {
-    return writeFile(outputPath, content, "utf8");
-  }
-  process.stdout.write(content);
-  return Promise.resolve();
+  const block = formatExplainBlock(result, target);
+  process.stderr.write(ensureTrailingNewline(block));
 }
 
 export function collectGlob(value: string, previous: string[]): string[] {
@@ -139,6 +165,56 @@ export function collectGlob(value: string, previous: string[]): string[] {
     );
   }
   return previous.concat([value]);
+}
+
+const VALID_ONLY_SECTIONS: readonly ReportSection[] = [
+  "hotspots",
+  "coupling",
+  "functions",
+];
+
+export function parseOnlySectionCli(value: string): ReportSection {
+  if (value.length === 0) {
+    throw new CliUsageError("--only section must not be empty");
+  }
+  if (!VALID_ONLY_SECTIONS.includes(value as ReportSection)) {
+    throw new CliUsageError(
+      `Invalid --only: ${value}. Expected hotspots, coupling, or functions.`,
+    );
+  }
+  return value as ReportSection;
+}
+
+export function collectOnlySection(
+  value: string,
+  previous: ReportSection[],
+): ReportSection[] {
+  return [...previous, parseOnlySectionCli(value)];
+}
+
+export function resolveTableColor(opts: {
+  format: OutputFormat;
+  outputPath?: string;
+  noColor: boolean;
+  envNoColor: string | undefined;
+  stdoutIsTTY: boolean | undefined;
+}): boolean {
+  if (opts.format !== "table") {
+    return false;
+  }
+  if (opts.noColor) {
+    return false;
+  }
+  if (opts.envNoColor !== undefined && opts.envNoColor.length > 0) {
+    return false;
+  }
+  if (opts.outputPath !== undefined) {
+    return false;
+  }
+  if (opts.stdoutIsTTY !== true) {
+    return false;
+  }
+  return true;
 }
 
 export function validateScopePatterns(
@@ -197,72 +273,76 @@ export function buildCliConfigOverrides(
   return cli;
 }
 
-function buildScanOptions(
-  repoPath: string,
-  cliOverrides: HotspotScannerConfig,
-  callbacks: Pick<ScanOptions, "onWarning" | "onProgress">,
-  configPath?: string,
-): ScanOptions {
-  const scanOptions: ScanOptions = {
-    repoPath,
-    ...callbacks,
-  };
-
-  if (configPath !== undefined) {
-    scanOptions.configPath = configPath;
-  }
-
-  if (cliOverrides.since !== undefined) {
-    scanOptions.since = cliOverrides.since;
-  }
-  if (cliOverrides.include !== undefined) {
-    scanOptions.include = cliOverrides.include;
-  }
-  if (cliOverrides.exclude !== undefined) {
-    scanOptions.exclude = cliOverrides.exclude;
-  }
-  if (cliOverrides.granularity !== undefined) {
-    scanOptions.granularity = cliOverrides.granularity;
-  }
-  if (cliOverrides.minCochange !== undefined) {
-    scanOptions.minCochange = cliOverrides.minCochange;
-  }
-  if (cliOverrides.top !== undefined) {
-    scanOptions.top = cliOverrides.top;
-  }
-  if (cliOverrides.concurrency !== undefined) {
-    scanOptions.concurrency = cliOverrides.concurrency;
-  }
-
-  return scanOptions;
-}
-
 export function createCliProgram(): Command {
   const program = new Command();
 
   program
     .name("hotspot-scanner")
-    .description("Local CLI for TS/JS maintenance hotspot analysis");
+    .description(
+      "Local CLI for TS/JS maintenance hotspot analysis (init, doctor, scan)",
+    )
+    .version(resolvePackageVersion(), "-V, --version");
+
+  program
+    .command("init")
+    .description("Write exemplar .hotspot-scanner.json to a directory")
+    .argument(
+      "[directory]",
+      "Target directory (default: current working directory)",
+      ".",
+    )
+    .option("--force", "Overwrite existing config file")
+    .action(async (directory: string, options) => {
+      const { path } = await writeInitConfig({
+        targetDir: directory,
+        force: Boolean(options.force),
+      });
+      process.stdout.write(`Wrote config to ${path}\n`);
+    });
+
+  program
+    .command("doctor")
+    .description("Check Node, git, repository, and config readiness")
+    .argument(
+      "[path]",
+      "Repository path (default: current working directory)",
+      ".",
+    )
+    .option(
+      "--config <path>",
+      "Load config from explicit file (skip parent walk)",
+    )
+    .action(async function (targetPath: string, options) {
+      const cmd = this as Command;
+      const configPath = isExplicitCliOption(cmd, "config")
+        ? (options.config as string)
+        : undefined;
+      const result = await runDoctor({ targetPath, configPath });
+      process.stdout.write(formatDoctorFindings(result.findings));
+      if (result.exitCode !== 0) {
+        throw new CliExitError(result.exitCode);
+      }
+    });
 
   program
     .command("scan")
     .description(
       "Run hotspot and coupling analysis on a repository (discovers .hotspot-scanner.json upward; use --config for explicit path)",
     )
-    .argument("<path>", "Repository path")
+    .argument("[path]", "Repository path (default: .)", ".")
     .option("--since <period>", "Git history window", DEFAULT_SINCE)
     .option(
-      "--format <format>",
+      "-f, --format <format>",
       "Output format: table|json|markdown|csv (csv requires --output)",
       "table",
     )
     .option(
-      "--granularity <mode>",
+      "-g, --granularity <mode>",
       "Ranking granularity: file or function",
       "file",
     )
     .option(
-      "--output <path>",
+      "-o, --output <path>",
       "Write report to file instead of stdout (required for --format csv)",
     )
     .option(
@@ -270,7 +350,7 @@ export function createCliProgram(): Command {
       "Compare scan against baseline JSON from a prior run",
     )
     .option(
-      "--top <n>",
+      "-t, --top <n>",
       "Top N rows in table/markdown output (ignored for json/csv)",
       String(DEFAULT_TOP),
     )
@@ -299,13 +379,70 @@ export function createCliProgram(): Command {
       "--config <path>",
       "Load config from explicit file (skip parent walk)",
     )
+    .option(
+      "--quiet",
+      "Suppress progress and info-level diagnostics (warnings/errors remain)",
+    )
+    .option("--no-progress", "Suppress progress lines on stderr")
+    .option(
+      "--dry-run",
+      "Preview effective scan scope without running git history or AST analysis",
+    )
+    .option(
+      "--only <section>",
+      "Include only report sections: hotspots, coupling, or functions (repeatable)",
+      collectOnlySection,
+      [] as ReportSection[],
+    )
+    .option(
+      "--no-triage-hints",
+      "Suppress triage hints in scan table and markdown output",
+    )
+    .option("--no-color", "Disable ANSI colors in table output")
+    .option(
+      "--explain <target>",
+      "After the report, print a score breakdown for <path> or <path>:<functionName> to stderr",
+    )
+    .addHelpText(
+      "after",
+      `
+Note: JSON output with --only omits sections and is not suitable as a --baseline.
+
+Examples:
+  $ hotspot-scanner scan
+    Scan current directory (default path .)
+
+  $ hotspot-scanner scan -f json -o report.json
+    Write JSON report to file
+
+  $ hotspot-scanner scan -f table -t 10 -g function
+    Table output using short aliases for top and granularity
+
+  $ hotspot-scanner scan --baseline prior.json -f json
+    Compare against a prior JSON baseline (optional)
+`,
+    )
     .action(async function (repoPath: string, options) {
       const cmd = this as Command;
-      const format = parseFormat(options.format);
       const configPath = isExplicitCliOption(cmd, "config")
         ? (options.config as string)
         : undefined;
       const cliOverrides = buildCliConfigOverrides(cmd, options);
+      const baselinePath = options.baseline as string | undefined;
+      const explainTarget = options.explain as string | undefined;
+
+      if (options.dryRun) {
+        if (baselinePath !== undefined) {
+          throw new CliUsageError("--baseline cannot be used with --dry-run");
+        }
+        const preview = await previewScanScope(
+          buildScanOptions(repoPath, cliOverrides, {}, configPath),
+        );
+        process.stdout.write(formatScanScopePreview(preview));
+        return;
+      }
+
+      const format = parseFormat(options.format);
       const fileConfig = await loadHotspotScannerConfig(repoPath, {
         configPath,
       });
@@ -314,55 +451,273 @@ export function createCliProgram(): Command {
         cli: cliOverrides,
       });
       const top = merged.top;
+      const granularity = merged.granularity ?? "file";
 
-      const baselinePath = options.baseline as string | undefined;
-      if (baselinePath !== undefined) {
-        await validateBaselinePath(baselinePath);
+      if (explainTarget !== undefined) {
+        validateExplainTarget(parseExplainTarget(explainTarget), granularity);
       }
 
-      const result = await runScan(
-        buildScanOptions(
-          repoPath,
-          cliOverrides,
-          {
-            onWarning: logWarning,
-            onProgress: ({ phase, commitsProcessed }) =>
-              maybeLogProgress(phase, commitsProcessed),
-          },
-          configPath,
-        ),
-      );
-
-      const reporter = createReporter();
       const outputPath = options.output as string | undefined;
+      const onlySections = options.only as ReportSection[];
+      const only = onlySections.length > 0 ? onlySections : undefined;
+      const triageHints = options.triageHints !== false;
+      const color = resolveTableColor({
+        format,
+        outputPath,
+        noColor: options.color === false,
+        envNoColor: process.env.NO_COLOR,
+        stdoutIsTTY: process.stdout.isTTY,
+      });
+      const reporterOptions = { format, top, only, triageHints, color };
 
       if (format === "csv" && outputPath === undefined) {
         throw new CliUsageError(
-          "--format csv requires --output (writes a multi-file CSV bundle)",
+          "--format csv requires --output (writes a multi-file CSV bundle)\nHint: add --output <stem> to write the CSV bundle to disk.",
         );
       }
 
-      let output: string | CsvBundle;
+      let result: ScanResult;
       if (baselinePath !== undefined) {
-        const baseline = await loadBaseline(baselinePath);
-        const compareResult = compareScanResults(baseline, result);
-        for (const warning of compareResult.meta.warnings) {
-          logWarning(warning);
-        }
-        output = reporter.renderCompare(compareResult, { format, top });
+        result = await executeCompareAndRender({
+          repoPath,
+          baselinePath,
+          cliOverrides,
+          configPath,
+          outputPath,
+          reporterOptions,
+          quiet: options.quiet as boolean,
+          noProgress: options.progress === false,
+        });
       } else {
-        output = reporter.render(result, { format, top });
+        result = await executeScan({
+          repoPath,
+          cliOverrides,
+          configPath,
+          quiet: options.quiet as boolean,
+          noProgress: options.progress === false,
+        });
+
+        const reporter = createReporter();
+        const output = reporter.render(result, reporterOptions);
+        await writeRenderedOutput(output, format, outputPath);
       }
 
-      if (format === "csv") {
-        await validateOutputPath(outputPath!);
-        await writeCsvBundle(deriveCsvStem(outputPath!), output as CsvBundle);
-      } else {
-        if (outputPath) {
-          await validateOutputPath(outputPath);
-        }
-        await writeReport(output as string, outputPath);
+      if (explainTarget !== undefined) {
+        writeExplainBlock(result, explainTarget, repoPath);
       }
+    });
+
+  const baseline = program
+    .command("baseline")
+    .description("Baseline file workflows");
+
+  baseline
+    .command("save")
+    .description("Run a scan and write ScanResult JSON as a baseline")
+    .argument("[path]", "Repository path (default: .)", ".")
+    .option(
+      "-o, --output <path>",
+      "Baseline file path",
+      DEFAULT_BASELINE_OUTPUT,
+    )
+    .option("--since <period>", "Git history window", DEFAULT_SINCE)
+    .option(
+      "-g, --granularity <mode>",
+      "Ranking granularity: file or function",
+      "file",
+    )
+    .option(
+      "-t, --top <n>",
+      "Top N rows in table/markdown output (ignored for baseline JSON)",
+      String(DEFAULT_TOP),
+    )
+    .option(
+      "--min-cochange <n>",
+      "Minimum co-change count for coupling pairs",
+      String(DEFAULT_MIN_COCHANGE),
+    )
+    .option(
+      "--concurrency <n>",
+      "Complexity worker pool size (positive integer)",
+    )
+    .option(
+      "--include <glob>",
+      "Include only paths matching glob (repeatable)",
+      collectGlob,
+      [] as string[],
+    )
+    .option(
+      "--exclude <glob>",
+      "Exclude paths matching glob (repeatable)",
+      collectGlob,
+      [] as string[],
+    )
+    .option(
+      "--config <path>",
+      "Load config from explicit file (skip parent walk)",
+    )
+    .addHelpText(
+      "after",
+      `
+Writes a full ScanResult JSON file suitable for hotspot-scanner compare --baseline.
+Default output is ${DEFAULT_BASELINE_OUTPUT} in the current working directory.
+Existing files are overwritten without prompt.
+
+Examples:
+  $ hotspot-scanner baseline save
+    Save baseline for current directory to ./hotspot-baseline.json
+
+  $ hotspot-scanner baseline save . -o ci/baseline.json
+    Save baseline to a custom path
+`,
+    )
+    .action(async function (repoPath: string, options) {
+      const cmd = this as Command;
+      const configPath = isExplicitCliOption(cmd, "config")
+        ? (options.config as string)
+        : undefined;
+      const cliOverrides = buildCliConfigOverrides(cmd, options);
+      const outputPath = options.output as string;
+
+      const result = await executeScan({
+        repoPath,
+        cliOverrides,
+        configPath,
+      });
+
+      await writeBaselineJson(result, outputPath);
+    });
+
+  program
+    .command("compare")
+    .description("Compare current scan against a baseline JSON file")
+    .argument("[path]", "Repository path (default: .)", ".")
+    .requiredOption(
+      "--baseline <path>",
+      "Baseline ScanResult JSON from a prior run (required)",
+    )
+    .option("--since <period>", "Git history window", DEFAULT_SINCE)
+    .option(
+      "-f, --format <format>",
+      "Output format: table|json|markdown|csv (csv requires --output)",
+      "table",
+    )
+    .option(
+      "-g, --granularity <mode>",
+      "Ranking granularity: file or function",
+      "file",
+    )
+    .option(
+      "-o, --output <path>",
+      "Write report to file instead of stdout (required for --format csv)",
+    )
+    .option(
+      "-t, --top <n>",
+      "Top N rows in table/markdown output (ignored for json/csv)",
+      String(DEFAULT_TOP),
+    )
+    .option(
+      "--min-cochange <n>",
+      "Minimum co-change count for coupling pairs",
+      String(DEFAULT_MIN_COCHANGE),
+    )
+    .option(
+      "--concurrency <n>",
+      "Complexity worker pool size (positive integer)",
+    )
+    .option(
+      "--include <glob>",
+      "Include only paths matching glob (repeatable)",
+      collectGlob,
+      [] as string[],
+    )
+    .option(
+      "--exclude <glob>",
+      "Exclude paths matching glob (repeatable)",
+      collectGlob,
+      [] as string[],
+    )
+    .option(
+      "--config <path>",
+      "Load config from explicit file (skip parent walk)",
+    )
+    .option(
+      "--quiet",
+      "Suppress progress and info-level diagnostics (warnings/errors remain)",
+    )
+    .option("--no-progress", "Suppress progress lines on stderr")
+    .option(
+      "--only <section>",
+      "Include only report sections: hotspots, coupling, or functions (repeatable)",
+      collectOnlySection,
+      [] as ReportSection[],
+    )
+    .option(
+      "--no-triage-hints",
+      "Suppress triage hints in compare table and markdown output",
+    )
+    .option("--no-color", "Disable ANSI colors in table output")
+    .addHelpText(
+      "after",
+      `
+Requires --baseline pointing to a ScanResult JSON file (e.g. from baseline save).
+
+Examples:
+  $ hotspot-scanner compare --baseline ./hotspot-baseline.json
+    Compare current directory against default baseline path
+
+  $ hotspot-scanner compare . --baseline prior.json -f json
+    Compare with JSON output to stdout
+
+  $ hotspot-scanner compare . --baseline prior.json -f csv -o report.csv
+    Write compare CSV bundle to disk
+`,
+    )
+    .action(async function (repoPath: string, options) {
+      const cmd = this as Command;
+      const configPath = isExplicitCliOption(cmd, "config")
+        ? (options.config as string)
+        : undefined;
+      const cliOverrides = buildCliConfigOverrides(cmd, options);
+      const baselinePath = options.baseline as string;
+      const format = parseFormat(options.format);
+      const fileConfig = await loadHotspotScannerConfig(repoPath, {
+        configPath,
+      });
+      const merged = mergeScanOptions({
+        config: fileConfig,
+        cli: cliOverrides,
+      });
+      const top = merged.top;
+      const outputPath = options.output as string | undefined;
+      const onlySections = options.only as ReportSection[];
+      const only = onlySections.length > 0 ? onlySections : undefined;
+      const triageHints = options.triageHints !== false;
+      const color = resolveTableColor({
+        format,
+        outputPath,
+        noColor: options.color === false,
+        envNoColor: process.env.NO_COLOR,
+        stdoutIsTTY: process.stdout.isTTY,
+      });
+      const reporterOptions = { format, top, only, triageHints, color };
+
+      if (format === "csv" && outputPath === undefined) {
+        throw new CliUsageError(
+          "--format csv requires --output (writes a multi-file CSV bundle)\nHint: add --output <stem> to write the CSV bundle to disk.",
+        );
+      }
+
+      await executeCompareAndRender({
+        repoPath,
+        baselinePath,
+        cliOverrides,
+        configPath,
+        outputPath,
+        reporterOptions,
+        quiet: options.quiet as boolean,
+        noProgress: options.progress === false,
+      });
     });
 
   return program;
@@ -374,7 +729,15 @@ export async function runCli(argv: string[]): Promise<void> {
   }
 
   const program = createCliProgram();
-  await program.parseAsync(argv);
+  program.exitOverride();
+  try {
+    await program.parseAsync(argv);
+  } catch (error) {
+    if (error instanceof CommanderError && error.exitCode === 0) {
+      return;
+    }
+    throw error;
+  }
 }
 
 /* v8 ignore start */
@@ -383,9 +746,17 @@ async function main(): Promise<void> {
     await runCli(process.argv);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error(message);
+    if (!(error instanceof CliExitError)) {
+      console.error(message);
+    }
     const exitCode =
-      error instanceof CliUsageError || error instanceof ConfigError ? 2 : 1;
+      error instanceof CliExitError
+        ? error.exitCode
+        : error instanceof CliUsageError ||
+            error instanceof ConfigError ||
+            error instanceof InitError
+          ? 2
+          : 1;
     process.exit(exitCode);
   }
 }

@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import type { ScanResult } from "../types/index.js";
+import { stripAnsi } from "./color.js";
 import { sliceScanResult } from "./slice.js";
 import { renderTable } from "./table.js";
 
@@ -77,7 +78,9 @@ describe("renderTable", () => {
   });
 
   it("respects top slicing when applied before render", () => {
-    const output = renderTable(sliceScanResult(loadFixture(), 1));
+    const output = renderTable(sliceScanResult(loadFixture(), 1), {
+      triageHints: false,
+    });
 
     expect(output.match(/src\/hot\.ts/g)?.length).toBe(1);
     expect(output).not.toContain("src/medium.ts");
@@ -150,5 +153,68 @@ describe("renderTable", () => {
     expect(output).toContain("processOrder");
     expect(output).toContain("0.8200");
     expect(output).not.toContain("Top Hotspots");
+  });
+
+  it("includes executive summary, triage hints, and glossary footer in default order", () => {
+    const output = renderTable(loadFixture());
+
+    const glossaryIndex = output.indexOf("Glossary");
+    const triageIndex = output.indexOf("Triage hints");
+    const hotspotsIndex = output.indexOf("Top Hotspots");
+    const couplingIndex = output.indexOf("Top Coupling Pairs");
+
+    expect(output).toContain("Granularity: file");
+    expect(output).toContain("Hotspots: showing 3 of 3");
+    expect(hotspotsIndex).toBeGreaterThan(0);
+    expect(couplingIndex).toBeGreaterThan(hotspotsIndex);
+    expect(triageIndex).toBeGreaterThan(couplingIndex);
+    expect(glossaryIndex).toBeGreaterThan(triageIndex);
+    expect(output).toContain("  Score       Hotspot score:");
+    expect(output).toContain("src/hot.ts — High dual-signal hotspot");
+  });
+
+  it("omits triage section when triageHints is false", () => {
+    const output = renderTable(loadFixture(), { triageHints: false });
+
+    expect(output).not.toContain("Triage hints");
+    expect(output).toContain("Glossary");
+  });
+
+  it("omits excluded sections with --only while keeping empty included sections", () => {
+    const fixture = loadFixture();
+    const couplingOnly = renderTable(fixture, { only: ["coupling"] });
+    const hotspotsOnly = renderTable(fixture, { only: ["hotspots"] });
+
+    expect(couplingOnly).not.toContain("Top Hotspots");
+    expect(couplingOnly).toContain("Top Coupling Pairs");
+    expect(hotspotsOnly).not.toContain("Top Coupling Pairs");
+    expect(hotspotsOnly).toContain("Top Hotspots");
+
+    const emptyHotspots = renderTable(
+      { ...fixture, hotspots: [], coupling: [] },
+      { only: ["hotspots"] },
+    );
+    expect(emptyHotspots).toContain("Top Hotspots");
+    expect(emptyHotspots).toContain("  (none)");
+    expect(emptyHotspots).not.toContain("Top Coupling Pairs");
+  });
+
+  it("reports shown vs total from fullResult when sliced before render", () => {
+    const full = loadFixture();
+    const sliced = sliceScanResult(full, 1);
+    const output = renderTable(sliced, { fullResult: full });
+
+    expect(output).toContain("Hotspots: showing 1 of 3");
+    expect(output).toContain(
+      "Coupling pairs: 2 total, 1 without static dependency; showing 1 of 2",
+    );
+  });
+
+  it("strip-ANSI output matches uncolored table for the same fixture", () => {
+    const fixture = loadFixture();
+    const plain = renderTable(fixture, { color: false });
+    const colored = renderTable(fixture, { color: true });
+
+    expect(stripAnsi(colored)).toBe(plain);
   });
 });

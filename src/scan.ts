@@ -13,9 +13,12 @@ import {
 import { createGitMiner } from "./git/index.js";
 import { createFunctionChurnMiner } from "./git/function-churn/index.js";
 import {
+  buildAutoIncludePattern,
   createPathScope,
   filterGitMinerResult,
   isPathInScope,
+  resolveMonorepoScanPath,
+  type ResolvedMonorepoScanPath,
 } from "./paths/index.js";
 import {
   createFunctionHotspotScorer,
@@ -46,7 +49,7 @@ export function buildFunctionModePathAllowlist(
 export const DEFAULT_SINCE = "12 months ago";
 export const DEFAULT_TOP = 20;
 
-async function validateRepoPath(repoPath: string): Promise<void> {
+export async function validateRepoPath(repoPath: string): Promise<void> {
   try {
     const repoStat = await stat(repoPath);
     if (!repoStat.isDirectory()) {
@@ -66,7 +69,9 @@ export async function validateGitRepository(repoPath: string): Promise<void> {
   try {
     await access(join(repoPath, ".git"));
   } catch {
-    throw new Error(`repoPath is not a git repository: ${repoPath}`);
+    throw new Error(
+      `repoPath is not a git repository: ${repoPath}\nHint: pass a repository root that contains a .git directory, or cd into the Git repo first.`,
+    );
   }
 }
 
@@ -107,20 +112,76 @@ function forwardWarnings(
   }
 }
 
-export async function resolveScanConfig(
+function createMonorepoPathRemountWarning(
+  resolved: ResolvedMonorepoScanPath,
+  autoIncludeApplied: boolean,
+): ScanWarning {
+  const message =
+    autoIncludeApplied && resolved.packagePrefix
+      ? `Scan path remounted to git root ${resolved.repoPath}; auto-including ${buildAutoIncludePattern(resolved.packagePrefix)}`
+      : `Scan path remounted to git root ${resolved.repoPath}`;
+  return {
+    code: "MONOREPO_PATH_REMOUNT",
+    severity: "info",
+    message,
+  };
+}
+
+async function loadMergedScanConfig(
   options: ScanOptions,
+  resolved: ResolvedMonorepoScanPath,
 ): Promise<MergedScanConfig> {
   const config = await loadHotspotScannerConfig(options.repoPath, {
     configPath: options.configPath,
   });
-  return mergeScanOptions({ config, cli: pickCliOverrides(options) });
+  const cli = pickCliOverrides(options);
+  if (
+    resolved.remounted &&
+    options.include === undefined &&
+    resolved.packagePrefix !== undefined
+  ) {
+    cli.include = [buildAutoIncludePattern(resolved.packagePrefix)];
+  }
+  return mergeScanOptions({ config, cli });
+}
+
+export interface ScanPipelineContext {
+  merged: MergedScanConfig;
+  pipelineRepoPath: string;
+  remountWarning?: ScanWarning;
+}
+
+export async function resolveScanPipelineContext(
+  options: ScanOptions,
+): Promise<ScanPipelineContext> {
+  await validateRepoPath(options.repoPath);
+  const resolved = await resolveMonorepoScanPath(options.repoPath);
+  const merged = await loadMergedScanConfig(options, resolved);
+  await validateGitRepository(resolved.repoPath);
+  const autoIncludeApplied =
+    resolved.remounted &&
+    options.include === undefined &&
+    resolved.packagePrefix !== undefined;
+  const remountWarning = resolved.remounted
+    ? createMonorepoPathRemountWarning(resolved, autoIncludeApplied)
+    : undefined;
+  return {
+    merged,
+    pipelineRepoPath: resolved.repoPath,
+    remountWarning,
+  };
+}
+
+export async function resolveScanConfig(
+  options: ScanOptions,
+): Promise<MergedScanConfig> {
+  const resolved = await resolveMonorepoScanPath(options.repoPath);
+  return loadMergedScanConfig(options, resolved);
 }
 
 export async function runScan(options: ScanOptions): Promise<ScanResult> {
-  await validateRepoPath(options.repoPath);
-  await validateGitRepository(options.repoPath);
-
-  const merged = await resolveScanConfig(options);
+  const { merged, pipelineRepoPath, remountWarning } =
+    await resolveScanPipelineContext(options);
 
   const scope = createPathScope({
     include: merged.include,
@@ -132,6 +193,11 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
   const onWarning = options.onWarning;
   const collectedWarnings: ScanWarning[] = [];
 
+  if (remountWarning) {
+    collectedWarnings.push(remountWarning);
+    onWarning?.(remountWarning);
+  }
+
   const granularity = merged.granularity;
   const miner = createGitMiner();
   const analyzer = createComplexityAnalyzer({ concurrency: merged.concurrency });
@@ -139,7 +205,7 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
   const signal = abortController.signal;
 
   const gitPromise = miner.mine({
-    repoPath: options.repoPath,
+    repoPath: pipelineRepoPath,
     since,
     onProgress: options.onProgress,
     isPathInScope: (p) => isPathInScope(p, scope),
@@ -150,9 +216,10 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
 
   const cxPromise = (async () => {
     const analyzeOptions: Parameters<typeof analyzer.analyze>[0] = {
-      repoPath: options.repoPath,
+      repoPath: pipelineRepoPath,
       scope,
       signal,
+      onProgress: options.onProgress,
     };
 
     if (granularity === "function") {
@@ -204,14 +271,14 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
     fileStats,
     minCochange,
   );
-  const coupling = enrichCouplingStaticDeps(scoredCoupling, options.repoPath);
+  const coupling = enrichCouplingStaticDeps(scoredCoupling, pipelineRepoPath);
 
   const scannedAt = new Date().toISOString();
 
   if (granularity === "function") {
     const churnMiner = createFunctionChurnMiner();
     const { functionStats, warnings: churnWarnings } = await churnMiner.mine({
-      repoPath: options.repoPath,
+      repoPath: pipelineRepoPath,
       since,
       functions: functionComplexity,
       paths: functionModePathAllowlist,
@@ -255,3 +322,9 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
     },
   };
 }
+
+export {
+  formatScanScopePreview,
+  previewScanScope,
+  type ScanScopePreview,
+} from "./scan-preview.js";

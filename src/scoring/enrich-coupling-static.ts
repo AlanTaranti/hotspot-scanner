@@ -4,6 +4,7 @@ import type {
   CouplingPair,
   StaticDependencyDirection,
 } from "../types/index.js";
+import { PackageExportsMap } from "./package-exports-map.js";
 import { TsconfigPathMap } from "./tsconfig-path-map.js";
 
 const SOURCE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx"] as const;
@@ -199,6 +200,7 @@ function resolutionBases(
   importerPath: string,
   specifier: string,
   pathMap: TsconfigPathMap,
+  packageMap: PackageExportsMap,
 ): string[] {
   if (specifier.startsWith(".")) {
     const importerDir = dirname(normalizeRepoPath(importerPath));
@@ -206,7 +208,20 @@ function resolutionBases(
   }
 
   const resolver = pathMap.loadPathMapForImporter(importerPath);
-  return pathMap.resolveAliasSpecifier(resolver, importerPath, specifier);
+  const aliasBases = pathMap.resolveAliasSpecifier(
+    resolver,
+    importerPath,
+    specifier,
+  );
+  if (aliasBases.length > 0) {
+    return aliasBases;
+  }
+
+  if (specifier.startsWith("#")) {
+    return packageMap.resolveImportSpecifier(importerPath, specifier);
+  }
+
+  return packageMap.resolvePackageSpecifier(importerPath, specifier);
 }
 
 function resolvesToPeer(
@@ -215,10 +230,16 @@ function resolvesToPeer(
   peerPath: string,
   repoPath: string,
   pathMap: TsconfigPathMap,
+  packageMap: PackageExportsMap,
 ): boolean {
   const normalizedPeer = normalizeRepoPath(peerPath);
 
-  for (const basePath of resolutionBases(importerPath, specifier, pathMap)) {
+  for (const basePath of resolutionBases(
+    importerPath,
+    specifier,
+    pathMap,
+    packageMap,
+  )) {
     for (const candidate of buildResolutionCandidates(basePath)) {
       if (
         candidate === normalizedPeer &&
@@ -267,6 +288,8 @@ export function buildStaticEdgeGraph(
 ): StaticEdgeGraph {
   const graph: StaticEdgeGraph = new Map();
   const peers = [...peerPaths].map(normalizeRepoPath);
+  const packageMap = new PackageExportsMap(repoPath);
+  packageMap.indexPeers(peerPaths);
 
   for (const fromPath of peers) {
     if (!isSourceFile(fromPath)) {
@@ -289,6 +312,7 @@ export function buildStaticEdgeGraph(
             toPath,
             repoPath,
             pathMap,
+            packageMap,
           )
         ) {
           continue;

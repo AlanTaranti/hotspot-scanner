@@ -1,8 +1,19 @@
 import type { ScanWarning } from "../types/index.js";
 import type { ParsedCommit, ParsedFileChange } from "./parse.js";
 
+const NEXT_STEP_EMPTY_SINCE =
+  " Next step: widen --since or check path scope (--path / monorepo roots).";
+const NEXT_STEP_AMBIGUOUS =
+  " Next step: verify rename detection or widen --since to capture more history.";
+const NEXT_STEP_UNLINKED =
+  " Next step: ensure git records renames (-M is enabled) or widen --since to capture earlier history.";
+const NEXT_STEP_SINCE_TRUNCATION =
+  " Next step: widen --since to include rename history before the window.";
+const NEXT_STEP_FUNCTION_OVERLAP =
+  " Next step: treat function ranks cautiously after moves; prefer file mode or a wider --since window.";
+
 export const EMPTY_SINCE_WINDOW_MESSAGE =
-  "No commits found in the specified --since window.";
+  "No commits found in the specified --since window." + NEXT_STEP_EMPTY_SINCE;
 
 export function createEmptySinceWindowWarning(): ScanWarning {
   return {
@@ -42,7 +53,8 @@ export function createEmptyBlindSpotSignals(): RenameBlindSpotSignals {
 
 export function formatAmbiguousRenameWarnings(paths: string[]): string[] {
   return paths.map(
-    (path) => `Rename history may be incomplete for: ${path}`,
+    (path) =>
+      `Rename history may be incomplete for: ${path}${NEXT_STEP_AMBIGUOUS}`,
   );
 }
 
@@ -58,14 +70,14 @@ export function formatUnlinkedRenameWarnings(
   const warnings: string[] = [];
   for (const { from, to } of pairs.slice(0, maxPairs)) {
     warnings.push(
-      `Suspected unlinked rename (no git rename metadata): ${from} -> ${to}`,
+      `Suspected unlinked rename (no git rename metadata): ${from} -> ${to}${NEXT_STEP_UNLINKED}`,
     );
   }
 
   const remaining = pairs.length - Math.min(pairs.length, maxPairs);
   if (remaining > 0) {
     warnings.push(
-      `... and ${remaining} more suspected unlinked rename${remaining === 1 ? "" : "s"}`,
+      `... and ${remaining} more suspected unlinked rename${remaining === 1 ? "" : "s"}${NEXT_STEP_UNLINKED}`,
     );
   }
 
@@ -73,13 +85,14 @@ export function formatUnlinkedRenameWarnings(
 }
 
 export function formatSinceTruncationWarning(since: string): string {
-  return `Rename history before the --since window (${since}) may be missing under canonical paths`;
+  return `Rename history before the --since window (${since}) may be missing under canonical paths${NEXT_STEP_SINCE_TRUNCATION}`;
 }
 
 export function formatFunctionPostRenameOverlapWarning(): string {
   return (
     "Function churn overlap uses current [line, endLine] ranges against historical hunks; " +
-    "confidence may be reduced after renames or moves"
+    "confidence may be reduced after renames or moves" +
+    NEXT_STEP_FUNCTION_OVERLAP
   );
 }
 

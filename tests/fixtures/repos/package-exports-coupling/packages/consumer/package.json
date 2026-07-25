@@ -1,0 +1,6 @@
+{
+  "name": "@repo/consumer",
+  "imports": {
+    "#util": "./src/util.ts"
+  }
+}

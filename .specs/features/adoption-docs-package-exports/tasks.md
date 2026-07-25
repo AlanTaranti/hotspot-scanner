@@ -3,7 +3,7 @@
 **Spec**: [`.specs/features/adoption-docs-package-exports/spec.md`](./spec.md)  
 **Design**: [`.specs/features/adoption-docs-package-exports/design.md`](./design.md)  
 **Context**: [`.specs/features/adoption-docs-package-exports/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Medium / docs + `package.json` — thin design; sister [readme-adoption-dx](../readme-adoption-dx/tasks.md). **Do not Execute in the planning session.**
 
 ---
@@ -89,10 +89,10 @@ T3 and T4 both touch `README.md` — **not** `[P]` with each other. T1 ‖ T2 �
 
 **Done when**:
 
-- [ ] `docs/recipes.md` exists with four clearly headed sections matching locked recipes
-- [ ] Each section has copy-pasteable `hotspot-scanner` / `pnpm exec` commands (monorepo includes config JSON and/or include/exclude examples aligned with existing config docs)
-- [ ] No npm/npx install story; clone/build path OK if mentioned
-- [ ] No new CLI flags or config keys invented
+- [x] `docs/recipes.md` exists with four clearly headed sections matching locked recipes
+- [x] Each section has copy-pasteable `hotspot-scanner` / `pnpm exec` commands (monorepo includes config JSON and/or include/exclude examples aligned with existing config docs)
+- [x] No npm/npx install story; clone/build path OK if mentioned
+- [x] No new CLI flags or config keys invented
 
 **Tests**: none  
 **Gate**: none (docs-only; verified in T6)  
@@ -118,10 +118,10 @@ T3 and T4 both touch `README.md` — **not** `[P]` with each other. T1 ‖ T2 �
 
 **Done when**:
 
-- [ ] File lists at least: `EMPTY_SINCE_WINDOW`, `RENAME_HISTORY_INCOMPLETE`, `PARSE_FAILED`, `COMPARE_SINCE_MISMATCH`, `MEGA_COMMIT_SKIPPED`
-- [ ] Notes that `severity` does not force non-zero exit on successful scan
-- [ ] No invented codes; test-only stub codes omitted
-- [ ] Short page (cheatsheet, not Advanced prose dump)
+- [x] File lists at least: `EMPTY_SINCE_WINDOW`, `RENAME_HISTORY_INCOMPLETE`, `PARSE_FAILED`, `COMPARE_SINCE_MISMATCH`, `MEGA_COMMIT_SKIPPED`
+- [x] Notes that `severity` does not force non-zero exit on successful scan
+- [x] No invented codes; test-only stub codes omitted
+- [x] Short page (cheatsheet, not Advanced prose dump)
 
 **Tests**: none  
 **Gate**: none (docs-only; verified in T6)  
@@ -147,10 +147,10 @@ T3 and T4 both touch `README.md` — **not** `[P]` with each other. T1 ‖ T2 �
 
 **Done when**:
 
-- [ ] Ran `pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts` (build first if needed)
-- [ ] Quick start “Example output” and Output formats → Table fences share the same column headers and the same ranked hotspot/coupling rows from that capture (no obsolete Complexity/Churn-only mid-doc sample)
-- [ ] Samples still labeled as fixture/`small-ts` examples
-- [ ] PNG refreshed if it no longer matches the regenerated table; otherwise left as-is with samples matching
+- [x] Ran `pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts` (build first if needed)
+- [x] Quick start “Example output” and Output formats → Table fences share the same column headers and the same ranked hotspot/coupling rows from that capture (no obsolete Complexity/Churn-only mid-doc sample)
+- [x] Samples still labeled as fixture/`small-ts` examples
+- [x] PNG refreshed if it no longer matches the regenerated table; otherwise left as-is with samples matching
 
 **Tests**: none  
 **Gate**: none (docs; CLI capture is verification)  
@@ -176,10 +176,10 @@ T3 and T4 both touch `README.md` — **not** `[P]` with each other. T1 ‖ T2 �
 
 **Done when**:
 
-- [ ] `rg 'docs/recipes.md' README.md` matches
-- [ ] `rg 'docs/warning-codes.md' README.md` matches
-- [ ] Advanced Warning codes section links to cheatsheet and does not list contradictory codes
-- [ ] No M37 structural rewrite (links + minimal surrounding edits only)
+- [x] `rg 'docs/recipes.md' README.md` matches
+- [x] `rg 'docs/warning-codes.md' README.md` matches
+- [x] Advanced Warning codes section links to cheatsheet and does not list contradictory codes
+- [x] No M37 structural rewrite (links + minimal surrounding edits only)
 
 **Tests**: none  
 **Gate**: none  
@@ -205,11 +205,11 @@ T3 and T4 both touch `README.md` — **not** `[P]` with each other. T1 ‖ T2 �
 
 **Done when**:
 
-- [ ] `"exports"."."` resolves to dist index JS + types (ESM `import` condition)
-- [ ] `"main"`, `"types"`, `"bin"` still present and consistent
-- [ ] No public export of internal `"imports"` `#` subpaths
-- [ ] No publish / registry docs added
-- [ ] `pnpm build` leaves `dist/index.js` and `dist/index.d.ts` present for mapped paths
+- [x] `"exports"."."` resolves to dist index JS + types (ESM `import` condition)
+- [x] `"main"`, `"types"`, `"bin"` still present and consistent
+- [x] No public export of internal `"imports"` `#` subpaths
+- [x] No publish / registry docs added
+- [x] `pnpm build` leaves `dist/index.js` and `dist/index.d.ts` present for mapped paths
 
 **Tests**: none  
 **Gate**: `pnpm build` (smoke; full gate in T6)  
@@ -235,11 +235,11 @@ T3 and T4 both touch `README.md` — **not** `[P]` with each other. T1 ‖ T2 �
 
 **Done when**:
 
-- [ ] `test -f docs/recipes.md && test -f docs/warning-codes.md`
-- [ ] README links present; sample fences agree (spot-check)
-- [ ] `package.json` has `"exports"`; `pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts` exits 0
-- [ ] Gate check passes: `pnpm build && pnpm test`
-- [ ] ROADMAP M45 checkboxes / Specs status updated when feature marked Done; STATE Active/Decisions note as appropriate
+- [x] `test -f docs/recipes.md && test -f docs/warning-codes.md`
+- [x] README links present; sample fences agree (spot-check)
+- [x] `package.json` has `"exports"`; `pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts` exits 0
+- [x] Gate check passes: `pnpm build && pnpm test`
+- [x] ROADMAP M45 checkboxes / Specs status updated when feature marked Done; STATE Active/Decisions note as appropriate
 
 **Tests**: none  
 **Gate**: full — `pnpm build && pnpm test`  

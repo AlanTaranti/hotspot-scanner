@@ -111,13 +111,22 @@ export type ScanGranularity = "file" | "function";
 /** Diagnostic severity for warnings and stderr prefixes. */
 export type DiagnosticSeverity = "info" | "warning" | "error";
 
-/** Progress phase for git streaming miners. */
-export type ScanProgressPhase = "git" | "function-churn";
+/** Progress phase for git miners and complexity analysis. */
+export type ScanProgressPhase = "git" | "function-churn" | "complexity";
 
-/** Phase-aware progress from git / function-churn miners. */
+/** Phase-aware progress from git miners and complexity analysis. */
 export interface ScanProgress {
   phase: ScanProgressPhase;
+  /** Git / function-churn commit counter; use 0 for complexity phase. */
   commitsProcessed: number;
+  /** Files analyzed so far (complexity phase). */
+  filesProcessed?: number;
+  /** Batches completed so far (complexity phase). */
+  batchesProcessed?: number;
+  /** Total files to analyze (complexity phase). */
+  totalFiles?: number;
+  /** Total batch count (complexity phase). */
+  totalBatches?: number;
 }
 
 /** Structured scan warning with optional stable code. */

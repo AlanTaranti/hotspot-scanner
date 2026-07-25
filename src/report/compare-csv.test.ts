@@ -45,6 +45,21 @@ describe("renderCompareCsv", () => {
     expect(bundle).not.toHaveProperty("functions.new.csv");
   });
 
+  it("omits excluded section files when --only coupling", () => {
+    const bundle = renderCompareCsv(
+      loadCompareResult(
+        "compare-baseline-file.json",
+        "compare-current-file.json",
+      ),
+      { only: ["coupling"] },
+    );
+
+    expect(bundle).toHaveProperty("meta.json");
+    expect(bundle).toHaveProperty("coupling.new.csv");
+    expect(bundle).not.toHaveProperty("hotspots.new.csv");
+    expect(bundle).not.toHaveProperty("functions.new.csv");
+  });
+
   it("meta.json is parseable compare metadata", () => {
     const bundle = renderCompareCsv(
       loadCompareResult(

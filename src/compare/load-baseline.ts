@@ -10,9 +10,14 @@ import type {
   StaticDependencyDirection,
 } from "../types/index.js";
 
+const BASELINE_CONTRACT_HINT =
+  "\nHint: re-scan with --format json --output <path> using the current hotspot-scanner version, or fix the baseline file to match the JSON contract.";
+
 export class BaselineError extends Error {
   constructor(message: string) {
-    super(message);
+    const withHint =
+      !message.includes("Hint:") && !message.includes("Re-scan");
+    super(withHint ? `${message}${BASELINE_CONTRACT_HINT}` : message);
     this.name = "BaselineError";
   }
 }

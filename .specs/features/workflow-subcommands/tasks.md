@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/workflow-subcommands/design.md`](./design.md)  
 **Spec**: [`.specs/features/workflow-subcommands/spec.md`](./spec.md)  
 **Context**: [`.specs/features/workflow-subcommands/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -91,10 +91,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Shared helpers exist and `scan` / `scan --baseline` call them
-- [ ] Existing CLI unit tests for `scan` and `--baseline` still pass without intentional assertion weakening
-- [ ] No changes under `src/compare/`, `src/scan.ts` domain logic, or `schemas/`
-- [ ] Helpers contain wiring/I/O only (no compare classification reimplementation)
+- [x] Shared helpers exist and `scan` / `scan --baseline` call them
+- [x] Existing CLI unit tests for `scan` and `--baseline` still pass without intentional assertion weakening
+- [x] No changes under `src/compare/`, `src/scan.ts` domain logic, or `schemas/`
+- [x] Helpers contain wiring/I/O only (no compare classification reimplementation)
 
 **Tests**: `bin/hotspot-scanner.test.ts` — regression coverage for scan and scan `--baseline` paths
 
@@ -123,12 +123,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `createCliProgram()` exposes `baseline` / `save`
-- [ ] Default write path is `./hotspot-baseline.json` when `--output` omitted
-- [ ] `--output` override works; empty/dir/missing-parent → `CliUsageError` / exit `!= 0`
-- [ ] Written file is accepted by `loadBaseline()` (unit or integration assertion)
-- [ ] Success exit code `0`
-- [ ] Unit tests cover default path, override, and invalid output
+- [x] `createCliProgram()` exposes `baseline` / `save`
+- [x] Default write path is `./hotspot-baseline.json` when `--output` omitted
+- [x] `--output` override works; empty/dir/missing-parent → `CliUsageError` / exit `!= 0`
+- [x] Written file is accepted by `loadBaseline()` (unit or integration assertion)
+- [x] Success exit code `0`
+- [x] Unit tests cover default path, override, and invalid output
 
 **Tests**: `bin/hotspot-scanner.test.ts` — `baseline save` cases (mock `#scan` where appropriate; real temp file for write/load)
 
@@ -157,11 +157,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `compare` registered; missing `--baseline` → exit `!= 0`
-- [ ] Valid compare path uses `loadBaseline` + `compareScanResults` + `renderCompare`
-- [ ] `--format` / `--output` / `--top` / CSV rules match `scan --baseline`
-- [ ] `scan --baseline` still present and wired through shared helper
-- [ ] Unit tests cover required baseline and successful compare wiring (mocked domain OK)
+- [x] `compare` registered; missing `--baseline` → exit `!= 0`
+- [x] Valid compare path uses `loadBaseline` + `compareScanResults` + `renderCompare`
+- [x] `--format` / `--output` / `--top` / CSV rules match `scan --baseline`
+- [x] `scan --baseline` still present and wired through shared helper
+- [x] Unit tests cover required baseline and successful compare wiring (mocked domain OK)
 
 **Tests**: `bin/hotspot-scanner.test.ts` — `compare` registration, missing baseline, happy-path mock
 
@@ -190,10 +190,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Round-trip save → compare exits `0` with valid compare JSON
-- [ ] Parity assertion between `compare` and `scan --baseline` documented in test
-- [ ] Pre-M40 `scan --baseline` integration behavior still passes
-- [ ] `bin/**` coverage thresholds still met for changed files
+- [x] Round-trip save → compare exits `0` with valid compare JSON
+- [x] Parity assertion between `compare` and `scan --baseline` documented in test
+- [x] Pre-M40 `scan --baseline` integration behavior still passes
+- [x] `bin/**` coverage thresholds still met for changed files
 
 **Tests**: integration cases above
 
@@ -222,10 +222,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Docs mention `baseline save` (default `./hotspot-baseline.json`) and `compare --baseline`
-- [ ] Docs still document `scan --baseline`
-- [ ] ROADMAP M40 ready to mark Done when Execute finishes (planner leaves Specs: Planned until then)
-- [ ] `pnpm build && pnpm test` passes
+- [x] Docs mention `baseline save` (default `./hotspot-baseline.json`) and `compare --baseline`
+- [x] Docs still document `scan --baseline`
+- [x] ROADMAP M40 ready to mark Done when Execute finishes (planner leaves Specs: Planned until then)
+- [x] `pnpm build && pnpm test` passes
 
 **Tests**: none (docs); gate is the verification
 

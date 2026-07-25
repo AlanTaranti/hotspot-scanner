@@ -3,7 +3,7 @@
 **Design**: [design.md](./design.md)  
 **Spec**: [spec.md](./spec.md)  
 **Context**: [context.md](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -120,10 +120,10 @@ flowchart TD
 
 **Done when:**
 
-- [ ] `ScanProgressPhase` includes `"complexity"`
-- [ ] `ScanProgress` documents/supports `filesProcessed`, `batchesProcessed`, `totalFiles`, `totalBatches` (optional)
-- [ ] `commitsProcessed` remains required (complexity callers use `0`)
-- [ ] Typecheck consumers still compile (fixed in dependent tasks)
+- [x] `ScanProgressPhase` includes `"complexity"`
+- [x] `ScanProgress` documents/supports `filesProcessed`, `batchesProcessed`, `totalFiles`, `totalBatches` (optional)
+- [x] `commitsProcessed` remains required (complexity callers use `0`)
+- [x] Typecheck consumers still compile (fixed in dependent tasks)
 
 **Tests:** none  
 **Gate:** none (types excluded from coverage; verified by T2/T5 compile)
@@ -144,10 +144,10 @@ flowchart TD
 
 **Done when:**
 
-- [ ] Complexity phase stderr uses phase name `complexity` and includes batch and/or file counters
-- [ ] Git / `function-churn` lines remain backward compatible when only `commitsProcessed` is set
-- [ ] Unit tests cover complexity emission and throttle behavior
-- [ ] Gate check passes: `pnpm exec vitest run src/diagnostics/logger.test.ts`
+- [x] Complexity phase stderr uses phase name `complexity` and includes batch and/or file counters
+- [x] Git / `function-churn` lines remain backward compatible when only `commitsProcessed` is set
+- [x] Unit tests cover complexity emission and throttle behavior
+- [x] Gate check passes: `pnpm exec vitest run src/diagnostics/logger.test.ts`
 
 **Tests:** unit  
 **Gate:** quick — `pnpm exec vitest run src/diagnostics/logger.test.ts`
@@ -168,10 +168,10 @@ flowchart TD
 
 **Done when:**
 
-- [ ] Ambiguous, unlinked, `--since` truncation, and function pós-rename messages include actionable next-steps (per context.md)
-- [ ] `code` remains `RENAME_HISTORY_INCOMPLETE` / `EMPTY_SINCE_WINDOW` unchanged
-- [ ] Unit + affected miner tests updated for new suffixes
-- [ ] Gate check passes: `pnpm exec vitest run src/git/rename-warnings.test.ts src/git/index.test.ts src/git/function-churn`
+- [x] Ambiguous, unlinked, `--since` truncation, and function pós-rename messages include actionable next-steps (per context.md)
+- [x] `code` remains `RENAME_HISTORY_INCOMPLETE` / `EMPTY_SINCE_WINDOW` unchanged
+- [x] Unit + affected miner tests updated for new suffixes
+- [x] Gate check passes: `pnpm exec vitest run src/git/rename-warnings.test.ts src/git/index.test.ts src/git/function-churn`
 
 **Tests:** unit  
 **Gate:** quick — `pnpm exec vitest run src/git/rename-warnings.test.ts src/git/index.test.ts src/git/function-churn`
@@ -192,12 +192,12 @@ flowchart TD
 
 **Done when:**
 
-- [ ] Grammar matches context.md (last `:` + function-name pattern)
-- [ ] File-mode and function-mode breakdown fields match spec
-- [ ] Path-only function mode lists all matching functions in rank order
-- [ ] Not-found produces clear message string
-- [ ] Lookup uses full arrays (unit fixture with rank beyond a simulated `--top`)
-- [ ] Gate check passes: `pnpm exec vitest run src/report/explain.test.ts`
+- [x] Grammar matches context.md (last `:` + function-name pattern)
+- [x] File-mode and function-mode breakdown fields match spec
+- [x] Path-only function mode lists all matching functions in rank order
+- [x] Not-found produces clear message string
+- [x] Lookup uses full arrays (unit fixture with rank beyond a simulated `--top`)
+- [x] Gate check passes: `pnpm exec vitest run src/report/explain.test.ts`
 
 **Tests:** unit  
 **Gate:** quick — `pnpm exec vitest run src/report/explain.test.ts`
@@ -218,12 +218,12 @@ flowchart TD
 
 **Done when:**
 
-- [ ] `ComplexityAnalyzerOptions` (or deps) accepts `onProgress`
-- [ ] Inline `concurrency === 1` emits progress per batch
-- [ ] Worker pool path emits progress as batches complete
-- [ ] Zero-file analyze does not require progress calls
-- [ ] Unit tests spy progress payloads
-- [ ] Gate check passes: `pnpm exec vitest run src/complexity`
+- [x] `ComplexityAnalyzerOptions` (or deps) accepts `onProgress`
+- [x] Inline `concurrency === 1` emits progress per batch
+- [x] Worker pool path emits progress as batches complete
+- [x] Zero-file analyze does not require progress calls
+- [x] Unit tests spy progress payloads
+- [x] Gate check passes: `pnpm exec vitest run src/complexity`
 
 **Tests:** unit  
 **Gate:** quick — `pnpm exec vitest run src/complexity`
@@ -244,10 +244,10 @@ flowchart TD
 
 **Done when:**
 
-- [ ] File and function mode scans forward progress to complexity
-- [ ] Integration/unit spy sees `phase: "complexity"` on `small-ts` (or injected analyzer)
-- [ ] Git / function-churn phases still emitted with prior semantics
-- [ ] Gate check passes: `pnpm exec vitest run src/scan.test.ts src/scan.integration.test.ts`
+- [x] File and function mode scans forward progress to complexity
+- [x] Integration/unit spy sees `phase: "complexity"` on `small-ts` (or injected analyzer)
+- [x] Git / function-churn phases still emitted with prior semantics
+- [x] Gate check passes: `pnpm exec vitest run src/scan.test.ts src/scan.integration.test.ts`
 
 **Tests:** unit (+ integration spy)  
 **Gate:** quick — `pnpm exec vitest run src/scan.test.ts src/scan.integration.test.ts`
@@ -268,13 +268,13 @@ flowchart TD
 
 **Done when:**
 
-- [ ] `--explain` documented in option help
-- [ ] Full scan + report still run; explain on stderr only
-- [ ] JSON/csv stdout (or `--output`) unchanged by explain text
-- [ ] File mode + `:function` → non-zero `CliUsageError`
-- [ ] Not-found explain still exit 0 after successful scan
-- [ ] `maybeLogProgress` invoked with complexity fields when progress fires
-- [ ] Gate check passes: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
+- [x] `--explain` documented in option help
+- [x] Full scan + report still run; explain on stderr only
+- [x] JSON/csv stdout (or `--output`) unchanged by explain text
+- [x] File mode + `:function` → non-zero `CliUsageError`
+- [x] Not-found explain still exit 0 after successful scan
+- [x] `maybeLogProgress` invoked with complexity fields when progress fires
+- [x] Gate check passes: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
 
 **Tests:** unit (CLI)  
 **Gate:** quick — `pnpm exec vitest run bin/hotspot-scanner.test.ts`
@@ -295,11 +295,11 @@ flowchart TD
 
 **Done when:**
 
-- [ ] Progress phases table lists `complexity` with counters
-- [ ] Note that complexity progress honors future M38 `--no-progress` via `onProgress`
-- [ ] README documents `--explain` grammar and stderr behavior
-- [ ] Rename warning docs mention actionable next-steps; codes unchanged
-- [ ] No application code changes
+- [x] Progress phases table lists `complexity` with counters
+- [x] Note that complexity progress honors future M38 `--no-progress` via `onProgress`
+- [x] README documents `--explain` grammar and stderr behavior
+- [x] Rename warning docs mention actionable next-steps; codes unchanged
+- [x] No application code changes
 
 **Tests:** N/A — doc review  
 **Gate:** none (docs)
@@ -320,9 +320,9 @@ flowchart TD
 
 **Done when:**
 
-- [ ] `pnpm build && pnpm test` passes
-- [ ] No silent test deletions vs pre-feature baseline
-- [ ] tasks.md checkboxes for T1–T8 complete in Execute session
+- [x] `pnpm build && pnpm test` passes
+- [x] No silent test deletions vs pre-feature baseline
+- [x] tasks.md checkboxes for T1–T8 complete in Execute session
 
 **Tests:** full gate  
 **Gate:** `pnpm build && pnpm test`

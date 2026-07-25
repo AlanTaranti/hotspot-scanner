@@ -1,14 +1,100 @@
-import { access, mkdtemp, readFile, rm } from "node:fs/promises";
+import { access, cp, mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { loadBaseline } from "#compare";
 import { runCli } from "./hotspot-scanner.js";
 
 const smallTsFixture = join(
   fileURLToPath(new URL(".", import.meta.url)),
   "../tests/fixtures/repos/small-ts",
 );
+
+const monorepoNestedFixture = join(
+  fileURLToPath(new URL(".", import.meta.url)),
+  "../tests/fixtures/repos/monorepo-nested",
+);
+
+type CompareResultJson = {
+  version: string;
+  granularity: string;
+  hotspots: {
+    new: unknown[];
+    removed: unknown[];
+    rankChanged: unknown[];
+  };
+  functions: {
+    new: unknown[];
+    removed: unknown[];
+    rankChanged: unknown[];
+  };
+  coupling: {
+    new: unknown[];
+    removed: unknown[];
+    rankChanged: unknown[];
+  };
+  meta: {
+    baseline: { since: string; scannedAt: string; granularity: string };
+    current: { since: string; scannedAt: string; granularity: string };
+    warnings: Array<{ severity: string; message: string; code?: string }>;
+  };
+};
+
+async function createIsolatedSmallTsRepo(): Promise<string> {
+  const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-integration-"));
+  await cp(smallTsFixture, tempDir, { recursive: true });
+  return tempDir;
+}
+
+function assertCompareResultShape(parsed: CompareResultJson): void {
+  expect(parsed.version).toBe("1.0");
+  expect(["file", "function"]).toContain(parsed.granularity);
+  expect(parsed.hotspots).toMatchObject({
+    new: expect.any(Array),
+    removed: expect.any(Array),
+    rankChanged: expect.any(Array),
+  });
+  expect(parsed.functions).toMatchObject({
+    new: expect.any(Array),
+    removed: expect.any(Array),
+    rankChanged: expect.any(Array),
+  });
+  expect(parsed.coupling).toMatchObject({
+    new: expect.any(Array),
+    removed: expect.any(Array),
+    rankChanged: expect.any(Array),
+  });
+  expect(parsed.meta.baseline).toMatchObject({
+    since: expect.any(String),
+    scannedAt: expect.any(String),
+    granularity: expect.any(String),
+  });
+  expect(parsed.meta.current).toMatchObject({
+    since: expect.any(String),
+    scannedAt: expect.any(String),
+    granularity: expect.any(String),
+  });
+  expect(Array.isArray(parsed.meta.warnings)).toBe(true);
+  for (const warning of parsed.meta.warnings) {
+    expect(warning).toMatchObject({
+      severity: expect.any(String),
+      message: expect.any(String),
+    });
+  }
+}
+
+/** Strip volatile timestamps so compare vs scan --baseline parity is deterministic. */
+function stripCompareTimestamps(parsed: CompareResultJson): CompareResultJson {
+  return {
+    ...parsed,
+    meta: {
+      ...parsed.meta,
+      baseline: { ...parsed.meta.baseline, scannedAt: "<stripped>" },
+      current: { ...parsed.meta.current, scannedAt: "<stripped>" },
+    },
+  };
+}
 
 function captureStdout(): { chunks: string[]; restore: () => void } {
   const chunks: string[] = [];
@@ -262,7 +348,8 @@ describe("hotspot-scanner CLI integration", () => {
 
     const output = chunks.join("");
     expect(output).toContain("## Top Functions");
-    expect(output).toContain("**Granularity:** function");
+    expect(output).toContain("Granularity: function");
+    expect(output).toContain("## How to read this");
   });
 
   it("defaults to file mode when granularity is omitted", async () => {
@@ -614,5 +701,164 @@ describe("hotspot-scanner CLI integration", () => {
     expect(parsed.hotspots.length).toBeGreaterThanOrEqual(1);
     expect(parsed.coupling.length).toBeGreaterThanOrEqual(1);
     expect(parsed).not.toHaveProperty("functions.new");
+  });
+
+  it("exits 0 when scan omits path from small-ts cwd", async () => {
+    const originalCwd = process.cwd();
+    const { chunks } = captureStdout();
+
+    try {
+      process.chdir(smallTsFixture);
+
+      await runCli(["node", "hotspot-scanner", "scan", "--format", "json"]);
+
+      const parsed = JSON.parse(chunks.join("")) as {
+        version: string;
+        hotspots: unknown[];
+      };
+      expect(parsed.version).toBe("1.0");
+      expect(parsed.hotspots.length).toBeGreaterThanOrEqual(1);
+    } finally {
+      process.chdir(originalCwd);
+    }
+  });
+
+  it("exits 0 when scanning a nested monorepo package path (HOTSPOT-586)", async () => {
+    const { chunks } = captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      join(monorepoNestedFixture, "packages", "api"),
+      "--format",
+      "json",
+    ]);
+
+    const parsed = JSON.parse(chunks.join("")) as {
+      version: string;
+      hotspots: Array<{ filePath: string }>;
+      meta: {
+        warnings: Array<{ code?: string }>;
+      };
+    };
+
+    expect(parsed.version).toBe("1.0");
+    expect(parsed.hotspots.length).toBeGreaterThanOrEqual(1);
+    expect(
+      parsed.hotspots.every((hotspot) =>
+        hotspot.filePath.startsWith("packages/api/"),
+      ),
+    ).toBe(true);
+    expect(
+      parsed.meta.warnings.some(
+        (warning) => warning.code === "MONOREPO_PATH_REMOUNT",
+      ),
+    ).toBe(true);
+  });
+
+  describe("baseline save → compare workflow (M40)", () => {
+    let isolatedRepo: string;
+
+    afterEach(async () => {
+      if (isolatedRepo) {
+        await rm(isolatedRepo, { recursive: true, force: true });
+        isolatedRepo = "";
+      }
+    });
+
+    it("round-trips baseline save then compare with valid CompareResult JSON", async () => {
+      isolatedRepo = await createIsolatedSmallTsRepo();
+      const dir = await createTempDir();
+      const baselinePath = join(dir, "baseline.json");
+      captureStdout();
+
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "baseline",
+        "save",
+        isolatedRepo,
+        "--output",
+        baselinePath,
+      ]);
+
+      const loadedBaseline = await loadBaseline(baselinePath);
+      expect(loadedBaseline.version).toBe("1.0");
+      expect(loadedBaseline.hotspots.length).toBeGreaterThanOrEqual(1);
+
+      const { chunks } = captureStdout();
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "compare",
+        isolatedRepo,
+        "--baseline",
+        baselinePath,
+        "--format",
+        "json",
+      ]);
+
+      const parsed = JSON.parse(chunks.join("")) as CompareResultJson;
+      assertCompareResultShape(parsed);
+      expect(parsed.meta.baseline.granularity).toBe("file");
+      expect(parsed.meta.current.granularity).toBe("file");
+      expect(parsed.hotspots.new).toHaveLength(0);
+      expect(parsed.hotspots.removed).toHaveLength(0);
+      expect(parsed.hotspots.rankChanged).toHaveLength(0);
+    });
+
+    /**
+     * HOTSPOT-497 / HOTSPOT-499: `compare` and `scan --baseline` share
+     * executeCompareAndRender — same inputs must yield equivalent CompareResult
+     * structure (timestamps stripped; each command runs a fresh scan).
+     */
+    it("compare --format json matches scan --baseline for the same inputs", async () => {
+      isolatedRepo = await createIsolatedSmallTsRepo();
+      const dir = await createTempDir();
+      const baselinePath = join(dir, "baseline.json");
+      captureStdout();
+
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "baseline",
+        "save",
+        isolatedRepo,
+        "--output",
+        baselinePath,
+      ]);
+
+      const sharedArgs = [
+        isolatedRepo,
+        "--baseline",
+        baselinePath,
+        "--format",
+        "json",
+        "--since",
+        "12 months ago",
+      ] as const;
+
+      const { chunks: compareChunks } = captureStdout();
+      await runCli(["node", "hotspot-scanner", "compare", ...sharedArgs]);
+      const compareParsed = JSON.parse(
+        compareChunks.join(""),
+      ) as CompareResultJson;
+      assertCompareResultShape(compareParsed);
+
+      const { chunks: scanChunks } = captureStdout();
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        ...sharedArgs,
+      ]);
+      const scanParsed = JSON.parse(scanChunks.join("")) as CompareResultJson;
+      assertCompareResultShape(scanParsed);
+
+      expect(stripCompareTimestamps(compareParsed)).toEqual(
+        stripCompareTimestamps(scanParsed),
+      );
+    });
   });
 });

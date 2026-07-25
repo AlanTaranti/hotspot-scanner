@@ -1,6 +1,8 @@
 import { cp, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { execFile } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it, vi } from "vitest";
 import {
@@ -8,6 +10,7 @@ import {
   HOTSPOT_SCANNER_CONFIG_FILENAME,
 } from "./config/index.js";
 import { GitLogError } from "./git/spawn.js";
+import { isPathInScope } from "./paths/index.js";
 import { DEFAULT_MIN_COCHANGE } from "./scoring/index.js";
 import {
   buildFunctionModePathAllowlist,
@@ -16,6 +19,8 @@ import {
   runScan,
 } from "#scan";
 import type { FileChangeStats } from "./types/index.js";
+
+const execFileAsync = promisify(execFile);
 
 const createGitMinerSpy = vi.hoisted(() => vi.fn());
 const mineSpy = vi.hoisted(() => vi.fn());
@@ -155,6 +160,31 @@ async function createIsolatedSmallTsRepo(): Promise<string> {
   const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scan-config-"));
   await cp(smallTsFixture, tempDir, { recursive: true });
   return tempDir;
+}
+
+async function createNestedMonorepoFixture(): Promise<{
+  workspaceDir: string;
+  packageDir: string;
+}> {
+  const workspaceDir = await mkdtemp(join(tmpdir(), "hotspot-scan-monorepo-"));
+  const packageDir = join(workspaceDir, "packages", "api");
+  await mkdir(packageDir, { recursive: true });
+  await cp(smallTsFixture, packageDir, { recursive: true });
+  await rm(join(packageDir, ".git"), { recursive: true, force: true });
+  await execFileAsync("git", ["init"], { cwd: workspaceDir });
+  await execFileAsync(
+    "git",
+    ["config", "user.email", "test@example.com"],
+    { cwd: workspaceDir },
+  );
+  await execFileAsync(
+    "git",
+    ["config", "user.name", "Test User"],
+    { cwd: workspaceDir },
+  );
+  await execFileAsync("git", ["add", "."], { cwd: workspaceDir });
+  await execFileAsync("git", ["commit", "-m", "init"], { cwd: workspaceDir });
+  return { workspaceDir, packageDir };
 }
 
 describe("runScan", () => {
@@ -403,6 +433,9 @@ describe("runScan", () => {
     try {
       await expect(runScan({ repoPath: tempDir })).rejects.toThrow(
         /not a git repository/i,
+      );
+      await expect(runScan({ repoPath: tempDir })).rejects.toThrow(
+        /Hint:.*\.git/,
       );
     } finally {
       await rm(tempDir, { recursive: true, force: true });
@@ -787,6 +820,154 @@ describe("runScan", () => {
         signal: expect.any(AbortSignal),
       }),
     );
+  });
+
+  it.each(["file", "function"] as const)(
+    "passes onProgress to complexity analyze in %s mode",
+    async (granularity) => {
+      analyzeSpy.mockClear();
+      const onProgress = vi.fn();
+
+      await runScan({
+        repoPath: smallTsFixture,
+        granularity,
+        onProgress,
+      });
+
+      expect(analyzeSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          onProgress,
+        }),
+      );
+    },
+  );
+
+  it("forwards complexity phase progress to onProgress in file mode", async () => {
+    const onProgress = vi.fn();
+
+    await runScan({
+      repoPath: smallTsFixture,
+      granularity: "file",
+      concurrency: 1,
+      onProgress,
+    });
+
+    expect(onProgress).toHaveBeenCalledWith(
+      expect.objectContaining({
+        phase: "complexity",
+        commitsProcessed: 0,
+        filesProcessed: expect.any(Number),
+        batchesProcessed: expect.any(Number),
+        totalFiles: expect.any(Number),
+        totalBatches: expect.any(Number),
+      }),
+    );
+  });
+
+  it("remounts nested repoPath to git root with auto-include before PathScope", async () => {
+    const { workspaceDir, packageDir } = await createNestedMonorepoFixture();
+    mineSpy.mockClear();
+    analyzeSpy.mockClear();
+
+    try {
+      const result = await runScan({ repoPath: packageDir });
+
+      expect(mineSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ repoPath: workspaceDir }),
+      );
+      expect(analyzeSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ repoPath: workspaceDir }),
+      );
+
+      const scope = analyzeSpy.mock.calls[0]![0]!.scope;
+      expect(isPathInScope("packages/api/src/high.ts", scope)).toBe(true);
+      expect(isPathInScope("packages/other/src/high.ts", scope)).toBe(false);
+
+      const remountWarning = result.meta.warnings.find(
+        (warning) => warning.code === "MONOREPO_PATH_REMOUNT",
+      );
+      expect(remountWarning).toEqual({
+        code: "MONOREPO_PATH_REMOUNT",
+        severity: "info",
+        message: expect.stringContaining(workspaceDir),
+      });
+      expect(remountWarning?.message).toContain("packages/api/**");
+    } finally {
+      await rm(workspaceDir, { recursive: true, force: true });
+    }
+  });
+
+  it("remounts nested path without auto-include when include is explicit", async () => {
+    const { workspaceDir, packageDir } = await createNestedMonorepoFixture();
+    analyzeSpy.mockClear();
+
+    try {
+      const result = await runScan({
+        repoPath: packageDir,
+        include: ["packages/other/**"],
+      });
+
+      const scope = analyzeSpy.mock.calls[0]![0]!.scope;
+      expect(isPathInScope("packages/other/src/high.ts", scope)).toBe(true);
+      expect(isPathInScope("packages/api/src/high.ts", scope)).toBe(false);
+
+      const remountWarning = result.meta.warnings.find(
+        (warning) => warning.code === "MONOREPO_PATH_REMOUNT",
+      );
+      expect(remountWarning?.message).toContain(workspaceDir);
+      expect(remountWarning?.message).not.toContain("auto-including");
+    } finally {
+      await rm(workspaceDir, { recursive: true, force: true });
+    }
+  });
+
+  it("loads config from nested request path after remount", async () => {
+    const { workspaceDir, packageDir } = await createNestedMonorepoFixture();
+
+    try {
+      await writeFile(
+        join(packageDir, HOTSPOT_SCANNER_CONFIG_FILENAME),
+        JSON.stringify({ since: "4 months ago" }),
+        "utf8",
+      );
+
+      const result = await runScan({ repoPath: packageDir });
+
+      expect(result.meta.since).toBe("4 months ago");
+    } finally {
+      await rm(workspaceDir, { recursive: true, force: true });
+    }
+  });
+
+  it("auto-include beats config include when CLI include is absent", async () => {
+    const { workspaceDir, packageDir } = await createNestedMonorepoFixture();
+    analyzeSpy.mockClear();
+
+    try {
+      await writeFile(
+        join(packageDir, HOTSPOT_SCANNER_CONFIG_FILENAME),
+        JSON.stringify({ include: ["packages/other/**"] }),
+        "utf8",
+      );
+
+      await runScan({ repoPath: packageDir });
+
+      const scope = analyzeSpy.mock.calls[0]![0]!.scope;
+      expect(isPathInScope("packages/api/src/high.ts", scope)).toBe(true);
+      expect(isPathInScope("packages/other/src/high.ts", scope)).toBe(false);
+    } finally {
+      await rm(workspaceDir, { recursive: true, force: true });
+    }
+  });
+
+  it("does not emit MONOREPO_PATH_REMOUNT for git-root scans", async () => {
+    const result = await runScan({ repoPath: smallTsFixture });
+
+    expect(
+      result.meta.warnings.some(
+        (warning) => warning.code === "MONOREPO_PATH_REMOUNT",
+      ),
+    ).toBe(false);
   });
 });
 

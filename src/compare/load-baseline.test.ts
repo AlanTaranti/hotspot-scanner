@@ -103,6 +103,9 @@ describe("parseScanResult", () => {
     expect(() => parseScanResult({ ...raw, version: "2.0" })).toThrow(
       /Unsupported baseline version/,
     );
+    expect(() => parseScanResult({ ...raw, version: "2.0" })).toThrow(
+      /Hint:.*JSON contract/,
+    );
   });
 
   it("rejects missing required keys", () => {

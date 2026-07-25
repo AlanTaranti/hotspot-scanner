@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { compareScanResults } from "../compare/compare.js";
 import type { CompareResult, ScanResult } from "../types/index.js";
+import { stripAnsi } from "./color.js";
 import { createReporter } from "./index.js";
 
 const fixturePath = join(
@@ -117,7 +118,7 @@ describe("createReporter", () => {
     expect(output).toContain("# Hotspot Scanner Report");
     expect(output).toContain("## Top Hotspots");
     expect(output).toContain("## Top Coupling Pairs");
-    expect(output).toContain("**Scan window:** 6 months ago");
+    expect(output).toContain("Scan window: 6 months ago");
   });
 
   it("renders function mode table output", () => {
@@ -138,7 +139,7 @@ describe("createReporter", () => {
     });
 
     expect(output).toContain("## Top Functions");
-    expect(output).toContain("**Granularity:** function");
+    expect(output).toContain("Granularity: function");
     expect(output).toContain("processOrder");
   });
 
@@ -204,5 +205,142 @@ describe("createReporter", () => {
         { format: "table" },
       ),
     ).not.toThrow();
+  });
+
+  it("defaults to all sections, triage on, and color off for scan table", () => {
+    const fixture = loadFixture();
+    const output = createReporter().render(fixture, { format: "table" });
+
+    expect(output).toContain("Top Hotspots");
+    expect(output).toContain("Top Coupling Pairs");
+    expect(output).toContain("Triage hints");
+    expect(output).toContain("Glossary");
+    expect(stripAnsi(output)).toBe(output);
+    expect(output).toContain("src/hot.ts");
+    expect(output).toContain("0.8500");
+    expect(output).toContain("0.7500");
+  });
+
+  it("defaults to triage on for scan markdown", () => {
+    const output = createReporter().render(loadFixture(), {
+      format: "markdown",
+    });
+
+    expect(output).toContain("## Triage hints");
+    expect(output).toContain("## Top Hotspots");
+    expect(output).toContain("## Top Coupling Pairs");
+  });
+
+  it("preserves ranking rows and scores with default interpretation options", () => {
+    const fixture = loadFixture();
+    const output = createReporter().render(fixture, {
+      format: "table",
+      top: 2,
+    });
+
+    const hotspotsStart = output.indexOf("Top Hotspots");
+    const couplingStart = output.indexOf("Top Coupling Pairs");
+    const rankingBlock = output.slice(hotspotsStart, couplingStart);
+
+    expect(rankingBlock).toContain("src/hot.ts");
+    expect(rankingBlock).toContain("src/medium.ts");
+    expect(rankingBlock).not.toContain("src/cold.ts");
+    expect(rankingBlock).toContain("0.8500");
+    expect(rankingBlock).toContain("0.3000");
+  });
+
+  it("omits JSON sections when only is set without slicing arrays", () => {
+    const fixture = loadFixture();
+    const output = createReporter().render(fixture, {
+      format: "json",
+      only: ["coupling"],
+      top: 1,
+    });
+    const parsed = JSON.parse(output) as Record<string, unknown>;
+
+    expect(parsed).not.toHaveProperty("hotspots");
+    expect(parsed).not.toHaveProperty("functions");
+    expect(parsed.coupling).toHaveLength(2);
+  });
+
+  it("omits CSV bundle files when only is set without slicing rows", () => {
+    const output = createReporter().render(loadFixture(), {
+      format: "csv",
+      only: ["coupling"],
+      top: 1,
+    });
+
+    expect(output).not.toHaveProperty("hotspots.csv");
+    expect(output).not.toHaveProperty("functions.csv");
+    expect(output).toHaveProperty("coupling.csv");
+    expect(output).toHaveProperty("meta.json");
+    const couplingCsv = (output as Record<string, string>)["coupling.csv"]!;
+    expect(couplingCsv).toContain("0.7500");
+    expect(couplingCsv).toContain("0.5000");
+  });
+
+  it("suppresses triage when triageHints is false", () => {
+    const output = createReporter().render(loadFixture(), {
+      format: "table",
+      triageHints: false,
+    });
+
+    expect(output).not.toContain("Triage hints");
+    expect(output).toContain("Glossary");
+  });
+
+  it("applies color only when explicitly enabled on scan table", () => {
+    const fixture = loadFixture();
+    const plain = createReporter().render(fixture, { format: "table" });
+    const colored = createReporter().render(fixture, {
+      format: "table",
+      color: true,
+    });
+
+    expect(stripAnsi(colored)).toBe(plain);
+    expect(colored).not.toBe(plain);
+  });
+
+  it("never emits triage on compare table", () => {
+    const output = createReporter().renderCompare(loadCompareResult(), {
+      format: "table",
+    });
+
+    expect(output).not.toContain("Triage hints");
+    expect(output).toContain("Glossary");
+  });
+
+  it("filters scan table sections when only is set", () => {
+    const output = createReporter().render(loadFixture(), {
+      format: "table",
+      only: ["coupling"],
+    });
+
+    expect(output).not.toContain("Top Hotspots");
+    expect(output).toContain("Top Coupling Pairs");
+    expect(output).toContain("Glossary");
+  });
+
+  it("filters compare markdown sections when only is set", () => {
+    const output = createReporter().renderCompare(loadCompareResult(), {
+      format: "markdown",
+      only: ["coupling"],
+    });
+
+    expect(output).not.toContain("## Top Hotspots");
+    expect(output).toContain("## New Coupling Pairs");
+    expect(output).toContain("## How to read this");
+  });
+
+  it("filters compare JSON sections when only is set", () => {
+    const output = createReporter().renderCompare(loadCompareResult(), {
+      format: "json",
+      only: ["hotspots"],
+    });
+    const parsed = JSON.parse(output as string) as Record<string, unknown>;
+
+    expect(parsed).toHaveProperty("hotspots");
+    expect(parsed).not.toHaveProperty("coupling");
+    expect(parsed).not.toHaveProperty("functions");
   });
 });

@@ -5,8 +5,13 @@ import {
 } from "./coupling-format.js";
 import type { CsvBundle } from "./csv-bundle.js";
 import { formatCsvRow } from "./csv-utils.js";
+import { includesSection, normalizeOnly, type ReportSection } from "./only.js";
 
 const SCORE_DECIMALS = 4;
+
+export interface RenderCsvOptions {
+  only?: readonly ReportSection[];
+}
 
 function formatScore(value: number): string {
   return value.toFixed(SCORE_DECIMALS);
@@ -116,16 +121,36 @@ function renderCouplingCsv(result: ScanResult): string {
   return renderCsvFile(header, rows);
 }
 
-export function renderCsv(result: ScanResult): CsvBundle {
+export function renderCsv(
+  result: ScanResult,
+  options?: RenderCsvOptions,
+): CsvBundle {
+  const onlySet = normalizeOnly(options?.only);
+  const unfilteredOnly =
+    options?.only === undefined || options.only.length === 0;
+
   const bundle: Record<string, string> = {
     "meta.json": renderScanMeta(result),
-    "coupling.csv": renderCouplingCsv(result),
   };
 
-  if (result.meta.granularity === "function") {
-    bundle["functions.csv"] = renderFunctionsCsv(result);
-  } else {
+  if (unfilteredOnly) {
+    if (result.meta.granularity === "function") {
+      bundle["functions.csv"] = renderFunctionsCsv(result);
+    } else {
+      bundle["hotspots.csv"] = renderHotspotsCsv(result);
+    }
+    bundle["coupling.csv"] = renderCouplingCsv(result);
+    return bundle;
+  }
+
+  if (includesSection(onlySet, "hotspots")) {
     bundle["hotspots.csv"] = renderHotspotsCsv(result);
+  }
+  if (includesSection(onlySet, "functions")) {
+    bundle["functions.csv"] = renderFunctionsCsv(result);
+  }
+  if (includesSection(onlySet, "coupling")) {
+    bundle["coupling.csv"] = renderCouplingCsv(result);
   }
 
   return bundle;

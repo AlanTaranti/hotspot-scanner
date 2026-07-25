@@ -14,7 +14,8 @@
       "#report": ["src/report/index.ts"],
       "#scoring": ["src/scoring/index.ts"],
       "#compare": ["src/compare/index.ts"],
-      "#config": ["src/config/index.ts"]
+      "#config": ["src/config/index.ts"],
+      "#doctor": ["src/doctor/index.ts"]
     }
   },
   "references": [{ "path": "./tsconfig.json" }],

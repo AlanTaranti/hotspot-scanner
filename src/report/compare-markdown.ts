@@ -10,6 +10,13 @@ import {
   formatKinds,
   formatStaticDep,
 } from "./coupling-format.js";
+import {
+  type CompareRenderOptions,
+  resolveCompareRenderSections,
+} from "./compare-table.js";
+import { renderMarkdownHowToRead } from "./glossary.js";
+import { normalizeOnly } from "./only.js";
+import { buildCompareExecutiveSummary } from "./summary.js";
 import { formatScanWarning } from "./warning-format.js";
 
 const SCORE_DECIMALS = 4;
@@ -181,50 +188,34 @@ function renderRankChangedCouplingTable(
   return lines;
 }
 
-export function renderCompareMarkdown(result: CompareResult): string {
-  const lines = [
-    "# Hotspot Scanner — Compare Report",
+function renderHotspotSections(result: CompareResult): string[] {
+  return [
+    ...renderHotspotTable("New Hotspots", result.hotspots.new, true),
     "",
-    `**Baseline:** scanned at ${result.meta.baseline.scannedAt}, window ${result.meta.baseline.since}`,
-    `**Current:** scanned at ${result.meta.current.scannedAt}, window ${result.meta.current.since}`,
+    ...renderHotspotTable("Removed Hotspots", result.hotspots.removed, false),
     "",
+    ...renderRankChangedHotspotTable(
+      "Rank Changed Hotspots",
+      result.hotspots.rankChanged,
+    ),
   ];
+}
 
-  for (const warning of result.meta.warnings) {
-    lines.push(`> ${formatScanWarning(warning)}`, "");
-  }
+function renderFunctionSections(result: CompareResult): string[] {
+  return [
+    ...renderFunctionTable("New Functions", result.functions.new, true),
+    "",
+    ...renderFunctionTable("Removed Functions", result.functions.removed, false),
+    "",
+    ...renderRankChangedFunctionTable(
+      "Rank Changed Functions",
+      result.functions.rankChanged,
+    ),
+  ];
+}
 
-  if (result.granularity === "function") {
-    lines.push(
-      ...renderFunctionTable("New Functions", result.functions.new, true),
-      "",
-      ...renderFunctionTable(
-        "Removed Functions",
-        result.functions.removed,
-        false,
-      ),
-      "",
-      ...renderRankChangedFunctionTable(
-        "Rank Changed Functions",
-        result.functions.rankChanged,
-      ),
-      "",
-    );
-  } else {
-    lines.push(
-      ...renderHotspotTable("New Hotspots", result.hotspots.new, true),
-      "",
-      ...renderHotspotTable("Removed Hotspots", result.hotspots.removed, false),
-      "",
-      ...renderRankChangedHotspotTable(
-        "Rank Changed Hotspots",
-        result.hotspots.rankChanged,
-      ),
-      "",
-    );
-  }
-
-  lines.push(
+function renderCouplingSections(result: CompareResult): string[] {
+  return [
     ...renderCouplingTable("New Coupling Pairs", result.coupling.new, true),
     "",
     ...renderCouplingTable(
@@ -237,7 +228,41 @@ export function renderCompareMarkdown(result: CompareResult): string {
       "Rank Changed Coupling Pairs",
       result.coupling.rankChanged,
     ),
-  );
+  ];
+}
+
+export function renderCompareMarkdown(
+  result: CompareResult,
+  options?: CompareRenderOptions,
+): string {
+  const onlySet = normalizeOnly(options?.only);
+  const sections = resolveCompareRenderSections(onlySet, result.granularity);
+  const full = options?.full ?? result;
+
+  const lines = [
+    "# Hotspot Scanner — Compare Report",
+    "",
+    ...buildCompareExecutiveSummary(full, result),
+    "",
+    ...renderMarkdownHowToRead({ compare: true }),
+    "",
+  ];
+
+  for (const warning of result.meta.warnings) {
+    lines.push(`> ${formatScanWarning(warning)}`, "");
+  }
+
+  if (sections.hotspots) {
+    lines.push(...renderHotspotSections(result), "");
+  }
+
+  if (sections.functions) {
+    lines.push(...renderFunctionSections(result), "");
+  }
+
+  if (sections.coupling) {
+    lines.push(...renderCouplingSections(result));
+  }
 
   return lines.join("\n");
 }

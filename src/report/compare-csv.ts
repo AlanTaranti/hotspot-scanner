@@ -6,11 +6,16 @@ import type {
   RankChange,
 } from "../types/index.js";
 import {
+  type CompareRenderOptions,
+  resolveCompareRenderSections,
+} from "./compare-table.js";
+import {
   COUPLING_ENRICHMENT_CSV_COLUMNS,
   couplingEnrichmentCsvValues,
 } from "./coupling-format.js";
 import type { CsvBundle } from "./csv-bundle.js";
 import { formatCsvRow } from "./csv-utils.js";
+import { normalizeOnly } from "./only.js";
 
 const SCORE_DECIMALS = 4;
 
@@ -218,37 +223,32 @@ const RANK_CHANGED_COUPLING_HEADER = [
   ...COUPLING_ENRICHMENT_CSV_COLUMNS,
 ];
 
-export function renderCompareCsv(result: CompareResult): CsvBundle {
+export function renderCompareCsv(
+  result: CompareResult,
+  options?: CompareRenderOptions,
+): CsvBundle {
+  const onlySet = normalizeOnly(options?.only);
+  const sections = resolveCompareRenderSections(onlySet, result.granularity);
   const bundle: Record<string, string> = {
     "meta.json": renderCompareMeta(result),
-    "coupling.new.csv": renderCsvFile(
-      COUPLING_HEADER,
-      renderCouplingRows(result.coupling.new, true),
-    ),
-    "coupling.removed.csv": renderCsvFile(
-      COUPLING_HEADER,
-      renderCouplingRows(result.coupling.removed, false),
-    ),
-    "coupling.rank-changed.csv": renderCsvFile(
-      RANK_CHANGED_COUPLING_HEADER,
-      renderRankChangedCouplingRows(result.coupling.rankChanged),
-    ),
   };
 
-  if (result.granularity === "function") {
-    bundle["functions.new.csv"] = renderCsvFile(
-      FUNCTION_HEADER,
-      renderFunctionRows(result.functions.new, true),
+  if (sections.coupling) {
+    bundle["coupling.new.csv"] = renderCsvFile(
+      COUPLING_HEADER,
+      renderCouplingRows(result.coupling.new, true),
     );
-    bundle["functions.removed.csv"] = renderCsvFile(
-      FUNCTION_HEADER,
-      renderFunctionRows(result.functions.removed, false),
+    bundle["coupling.removed.csv"] = renderCsvFile(
+      COUPLING_HEADER,
+      renderCouplingRows(result.coupling.removed, false),
     );
-    bundle["functions.rank-changed.csv"] = renderCsvFile(
-      RANK_CHANGED_FUNCTION_HEADER,
-      renderRankChangedFunctionRows(result.functions.rankChanged),
+    bundle["coupling.rank-changed.csv"] = renderCsvFile(
+      RANK_CHANGED_COUPLING_HEADER,
+      renderRankChangedCouplingRows(result.coupling.rankChanged),
     );
-  } else {
+  }
+
+  if (sections.hotspots) {
     bundle["hotspots.new.csv"] = renderCsvFile(
       HOTSPOT_HEADER,
       renderHotspotRows(result.hotspots.new, true),
@@ -260,6 +260,21 @@ export function renderCompareCsv(result: CompareResult): CsvBundle {
     bundle["hotspots.rank-changed.csv"] = renderCsvFile(
       RANK_CHANGED_HOTSPOT_HEADER,
       renderRankChangedHotspotRows(result.hotspots.rankChanged),
+    );
+  }
+
+  if (sections.functions) {
+    bundle["functions.new.csv"] = renderCsvFile(
+      FUNCTION_HEADER,
+      renderFunctionRows(result.functions.new, true),
+    );
+    bundle["functions.removed.csv"] = renderCsvFile(
+      FUNCTION_HEADER,
+      renderFunctionRows(result.functions.removed, false),
+    );
+    bundle["functions.rank-changed.csv"] = renderCsvFile(
+      RANK_CHANGED_FUNCTION_HEADER,
+      renderRankChangedFunctionRows(result.functions.rankChanged),
     );
   }
 

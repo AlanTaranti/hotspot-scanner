@@ -365,7 +365,7 @@ describe("createComplexityAnalyzer", () => {
     });
 
     expect(discoverSourceFiles).toHaveBeenCalledTimes(1);
-    expect(runBatches).toHaveBeenCalledWith(fixtureDir, [["b.ts"]], undefined);
+    expect(runBatches).toHaveBeenCalledWith(fixtureDir, [["b.ts"]], undefined, undefined);
     expect(result.results.map((entry) => entry.filePath)).toEqual(["b.ts"]);
   });
 
@@ -468,6 +468,106 @@ describe("createComplexityAnalyzer", () => {
       fixtureDir,
       expect.any(Array),
       controller.signal,
+      undefined,
     );
+  });
+
+  it("forwards onProgress to worker pool runBatches", async () => {
+    const onProgress = vi.fn();
+    const runBatches = vi.fn(async () => [
+      { results: [], functions: [], warnings: [] },
+    ]);
+    const createWorkerPool = vi.fn(() => ({ runBatches }));
+    const discoverSourceFiles = vi.fn(async () => ["a.ts", "b.ts"]);
+
+    const analyzer = createComplexityAnalyzer({
+      discoverSourceFiles,
+      createWorkerPool,
+      concurrency: 2,
+    });
+
+    await analyzer.analyze({
+      repoPath: fixtureDir,
+      onProgress,
+    });
+
+    expect(runBatches).toHaveBeenCalledWith(
+      fixtureDir,
+      expect.any(Array),
+      undefined,
+      onProgress,
+    );
+  });
+
+  it("emits complexity progress per batch for inline concurrency", async () => {
+    const files: Record<string, string> = {};
+    for (let index = 0; index < 3; index += 1) {
+      files[`file-${index}.ts`] = `export const value${index} = ${index};`;
+    }
+    const repoPath = await createTempRepo(files);
+    const onProgress = vi.fn();
+    const analyzer = createComplexityAnalyzer({ concurrency: 1 });
+
+    await analyzer.analyze({ repoPath, onProgress });
+
+    expect(onProgress).toHaveBeenCalledTimes(1);
+    expect(onProgress).toHaveBeenCalledWith({
+      phase: "complexity",
+      commitsProcessed: 0,
+      filesProcessed: 3,
+      batchesProcessed: 1,
+      totalFiles: 3,
+      totalBatches: 1,
+    });
+  });
+
+  it("emits complexity progress per batch for worker pool concurrency", async () => {
+    const files: Record<string, string> = {};
+    for (let index = 0; index < DEFAULT_BATCH_SIZE + 2; index += 1) {
+      files[`file-${String(index).padStart(3, "0")}.ts`] =
+        `export const value${index} = ${index};`;
+    }
+    const repoPath = await createTempRepo(files);
+    const onProgress = vi.fn();
+    const analyzer = createComplexityAnalyzer({ concurrency: 2 });
+
+    await analyzer.analyze({ repoPath, onProgress });
+
+    const totalFiles = DEFAULT_BATCH_SIZE + 2;
+    const totalBatches = 2;
+    expect(onProgress).toHaveBeenCalledTimes(totalBatches);
+    expect(onProgress).toHaveBeenNthCalledWith(1, {
+      phase: "complexity",
+      commitsProcessed: 0,
+      filesProcessed: DEFAULT_BATCH_SIZE,
+      batchesProcessed: 1,
+      totalFiles,
+      totalBatches,
+    });
+    expect(onProgress).toHaveBeenNthCalledWith(2, {
+      phase: "complexity",
+      commitsProcessed: 0,
+      filesProcessed: totalFiles,
+      batchesProcessed: 2,
+      totalFiles,
+      totalBatches,
+    });
+  });
+
+  it("does not emit complexity progress for zero discovered files", async () => {
+    const onProgress = vi.fn();
+    const createWorkerPool = vi.fn(() => ({
+      runBatches: vi.fn(async () => []),
+    }));
+
+    const analyzer = createComplexityAnalyzer({
+      discoverSourceFiles: async () => [],
+      createWorkerPool,
+    });
+
+    await analyzer.analyze({ repoPath: fixtureDir, onProgress });
+
+    expect(onProgress).not.toHaveBeenCalled();
+    expect(createWorkerPool).not.toHaveBeenCalled();
   });
 });

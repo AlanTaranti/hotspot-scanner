@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/coupling-package-exports/design.md`](./design.md)  
 **Spec**: [`.specs/features/coupling-package-exports/spec.md`](./spec.md)  
 **Context**: [`.specs/features/coupling-package-exports/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -143,10 +143,10 @@ flowchart TD
 
 **Done when**:
 
-- [ ] `loadScopeForImporter` / `resolveImportSpecifier` / exports expansion helpers implemented per context.md
-- [ ] Unit tests: `#` exact + `*`, conditional exports union, main fallback, malformed JSON → null/miss
-- [ ] No ts-morph; no `node_modules` reads
-- [ ] `pnpm test -- src/scoring/package-exports-map.test.ts` passes
+- [x] `loadScopeForImporter` / `resolveImportSpecifier` / exports expansion helpers implemented per context.md
+- [x] Unit tests: `#` exact + `*`, conditional exports union, main fallback, malformed JSON → null/miss
+- [x] No ts-morph; no `node_modules` reads
+- [x] `pnpm test -- src/scoring/package-exports-map.test.ts` passes
 
 **Tests**: unit  
 **Gate**: `pnpm test -- src/scoring/package-exports-map.test.ts`
@@ -169,12 +169,12 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Peers index by package directory + `name`
-- [ ] `resolvePackageSpecifier` matches `@scope/pkg` and subpaths to candidates under that package
-- [ ] Names not in index → `[]` (no node_modules fallback)
-- [ ] Self-package name from importer scope works when indexed
-- [ ] Unit tests cover index + miss + subpath
-- [ ] `pnpm test -- src/scoring/package-exports-map.test.ts` passes
+- [x] Peers index by package directory + `name`
+- [x] `resolvePackageSpecifier` matches `@scope/pkg` and subpaths to candidates under that package
+- [x] Names not in index → `[]` (no node_modules fallback)
+- [x] Self-package name from importer scope works when indexed
+- [x] Unit tests cover index + miss + subpath
+- [x] `pnpm test -- src/scoring/package-exports-map.test.ts` passes
 
 **Tests**: unit  
 **Gate**: `pnpm test -- src/scoring/package-exports-map.test.ts`
@@ -197,12 +197,12 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Package resolution wired; public `enrichCouplingStaticDeps(pairs, repoPath)` signature unchanged
-- [ ] Temp-repo unit: exports + imports → `hasStaticDependency: true` + correct direction/kinds
-- [ ] External-only package name → false (given no tsconfig hit)
-- [ ] `couplingStrength` / order untouched assertions
-- [ ] Existing relative/alias/read-once tests still pass; package.json read-once across multi-pair hub
-- [ ] `pnpm test -- src/scoring/enrich-coupling-static.test.ts src/scoring/package-exports-map.test.ts` passes
+- [x] Package resolution wired; public `enrichCouplingStaticDeps(pairs, repoPath)` signature unchanged
+- [x] Temp-repo unit: exports + imports → `hasStaticDependency: true` + correct direction/kinds
+- [x] External-only package name → false (given no tsconfig hit)
+- [x] `couplingStrength` / order untouched assertions
+- [x] Existing relative/alias/read-once tests still pass; package.json read-once across multi-pair hub
+- [x] `pnpm test -- src/scoring/enrich-coupling-static.test.ts src/scoring/package-exports-map.test.ts` passes
 
 **Tests**: unit  
 **Gate**: `pnpm test -- src/scoring/enrich-coupling-static.test.ts src/scoring/package-exports-map.test.ts`
@@ -225,9 +225,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Tree contains package.json `exports` and `imports` examples under repoPath
-- [ ] README documents expected enrich outcomes for key pairs
-- [ ] No edits to `src/scoring/` in this task
+- [x] Tree contains package.json `exports` and `imports` examples under repoPath
+- [x] README documents expected enrich outcomes for key pairs
+- [x] No edits to `src/scoring/` in this task
 
 **Tests**: none  
 **Gate**: N/A (tree review) — verify paths exist
@@ -250,10 +250,10 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Exports case → `hasStaticDependency: true`
-- [ ] Imports `#` case → `hasStaticDependency: true`
-- [ ] Documented direction/kinds match README where specified
-- [ ] Targeted vitest passes
+- [x] Exports case → `hasStaticDependency: true`
+- [x] Imports `#` case → `hasStaticDependency: true`
+- [x] Documented direction/kinds match README where specified
+- [x] Targeted vitest passes
 
 **Tests**: unit and/or integration  
 **Gate**: `pnpm test -- src/scoring/enrich-coupling-static.test.ts` (and integration file if touched)
@@ -276,10 +276,10 @@ flowchart TD
 
 **Done when**:
 
-- [ ] ARCHITECTURE documents package resolution + in-repo boundary
-- [ ] CONCERNS unmitigated `exports`/`imports` row **gone**; mitigation listed under enriched coupling
-- [ ] STRUCTURE lists `package-exports-map`
-- [ ] `pnpm test -- tests/contract` (or equivalent) passes
+- [x] ARCHITECTURE documents package resolution + in-repo boundary
+- [x] CONCERNS unmitigated `exports`/`imports` row **gone**; mitigation listed under enriched coupling
+- [x] STRUCTURE lists `package-exports-map`
+- [x] `pnpm test -- tests/contract` (or equivalent) passes
 
 **Tests**: contract  
 **Gate**: `pnpm test -- tests/contract`
@@ -302,10 +302,10 @@ flowchart TD
 
 **Done when**:
 
-- [ ] `pnpm build && pnpm test` exits 0
-- [ ] Coverage thresholds still met for new scoring files
-- [ ] tasks.md checkboxes complete; Status → Done (orchestrator Phase F)
-- [ ] ROADMAP M44 marked Done (orchestrator)
+- [x] `pnpm build && pnpm test` exits 0
+- [x] Coverage thresholds still met for new scoring files
+- [x] tasks.md checkboxes complete; Status → Done (orchestrator Phase F)
+- [x] ROADMAP M44 marked Done (orchestrator)
 
 **Tests**: gate  
 **Gate**: `pnpm build && pnpm test`
@@ -321,6 +321,4 @@ flowchart TD
 
 ## Handoff
 
-Status **Planned**. Promote to `Approved` / `Ready for Execute`, then in a **new** session invoke `orchestrator-implementer`.
-
-Suggested implementer routing: T1–T3 + T5 → `implementer` (`src/scoring/`); T4 → `fixture-builder`; T6 docs in implementer or orchestrator; T7 → `verifier-quality-gates`.
+Status **Done**. Execute complete 2026-07-24.

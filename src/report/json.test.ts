@@ -78,6 +78,32 @@ describe("renderJson", () => {
     expect(parsed.coupling).toEqual([]);
   });
 
+  it("omits excluded sections when only is set", () => {
+    const fixture = loadFixture();
+    const output = renderJson(sliceScanResult(fixture, 2), {
+      only: ["coupling"],
+    });
+    const parsed = JSON.parse(output) as Record<string, unknown>;
+
+    expect(parsed.version).toBe("1.0");
+    expect(parsed.meta).toBeDefined();
+    expect(parsed.coupling).toHaveLength(2);
+    expect(parsed).not.toHaveProperty("hotspots");
+    expect(parsed).not.toHaveProperty("functions");
+  });
+
+  it("includes only requested sections for union --only", () => {
+    const fixture = loadFixture();
+    const output = renderJson(sliceScanResult(fixture, 2), {
+      only: ["hotspots", "coupling"],
+    });
+    const parsed = JSON.parse(output) as Record<string, unknown>;
+
+    expect(parsed.hotspots).toHaveLength(2);
+    expect(parsed.coupling).toHaveLength(2);
+    expect(parsed).not.toHaveProperty("functions");
+  });
+
   it("serializes function mode schema with empty hotspots", () => {
     const raw = JSON.parse(
       readFileSync(functionFixturePath, "utf8"),

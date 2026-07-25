@@ -7,6 +7,9 @@ import { createScanWarning } from "../diagnostics/logger.js";
 import {
   createEmptySinceWindowWarning,
   createRenameHistoryIncompleteWarning,
+  formatAmbiguousRenameWarnings,
+  formatSinceTruncationWarning,
+  formatUnlinkedRenameWarnings,
 } from "./rename-warnings.js";
 import { createGitMiner } from "./index.js";
 import { MEGA_COMMIT_SKIPPED_CODE } from "./mega-commit-warnings.js";
@@ -92,7 +95,9 @@ describe("createGitMiner", () => {
     expect(result.fileStats.has("src/b.ts")).toBe(false);
     expect(result.warnings).not.toContainEqual(
       createRenameHistoryIncompleteWarning(
-        "Suspected unlinked rename (no git rename metadata): src/old/foo.ts -> lib/foo.ts",
+        formatUnlinkedRenameWarnings([
+          { from: "src/old/foo.ts", to: "lib/foo.ts" },
+        ])[0]!,
       ),
     );
   });
@@ -107,7 +112,9 @@ describe("createGitMiner", () => {
 
     expect(result.warnings).toContainEqual(
       createRenameHistoryIncompleteWarning(
-        "Suspected unlinked rename (no git rename metadata): src/old/foo.ts -> lib/foo.ts",
+        formatUnlinkedRenameWarnings([
+          { from: "src/old/foo.ts", to: "lib/foo.ts" },
+        ])[0]!,
       ),
     );
     expect(result.fileStats.get("src/old/foo.ts")?.commitCount).toBe(1);
@@ -129,7 +136,7 @@ describe("createGitMiner", () => {
 
     expect(result.warnings).toContainEqual(
       createRenameHistoryIncompleteWarning(
-        "Rename history before the --since window (12 months ago) may be missing under canonical paths",
+        formatSinceTruncationWarning("12 months ago"),
       ),
     );
     expect(result.fileStats.get("src/b.ts")?.commitCount).toBe(1);
@@ -237,10 +244,10 @@ describe("createGitMiner", () => {
     expect(result.warnings).toEqual(
       expect.arrayContaining([
         createRenameHistoryIncompleteWarning(
-          "Rename history may be incomplete for: a.ts",
+          formatAmbiguousRenameWarnings(["a.ts"])[0]!,
         ),
         createRenameHistoryIncompleteWarning(
-          "Rename history may be incomplete for: b.ts",
+          formatAmbiguousRenameWarnings(["b.ts"])[0]!,
         ),
       ]),
     );

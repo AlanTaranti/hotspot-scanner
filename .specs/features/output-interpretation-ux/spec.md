@@ -13,12 +13,12 @@ Operators can run a scan and get ranked tables, but column names (`Score`, `CpxN
 
 ## Goals
 
-- [ ] Table footer glossary + markdown “How to read this” sharing one semantic SoT
-- [ ] Executive summary at top of table and markdown (scan + compare)
-- [ ] Conservative, documented triage hints (default ON for scan table/markdown; `--no-triage-hints`)
-- [ ] Repeatable `--only hotspots|coupling|functions` across formats; invalid → `CliUsageError`
-- [ ] TTY-aware table colors honoring `--no-color`, `NO_COLOR`, non-TTY, and `--output`
-- [ ] `pnpm build && pnpm test` green after Execute; scores/rankings/JSON contract unchanged for unfiltered scans
+- [x] Table footer glossary + markdown “How to read this” sharing one semantic SoT
+- [x] Executive summary at top of table and markdown (scan + compare)
+- [x] Conservative, documented triage hints (default ON for scan table/markdown; `--no-triage-hints`)
+- [x] Repeatable `--only hotspots|coupling|functions` across formats; invalid → `CliUsageError`
+- [x] TTY-aware table colors honoring `--no-color`, `NO_COLOR`, non-TTY, and `--output`
+- [x] `pnpm build && pnpm test` green after Execute; scores/rankings/JSON contract unchanged for unfiltered scans
 
 ## Out of Scope
 
@@ -193,36 +193,36 @@ Operators can run a scan and get ranked tables, but column names (`Score`, `CpxN
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| HOTSPOT-510 | P1: Table legend | Tasks | Pending |
-| HOTSPOT-511 | P1: Table legend | Tasks | Pending |
-| HOTSPOT-512 | P1: Table legend | Tasks | Pending |
-| HOTSPOT-513 | P1: Markdown how-to-read | Tasks | Pending |
-| HOTSPOT-514 | P1: Markdown how-to-read | Tasks | Pending |
-| HOTSPOT-515 | P1: Executive summary | Tasks | Pending |
-| HOTSPOT-516 | P1: Executive summary | Tasks | Pending |
-| HOTSPOT-517 | P1: Executive summary | Tasks | Pending |
-| HOTSPOT-518 | P1: Executive summary | Tasks | Pending |
-| HOTSPOT-519 | P1: Executive summary | Tasks | Pending |
-| HOTSPOT-520 | P1: Triage hints | Tasks | Pending |
-| HOTSPOT-521 | P1: Triage hints | Tasks | Pending |
-| HOTSPOT-522 | P1: Triage hints | Tasks | Pending |
-| HOTSPOT-523 | P1: Triage hints | Tasks | Pending |
-| HOTSPOT-524 | P1: Triage hints | Tasks | Pending |
-| HOTSPOT-525 | P1: `--only` | Tasks | Pending |
-| HOTSPOT-526 | P1: `--only` | Tasks | Pending |
-| HOTSPOT-527 | P1: `--only` | Tasks | Pending |
-| HOTSPOT-528 | P1: `--only` | Tasks | Pending |
-| HOTSPOT-529 | P1: `--only` | Tasks | Pending |
-| HOTSPOT-530 | P1: `--only` | Tasks | Pending |
-| HOTSPOT-531 | P1: `--only` | Tasks | Pending |
-| HOTSPOT-532 | P1: Colors | Tasks | Pending |
-| HOTSPOT-533 | P1: Colors | Tasks | Pending |
-| HOTSPOT-534 | P1: Colors | Tasks | Pending |
-| HOTSPOT-535 | P1: Colors | Tasks | Pending |
-| HOTSPOT-536 | P1: Colors | Tasks | Pending |
-| HOTSPOT-537 | P1: Colors | Tasks | Pending |
-| HOTSPOT-538 | P1: Colors | Tasks | Pending |
-| HOTSPOT-539 | P2: Docs | Tasks | Pending |
+| HOTSPOT-510 | P1: Table legend | Tasks | Done |
+| HOTSPOT-511 | P1: Table legend | Tasks | Done |
+| HOTSPOT-512 | P1: Table legend | Tasks | Done |
+| HOTSPOT-513 | P1: Markdown how-to-read | Tasks | Done |
+| HOTSPOT-514 | P1: Markdown how-to-read | Tasks | Done |
+| HOTSPOT-515 | P1: Executive summary | Tasks | Done |
+| HOTSPOT-516 | P1: Executive summary | Tasks | Done |
+| HOTSPOT-517 | P1: Executive summary | Tasks | Done |
+| HOTSPOT-518 | P1: Executive summary | Tasks | Done |
+| HOTSPOT-519 | P1: Executive summary | Tasks | Done |
+| HOTSPOT-520 | P1: Triage hints | Tasks | Done |
+| HOTSPOT-521 | P1: Triage hints | Tasks | Done |
+| HOTSPOT-522 | P1: Triage hints | Tasks | Done |
+| HOTSPOT-523 | P1: Triage hints | Tasks | Done |
+| HOTSPOT-524 | P1: Triage hints | Tasks | Done |
+| HOTSPOT-525 | P1: `--only` | Tasks | Done |
+| HOTSPOT-526 | P1: `--only` | Tasks | Done |
+| HOTSPOT-527 | P1: `--only` | Tasks | Done |
+| HOTSPOT-528 | P1: `--only` | Tasks | Done |
+| HOTSPOT-529 | P1: `--only` | Tasks | Done |
+| HOTSPOT-530 | P1: `--only` | Tasks | Done |
+| HOTSPOT-531 | P1: `--only` | Tasks | Done |
+| HOTSPOT-532 | P1: Colors | Tasks | Done |
+| HOTSPOT-533 | P1: Colors | Tasks | Done |
+| HOTSPOT-534 | P1: Colors | Tasks | Done |
+| HOTSPOT-535 | P1: Colors | Tasks | Done |
+| HOTSPOT-536 | P1: Colors | Tasks | Done |
+| HOTSPOT-537 | P1: Colors | Tasks | Done |
+| HOTSPOT-538 | P1: Colors | Tasks | Done |
+| HOTSPOT-539 | P2: Docs | Tasks | Done |
 
 **Coverage:** 30 total (HOTSPOT-510–539), mapped in tasks.md.
 
@@ -230,8 +230,8 @@ Operators can run a scan and get ranked tables, but column names (`Score`, `CpxN
 
 ## Success Criteria
 
-- [ ] Default table/markdown on `small-ts` shows summary + glossary; triage appears only when rules match
-- [ ] `--only coupling --format json` omits other ranking keys; invalid `--only` exits 2
-- [ ] `--no-color`, `NO_COLOR=1`, and `--output` produce ANSI-free table
-- [ ] Unfiltered JSON still validates against `schemas/scan-result.json`
-- [ ] Rankings and scores bitwise-equal to pre-M41 for the same scan fixture (no scoring drift)
+- [x] Default table/markdown on `small-ts` shows summary + glossary; triage appears only when rules match
+- [x] `--only coupling --format json` omits other ranking keys; invalid `--only` exits 2
+- [x] `--no-color`, `NO_COLOR=1`, and `--output` produce ANSI-free table
+- [x] Unfiltered JSON still validates against `schemas/scan-result.json`
+- [x] Rankings and scores bitwise-equal to pre-M41 for the same scan fixture (no scoring drift)

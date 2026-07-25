@@ -139,6 +139,8 @@ See skill `vitals-cli-validation` for exit codes and flag matrix.
 
 **M28 diagnostics:** integration tests assert `meta.warnings` as `ScanWarning[]` objects; contract tests (`tests/contract/json-schema.test.ts`) validate `$defs.ScanWarning` on scan and compare JSON. Invalid `--concurrency` exits non-zero before scan.
 
+**M42 explain + progress:** `src/report/explain.test.ts` (grammar, lookup, stderr formatting); `src/diagnostics/logger.test.ts` and `src/complexity/pool.test.ts` (complexity phase counters and throttle); `bin/hotspot-scanner.test.ts` (CLI `--explain` stderr vs JSON stdout); `src/scan.integration.test.ts` (git + complexity + function-churn progress ordering).
+
 ## Integrity rules
 
 - Do not weaken assertions or remove cases to pass the gate

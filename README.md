@@ -20,6 +20,7 @@ Tech leads need to prioritize refactoring work but struggle to see which TypeScr
 
 - [Quick start](#quick-start)
 - [Use this when…](#use-this-when)
+- [Recipes](docs/recipes.md)
 - [How it works](#how-it-works)
 - [Essential flags](#essential-flags)
 - [Requirements](#requirements)
@@ -29,6 +30,7 @@ Tech leads need to prioritize refactoring work but struggle to see which TypeScr
 - [Compare / baseline](#compare)
 - [Programmatic API](#programmatic-api)
 - [Advanced](#advanced)
+- [Warning codes](docs/warning-codes.md)
 - [Limitations](#limitations)
 - [Contributing](#contributing)
 - [License](#license)
@@ -40,7 +42,8 @@ git clone https://github.com/taranti/hotspot-scanner.git
 cd hotspot-scanner
 pnpm install
 pnpm build
-pnpm exec hotspot-scanner scan /path/to/your-repo
+cd /path/to/your-repo
+pnpm exec hotspot-scanner scan   # optional path defaults to .
 ```
 
 Try the bundled fixture:
@@ -49,10 +52,22 @@ Try the bundled fixture:
 pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts
 ```
 
+### Adoption path
+
+Before your first full scan, use the three onboarding commands:
+
+```bash
+hotspot-scanner init              # write exemplar .hotspot-scanner.json (use --force to overwrite)
+hotspot-scanner doctor .          # check Node, git, repo, and config
+hotspot-scanner scan . --dry-run  # preview effective since/include/exclude and eligible file count
+```
+
+`init` creates a valid config you can edit; `doctor` surfaces setup problems early; `scan --dry-run` validates scope without mining git history or running AST analysis.
+
 **Example output** (fixture `small-ts`, truncated):
 
 ```
-Scan window: 12 months ago (scanned 2026-07-24T12:59:45.114Z)
+Scan window: 12 months ago (scanned 2026-07-24T14:38:40.375Z)
 
 Top Hotspots
 Rank  File                      Score     Cpx   CpxN      Churn  ChurnN  Funcs  Authors
@@ -75,8 +90,10 @@ Rank  File A                    File B                    Strength  Co-changes  
 | Workflow | When to run | Example |
 | -------- | ----------- | ------- |
 | **Weekly triage** | You want a ranked list of files to refactor this sprint | `hotspot-scanner scan . --since "3 months ago" --top 10` |
-| **Baseline / compare** | You want to track hotspot drift between scans over time | `hotspot-scanner scan . --format json --output baseline.json` then `hotspot-scanner scan . --baseline baseline.json` |
+| **Baseline / compare** | You want to track hotspot drift between scans over time | `hotspot-scanner baseline save .` then `hotspot-scanner compare . --baseline ./hotspot-baseline.json` (or `scan . --baseline ./hotspot-baseline.json`) |
 | **Markdown in a PR** | You want a shareable report attached to a review | `hotspot-scanner scan . --format markdown --output report.md` |
+
+Copy-paste cookbooks for these workflows (and monorepo scoping): [docs/recipes.md](docs/recipes.md).
 
 ## How it works
 
@@ -95,11 +112,22 @@ See [Advanced](#advanced) for concurrency, mega-commit guard, rename confidence,
 
 | Flag | Default | Description |
 | ---- | ------- | ----------- |
+| `<path>` | `.` | Scan target (git root or nested directory inside a git workspace) |
+| `-V`, `--version` | — | Print package version and exit (program level) |
 | `--since` | `12 months ago` | Git history window |
-| `--format` | `table` | `table`, `json`, `markdown`, or `csv` |
-| `--top` | `20` | Top N rows in table/markdown (ignored for json/csv) |
+| `-f`, `--format` | `table` | `table`, `json`, `markdown`, or `csv` |
+| `-t`, `--top` | `20` | Top N rows in table/markdown (ignored for json/csv) |
+| `-o`, `--output` | — | Write report to file (required for `--format csv`) |
 | `--baseline` | — | Compare against a saved baseline JSON |
-| `--output` | — | Write report to file (required for `--format csv`) |
+| `--only` | — | Include only `hotspots`, `coupling`, or `functions` (repeatable; union) |
+| `--no-triage-hints` | — | Suppress triage hints in scan table and markdown |
+| `--no-color` | — | Disable ANSI colors in table output |
+| `--explain <target>` | — | After the report, print a score breakdown for `<path>` or `<path>:<functionName>` to stderr |
+| `--quiet` | — | Suppress progress and info-level stderr diagnostics |
+| `--no-progress` | — | Suppress progress lines on stderr only |
+| `--dry-run` | — | Preview effective scope and eligible file count (no git mine / AST) |
+
+Short aliases: `-f` / `--format`, `-o` / `--output`, `-t` / `--top`, `-g` / `--granularity`.
 
 Full CLI reference: [Advanced → CLI reference](#cli-reference).
 
@@ -124,6 +152,8 @@ Official install path is clone + build from source. npm registry install is not 
 
 ## Configuration
 
+Run `hotspot-scanner init` to create an exemplar **`.hotspot-scanner.json`** in the current directory (or `init <dir>` for another path). Re-run without `--force` refuses to overwrite an existing file.
+
 Optional **`.hotspot-scanner.json`** supplies shared scan defaults. Discovery filename is **only** `.hotspot-scanner.json` (not `.hotspotrc` or alternate names).
 
 **Discovery (default):** Starting at `<repoPath>`, the tool walks **upward** through parent directories until it finds `.hotspot-scanner.json` or reaches the filesystem root. **Nearest wins** — a file at `<repoPath>/.hotspot-scanner.json` overrides a parent workspace config. If no file is found on the walk, built-in defaults apply (not an error).
@@ -142,7 +172,7 @@ Optional **`.hotspot-scanner.json`** supplies shared scan defaults. Discovery fi
 | `top` | `--top` | positive integer |
 | `concurrency` | `--concurrency` | positive integer |
 
-`format`, `output`, and `baseline` are **CLI-only** — they cannot be set in the config file. Unknown keys are ignored. Invalid JSON or invalid values exit non-zero with a clear error.
+`format`, `output`, `baseline`, `--only`, `--no-triage-hints`, and `--no-color` are **CLI-only** — they cannot be set in the config file. Unknown keys are ignored. Invalid JSON or invalid values exit non-zero with a clear error.
 
 Example:
 
@@ -165,6 +195,20 @@ A monorepo can keep one workspace config above the git root:
 hotspot-scanner scan packages/api
 ```
 
+### Scanning from a package directory (monorepo)
+
+When the scan path is a **nested directory** inside a git workspace (for example `cd packages/api && hotspot-scanner scan .`), the tool:
+
+1. Detects the git root with `git rev-parse --show-toplevel` and runs the pipeline from that root (`.git` validation, git mining, complexity discovery).
+2. **Auto-includes** `{prefix}/**` (e.g. `packages/api/**`) so rankings stay scoped to that package — unless you already passed CLI `--include` (or programmatic `include`), in which case your patterns win and auto-include is skipped.
+3. Still discovers **`.hotspot-scanner.json` from the original request path** (M30 parent walk unchanged); remount affects only pipeline `repoPath`.
+
+An info diagnostic with code `MONOREPO_PATH_REMOUNT` is emitted when remount applies (see [warning codes](docs/warning-codes.md)). Scanning from the git root behaves as before — no remount, no auto-include.
+
+**YAGNI:** path-only heuristic — no `pnpm-workspace.yaml`, nx, turborepo, or lerna parsers. To scan the whole monorepo from a package cwd, run from the git root or pass explicit `--include` globs.
+
+`scan --dry-run` uses the same remount and merged include/exclude preview.
+
 CI can point at a fixed config without discovery:
 
 ```bash
@@ -175,22 +219,33 @@ hotspot-scanner scan . --config /ci/hotspot-scanner.json --since "3 months ago" 
 
 ## Output formats
 
+Table and markdown reports include interpretation helpers (M41): an **executive summary** at the top (scan window, granularity, shown-vs-total counts, coupling totals), a **legend** or **How to read this** section defining metric columns, optional **triage hints** when conservative rules match visible rows, and optional **ANSI colors** on table score/StaticDep cells. JSON and CSV export raw data only (no summary, triage, or color).
+
+**Triage rules** (scan table/markdown only; disable with `--no-triage-hints`): three deterministic rules — dual-signal hotspot (`hotspotScore ≥ 0.7` with both normalized complexity and churn ≥ 0.5), strong coupling with a static dependency, and strong coupling without a static edge. Up to three matches per rule; section omitted when empty. Thresholds and hint text: [`.specs/features/output-interpretation-ux/context.md`](.specs/features/output-interpretation-ux/context.md) § D4.
+
+**Section filter (`--only`)**: Repeatable flag limiting output to `hotspots`, `coupling`, and/or `functions`. Excluded sections are omitted from all formats (no headers in table/markdown; keys/files omitted in JSON/CSV). **Do not use `--only` with `--format json` output as a `--baseline`** — filtered JSON omits top-level keys and will fail baseline validation. Save baselines from unfiltered JSON (`hotspot-scanner scan . --format json --output baseline.json`).
+
+**Colors**: Table format only, when writing to an interactive TTY without `--output`, `--no-color`, or a non-empty `NO_COLOR`. Markdown, JSON, and CSV are always plain text.
+
 ### Table
 
-Two sections: **Top Hotspots** (or **Top Functions** in function mode) and **Top Coupling Pairs**. `--top` limits rows per section.
+Two sections: **Top Hotspots** (or **Top Functions** in function mode) and **Top Coupling Pairs**. `--top` limits rows per section. Default output also includes the executive summary, optional triage hints, and a metric legend footer.
 
 ```
-Scan window: 12 months ago (scanned 2026-07-22T12:00:00.000Z)
+Scan window: 12 months ago (scanned 2026-07-24T14:38:40.375Z)
 
 Top Hotspots
-Rank  File                      Score     Complexity  Churn
-----  ------------------------  --------  ----------  ----------
-   1  src/high.ts               0.8571      1.0000      0.7500
+Rank  File                      Score     Cpx   CpxN      Churn  ChurnN  Funcs  Authors
+----  ------------------------  --------  ----  --------  -----  ------  -----  -------
+   1  src/high.ts                 0.5590    14    1.0000      5  0.3879      1        1
+   2  src/medium.ts               0.5119     3    0.3440      7  1.0000      1        1
+   3  src/low.ts                  0.0000     1    0.0000      4  0.0000      1        1
 
 Top Coupling Pairs
 Rank  File A                    File B                    Strength  Co-changes  StaticDep  Direction  Kinds
 ----  ------------------------  ------------------------  --------  ----------  ---------  ---------  ----------------------
-   1  src/high.ts               src/medium.ts             0.7500           3       yes      a→b        runtime
+   1  src/low.ts                src/medium.ts               0.7500           3         no       none  —
+   2  src/high.ts               src/medium.ts               0.6000           3        yes        a→b  runtime
 ```
 
 ### JSON
@@ -213,7 +268,7 @@ Use these schemas to validate CLI output or baselines in your own pipelines.
 | `file` (default) | `hotspots` | `functions: []` | `"file"` |
 | `function` | `functions` | `hotspots: []` | `"function"` |
 
-`coupling` is always file-pair ranked in both modes. **`--top` does not slice JSON** — all ranked entities are exported for scripting and baselines.
+`coupling` is always file-pair ranked in both modes. **`--top` does not slice JSON** — all ranked entities are exported for scripting and baselines. **`--only` omits excluded top-level keys** — that export is for triage/scripting, not compare baselines (see [Section filter](#output-formats) above).
 
 ```json
 {
@@ -263,12 +318,16 @@ Use these schemas to validate CLI output or baselines in your own pipelines.
 Save a baseline for compare mode:
 
 ```bash
+# Preferred workflow (M40): explicit save verb — default ./hotspot-baseline.json
+hotspot-scanner baseline save .
+
+# Equivalent manual save (still supported)
 hotspot-scanner scan . --format json --output baseline.json
 ```
 
 ### Markdown
 
-`--format markdown` produces a GitHub-flavored report with hotspot (or function) and coupling tables. Includes raw and normalized columns plus a `Lines` column on hotspots. `--top` slices rows at render time. Use `--output report.md` to write to a file.
+`--format markdown` produces a GitHub-flavored report with executive summary, `## How to read this`, hotspot (or function) and coupling tables, and optional triage hints. Includes raw and normalized columns plus a `Lines` column on hotspots. `--top` slices rows at render time. Use `--output report.md` to write to a file. No ANSI colors in markdown.
 
 ### CSV bundle
 
@@ -298,7 +357,20 @@ Empty sections produce header-only CSV files. Data files have no section title r
 
 ### Compare
 
-Pass `--baseline <path>` with a prior `ScanResult` JSON (from `--format json --output`). The CLI runs `compareScanResults()` and renders a **CompareResult** delta in the same `--format` as a normal scan.
+Save a baseline with `baseline save` (writes full `ScanResult` JSON; default `./hotspot-baseline.json`) or `scan . --format json --output <path>`. Then compare with the explicit `compare` subcommand or `scan --baseline`.
+
+```bash
+# Save baseline (default ./hotspot-baseline.json in cwd)
+hotspot-scanner baseline save .
+
+# Compare — explicit verb (recommended)
+hotspot-scanner compare . --baseline ./hotspot-baseline.json
+
+# Compare — scan flag (unchanged; same behavior)
+hotspot-scanner scan . --baseline ./hotspot-baseline.json
+```
+
+Pass `--baseline <path>` with a prior `ScanResult` JSON. The CLI runs `compareScanResults()` and renders a **CompareResult** delta in the same `--format` as a normal scan (`compare` accepts the same format/output/top flags as `scan --baseline`).
 
 **Baseline validation:** `loadBaseline()` (used by `--baseline` and the programmatic API) performs strong structural validation on the saved JSON — not just top-level keys. Malformed hotspot, function, or coupling items throw `BaselineError` with a path-specific message. Coupling items must include all static enrichment fields (`hasStaticDependency`, `staticDependencyDirection`, and the three kind booleans); baselines from older scanner versions that omit these fields are rejected with a message to **re-scan** and save a fresh baseline. See [`schemas/scan-result.json`](schemas/scan-result.json) for the full contract.
 
@@ -344,7 +416,7 @@ Delta sections classify entities as **new**, **removed**, or **rank changed** fo
 }
 ```
 
-`--top` slices table and markdown compare output only; JSON and CSV compare exports receive full delta arrays.
+`--top` slices table and markdown compare output only; JSON and CSV compare exports receive full delta arrays. Compare table and markdown include executive summary and how-to-read sections; **no triage hints** on compare output.
 
 ### Exit codes
 
@@ -356,7 +428,7 @@ Delta sections classify entities as **new**, **removed**, or **rank changed** fo
 
 ## Programmatic API
 
-Import from the package entry point:
+Import from the package entry point. After `pnpm build`, the public entry resolves to `dist/index.js` with types at `dist/index.d.ts` (`main` / `"exports"."."`).
 
 ```typescript
 import {
@@ -417,14 +489,15 @@ Churn is measured as raw commit count (not relative code churn). Complexity is c
 
 **Mega-commit guard (coupling).** Commits with more than 100 unique in-scope files skip coupling pair increments (churn still counted) and may emit `MEGA_COMMIT_SKIPPED` warnings. This prevents `C(n, 2)` pair explosion on bulk commits; coupling rankings may omit pairs from those commits.
 
-**Progress (stderr).** During long git streams, the CLI logs throttled progress every 1,000 commits per phase:
+**Progress (stderr).** During long git streams, the CLI logs throttled progress every 1,000 commits per phase. During complexity analysis, progress logs after each batch (throttled on file count, interval = batch size 50). Use `--no-progress` to silence all progress lines, or `--quiet` to also suppress info-level warnings (`--quiet` is a superset of `--no-progress`). Reports on stdout (or `--output`) and warning/error diagnostics still appear unless suppressed by severity rules above.
 
 | `phase` | When emitted |
 | ------- | ------------ |
 | `git` | File-mode numstat stream (`--numstat`) |
 | `function-churn` | Function-mode patch stream (`-p --unified=0`) |
+| `complexity` | Complexity analyzer batches (inline or worker pool) |
 
-Format: `Processing <phase> commit <N>...` (e.g. `Processing function-churn commit 1,000...`). Complexity batching does not emit progress lines.
+Git format: `Processing <phase> commit <N>...` (e.g. `Processing function-churn commit 1,000...`). Complexity format: `Processing complexity batch <N>/<totalBatches> (<filesProcessed>/<totalFiles> files)...`.
 
 **Warnings (`meta.warnings`).** Scan and compare JSON include structured warnings on `meta.warnings` — an array of `{ severity, message, code? }` objects (`ScanWarning`). The CLI also prints each warning to stderr with a severity prefix (`info:`, `warning:`, `error:`). Programmatic callers receive the same objects via `onWarning`.
 
@@ -432,7 +505,9 @@ Format: `Processing <phase> commit <N>...` (e.g. `Processing function-churn comm
 
 #### Warning codes
 
-Stable `code` field for filtering and docs:
+Stable `code` field for filtering and docs. Full cheatsheet: [docs/warning-codes.md](docs/warning-codes.md).
+
+Short reference:
 
 | Code | Interpretation |
 | ---- | -------------- |
@@ -441,67 +516,127 @@ Stable `code` field for filtering and docs:
 | `PARSE_FAILED` | A source file could not be parsed for complexity — file skipped; fix syntax or exclude the path |
 | `COMPARE_SINCE_MISMATCH` | Baseline and current scan used different `--since` values — rank deltas are less comparable |
 | `MEGA_COMMIT_SKIPPED` | One or more commits exceeded 100 unique in-scope files — those commits did not contribute to coupling pair counts (churn still counted); coupling rankings may omit pairs from bulk commits |
+| `MONOREPO_PATH_REMOUNT` | Scan path was remounted to the git root; auto-include pattern applied unless CLI `--include` was set — see [Scanning from a package directory](#scanning-from-a-package-directory-monorepo) |
 
 Find-renames (`-M`) is enabled on git log spawns so real renames can unify churn under canonical paths. The scanner does **not** use global `git log --follow`.
 
 #### Rename confidence
 
-Rename blind-spot messages are emitted with `code: "RENAME_HISTORY_INCOMPLETE"`. Typical human-readable patterns:
+Rename blind-spot messages are emitted with `code: "RENAME_HISTORY_INCOMPLETE"`. Typical human-readable patterns (each appends an actionable **Next step:** sentence — codes unchanged):
 
-| Message pattern | When |
-| --------------- | ---- |
-| `Rename history may be incomplete for: …` | Ambiguous rename chain (`PathAliasMap`) |
-| `Suspected unlinked rename (no git rename metadata): …` | Same-commit delete+add that looks like a move but git emitted no `=>` line |
-| `Rename history before the --since window (…) may be missing under canonical paths` | `--since` is set and at least one rename link was seen in the window |
-| Function overlap confidence (function mode only) | Rename links or ambiguous paths during per-function hunk attribution |
+| Message pattern | When | Next step |
+| --------------- | ---- | --------- |
+| `Rename history may be incomplete for: …` | Ambiguous rename chain (`PathAliasMap`) | Verify rename detection or widen `--since` |
+| `Suspected unlinked rename (no git rename metadata): …` | Same-commit delete+add that looks like a move but git emitted no `=>` line | Ensure git records renames (`-M` is enabled) or widen `--since` |
+| `Rename history before the --since window (…) may be missing under canonical paths` | `--since` is set and at least one rename link was seen in the window | Widen `--since` to include pre-window rename history |
+| Function overlap confidence (function mode only) | Rename links or ambiguous paths during per-function hunk attribution | Treat function ranks cautiously after moves; prefer file mode or wider `--since` |
+
+`EMPTY_SINCE_WINDOW` also appends a next-step hint to widen `--since` or check path scope.
 
 ### Features
 
 - **Hotspot ranking** — harmonic mean of complexity and churn to surface actively maintained complex code
 - **Temporal coupling** — find file pairs that co-change together; static enrichment flags import edges (`hasStaticDependency`), direction (`a→b` / `b→a` / `both`), and edge kinds (runtime, type-only, re-export) including tsconfig `paths` aliases
 - **Function granularity** — rank individual functions with `--granularity function`; per-function churn comes from hunk overlap on a patch stream, not inherited parent-file stats
-- **Scan compare** — diff current results against a saved baseline JSON (`--baseline`)
+- **Scan compare** — diff current results against a saved baseline JSON (`baseline save`, `compare --baseline`, or `scan --baseline`)
 - **Streaming Git parse** — file mode streams `git log --numstat` for churn and coupling; function mode adds a patch stream (`git log -p --unified=0`) for per-function hunk attribution
-- **Path scoping** — default excludes for `node_modules`, `.git`, `dist`, `coverage`, `build`, `.next`, `out`, `vendor`, `storybook-static`, and `__snapshots__`; optional `--include` / `--exclude` globs (additive on defaults)
+- **Path scoping** — default excludes for `node_modules`, `.git`, `dist`, `coverage`, `build`, `.next`, `out`, `vendor`, `storybook-static`, and `__snapshots__`; optional `--include` / `--exclude` globs (additive on defaults); nested package cwd → git root remount with auto-include `{prefix}/**` unless CLI `--include` is set
 - **Repo config file** — optional `.hotspot-scanner.json` discovered at the scan target or in a parent directory; `--config <path>` for explicit CI paths (CLI flags override)
 - **Flexible output** — CLI table, JSON, GitHub-flavored markdown, or multi-file CSV bundle
+- **Score explain** — `--explain <path>` or `--explain <path>:<functionName>` prints a breakdown to stderr after the normal report (full scan always; JSON/CSV stdout unchanged)
+
+### `--explain` (stderr)
+
+Runs the **full scan** and normal report first, then prints a human-readable score breakdown to **stderr** (stdout and `--output` files stay report-only).
+
+**Target grammar** (`--explain <target>`):
+
+| Form | Meaning |
+| ---- | ------- |
+| `<path>` | File path relative to repo root (or absolute under repo); leading `./` ignored |
+| `<path>:<functionName>` | Function — suffix after the **last** `:` must match identifier segments (`foo`, `Foo.bar`); otherwise the whole string is treated as a path |
+
+**Granularity:**
+
+| `--granularity` | Accepted target |
+| --------------- | --------------- |
+| `file` (default) | `<path>` only — `path:function` exits with usage error; suggest `--granularity function` |
+| `function` | `<path>` explains all ranked functions in that file; `<path>:<functionName>` explains one function |
+
+Lookup uses the **full** ranking arrays (ignores `--top`). A target not in rankings prints `explain: no hotspot ranking for …` or `explain: no function ranking for …` to stderr; the scan still exits `0` on success.
 
 ### CLI reference
 
 ```
-hotspot-scanner scan <path> [options]
+hotspot-scanner [-V|--version]
+hotspot-scanner init [directory] [--force]
+hotspot-scanner doctor [path] [--config <path>]
+hotspot-scanner baseline save [path] [options]
+hotspot-scanner compare [path] --baseline <file> [options]
+hotspot-scanner scan [path] [options]
 ```
+
+**`baseline save`** — runs a full scan and writes `ScanResult` JSON. Default output is `./hotspot-baseline.json` (cwd-relative). Supports scan options (`--since`, `--granularity`, `--include`, `--exclude`, `--config`, `--concurrency`, `--min-cochange`, `--top`) but not `--format` or `--baseline`. Overwrites an existing file without prompting.
+
+**`compare`** — requires `--baseline <file>`; runs scan + compare + render (parity with `scan --baseline`). Accepts `--format`, `--output`, `--top`, and the same scan/config flags as `scan`.
 
 | Flag | Default | Description |
 | ---- | ------- | ----------- |
-| `<path>` | — | Repository path (required) |
+| `<path>` | `.` | Scan target (git root or nested directory inside a git workspace) |
+| `-V`, `--version` | — | Print package version from `package.json` and exit |
 | `--since` | `12 months ago` | Git history window |
-| `--format` | `table` | Output format: `table`, `json`, `markdown`, or `csv` (csv requires `--output`) |
-| `--granularity` | `file` | Ranking granularity: `file` or `function` |
-| `--output <path>` | — | Write report to file instead of stdout (required for `--format csv`) |
+| `-f`, `--format` | `table` | Output format: `table`, `json`, `markdown`, or `csv` (csv requires `--output`) |
+| `-g`, `--granularity` | `file` | Ranking granularity: `file` or `function` |
+| `-o`, `--output <path>` | — | Write report to file instead of stdout (required for `--format csv`) |
 | `--baseline <path>` | — | Compare scan against baseline JSON from a prior run |
-| `--top` | `20` | Top N rows in table/markdown output (ignored for json/csv) |
+| `-t`, `--top` | `20` | Top N rows in table/markdown output (ignored for json/csv) |
+| `--only <section>` | — | Include only `hotspots`, `coupling`, or `functions` (repeatable) |
+| `--no-triage-hints` | — | Suppress triage hints in scan table and markdown |
+| `--no-color` | — | Disable ANSI colors in table output |
+| `--explain <target>` | — | After the report, print score breakdown for `<path>` or `<path>:<functionName>` to stderr |
 | `--min-cochange` | `3` | Minimum co-change count for coupling pairs |
 | `--include <glob>` | — | Include only paths matching glob (repeatable) |
 | `--exclude <glob>` | — | Exclude paths matching glob (repeatable, additive) |
 | `--config <path>` | — | Load config from explicit file (skips parent-directory discovery) |
 | `--concurrency` | `min(availableParallelism(), 8)` | Complexity analyzer worker-pool size (positive integer ≥ 1) |
+| `--quiet` | — | Suppress progress and info-level diagnostics on stderr (warnings/errors remain) |
+| `--no-progress` | — | Suppress progress lines on stderr only |
+| `--dry-run` | — | Preview effective since/include/exclude and eligible file count without mining git history or running AST analysis (`--format` / `--output` ignored; incompatible with `--baseline`) |
+
+**Error hints.** Common failures include a `Hint:` line with a concrete next step: non-git path, `--format csv` without `--output`, missing/invalid `--baseline`, or missing explicit `--config` file. Exit codes are unchanged (`2` for usage/config errors, `1` for other failures).
+
+Run `hotspot-scanner scan --help` for copy-paste examples (cwd default, JSON output, short aliases, baseline).
 
 #### Examples
 
 ```bash
+hotspot-scanner --version
+hotspot-scanner init                    # write exemplar .hotspot-scanner.json
+hotspot-scanner doctor .                # pre-flight: Node, git, repo, config
+hotspot-scanner scan . --dry-run        # scope preview before a full scan
+hotspot-scanner scan                    # scan current directory (default path .)
 hotspot-scanner scan . --since "6 months ago"
+hotspot-scanner scan -f json -o report.json
+hotspot-scanner scan -f table -t 10 -g function
 hotspot-scanner scan . --format json --top 10  # --top ignored; full arrays exported
 hotspot-scanner scan . --granularity function --format json
 hotspot-scanner scan . --format markdown --output report.md
 # CSV bundle (writes report.meta.json, report.hotspots.csv, report.coupling.csv)
 hotspot-scanner scan . --format csv --output report.csv
 hotspot-scanner scan . --format json --output baseline.json
+hotspot-scanner baseline save .                              # writes ./hotspot-baseline.json by default
+hotspot-scanner baseline save . --output ci/baseline.json    # custom baseline path
+hotspot-scanner compare . --baseline ./hotspot-baseline.json
+hotspot-scanner scan . --baseline baseline.json              # same compare path as above
+hotspot-scanner scan . --only coupling --format json   # partial export — not a valid baseline
 hotspot-scanner scan . --baseline baseline.json --format markdown
 # Compare CSV bundle (writes compare.meta.json + six data CSVs)
-hotspot-scanner scan . --baseline baseline.json --format csv --output compare.csv
+hotspot-scanner compare . --baseline baseline.json --format csv --output compare.csv
 hotspot-scanner scan . --include "src/**" --exclude "**/*.test.ts"
 hotspot-scanner scan . --concurrency 1   # sequential complexity batches (debug / low-memory)
+hotspot-scanner scan . --explain src/hot.ts   # score breakdown on stderr after report
+hotspot-scanner scan . -g function --explain src/hot.ts:myFn
+hotspot-scanner scan . --quiet -f json -o report.json   # CI: clean stderr, full report
 ```
 
 ## Limitations

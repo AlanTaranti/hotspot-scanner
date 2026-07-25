@@ -31,4 +31,26 @@ describe("renderCompareJson", () => {
     expect(parsed.hotspots.removed).toHaveLength(1);
     expect(parsed.coupling.rankChanged).toHaveLength(2);
   });
+
+  it("omits excluded sections when --only is set", () => {
+    const output = renderCompareJson(loadCompareResult(), {
+      only: ["hotspots"],
+    });
+    const parsed = JSON.parse(output) as Record<string, unknown>;
+
+    expect(parsed.hotspots).toBeDefined();
+    expect(parsed.coupling).toBeUndefined();
+    expect(parsed.functions).toBeUndefined();
+    expect(parsed.meta).toBeDefined();
+    expect(parsed.version).toBe("1.0");
+  });
+
+  it("keeps all section keys when unfiltered", () => {
+    const output = renderCompareJson(loadCompareResult());
+    const parsed = JSON.parse(output) as Record<string, unknown>;
+
+    expect(parsed.hotspots).toBeDefined();
+    expect(parsed.functions).toBeDefined();
+    expect(parsed.coupling).toBeDefined();
+  });
 });

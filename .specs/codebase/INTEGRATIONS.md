@@ -36,6 +36,18 @@ External dependencies and adapter boundaries. No network integrations in v1.
 | **Failure**    | Invalid/corrupt repo → clear error, exit != 0                                         |
 | **Tests**      | Mock subprocess at `GitMiner` boundary; fixtures for parse logic                      |
 
+### Git toplevel detection (M43, monorepo remount)
+
+| Aspect         | Detail                                                                                |
+| -------------- | ------------------------------------------------------------------------------------- |
+| **Role**       | `git rev-parse --show-toplevel` to resolve pipeline `repoPath` when scan path is nested inside a git workspace |
+| **Adapter**    | `resolveMonorepoScanPath` in `src/paths/resolve-repo.ts`                              |
+| **Invocation** | `child_process.execFile` — `git -C <requestPath> rev-parse --show-toplevel`         |
+| **When**       | Start of `resolveScanPipelineContext()` / `runScan()` / `previewScanScope()` before config merge and git validation |
+| **Rule**       | Do not spawn `rev-parse` outside `src/paths/resolve-repo.ts` (reuse helper)           |
+| **Failure**    | Not a git work tree → same error class as `validateGitRepository` (`repoPath is not a git repository` + Hint) |
+| **Tests**      | Inject `detectGitToplevel` in `resolve-repo.test.ts`; integration via `scan.test.ts` |
+
 ### Tracked file listing (M36, complexity discovery)
 
 | Aspect         | Detail                                                                              |

@@ -36,6 +36,50 @@ describe("renderCompareMarkdown", () => {
     expect(output).toContain("## New Coupling Pairs");
   });
 
+  it("includes executive summary and how-to-read before tables", () => {
+    const output = renderCompareMarkdown(
+      loadCompareResult(
+        "compare-baseline-file.json",
+        "compare-current-file.json",
+      ),
+    );
+
+    const summaryIndex = output.indexOf("Baseline since:");
+    const howToReadIndex = output.indexOf("## How to read this");
+    const tableIndex = output.indexOf("## New Hotspots");
+
+    expect(summaryIndex).toBeGreaterThan(-1);
+    expect(howToReadIndex).toBeGreaterThan(summaryIndex);
+    expect(tableIndex).toBeGreaterThan(howToReadIndex);
+    expect(output).toContain("Compare reports use the same metrics");
+    expect(output).toContain("**Score** —");
+  });
+
+  it("never emits triage hints", () => {
+    const output = renderCompareMarkdown(
+      loadCompareResult(
+        "compare-baseline-file.json",
+        "compare-current-file.json",
+      ),
+    );
+
+    expect(output).not.toContain("## Triage hints");
+    expect(output).not.toContain("Triage hints");
+  });
+
+  it("omits coupling sections when --only hotspots", () => {
+    const output = renderCompareMarkdown(
+      loadCompareResult(
+        "compare-baseline-file.json",
+        "compare-current-file.json",
+      ),
+      { only: ["hotspots"] },
+    );
+
+    expect(output).toContain("## New Hotspots");
+    expect(output).not.toContain("## New Coupling Pairs");
+  });
+
   it("renders Has static, Direction, and Kinds columns in coupling tables", () => {
     const output = renderCompareMarkdown(
       loadCompareResult(

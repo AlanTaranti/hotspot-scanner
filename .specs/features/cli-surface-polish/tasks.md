@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/cli-surface-polish/design.md`](./design.md)  
 **Spec**: [`.specs/features/cli-surface-polish/spec.md`](./spec.md)  
 **Context**: [`.specs/features/cli-surface-polish/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Medium feature — `bin/` primary. **Do not Execute in the planning session.** Promote Status → invoke `orchestrator-implementer` in a new session.
 
 ---
@@ -119,12 +119,12 @@ No `[P]` — all tasks share `bin/` or depend on prior bin state.
 
 **Done when**:
 
-- [ ] `scan` without path uses `repoPath === "."` (or resolved equivalent)
-- [ ] Explicit path still honored
-- [ ] Non-git `.` fails non-zero (existing validation)
-- [ ] `scan --help` documents optional path / default `.`
-- [ ] Integration: from `small-ts` directory, `scan` with no path exits `0`
-- [ ] Gate check passes: `pnpm exec vitest run bin/hotspot-scanner.test.ts bin/hotspot-scanner.integration.test.ts`
+- [x] `scan` without path uses `repoPath === "."` (or resolved equivalent)
+- [x] Explicit path still honored
+- [x] Non-git `.` fails non-zero (existing validation)
+- [x] `scan --help` documents optional path / default `.`
+- [x] Integration: from `small-ts` directory, `scan` with no path exits `0`
+- [x] Gate check passes: `pnpm exec vitest run bin/hotspot-scanner.test.ts bin/hotspot-scanner.integration.test.ts`
 
 **Tests**: unit + integration (CLI)
 
@@ -155,10 +155,10 @@ No `[P]` — all tasks share `bin/` or depend on prior bin state.
 
 **Done when**:
 
-- [ ] `hotspot-scanner --version` and `-V` print package version and exit `0`
-- [ ] Scan does not run for version-only invocation
-- [ ] Unit test asserts version matches `package.json`
-- [ ] Gate check passes: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
+- [x] `hotspot-scanner --version` and `-V` print package version and exit `0`
+- [x] Scan does not run for version-only invocation
+- [x] Unit test asserts version matches `package.json`
+- [x] Gate check passes: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
 
 **Tests**: unit (CLI)
 
@@ -189,12 +189,12 @@ No `[P]` — all tasks share `bin/` or depend on prior bin state.
 
 **Done when**:
 
-- [ ] `--no-progress` emits no progress lines
-- [ ] `--quiet` emits no progress and no `info` warnings; still emits `warning`/`error`
-- [ ] Successful scan still writes report (stdout or `--output`)
-- [ ] Hard errors still print under `--quiet`
-- [ ] Default (no flags) matches pre-M38 stderr behavior
-- [ ] Gate check passes: `pnpm exec vitest run bin/hotspot-scanner.test.ts src/diagnostics/logger.test.ts` (omit diagnostics path if untouched)
+- [x] `--no-progress` emits no progress lines
+- [x] `--quiet` emits no progress and no `info` warnings; still emits `warning`/`error`
+- [x] Successful scan still writes report (stdout or `--output`)
+- [x] Hard errors still print under `--quiet`
+- [x] Default (no flags) matches pre-M38 stderr behavior
+- [x] Gate check passes: `pnpm exec vitest run bin/hotspot-scanner.test.ts src/diagnostics/logger.test.ts` (omit diagnostics path if untouched)
 
 **Tests**: unit (CLI; diagnostics if modified)
 
@@ -225,13 +225,13 @@ No `[P]` — all tasks share `bin/` or depend on prior bin state.
 
 **Done when**:
 
-- [ ] Non-git error includes actionable hint
-- [ ] CSV without `--output` error includes `--output` hint
-- [ ] Missing/directory baseline errors include re-scan / JSON baseline hint
-- [ ] Invalid baseline content error includes contract / re-scan hint
-- [ ] Missing `--config` file `ConfigError` includes path-must-exist hint
-- [ ] Exit codes unchanged (usage/config → 2; baseline/other → 1)
-- [ ] Gate check passes: targeted vitest for touched files
+- [x] Non-git error includes actionable hint
+- [x] CSV without `--output` error includes `--output` hint
+- [x] Missing/directory baseline errors include re-scan / JSON baseline hint
+- [x] Invalid baseline content error includes contract / re-scan hint
+- [x] Missing `--config` file `ConfigError` includes path-must-exist hint
+- [x] Exit codes unchanged (usage/config → 2; baseline/other → 1)
+- [x] Gate check passes: targeted vitest for touched files
 
 **Tests**: unit (CLI + any touched src unit tests)
 
@@ -262,11 +262,11 @@ No `[P]` — all tasks share `bin/` or depend on prior bin state.
 
 **Done when**:
 
-- [ ] `scan --help` includes Examples block (≥3 examples: cwd, JSON+output, aliases; baseline optional)
-- [ ] `-f`, `-o`, `-t`, `-g` accepted and equivalent to long flags
-- [ ] Long flags still work
-- [ ] Help lists short+long forms
-- [ ] Gate check passes: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
+- [x] `scan --help` includes Examples block (≥3 examples: cwd, JSON+output, aliases; baseline optional)
+- [x] `-f`, `-o`, `-t`, `-g` accepted and equivalent to long flags
+- [x] Long flags still work
+- [x] Help lists short+long forms
+- [x] Gate check passes: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
 
 **Tests**: unit (CLI)
 
@@ -297,10 +297,10 @@ No `[P]` — all tasks share `bin/` or depend on prior bin state.
 
 **Done when**:
 
-- [ ] README documents optional path default `.`, version, quiet/no-progress, aliases
-- [ ] ARCHITECTURE lists new CLI-only flags; no quiet/version config keys
-- [ ] ROADMAP M38 implementation checkboxes marked `[x]` when Execute finishes
-- [ ] STATE records M38 Execute complete when Execute finishes
+- [x] README documents optional path default `.`, version, quiet/no-progress, aliases
+- [x] ARCHITECTURE lists new CLI-only flags; no quiet/version config keys
+- [x] ROADMAP M38 implementation checkboxes marked `[x]` when Execute finishes
+- [x] STATE records M38 Execute complete when Execute finishes
 
 **Tests**: none
 
@@ -332,9 +332,9 @@ No `[P]` — all tasks share `bin/` or depend on prior bin state.
 
 **Done when**:
 
-- [ ] `pnpm build && pnpm test` passes
-- [ ] No intentional JSON contract / formula changes in the diff
-- [ ] `tasks.md` Status → Done (Execute session only)
+- [x] `pnpm build && pnpm test` passes
+- [x] No intentional JSON contract / formula changes in the diff
+- [x] `tasks.md` Status → Done (Execute session only)
 
 **Tests**: full suite
 

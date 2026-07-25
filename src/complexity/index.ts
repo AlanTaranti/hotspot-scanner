@@ -3,6 +3,7 @@ import type { PathScope } from "../paths/scope.js";
 import type {
   ComplexityResult,
   FunctionComplexityResult,
+  ScanProgress,
   ScanWarning,
 } from "../types/index.js";
 import type { BatchAnalysisOutput } from "./analyze-batch.js";
@@ -20,6 +21,7 @@ export interface ComplexityAnalyzerOptions {
   /** When set, analyze only discovered paths in this allowlist (discover ∩ allowlist). */
   pathAllowlist?: readonly string[];
   signal?: AbortSignal;
+  onProgress?: (progress: ScanProgress) => void;
 }
 
 export interface ComplexityAnalyzerResult {
@@ -140,7 +142,7 @@ export function createComplexityAnalyzer(
   const poolFactory = deps.createWorkerPool ?? createWorkerPool;
 
   return {
-    async analyze({ repoPath, scope, pathAllowlist, signal }) {
+    async analyze({ repoPath, scope, pathAllowlist, signal, onProgress }) {
       await validateRepoPath(repoPath);
 
       let filePaths = await discover(repoPath, scope);
@@ -162,7 +164,12 @@ export function createComplexityAnalyzer(
       const pool: WorkerPool = poolFactory({
         concurrency: effectiveConcurrency,
       });
-      const batchOutputs = await pool.runBatches(repoPath, batches, signal);
+      const batchOutputs = await pool.runBatches(
+        repoPath,
+        batches,
+        signal,
+        onProgress,
+      );
 
       return mergeBatchOutputs(batchOutputs, filePathIndex);
     },

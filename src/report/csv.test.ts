@@ -112,6 +112,35 @@ describe("renderCsv", () => {
     expect(couplingLines[0]).toBe(COUPLING_CSV_HEADER);
   });
 
+  it("omits non-selected data files when only is set", () => {
+    const bundle = renderCsv(loadFixture(), { only: ["coupling"] });
+
+    expect(bundle).toHaveProperty("meta.json");
+    expect(bundle).toHaveProperty("coupling.csv");
+    expect(bundle).not.toHaveProperty("hotspots.csv");
+    expect(bundle).not.toHaveProperty("functions.csv");
+  });
+
+  it("includes only requested CSV files for union --only", () => {
+    const bundle = renderCsv(loadFixture(), {
+      only: ["hotspots", "coupling"],
+    });
+
+    expect(bundle).toHaveProperty("meta.json");
+    expect(bundle).toHaveProperty("hotspots.csv");
+    expect(bundle).toHaveProperty("coupling.csv");
+    expect(bundle).not.toHaveProperty("functions.csv");
+  });
+
+  it("omits excluded ranking CSV in function mode when only coupling", () => {
+    const bundle = renderCsv(loadFunctionFixture(), { only: ["coupling"] });
+
+    expect(bundle).toHaveProperty("meta.json");
+    expect(bundle).toHaveProperty("coupling.csv");
+    expect(bundle).not.toHaveProperty("functions.csv");
+    expect(bundle).not.toHaveProperty("hotspots.csv");
+  });
+
   it("escapes file paths with special characters", () => {
     const bundle = renderCsv({
       version: "1.0",

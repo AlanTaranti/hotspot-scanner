@@ -2,6 +2,7 @@ import { availableParallelism } from "node:os";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { Worker } from "node:worker_threads";
+import type { ScanProgress } from "../types/index.js";
 import { analyzeBatch, type BatchAnalysisOutput } from "./analyze-batch.js";
 import { createTsMorphProject } from "./project.js";
 
@@ -17,6 +18,7 @@ export interface WorkerPool {
     repoPath: string,
     batches: string[][],
     signal?: AbortSignal,
+    onProgress?: (progress: ScanProgress) => void,
   ): Promise<BatchAnalysisOutput[]>;
 }
 
@@ -61,6 +63,31 @@ function throwIfAborted(signal: AbortSignal | undefined): void {
   }
 }
 
+function emitBatchProgress(
+  onProgress: ((progress: ScanProgress) => void) | undefined,
+  batches: string[][],
+  batchesCompleted: number,
+): void {
+  if (!onProgress) {
+    return;
+  }
+
+  const totalBatches = batches.length;
+  const totalFiles = batches.reduce((sum, batch) => sum + batch.length, 0);
+  const filesProcessed = batches
+    .slice(0, batchesCompleted)
+    .reduce((sum, batch) => sum + batch.length, 0);
+
+  onProgress({
+    phase: "complexity",
+    commitsProcessed: 0,
+    filesProcessed,
+    batchesProcessed: batchesCompleted,
+    totalFiles,
+    totalBatches,
+  });
+}
+
 async function shutdownWorkers(
   workers: Worker[],
   force = false,
@@ -80,7 +107,7 @@ export function createWorkerPool(options: WorkerPoolOptions): WorkerPool {
   const workerScript = options.workerScript ?? defaultWorkerScript();
 
   return {
-    async runBatches(repoPath, batches, signal) {
+    async runBatches(repoPath, batches, signal, onProgress) {
       if (batches.length === 0) {
         return [];
       }
@@ -90,9 +117,12 @@ export function createWorkerPool(options: WorkerPoolOptions): WorkerPool {
       if (concurrency === 1) {
         const project = createTsMorphProject({ repoPath });
         const results: BatchAnalysisOutput[] = [];
+        let batchesCompleted = 0;
         for (const batch of batches) {
           throwIfAborted(signal);
           results.push(await analyzeBatch({ repoPath, batch }, project));
+          batchesCompleted += 1;
+          emitBatchProgress(onProgress, batches, batchesCompleted);
         }
         return results;
       }
@@ -206,6 +236,7 @@ export function createWorkerPool(options: WorkerPoolOptions): WorkerPool {
 
             results[batchIndex] = message.output!;
             completedCount += 1;
+            emitBatchProgress(onProgress, batches, completedCount);
             slot.inFlightBatchIndex = null;
 
             if (completedCount === batches.length) {

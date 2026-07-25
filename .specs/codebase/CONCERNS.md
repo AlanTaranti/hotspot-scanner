@@ -10,7 +10,7 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Streaming parse must not load full log into memory                | Line-by-line processing; test with large fixture                                                                                                                                                                                    |
 | Rename handling (`old => new` + `PathAliasMap`; **not** `--follow`) | Global `git log --numstat` has no per-file follow; both file and function spawns use find-renames (`-M`); parse rename lines, `link()` chains, `canonicalize*()` at end; `rename-multi.txt` + `with-renames` fixtures; ambiguous paths warn (`Rename history may be incomplete for: …`) |
-| Rename blind spots (copy-paste, pre-`--since`, no `old => new`)   | M26 (RT-003): `src/git/rename-warnings.ts` — unlinked delete+add heuristic (basename relatedness, capped), `--since`+rename-link truncation warning, retained ambiguous warnings; fixtures `rename-unlinked.txt`, `rename-since-truncation.txt`; still no `--follow` globally |
+| Rename blind spots (copy-paste, pre-`--since`, no `old => new`)   | M26 (RT-003): `src/git/rename-warnings.ts` — unlinked delete+add heuristic (basename relatedness, capped), `--since`+rename-link truncation warning, retained ambiguous warnings; M42 appends **Next step:** sentences to each message family without changing `code` values; fixtures `rename-unlinked.txt`, `rename-since-truncation.txt`; still no `--follow` globally |
 | Merge commits, deletes, numstat edge cases                        | Fixture coverage in `tests/fixtures/git-log/`                                                                                                                                                                                       |
 | Stream pair aggregation (`pair → coChangeCount`) for coupling     | M32: increment pair counts during numstat stream — do **not** retain full `coChangeEvents[]` for scoring; unit tests assert `fileStats` + `pairCounts` from same stream; `canonicalizePairCounts` at mine end |
 | Mega-commit coupling skip (`MEGA_COMMIT_UNIQUE_FILE_THRESHOLD = 100`) | M32: when unique **in-scope** canonical paths in a commit are **> 100**, skip coupling pair increments for that commit (emit `MEGA_COMMIT_SKIPPED` warnings, capped); **churn** (`FileChangeStats`) still aggregated; path scope applied before mega-guard; rankings may omit pairs from skipped commits — documented exception |
@@ -56,14 +56,14 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 | `couplingStrength = coChangeCount / min(commitsA, commitsB)`                      | Test denominator edge cases (zero commits)                                                                                              |
 | `--min-cochange` threshold                                                        | Test boundary at N-1, N, N+1                                                                                                            |
 
-## Enriched coupling (`src/scoring/enrich-coupling-static.ts`, M14, M33)
+## Enriched coupling (`src/scoring/enrich-coupling-static.ts`, M14, M33, M44)
 
 **Risk:** `hasStaticDependency` false negatives mislabel hidden vs expected coupling.
 
 | Concern                                                                                         | Mitigation                                                                                                                                      |
 | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Static edge resolution gaps (relative + tsconfig aliases, M27; package exports Planned M44)      | `enrichCouplingStaticDeps` + `TsconfigPathMap`: relative paths; nearest `tsconfig.json`/`jsconfig.json` `paths`/`baseUrl` with shallow `extends`; missing/unreadable source or unresolved alias → no edge; ranking unchanged; **`package.json` `exports`/`imports` → M44 Planned** ([coupling-package-exports](../features/coupling-package-exports/spec.md); Execute removes this residual) |
-| Repeated enrich I/O on hub files (dense pair graphs)                                            | M33: per-call peer-scoped `StaticEdgeGraph` — one read/parse per unique participant path; O(1) pair labeling via adjacency lookup — see [ARCHITECTURE § Enriched coupling](ARCHITECTURE.md#enriched-coupling-m14-m27-m33) |
+| Static edge resolution gaps (relative, M14; tsconfig aliases, M27; package exports/imports, M44) | `enrichCouplingStaticDeps` + `TsconfigPathMap` + `PackageExportsMap`: relative paths; nearest `tsconfig.json`/`jsconfig.json` `paths`/`baseUrl` with shallow `extends`; peer-scoped in-repo `#` `imports` and `exports`/`main` (no `node_modules`); missing/unreadable source or unresolved specifier → no edge; ranking unchanged — see [ARCHITECTURE § Enriched coupling](ARCHITECTURE.md#enriched-coupling-m14-m27-m33-m44) |
+| Repeated enrich I/O on hub files (dense pair graphs)                                            | M33: per-call peer-scoped `StaticEdgeGraph` — one read/parse per unique participant path; O(1) pair labeling via adjacency lookup — see [ARCHITECTURE § Enriched coupling](ARCHITECTURE.md#enriched-coupling-m14-m27-m33-m44) |
 | Renamed-but-unlinked paths may report `false`                                                   | Same PathAliasMap limits as git miner; document; do not invent alias graph in scoring without an explicit milestone                             |
 
 ## Performance (cross-cutting)
@@ -78,7 +78,7 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 - Function-churn CPU (M35): interval index (`functionsIntersectingHunk`) replaces naive function×hunk nested loop hot path; semantics locked by equivalence tests vs `hunkIntersectsFunction`
 - AST: batch file processing with persistent worker-thread pool (M15 + M31); default concurrency `min(availableParallelism(), 8)` (M36; override via CLI `--concurrency` or config `concurrency` — precedence CLI > config > default); each worker (and inline `concurrency === 1` session) reuses one ts-morph `Project` across batches with source files cleared between `loadBatch` calls; parse gating locked to syntactic diagnostics only (`getSyntacticDiagnostics`) — no semantic/pre-emit work (RT-005)
 - Discovery (M36): `discoverSourceFiles` prefers `git ls-files` (tracked-only) + PathScope/extension filter; silent walk fallback on git failure or non-git trees; higher default concurrency increases peak AST heap — use `--concurrency` to lower on memory-constrained hosts
-- Enrich (M33): `enrichCouplingStaticDeps` builds a per-call peer-scoped edge cache — one read/parse per unique coupling participant; pair labeling via O(1) graph lookup (see [ARCHITECTURE § Enriched coupling](ARCHITECTURE.md#enriched-coupling-m14-m27-m33))
+- Enrich (M33): `enrichCouplingStaticDeps` builds a per-call peer-scoped edge cache — one read/parse per unique coupling participant; pair labeling via O(1) graph lookup (see [ARCHITECTURE § Enriched coupling](ARCHITECTURE.md#enriched-coupling-m14-m27-m33-m44))
 - Manual benchmark before declaring v1 ready
 
 ## Diagnostics (`meta.warnings`, M28)
@@ -90,6 +90,8 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 | Severity vs exit code | Document: `info` / `warning` / `error` classify diagnostics only; scan success exits `0` with warnings |
 | Compare `meta.warnings` shape change | `ScanWarning[]` objects (not bare strings); contract tests in `tests/contract/`; reporters use `formatScanWarning()` |
 | M26 vs M28 boundary | M28 routes **existing** M26 rename messages under `RENAME_HISTORY_INCOMPLETE` — do not invent new RT-003 warning families in M28 tasks |
+| M42 rename next-steps | Append actionable next-step copy to M26 message families only — **no** new or renamed warning `code` values |
+| Complexity progress (M42) | `onProgress({ phase: "complexity", … })` from analyzer/pool; CLI `--no-progress` no-ops the shared `onProgress` hook — no separate complexity silence path |
 | Warning code stability | M28 catalog (+ M32 `MEGA_COMMIT_SKIPPED`): `EMPTY_SINCE_WINDOW`, `RENAME_HISTORY_INCOMPLETE`, `PARSE_FAILED`, `COMPARE_SINCE_MISMATCH`, `MEGA_COMMIT_SKIPPED` — document in README / ARCHITECTURE |
 
 ## Hooks enforcement
@@ -103,12 +105,11 @@ Gaps without product mitigation (only “document / accept / `false`”, or expl
 | Item | Risco | Esforço | Caminho | Backlog |
 | ---- | ----- | ------- | ------- | ------- |
 | Post-rename hunk line mismatch (true fix) | M | A | Historical AST / per-commit function ranges — **do not prioritize**; M26 avisos shipped | Deferred |
-| Enriched coupling: no `package.json` `exports` / `imports` | M→A (monorepos) | A | Resolve in-repo package entry points (`exports`/`imports`); no full `node_modules` | **Planned M44** — [coupling-package-exports](../features/coupling-package-exports/); Execute **removes** this row |
 | Renamed-but-unlinked → `hasStaticDependency: false` | M | M | Doc/warning via PathAliasMap limits; no alias graph in scoring | No dedicated milestone |
 
 ```text
                  Esforço B              Esforço M              Esforço A
-Risco A     —                      renamed→false          package exports
+Risco A     —                      renamed→false          —
 Risco M     —                      —                      AST histórico
                                                           (não priorizar)
 ```

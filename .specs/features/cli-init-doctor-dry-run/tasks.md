@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/cli-init-doctor-dry-run/design.md`](./design.md)  
 **Spec**: [`.specs/features/cli-init-doctor-dry-run/spec.md`](./spec.md)  
 **Context**: [`.specs/features/cli-init-doctor-dry-run/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -86,12 +86,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Exemplar JSON matches locked keys/values (2-space indent, trailing newline)
-- [ ] `writeInitConfig` refuses existing file without `force`; overwrites with `force`
-- [ ] Clear error when target directory missing / not a directory
-- [ ] Unit tests cover create / refuse / force
-- [ ] Gate check passes: `pnpm exec vitest run src/config/`
-- [ ] Test count does not drop silently
+- [x] Exemplar JSON matches locked keys/values (2-space indent, trailing newline)
+- [x] `writeInitConfig` refuses existing file without `force`; overwrites with `force`
+- [x] Clear error when target directory missing / not a directory
+- [x] Unit tests cover create / refuse / force
+- [x] Gate check passes: `pnpm exec vitest run src/config/`
+- [x] Test count does not drop silently
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/config/`
@@ -123,13 +123,13 @@ pnpm exec vitest run src/config/
 
 **Done when**:
 
-- [ ] Hard failures: engines, git PATH, non-repo → `exitCode` `1`
-- [ ] Invalid config / missing explicit `--config` → fail finding + `exitCode` `2` (findings still printed)
-- [ ] Missing discovered config → warn, `exitCode` `0` if otherwise healthy
-- [ ] tsconfig/jsconfig presence is informational (pass or soft warn)
-- [ ] Unit tests cover each severity class
-- [ ] Gate check passes: `pnpm exec vitest run src/doctor/`
-- [ ] Test count does not drop silently
+- [x] Hard failures: engines, git PATH, non-repo → `exitCode` `1`
+- [x] Invalid config / missing explicit `--config` → fail finding + `exitCode` `2` (findings still printed)
+- [x] Missing discovered config → warn, `exitCode` `0` if otherwise healthy
+- [x] tsconfig/jsconfig presence is informational (pass or soft warn)
+- [x] Unit tests cover each severity class
+- [x] Gate check passes: `pnpm exec vitest run src/doctor/`
+- [x] Test count does not drop silently
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/doctor/`
@@ -161,12 +161,12 @@ pnpm exec vitest run src/doctor/
 
 **Done when**:
 
-- [ ] Preview includes since, include, exclude (user/config), eligibleFileCount, concurrency
-- [ ] Tests spy/prove `createGitMiner` / analyzer / scorers are not invoked
-- [ ] Zero eligible files → count `0`, no throw
-- [ ] Invalid repo/config fail like scan prelude
-- [ ] Gate check passes: `pnpm exec vitest run src/scan-preview.ts src/scan-preview.test.ts` (and `src/scan.ts` if re-export touched)
-- [ ] Test count does not drop silently
+- [x] Preview includes since, include, exclude (user/config), eligibleFileCount, concurrency
+- [x] Tests spy/prove `createGitMiner` / analyzer / scorers are not invoked
+- [x] Zero eligible files → count `0`, no throw
+- [x] Invalid repo/config fail like scan prelude
+- [x] Gate check passes: `pnpm exec vitest run src/scan-preview.ts src/scan-preview.test.ts` (and `src/scan.ts` if re-export touched)
+- [x] Test count does not drop silently
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/scan-preview.ts src/scan-preview.test.ts`
@@ -198,15 +198,15 @@ pnpm exec vitest run src/scan-preview.ts src/scan-preview.test.ts
 
 **Done when**:
 
-- [ ] `hotspot-scanner init [--force] [dir]` works per context defaults
-- [ ] `hotspot-scanner doctor [path] [--config]` prints findings and exits per policy
-- [ ] `scan <path> --dry-run` prints preview; does not full-scan
-- [ ] `--dry-run --baseline` → `CliUsageError`
-- [ ] `--format` / `--output` with dry-run ignored (no error)
-- [ ] Help text mentions `init`, `doctor`, `--dry-run`
-- [ ] CLI tests cover happy paths + exit codes (use temp dirs / `small-ts` isolate)
-- [ ] Gate check passes: `pnpm exec vitest run bin/ src/config/ src/doctor/ src/scan-preview.test.ts`
-- [ ] Test count does not drop silently
+- [x] `hotspot-scanner init [--force] [dir]` works per context defaults
+- [x] `hotspot-scanner doctor [path] [--config]` prints findings and exits per policy
+- [x] `scan <path> --dry-run` prints preview; does not full-scan
+- [x] `--dry-run --baseline` → `CliUsageError`
+- [x] `--format` / `--output` with dry-run ignored (no error)
+- [x] Help text mentions `init`, `doctor`, `--dry-run`
+- [x] CLI tests cover happy paths + exit codes (use temp dirs / `small-ts` isolate)
+- [x] Gate check passes: `pnpm exec vitest run bin/ src/config/ src/doctor/ src/scan-preview.test.ts`
+- [x] Test count does not drop silently
 
 **Tests**: CLI (unit-style Vitest)  
 **Gate**: `pnpm exec vitest run bin/ src/config/ src/doctor/ src/scan-preview.test.ts`
@@ -241,11 +241,11 @@ pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts --dry-run
 
 **Done when**:
 
-- [ ] README mentions `init`, `doctor`, `scan --dry-run` (short adoption path)
-- [ ] ARCHITECTURE notes multi-command CLI + dry-run preview (no mine/AST)
-- [ ] STRUCTURE lists `src/doctor/`, `src/scan-preview.ts`, config exemplar helper
-- [ ] Full gate passes: `pnpm build && pnpm test`
-- [ ] Test count does not drop silently
+- [x] README mentions `init`, `doctor`, `scan --dry-run` (short adoption path)
+- [x] ARCHITECTURE notes multi-command CLI + dry-run preview (no mine/AST)
+- [x] STRUCTURE lists `src/doctor/`, `src/scan-preview.ts`, config exemplar helper
+- [x] Full gate passes: `pnpm build && pnpm test`
+- [x] Test count does not drop silently
 
 **Tests**: none (docs) + full suite via gate  
 **Gate**: `pnpm build && pnpm test`

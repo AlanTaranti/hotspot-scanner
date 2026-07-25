@@ -7,3 +7,9 @@ export {
   type PathScopeOptions,
 } from "./scope.js";
 export { filterGitMinerResult } from "./filter-git.js";
+export {
+  buildAutoIncludePattern,
+  resolveMonorepoScanPath,
+  type ResolvedMonorepoScanPath,
+  type ResolveMonorepoScanPathDeps,
+} from "./resolve-repo.js";

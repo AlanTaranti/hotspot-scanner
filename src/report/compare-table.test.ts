@@ -4,7 +4,9 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { compareScanResults } from "../compare/compare.js";
 import type { ScanResult } from "../types/index.js";
+import { stripAnsi } from "./color.js";
 import { renderCompareTable } from "./compare-table.js";
+import { sliceCompareResult } from "./slice-compare.js";
 
 const fixturesDir = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -37,6 +39,69 @@ describe("renderCompareTable", () => {
     expect(output).toContain("=== New Coupling Pairs ===");
     expect(output).toContain("src/new.ts");
     expect(output).toContain("src/medium.ts");
+  });
+
+  it("includes executive summary and glossary footer", () => {
+    const result = loadCompareResult(
+      "compare-baseline-file.json",
+      "compare-current-file.json",
+    );
+    const output = renderCompareTable(result);
+
+    expect(output).toContain("Baseline since:");
+    expect(output).toContain("Hotspot deltas: showing");
+    expect(output).toContain("Coupling deltas: showing");
+    expect(output).toContain("Glossary");
+    expect(output).toContain("StaticDep");
+  });
+
+  it("never emits triage hints", () => {
+    const output = renderCompareTable(
+      loadCompareResult(
+        "compare-baseline-file.json",
+        "compare-current-file.json",
+      ),
+    );
+
+    expect(output).not.toContain("Triage hints");
+  });
+
+  it("omits coupling sections when --only hotspots", () => {
+    const output = renderCompareTable(
+      loadCompareResult(
+        "compare-baseline-file.json",
+        "compare-current-file.json",
+      ),
+      { only: ["hotspots"] },
+    );
+
+    expect(output).toContain("=== New Hotspots ===");
+    expect(output).not.toContain("=== New Coupling Pairs ===");
+  });
+
+  it("applies color to score and StaticDep cells when enabled", () => {
+    const result = loadCompareResult(
+      "compare-baseline-file.json",
+      "compare-current-file.json",
+    );
+    const colored = renderCompareTable(result, { color: true });
+    const plain = renderCompareTable(result, { color: false });
+
+    expect(colored).not.toBe(plain);
+    expect(stripAnsi(colored)).toBe(plain);
+  });
+
+  it("uses full result for summary shown-vs-total after slice", () => {
+    const full = loadCompareResult(
+      "compare-baseline-file.json",
+      "compare-current-file.json",
+    );
+    const displayed = sliceCompareResult(full, 1);
+    const output = renderCompareTable(displayed, { full });
+
+    expect(output).toContain(
+      "Coupling deltas: showing 2 of 3 (new 1, removed 0, rank changed 2)",
+    );
   });
 
   it("renders StaticDep, Direction, and Kinds columns in coupling sections", () => {

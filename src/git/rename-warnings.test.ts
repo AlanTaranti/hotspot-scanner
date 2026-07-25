@@ -17,31 +17,35 @@ describe("createEmptySinceWindowWarning", () => {
     expect(createEmptySinceWindowWarning()).toEqual({
       severity: "warning",
       code: "EMPTY_SINCE_WINDOW",
-      message: "No commits found in the specified --since window.",
+      message:
+        "No commits found in the specified --since window. Next step: widen --since or check path scope (--path / monorepo roots).",
     });
   });
 });
 
 describe("createRenameHistoryIncompleteWarning", () => {
   it("wraps message with RENAME_HISTORY_INCOMPLETE code", () => {
-    expect(
-      createRenameHistoryIncompleteWarning(
-        "Rename history may be incomplete for: a.ts",
-      ),
-    ).toEqual({
+    const message = formatAmbiguousRenameWarnings(["a.ts"])[0]!;
+    expect(createRenameHistoryIncompleteWarning(message)).toEqual({
       severity: "warning",
       code: "RENAME_HISTORY_INCOMPLETE",
-      message: "Rename history may be incomplete for: a.ts",
+      message,
     });
   });
 });
 
 describe("formatAmbiguousRenameWarnings", () => {
   it("matches the existing incomplete-history prefix per path", () => {
-    expect(formatAmbiguousRenameWarnings(["a.ts", "b.ts"])).toEqual([
-      "Rename history may be incomplete for: a.ts",
-      "Rename history may be incomplete for: b.ts",
-    ]);
+    const warnings = formatAmbiguousRenameWarnings(["a.ts", "b.ts"]);
+    expect(warnings).toHaveLength(2);
+    expect(warnings[0]).toMatch(
+      /^Rename history may be incomplete for: a\.ts/,
+    );
+    expect(warnings[0]).toContain("Next step:");
+    expect(warnings[0]).toContain("widen --since");
+    expect(warnings[1]).toMatch(
+      /^Rename history may be incomplete for: b\.ts/,
+    );
   });
 
   it("returns an empty array for no paths", () => {
@@ -51,13 +55,15 @@ describe("formatAmbiguousRenameWarnings", () => {
 
 describe("formatUnlinkedRenameWarnings", () => {
   it("names each suspected pair", () => {
-    expect(
-      formatUnlinkedRenameWarnings([
-        { from: "src/old/foo.ts", to: "lib/foo.ts" },
-      ]),
-    ).toEqual([
-      "Suspected unlinked rename (no git rename metadata): src/old/foo.ts -> lib/foo.ts",
+    const warnings = formatUnlinkedRenameWarnings([
+      { from: "src/old/foo.ts", to: "lib/foo.ts" },
     ]);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain(
+      "Suspected unlinked rename (no git rename metadata): src/old/foo.ts -> lib/foo.ts",
+    );
+    expect(warnings[0]).toContain("Next step:");
+    expect(warnings[0]).toContain("-M is enabled");
   });
 
   it("caps listed pairs and summarizes the remainder", () => {
@@ -72,9 +78,8 @@ describe("formatUnlinkedRenameWarnings", () => {
     expect(warnings[0]).toContain("del/0.ts -> add/0.ts");
     expect(warnings[1]).toContain("del/1.ts -> add/1.ts");
     expect(warnings[2]).toContain("del/2.ts -> add/2.ts");
-    expect(warnings[3]).toBe(
-      "... and 4 more suspected unlinked renames",
-    );
+    expect(warnings[3]).toContain("... and 4 more suspected unlinked renames");
+    expect(warnings[3]).toContain("Next step:");
   });
 
   it("uses singular summary text for one remaining pair", () => {
@@ -83,9 +88,10 @@ describe("formatUnlinkedRenameWarnings", () => {
       to: `add/${index}.ts`,
     }));
 
-    expect(formatUnlinkedRenameWarnings(pairs, { maxPairs: 3 })).toContain(
-      "... and 1 more suspected unlinked rename",
-    );
+    const warnings = formatUnlinkedRenameWarnings(pairs, { maxPairs: 3 });
+    const summary = warnings[warnings.length - 1]!;
+    expect(summary).toContain("... and 1 more suspected unlinked rename");
+    expect(summary).toContain("Next step:");
   });
 
   it("returns an empty array for no pairs", () => {
@@ -95,9 +101,12 @@ describe("formatUnlinkedRenameWarnings", () => {
 
 describe("formatSinceTruncationWarning", () => {
   it("mentions the since window", () => {
-    expect(formatSinceTruncationWarning("12 months ago")).toBe(
+    const message = formatSinceTruncationWarning("12 months ago");
+    expect(message).toContain(
       "Rename history before the --since window (12 months ago) may be missing under canonical paths",
     );
+    expect(message).toContain("Next step:");
+    expect(message).toContain("widen --since");
   });
 });
 
@@ -108,6 +117,8 @@ describe("formatFunctionPostRenameOverlapWarning", () => {
     expect(message).toContain("historical hunks");
     expect(message).toContain("confidence may be reduced");
     expect(message).toContain("renames or moves");
+    expect(message).toContain("Next step:");
+    expect(message).toContain("file mode");
   });
 });
 

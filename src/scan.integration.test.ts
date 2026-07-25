@@ -97,6 +97,15 @@ const withRenamesFixture = join(
   "../tests/fixtures/repos/with-renames",
 );
 
+const monorepoNestedFixture = join(
+  fileURLToPath(new URL(".", import.meta.url)),
+  "../tests/fixtures/repos/monorepo-nested",
+);
+
+const MONOREPO_API_PACKAGE_DIR = join(monorepoNestedFixture, "packages", "api");
+const MONOREPO_API_TOP_HOTSPOT = "packages/api/src/high.ts";
+const MONOREPO_OTHER_HOTSPOT = "packages/other/src/other.ts";
+
 const STATIC_DEPENDENCY_DIRECTIONS: StaticDependencyDirection[] = [
   "none",
   "a-to-b",
@@ -227,6 +236,7 @@ describe("runScan integration", () => {
 
     const result = await runScan({
       repoPath: smallTsFixture,
+      concurrency: 1,
       onProgress,
       onWarning,
     });
@@ -237,8 +247,34 @@ describe("runScan integration", () => {
         commitsProcessed: expect.any(Number),
       }),
     );
+    expect(onProgress).toHaveBeenCalledWith(
+      expect.objectContaining({
+        phase: "complexity",
+        commitsProcessed: 0,
+        filesProcessed: expect.any(Number),
+        batchesProcessed: expect.any(Number),
+        totalFiles: expect.any(Number),
+        totalBatches: expect.any(Number),
+      }),
+    );
     expect(onWarning).not.toHaveBeenCalled();
     expect(result.meta.warnings).toEqual([]);
+  });
+
+  it("forwards git, complexity, and function-churn progress in function mode", async () => {
+    const onProgress = vi.fn();
+
+    await runScan({
+      repoPath: smallTsFixture,
+      granularity: "function",
+      concurrency: 1,
+      onProgress,
+    });
+
+    const phases = onProgress.mock.calls.map(([progress]) => progress.phase);
+    expect(phases).toContain("git");
+    expect(phases).toContain("complexity");
+    expect(phases).toContain("function-churn");
   });
 
   it("limits output paths when include scope is set", async () => {
@@ -499,6 +535,60 @@ describe("runScan integration — alias-coupling fixture", () => {
     expect(result.coupling.map((pair) => pair.couplingStrength)).toEqual([
       0.75, 0.75,
     ]);
+  });
+});
+
+describe("runScan integration — monorepo-nested fixture (M43)", () => {
+  it("scopes rankings to the nested package prefix without explicit include (HOTSPOT-577, HOTSPOT-585)", async () => {
+    const result = await runScan({ repoPath: MONOREPO_API_PACKAGE_DIR });
+
+    expect(result.hotspots.length).toBeGreaterThanOrEqual(1);
+    expect(result.hotspots[0]!.filePath).toBe(MONOREPO_API_TOP_HOTSPOT);
+    for (const hotspot of result.hotspots) {
+      expect(hotspot.filePath.startsWith("packages/api/")).toBe(true);
+    }
+    expect(
+      result.hotspots.some(
+        (hotspot) => hotspot.filePath === MONOREPO_OTHER_HOTSPOT,
+      ),
+    ).toBe(false);
+  });
+
+  it("includes both packages when scanning from git root without include (HOTSPOT-585)", async () => {
+    const result = await runScan({ repoPath: monorepoNestedFixture });
+
+    const hotspotPaths = result.hotspots.map((hotspot) => hotspot.filePath);
+    expect(hotspotPaths).toContain(MONOREPO_API_TOP_HOTSPOT);
+    expect(hotspotPaths).toContain(MONOREPO_OTHER_HOTSPOT);
+  });
+
+  it("emits MONOREPO_PATH_REMOUNT when remounting from a nested package path (HOTSPOT-581)", async () => {
+    const warnings: ScanWarning[] = [];
+
+    const result = await runScan({
+      repoPath: MONOREPO_API_PACKAGE_DIR,
+      onWarning: (warning) => warnings.push(warning),
+    });
+
+    expect(
+      warnings.some((warning) => warning.code === "MONOREPO_PATH_REMOUNT"),
+    ).toBe(true);
+    expect(
+      result.meta.warnings.some(
+        (warning) => warning.code === "MONOREPO_PATH_REMOUNT",
+      ),
+    ).toBe(true);
+    expect(result.meta.warnings[0]!.message).toContain("packages/api/**");
+  });
+
+  it("does not emit MONOREPO_PATH_REMOUNT when scanning from git root (HOTSPOT-582)", async () => {
+    const result = await runScan({ repoPath: monorepoNestedFixture });
+
+    expect(
+      result.meta.warnings.some(
+        (warning) => warning.code === "MONOREPO_PATH_REMOUNT",
+      ),
+    ).toBe(false);
   });
 });
 

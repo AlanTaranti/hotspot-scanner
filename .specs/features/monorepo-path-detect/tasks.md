@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/monorepo-path-detect/design.md`](./design.md)  
 **Spec**: [`.specs/features/monorepo-path-detect/spec.md`](./spec.md)  
 **Context**: [`.specs/features/monorepo-path-detect/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -79,13 +79,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `resolveMonorepoScanPath` returns `remounted: false` when request path is git root
-- [ ] Returns `remounted: true`, `packagePrefix`, and git-root `repoPath` for nested paths (via injected detector and/or real temp git repo)
-- [ ] `buildAutoIncludePattern` yields posix `{prefix}/**`
-- [ ] Outside / failed detection maps to a clear “not a git repository” (or equivalent) error
-- [ ] Escaping `..` relative prefix rejected
-- [ ] Gate check passes: `pnpm exec vitest run src/paths/resolve-repo.test.ts`
-- [ ] Test count does not drop silently
+- [x] `resolveMonorepoScanPath` returns `remounted: false` when request path is git root
+- [x] Returns `remounted: true`, `packagePrefix`, and git-root `repoPath` for nested paths (via injected detector and/or real temp git repo)
+- [x] `buildAutoIncludePattern` yields posix `{prefix}/**`
+- [x] Outside / failed detection maps to a clear “not a git repository” (or equivalent) error
+- [x] Escaping `..` relative prefix rejected
+- [x] Gate check passes: `pnpm exec vitest run src/paths/resolve-repo.test.ts`
+- [x] Test count does not drop silently
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/paths/resolve-repo.test.ts`
@@ -117,14 +117,14 @@ pnpm exec vitest run src/paths/resolve-repo.test.ts
 
 **Done when**:
 
-- [ ] Nested `repoPath` without `include` → remount + auto-include applied before PathScope
-- [ ] Nested path with explicit `include` → remount, no auto-include; user include honored
-- [ ] Config still loaded from request path; `--config` / `configPath` behavior unchanged
-- [ ] Auto-include beats config `include` when CLI include absent
-- [ ] `MONOREPO_PATH_REMOUNT` info warning present iff remounted; absent on git-root scans
-- [ ] Git-root `runScan` behavior unchanged (no surprise include)
-- [ ] Gate check passes: `pnpm exec vitest run src/scan.test.ts src/paths/`
-- [ ] Test count does not drop silently
+- [x] Nested `repoPath` without `include` → remount + auto-include applied before PathScope
+- [x] Nested path with explicit `include` → remount, no auto-include; user include honored
+- [x] Config still loaded from request path; `--config` / `configPath` behavior unchanged
+- [x] Auto-include beats config `include` when CLI include absent
+- [x] `MONOREPO_PATH_REMOUNT` info warning present iff remounted; absent on git-root scans
+- [x] Git-root `runScan` behavior unchanged (no surprise include)
+- [x] Gate check passes: `pnpm exec vitest run src/scan.test.ts src/paths/`
+- [x] Test count does not drop silently
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/scan.test.ts src/paths/`
@@ -157,11 +157,11 @@ pnpm exec vitest run src/scan.test.ts src/paths/
 
 **Done when**:
 
-- [ ] Fixture has git root + ≥2 packages with distinguishable TS files / history
-- [ ] Integration: scan from nested package path → results limited to that prefix; scan from root without include → both packages eligible (subject to default excludes)
-- [ ] CLI smoke (if added): `hotspot-scanner scan <fixture>/packages/...` exits 0
-- [ ] Gate check passes: targeted vitest for integration/CLI files touched
-- [ ] Test count does not drop silently
+- [x] Fixture has git root + ≥2 packages with distinguishable TS files / history
+- [x] Integration: scan from nested package path → results limited to that prefix; scan from root without include → both packages eligible (subject to default excludes)
+- [x] CLI smoke (if added): `hotspot-scanner scan <fixture>/packages/...` exits 0
+- [x] Gate check passes: targeted vitest for integration/CLI files touched
+- [x] Test count does not drop silently
 
 **Tests**: integration (+ CLI if added)  
 **Gate**: `pnpm exec vitest run src/scan.integration.test.ts` (add bin test path if modified)
@@ -195,12 +195,12 @@ pnpm exec vitest run bin/hotspot-scanner.test.ts
 
 **Done when**:
 
-- [ ] README describes nested cwd → git root + `{prefix}/**` unless `--include`
-- [ ] ARCHITECTURE notes config-from-requestPath vs pipeline-on-git-root order
-- [ ] YAGNI stated (no workspace-yaml / nx parsers)
-- [ ] INTEGRATIONS/STRUCTURE updated if `rev-parse` helper is a new integration surface
-- [ ] Full gate passes: `pnpm build && pnpm test`
-- [ ] Propose Conventional Commit message (do not commit unless user asks)
+- [x] README describes nested cwd → git root + `{prefix}/**` unless `--include`
+- [x] ARCHITECTURE notes config-from-requestPath vs pipeline-on-git-root order
+- [x] YAGNI stated (no workspace-yaml / nx parsers)
+- [x] INTEGRATIONS/STRUCTURE updated if `rev-parse` helper is a new integration surface
+- [x] Full gate passes: `pnpm build && pnpm test`
+- [x] Propose Conventional Commit message (do not commit unless user asks)
 
 **Tests**: none (docs)  
 **Gate**: `pnpm build && pnpm test`

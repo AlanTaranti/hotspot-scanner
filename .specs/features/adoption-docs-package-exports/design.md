@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/adoption-docs-package-exports/spec.md`](./spec.md)  
 **Context**: [`.specs/features/adoption-docs-package-exports/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Depth**: Thin (Medium — docs + `package.json` only; no `src/` architecture change)  
 **Sister**: [readme-adoption-dx](../readme-adoption-dx/design.md) (M37)
 

@@ -1,0 +1,248 @@
+import { access, stat, writeFile } from "node:fs/promises";
+import { dirname } from "node:path";
+import { compareScanResults, loadBaseline } from "#compare";
+import type { HotspotScannerConfig } from "#config";
+import { createCliDiagnosticHandlers } from "#diagnostics";
+import { createReporter } from "#report";
+import type { CsvBundle, ReportSection } from "#report";
+import { runScan } from "#scan";
+import type { ScanOptions, ScanResult } from "../src/types/index.js";
+
+export type OutputFormat = "table" | "json" | "markdown" | "csv";
+
+/** Default path for `baseline save` when `--output` is omitted (T2). */
+export const DEFAULT_BASELINE_OUTPUT = "./hotspot-baseline.json";
+
+const BASELINE_JSON_HINT =
+  "\nHint: pass a prior scan saved with --format json --output <path>.";
+
+export class CliUsageError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "CliUsageError";
+  }
+}
+
+function ensureTrailingNewline(content: string): string {
+  return content.endsWith("\n") ? content : `${content}\n`;
+}
+
+export async function validateOutputPath(outputPath: string): Promise<void> {
+  if (outputPath.length === 0) {
+    throw new CliUsageError("--output path must not be empty");
+  }
+
+  try {
+    const outputStat = await stat(outputPath);
+    if (outputStat.isDirectory()) {
+      throw new CliUsageError(`--output path is a directory: ${outputPath}`);
+    }
+  } catch (error) {
+    if (error instanceof CliUsageError) {
+      throw error;
+    }
+    const parentDir = dirname(outputPath);
+    try {
+      await access(parentDir);
+    } catch {
+      throw new CliUsageError(
+        `--output parent directory does not exist: ${parentDir}`,
+      );
+    }
+  }
+}
+
+export async function validateBaselinePath(
+  baselinePath: string,
+): Promise<void> {
+  if (baselinePath.length === 0) {
+    throw new CliUsageError("--baseline path must not be empty");
+  }
+
+  let baselineStat;
+  try {
+    baselineStat = await stat(baselinePath);
+  } catch {
+    throw new CliUsageError(
+      `--baseline file does not exist: ${baselinePath}${BASELINE_JSON_HINT}`,
+    );
+  }
+
+  if (baselineStat.isDirectory()) {
+    throw new CliUsageError(
+      `--baseline path is a directory: ${baselinePath}${BASELINE_JSON_HINT}`,
+    );
+  }
+}
+
+export function deriveCsvStem(outputPath: string): string {
+  if (outputPath.endsWith(".csv")) {
+    return outputPath.slice(0, -4);
+  }
+  return outputPath;
+}
+
+export async function writeCsvBundle(
+  stem: string,
+  bundle: CsvBundle,
+): Promise<void> {
+  await Promise.all(
+    Object.entries(bundle).map(([suffix, content]) =>
+      writeFile(`${stem}.${suffix}`, ensureTrailingNewline(content), "utf8"),
+    ),
+  );
+}
+
+function writeReport(output: string, outputPath?: string): Promise<void> {
+  const content = ensureTrailingNewline(output);
+  if (outputPath) {
+    return writeFile(outputPath, content, "utf8");
+  }
+  process.stdout.write(content);
+  return Promise.resolve();
+}
+
+export function buildScanOptions(
+  repoPath: string,
+  cliOverrides: HotspotScannerConfig,
+  callbacks: Pick<ScanOptions, "onWarning" | "onProgress">,
+  configPath?: string,
+): ScanOptions {
+  const scanOptions: ScanOptions = {
+    repoPath,
+    ...callbacks,
+  };
+
+  if (configPath !== undefined) {
+    scanOptions.configPath = configPath;
+  }
+
+  if (cliOverrides.since !== undefined) {
+    scanOptions.since = cliOverrides.since;
+  }
+  if (cliOverrides.include !== undefined) {
+    scanOptions.include = cliOverrides.include;
+  }
+  if (cliOverrides.exclude !== undefined) {
+    scanOptions.exclude = cliOverrides.exclude;
+  }
+  if (cliOverrides.granularity !== undefined) {
+    scanOptions.granularity = cliOverrides.granularity;
+  }
+  if (cliOverrides.minCochange !== undefined) {
+    scanOptions.minCochange = cliOverrides.minCochange;
+  }
+  if (cliOverrides.top !== undefined) {
+    scanOptions.top = cliOverrides.top;
+  }
+  if (cliOverrides.concurrency !== undefined) {
+    scanOptions.concurrency = cliOverrides.concurrency;
+  }
+
+  return scanOptions;
+}
+
+export type ScanDiagnosticOptions = {
+  quiet?: boolean;
+  noProgress?: boolean;
+};
+
+export async function writeBaselineJson(
+  result: ScanResult,
+  outputPath: string,
+): Promise<void> {
+  await validateOutputPath(outputPath);
+  const reporter = createReporter();
+  const output = reporter.render(result, { format: "json" });
+  await writeFile(outputPath, output as string, "utf8");
+}
+
+export async function executeScan(options: {
+  repoPath: string;
+  cliOverrides: HotspotScannerConfig;
+  configPath?: string;
+} & ScanDiagnosticOptions): Promise<ScanResult> {
+  const { onWarning, onProgress } = createCliDiagnosticHandlers({
+    quiet: options.quiet ?? false,
+    noProgress: options.noProgress ?? false,
+  });
+
+  return runScan(
+    buildScanOptions(
+      options.repoPath,
+      options.cliOverrides,
+      { onWarning, onProgress },
+      options.configPath,
+    ),
+  );
+}
+
+export type ReporterRenderOptions = {
+  format: OutputFormat;
+  top: number;
+  only?: ReportSection[];
+  triageHints: boolean;
+  color: boolean;
+};
+
+export async function writeRenderedOutput(
+  output: string | CsvBundle,
+  format: OutputFormat,
+  outputPath?: string,
+): Promise<void> {
+  if (format === "csv") {
+    await validateOutputPath(outputPath!);
+    await writeCsvBundle(deriveCsvStem(outputPath!), output as CsvBundle);
+    return;
+  }
+
+  if (outputPath) {
+    await validateOutputPath(outputPath);
+  }
+  await writeReport(output as string, outputPath);
+}
+
+export async function executeCompareAndRender(options: {
+  repoPath: string;
+  baselinePath: string;
+  cliOverrides: HotspotScannerConfig;
+  configPath?: string;
+  outputPath?: string;
+  reporterOptions: ReporterRenderOptions;
+} & ScanDiagnosticOptions): Promise<ScanResult> {
+  await validateBaselinePath(options.baselinePath);
+
+  const { onWarning, onProgress } = createCliDiagnosticHandlers({
+    quiet: options.quiet ?? false,
+    noProgress: options.noProgress ?? false,
+  });
+
+  const result = await runScan(
+    buildScanOptions(
+      options.repoPath,
+      options.cliOverrides,
+      { onWarning, onProgress },
+      options.configPath,
+    ),
+  );
+
+  const baseline = await loadBaseline(options.baselinePath);
+  const compareResult = compareScanResults(baseline, result);
+  for (const warning of compareResult.meta.warnings) {
+    onWarning(warning);
+  }
+
+  const reporter = createReporter();
+  const output = reporter.renderCompare(
+    compareResult,
+    options.reporterOptions,
+  );
+
+  await writeRenderedOutput(
+    output,
+    options.reporterOptions.format,
+    options.outputPath,
+  );
+
+  return result;
+}

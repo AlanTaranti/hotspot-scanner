@@ -263,6 +263,9 @@ describe("loadHotspotScannerConfig", () => {
       await expect(
         loadHotspotScannerConfig(repoPath, { configPath: missingPath }),
       ).rejects.toThrow(/Config file not found/);
+      await expect(
+        loadHotspotScannerConfig(repoPath, { configPath: missingPath }),
+      ).rejects.toThrow(/Hint:.*must exist/);
     });
   });
 

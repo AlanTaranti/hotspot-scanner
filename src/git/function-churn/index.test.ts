@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   createEmptySinceWindowWarning,
   createRenameHistoryIncompleteWarning,
+  formatAmbiguousRenameWarnings,
   formatFunctionPostRenameOverlapWarning,
 } from "../rename-warnings.js";
 import { createFunctionChurnMiner } from "./index.js";
@@ -218,10 +219,10 @@ describe("createFunctionChurnMiner", () => {
     expect(result.warnings).toEqual(
       expect.arrayContaining([
         createRenameHistoryIncompleteWarning(
-          "Rename history may be incomplete for: a.ts",
+          formatAmbiguousRenameWarnings(["a.ts"])[0]!,
         ),
         createRenameHistoryIncompleteWarning(
-          "Rename history may be incomplete for: b.ts",
+          formatAmbiguousRenameWarnings(["b.ts"])[0]!,
         ),
         createRenameHistoryIncompleteWarning(
           formatFunctionPostRenameOverlapWarning(),

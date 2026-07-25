@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/output-interpretation-ux/design.md`](./design.md)  
 **Spec**: [`.specs/features/output-interpretation-ux/spec.md`](./spec.md)  
 **Context**: [`.specs/features/output-interpretation-ux/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -123,10 +123,10 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Valid values: `hotspots` \| `coupling` \| `functions`
-- [ ] Invalid value throws a clear error (bin will wrap as `CliUsageError`)
-- [ ] Dedupe + union behavior tested
-- [ ] Gate: `pnpm exec vitest run src/report/only.test.ts`
+- [x] Valid values: `hotspots` \| `coupling` \| `functions`
+- [x] Invalid value throws a clear error (bin will wrap as `CliUsageError`)
+- [x] Dedupe + union behavior tested
+- [x] Gate: `pnpm exec vitest run src/report/only.test.ts`
 
 **Tests**: unit  
 **Gate**: quick  
@@ -144,10 +144,10 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Full-corpus totals used for coupling + static-dep-false
-- [ ] Shown vs total reflects displayed array lengths vs full
-- [ ] Compare summary covers delta-oriented counts per context D3
-- [ ] Gate: `pnpm exec vitest run src/report/summary.test.ts`
+- [x] Full-corpus totals used for coupling + static-dep-false
+- [x] Shown vs total reflects displayed array lengths vs full
+- [x] Compare summary covers delta-oriented counts per context D3
+- [x] Gate: `pnpm exec vitest run src/report/summary.test.ts`
 
 **Tests**: unit  
 **Gate**: quick  
@@ -165,9 +165,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] `renderTableGlossary()` returns footer lines defining locked metric terms
-- [ ] `renderMarkdownHowToRead()` returns GFM section with same semantics
-- [ ] Gate: `pnpm exec vitest run src/report/glossary.test.ts`
+- [x] `renderTableGlossary()` returns footer lines defining locked metric terms
+- [x] `renderMarkdownHowToRead()` returns GFM section with same semantics
+- [x] Gate: `pnpm exec vitest run src/report/glossary.test.ts`
 
 **Tests**: unit  
 **Gate**: quick  
@@ -185,9 +185,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] All three rules covered with positive/negative fixtures
-- [ ] Cap and sort-by-metric tested; empty → `[]`
-- [ ] Gate: `pnpm exec vitest run src/report/triage.test.ts`
+- [x] All three rules covered with positive/negative fixtures
+- [x] Cap and sort-by-metric tested; empty → `[]`
+- [x] Gate: `pnpm exec vitest run src/report/triage.test.ts`
 
 **Tests**: unit  
 **Gate**: quick  
@@ -205,9 +205,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Bands match context D6; `enabled: false` returns plain text
-- [ ] `package.json` dependencies unchanged (no chalk/picocolors)
-- [ ] Gate: `pnpm exec vitest run src/report/color.test.ts`
+- [x] Bands match context D6; `enabled: false` returns plain text
+- [x] `package.json` dependencies unchanged (no chalk/picocolors)
+- [x] Gate: `pnpm exec vitest run src/report/color.test.ts`
 
 **Tests**: unit  
 **Gate**: quick  
@@ -225,10 +225,10 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Footer after tables; triage before footer when present
-- [ ] `--only` omits sections; empty included keeps `(none)`
-- [ ] Strip-ANSI equality vs uncolored for same fixture
-- [ ] Gate: `pnpm exec vitest run src/report/table.test.ts`
+- [x] Footer after tables; triage before footer when present
+- [x] `--only` omits sections; empty included keeps `(none)`
+- [x] Strip-ANSI equality vs uncolored for same fixture
+- [x] Gate: `pnpm exec vitest run src/report/table.test.ts`
 
 **Tests**: unit  
 **Gate**: quick  
@@ -246,9 +246,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Section order: summary → how-to-read → tables → triage (if any)
-- [ ] Omitted sections have no headings
-- [ ] Gate: `pnpm exec vitest run src/report/markdown.test.ts`
+- [x] Section order: summary → how-to-read → tables → triage (if any)
+- [x] Omitted sections have no headings
+- [x] Gate: `pnpm exec vitest run src/report/markdown.test.ts`
 
 **Tests**: unit  
 **Gate**: quick  
@@ -266,10 +266,10 @@ flowchart TD
 
 **Done when**:
 
-- [ ] `--only coupling` JSON lacks `hotspots`/`functions` keys (or whichever excluded)
-- [ ] CSV bundle omits non-selected data files; meta retained
-- [ ] Unfiltered output unchanged vs pre-task snapshots
-- [ ] Gate: `pnpm exec vitest run src/report/json.test.ts src/report/csv.test.ts`
+- [x] `--only coupling` JSON lacks `hotspots`/`functions` keys (or whichever excluded)
+- [x] CSV bundle omits non-selected data files; meta retained
+- [x] Unfiltered output unchanged vs pre-task snapshots
+- [x] Gate: `pnpm exec vitest run src/report/json.test.ts src/report/csv.test.ts`
 
 **Tests**: unit  
 **Gate**: quick  
@@ -287,10 +287,10 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Compare table/markdown include summary + glossary/how-to-read
-- [ ] Compare never emits triage section
-- [ ] JSON/CSV omit excluded compare sections/files
-- [ ] Gate: `pnpm exec vitest run src/report/compare-table.test.ts src/report/compare-markdown.test.ts src/report/compare-json.test.ts src/report/compare-csv.test.ts`
+- [x] Compare table/markdown include summary + glossary/how-to-read
+- [x] Compare never emits triage section
+- [x] JSON/CSV omit excluded compare sections/files
+- [x] Gate: `pnpm exec vitest run src/report/compare-table.test.ts src/report/compare-markdown.test.ts src/report/compare-json.test.ts src/report/compare-csv.test.ts`
 
 **Tests**: unit  
 **Gate**: quick  
@@ -308,9 +308,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Defaults: all sections; triage on for scan table/md path; color off unless set
-- [ ] Rankings/scores unchanged vs fixture when interpretation flags default
-- [ ] Gate: `pnpm exec vitest run src/report/index.test.ts`
+- [x] Defaults: all sections; triage on for scan table/md path; color off unless set
+- [x] Rankings/scores unchanged vs fixture when interpretation flags default
+- [x] Gate: `pnpm exec vitest run src/report/index.test.ts`
 
 **Tests**: unit  
 **Gate**: quick  
@@ -328,10 +328,10 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Invalid `--only` exits 2 before scan
-- [ ] Color disabled for non-TTY, `--no-color`, non-empty `NO_COLOR`, `--output`, non-table formats
-- [ ] `--no-triage-hints` suppresses triage in table/markdown
-- [ ] Gate: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
+- [x] Invalid `--only` exits 2 before scan
+- [x] Color disabled for non-TTY, `--no-color`, non-empty `NO_COLOR`, `--output`, non-table formats
+- [x] `--no-triage-hints` suppresses triage in table/markdown
+- [x] Gate: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
 
 **Tests**: unit / CLI  
 **Gate**: quick  
@@ -349,9 +349,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Docs describe legend, summary, triage rules (pointer to context/spec), `--only`, color policy
-- [ ] No implementation drift claims (checkboxes remain open in ROADMAP until Execute Done)
-- [ ] Gate: docs-only review (no code gate required beyond T13)
+- [x] Docs describe legend, summary, triage rules (pointer to context/spec), `--only`, color policy
+- [x] No implementation drift claims (checkboxes remain open in ROADMAP until Execute Done)
+- [x] Gate: docs-only review (no code gate required beyond T13)
 
 **Tests**: none  
 **Gate**: none  
@@ -368,9 +368,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] `pnpm build && pnpm test` passes
-- [ ] Unfiltered JSON still schema-valid
-- [ ] Test count does not silently drop
+- [x] `pnpm build && pnpm test` passes
+- [x] Unfiltered JSON still schema-valid
+- [x] Test count does not silently drop
 
 **Tests**: deferred_project_gate  
 **Gate**: `pnpm build && pnpm test`  

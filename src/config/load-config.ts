@@ -142,7 +142,9 @@ async function loadConfigAtPath(
   } catch (error) {
     if (isEnoent(error)) {
       if (onMissing === "error") {
-        throw new ConfigError(`Config file not found: ${configPath}`);
+        throw new ConfigError(
+          `Config file not found: ${configPath}\nHint: the --config path must exist; omit --config to discover ${HOTSPOT_SCANNER_CONFIG_FILENAME} upward from the repo.`,
+        );
       }
       return null;
     }
