@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M45 Done** — Post-M37 user DX backlog **complete** (M38–M45 Execute done).
+Status: **M7–M45 Done** — Post-M37 user DX backlog **complete** (M38–M45 Execute done). **M46** exclude-tests-by-default — specs **Planned** (Execute pending).
 
 ## Milestone 1 — Scaffold
 
@@ -533,3 +533,22 @@ When scan path is a subdirectory of a git workspace (e.g. `packages/api`): remou
 ### Suggested execution order (M38–M45)
 
 M38 → M45 → M39 → M41 → M42 → M40 → M43 → M44
+
+---
+
+## Post-M45 backlog — path-scope defaults
+
+### Milestone 46 — Exclude Tests by Default
+
+→ [`.specs/features/exclude-tests-by-default/spec.md`](../features/exclude-tests-by-default/spec.md)  
+**Slug:** `exclude-tests-by-default` | **Priority:** High | **Specs:** Planned  
+**IDs:** HOTSPOT-640–657 (658–659 reserved) | **Depth:** Large  
+**Sisters:** path-scoping (M7), path-config-dx (M30), cli-init-doctor-dry-run (M39 dry-run)  
+**Artifacts:** [context.md](../features/exclude-tests-by-default/context.md) · [spec.md](../features/exclude-tests-by-default/spec.md) · [design.md](../features/exclude-tests-by-default/design.md) · [tasks.md](../features/exclude-tests-by-default/tasks.md) (`Status: Planned`)
+
+Intentional breaking default: test globs / `__tests__/**` excluded from PathScope (git + complexity + eligible counts). Opt-in `--include-tests` (CLI/API only — no config key) lifts **only** built-in test patterns; artifact defaults and user `--exclude` stay. JSON contract unchanged.
+
+- [ ] Split `DEFAULT_EXCLUDE_PATTERNS` → artifact + test constants; `createPathScope({ includeTests? })`
+- [ ] Wire `ScanOptions.includeTests` through `runScan`, `previewScanScope` (dry-run line), `scan` / `baseline save` / `compare`
+- [ ] Docs: ARCHITECTURE, README, `docs/recipes.md` (drop redundant `--exclude "**/*.test.ts"`); STATE decision log
+- [ ] Unit/CLI tests on scope + preview + flag forward; no new fixture repo; gate `pnpm build && pnpm test`

@@ -63,6 +63,7 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-24 | **M45 planning complete (adoption-docs-package-exports)** | Specs Planned: `docs/recipes.md` (4 cookbooks); README sample sync from `small-ts` (fix Quick start vs mid-doc Table drift); `docs/warning-codes.md`; `package.json` `"exports"` for `dist/index` only — no publish, no pipeline changes, no M37 rewrite beyond samples+links. Do not confuse with M44 (coupling static `exports`/`imports`). tasks.md Status **Planned**; Execute in new session. |
 | 2026-07-24 | **M43 monorepo-path-detect Done** | Execute complete: `resolveMonorepoScanPath` via `git rev-parse --show-toplevel`; nested path remount + auto-include `{prefix}/**` unless CLI `--include` (synthetic CLI beats config); config discovery from original requestPath; `MONOREPO_PATH_REMOUNT` info warning; `monorepo-nested` fixture + integration/CLI smoke. Gate green (`pnpm build && pnpm test`, 855 tests). Specs: `.specs/features/monorepo-path-detect/` (Done). |
 | 2026-07-24 | **M43 monorepo-path-detect Specs Planned**               | Medium–Large Specify→Design→Tasks complete. Locked: nested path → `git rev-parse --show-toplevel` remount; auto-include `{prefix}/**` unless CLI `--include` (synthetic CLI include beats config); config discovery from original requestPath; `MONOREPO_PATH_REMOUNT` info warning; no workspace-yaml/nx. Specs: `.specs/features/monorepo-path-detect/` (`Status: Planned`). IDs HOTSPOT-570–589. No Execute in planning session. |
+| 2026-07-24 | **M46 exclude-tests-by-default Planned (Large)** | Intentional breaking default: PathScope excludes locked test globs + `**/__tests__/**` by default. Opt-in `--include-tests` / `ScanOptions.includeTests` lifts **only** built-in test patterns (artifact defaults + user `--exclude` remain). No config key; no `--no-default-excludes`. JSON contract unchanged. Specs: `.specs/features/exclude-tests-by-default/` (`context.md`, `spec.md`, `design.md`, `tasks.md` Status **Planned**). IDs HOTSPOT-640–657. No Execute in planning session. |
 
 ## Architecture decisions (ADRs)
 
@@ -98,6 +99,8 @@ _None._
 ## Active
 
 **M7–M45 Done.** Post-M37 user DX backlog (M38–M45) **complete** as of 2026-07-24.
+
+**Next:** **M46** `exclude-tests-by-default` — specs **Planned** (HOTSPOT-640–657). Promote `tasks.md` Status → Approved/Ready, then Execute in a new session via `orchestrator-implementer`.
 
 ## Deferred
 
