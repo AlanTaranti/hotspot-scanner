@@ -18,12 +18,29 @@ describe("formatMegaCommitSkipDetailWarning", () => {
       "Mega-commit skipped for coupling (101 unique in-scope files > 100): abc123",
     );
   });
+
+  it("uses custom threshold in message when provided", () => {
+    expect(
+      formatMegaCommitSkipDetailWarning(
+        { hash: "def456", uniqueFileCount: 51 },
+        50,
+      ),
+    ).toBe(
+      "Mega-commit skipped for coupling (51 unique in-scope files > 50): def456",
+    );
+  });
 });
 
 describe("formatMegaCommitSkipSummaryWarning", () => {
   it("summarizes total skipped commits", () => {
     expect(formatMegaCommitSkipSummaryWarning(6)).toBe(
       "Mega-commit coupling skips: 6 commit(s) exceeded 100 unique in-scope files",
+    );
+  });
+
+  it("uses custom threshold in message when provided", () => {
+    expect(formatMegaCommitSkipSummaryWarning(3, 50)).toBe(
+      "Mega-commit coupling skips: 3 commit(s) exceeded 50 unique in-scope files",
     );
   });
 });
@@ -84,5 +101,18 @@ describe("createMegaCommitSkippedWarnings", () => {
         "Mega-commit coupling skips: 7 commit(s) exceeded 100 unique in-scope files",
       ),
     );
+  });
+
+  it("uses custom threshold in warning messages when provided", () => {
+    const skips = [{ hash: "custom", uniqueFileCount: 51 }];
+
+    expect(
+      createMegaCommitSkippedWarnings(skips, { megaCommitThreshold: 50 }),
+    ).toEqual([
+      createScanWarning(
+        MEGA_COMMIT_SKIPPED_CODE,
+        "Mega-commit skipped for coupling (51 unique in-scope files > 50): custom",
+      ),
+    ]);
   });
 });

@@ -43,6 +43,11 @@ const METRIC_GLOSSARY: readonly GlossaryEntry[] = [
       "Total lines changed in the scan window (markdown hotspot/function tables).",
   },
   {
+    term: "ParseFail",
+    definition:
+      "Whether AST parse failed for the file (yes/no); failed files rank with score 0.",
+  },
+  {
     term: "Strength",
     definition:
       "Temporal coupling strength: co-change count divided by the smaller per-file commit count (0–1).",

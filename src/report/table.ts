@@ -53,8 +53,8 @@ function padStart(value: string, width: number): string {
 function renderHotspotsSection(result: ScanResult, color: boolean): string[] {
   const lines = [
     "Top Hotspots",
-    "Rank  File                      Score     Cpx   CpxN      Churn  ChurnN  Funcs  Authors",
-    "----  ------------------------  --------  ----  --------  -----  ------  -----  -------",
+    "Rank  File                      Score     Cpx   CpxN      Churn  ChurnN  Funcs  Authors  ParseFail",
+    "----  ------------------------  --------  ----  --------  -----  ------  -----  -------  ---------",
   ];
 
   if (result.hotspots.length === 0) {
@@ -74,6 +74,7 @@ function renderHotspotsSection(result: ScanResult, color: boolean): string[] {
         padStart(formatPlainScore(hotspot.churnNormalized), 6),
         padStart(String(hotspot.functionCount), 5),
         padStart(String(hotspot.authorCount), 7),
+        padStart(hotspot.parseFailed ? "yes" : "no", 9),
       ].join("  "),
     );
   }

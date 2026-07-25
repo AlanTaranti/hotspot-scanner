@@ -50,6 +50,7 @@ function renderHotspotsCsv(result: ScanResult): string {
     "funcs",
     "authors",
     "lines",
+    "parseFailed",
   ];
   const rows = result.hotspots.map((hotspot, index) => [
     String(index + 1),
@@ -62,6 +63,7 @@ function renderHotspotsCsv(result: ScanResult): string {
     String(hotspot.functionCount),
     String(hotspot.authorCount),
     String(hotspot.linesChanged),
+    String(hotspot.parseFailed),
   ]);
 
   return renderCsvFile(header, rows);

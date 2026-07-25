@@ -18,13 +18,66 @@ function isBodyLessNonAbstractStub(node: TsMorphNode): boolean {
   return !node.hasModifier(SyntaxKind.AbstractKeyword);
 }
 
+function unwrapCallableExpression(
+  expression: TsMorphNode,
+): TsMorphNode | undefined {
+  if (Node.isArrowFunction(expression) || Node.isFunctionExpression(expression)) {
+    return expression;
+  }
+  if (Node.isParenthesizedExpression(expression)) {
+    return unwrapCallableExpression(expression.getExpression());
+  }
+  return undefined;
+}
+
+function collectCallableNode(
+  node: TsMorphNode,
+  functions: TsMorphNode[],
+  collected: Set<TsMorphNode>,
+): void {
+  if (!Node.isArrowFunction(node) && !Node.isFunctionExpression(node)) {
+    return;
+  }
+  if (collected.has(node)) {
+    return;
+  }
+  collected.add(node);
+  functions.push(node);
+  const body = node.getBody();
+  if (body) {
+    collectFunctionsInScope(body, functions, collected);
+  }
+}
+
+function collectFromCallExpression(
+  call: TsMorphNode,
+  functions: TsMorphNode[],
+  collected: Set<TsMorphNode>,
+): void {
+  if (!Node.isCallExpression(call)) {
+    return;
+  }
+  const iifeCallable = unwrapCallableExpression(call.getExpression());
+  if (iifeCallable) {
+    collectCallableNode(iifeCallable, functions, collected);
+  }
+  for (const arg of call.getArguments()) {
+    collectCallableNode(arg, functions, collected);
+  }
+}
+
 function pushCallableMember(
   member: TsMorphNode,
   functions: TsMorphNode[],
+  collected: Set<TsMorphNode>,
 ): void {
   if (isBodyLessNonAbstractStub(member)) {
     return;
   }
+  if (collected.has(member)) {
+    return;
+  }
+  collected.add(member);
   functions.push(member);
   const body =
     Node.isMethodDeclaration(member) ||
@@ -35,13 +88,14 @@ function pushCallableMember(
       ? member.getBody()
       : undefined;
   if (body) {
-    collectFunctionsInScope(body, functions);
+    collectFunctionsInScope(body, functions, collected);
   }
 }
 
 function collectClassLikeMembers(
   classLike: { getMembers(): TsMorphNode[] },
   functions: TsMorphNode[],
+  collected: Set<TsMorphNode>,
 ): void {
   for (const member of classLike.getMembers()) {
     if (
@@ -50,14 +104,14 @@ function collectClassLikeMembers(
       Node.isGetAccessorDeclaration(member) ||
       Node.isSetAccessorDeclaration(member)
     ) {
-      pushCallableMember(member, functions);
+      pushCallableMember(member, functions, collected);
       continue;
     }
 
     if (Node.isPropertyDeclaration(member)) {
       const initializer = member.getInitializer();
       if (initializer) {
-        collectCallableInitializer(initializer, functions);
+        collectCallableInitializer(initializer, functions, collected);
       }
     }
   }
@@ -66,36 +120,39 @@ function collectClassLikeMembers(
 function collectCallableInitializer(
   initializer: TsMorphNode,
   functions: TsMorphNode[],
+  collected: Set<TsMorphNode>,
 ): void {
   if (
     Node.isArrowFunction(initializer) ||
     Node.isFunctionExpression(initializer)
   ) {
-    functions.push(initializer);
-    const body = initializer.getBody();
-    if (body) {
-      collectFunctionsInScope(body, functions);
-    }
+    collectCallableNode(initializer, functions, collected);
+    return;
+  }
+
+  if (Node.isCallExpression(initializer)) {
+    collectFromCallExpression(initializer, functions, collected);
     return;
   }
 
   if (Node.isClassExpression(initializer)) {
-    collectClassLikeMembers(initializer, functions);
+    collectClassLikeMembers(initializer, functions, collected);
     return;
   }
 
   if (Node.isObjectLiteralExpression(initializer)) {
-    collectFromObjectLiteral(initializer, functions);
+    collectFromObjectLiteral(initializer, functions, collected);
   }
 }
 
 function collectFromObjectLiteral(
   objectLiteral: ObjectLiteralExpression,
   functions: TsMorphNode[],
+  collected: Set<TsMorphNode>,
 ): void {
   for (const property of objectLiteral.getProperties()) {
     if (Node.isMethodDeclaration(property)) {
-      pushCallableMember(property, functions);
+      pushCallableMember(property, functions, collected);
       continue;
     }
 
@@ -103,14 +160,14 @@ function collectFromObjectLiteral(
       Node.isGetAccessorDeclaration(property) ||
       Node.isSetAccessorDeclaration(property)
     ) {
-      pushCallableMember(property, functions);
+      pushCallableMember(property, functions, collected);
       continue;
     }
 
     if (Node.isPropertyAssignment(property)) {
       const initializer = property.getInitializer();
       if (initializer) {
-        collectCallableInitializer(initializer, functions);
+        collectCallableInitializer(initializer, functions, collected);
       }
       continue;
     }
@@ -120,6 +177,7 @@ function collectFromObjectLiteral(
 function collectAssignmentRhsCallable(
   binaryExpression: TsMorphNode,
   functions: TsMorphNode[],
+  collected: Set<TsMorphNode>,
 ): boolean {
   if (!Node.isBinaryExpression(binaryExpression)) {
     return false;
@@ -130,20 +188,21 @@ function collectAssignmentRhsCallable(
     return false;
   }
   const rhs = binaryExpression.getRight();
-  if (!Node.isArrowFunction(rhs) && !Node.isFunctionExpression(rhs)) {
-    return false;
+  if (Node.isArrowFunction(rhs) || Node.isFunctionExpression(rhs)) {
+    collectCallableNode(rhs, functions, collected);
+    return true;
   }
-  functions.push(rhs);
-  const body = rhs.getBody();
-  if (body) {
-    collectFunctionsInScope(body, functions);
+  if (Node.isCallExpression(rhs)) {
+    collectFromCallExpression(rhs, functions, collected);
+    return true;
   }
-  return true;
+  return false;
 }
 
 function collectFunctionsInScope(
   scope: TsMorphNode,
   functions: TsMorphNode[],
+  collected: Set<TsMorphNode>,
 ): void {
   scope.forEachChild((child) => {
     if (
@@ -151,7 +210,7 @@ function collectFunctionsInScope(
       Node.isMethodDeclaration(child) ||
       Node.isConstructorDeclaration(child)
     ) {
-      pushCallableMember(child, functions);
+      pushCallableMember(child, functions, collected);
       return;
     }
 
@@ -159,30 +218,36 @@ function collectFunctionsInScope(
       for (const declaration of child.getDeclarations()) {
         const initializer = declaration.getInitializer();
         if (initializer) {
-          collectCallableInitializer(initializer, functions);
+          collectCallableInitializer(initializer, functions, collected);
         }
       }
       return;
     }
 
     if (Node.isClassDeclaration(child)) {
-      collectClassLikeMembers(child, functions);
+      collectClassLikeMembers(child, functions, collected);
       return;
     }
 
     if (Node.isObjectLiteralExpression(child)) {
-      collectFromObjectLiteral(child, functions);
+      collectFromObjectLiteral(child, functions, collected);
+      return;
+    }
+
+    if (Node.isCallExpression(child)) {
+      collectFromCallExpression(child, functions, collected);
+      collectFunctionsInScope(child, functions, collected);
       return;
     }
 
     if (
       Node.isBinaryExpression(child) &&
-      collectAssignmentRhsCallable(child, functions)
+      collectAssignmentRhsCallable(child, functions, collected)
     ) {
       return;
     }
 
-    collectFunctionsInScope(child, functions);
+    collectFunctionsInScope(child, functions, collected);
   });
 }
 
@@ -235,7 +300,8 @@ export function analyzeSourceFile(
   filePath?: string,
 ): FileComplexityResult {
   const functionNodes: TsMorphNode[] = [];
-  collectFunctionsInScope(sourceFile, functionNodes);
+  const collected = new Set<TsMorphNode>();
+  collectFunctionsInScope(sourceFile, functionNodes, collected);
 
   const resolvedPath = filePath ?? sourceFile.getFilePath();
   const functions = functionNodes.map((node) => ({

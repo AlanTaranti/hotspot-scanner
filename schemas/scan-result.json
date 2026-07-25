@@ -50,7 +50,8 @@
         "functionCount",
         "commitCount",
         "linesChanged",
-        "authorCount"
+        "authorCount",
+        "parseFailed"
       ],
       "properties": {
         "filePath": { "type": "string" },
@@ -61,7 +62,8 @@
         "functionCount": { "type": "integer" },
         "commitCount": { "type": "integer" },
         "linesChanged": { "type": "integer" },
-        "authorCount": { "type": "integer" }
+        "authorCount": { "type": "integer" },
+        "parseFailed": { "type": "boolean" }
       }
     },
     "FunctionHotspotScore": {
@@ -135,6 +137,17 @@
         "code": { "type": "string" }
       }
     },
+    "ScanStageTimings": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["gitMs", "complexityMs", "totalMs"],
+      "properties": {
+        "gitMs": { "type": "integer", "minimum": 0 },
+        "complexityMs": { "type": "integer", "minimum": 0 },
+        "functionChurnMs": { "type": "integer", "minimum": 0 },
+        "totalMs": { "type": "integer", "minimum": 0 }
+      }
+    },
     "ScanMeta": {
       "type": "object",
       "additionalProperties": true,
@@ -146,7 +159,8 @@
         "warnings": {
           "type": "array",
           "items": { "$ref": "#/$defs/ScanWarning" }
-        }
+        },
+        "timings": { "$ref": "#/$defs/ScanStageTimings" }
       }
     }
   }

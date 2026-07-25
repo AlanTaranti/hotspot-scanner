@@ -1,4 +1,5 @@
 import { DEFAULT_WORKER_CONCURRENCY } from "../complexity/pool.js";
+import { MEGA_COMMIT_UNIQUE_FILE_THRESHOLD } from "../git/aggregate.js";
 import { DEFAULT_SINCE, DEFAULT_TOP } from "../scan.js";
 import { DEFAULT_MIN_COCHANGE } from "../scoring/index.js";
 import type { ScanGranularity } from "../types/index.js";
@@ -10,6 +11,7 @@ export interface MergedScanConfig {
   exclude?: string[];
   granularity: ScanGranularity;
   minCochange: number;
+  megaCommitThreshold: number;
   top: number;
   concurrency: number;
 }
@@ -60,6 +62,11 @@ export function mergeScanOptions(
       cli.minCochange,
       config?.minCochange,
       DEFAULT_MIN_COCHANGE,
+    ),
+    megaCommitThreshold: pickRequired(
+      cli.megaCommitThreshold,
+      config?.megaCommitThreshold,
+      MEGA_COMMIT_UNIQUE_FILE_THRESHOLD,
     ),
     top: pickRequired(cli.top, config?.top, DEFAULT_TOP),
     concurrency: pickRequired(

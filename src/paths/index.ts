@@ -1,6 +1,8 @@
 export {
   createPathScope,
+  DEFAULT_ARTIFACT_EXCLUDE_PATTERNS,
   DEFAULT_EXCLUDE_PATTERNS,
+  DEFAULT_TEST_EXCLUDE_PATTERNS,
   isPathInScope,
   shouldPruneDirectory,
   type PathScope,

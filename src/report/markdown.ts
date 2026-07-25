@@ -64,13 +64,13 @@ function renderHotspotsSection(result: ScanResult): string[] {
   }
 
   lines.push(
-    "| Rank | File | Score | Cpx | CpxN | Churn | ChurnN | Funcs | Authors | Lines |",
-    "| ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+    "| Rank | File | Score | Cpx | CpxN | Churn | ChurnN | Funcs | Authors | Lines | ParseFail |",
+    "| ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | :---: |",
   );
 
   for (const [index, hotspot] of result.hotspots.entries()) {
     lines.push(
-      `| ${index + 1} | ${escapeCell(hotspot.filePath)} | ${formatScore(hotspot.hotspotScore)} | ${hotspot.cyclomaticComplexity} | ${formatScore(hotspot.complexityNormalized)} | ${hotspot.commitCount} | ${formatScore(hotspot.churnNormalized)} | ${hotspot.functionCount} | ${hotspot.authorCount} | ${hotspot.linesChanged} |`,
+      `| ${index + 1} | ${escapeCell(hotspot.filePath)} | ${formatScore(hotspot.hotspotScore)} | ${hotspot.cyclomaticComplexity} | ${formatScore(hotspot.complexityNormalized)} | ${hotspot.commitCount} | ${formatScore(hotspot.churnNormalized)} | ${hotspot.functionCount} | ${hotspot.authorCount} | ${hotspot.linesChanged} | ${hotspot.parseFailed ? "yes" : "no"} |`,
     );
   }
 

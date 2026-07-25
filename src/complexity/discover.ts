@@ -8,7 +8,14 @@ import {
   type PathScope,
 } from "../paths/scope.js";
 
-export const ELIGIBLE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx"] as const;
+export const ELIGIBLE_EXTENSIONS = [
+  ".ts",
+  ".tsx",
+  ".js",
+  ".jsx",
+  ".mjs",
+  ".cjs",
+] as const;
 
 export interface DiscoverDependencies {
   listTrackedFiles?: (repoPath: string) => Promise<string[]>;

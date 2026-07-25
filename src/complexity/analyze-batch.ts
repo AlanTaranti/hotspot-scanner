@@ -58,6 +58,12 @@ export async function analyzeBatch(
     warnings.push(
       createParseFailedWarning(failure.filePath, failure.message),
     );
+    results.push({
+      filePath: failure.filePath,
+      cyclomaticComplexity: 0,
+      functionCount: 0,
+      parseFailed: true,
+    });
   }
 
   return { results, functions, warnings };

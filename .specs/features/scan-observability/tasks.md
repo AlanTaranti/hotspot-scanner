@@ -3,7 +3,7 @@
 **Design**: [design.md](./design.md)  
 **Spec**: [spec.md](./spec.md)  
 **Context**: [context.md](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -93,10 +93,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Patch stream aborts without hanging when signal aborted
-- [ ] `mine({ signal })` forwards to spawn
-- [ ] `onSpawnArgv` called with argv for numstat and patch when provided
-- [ ] Gate: `pnpm exec vitest run src/git/spawn.test.ts src/git/function-churn/spawn.test.ts src/git/function-churn/index.test.ts`
+- [x] Patch stream aborts without hanging when signal aborted
+- [x] `mine({ signal })` forwards to spawn
+- [x] `onSpawnArgv` called with argv for numstat and patch when provided
+- [x] Gate: `pnpm exec vitest run src/git/spawn.test.ts src/git/function-churn/spawn.test.ts src/git/function-churn/index.test.ts`
 
 **Tests**: Unit abort + argv callback
 
@@ -120,10 +120,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Types compile with `timings` on `ScanMeta`
-- [ ] Schema documents `timings` object properties
-- [ ] Contract tests green; baseline without timings still loads
-- [ ] Gate: `pnpm exec vitest run tests/contract/json-schema.test.ts src/compare/load-baseline.test.ts`
+- [x] Types compile with `timings` on `ScanMeta`
+- [x] Schema documents `timings` object properties
+- [x] Contract tests green; baseline without timings still loads
+- [x] Gate: `pnpm exec vitest run tests/contract/json-schema.test.ts src/compare/load-baseline.test.ts`
 
 **Tests**: Contract + load-baseline
 
@@ -147,10 +147,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Empty → `Warnings: 0`
-- [ ] Mixed codes + uncoded match locked format
-- [ ] Compare summary uses compare-level warnings only
-- [ ] Gate: `pnpm exec vitest run src/report/summary.test.ts`
+- [x] Empty → `Warnings: 0`
+- [x] Mixed codes + uncoded match locked format
+- [x] Compare summary uses compare-level warnings only
+- [x] Gate: `pnpm exec vitest run src/report/summary.test.ts`
 
 **Tests**: Unit summary
 
@@ -174,9 +174,9 @@ flowchart LR
 
 **Done when**:
 
-- [ ] JSON string parses to locked envelope
-- [ ] Finding fields preserved
-- [ ] Gate: `pnpm exec vitest run src/doctor/`
+- [x] JSON string parses to locked envelope
+- [x] Finding fields preserved
+- [x] Gate: `pnpm exec vitest run src/doctor/`
 
 **Tests**: Unit
 
@@ -200,11 +200,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] External abort cancels in-flight stages (unit with mocks)
-- [ ] Successful scan always includes `timings`; file mode omits `functionChurnMs`
-- [ ] Function-churn receives signal
-- [ ] Sibling failure behavior unchanged
-- [ ] Gate: `pnpm exec vitest run src/scan.test.ts`
+- [x] External abort cancels in-flight stages (unit with mocks)
+- [x] Successful scan always includes `timings`; file mode omits `functionChurnMs`
+- [x] Function-churn receives signal
+- [x] Sibling failure behavior unchanged
+- [x] Gate: `pnpm exec vitest run src/scan.test.ts`
 
 **Tests**: Unit scan
 
@@ -228,10 +228,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `--verbose` stderr matches `verbose: git …`; `--quiet` suppresses
-- [ ] `doctor --format json` / text / invalid covered
-- [ ] Cancel exit mapping covered (unit/CLI with mocked abort as practical)
-- [ ] Gate: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
+- [x] `--verbose` stderr matches `verbose: git …`; `--quiet` suppresses
+- [x] `doctor --format json` / text / invalid covered
+- [x] Cancel exit mapping covered (unit/CLI with mocked abort as practical)
+- [x] Gate: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
 
 **Tests**: CLI Vitest (`vitals-cli-validation` patterns)
 
@@ -255,9 +255,9 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Docs match locked context decisions
-- [ ] Gate: `pnpm build && pnpm test` green
-- [ ] No ranking/formula doc changes
+- [x] Docs match locked context decisions
+- [x] Gate: `pnpm build && pnpm test` green
+- [x] No ranking/formula doc changes
 
 **Tests**: None (docs) + full gate
 

@@ -6,6 +6,14 @@ export {
   normalizeExplainPath,
   parseExplainTarget,
 } from "./explain.js";
+export type {
+  CompareExplainClassification,
+  CompareExplainMatch,
+} from "./explain-compare.js";
+export {
+  findCompareExplainMatches,
+  formatCompareExplain,
+} from "./explain-compare.js";
 import { renderCompareJson } from "./compare-json.js";
 import { renderCompareMarkdown } from "./compare-markdown.js";
 import { renderCompareTable } from "./compare-table.js";
@@ -118,7 +126,7 @@ export function createReporter(): Reporter {
       });
     },
     renderCompare(result, options) {
-      const { only, color } = options;
+      const { only, triageHints, color } = options;
 
       if (options.format === "csv") {
         return renderCompareCsv(result, { only });
@@ -129,7 +137,7 @@ export function createReporter(): Reporter {
 
       const filtered = filterCompareResultForOnly(result, only);
       const sliced = sliceCompareResult(filtered, options.top);
-      const compareRenderOptions = { only, full: result };
+      const compareRenderOptions = { only, full: result, triageHints };
 
       if (options.format === "markdown") {
         return renderCompareMarkdown(sliced, compareRenderOptions);

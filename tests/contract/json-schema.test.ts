@@ -145,6 +145,18 @@ describe("JSON schema contract", () => {
     expect(validateCompare.errors?.length).toBeGreaterThan(0);
   });
 
+  it("rejects scan JSON missing parseFailed on hotspots", async () => {
+    const result = await runScan({ repoPath: smallTsFixture });
+    const json = JSON.parse(renderJson(result)) as ScanResult;
+    const invalid = structuredClone(json);
+
+    expect(json.hotspots.length).toBeGreaterThan(0);
+    delete (invalid.hotspots[0] as { parseFailed?: boolean }).parseFailed;
+
+    expect(validateScan(invalid)).toBe(false);
+    expect(validateScan.errors?.length).toBeGreaterThan(0);
+  });
+
   it("rejects scan JSON missing a required coupling field", async () => {
     const result = await runScan({ repoPath: smallTsFixture });
     const json = JSON.parse(renderJson(result)) as ScanResult;
@@ -183,5 +195,67 @@ describe("JSON schema contract", () => {
 
     expect(validateScan(invalid)).toBe(false);
     expect(validateScan.errors?.length).toBeGreaterThan(0);
+  });
+
+  it("accepts scan JSON with valid meta.timings", async () => {
+    const result = await runScan({ repoPath: smallTsFixture });
+    const json = JSON.parse(renderJson(result)) as ScanResult;
+    const withTimings = structuredClone(json);
+    withTimings.meta.timings = {
+      gitMs: 120,
+      complexityMs: 340,
+      totalMs: 450,
+    };
+
+    expect(validateScan(withTimings)).toBe(true);
+  });
+
+  it("accepts scan JSON with function-mode meta.timings", async () => {
+    const result = await runScan({ repoPath: smallTsFixture });
+    const json = JSON.parse(renderJson(result)) as ScanResult;
+    const withTimings = structuredClone(json);
+    withTimings.meta.timings = {
+      gitMs: 120,
+      complexityMs: 340,
+      functionChurnMs: 80,
+      totalMs: 450,
+    };
+
+    expect(validateScan(withTimings)).toBe(true);
+  });
+
+  it("accepts baseline-era scan JSON without meta.timings", () => {
+    const baseline = loadScanFixture("compare-baseline-file.json");
+
+    expect(baseline.meta.timings).toBeUndefined();
+    expect(validateScan(baseline)).toBe(true);
+  });
+
+  it("rejects scan JSON with invalid meta.timings", async () => {
+    const result = await runScan({ repoPath: smallTsFixture });
+    const json = JSON.parse(renderJson(result)) as ScanResult;
+
+    const missingTotal = structuredClone(json);
+    missingTotal.meta.timings = {
+      gitMs: 10,
+      complexityMs: 20,
+    } as ScanResult["meta"]["timings"];
+    expect(validateScan(missingTotal)).toBe(false);
+
+    const negativeGit = structuredClone(json);
+    negativeGit.meta.timings = {
+      gitMs: -1,
+      complexityMs: 20,
+      totalMs: 30,
+    };
+    expect(validateScan(negativeGit)).toBe(false);
+
+    const floatTotal = structuredClone(json);
+    floatTotal.meta.timings = {
+      gitMs: 10,
+      complexityMs: 20,
+      totalMs: 30.5,
+    };
+    expect(validateScan(floatTotal)).toBe(false);
   });
 });

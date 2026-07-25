@@ -11,7 +11,8 @@
       "functionCount": 10,
       "commitCount": 20,
       "linesChanged": 400,
-      "authorCount": 4
+      "authorCount": 4,
+      "parseFailed": false
     },
     {
       "filePath": "src/hot.ts",
@@ -22,7 +23,8 @@
       "functionCount": 8,
       "commitCount": 15,
       "linesChanged": 320,
-      "authorCount": 3
+      "authorCount": 3,
+      "parseFailed": false
     },
     {
       "filePath": "src/cold.ts",
@@ -33,7 +35,8 @@
       "functionCount": 1,
       "commitCount": 2,
       "linesChanged": 15,
-      "authorCount": 1
+      "authorCount": 1,
+      "parseFailed": false
     }
   ],
   "functions": [],

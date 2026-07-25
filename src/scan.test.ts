@@ -10,10 +10,13 @@ import {
   HOTSPOT_SCANNER_CONFIG_FILENAME,
 } from "./config/index.js";
 import { GitLogError } from "./git/spawn.js";
+import { MEGA_COMMIT_UNIQUE_FILE_THRESHOLD } from "./git/aggregate.js";
 import { isPathInScope } from "./paths/index.js";
 import { DEFAULT_MIN_COCHANGE } from "./scoring/index.js";
+import { ELIGIBLE_EXTENSIONS } from "./complexity/discover.js";
 import {
   buildFunctionModePathAllowlist,
+  createScanPathScope,
   DEFAULT_SINCE,
   DEFAULT_TOP,
   runScan,
@@ -44,6 +47,7 @@ const createFunctionChurnMinerSpy = vi.hoisted(() => vi.fn());
 const churnMineSpy = vi.hoisted(() => vi.fn());
 const scoreCouplingSpy = vi.hoisted(() => vi.fn());
 const scoreHotspotsSpy = vi.hoisted(() => vi.fn());
+const enrichCouplingStaticDepsSpy = vi.hoisted(() => vi.fn());
 
 vi.mock("./git/index.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./git/index.js")>();
@@ -148,6 +152,12 @@ vi.mock("./scoring/index.js", async (importOriginal) => {
         },
       };
     },
+    enrichCouplingStaticDeps: (
+      ...args: Parameters<typeof actual.enrichCouplingStaticDeps>
+    ) => {
+      enrichCouplingStaticDepsSpy(...args);
+      return actual.enrichCouplingStaticDeps(...args);
+    },
   };
 });
 
@@ -186,6 +196,23 @@ async function createNestedMonorepoFixture(): Promise<{
   await execFileAsync("git", ["commit", "-m", "init"], { cwd: workspaceDir });
   return { workspaceDir, packageDir };
 }
+
+describe("createScanPathScope", () => {
+  it("forwards merged include/exclude and includeTests into PathScope", () => {
+    const withTests = createScanPathScope(
+      { include: ["src/**"], exclude: ["legacy/**"] },
+      { includeTests: true },
+    );
+    expect(isPathInScope("src/app.test.ts", withTests)).toBe(true);
+    expect(isPathInScope("legacy/foo.ts", withTests)).toBe(false);
+
+    const withoutTests = createScanPathScope(
+      { include: ["src/**"], exclude: ["legacy/**"] },
+    );
+    expect(isPathInScope("src/app.test.ts", withoutTests)).toBe(false);
+    expect(isPathInScope("src/high.ts", withoutTests)).toBe(true);
+  });
+});
 
 describe("runScan", () => {
   it("loads scan defaults from repo config when options omit fields", async () => {
@@ -321,6 +348,33 @@ describe("runScan", () => {
     }
   });
 
+  it("warns on unknown config keys without failing the scan", async () => {
+    const repoPath = await createIsolatedSmallTsRepo();
+    const onWarning = vi.fn();
+    try {
+      await writeFile(
+        join(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
+        JSON.stringify({ format: "json", unknownKey: true }),
+        "utf8",
+      );
+
+      const result = await runScan({ repoPath, onWarning });
+
+      const unknownConfigWarning = result.meta.warnings.find(
+        (warning) => warning.code === "UNKNOWN_CONFIG_KEY",
+      );
+      expect(unknownConfigWarning).toEqual({
+        code: "UNKNOWN_CONFIG_KEY",
+        severity: "warning",
+        message: "Unknown config key(s) ignored: format, unknownKey",
+      });
+      expect(onWarning).toHaveBeenCalledWith(unknownConfigWarning);
+      expect(result.hotspots.length).toBeGreaterThanOrEqual(1);
+    } finally {
+      await rm(repoPath, { recursive: true, force: true });
+    }
+  });
+
   it("throws ConfigError when repo config is invalid", async () => {
     const repoPath = await createIsolatedSmallTsRepo();
     try {
@@ -428,6 +482,62 @@ describe("runScan", () => {
     }
   });
 
+  it("passes merged megaCommitThreshold from repo config to git miner", async () => {
+    mineSpy.mockClear();
+    const repoPath = await createIsolatedSmallTsRepo();
+    try {
+      await writeFile(
+        join(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
+        JSON.stringify({ megaCommitThreshold: 75 }),
+        "utf8",
+      );
+
+      await runScan({ repoPath });
+
+      expect(mineSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          megaCommitThreshold: 75,
+        }),
+      );
+    } finally {
+      await rm(repoPath, { recursive: true, force: true });
+    }
+  });
+
+  it("uses explicit megaCommitThreshold option over repo config", async () => {
+    mineSpy.mockClear();
+    const repoPath = await createIsolatedSmallTsRepo();
+    try {
+      await writeFile(
+        join(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
+        JSON.stringify({ megaCommitThreshold: 75 }),
+        "utf8",
+      );
+
+      await runScan({ repoPath, megaCommitThreshold: 25 });
+
+      expect(mineSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          megaCommitThreshold: 25,
+        }),
+      );
+    } finally {
+      await rm(repoPath, { recursive: true, force: true });
+    }
+  });
+
+  it("defaults megaCommitThreshold to 100 when unset", async () => {
+    mineSpy.mockClear();
+
+    await runScan({ repoPath: smallTsFixture });
+
+    expect(mineSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        megaCommitThreshold: MEGA_COMMIT_UNIQUE_FILE_THRESHOLD,
+      }),
+    );
+  });
+
   it("validates a temporary directory path and throws on non-git repo", async () => {
     const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-"));
     try {
@@ -452,34 +562,35 @@ describe("runScan", () => {
     expect(churnMineSpy).not.toHaveBeenCalled();
   });
 
-  it("passes pathAllowlist to complexity analyze in function mode", async () => {
+  it("omits pathAllowlist from complexity analyze in function mode", async () => {
     analyzeSpy.mockClear();
 
     await runScan({ repoPath: smallTsFixture, granularity: "function" });
 
     expect(analyzeSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        pathAllowlist: expect.arrayContaining(["src/high.ts"]),
+      expect.not.objectContaining({
+        pathAllowlist: expect.anything(),
       }),
-    );
-    const analyzeArgs = analyzeSpy.mock.calls[0]![0]!;
-    expect(analyzeArgs.pathAllowlist).toEqual(
-      [...analyzeArgs.pathAllowlist!].sort(),
     );
   });
 
-  it("passes the same allowlist paths to function churn miner in function mode", async () => {
-    analyzeSpy.mockClear();
+  it("passes churn allowlist paths to function churn miner in function mode", async () => {
     churnMineSpy.mockClear();
 
     await runScan({ repoPath: smallTsFixture, granularity: "function" });
 
-    const pathAllowlist = analyzeSpy.mock.calls[0]![0]!.pathAllowlist;
     expect(churnMineSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        paths: pathAllowlist,
+        paths: expect.arrayContaining([
+          "bootstrap-repo.mjs",
+          "src/high.ts",
+          "src/low.ts",
+          "src/medium.ts",
+        ]),
       }),
     );
+    const churnPaths = churnMineSpy.mock.calls[0]![0]!.paths;
+    expect(churnPaths).toEqual([...churnPaths!].sort());
   });
 
   it("omits pathAllowlist from complexity analyze in file mode", async () => {
@@ -546,6 +657,78 @@ describe("runScan", () => {
     expect(overlapObserved).toBe(true);
 
     releaseMine();
+    releaseAnalyze();
+    await scanPromise;
+
+    mineOverride.fn = null;
+    analyzeOverride.fn = null;
+  });
+
+  it("runs git mine then complexity analyze sequentially in file mode when sequential is true", async () => {
+    const { createGitMiner } =
+      await vi.importActual<typeof import("./git/index.js")>("./git/index.js");
+    const { createComplexityAnalyzer } =
+      await vi.importActual<typeof import("./complexity/index.js")>(
+        "./complexity/index.js",
+      );
+
+    let releaseMine!: () => void;
+    let releaseAnalyze!: () => void;
+    const mineGate = new Promise<void>((resolve) => {
+      releaseMine = resolve;
+    });
+    const analyzeGate = new Promise<void>((resolve) => {
+      releaseAnalyze = resolve;
+    });
+
+    let mineInFlight = false;
+    let analyzeInFlight = false;
+    let overlapObserved = false;
+    let mineCompleted = false;
+    let analyzeStartedBeforeMineDone = false;
+
+    mineOverride.fn = async (opts) => {
+      mineInFlight = true;
+      if (analyzeInFlight) {
+        overlapObserved = true;
+      }
+      await mineGate;
+      mineInFlight = false;
+      mineCompleted = true;
+      return createGitMiner().mine(opts);
+    };
+    analyzeOverride.fn = async (opts) => {
+      if (!mineCompleted) {
+        analyzeStartedBeforeMineDone = true;
+      }
+      analyzeInFlight = true;
+      if (mineInFlight) {
+        overlapObserved = true;
+      }
+      await analyzeGate;
+      analyzeInFlight = false;
+      return createComplexityAnalyzer().analyze(opts);
+    };
+
+    const scanPromise = runScan({
+      repoPath: smallTsFixture,
+      granularity: "file",
+      sequential: true,
+    });
+
+    await vi.waitFor(() => {
+      expect(mineInFlight).toBe(true);
+    });
+    expect(analyzeInFlight).toBe(false);
+    expect(overlapObserved).toBe(false);
+
+    releaseMine();
+    await vi.waitFor(() => {
+      expect(analyzeInFlight).toBe(true);
+    });
+    expect(overlapObserved).toBe(false);
+    expect(analyzeStartedBeforeMineDone).toBe(false);
+
     releaseAnalyze();
     await scanPromise;
 
@@ -759,6 +942,79 @@ describe("runScan", () => {
     analyzeOverride.fn = null;
   });
 
+  it("rejects without scoring when git mine fails in sequential file mode", async () => {
+    const gitError = new GitLogError(
+      smallTsFixture,
+      "git log --numstat",
+      "fatal",
+    );
+
+    mineOverride.fn = async () => {
+      throw gitError;
+    };
+    analyzeOverride.fn = async () => ({
+      results: [],
+      functions: [],
+      warnings: [],
+    });
+
+    analyzeSpy.mockClear();
+    scoreCouplingSpy.mockClear();
+    scoreHotspotsSpy.mockClear();
+
+    await expect(
+      runScan({
+        repoPath: smallTsFixture,
+        granularity: "file",
+        sequential: true,
+      }),
+    ).rejects.toBe(gitError);
+    expect(analyzeSpy).not.toHaveBeenCalled();
+    expect(scoreCouplingSpy).not.toHaveBeenCalled();
+    expect(scoreHotspotsSpy).not.toHaveBeenCalled();
+
+    mineOverride.fn = null;
+    analyzeOverride.fn = null;
+  });
+
+  it("rejects without scoring when complexity analyze fails in sequential file mode", async () => {
+    const { createGitMiner } =
+      await vi.importActual<typeof import("./git/index.js")>("./git/index.js");
+    const cxError = new Error("complexity analyze failed");
+
+    mineOverride.fn = async (opts) => createGitMiner().mine(opts);
+    analyzeOverride.fn = async () => {
+      throw cxError;
+    };
+
+    scoreCouplingSpy.mockClear();
+    scoreHotspotsSpy.mockClear();
+
+    await expect(
+      runScan({
+        repoPath: smallTsFixture,
+        granularity: "file",
+        sequential: true,
+      }),
+    ).rejects.toBe(cxError);
+    expect(scoreCouplingSpy).not.toHaveBeenCalled();
+    expect(scoreHotspotsSpy).not.toHaveBeenCalled();
+
+    mineOverride.fn = null;
+    analyzeOverride.fn = null;
+  });
+
+  it("completes function mode scan when sequential is true", async () => {
+    const result = await runScan({
+      repoPath: smallTsFixture,
+      granularity: "function",
+      sequential: true,
+    });
+
+    expect(result.meta.granularity).toBe("function");
+    expect(result.functions.length).toBeGreaterThan(0);
+  });
+
   it("aggregates git warnings before complexity warnings after overlap succeeds", async () => {
     const { createGitMiner } =
       await vi.importActual<typeof import("./git/index.js")>("./git/index.js");
@@ -820,6 +1076,168 @@ describe("runScan", () => {
         signal: expect.any(AbortSignal),
       }),
     );
+  });
+
+  it("forwards onSpawnArgv to git miner", async () => {
+    mineSpy.mockClear();
+    const onSpawnArgv = vi.fn();
+
+    await runScan({ repoPath: smallTsFixture, onSpawnArgv });
+
+    expect(mineSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ onSpawnArgv }),
+    );
+  });
+
+  it("passes AbortSignal and onSpawnArgv to function churn miner", async () => {
+    churnMineSpy.mockClear();
+    const onSpawnArgv = vi.fn();
+
+    await runScan({
+      repoPath: smallTsFixture,
+      granularity: "function",
+      onSpawnArgv,
+    });
+
+    expect(churnMineSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        signal: expect.any(AbortSignal),
+        onSpawnArgv,
+      }),
+    );
+  });
+
+  it("includes meta.timings on successful file scan without functionChurnMs", async () => {
+    const result = await runScan({
+      repoPath: smallTsFixture,
+      granularity: "file",
+    });
+
+    expect(result.meta.timings).toEqual(
+      expect.objectContaining({
+        gitMs: expect.any(Number),
+        complexityMs: expect.any(Number),
+        totalMs: expect.any(Number),
+      }),
+    );
+    expect(result.meta.timings!.gitMs).toBeGreaterThanOrEqual(0);
+    expect(result.meta.timings!.complexityMs).toBeGreaterThanOrEqual(0);
+    expect(result.meta.timings!.totalMs).toBeGreaterThanOrEqual(0);
+    expect(result.meta.timings).not.toHaveProperty("functionChurnMs");
+  });
+
+  it("includes functionChurnMs in meta.timings for function mode", async () => {
+    const result = await runScan({
+      repoPath: smallTsFixture,
+      granularity: "function",
+    });
+
+    expect(result.meta.timings).toEqual(
+      expect.objectContaining({
+        gitMs: expect.any(Number),
+        complexityMs: expect.any(Number),
+        functionChurnMs: expect.any(Number),
+        totalMs: expect.any(Number),
+      }),
+    );
+    expect(result.meta.timings!.functionChurnMs).toBeGreaterThanOrEqual(0);
+  });
+
+  it("cancels in-flight stages when external signal aborts", async () => {
+    const externalController = new AbortController();
+
+    let mineSignal: AbortSignal | undefined;
+    let analyzeSignal: AbortSignal | undefined;
+    let mineAborted = false;
+    let analyzeAborted = false;
+
+    mineOverride.fn = async (opts) => {
+      mineSignal = opts.signal;
+      await new Promise<void>((_resolve, reject) => {
+        if (opts.signal?.aborted) {
+          mineAborted = true;
+          reject(opts.signal.reason);
+          return;
+        }
+        opts.signal?.addEventListener("abort", () => {
+          mineAborted = true;
+          reject(opts.signal?.reason);
+        });
+      });
+      return {
+        fileStats: new Map(),
+        pairCounts: new Map(),
+        warnings: [],
+        canonicalizePath: (path: string) => path,
+      };
+    };
+    analyzeOverride.fn = async (opts) => {
+      analyzeSignal = opts.signal;
+      await new Promise<void>((_resolve, reject) => {
+        if (opts.signal?.aborted) {
+          analyzeAborted = true;
+          reject(opts.signal.reason);
+          return;
+        }
+        opts.signal?.addEventListener("abort", () => {
+          analyzeAborted = true;
+          reject(opts.signal?.reason);
+        });
+      });
+      return { results: [], functions: [], warnings: [] };
+    };
+
+    const scanPromise = runScan({
+      repoPath: smallTsFixture,
+      granularity: "file",
+      signal: externalController.signal,
+    });
+
+    await vi.waitFor(() => {
+      expect(mineSignal).toBeDefined();
+      expect(analyzeSignal).toBeDefined();
+    });
+
+    externalController.abort();
+
+    await expect(scanPromise).rejects.toBeDefined();
+    await vi.waitFor(() => {
+      expect(mineAborted || analyzeAborted).toBe(true);
+    });
+    expect(mineSignal?.aborted || analyzeSignal?.aborted).toBe(true);
+
+    mineOverride.fn = null;
+    analyzeOverride.fn = null;
+  });
+
+  it("rejects when external signal is already aborted before mining", async () => {
+    const externalController = new AbortController();
+    externalController.abort(new DOMException("Aborted", "AbortError"));
+
+    await expect(
+      runScan({
+        repoPath: smallTsFixture,
+        signal: externalController.signal,
+      }),
+    ).rejects.toBeInstanceOf(DOMException);
+  });
+
+  it("passes git miner canonicalizePath to enrichCouplingStaticDeps", async () => {
+    enrichCouplingStaticDepsSpy.mockClear();
+
+    await runScan({ repoPath: smallTsFixture, granularity: "file" });
+
+    expect(enrichCouplingStaticDepsSpy).toHaveBeenCalledWith(
+      expect.any(Array),
+      expect.any(String),
+      expect.objectContaining({
+        canonicalizePath: expect.any(Function),
+      }),
+    );
+
+    const canonicalizePath = enrichCouplingStaticDepsSpy.mock.calls[0]?.[2]
+      ?.canonicalizePath as ((path: string) => string) | undefined;
+    expect(canonicalizePath?.("src/a.ts")).toBe("src/a.ts");
   });
 
   it.each(["file", "function"] as const)(
@@ -995,6 +1413,16 @@ describe("buildFunctionModePathAllowlist", () => {
         },
       ],
       [
+        "src/entry.mjs",
+        {
+          filePath: "src/entry.mjs",
+          commitCount: 1,
+          linesChanged: 1,
+          authors: new Set(),
+          lastModified: new Date(),
+        },
+      ],
+      [
         "README.md",
         {
           filePath: "README.md",
@@ -1004,10 +1432,20 @@ describe("buildFunctionModePathAllowlist", () => {
           lastModified: new Date(),
         },
       ],
+      [
+        "src/legacy.mts",
+        {
+          filePath: "src/legacy.mts",
+          commitCount: 1,
+          linesChanged: 1,
+          authors: new Set(),
+          lastModified: new Date(),
+        },
+      ],
     ]);
 
     expect(
-      buildFunctionModePathAllowlist(fileStats, [".ts", ".tsx", ".js", ".jsx"]),
-    ).toEqual(["src/a.ts", "src/z.ts"]);
+      buildFunctionModePathAllowlist(fileStats, ELIGIBLE_EXTENSIONS),
+    ).toEqual(["src/a.ts", "src/entry.mjs", "src/z.ts"]);
   });
 });

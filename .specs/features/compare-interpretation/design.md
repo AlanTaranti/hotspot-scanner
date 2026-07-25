@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/compare-interpretation/spec.md`](./spec.md)  
 **Context**: [`.specs/features/compare-interpretation/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Depth**: Medium
 
 ---

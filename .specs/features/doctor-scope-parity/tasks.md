@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/doctor-scope-parity/design.md`](./design.md)  
 **Spec**: [`.specs/features/doctor-scope-parity/spec.md`](./spec.md)  
 **Context**: [`.specs/features/doctor-scope-parity/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -79,11 +79,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Shared helper used by both `runScan` and `previewScanScope`
-- [ ] `ScanOptions.includeTests` (if typed) forwarded into PathScope; if M46 not landed, helper still typechecks and preserves current exclude behavior
-- [ ] Existing dry-run / scan unit tests updated if signatures change
-- [ ] Gate check passes: `pnpm exec vitest run src/scan-preview.test.ts src/scan.test.ts`
-- [ ] Test count: no silent deletions
+- [x] Shared helper used by both `runScan` and `previewScanScope`
+- [x] `ScanOptions.includeTests` (if typed) forwarded into PathScope; if M46 not landed, helper still typechecks and preserves current exclude behavior
+- [x] Existing dry-run / scan unit tests updated if signatures change
+- [x] Gate check passes: `pnpm exec vitest run src/scan-preview.test.ts src/scan.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/scan-preview.test.ts src/scan.test.ts`
@@ -117,13 +117,13 @@ pnpm exec vitest run src/scan-preview.test.ts src/scan.test.ts
 
 **Done when**:
 
-- [ ] Nested package path without local `.git` passes `git-repo` via remount
-- [ ] `git-repo` message names pipeline git root when remounted
-- [ ] `scope` finding present on healthy runs; eligible count matches `previewScanScope` for same options
-- [ ] Zero eligible → `scope` pass; missing config → soft warn preserved; exit policy unchanged
-- [ ] No mine/AST/scorer calls from doctor path
-- [ ] Gate check passes: `pnpm exec vitest run src/doctor/`
-- [ ] Test count: no silent deletions
+- [x] Nested package path without local `.git` passes `git-repo` via remount
+- [x] `git-repo` message names pipeline git root when remounted
+- [x] `scope` finding present on healthy runs; eligible count matches `previewScanScope` for same options
+- [x] Zero eligible → `scope` pass; missing config → soft warn preserved; exit policy unchanged
+- [x] No mine/AST/scorer calls from doctor path
+- [x] Gate check passes: `pnpm exec vitest run src/doctor/`
+- [x] Test count: no silent deletions
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/doctor/`
@@ -157,12 +157,12 @@ pnpm exec vitest run src/doctor/
 
 **Done when**:
 
-- [ ] Doctor CLI (or domain) on nested package path exit `0`
-- [ ] Eligible count parity covered (unit and/or CLI)
-- [ ] If M46 Done: `--include-tests` on doctor forwards and changes count consistently with dry-run; else document deferral in task notes and skip CLI flag only
-- [ ] `small-ts` doctor still healthy
-- [ ] Gate check passes: `pnpm exec vitest run src/doctor/ bin/hotspot-scanner.test.ts`
-- [ ] Test count: no silent deletions
+- [x] Doctor CLI (or domain) on nested package path exit `0`
+- [x] Eligible count parity covered (unit and/or CLI)
+- [x] If M46 Done: `--include-tests` on doctor forwards and changes count consistently with dry-run; else document deferral in task notes and skip CLI flag only
+- [x] `small-ts` doctor still healthy
+- [x] Gate check passes: `pnpm exec vitest run src/doctor/ bin/hotspot-scanner.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests**: unit + CLI  
 **Gate**: `pnpm exec vitest run src/doctor/ bin/hotspot-scanner.test.ts`
@@ -199,12 +199,12 @@ pnpm exec hotspot-scanner scan tests/fixtures/repos/monorepo-nested/packages/api
 
 **Done when**:
 
-- [ ] ARCHITECTURE documents doctor ↔ `resolveScanPipelineContext` / dry-run scope parity
-- [ ] STRUCTURE notes shared helper / `scope` finding
-- [ ] README does not claim package-cwd doctor requires local `.git`
-- [ ] M51 sister note: `scope` additive for future JSON (no JSON shipped here)
-- [ ] Gate check passes: `pnpm build && pnpm test`
-- [ ] Test count: no silent deletions vs pre-feature baseline
+- [x] ARCHITECTURE documents doctor ↔ `resolveScanPipelineContext` / dry-run scope parity
+- [x] STRUCTURE notes shared helper / `scope` finding
+- [x] README does not claim package-cwd doctor requires local `.git`
+- [x] M51 sister note: `scope` additive for future JSON (no JSON shipped here)
+- [x] Gate check passes: `pnpm build && pnpm test`
+- [x] Test count: no silent deletions vs pre-feature baseline
 
 **Tests**: none (docs) + full gate  
 **Gate**: `pnpm build && pnpm test` (`deferred_project_gate` for feature Done)

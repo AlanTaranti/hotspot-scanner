@@ -108,6 +108,12 @@ describe("analyzeBatch", () => {
         cyclomaticComplexity: 1,
         functionCount: 1,
       },
+      {
+        filePath: "invalid.ts",
+        cyclomaticComplexity: 0,
+        functionCount: 0,
+        parseFailed: true,
+      },
     ]);
     expect(output.functions).toHaveLength(1);
     expect(output.warnings).toHaveLength(1);

@@ -1,11 +1,52 @@
 # Manual performance benchmark — hotspot-scanner
 
-**Requirement:** HOTSPOT-59 (RT-001)  
+**Requirement:** HOTSPOT-59 (RT-001), HOTSPOT-721–726 (M49 bench harness)  
 **Scope:** Manual qualitative assessment only — **not** part of `pnpm test` or CI.
 
 ## Purpose
 
 Assess scan performance on a large repository before declaring v1 ready. CI runners vary; wall-clock timing is recorded by the operator, not gated in automation.
+
+## Automated harness (`pnpm bench`)
+
+M49 adds a repeatable Node stdlib harness at `scripts/bench-scan.mjs`. It runs the built CLI, prints wall-clock milliseconds plus scale counts, and optionally compares default file-mode overlap vs `--sequential`.
+
+**Policy:** The harness is **not** wired into `pnpm test`, CI, or any duration fail policy. Operators run it manually after `pnpm build`.
+
+### Usage
+
+```bash
+pnpm build
+
+# Default: overlap mode on the small-ts fixture
+pnpm bench
+
+# Custom repo / window
+pnpm bench -- --repo /path/to/large-repo --since "12 months ago"
+
+# Overlap vs sequential A/B on the same repo
+pnpm bench -- --repo /path/to/large-repo --compare-modes
+
+# Sequential only
+pnpm bench -- --repo /path/to/large-repo --sequential
+```
+
+### Output
+
+Each run prints one line per mode:
+
+```text
+mode=overlap wall_ms=1234 commits=500 files=120
+mode=sequential wall_ms=1567 commits=500 files=120
+```
+
+| Field     | Source                                                                 |
+| --------- | ---------------------------------------------------------------------- |
+| `wall_ms` | Harness wall-clock around `hotspot-scanner scan` (includes CLI startup) |
+| `commits` | `git rev-list --count HEAD --since=<window>` on the target repo        |
+| `files`   | Tracked paths with eligible TS/JS extensions (`git ls-files`)          |
+
+`--compare-modes` runs overlap first, then `--sequential`, reusing the same repo and `--since` window.
 
 ## Prerequisites
 
@@ -32,9 +73,9 @@ for i in $(seq 1 500); do
 done
 ```
 
-## Run benchmark
+## Run benchmark (manual `time`)
 
-From the hotspot-scanner project root:
+Prefer `pnpm bench` above for repeatable output. For ad-hoc checks, from the hotspot-scanner project root:
 
 ```bash
 pnpm build
@@ -122,5 +163,5 @@ Milestone 36 improves out-of-box scan performance without new CLI flags:
 ## What this is not
 
 - No millisecond threshold in CI
-- No `package.json` script wired to `pnpm test`
+- No `package.json` `"test"` script dependency on `pnpm bench` (only the separate `"bench"` script invokes the harness)
 - No failure exit code based on duration

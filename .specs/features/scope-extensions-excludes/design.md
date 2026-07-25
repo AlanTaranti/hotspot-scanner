@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/scope-extensions-excludes/spec.md`](./spec.md)  
 **Context**: [`.specs/features/scope-extensions-excludes/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Depth**: Small (thin)
 
 ---

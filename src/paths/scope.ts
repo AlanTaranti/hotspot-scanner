@@ -1,6 +1,6 @@
 import picomatch from "picomatch";
 
-export const DEFAULT_EXCLUDE_PATTERNS = [
+export const DEFAULT_ARTIFACT_EXCLUDE_PATTERNS = [
   "node_modules/**",
   ".git/**",
   "dist/**",
@@ -11,6 +11,30 @@ export const DEFAULT_EXCLUDE_PATTERNS = [
   "**/vendor/**",
   "**/storybook-static/**",
   "**/__snapshots__/**",
+  "**/.turbo/**",
+  "**/.vercel/**",
+  "**/.cache/**",
+  "**/.nuxt/**",
+  "**/.output/**",
+  "**/.parcel-cache/**",
+  "**/tmp/**",
+] as const;
+
+export const DEFAULT_TEST_EXCLUDE_PATTERNS = [
+  "**/*.test.ts",
+  "**/*.test.tsx",
+  "**/*.test.js",
+  "**/*.test.jsx",
+  "**/*.spec.ts",
+  "**/*.spec.tsx",
+  "**/*.spec.js",
+  "**/*.spec.jsx",
+  "**/__tests__/**",
+] as const;
+
+export const DEFAULT_EXCLUDE_PATTERNS = [
+  ...DEFAULT_ARTIFACT_EXCLUDE_PATTERNS,
+  ...DEFAULT_TEST_EXCLUDE_PATTERNS,
 ] as const;
 
 export interface PathScope {
@@ -24,6 +48,8 @@ export interface PathScope {
 export interface PathScopeOptions {
   include?: string[];
   exclude?: string[];
+  /** When true, omit DEFAULT_TEST_EXCLUDE_PATTERNS. Default false. */
+  includeTests?: boolean;
 }
 
 function normalizePath(filePath: string): string {
@@ -32,7 +58,10 @@ function normalizePath(filePath: string): string {
 
 export function createPathScope(options?: PathScopeOptions): PathScope {
   const userExcludes = options?.exclude ?? [];
-  const allExcludes = [...DEFAULT_EXCLUDE_PATTERNS, ...userExcludes];
+  const builtIn = options?.includeTests
+    ? DEFAULT_ARTIFACT_EXCLUDE_PATTERNS
+    : DEFAULT_EXCLUDE_PATTERNS;
+  const allExcludes = [...builtIn, ...userExcludes];
   const includes = options?.include;
 
   return {

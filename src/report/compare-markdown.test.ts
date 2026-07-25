@@ -55,12 +55,31 @@ describe("renderCompareMarkdown", () => {
     expect(output).toContain("**Score** —");
   });
 
-  it("never emits triage hints", () => {
+  it("emits triage hints when rules match (default)", () => {
     const output = renderCompareMarkdown(
       loadCompareResult(
         "compare-baseline-file.json",
         "compare-current-file.json",
       ),
+    );
+
+    expect(output).toContain("## Triage hints");
+    expect(output).toContain("src/new.ts");
+    expect(output).toContain(
+      "New dual-signal hotspot vs baseline — complexity and churn both elevated; prioritize review.",
+    );
+    const couplingIndex = output.indexOf("## Rank Changed Coupling Pairs");
+    const triageIndex = output.indexOf("## Triage hints");
+    expect(triageIndex).toBeGreaterThan(couplingIndex);
+  });
+
+  it("omits triage section when triageHints is false", () => {
+    const output = renderCompareMarkdown(
+      loadCompareResult(
+        "compare-baseline-file.json",
+        "compare-current-file.json",
+      ),
+      { triageHints: false },
     );
 
     expect(output).not.toContain("## Triage hints");

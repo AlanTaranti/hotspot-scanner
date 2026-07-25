@@ -301,9 +301,22 @@ describe("createReporter", () => {
     expect(colored).not.toBe(plain);
   });
 
-  it("never emits triage on compare table", () => {
+  it("emits triage on compare table by default", () => {
     const output = createReporter().renderCompare(loadCompareResult(), {
       format: "table",
+    });
+
+    expect(output).toContain("Triage hints");
+    expect(output).toContain("Glossary");
+    const triageIndex = (output as string).indexOf("Triage hints");
+    const glossaryIndex = (output as string).indexOf("Glossary");
+    expect(glossaryIndex).toBeGreaterThan(triageIndex);
+  });
+
+  it("suppresses triage when triageHints is false on compare table", () => {
+    const output = createReporter().renderCompare(loadCompareResult(), {
+      format: "table",
+      triageHints: false,
     });
 
     expect(output).not.toContain("Triage hints");

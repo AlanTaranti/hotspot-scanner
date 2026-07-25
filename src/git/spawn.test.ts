@@ -192,4 +192,24 @@ describe("streamGitLog", () => {
     await expect(consumePromise).rejects.toMatchObject({ name: "AbortError" });
     expect(child.kill).toHaveBeenCalled();
   });
+
+  it("invokes onSpawnArgv with argv before spawn", async () => {
+    createMockChild(["line1"], 0);
+    const onSpawnArgv = vi.fn();
+    const expectedArgv = buildGitLogArgv({ repoPath: "/repo", since: "1 year ago" });
+
+    for await (const _line of streamGitLog({
+      repoPath: "/repo",
+      since: "1 year ago",
+      onSpawnArgv,
+    })) {
+      // consume
+    }
+
+    expect(onSpawnArgv).toHaveBeenCalledOnce();
+    expect(onSpawnArgv).toHaveBeenCalledWith(expectedArgv);
+    expect(onSpawnArgv.mock.invocationCallOrder[0]).toBeLessThan(
+      mockedSpawn.mock.invocationCallOrder[0]!,
+    );
+  });
 });

@@ -13,7 +13,9 @@ import {
 } from "#config";
 import {
   createReporter,
+  formatCompareExplain,
   formatExplainBlock,
+  findCompareExplainMatches,
   normalizeExplainPath,
   parseExplainTarget,
 } from "#report";
@@ -25,17 +27,21 @@ import {
   formatScanScopePreview,
   previewScanScope,
 } from "#scan";
-import { runDoctor, type DoctorFinding } from "#doctor";
-import type { ScanGranularity, ScanResult } from "../src/types/index.js";
+import { runDoctor, formatDoctorJsonReport, type DoctorFinding } from "#doctor";
+import { MEGA_COMMIT_UNIQUE_FILE_THRESHOLD } from "#git";
+import type { CompareResult, ScanGranularity, ScanResult } from "../src/types/index.js";
 import {
   buildScanOptions,
   CliUsageError,
   DEFAULT_BASELINE_OUTPUT,
   executeCompareAndRender,
   executeScan,
+  runWithScanCancelSignals,
+  ScanCancelExit,
   writeBaselineJson,
   writeRenderedOutput,
 } from "./scan-actions.js";
+import { getCompletionScript } from "./completion-scripts.js";
 
 export {
   CliUsageError,
@@ -47,6 +53,7 @@ export {
 } from "./scan-actions.js";
 
 export type OutputFormat = "table" | "json" | "markdown" | "csv";
+export type DoctorOutputFormat = "text" | "json";
 
 export function resolvePackageVersion(): string {
   const moduleDir = dirname(fileURLToPath(import.meta.url));
@@ -88,6 +95,15 @@ export function parsePositiveInteger(value: string, flagName: string): number {
     throw new CliUsageError(`${flagName} must be a positive integer`);
   }
   return parsed;
+}
+
+export function parseDoctorFormat(value: string): DoctorOutputFormat {
+  if (value === "text" || value === "json") {
+    return value;
+  }
+  throw new CliUsageError(
+    `Invalid --format: ${value}. Expected text or json.`,
+  );
 }
 
 export function parseFormat(value: string): OutputFormat {
@@ -156,6 +172,38 @@ function writeExplainBlock(
   );
   const block = formatExplainBlock(result, target);
   process.stderr.write(ensureTrailingNewline(block));
+}
+
+function writeCompareExplainBlock(
+  compareResult: CompareResult,
+  explainRaw: string,
+  repoPath: string,
+): void {
+  const target = normalizeExplainTarget(
+    parseExplainTarget(explainRaw),
+    repoPath,
+  );
+  const matches = findCompareExplainMatches(compareResult, target, repoPath);
+  const block = formatCompareExplain(matches);
+  if (block === "") {
+    process.stderr.write(
+      ensureTrailingNewline(`explain: no compare delta for ${explainRaw}`),
+    );
+    return;
+  }
+  process.stderr.write(ensureTrailingNewline(block));
+}
+
+function hasCompareSinceMismatch(compareResult: CompareResult): boolean {
+  return compareResult.meta.warnings.some(
+    (warning) => warning.code === "COMPARE_SINCE_MISMATCH",
+  );
+}
+
+function enforceStrictCompare(compareResult: CompareResult, strict: boolean): void {
+  if (strict && hasCompareSinceMismatch(compareResult)) {
+    throw new CliExitError(1);
+  }
 }
 
 export function collectGlob(value: string, previous: string[]): string[] {
@@ -232,6 +280,21 @@ function isExplicitCliOption(cmd: Command, optionName: string): boolean {
   return cmd.getOptionValueSource(optionName) === "cli";
 }
 
+const SEQUENTIAL_OPTION_HELP =
+  "Run git mining and complexity analysis sequentially (disables M34 stage overlap)";
+const NO_OVERLAP_OPTION_HELP =
+  "Alias for --sequential — disable M34 git∥complexity overlap";
+
+export function resolveSequentialCliOption(options: {
+  sequential?: boolean;
+  noOverlap?: boolean;
+  overlap?: boolean;
+}): boolean {
+  return Boolean(
+    options.sequential || options.noOverlap || options.overlap === false,
+  );
+}
+
 export function buildCliConfigOverrides(
   cmd: Command,
   options: Record<string, unknown>,
@@ -251,6 +314,12 @@ export function buildCliConfigOverrides(
     cli.minCochange = parsePositiveInteger(
       options.minCochange as string,
       "--min-cochange",
+    );
+  }
+  if (isExplicitCliOption(cmd, "megaCommitThreshold")) {
+    cli.megaCommitThreshold = parsePositiveInteger(
+      options.megaCommitThreshold as string,
+      "--mega-commit-threshold",
     );
   }
   if (isExplicitCliOption(cmd, "concurrency")) {
@@ -309,16 +378,37 @@ export function createCliProgram(): Command {
       ".",
     )
     .option(
+      "-f, --format <format>",
+      "Output format: text or json",
+      "text",
+    )
+    .option(
       "--config <path>",
       "Load config from explicit file (skip parent walk)",
     )
+    .option(
+      "--include-tests",
+      "Include test files in scope inventory (lift built-in test excludes)",
+    )
     .action(async function (targetPath: string, options) {
       const cmd = this as Command;
+      const format = parseDoctorFormat(options.format as string);
       const configPath = isExplicitCliOption(cmd, "config")
         ? (options.config as string)
         : undefined;
-      const result = await runDoctor({ targetPath, configPath });
-      process.stdout.write(formatDoctorFindings(result.findings));
+      const includeTests = isExplicitCliOption(cmd, "includeTests")
+        ? true
+        : undefined;
+      const result = await runDoctor({
+        targetPath,
+        configPath,
+        ...(includeTests !== undefined ? { includeTests } : {}),
+      });
+      const output =
+        format === "json"
+          ? formatDoctorJsonReport(result)
+          : formatDoctorFindings(result.findings);
+      process.stdout.write(output);
       if (result.exitCode !== 0) {
         throw new CliExitError(result.exitCode);
       }
@@ -360,9 +450,16 @@ export function createCliProgram(): Command {
       String(DEFAULT_MIN_COCHANGE),
     )
     .option(
+      "--mega-commit-threshold <n>",
+      "Unique in-scope files per commit above which coupling pairs are skipped",
+      String(MEGA_COMMIT_UNIQUE_FILE_THRESHOLD),
+    )
+    .option(
       "--concurrency <n>",
       "Complexity worker pool size (positive integer)",
     )
+    .option("--sequential", SEQUENTIAL_OPTION_HELP)
+    .option("--no-overlap", NO_OVERLAP_OPTION_HELP)
     .option(
       "--include <glob>",
       "Include only paths matching glob (repeatable)",
@@ -376,6 +473,10 @@ export function createCliProgram(): Command {
       [] as string[],
     )
     .option(
+      "--include-tests",
+      "Include test files in scan scope (lift built-in test excludes)",
+    )
+    .option(
       "--config <path>",
       "Load config from explicit file (skip parent walk)",
     )
@@ -383,6 +484,7 @@ export function createCliProgram(): Command {
       "--quiet",
       "Suppress progress and info-level diagnostics (warnings/errors remain)",
     )
+    .option("--verbose", "Trace git spawn argv on stderr")
     .option("--no-progress", "Suppress progress lines on stderr")
     .option(
       "--dry-run",
@@ -402,6 +504,10 @@ export function createCliProgram(): Command {
     .option(
       "--explain <target>",
       "After the report, print a score breakdown for <path> or <path>:<functionName> to stderr",
+    )
+    .option(
+      "--strict",
+      "Exit 1 when compare reports COMPARE_SINCE_MISMATCH (after report write)",
     )
     .addHelpText(
       "after",
@@ -430,20 +536,27 @@ Examples:
       const cliOverrides = buildCliConfigOverrides(cmd, options);
       const baselinePath = options.baseline as string | undefined;
       const explainTarget = options.explain as string | undefined;
+      const strict = Boolean(options.strict);
 
       if (options.dryRun) {
         if (baselinePath !== undefined) {
           throw new CliUsageError("--baseline cannot be used with --dry-run");
         }
         const preview = await previewScanScope(
-          buildScanOptions(repoPath, cliOverrides, {}, configPath),
+          buildScanOptions(
+            repoPath,
+            cliOverrides,
+            {},
+            configPath,
+            options.includeTests as boolean | undefined,
+          ),
         );
         process.stdout.write(formatScanScopePreview(preview));
         return;
       }
 
       const format = parseFormat(options.format);
-      const fileConfig = await loadHotspotScannerConfig(repoPath, {
+      const { config: fileConfig } = await loadHotspotScannerConfig(repoPath, {
         configPath,
       });
       const merged = mergeScanOptions({
@@ -469,6 +582,7 @@ Examples:
         stdoutIsTTY: process.stdout.isTTY,
       });
       const reporterOptions = { format, top, only, triageHints, color };
+      const sequential = resolveSequentialCliOption(options);
 
       if (format === "csv" && outputPath === undefined) {
         throw new CliUsageError(
@@ -476,26 +590,39 @@ Examples:
         );
       }
 
-      let result: ScanResult;
+      let result: ScanResult | undefined;
+      let compareResult: CompareResult | undefined;
       if (baselinePath !== undefined) {
-        result = await executeCompareAndRender({
-          repoPath,
-          baselinePath,
-          cliOverrides,
-          configPath,
-          outputPath,
-          reporterOptions,
-          quiet: options.quiet as boolean,
-          noProgress: options.progress === false,
-        });
+        compareResult = await runWithScanCancelSignals((signal) =>
+          executeCompareAndRender({
+            repoPath,
+            baselinePath,
+            cliOverrides,
+            configPath,
+            outputPath,
+            reporterOptions,
+            quiet: options.quiet as boolean,
+            noProgress: options.progress === false,
+            includeTests: options.includeTests as boolean | undefined,
+            verbose: options.verbose as boolean,
+            sequential,
+            signal,
+          }),
+        );
       } else {
-        result = await executeScan({
-          repoPath,
-          cliOverrides,
-          configPath,
-          quiet: options.quiet as boolean,
-          noProgress: options.progress === false,
-        });
+        result = await runWithScanCancelSignals((signal) =>
+          executeScan({
+            repoPath,
+            cliOverrides,
+            configPath,
+            quiet: options.quiet as boolean,
+            noProgress: options.progress === false,
+            includeTests: options.includeTests as boolean | undefined,
+            verbose: options.verbose as boolean,
+            sequential,
+            signal,
+          }),
+        );
 
         const reporter = createReporter();
         const output = reporter.render(result, reporterOptions);
@@ -503,7 +630,15 @@ Examples:
       }
 
       if (explainTarget !== undefined) {
-        writeExplainBlock(result, explainTarget, repoPath);
+        if (compareResult !== undefined) {
+          writeCompareExplainBlock(compareResult, explainTarget, repoPath);
+        } else {
+          writeExplainBlock(result!, explainTarget, repoPath);
+        }
+      }
+
+      if (compareResult !== undefined) {
+        enforceStrictCompare(compareResult, strict);
       }
     });
 
@@ -537,9 +672,16 @@ Examples:
       String(DEFAULT_MIN_COCHANGE),
     )
     .option(
+      "--mega-commit-threshold <n>",
+      "Unique in-scope files per commit above which coupling pairs are skipped",
+      String(MEGA_COMMIT_UNIQUE_FILE_THRESHOLD),
+    )
+    .option(
       "--concurrency <n>",
       "Complexity worker pool size (positive integer)",
     )
+    .option("--sequential", SEQUENTIAL_OPTION_HELP)
+    .option("--no-overlap", NO_OVERLAP_OPTION_HELP)
     .option(
       "--include <glob>",
       "Include only paths matching glob (repeatable)",
@@ -551,6 +693,10 @@ Examples:
       "Exclude paths matching glob (repeatable)",
       collectGlob,
       [] as string[],
+    )
+    .option(
+      "--include-tests",
+      "Include test files in scan scope (lift built-in test excludes)",
     )
     .option(
       "--config <path>",
@@ -578,11 +724,14 @@ Examples:
         : undefined;
       const cliOverrides = buildCliConfigOverrides(cmd, options);
       const outputPath = options.output as string;
+      const sequential = resolveSequentialCliOption(options);
 
       const result = await executeScan({
         repoPath,
         cliOverrides,
         configPath,
+        includeTests: options.includeTests as boolean | undefined,
+        sequential,
       });
 
       await writeBaselineJson(result, outputPath);
@@ -622,9 +771,16 @@ Examples:
       String(DEFAULT_MIN_COCHANGE),
     )
     .option(
+      "--mega-commit-threshold <n>",
+      "Unique in-scope files per commit above which coupling pairs are skipped",
+      String(MEGA_COMMIT_UNIQUE_FILE_THRESHOLD),
+    )
+    .option(
       "--concurrency <n>",
       "Complexity worker pool size (positive integer)",
     )
+    .option("--sequential", SEQUENTIAL_OPTION_HELP)
+    .option("--no-overlap", NO_OVERLAP_OPTION_HELP)
     .option(
       "--include <glob>",
       "Include only paths matching glob (repeatable)",
@@ -638,6 +794,10 @@ Examples:
       [] as string[],
     )
     .option(
+      "--include-tests",
+      "Include test files in scan scope (lift built-in test excludes)",
+    )
+    .option(
       "--config <path>",
       "Load config from explicit file (skip parent walk)",
     )
@@ -645,6 +805,7 @@ Examples:
       "--quiet",
       "Suppress progress and info-level diagnostics (warnings/errors remain)",
     )
+    .option("--verbose", "Trace git spawn argv on stderr")
     .option("--no-progress", "Suppress progress lines on stderr")
     .option(
       "--only <section>",
@@ -657,6 +818,14 @@ Examples:
       "Suppress triage hints in compare table and markdown output",
     )
     .option("--no-color", "Disable ANSI colors in table output")
+    .option(
+      "--explain <target>",
+      "After the report, print compare delta breakdown for <path> or <path>:<functionName> to stderr",
+    )
+    .option(
+      "--strict",
+      "Exit 1 when compare reports COMPARE_SINCE_MISMATCH (after report write)",
+    )
     .addHelpText(
       "after",
       `
@@ -680,8 +849,10 @@ Examples:
         : undefined;
       const cliOverrides = buildCliConfigOverrides(cmd, options);
       const baselinePath = options.baseline as string;
+      const explainTarget = options.explain as string | undefined;
+      const strict = Boolean(options.strict);
       const format = parseFormat(options.format);
-      const fileConfig = await loadHotspotScannerConfig(repoPath, {
+      const { config: fileConfig } = await loadHotspotScannerConfig(repoPath, {
         configPath,
       });
       const merged = mergeScanOptions({
@@ -689,6 +860,12 @@ Examples:
         cli: cliOverrides,
       });
       const top = merged.top;
+      const granularity = merged.granularity ?? "file";
+
+      if (explainTarget !== undefined) {
+        validateExplainTarget(parseExplainTarget(explainTarget), granularity);
+      }
+
       const outputPath = options.output as string | undefined;
       const onlySections = options.only as ReportSection[];
       const only = onlySections.length > 0 ? onlySections : undefined;
@@ -701,6 +878,7 @@ Examples:
         stdoutIsTTY: process.stdout.isTTY,
       });
       const reporterOptions = { format, top, only, triageHints, color };
+      const sequential = resolveSequentialCliOption(options);
 
       if (format === "csv" && outputPath === undefined) {
         throw new CliUsageError(
@@ -708,16 +886,48 @@ Examples:
         );
       }
 
-      await executeCompareAndRender({
-        repoPath,
-        baselinePath,
-        cliOverrides,
-        configPath,
-        outputPath,
-        reporterOptions,
-        quiet: options.quiet as boolean,
-        noProgress: options.progress === false,
-      });
+      const compareResult = await runWithScanCancelSignals((signal) =>
+        executeCompareAndRender({
+          repoPath,
+          baselinePath,
+          cliOverrides,
+          configPath,
+          outputPath,
+          reporterOptions,
+          quiet: options.quiet as boolean,
+          noProgress: options.progress === false,
+          includeTests: options.includeTests as boolean | undefined,
+          verbose: options.verbose as boolean,
+          sequential,
+          signal,
+        }),
+      );
+
+      if (explainTarget !== undefined) {
+        writeCompareExplainBlock(compareResult, explainTarget, repoPath);
+      }
+
+      enforceStrictCompare(compareResult, strict);
+    });
+
+  program
+    .command("completion")
+    .description("Print shell completion script to stdout")
+    .argument("<shell>", "Shell: bash | zsh | fish")
+    .addHelpText(
+      "after",
+      `
+Supported shells: bash, zsh, fish
+
+Examples:
+  $ hotspot-scanner completion bash >> ~/.bashrc
+  $ hotspot-scanner completion zsh > ~/.zfunc/_hotspot-scanner
+  $ source (hotspot-scanner completion fish | psub)
+`,
+    )
+    .action((shell: string) => {
+      const script = getCompletionScript(shell);
+      process.stdout.write(ensureTrailingNewline(script));
     });
 
   return program;
@@ -746,11 +956,11 @@ async function main(): Promise<void> {
     await runCli(process.argv);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
-    if (!(error instanceof CliExitError)) {
+    if (!(error instanceof CliExitError) && !(error instanceof ScanCancelExit)) {
       console.error(message);
     }
     const exitCode =
-      error instanceof CliExitError
+      error instanceof CliExitError || error instanceof ScanCancelExit
         ? error.exitCode
         : error instanceof CliUsageError ||
             error instanceof ConfigError ||

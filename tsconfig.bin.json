@@ -15,7 +15,8 @@
       "#scoring": ["src/scoring/index.ts"],
       "#compare": ["src/compare/index.ts"],
       "#config": ["src/config/index.ts"],
-      "#doctor": ["src/doctor/index.ts"]
+      "#doctor": ["src/doctor/index.ts"],
+      "#git": ["src/git/index.ts"]
     }
   },
   "references": [{ "path": "./tsconfig.json" }],

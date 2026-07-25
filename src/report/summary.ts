@@ -5,7 +5,35 @@ import type {
   FunctionCompareSection,
   HotspotCompareSection,
   ScanResult,
+  ScanWarning,
 } from "../types/index.js";
+
+export function formatWarningSummaryLine(warnings: ScanWarning[]): string {
+  if (warnings.length === 0) {
+    return "Warnings: 0";
+  }
+
+  const counts = new Map<string, number>();
+  let uncoded = 0;
+
+  for (const warning of warnings) {
+    if (warning.code === undefined) {
+      uncoded += 1;
+      continue;
+    }
+    counts.set(warning.code, (counts.get(warning.code) ?? 0) + 1);
+  }
+
+  const parts: string[] = [...counts.entries()]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([code, count]) => `${code}: ${count}`);
+
+  if (uncoded > 0) {
+    parts.push(`(uncoded): ${uncoded}`);
+  }
+
+  return `Warnings: ${warnings.length} total (${parts.join(", ")})`;
+}
 
 function countWithoutStaticDependency(coupling: CouplingPair[]): number {
   return coupling.filter((pair) => !pair.hasStaticDependency).length;
@@ -60,6 +88,7 @@ export function buildScanExecutiveSummary(
       fullRanking.length,
     ),
     `Coupling pairs: ${full.coupling.length} total, ${couplingWithoutStatic} without static dependency; showing ${displayed.coupling.length} of ${full.coupling.length}`,
+    formatWarningSummaryLine(full.meta.warnings ?? []),
   ];
 }
 
@@ -82,5 +111,6 @@ export function buildCompareExecutiveSummary(
     `Granularity: ${full.granularity}`,
     formatCompareDeltaLine(rankingLabel, fullRanking, displayedRanking),
     formatCompareDeltaLine("Coupling deltas", full.coupling, displayed.coupling),
+    formatWarningSummaryLine(full.meta.warnings ?? []),
   ];
 }

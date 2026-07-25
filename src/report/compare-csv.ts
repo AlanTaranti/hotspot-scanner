@@ -58,6 +58,7 @@ function renderHotspotRows(
     formatScore(hotspot.churnNormalized),
     String(hotspot.functionCount),
     String(hotspot.authorCount),
+    String(hotspot.parseFailed),
   ]);
 }
 
@@ -76,6 +77,7 @@ function renderRankChangedHotspotRows(
     formatScore(change.entity.churnNormalized),
     String(change.entity.functionCount),
     String(change.entity.authorCount),
+    String(change.entity.parseFailed),
   ]);
 }
 
@@ -157,6 +159,7 @@ const HOTSPOT_HEADER = [
   "churnN",
   "funcs",
   "authors",
+  "parseFailed",
 ];
 
 const RANK_CHANGED_HOTSPOT_HEADER = [
@@ -171,6 +174,7 @@ const RANK_CHANGED_HOTSPOT_HEADER = [
   "churnN",
   "funcs",
   "authors",
+  "parseFailed",
 ];
 
 const FUNCTION_HEADER = [

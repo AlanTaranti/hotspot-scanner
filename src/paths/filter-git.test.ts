@@ -30,6 +30,8 @@ function makePairCounts(
   return map;
 }
 
+const identityCanonicalize = (path: string) => path;
+
 describe("filterGitMinerResult", () => {
   const scope = createPathScope();
 
@@ -42,6 +44,7 @@ describe("filterGitMinerResult", () => {
         ]),
         pairCounts: new Map(),
         warnings: [],
+        canonicalizePath: identityCanonicalize,
       },
       scope,
     );
@@ -60,6 +63,7 @@ describe("filterGitMinerResult", () => {
         ]),
         pairCounts,
         warnings: [],
+        canonicalizePath: identityCanonicalize,
       },
       scope,
     );
@@ -77,6 +81,7 @@ describe("filterGitMinerResult", () => {
           ["src/a.ts", "node_modules/x.ts", 2],
         ]),
         warnings: [],
+        canonicalizePath: identityCanonicalize,
       },
       scope,
     );
@@ -90,6 +95,7 @@ describe("filterGitMinerResult", () => {
         fileStats: new Map(),
         pairCounts: new Map(),
         warnings: ["git warning"],
+        canonicalizePath: identityCanonicalize,
       },
       scope,
     );
@@ -103,6 +109,7 @@ describe("filterGitMinerResult", () => {
         fileStats: makeFileStats([["dist/bundle.js", {}]]),
         pairCounts: makePairCounts([["dist/a.js", "dist/b.js", 1]]),
         warnings: [],
+        canonicalizePath: identityCanonicalize,
       },
       scope,
     );
@@ -120,6 +127,7 @@ describe("filterGitMinerResult", () => {
         ]),
         pairCounts: makePairCounts([["src/a.ts", "src/b.ts", 7]]),
         warnings: [],
+        canonicalizePath: identityCanonicalize,
       },
       scope,
     );

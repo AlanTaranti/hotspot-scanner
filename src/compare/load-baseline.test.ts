@@ -35,6 +35,75 @@ describe("parseScanResult", () => {
     expect(result.coupling[1]?.staticDependencyDirection).toBe("none");
     expect(result.meta.granularity).toBe("file");
     expect(result.meta.warnings).toEqual([]);
+    expect(result.meta.timings).toBeUndefined();
+  });
+
+  it("parses optional meta.timings", () => {
+    const raw = loadFixture();
+    const result = parseScanResult({
+      ...raw,
+      meta: {
+        ...(raw.meta as Record<string, unknown>),
+        timings: {
+          gitMs: 100,
+          complexityMs: 200,
+          totalMs: 250,
+        },
+      },
+    });
+
+    expect(result.meta.timings).toEqual({
+      gitMs: 100,
+      complexityMs: 200,
+      totalMs: 250,
+    });
+  });
+
+  it("parses function-mode meta.timings with functionChurnMs", () => {
+    const raw = loadFixture();
+    const result = parseScanResult({
+      ...raw,
+      meta: {
+        ...(raw.meta as Record<string, unknown>),
+        timings: {
+          gitMs: 100,
+          complexityMs: 200,
+          functionChurnMs: 50,
+          totalMs: 300,
+        },
+      },
+    });
+
+    expect(result.meta.timings).toEqual({
+      gitMs: 100,
+      complexityMs: 200,
+      functionChurnMs: 50,
+      totalMs: 300,
+    });
+  });
+
+  it("rejects invalid meta.timings", () => {
+    const raw = loadFixture();
+
+    expect(() =>
+      parseScanResult({
+        ...raw,
+        meta: {
+          ...(raw.meta as Record<string, unknown>),
+          timings: { gitMs: 10, complexityMs: 20 },
+        },
+      }),
+    ).toThrow(/meta.timings is missing required field: totalMs/);
+
+    expect(() =>
+      parseScanResult({
+        ...raw,
+        meta: {
+          ...(raw.meta as Record<string, unknown>),
+          timings: { gitMs: -1, complexityMs: 20, totalMs: 30 },
+        },
+      }),
+    ).toThrow(/meta.timings.gitMs must be a non-negative integer/);
   });
 
   it("parses structured meta.warnings", () => {
@@ -183,6 +252,13 @@ describe("parseScanResult", () => {
     expect(() => parseScanResult({ ...raw, hotspots })).toThrow(
       /hotspots\[0\]\.commitCount must be an integer/,
     );
+
+    hotspots[0] = { ...(raw.hotspots as Record<string, unknown>[])[0] };
+    delete (hotspots[0] as Record<string, unknown>).parseFailed;
+    expect(() => parseScanResult({ ...raw, hotspots })).toThrow(
+      /hotspots\[0\] is missing required field: parseFailed/,
+    );
+    expect(() => parseScanResult({ ...raw, hotspots })).toThrow(/Hint:/);
   });
 
   it("rejects invalid function items", () => {

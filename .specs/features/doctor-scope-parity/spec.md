@@ -15,11 +15,11 @@
 
 ## Goals
 
-- [ ] `runDoctor` uses `resolveScanPipelineContext` (or shared prelude) so monorepo remount + path scope match scan
-- [ ] Doctor, dry-run, and `runScan` share one prelude chain (config merge, PathScope, eligible-count semantics)
-- [ ] New doctor `scope` finding reports inventory aligned with `previewScanScope` for the same options
-- [ ] Forward-compat with M46 `includeTests` / test excludes without owning PathScope defaults
-- [ ] Living docs updated; `pnpm build && pnpm test` green after Execute
+- [x] `runDoctor` uses `resolveScanPipelineContext` (or shared prelude) so monorepo remount + path scope match scan
+- [x] Doctor, dry-run, and `runScan` share one prelude chain (config merge, PathScope, eligible-count semantics)
+- [x] New doctor `scope` finding reports inventory aligned with `previewScanScope` for the same options
+- [x] Forward-compat with M46 `includeTests` / test excludes without owning PathScope defaults
+- [x] Living docs updated; `pnpm build && pnpm test` green after Execute
 
 ## Out of Scope
 
@@ -191,8 +191,8 @@
 
 ## Success Criteria
 
-- [ ] `doctor` on `tests/fixtures/repos/monorepo-nested` package path exits `0` with remount-aware `git-repo` + `scope`
-- [ ] Doctor eligible count matches `previewScanScope` for the same options (including `includeTests` when M46 Done)
-- [ ] Healthy `small-ts` doctor regression still exit `0`
-- [ ] Non-git path still hard-fails
-- [ ] `pnpm build && pnpm test` green after Execute
+- [x] `doctor` on `tests/fixtures/repos/monorepo-nested` package path exits `0` with remount-aware `git-repo` + `scope`
+- [x] Doctor eligible count matches `previewScanScope` for the same options (including `includeTests` when M46 Done)
+- [x] Healthy `small-ts` doctor regression still exit `0`
+- [x] Non-git path still hard-fails
+- [x] `pnpm build && pnpm test` green after Execute

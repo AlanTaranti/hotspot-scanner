@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/compare-interpretation/design.md`](./design.md)  
 **Spec**: [`.specs/features/compare-interpretation/spec.md`](./spec.md)  
 **Context**: [`.specs/features/compare-interpretation/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -88,11 +88,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Rules `new-dual-signal`, `rank-worsened`, `new-coupled-with-static` match context predicates exactly
-- [ ] Empty input → `[]`; cap ≤3 per rule; highest metric first
-- [ ] Unit tests cover each rule, non-match, and cap
-- [ ] Gate check passes: `pnpm exec vitest run src/report/compare-triage.test.ts`
-- [ ] Test count: new file tests pass (no silent deletions)
+- [x] Rules `new-dual-signal`, `rank-worsened`, `new-coupled-with-static` match context predicates exactly
+- [x] Empty input → `[]`; cap ≤3 per rule; highest metric first
+- [x] Unit tests cover each rule, non-match, and cap
+- [x] Gate check passes: `pnpm exec vitest run src/report/compare-triage.test.ts`
+- [x] Test count: new file tests pass (no silent deletions)
 
 **Tests**: unit  
 **Gate**: quick — `pnpm exec vitest run src/report/compare-triage.test.ts`
@@ -116,11 +116,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Matches classification `new` | `removed` | `rank-changed` with required fields
-- [ ] Not-found path returns empty matches (caller message)
-- [ ] Function mode: `path` explains all function deltas for file; `path:fn` filters by name
-- [ ] Gate check passes: `pnpm exec vitest run src/report/explain-compare.test.ts`
-- [ ] Test count: new file tests pass (no silent deletions)
+- [x] Matches classification `new` | `removed` | `rank-changed` with required fields
+- [x] Not-found path returns empty matches (caller message)
+- [x] Function mode: `path` explains all function deltas for file; `path:fn` filters by name
+- [x] Gate check passes: `pnpm exec vitest run src/report/explain-compare.test.ts`
+- [x] Test count: new file tests pass (no silent deletions)
 
 **Tests**: unit  
 **Gate**: quick — `pnpm exec vitest run src/report/explain-compare.test.ts`
@@ -144,11 +144,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Default `triageHints` emits section when rules match; `triageHints: false` omits
-- [ ] json/csv paths never include triage text
-- [ ] Scan triage regression still green
-- [ ] Gate check passes: `pnpm exec vitest run src/report/compare-table.test.ts src/report/compare-markdown.test.ts src/report/index.test.ts src/report/triage.test.ts`
-- [ ] Test count: suite passes (no silent deletions)
+- [x] Default `triageHints` emits section when rules match; `triageHints: false` omits
+- [x] json/csv paths never include triage text
+- [x] Scan triage regression still green
+- [x] Gate check passes: `pnpm exec vitest run src/report/compare-table.test.ts src/report/compare-markdown.test.ts src/report/index.test.ts src/report/triage.test.ts`
+- [x] Test count: suite passes (no silent deletions)
 
 **Tests**: unit  
 **Gate**: quick — listed vitest files above
@@ -172,13 +172,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `scan --baseline --explain` / `compare --explain` write compare explain on stderr; JSON stdout intact
-- [ ] Without baseline, M42 scan explain unchanged
-- [ ] `--strict` + mismatched since → exit `1` after report; without `--strict` → exit `0`
-- [ ] Other warnings alone do not fail under `--strict`
-- [ ] Help lists `--strict` and compare `--explain`
-- [ ] Gate check passes: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
-- [ ] Test count: suite passes (no silent deletions)
+- [x] `scan --baseline --explain` / `compare --explain` write compare explain on stderr; JSON stdout intact
+- [x] Without baseline, M42 scan explain unchanged
+- [x] `--strict` + mismatched since → exit `1` after report; without `--strict` → exit `0`
+- [x] Other warnings alone do not fail under `--strict`
+- [x] Help lists `--strict` and compare `--explain`
+- [x] Gate check passes: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
+- [x] Test count: suite passes (no silent deletions)
 
 **Tests**: unit + CLI  
 **Gate**: quick — `pnpm exec vitest run bin/hotspot-scanner.test.ts`
@@ -212,10 +212,10 @@ pnpm exec hotspot-scanner scan . --baseline <prior-different-since.json> --stric
 
 **Done when**:
 
-- [ ] Docs describe delta triage, compare explain, `--strict`
-- [ ] No living-doc claim that compare has “no triage”
-- [ ] Gate check passes: `pnpm build && pnpm test`
-- [ ] ROADMAP M53 implementation checkboxes marked on Execute Done only
+- [x] Docs describe delta triage, compare explain, `--strict`
+- [x] No living-doc claim that compare has “no triage”
+- [x] Gate check passes: `pnpm build && pnpm test`
+- [x] ROADMAP M53 implementation checkboxes marked on Execute Done only
 
 **Tests**: none  
 **Gate**: full — `pnpm build && pnpm test`

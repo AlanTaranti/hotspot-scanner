@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { GitLogError } from "../spawn.js";
 import {
   buildGitPatchLogArgv,
+  partitionPathspecs,
   PATCH_PATHSPEC_FALLBACK_THRESHOLD,
   streamGitPatchLog,
 } from "./spawn.js";
@@ -22,9 +23,15 @@ function createMockChild(stdoutLines: string[], exitCode = 0, stderr = "") {
   const child = new EventEmitter() as EventEmitter & {
     stdout: PassThrough;
     stderr: PassThrough;
+    kill: ReturnType<typeof vi.fn>;
   };
   child.stdout = stdout;
   child.stderr = stderrStream;
+  child.kill = vi.fn(() => {
+    stdout.destroy();
+    stderrStream.destroy();
+    child.emit("close", exitCode);
+  });
 
   mockedSpawn.mockReturnValueOnce(child as never);
 
@@ -38,6 +45,37 @@ function createMockChild(stdoutLines: string[], exitCode = 0, stderr = "") {
     }
     stderrStream.end();
     child.emit("close", exitCode);
+  });
+
+  return child;
+}
+
+function createSlowMockChild(firstLine: string, remainingLines: string[]) {
+  const stdout = new PassThrough();
+  const stderrStream = new PassThrough();
+  const child = new EventEmitter() as EventEmitter & {
+    stdout: PassThrough;
+    stderr: PassThrough;
+    kill: ReturnType<typeof vi.fn>;
+  };
+  child.stdout = stdout;
+  child.stderr = stderrStream;
+  child.kill = vi.fn(() => {
+    stdout.destroy();
+    stderrStream.destroy();
+    child.emit("close", 0);
+  });
+
+  mockedSpawn.mockReturnValueOnce(child as never);
+
+  queueMicrotask(() => {
+    stdout.write(`${firstLine}\n`);
+    for (const line of remainingLines) {
+      stdout.write(`${line}\n`);
+    }
+    stdout.end();
+    stderrStream.end();
+    child.emit("close", 0);
   });
 
   return child;
@@ -111,14 +149,19 @@ describe("buildGitPatchLogArgv", () => {
     expect(argv).toContain("src/a.ts");
   });
 
-  it("omits pathspecs when paths exceed the fallback threshold", () => {
+  it("appends -- and pathspecs when paths exceed the fallback threshold", () => {
     const paths = Array.from(
       { length: PATCH_PATHSPEC_FALLBACK_THRESHOLD + 1 },
       (_, i) => `src/file-${i}.ts`,
     );
     const argv = buildGitPatchLogArgv({ repoPath: "/repo", paths });
+    expect(argv[argv.length - paths.length - 1]).toBe("--");
+    expect(argv.slice(-paths.length)).toEqual(paths);
+  });
+
+  it("omits pathspecs when paths is empty", () => {
+    const argv = buildGitPatchLogArgv({ repoPath: "/repo", paths: [] });
     expect(argv).not.toContain("--");
-    expect(argv.filter((arg) => arg.endsWith(".ts"))).toHaveLength(0);
   });
 
   it("includes pathspecs at exactly the fallback threshold", () => {
@@ -131,6 +174,51 @@ describe("buildGitPatchLogArgv", () => {
       "--",
     );
     expect(argv.slice(-PATCH_PATHSPEC_FALLBACK_THRESHOLD)).toEqual(paths);
+  });
+});
+
+describe("partitionPathspecs", () => {
+  it("sorts paths lexicographically before chunking", () => {
+    expect(partitionPathspecs(["z.ts", "a.ts", "m.ts"])).toEqual([
+      ["a.ts", "m.ts", "z.ts"],
+    ]);
+  });
+
+  it("returns a single chunk at exactly the threshold", () => {
+    const paths = Array.from(
+      { length: PATCH_PATHSPEC_FALLBACK_THRESHOLD },
+      (_, i) => `src/file-${i}.ts`,
+    );
+    const chunks = partitionPathspecs(paths);
+    expect(chunks).toHaveLength(1);
+    expect(chunks[0]).toHaveLength(PATCH_PATHSPEC_FALLBACK_THRESHOLD);
+    expect(chunks[0]).toEqual([...paths].sort());
+  });
+
+  it("splits into threshold + remainder at threshold + 1", () => {
+    const paths = Array.from(
+      { length: PATCH_PATHSPEC_FALLBACK_THRESHOLD + 1 },
+      (_, i) => `src/file-${i}.ts`,
+    );
+    const chunks = partitionPathspecs(paths);
+    expect(chunks).toHaveLength(2);
+    expect(chunks[0]).toHaveLength(PATCH_PATHSPEC_FALLBACK_THRESHOLD);
+    expect(chunks[1]).toHaveLength(1);
+    expect(chunks.flat()).toEqual([...paths].sort());
+  });
+
+  it("builds argv with pathspecs for each partition chunk", () => {
+    const paths = Array.from(
+      { length: PATCH_PATHSPEC_FALLBACK_THRESHOLD + 1 },
+      (_, i) => `src/file-${i}.ts`,
+    );
+    const chunks = partitionPathspecs(paths);
+    expect(chunks).toHaveLength(2);
+    for (const chunk of chunks) {
+      const argv = buildGitPatchLogArgv({ repoPath: "/repo", paths: chunk });
+      expect(argv[argv.length - chunk.length - 1]).toBe("--");
+      expect(argv.slice(-chunk.length)).toEqual(chunk);
+    }
   });
 });
 
@@ -179,5 +267,67 @@ describe("streamGitPatchLog", () => {
       repoPath: "/bad/repo",
       stderr: "fatal: not a git repository",
     } satisfies Partial<GitLogError>);
+  });
+
+  it("throws AbortError when signal is already aborted", async () => {
+    createMockChild(["line1"], 0);
+    const controller = new AbortController();
+    controller.abort();
+
+    await expect(
+      (async () => {
+        for await (const _line of streamGitPatchLog({
+          repoPath: "/repo",
+          signal: controller.signal,
+        })) {
+          // consume
+        }
+      })(),
+    ).rejects.toMatchObject({ name: "AbortError" });
+  });
+
+  it("aborts mid-stream, kills child, and does not hang", async () => {
+    const child = createSlowMockChild("line1", ["line2", "line3"]);
+    const controller = new AbortController();
+
+    const consumePromise = (async () => {
+      const collected: string[] = [];
+      for await (const line of streamGitPatchLog({
+        repoPath: "/repo",
+        signal: controller.signal,
+      })) {
+        collected.push(line);
+        if (collected.length === 1) {
+          controller.abort();
+        }
+      }
+      return collected;
+    })();
+
+    await expect(consumePromise).rejects.toMatchObject({ name: "AbortError" });
+    expect(child.kill).toHaveBeenCalled();
+  });
+
+  it("invokes onSpawnArgv with argv before spawn", async () => {
+    createMockChild(["line1"], 0);
+    const onSpawnArgv = vi.fn();
+    const expectedArgv = buildGitPatchLogArgv({
+      repoPath: "/repo",
+      paths: ["src/a.ts"],
+    });
+
+    for await (const _line of streamGitPatchLog({
+      repoPath: "/repo",
+      paths: ["src/a.ts"],
+      onSpawnArgv,
+    })) {
+      // consume
+    }
+
+    expect(onSpawnArgv).toHaveBeenCalledOnce();
+    expect(onSpawnArgv).toHaveBeenCalledWith(expectedArgv);
+    expect(onSpawnArgv.mock.invocationCallOrder[0]).toBeLessThan(
+      mockedSpawn.mock.invocationCallOrder[0]!,
+    );
   });
 });

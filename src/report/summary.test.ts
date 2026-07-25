@@ -9,6 +9,7 @@ import { sliceScanResult } from "./slice.js";
 import {
   buildCompareExecutiveSummary,
   buildScanExecutiveSummary,
+  formatWarningSummaryLine,
 } from "./summary.js";
 
 const fixturesDir = join(
@@ -41,6 +42,7 @@ describe("buildScanExecutiveSummary", () => {
       "Granularity: file",
       "Hotspots: showing 3 of 3",
       "Coupling pairs: 2 total, 1 without static dependency; showing 2 of 2",
+      "Warnings: 0",
     ]);
   });
 
@@ -77,6 +79,21 @@ describe("buildScanExecutiveSummary", () => {
       "Coupling pairs: 2 total, 1 without static dependency; showing 1 of 2",
     );
   });
+
+  it("appends warning summary from full meta.warnings", () => {
+    const full = loadScanFixture("sample-result.json");
+    full.meta.warnings = [
+      { severity: "warning", message: "mega", code: "MEGA_COMMIT_SKIPPED" },
+      { severity: "warning", message: "mega again", code: "MEGA_COMMIT_SKIPPED" },
+      { severity: "warning", message: "rename", code: "RENAME_HISTORY_INCOMPLETE" },
+      { severity: "warning", message: "no code" },
+    ];
+    const lines = buildScanExecutiveSummary(full, full);
+
+    expect(lines.at(-1)).toBe(
+      "Warnings: 4 total (MEGA_COMMIT_SKIPPED: 2, RENAME_HISTORY_INCOMPLETE: 1, (uncoded): 1)",
+    );
+  });
 });
 
 describe("buildCompareExecutiveSummary", () => {
@@ -97,6 +114,7 @@ describe("buildCompareExecutiveSummary", () => {
     expect(lines[4]).toBe(
       "Coupling deltas: showing 3 of 3 (new 1, removed 0, rank changed 2)",
     );
+    expect(lines[5]).toBe("Warnings: 0");
   });
 
   it("reports shown vs total on sliced compare deltas", () => {
@@ -110,6 +128,7 @@ describe("buildCompareExecutiveSummary", () => {
     expect(lines[4]).toBe(
       "Coupling deltas: showing 2 of 3 (new 1, removed 0, rank changed 2)",
     );
+    expect(lines[5]).toBe("Warnings: 0");
   });
 
   it("uses function delta labels in function granularity", () => {
@@ -121,5 +140,53 @@ describe("buildCompareExecutiveSummary", () => {
     expect(lines[2]).toBe("Granularity: function");
     expect(lines[3]).toMatch(/^Function deltas: showing/);
     expect(lines[3]).not.toMatch(/^Hotspot deltas:/);
+    expect(lines[5]).toBe("Warnings: 0");
+  });
+
+  it("uses compare-level meta.warnings only, not nested scan warnings", () => {
+    const full = loadCompareFixture();
+    full.meta.warnings = [
+      { severity: "warning", message: "compare", code: "COMPARE_SINCE_MISMATCH" },
+    ];
+    full.meta.baseline.warnings = [
+      { severity: "warning", message: "baseline", code: "MEGA_COMMIT_SKIPPED" },
+    ];
+    full.meta.current.warnings = [
+      { severity: "warning", message: "current", code: "PARSE_FAILED" },
+    ];
+    const lines = buildCompareExecutiveSummary(full, full);
+
+    expect(lines.at(-1)).toBe(
+      "Warnings: 1 total (COMPARE_SINCE_MISMATCH: 1)",
+    );
+  });
+});
+
+describe("formatWarningSummaryLine", () => {
+  it("returns Warnings: 0 for an empty array", () => {
+    expect(formatWarningSummaryLine([])).toBe("Warnings: 0");
+  });
+
+  it("sorts coded tallies lexicographically and folds missing codes into (uncoded)", () => {
+    const line = formatWarningSummaryLine([
+      { severity: "warning", message: "z", code: "RENAME_HISTORY_INCOMPLETE" },
+      { severity: "warning", message: "a", code: "MEGA_COMMIT_SKIPPED" },
+      { severity: "warning", message: "b", code: "MEGA_COMMIT_SKIPPED" },
+      { severity: "warning", message: "uncoded one" },
+      { severity: "warning", message: "uncoded two" },
+    ]);
+
+    expect(line).toBe(
+      "Warnings: 5 total (MEGA_COMMIT_SKIPPED: 2, RENAME_HISTORY_INCOMPLETE: 1, (uncoded): 2)",
+    );
+  });
+
+  it("uses (uncoded) only when all warnings lack codes", () => {
+    expect(
+      formatWarningSummaryLine([
+        { severity: "warning", message: "one" },
+        { severity: "warning", message: "two" },
+      ]),
+    ).toBe("Warnings: 2 total ((uncoded): 2)");
   });
 });

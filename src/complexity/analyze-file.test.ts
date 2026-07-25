@@ -398,6 +398,52 @@ describe("analyzeSourceFile", () => {
     expect(result.functions).toHaveLength(0);
   });
 
+  it("collects call-argument callbacks and IIFEs with anonymous naming", () => {
+    const result = analyzeSource(`
+      export function host() {
+        setTimeout(function named() {
+          if (true) return;
+        }, 0);
+        doWork(() => {
+          if (false) return 1;
+          return 0;
+        });
+        const value = (function () {
+          if (true) return 0;
+          return 1;
+        })();
+        return value;
+      }
+    `);
+
+    expect(result.functions).toHaveLength(4);
+    expect(result.functions.find((fn) => fn.functionName === "host")).toMatchObject({
+      functionName: "host",
+      complexity: 4,
+    });
+    const anonymous = result.functions.filter((fn) =>
+      fn.functionName.startsWith("<anonymous>:L"),
+    );
+    expect(anonymous).toHaveLength(3);
+    expect(anonymous.map((fn) => fn.complexity).sort()).toEqual([2, 2, 2]);
+    expect(result.file.cyclomaticComplexity).toBe(10);
+  });
+
+  it("does not double-collect callables already collected via initializer", () => {
+    const result = analyzeSource(`
+      const handlers = {
+        cb: () => 1,
+      };
+      register(handlers.cb);
+    `);
+
+    expect(result.functions).toHaveLength(1);
+    expect(result.functions[0]).toMatchObject({
+      functionName: "cb",
+      complexity: 1,
+    });
+  });
+
   it("skips body-less non-abstract overload stubs but keeps abstract empty-body accessors", () => {
     const result = analyzeSource(`
       function overloaded(x: string): string;
@@ -720,6 +766,61 @@ describe("complexity fixtures (M29 constructs)", () => {
       functionName: "h",
       line: 19,
       complexity: 2,
+    });
+  });
+});
+
+describe("complexity fixtures (M50 callbacks / IIFEs)", () => {
+  it("locks McCabe values for call-argument callbacks and IIFEs", () => {
+    const result = analyzeFixture("callbacks-iife.ts");
+
+    expect(result.file).toEqual({
+      filePath: "callbacks-iife.ts",
+      functionCount: 6,
+      cyclomaticComplexity: 12,
+    });
+
+    expect(
+      result.functions.find((fn) => fn.functionName === "usesCallbacks"),
+    ).toMatchObject({
+      functionName: "usesCallbacks",
+      line: 11,
+      complexity: 3,
+    });
+    expect(
+      result.functions.find((fn) => fn.functionName === "<anonymous>:L12"),
+    ).toMatchObject({
+      functionName: "<anonymous>:L12",
+      line: 12,
+      complexity: 2,
+    });
+    expect(
+      result.functions.find((fn) => fn.functionName === "<anonymous>:L16"),
+    ).toMatchObject({
+      functionName: "<anonymous>:L16",
+      line: 16,
+      complexity: 2,
+    });
+    expect(
+      result.functions.find((fn) => fn.functionName === "usesIife"),
+    ).toMatchObject({
+      functionName: "usesIife",
+      line: 22,
+      complexity: 2,
+    });
+    expect(
+      result.functions.find((fn) => fn.functionName === "<anonymous>:L23"),
+    ).toMatchObject({
+      functionName: "<anonymous>:L23",
+      line: 23,
+      complexity: 2,
+    });
+    expect(
+      result.functions.find((fn) => fn.functionName === "<anonymous>:L28"),
+    ).toMatchObject({
+      functionName: "<anonymous>:L28",
+      line: 28,
+      complexity: 1,
     });
   });
 });

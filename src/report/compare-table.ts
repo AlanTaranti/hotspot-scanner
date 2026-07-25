@@ -12,6 +12,7 @@ import {
   formatKinds,
   formatStaticDep,
 } from "./coupling-format.js";
+import { buildCompareTriageHints } from "./compare-triage.js";
 import { renderTableGlossary } from "./glossary.js";
 import {
   ALL_REPORT_SECTIONS,
@@ -20,11 +21,14 @@ import {
   type ReportSection,
 } from "./only.js";
 import { buildCompareExecutiveSummary } from "./summary.js";
+import { renderTableTriageHints } from "./triage.js";
 import { formatScanWarning } from "./warning-format.js";
 
 export interface CompareRenderOptions {
   only?: readonly ReportSection[];
   color?: boolean;
+  /** When false, omits triage section. Defaults to true. */
+  triageHints?: boolean;
   /** Full compare result before slice; defaults to displayed for summary totals. */
   full?: CompareResult;
 }
@@ -143,6 +147,7 @@ function renderHotspotRows(
       formatPlainScoreCell(hotspot.churnNormalized, 6),
       padStart(String(hotspot.functionCount), 5),
       padStart(String(hotspot.authorCount), 7),
+      padStart(hotspot.parseFailed ? "yes" : "no", 9),
     ].join("  "),
   );
 }
@@ -168,6 +173,7 @@ function renderRankChangedHotspotRows(
       formatPlainScoreCell(change.entity.churnNormalized, 6),
       padStart(String(change.entity.functionCount), 5),
       padStart(String(change.entity.authorCount), 7),
+      padStart(change.entity.parseFailed ? "yes" : "no", 9),
     ].join("  "),
   );
 }
@@ -278,9 +284,9 @@ function renderHotspotSections(
   colorEnabled: boolean,
 ): string[] {
   const header =
-    "Rank  File                      Score     Cpx   CpxN      Churn  ChurnN  Funcs  Authors";
+    "Rank  File                      Score     Cpx   CpxN      Churn  ChurnN  Funcs  Authors  ParseFail";
   const rankChangedHeader =
-    "Baseline  Current  Delta  File                      Score     Cpx   CpxN      Churn  ChurnN  Funcs  Authors";
+    "Baseline  Current  Delta  File                      Score     Cpx   CpxN      Churn  ChurnN  Funcs  Authors  ParseFail";
 
   return [
     "=== New Hotspots ===",
@@ -375,6 +381,13 @@ export function renderCompareTable(
 
   if (sections.coupling) {
     lines.push(...renderCouplingSections(result, colorEnabled), "");
+  }
+
+  if (options?.triageHints !== false) {
+    const triageLines = renderTableTriageHints(buildCompareTriageHints(result));
+    if (triageLines.length > 0) {
+      lines.push(...triageLines, "");
+    }
   }
 
   lines.push(...renderTableGlossary(), "");

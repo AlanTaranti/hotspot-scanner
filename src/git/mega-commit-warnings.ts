@@ -9,19 +9,27 @@ export const MEGA_COMMIT_SKIPPED_CODE = "MEGA_COMMIT_SKIPPED";
 
 const DEFAULT_MAX_DETAIL_WARNINGS = 5;
 
-export function formatMegaCommitSkipDetailWarning(skip: MegaCommitSkip): string {
-  return `Mega-commit skipped for coupling (${skip.uniqueFileCount} unique in-scope files > ${MEGA_COMMIT_UNIQUE_FILE_THRESHOLD}): ${skip.hash}`;
+export function formatMegaCommitSkipDetailWarning(
+  skip: MegaCommitSkip,
+  threshold: number = MEGA_COMMIT_UNIQUE_FILE_THRESHOLD,
+): string {
+  return `Mega-commit skipped for coupling (${skip.uniqueFileCount} unique in-scope files > ${threshold}): ${skip.hash}`;
 }
 
-export function formatMegaCommitSkipSummaryWarning(totalSkipped: number): string {
-  return `Mega-commit coupling skips: ${totalSkipped} commit(s) exceeded ${MEGA_COMMIT_UNIQUE_FILE_THRESHOLD} unique in-scope files`;
+export function formatMegaCommitSkipSummaryWarning(
+  totalSkipped: number,
+  threshold: number = MEGA_COMMIT_UNIQUE_FILE_THRESHOLD,
+): string {
+  return `Mega-commit coupling skips: ${totalSkipped} commit(s) exceeded ${threshold} unique in-scope files`;
 }
 
 export function createMegaCommitSkippedWarnings(
   skips: MegaCommitSkip[],
-  options?: { maxDetail?: number },
+  options?: { maxDetail?: number; megaCommitThreshold?: number },
 ): ScanWarning[] {
   const maxDetail = options?.maxDetail ?? DEFAULT_MAX_DETAIL_WARNINGS;
+  const threshold =
+    options?.megaCommitThreshold ?? MEGA_COMMIT_UNIQUE_FILE_THRESHOLD;
   if (skips.length === 0) {
     return [];
   }
@@ -31,7 +39,7 @@ export function createMegaCommitSkippedWarnings(
     warnings.push(
       createScanWarning(
         MEGA_COMMIT_SKIPPED_CODE,
-        formatMegaCommitSkipDetailWarning(skip),
+        formatMegaCommitSkipDetailWarning(skip, threshold),
       ),
     );
   }
@@ -41,7 +49,7 @@ export function createMegaCommitSkippedWarnings(
     warnings.push(
       createScanWarning(
         MEGA_COMMIT_SKIPPED_CODE,
-        formatMegaCommitSkipSummaryWarning(skips.length),
+        formatMegaCommitSkipSummaryWarning(skips.length, threshold),
       ),
     );
   }

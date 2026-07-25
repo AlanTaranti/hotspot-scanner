@@ -22,6 +22,8 @@ vi.mock("node:fs", async (importOriginal) => {
 });
 
 import type { CouplingPair } from "../types/index.js";
+import { ELIGIBLE_EXTENSIONS } from "../complexity/discover.js";
+import { PathAliasMap } from "../git/rename.js";
 import {
   buildStaticEdgeGraph,
   enrichCouplingStaticDeps,
@@ -97,6 +99,19 @@ afterEach(async () => {
   );
 });
 
+describe("ELIGIBLE_EXTENSIONS", () => {
+  it("is the shared source-extension SoT for enrich peer resolution", () => {
+    expect([...ELIGIBLE_EXTENSIONS]).toEqual([
+      ".ts",
+      ".tsx",
+      ".js",
+      ".jsx",
+      ".mjs",
+      ".cjs",
+    ]);
+  });
+});
+
 beforeEach(() => {
   readFileSyncCalls.splice(0);
 });
@@ -155,6 +170,54 @@ describe("extractStaticReferences", () => {
 });
 
 describe("enrichCouplingStaticDeps", () => {
+  it("detects static edges across rename-linked paths via canonicalizePath", async () => {
+    const repoPath = await createTempRepo({
+      "src/new.ts":
+        "import { v } from './provider';\nexport const x = v;\n",
+      "src/provider.ts": "export const v = 1;\n",
+    });
+
+    const aliasMap = new PathAliasMap();
+    aliasMap.link("src/old.ts", "src/new.ts");
+
+    const pairs = enrichCouplingStaticDeps(
+      [makePair("src/old.ts", "src/provider.ts")],
+      repoPath,
+      { canonicalizePath: (path) => aliasMap.canonical(path) },
+    );
+
+    expect(pairs[0]?.hasStaticDependency).toBe(true);
+    expect(pairs[0]?.staticDependencyDirection).toBe("a-to-b");
+    expect(pairs[0]?.hasRuntimeStaticDependency).toBe(true);
+    assertCouplingInvariants(pairs[0]!);
+  });
+
+  it("without canonicalizePath treats rename-linked pair paths as missing on disk", async () => {
+    const repoPath = await createTempRepo({
+      "src/new.ts":
+        "import { v } from './provider';\nexport const x = v;\n",
+      "src/provider.ts": "export const v = 1;\n",
+    });
+
+    const aliasMap = new PathAliasMap();
+    aliasMap.link("src/old.ts", "src/new.ts");
+
+    const withoutCanonicalize = enrichCouplingStaticDeps(
+      [makePair("src/old.ts", "src/provider.ts")],
+      repoPath,
+    );
+    const withCanonicalize = enrichCouplingStaticDeps(
+      [makePair("src/old.ts", "src/provider.ts")],
+      repoPath,
+      { canonicalizePath: (path) => aliasMap.canonical(path) },
+    );
+
+    expect(withoutCanonicalize[0]?.hasStaticDependency).toBe(false);
+    expect(withCanonicalize[0]?.hasStaticDependency).toBe(true);
+    assertCouplingInvariants(withoutCanonicalize[0]!);
+    assertCouplingInvariants(withCanonicalize[0]!);
+  });
+
   it("sets hasStaticDependency true when one file imports the other", async () => {
     const repoPath = await createTempRepo({
       "src/consumer.ts":
@@ -217,6 +280,23 @@ describe("enrichCouplingStaticDeps", () => {
     );
 
     expect(pairs[0]?.hasStaticDependency).toBe(false);
+    assertCouplingInvariants(pairs[0]!);
+  });
+
+  it("resolves .mjs import specifiers between peers", async () => {
+    const repoPath = await createTempRepo({
+      "src/consumer.mjs":
+        "import { value } from './provider.mjs';\nexport const out = value;\n",
+      "src/provider.mjs": "export const value = 42;\n",
+    });
+
+    const pairs = enrichCouplingStaticDeps(
+      [makePair("src/consumer.mjs", "src/provider.mjs")],
+      repoPath,
+    );
+
+    expect(pairs[0]?.hasStaticDependency).toBe(true);
+    expect(pairs[0]?.staticDependencyDirection).toBe("a-to-b");
     assertCouplingInvariants(pairs[0]!);
   });
 

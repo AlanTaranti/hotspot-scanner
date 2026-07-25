@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/scope-extensions-excludes/design.md`](./design.md)  
 **Spec**: [`.specs/features/scope-extensions-excludes/spec.md`](./spec.md)  
 **Context**: [`.specs/features/scope-extensions-excludes/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 **Soft dependency:** Prefer **M46** `exclude-tests-by-default` Complete before Execute so artifact vs test constants are split. Do **not** edit `DEFAULT_TEST_EXCLUDE_PATTERNS` in any task.
 
@@ -83,12 +83,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `ELIGIBLE_EXTENSIONS` === `[".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"]`
-- [ ] Discover includes in-scope `.mjs`/`.cjs`; excludes `.mts`/`.cts`
-- [ ] Enrich no longer maintains a divergent four-extension-only list (imports or equals `ELIGIBLE_EXTENSIONS`)
-- [ ] Function-mode allowlist tests cover a `.mjs` (or `.cjs`) key when present
-- [ ] Gate check passes: `pnpm exec vitest run src/complexity/discover.test.ts src/complexity/index.test.ts src/scoring/enrich-coupling-static.test.ts src/scan.test.ts` (adjust to files actually touched)
-- [ ] Test count: no silent deletions
+- [x] `ELIGIBLE_EXTENSIONS` === `[".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"]`
+- [x] Discover includes in-scope `.mjs`/`.cjs`; excludes `.mts`/`.cts`
+- [x] Enrich no longer maintains a divergent four-extension-only list (imports or equals `ELIGIBLE_EXTENSIONS`)
+- [x] Function-mode allowlist tests cover a `.mjs` (or `.cjs`) key when present
+- [x] Gate check passes: `pnpm exec vitest run src/complexity/discover.test.ts src/complexity/index.test.ts src/scoring/enrich-coupling-static.test.ts src/scan.test.ts` (adjust to files actually touched)
+- [x] Test count: no silent deletions
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/complexity/ src/scoring/enrich-coupling-static.test.ts src/scan.test.ts`
@@ -121,12 +121,12 @@ Expect: `.mjs`/`.cjs` eligible; `.mts` not.
 
 **Done when**:
 
-- [ ] Artifact defaults include `**/.turbo/**`, `**/.vercel/**`, `**/.cache/**`, `**/.nuxt/**`, `**/.output/**`, `**/.parcel-cache/**`, `**/tmp/**`
-- [ ] M7/M30 prior artifact patterns preserved
-- [ ] `DEFAULT_TEST_EXCLUDE_PATTERNS` (post-M46) **not** modified
-- [ ] `isPathInScope` / `shouldPruneDirectory` unit cases for nested `.turbo` / `.cache` / `tmp` paths
-- [ ] Gate check passes: `pnpm exec vitest run src/paths/`
-- [ ] Test count: no silent deletions
+- [x] Artifact defaults include `**/.turbo/**`, `**/.vercel/**`, `**/.cache/**`, `**/.nuxt/**`, `**/.output/**`, `**/.parcel-cache/**`, `**/tmp/**`
+- [x] M7/M30 prior artifact patterns preserved
+- [x] `DEFAULT_TEST_EXCLUDE_PATTERNS` (post-M46) **not** modified
+- [x] `isPathInScope` / `shouldPruneDirectory` unit cases for nested `.turbo` / `.cache` / `tmp` paths
+- [x] Gate check passes: `pnpm exec vitest run src/paths/`
+- [x] Test count: no silent deletions
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/paths/`
@@ -159,11 +159,11 @@ Expect: locked paths out of scope; test-pattern snapshot/equality unchanged if e
 
 **Done when**:
 
-- [ ] ARCHITECTURE lists `.mjs`/`.cjs` and new artifact dirs/patterns
-- [ ] README path-scoping summary updated
-- [ ] Residual test-extension note documented (ARCHITECTURE or CONCERNS)
-- [ ] Full gate passes: `pnpm build && pnpm test`
-- [ ] Test count: no silent deletions vs pre-feature baseline
+- [x] ARCHITECTURE lists `.mjs`/`.cjs` and new artifact dirs/patterns
+- [x] README path-scoping summary updated
+- [x] Residual test-extension note documented (ARCHITECTURE or CONCERNS)
+- [x] Full gate passes: `pnpm build && pnpm test`
+- [x] Test count: no silent deletions vs pre-feature baseline
 
 **Tests**: none  
 **Gate**: `pnpm build && pnpm test`

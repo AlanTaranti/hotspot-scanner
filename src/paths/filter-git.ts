@@ -29,5 +29,6 @@ export function filterGitMinerResult(
     fileStats,
     pairCounts,
     warnings: result.warnings,
+    canonicalizePath: result.canonicalizePath,
   };
 }

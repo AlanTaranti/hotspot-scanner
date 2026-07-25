@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/exclude-tests-by-default/design.md`](./design.md)  
 **Spec**: [`.specs/features/exclude-tests-by-default/spec.md`](./spec.md)  
 **Context**: [`.specs/features/exclude-tests-by-default/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -92,16 +92,16 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `DEFAULT_ARTIFACT_EXCLUDE_PATTERNS` equals previous M7/M30 list (unchanged entries)
-- [ ] `DEFAULT_TEST_EXCLUDE_PATTERNS` equals locked candidate set (8 file globs + `**/__tests__/**`)
-- [ ] `DEFAULT_EXCLUDE_PATTERNS` === `[...ARTIFACT, ...TEST]`
-- [ ] Default scope excludes `src/foo.test.ts`, `a.spec.tsx`, paths under `__tests__/`; includes `src/app.ts` and `src/testing/helpers.ts`
-- [ ] `createPathScope({ includeTests: true })` includes those test paths unless user `exclude` says otherwise
-- [ ] User `exclude` remains additive with `includeTests: true`
-- [ ] `shouldPruneDirectory` prunes `__tests__` (adjust pattern minimally only if needed)
-- [ ] Barrel re-exports artifact + test constants
-- [ ] Gate check passes: `pnpm exec vitest run src/paths/scope.test.ts`
-- [ ] Test count does not drop silently
+- [x] `DEFAULT_ARTIFACT_EXCLUDE_PATTERNS` equals previous M7/M30 list (unchanged entries)
+- [x] `DEFAULT_TEST_EXCLUDE_PATTERNS` equals locked candidate set (8 file globs + `**/__tests__/**`)
+- [x] `DEFAULT_EXCLUDE_PATTERNS` === `[...ARTIFACT, ...TEST]`
+- [x] Default scope excludes `src/foo.test.ts`, `a.spec.tsx`, paths under `__tests__/`; includes `src/app.ts` and `src/testing/helpers.ts`
+- [x] `createPathScope({ includeTests: true })` includes those test paths unless user `exclude` says otherwise
+- [x] User `exclude` remains additive with `includeTests: true`
+- [x] `shouldPruneDirectory` prunes `__tests__` (adjust pattern minimally only if needed)
+- [x] Barrel re-exports artifact + test constants
+- [x] Gate check passes: `pnpm exec vitest run src/paths/scope.test.ts`
+- [x] Test count does not drop silently
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/paths/scope.test.ts`
@@ -135,13 +135,13 @@ pnpm exec vitest run src/paths/scope.test.ts
 
 **Done when**:
 
-- [ ] `ScanOptions` documents optional `includeTests`
-- [ ] `runScan` / `previewScanScope` pass `includeTests` into `createPathScope` (not via config merge)
-- [ ] `formatScanScopePreview` emits `test files: excluded` by default and `test files: included` when opted in
-- [ ] Preview eligible count decreases when a `*.test.ts` exists in a temp tree under default scope vs `includeTests: true`
-- [ ] No new config key in `HotspotScannerConfig` / exemplar
-- [ ] Gate check passes: `pnpm exec vitest run src/scan-preview.test.ts`
-- [ ] Test count does not drop silently
+- [x] `ScanOptions` documents optional `includeTests`
+- [x] `runScan` / `previewScanScope` pass `includeTests` into `createPathScope` (not via config merge)
+- [x] `formatScanScopePreview` emits `test files: excluded` by default and `test files: included` when opted in
+- [x] Preview eligible count decreases when a `*.test.ts` exists in a temp tree under default scope vs `includeTests: true`
+- [x] No new config key in `HotspotScannerConfig` / exemplar
+- [x] Gate check passes: `pnpm exec vitest run src/scan-preview.test.ts`
+- [x] Test count does not drop silently
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/scan-preview.test.ts`
@@ -175,14 +175,14 @@ pnpm exec vitest run src/scan-preview.test.ts
 
 **Done when**:
 
-- [ ] `--include-tests` on `scan`, `baseline save`, and `compare`
-- [ ] Help text lists the flag (at least `scan --help`)
-- [ ] Flag sets `includeTests: true` on options passed to `runScan` / preview / baseline / compare paths
-- [ ] Omitted flag leaves `includeTests` unset/false
-- [ ] Combined with `--exclude` still forwards user excludes (no clearing)
-- [ ] No `includeTests` config key added
-- [ ] Gate check passes: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
-- [ ] Test count does not drop silently
+- [x] `--include-tests` on `scan`, `baseline save`, and `compare`
+- [x] Help text lists the flag (at least `scan --help`)
+- [x] Flag sets `includeTests: true` on options passed to `runScan` / preview / baseline / compare paths
+- [x] Omitted flag leaves `includeTests` unset/false
+- [x] Combined with `--exclude` still forwards user excludes (no clearing)
+- [x] No `includeTests` config key added
+- [x] Gate check passes: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
+- [x] Test count does not drop silently
 
 **Tests**: CLI unit  
 **Gate**: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
@@ -217,13 +217,13 @@ pnpm exec hotspot-scanner scan --help | grep -F -- '--include-tests'
 
 **Done when**:
 
-- [ ] ARCHITECTURE lists artifact + test defaults and `--include-tests` lift semantics
-- [ ] README documents `--include-tests` and default test exclusion
-- [ ] `docs/recipes.md` weekly triage does not require `--exclude "**/*.test.ts"` for default case; includes `--include-tests` audit example; monorepo examples drop redundant test-only excludes covered by defaults
-- [ ] STATE.md has Execute-complete decision when marking Done (planning row already present)
-- [ ] ROADMAP M46 items checked when feature Done
-- [ ] Full gate passes: `pnpm build && pnpm test`
-- [ ] Optional manual smoke noted: `pnpm exec hotspot-scanner scan . --top 10` shows no test paths; with `--include-tests` they may reappear
+- [x] ARCHITECTURE lists artifact + test defaults and `--include-tests` lift semantics
+- [x] README documents `--include-tests` and default test exclusion
+- [x] `docs/recipes.md` weekly triage does not require `--exclude "**/*.test.ts"` for default case; includes `--include-tests` audit example; monorepo examples drop redundant test-only excludes covered by defaults
+- [x] STATE.md has Execute-complete decision when marking Done (planning row already present)
+- [x] ROADMAP M46 items checked when feature Done
+- [x] Full gate passes: `pnpm build && pnpm test`
+- [x] Optional manual smoke noted: `pnpm exec hotspot-scanner scan . --top 10` shows no test paths; with `--include-tests` they may reappear
 
 **Tests**: none (docs) + full gate  
 **Gate**: `pnpm build && pnpm test`

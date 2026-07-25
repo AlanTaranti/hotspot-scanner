@@ -55,7 +55,7 @@ describe("renderCompareTable", () => {
     expect(output).toContain("StaticDep");
   });
 
-  it("never emits triage hints", () => {
+  it("emits triage hints when rules match (default)", () => {
     const output = renderCompareTable(
       loadCompareResult(
         "compare-baseline-file.json",
@@ -63,7 +63,28 @@ describe("renderCompareTable", () => {
       ),
     );
 
+    expect(output).toContain("Triage hints");
+    expect(output).toContain("src/new.ts");
+    expect(output).toContain(
+      "New dual-signal hotspot vs baseline — complexity and churn both elevated; prioritize review.",
+    );
+    const triageIndex = output.indexOf("Triage hints");
+    const glossaryIndex = output.indexOf("Glossary");
+    expect(triageIndex).toBeGreaterThan(-1);
+    expect(glossaryIndex).toBeGreaterThan(triageIndex);
+  });
+
+  it("omits triage section when triageHints is false", () => {
+    const output = renderCompareTable(
+      loadCompareResult(
+        "compare-baseline-file.json",
+        "compare-current-file.json",
+      ),
+      { triageHints: false },
+    );
+
     expect(output).not.toContain("Triage hints");
+    expect(output).toContain("Glossary");
   });
 
   it("omits coupling sections when --only hotspots", () => {

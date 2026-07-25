@@ -5,6 +5,7 @@ export interface GitLogSpawnOptions {
   repoPath: string;
   since?: string;
   signal?: AbortSignal;
+  onSpawnArgv?: (argv: string[]) => void;
 }
 
 export class GitLogError extends Error {
@@ -47,6 +48,7 @@ export async function* streamGitLog(
 ): AsyncGenerator<string> {
   const args = buildGitLogArgv(options);
   const command = `git ${args.join(" ")}`;
+  options.onSpawnArgv?.(args);
 
   const child = spawn("git", args, { stdio: ["ignore", "pipe", "pipe"] });
 

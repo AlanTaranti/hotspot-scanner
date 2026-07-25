@@ -1,0 +1,7 @@
+# rename-unlinked-stem.txt — ts→tsx extension change without git rename metadata
+# Expected warning: Suspected unlinked rename: src/widget.ts -> src/widget.tsx
+# Expected churn: unified under src/widget.tsx — commitCount=1 linesChanged=16
+
+COMMIT|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb|Mon Jan 2 00:00:00 2024 +0000|Bob
+0	6	src/widget.ts
+10	0	src/widget.tsx

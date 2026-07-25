@@ -18,11 +18,13 @@ import {
   createCliProgram,
   DEFAULT_BASELINE_OUTPUT,
   deriveCsvStem,
+  parseDoctorFormat,
   parseFormat,
   parseGranularity,
   parseOnlySectionCli,
   parsePositiveInteger,
   resolvePackageVersion,
+  resolveSequentialCliOption,
   resolveTableColor,
   runCli,
   validateBaselinePath,
@@ -30,11 +32,32 @@ import {
   validateOutputPath,
   validateScopePatterns,
 } from "./hotspot-scanner.js";
+import {
+  COMPLETION_SHELLS,
+  getCompletionScript,
+} from "./completion-scripts.js";
 
 const smallTsFixture = join(
   fileURLToPath(new URL(".", import.meta.url)),
   "../tests/fixtures/repos/small-ts",
 );
+
+const monorepoNestedFixture = join(
+  fileURLToPath(new URL(".", import.meta.url)),
+  "../tests/fixtures/repos/monorepo-nested",
+);
+
+const monorepoApiPackagePath = join(
+  monorepoNestedFixture,
+  "packages",
+  "api",
+);
+
+function extractEligibleFileCount(output: string): number {
+  const match = output.match(/eligible files: (\d+)/);
+  expect(match).not.toBeNull();
+  return Number.parseInt(match![1]!, 10);
+}
 
 const packageVersion = (
   JSON.parse(
@@ -49,6 +72,16 @@ const triageFixturePath = join(
   fileURLToPath(new URL(".", import.meta.url)),
   "../tests/fixtures/report/sample-result.json",
 );
+
+function loadCompareFixture(name: string) {
+  const raw = JSON.parse(readFileSync(join(
+    fileURLToPath(new URL(".", import.meta.url)),
+    `../tests/fixtures/report/${name}`,
+  ), "utf8")) as { _comment?: string } & ReturnType<typeof mockScanResult>;
+  const { _comment: _ignored, ...fixture } = raw;
+  void _ignored;
+  return fixture;
+}
 
 function loadTriageFixture() {
   const raw = JSON.parse(readFileSync(triageFixturePath, "utf8")) as {
@@ -83,6 +116,7 @@ function mockScanResult() {
         commitCount: 15,
         linesChanged: 320,
         authorCount: 3,
+        parseFailed: false,
       },
     ],
     functions: [],
@@ -144,6 +178,17 @@ describe("hotspot-scanner CLI parsing", () => {
     expect(() => parseFormat("xml")).toThrow(/table, json, markdown, or csv/);
   });
 
+  it("parseDoctorFormat accepts text and json", () => {
+    expect(parseDoctorFormat("text")).toBe("text");
+    expect(parseDoctorFormat("json")).toBe("json");
+  });
+
+  it("parseDoctorFormat rejects invalid values", () => {
+    expect(() => parseDoctorFormat("xml")).toThrow(CliUsageError);
+    expect(() => parseDoctorFormat("xml")).toThrow(/Invalid --format/);
+    expect(() => parseDoctorFormat("xml")).toThrow(/text or json/);
+  });
+
   it("parseGranularity accepts file and function", () => {
     expect(parseGranularity("file")).toBe("file");
     expect(parseGranularity("function")).toBe("function");
@@ -158,6 +203,7 @@ describe("hotspot-scanner CLI parsing", () => {
   it("parsePositiveInteger accepts positive integers", () => {
     expect(parsePositiveInteger("20", "--top")).toBe(20);
     expect(parsePositiveInteger("3", "--min-cochange")).toBe(3);
+    expect(parsePositiveInteger("150", "--mega-commit-threshold")).toBe(150);
   });
 
   it("parsePositiveInteger rejects non-positive values", () => {
@@ -190,19 +236,48 @@ describe("createCliProgram", () => {
         "--output",
         "--top",
         "--min-cochange",
+        "--mega-commit-threshold",
         "--concurrency",
+        "--sequential",
+        "--no-overlap",
         "--include",
         "--exclude",
+        "--include-tests",
         "--baseline",
         "--config",
         "--quiet",
         "--no-progress",
+        "--verbose",
         "--only",
         "--no-triage-hints",
         "--no-color",
         "--explain",
+        "--strict",
       ]),
     );
+  });
+
+  it("scan help lists --strict", () => {
+    const help = getScanHelpText();
+
+    expect(help).toContain("--strict");
+    expect(help).toMatch(/COMPARE_SINCE_MISMATCH/);
+  });
+
+  it("scan help lists --sequential and --no-overlap with alias language", () => {
+    const help = getScanHelpText();
+
+    expect(help).toContain("--sequential");
+    expect(help).toContain("--no-overlap");
+    expect(help).toMatch(/alias for --sequential/i);
+    expect(help).toMatch(/M34/i);
+  });
+
+  it("scan help lists --include-tests", () => {
+    const help = getScanHelpText();
+
+    expect(help).toContain("--include-tests");
+    expect(help).toMatch(/test files/i);
   });
 
   it("scan help lists --explain", () => {
@@ -280,14 +355,17 @@ describe("createCliProgram", () => {
     expect(init?.options.map((option) => option.long)).toContain("--force");
   });
 
-  it("exposes doctor command with --config", () => {
+  it("exposes doctor command with --config and --include-tests", () => {
     const program = createCliProgram();
     const doctor = program.commands.find(
       (command) => command.name() === "doctor",
     );
 
     expect(doctor).toBeDefined();
-    expect(doctor?.options.map((option) => option.long)).toContain("--config");
+    const optionLongs = doctor?.options.map((option) => option.long) ?? [];
+    expect(optionLongs).toContain("--config");
+    expect(optionLongs).toContain("--include-tests");
+    expect(optionLongs).toContain("--format");
   });
 
   it("root help mentions init and doctor commands", () => {
@@ -295,6 +373,13 @@ describe("createCliProgram", () => {
 
     expect(program.helpInformation()).toContain("init");
     expect(program.helpInformation()).toContain("doctor");
+  });
+
+  it("scan help lists --mega-commit-threshold", () => {
+    const help = getScanHelpText();
+
+    expect(help).toContain("--mega-commit-threshold");
+    expect(help).toMatch(/coupling pairs are skipped/i);
   });
 
   it("scan help lists --dry-run", () => {
@@ -319,9 +404,13 @@ describe("createCliProgram", () => {
         "--granularity",
         "--top",
         "--min-cochange",
+        "--mega-commit-threshold",
         "--concurrency",
+        "--sequential",
+        "--no-overlap",
         "--include",
         "--exclude",
+        "--include-tests",
         "--config",
       ]),
     );
@@ -376,23 +465,50 @@ describe("createCliProgram", () => {
         "--since",
         "--granularity",
         "--min-cochange",
+        "--mega-commit-threshold",
         "--concurrency",
+        "--sequential",
+        "--no-overlap",
         "--include",
         "--exclude",
+        "--include-tests",
         "--config",
         "--quiet",
         "--no-progress",
+        "--verbose",
         "--only",
         "--no-triage-hints",
         "--no-color",
+        "--explain",
+        "--strict",
       ]),
     );
     expect(compare?.options.map((option) => option.long)).not.toContain(
       "--dry-run",
     );
-    expect(compare?.options.map((option) => option.long)).not.toContain(
-      "--explain",
+  });
+
+  it("compare help lists --explain and --strict", () => {
+    const program = createCliProgram();
+    const compare = program.commands.find(
+      (command) => command.name() === "compare",
     );
+    const chunks: string[] = [];
+    compare?.configureOutput({
+      writeOut: (str) => {
+        chunks.push(str);
+      },
+      writeErr: (str) => {
+        chunks.push(str);
+      },
+    });
+    compare?.outputHelp();
+    const help = chunks.join("");
+
+    expect(help).toContain("--explain");
+    expect(help).toMatch(/compare delta/i);
+    expect(help).toContain("--strict");
+    expect(help).toMatch(/COMPARE_SINCE_MISMATCH/);
   });
 
   it("compare help documents required --baseline", () => {
@@ -412,10 +528,139 @@ describe("createCliProgram", () => {
     compare?.outputHelp();
     const help = chunks.join("");
 
-    expect(help).toMatch(/--baseline.*required/i);
+    expect(help).toMatch(/--baseline[\s\S]*required/i);
     expect(help).toContain("Baseline ScanResult JSON");
     expect(help).toContain("Examples:");
     expect(help).toMatch(/compare --baseline/);
+  });
+
+  it("exposes completion command with shell argument", () => {
+    const program = createCliProgram();
+    const completion = program.commands.find(
+      (command) => command.name() === "completion",
+    );
+
+    expect(completion).toBeDefined();
+    expect(completion?.registeredArguments).toHaveLength(1);
+    expect(completion?.registeredArguments[0]?.name()).toBe("shell");
+  });
+
+  it("completion help documents bash, zsh, and fish", () => {
+    const program = createCliProgram();
+    const completion = program.commands.find(
+      (command) => command.name() === "completion",
+    );
+    const chunks: string[] = [];
+    completion?.configureOutput({
+      writeOut: (str) => {
+        chunks.push(str);
+      },
+      writeErr: (str) => {
+        chunks.push(str);
+      },
+    });
+    completion?.outputHelp();
+    const help = chunks.join("");
+
+    expect(help).toMatch(/bash.*zsh.*fish|bash \| zsh \| fish/);
+    expect(help).toContain("Supported shells:");
+    expect(help).toContain("hotspot-scanner completion bash");
+  });
+});
+
+const LOCKED_COMMANDS = [
+  "init",
+  "doctor",
+  "scan",
+  "baseline",
+  "compare",
+  "completion",
+] as const;
+
+const REPRESENTATIVE_SCAN_FLAGS = [
+  "--format",
+  "--output",
+  "--exclude",
+  "--include",
+  "--config",
+  "--since",
+] as const;
+
+function expectCompletionScriptBasics(script: string): void {
+  for (const command of LOCKED_COMMANDS) {
+    expect(script).toContain(command);
+  }
+  for (const flag of REPRESENTATIVE_SCAN_FLAGS) {
+    expect(script).toContain(flag);
+  }
+  expect(script).toContain("save");
+}
+
+describe("getCompletionScript", () => {
+  it.each(COMPLETION_SHELLS)("returns a non-empty %s script with commands and flags", (shell) => {
+    const script = getCompletionScript(shell);
+
+    expect(script.length).toBeGreaterThan(0);
+    expectCompletionScriptBasics(script);
+  });
+
+  it("rejects unknown shells with CliUsageError listing allowed shells", () => {
+    expect(() => getCompletionScript("powershell")).toThrow(CliUsageError);
+    expect(() => getCompletionScript("powershell")).toThrow(/Invalid shell/);
+    expect(() => getCompletionScript("powershell")).toThrow(/bash/);
+    expect(() => getCompletionScript("powershell")).toThrow(/zsh/);
+    expect(() => getCompletionScript("powershell")).toThrow(/fish/);
+  });
+});
+
+describe("runCli completion", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it.each(COMPLETION_SHELLS)("prints %s completion script to stdout", async (shell) => {
+    const runScanSpy = vi.spyOn(scan, "runScan");
+    const { chunks } = captureStdout();
+
+    await runCli(["node", "hotspot-scanner", "completion", shell]);
+
+    const output = chunks.join("");
+    expect(output.length).toBeGreaterThan(0);
+    expectCompletionScriptBasics(output);
+    expect(runScanSpy).not.toHaveBeenCalled();
+  });
+
+  it("throws CliUsageError for invalid shell", async () => {
+    await expect(
+      runCli(["node", "hotspot-scanner", "completion", "nushell"]),
+    ).rejects.toThrow(CliUsageError);
+    await expect(
+      runCli(["node", "hotspot-scanner", "completion", "nushell"]),
+    ).rejects.toThrow(/bash/);
+    await expect(
+      runCli(["node", "hotspot-scanner", "completion", "nushell"]),
+    ).rejects.toThrow(/zsh/);
+    await expect(
+      runCli(["node", "hotspot-scanner", "completion", "nushell"]),
+    ).rejects.toThrow(/fish/);
+  });
+});
+
+describe("resolveSequentialCliOption", () => {
+  it("returns true when --sequential is set", () => {
+    expect(resolveSequentialCliOption({ sequential: true })).toBe(true);
+  });
+
+  it("returns true when --no-overlap is set", () => {
+    expect(resolveSequentialCliOption({ noOverlap: true })).toBe(true);
+  });
+
+  it("returns true when Commander sets overlap to false", () => {
+    expect(resolveSequentialCliOption({ overlap: false })).toBe(true);
+  });
+
+  it("returns false when neither flag is set", () => {
+    expect(resolveSequentialCliOption({})).toBe(false);
   });
 });
 
@@ -694,6 +939,7 @@ describe("runCli", () => {
           commitCount: 5,
           linesChanged: 100,
           authorCount: 1,
+          parseFailed: false,
         },
       ],
       functions: [],
@@ -702,6 +948,7 @@ describe("runCli", () => {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
         granularity: "file",
+        warnings: [],
       },
     });
     const { chunks } = captureStdout();
@@ -1007,6 +1254,7 @@ describe("runCli", () => {
           commitCount: 15,
           linesChanged: 320,
           authorCount: 3,
+          parseFailed: false,
         },
       ],
       functions: [],
@@ -1047,7 +1295,7 @@ describe("runCli", () => {
       );
       expect(JSON.parse(metaContent).kind).toBe("scan");
       expect(hotspotsContent.split("\n")[0]).toBe(
-        "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,lines",
+        "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,lines,parseFailed",
       );
       expect(couplingContent.split("\n")[0]).toBe(
         "rank,fileA,fileB,strength,coChanges,hasStaticDependency,staticDependencyDirection,hasRuntimeStaticDependency,hasTypeOnlyStaticDependency,hasReExportStaticDependency",
@@ -1227,6 +1475,29 @@ describe("runCli", () => {
     await expect(
       runCli(["node", "hotspot-scanner", "scan", ".", "--min-cochange", "-1"]),
     ).rejects.toThrow(CliUsageError);
+  });
+
+  it("throws CliUsageError for non-positive --mega-commit-threshold", async () => {
+    await expect(
+      runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        ".",
+        "--mega-commit-threshold",
+        "0",
+      ]),
+    ).rejects.toThrow(CliUsageError);
+    await expect(
+      runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        ".",
+        "--mega-commit-threshold",
+        "0",
+      ]),
+    ).rejects.toThrow(/--mega-commit-threshold must be a positive integer/);
   });
 
   it("throws CliUsageError for non-positive --concurrency", async () => {
@@ -1442,6 +1713,195 @@ describe("runCli", () => {
     );
   });
 
+  it("forwards --sequential to runScan when explicitly set", async () => {
+    const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
+      version: "1.0",
+      hotspots: [],
+      functions: [],
+      coupling: [],
+      meta: {
+        since: "12 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "file",
+        warnings: [],
+      },
+    });
+    captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      ".",
+      "--sequential",
+      "--format",
+      "table",
+    ]);
+
+    expect(runScanSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sequential: true,
+      }),
+    );
+  });
+
+  it("forwards --no-overlap to runScan as sequential: true", async () => {
+    const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
+      version: "1.0",
+      hotspots: [],
+      functions: [],
+      coupling: [],
+      meta: {
+        since: "12 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "file",
+        warnings: [],
+      },
+    });
+    captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      ".",
+      "--no-overlap",
+      "--format",
+      "table",
+    ]);
+
+    expect(runScanSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sequential: true,
+      }),
+    );
+  });
+
+  it("accepts both --sequential and --no-overlap without CliUsageError", async () => {
+    const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
+      version: "1.0",
+      hotspots: [],
+      functions: [],
+      coupling: [],
+      meta: {
+        since: "12 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "file",
+        warnings: [],
+      },
+    });
+    captureStdout();
+
+    await expect(
+      runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        ".",
+        "--sequential",
+        "--no-overlap",
+        "--format",
+        "table",
+      ]),
+    ).resolves.toBeUndefined();
+
+    expect(runScanSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sequential: true,
+      }),
+    );
+  });
+
+  it("omits sequential on runScan when neither flag is set", async () => {
+    const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
+      version: "1.0",
+      hotspots: [],
+      functions: [],
+      coupling: [],
+      meta: {
+        since: "12 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "file",
+        warnings: [],
+      },
+    });
+    captureStdout();
+
+    await runCli(["node", "hotspot-scanner", "scan", ".", "--format", "table"]);
+
+    const call = runScanSpy.mock.calls[0]?.[0];
+    expect(call).toBeDefined();
+    expect(call).not.toHaveProperty("sequential");
+  });
+
+  it("accepts --sequential with function granularity", async () => {
+    const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
+      version: "1.0",
+      hotspots: [],
+      functions: [],
+      coupling: [],
+      meta: {
+        since: "12 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "function",
+        warnings: [],
+      },
+    });
+    captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      smallTsFixture,
+      "--granularity",
+      "function",
+      "--sequential",
+      "--format",
+      "table",
+    ]);
+
+    expect(runScanSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        granularity: "function",
+        sequential: true,
+      }),
+    );
+  });
+
+  it("forwards --mega-commit-threshold to runScan when explicitly set", async () => {
+    const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
+      version: "1.0",
+      hotspots: [],
+      functions: [],
+      coupling: [],
+      meta: {
+        since: "12 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "file",
+        warnings: [],
+      },
+    });
+    captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      ".",
+      "--mega-commit-threshold",
+      "75",
+      "--format",
+      "table",
+    ]);
+
+    expect(runScanSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        megaCommitThreshold: 75,
+      }),
+    );
+  });
+
   it("forwards only explicit CLI overrides to runScan when config is present", async () => {
     const repoPath = await createIsolatedSmallTsRepo();
     try {
@@ -1459,6 +1919,7 @@ describe("runCli", () => {
           since: "6 months ago",
           scannedAt: "2026-01-01T00:00:00.000Z",
           granularity: "file",
+          warnings: [],
         },
       });
       captureStdout();
@@ -1476,6 +1937,7 @@ describe("runCli", () => {
         repoPath,
         onWarning: expect.any(Function),
         onProgress: expect.any(Function),
+        signal: expect.any(AbortSignal),
       });
     } finally {
       await rm(repoPath, { recursive: true, force: true });
@@ -1499,6 +1961,7 @@ describe("runCli", () => {
           since: "1 week ago",
           scannedAt: "2026-01-01T00:00:00.000Z",
           granularity: "file",
+          warnings: [],
         },
       });
       captureStdout();
@@ -1518,6 +1981,7 @@ describe("runCli", () => {
         expect.objectContaining({
           repoPath,
           since: "1 week ago",
+          signal: expect.any(AbortSignal),
         }),
       );
     } finally {
@@ -1569,6 +2033,95 @@ describe("runCli", () => {
     }
   });
 
+  it("forwards --include-tests to runScan on scan", async () => {
+    const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
+      version: "1.0",
+      hotspots: [],
+      functions: [],
+      coupling: [],
+      meta: {
+        since: "12 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "file",
+        warnings: [],
+      },
+    });
+    captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      ".",
+      "--include-tests",
+      "--format",
+      "table",
+    ]);
+
+    expect(runScanSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        includeTests: true,
+        signal: expect.any(AbortSignal),
+      }),
+    );
+  });
+
+  it("omits includeTests on runScan when --include-tests is not set", async () => {
+    const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
+      version: "1.0",
+      hotspots: [],
+      functions: [],
+      coupling: [],
+      meta: {
+        since: "12 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "file",
+        warnings: [],
+      },
+    });
+    captureStdout();
+
+    await runCli(["node", "hotspot-scanner", "scan", ".", "--format", "table"]);
+
+    const call = runScanSpy.mock.calls[0]?.[0];
+    expect(call).toBeDefined();
+    expect(call).not.toHaveProperty("includeTests");
+    expect(call).toHaveProperty("signal");
+  });
+
+  it("forwards --include-tests with --exclude to runScan", async () => {
+    const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
+      version: "1.0",
+      hotspots: [],
+      functions: [],
+      coupling: [],
+      meta: {
+        since: "12 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "file",
+        warnings: [],
+      },
+    });
+    captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      ".",
+      "--include-tests",
+      "--exclude",
+      "legacy/**",
+    ]);
+
+    expect(runScanSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        includeTests: true,
+        exclude: ["legacy/**"],
+      }),
+    );
+  });
+
   it("forwards include and exclude patterns to runScan", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
       version: "1.0",
@@ -1579,6 +2132,7 @@ describe("runCli", () => {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
         granularity: "file",
+        warnings: [],
       },
     });
     captureStdout();
@@ -1612,6 +2166,7 @@ describe("runCli", () => {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
         granularity: "function",
+        warnings: [],
       },
     });
     captureStdout();
@@ -2039,6 +2594,7 @@ describe("runCli", () => {
           commitCount: 5,
           linesChanged: 100,
           authorCount: 1,
+          parseFailed: false,
         },
       ],
       functions: [],
@@ -2116,6 +2672,7 @@ describe("runCli", () => {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
         granularity: "file",
+        warnings: [],
       },
     });
     captureStdout();
@@ -2140,6 +2697,7 @@ describe("runCli", () => {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
         granularity: "file",
+        warnings: [],
       },
     });
     captureStdout();
@@ -2225,6 +2783,7 @@ describe("runCli", () => {
           commitCount: 15,
           linesChanged: 320,
           authorCount: 3,
+          parseFailed: false,
         },
       ],
       functions: [],
@@ -2272,6 +2831,7 @@ describe("runCli", () => {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
         granularity: "file",
+        warnings: [],
       },
     });
     const { chunks } = captureStdout();
@@ -2381,6 +2941,155 @@ describe("runCli", () => {
     }
   });
 
+  it("writes compare explain on stderr for scan --baseline --explain without altering JSON stdout", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
+    const baselinePath = join(tempDir, "baseline.json");
+    const baseline = loadCompareFixture("compare-baseline-file.json");
+    const current = loadCompareFixture("compare-current-file.json");
+    await writeFile(baselinePath, JSON.stringify(baseline), "utf8");
+    const stderrSpy = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    vi.spyOn(scan, "runScan").mockResolvedValue(current);
+    const { chunks } = captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        ".",
+        "--baseline",
+        baselinePath,
+        "--format",
+        "json",
+        "--explain",
+        "src/new.ts",
+      ]);
+
+      const stdout = chunks.join("");
+      expect(() => JSON.parse(stdout)).not.toThrow();
+      expect(stdout).not.toContain("=== Explain:");
+      expect(stderrSpy).toHaveBeenCalledWith(
+        expect.stringContaining("=== Compare Explain: src/new.ts (new) ==="),
+      );
+      expect(stderrSpy).toHaveBeenCalledWith(
+        expect.stringContaining("classification: new"),
+      );
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("exits 1 with --strict when since windows mismatch but still writes compare JSON", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
+    const baselinePath = join(tempDir, "baseline.json");
+    const baseline = loadCompareFixture("compare-baseline-file.json");
+    const current = {
+      ...loadCompareFixture("compare-current-file.json"),
+      meta: {
+        ...loadCompareFixture("compare-current-file.json").meta,
+        since: "12 months ago",
+      },
+    };
+    await writeFile(baselinePath, JSON.stringify(baseline), "utf8");
+    vi.spyOn(scan, "runScan").mockResolvedValue(current);
+    const { chunks } = captureStdout();
+
+    try {
+      await expect(
+        runCli([
+          "node",
+          "hotspot-scanner",
+          "scan",
+          ".",
+          "--baseline",
+          baselinePath,
+          "--format",
+          "json",
+          "--strict",
+        ]),
+      ).rejects.toMatchObject({ exitCode: 1 });
+
+      const stdout = chunks.join("");
+      const parsed = JSON.parse(stdout) as { version: string };
+      expect(parsed.version).toBe("1.0");
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("completes with exit 0 when since windows mismatch without --strict", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
+    const baselinePath = join(tempDir, "baseline.json");
+    const baseline = loadCompareFixture("compare-baseline-file.json");
+    const current = {
+      ...loadCompareFixture("compare-current-file.json"),
+      meta: {
+        ...loadCompareFixture("compare-current-file.json").meta,
+        since: "12 months ago",
+      },
+    };
+    await writeFile(baselinePath, JSON.stringify(baseline), "utf8");
+    vi.spyOn(scan, "runScan").mockResolvedValue(current);
+    const { chunks } = captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        ".",
+        "--baseline",
+        baselinePath,
+        "--format",
+        "json",
+      ]);
+
+      expect(() => JSON.parse(chunks.join(""))).not.toThrow();
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("does not exit 1 under --strict when only scan warnings are present", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
+    const baselinePath = join(tempDir, "baseline.json");
+    const baseline = loadCompareFixture("compare-baseline-file.json");
+    const current = {
+      ...loadCompareFixture("compare-current-file.json"),
+      meta: {
+        ...loadCompareFixture("compare-current-file.json").meta,
+        warnings: [
+          {
+            severity: "warning" as const,
+            code: "EMPTY_SINCE_WINDOW",
+            message: "No commits in since window",
+          },
+        ],
+      },
+    };
+    await writeFile(baselinePath, JSON.stringify(baseline), "utf8");
+    vi.spyOn(scan, "runScan").mockResolvedValue(current);
+    captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        ".",
+        "--baseline",
+        baselinePath,
+        "--format",
+        "json",
+        "--strict",
+      ]);
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
   it("fails when cwd is not a git repository and path is omitted", async () => {
     const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-nogit-"));
     const originalCwd = process.cwd();
@@ -2397,6 +3106,190 @@ describe("runCli", () => {
       ).rejects.toThrow(/Hint:.*\.git/);
     } finally {
       process.chdir(originalCwd);
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("prints verbose git argv lines when --verbose is set", async () => {
+    const stderrSpy = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    vi.spyOn(scan, "runScan").mockImplementation(async (options) => {
+      options.onSpawnArgv?.(["git", "-C", "/repo", "log", "--numstat"]);
+      return {
+        version: "1.0",
+        hotspots: [],
+        functions: [],
+        coupling: [],
+        meta: {
+          since: "12 months ago",
+          scannedAt: "2026-01-01T00:00:00.000Z",
+          granularity: "file",
+          warnings: [],
+        },
+      };
+    });
+    captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      ".",
+      "--format",
+      "table",
+      "--verbose",
+    ]);
+
+    expect(stderrSpy).toHaveBeenCalledWith(
+      "verbose: git git -C /repo log --numstat\n",
+    );
+  });
+
+  it("suppresses verbose git argv lines when --quiet wins", async () => {
+    const stderrSpy = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    vi.spyOn(scan, "runScan").mockImplementation(async (options) => {
+      options.onSpawnArgv?.(["git", "-C", "/repo", "log", "--numstat"]);
+      return {
+        version: "1.0",
+        hotspots: [],
+        functions: [],
+        coupling: [],
+        meta: {
+          since: "12 months ago",
+          scannedAt: "2026-01-01T00:00:00.000Z",
+          granularity: "file",
+          warnings: [],
+        },
+      };
+    });
+    captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      ".",
+      "--format",
+      "table",
+      "--verbose",
+      "--quiet",
+    ]);
+
+    expect(stderrSpy).not.toHaveBeenCalledWith(
+      expect.stringContaining("verbose: git"),
+    );
+  });
+
+  it("forwards onSpawnArgv to runScan when --verbose is set", async () => {
+    const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
+      version: "1.0",
+      hotspots: [],
+      functions: [],
+      coupling: [],
+      meta: {
+        since: "12 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "file",
+        warnings: [],
+      },
+    });
+    captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      ".",
+      "--format",
+      "table",
+      "--verbose",
+    ]);
+
+    expect(runScanSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        onSpawnArgv: expect.any(Function),
+      }),
+    );
+  });
+
+  it("exits 130 on SIGINT during scan without writing report", async () => {
+    const stderrSpy = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    let scanStarted = false;
+    vi.spyOn(scan, "runScan").mockImplementation((options) => {
+      scanStarted = true;
+      return new Promise((_resolve, reject) => {
+        options.signal?.addEventListener("abort", () => {
+          reject(new DOMException("Aborted", "AbortError"));
+        });
+      });
+    });
+    const { chunks } = captureStdout();
+
+    const runPromise = runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      ".",
+      "--format",
+      "table",
+    ]);
+    await vi.waitFor(() => expect(scanStarted).toBe(true));
+    const sigintListeners = process.listeners("SIGINT") as Array<() => void>;
+    sigintListeners[sigintListeners.length - 1]?.();
+
+    await expect(runPromise).rejects.toMatchObject({
+      exitCode: 130,
+      name: "ScanCancelExit",
+    });
+    expect(stderrSpy).toHaveBeenCalledWith("warning: scan cancelled\n");
+    expect(chunks.join("")).toBe("");
+  });
+
+  it("exits 143 on SIGTERM during compare without writing report", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-cancel-"));
+    const baselinePath = join(tempDir, "baseline.json");
+    await writeFile(baselinePath, JSON.stringify(mockScanResult()), "utf8");
+    const stderrSpy = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    let scanStarted = false;
+    vi.spyOn(scan, "runScan").mockImplementation((options) => {
+      scanStarted = true;
+      return new Promise((_resolve, reject) => {
+        options.signal?.addEventListener("abort", () => {
+          reject(new DOMException("Aborted", "AbortError"));
+        });
+      });
+    });
+    const { chunks } = captureStdout();
+
+    try {
+      const runPromise = runCli([
+        "node",
+        "hotspot-scanner",
+        "compare",
+        ".",
+        "--baseline",
+        baselinePath,
+        "--format",
+        "json",
+      ]);
+      await vi.waitFor(() => expect(scanStarted).toBe(true));
+      const sigtermListeners = process.listeners("SIGTERM") as Array<() => void>;
+      sigtermListeners[sigtermListeners.length - 1]?.();
+
+      await expect(runPromise).rejects.toMatchObject({
+        exitCode: 143,
+        name: "ScanCancelExit",
+      });
+      expect(stderrSpy).toHaveBeenCalledWith("warning: scan cancelled\n");
+      expect(chunks.join("")).toBe("");
+    } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
   });
@@ -2547,6 +3440,34 @@ describe("runCli baseline save", () => {
     }
   });
 
+  it("forwards --include-tests to runScan on baseline save", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-baseline-"));
+    const outputPath = join(tempDir, "baseline.json");
+    const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue(mockScanResult());
+    captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "baseline",
+        "save",
+        ".",
+        "--output",
+        outputPath,
+        "--include-tests",
+      ]);
+
+      expect(runScanSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          includeTests: true,
+        }),
+      );
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
   it("forwards scan options to runScan", async () => {
     const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-baseline-"));
     const outputPath = join(tempDir, "baseline.json");
@@ -2582,6 +3503,34 @@ describe("runCli baseline save", () => {
       await rm(tempDir, { recursive: true, force: true });
     }
   });
+
+  it("forwards --sequential to runScan on baseline save", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-baseline-"));
+    const outputPath = join(tempDir, "baseline.json");
+    const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue(mockScanResult());
+    captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "baseline",
+        "save",
+        ".",
+        "--output",
+        outputPath,
+        "--sequential",
+      ]);
+
+      expect(runScanSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sequential: true,
+        }),
+      );
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
 });
 
 describe("runCli compare", () => {
@@ -2601,6 +3550,76 @@ describe("runCli compare", () => {
       ).rejects.toMatchObject({ exitCode: 1 });
     } finally {
       exitSpy.mockRestore();
+    }
+  });
+
+  it("forwards --include-tests to runScan on compare", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-compare-"));
+    const baselinePath = join(tempDir, "baseline.json");
+    const scanResult = mockScanResult();
+    await writeFile(baselinePath, JSON.stringify(scanResult), "utf8");
+    const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue(scanResult);
+    vi.spyOn(report, "createReporter").mockReturnValue({
+      render: vi.fn(),
+      renderCompare: vi.fn(() => '{"version":"1.0"}\n'),
+    });
+    captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "compare",
+        ".",
+        "--baseline",
+        baselinePath,
+        "--include-tests",
+        "--format",
+        "json",
+      ]);
+
+      expect(runScanSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          includeTests: true,
+        }),
+      );
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("forwards --no-overlap to runScan on compare", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-compare-"));
+    const baselinePath = join(tempDir, "baseline.json");
+    const scanResult = mockScanResult();
+    await writeFile(baselinePath, JSON.stringify(scanResult), "utf8");
+    const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue(scanResult);
+    vi.spyOn(report, "createReporter").mockReturnValue({
+      render: vi.fn(),
+      renderCompare: vi.fn(() => '{"version":"1.0"}\n'),
+    });
+    captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "compare",
+        ".",
+        "--baseline",
+        baselinePath,
+        "--no-overlap",
+        "--format",
+        "json",
+      ]);
+
+      expect(runScanSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sequential: true,
+        }),
+      );
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
     }
   });
 
@@ -2672,6 +3691,113 @@ describe("runCli compare", () => {
           "csv",
         ]),
       ).rejects.toThrow(/--format csv requires --output/);
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("writes compare explain on stderr for compare --explain without altering JSON stdout", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-compare-"));
+    const baselinePath = join(tempDir, "baseline.json");
+    const baseline = loadCompareFixture("compare-baseline-file.json");
+    const current = loadCompareFixture("compare-current-file.json");
+    await writeFile(baselinePath, JSON.stringify(baseline), "utf8");
+    const stderrSpy = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    vi.spyOn(scan, "runScan").mockResolvedValue(current);
+    const { chunks } = captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "compare",
+        ".",
+        "--baseline",
+        baselinePath,
+        "--format",
+        "json",
+        "--explain",
+        "src/new.ts",
+      ]);
+
+      const stdout = chunks.join("");
+      expect(() => JSON.parse(stdout)).not.toThrow();
+      expect(stdout).not.toContain("=== Compare Explain:");
+      expect(stderrSpy).toHaveBeenCalledWith(
+        expect.stringContaining("=== Compare Explain: src/new.ts (new) ==="),
+      );
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("writes not-found compare explain message to stderr", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-compare-"));
+    const baselinePath = join(tempDir, "baseline.json");
+    const baseline = loadCompareFixture("compare-baseline-file.json");
+    const current = loadCompareFixture("compare-current-file.json");
+    await writeFile(baselinePath, JSON.stringify(baseline), "utf8");
+    const stderrSpy = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    vi.spyOn(scan, "runScan").mockResolvedValue(current);
+    captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "compare",
+        ".",
+        "--baseline",
+        baselinePath,
+        "--format",
+        "table",
+        "--explain",
+        "src/missing.ts",
+      ]);
+
+      expect(stderrSpy).toHaveBeenCalledWith(
+        "explain: no compare delta for src/missing.ts\n",
+      );
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("exits 1 with compare --strict when since windows mismatch", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-compare-"));
+    const baselinePath = join(tempDir, "baseline.json");
+    const baseline = loadCompareFixture("compare-baseline-file.json");
+    const current = {
+      ...loadCompareFixture("compare-current-file.json"),
+      meta: {
+        ...loadCompareFixture("compare-current-file.json").meta,
+        since: "12 months ago",
+      },
+    };
+    await writeFile(baselinePath, JSON.stringify(baseline), "utf8");
+    vi.spyOn(scan, "runScan").mockResolvedValue(current);
+    const { chunks } = captureStdout();
+
+    try {
+      await expect(
+        runCli([
+          "node",
+          "hotspot-scanner",
+          "compare",
+          ".",
+          "--baseline",
+          baselinePath,
+          "--format",
+          "json",
+          "--strict",
+        ]),
+      ).rejects.toMatchObject({ exitCode: 1 });
+
+      expect(() => JSON.parse(chunks.join(""))).not.toThrow();
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
@@ -2775,6 +3901,115 @@ describe("runCli doctor", () => {
     expect(output).toMatch(/pass:.*Node/);
     expect(output).toMatch(/pass:.*git is available/);
     expect(output).toMatch(/pass:.*Git repository/);
+    expect(output).toMatch(/pass:.*eligible files: \d+/);
+  });
+
+  it("exits 0 on monorepo nested package path with remount and scope", async () => {
+    const { chunks } = captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "doctor",
+      monorepoApiPackagePath,
+    ]);
+
+    const output = chunks.join("");
+    expect(output).toMatch(/pass:.*Git repository:.*monorepo-nested/);
+    expect(output).toMatch(/pass:.*eligible files: \d+/);
+    expect(output).toMatch(/remounted to git root/i);
+  });
+
+  it("reports scope eligible count matching dry-run for the same path", async () => {
+    const doctorStdout = captureStdout();
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "doctor",
+      monorepoApiPackagePath,
+    ]);
+    const doctorOutput = doctorStdout.chunks.join("");
+
+    const dryRunStdout = captureStdout();
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      monorepoApiPackagePath,
+      "--dry-run",
+    ]);
+    const dryRunOutput = dryRunStdout.chunks.join("");
+
+    expect(extractEligibleFileCount(doctorOutput)).toBe(
+      extractEligibleFileCount(dryRunOutput),
+    );
+  });
+
+  it("reports scope eligible count matching dry-run with --include-tests", async () => {
+    const doctorStdout = captureStdout();
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "doctor",
+      smallTsFixture,
+      "--include-tests",
+    ]);
+    const doctorOutput = doctorStdout.chunks.join("");
+
+    const dryRunStdout = captureStdout();
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      smallTsFixture,
+      "--dry-run",
+      "--include-tests",
+    ]);
+    const dryRunOutput = dryRunStdout.chunks.join("");
+
+    expect(extractEligibleFileCount(doctorOutput)).toBe(
+      extractEligibleFileCount(dryRunOutput),
+    );
+    expect(doctorOutput).toMatch(/pass:.*eligible files: \d+/);
+    expect(dryRunOutput).toContain("test files: included");
+  });
+
+  it("forwards --include-tests to runDoctor", async () => {
+    const doctorModule = await import("#doctor");
+    const runDoctorSpy = vi.spyOn(doctorModule, "runDoctor").mockResolvedValue({
+      findings: [],
+      exitCode: 0,
+    });
+    captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "doctor",
+      smallTsFixture,
+      "--include-tests",
+    ]);
+
+    expect(runDoctorSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        includeTests: true,
+      }),
+    );
+  });
+
+  it("omits includeTests on runDoctor when --include-tests is not set", async () => {
+    const doctorModule = await import("#doctor");
+    const runDoctorSpy = vi.spyOn(doctorModule, "runDoctor").mockResolvedValue({
+      findings: [],
+      exitCode: 0,
+    });
+    captureStdout();
+
+    await runCli(["node", "hotspot-scanner", "doctor", smallTsFixture]);
+
+    const call = runDoctorSpy.mock.calls[0]?.[0];
+    expect(call).toBeDefined();
+    expect(call).not.toHaveProperty("includeTests");
   });
 
   it("exits non-zero when target path is missing", async () => {
@@ -2789,11 +4024,127 @@ describe("runCli doctor", () => {
       runCli(["node", "hotspot-scanner", "doctor", missingPath]),
     ).rejects.toMatchObject({ exitCode: 1 });
   });
+
+  it("prints JSON doctor report with --format json", async () => {
+    const doctorModule = await import("#doctor");
+    vi.spyOn(doctorModule, "runDoctor").mockResolvedValue({
+      findings: [
+        {
+          id: "node-engines",
+          status: "pass",
+          message: "Node v22.0.0 satisfies engines.node (>=22)",
+        },
+      ],
+      exitCode: 0,
+    });
+    const { chunks } = captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "doctor",
+      smallTsFixture,
+      "--format",
+      "json",
+    ]);
+
+    const parsed = JSON.parse(chunks.join("")) as {
+      version: string;
+      findings: unknown[];
+      exitCode: number;
+    };
+    expect(parsed.version).toBe("1.0");
+    expect(parsed.findings).toHaveLength(1);
+    expect(parsed.exitCode).toBe(0);
+  });
+
+  it("prints JSON doctor report before non-zero exit", async () => {
+    const doctorModule = await import("#doctor");
+    vi.spyOn(doctorModule, "runDoctor").mockResolvedValue({
+      findings: [
+        {
+          id: "git-repo",
+          status: "fail",
+          message: "not a git repository",
+        },
+      ],
+      exitCode: 1,
+    });
+    const { chunks } = captureStdout();
+
+    await expect(
+      runCli([
+        "node",
+        "hotspot-scanner",
+        "doctor",
+        ".",
+        "--format",
+        "json",
+      ]),
+    ).rejects.toMatchObject({ exitCode: 1 });
+
+    const parsed = JSON.parse(chunks.join("")) as {
+      version: string;
+      exitCode: number;
+      findings: Array<{ id: string; status: string; message: string }>;
+    };
+    expect(parsed.version).toBe("1.0");
+    expect(parsed.exitCode).toBe(1);
+    expect(parsed.findings[0]?.id).toBe("git-repo");
+  });
+
+  it("throws CliUsageError for invalid doctor --format", async () => {
+    const doctorModule = await import("#doctor");
+    const runDoctorSpy = vi.spyOn(doctorModule, "runDoctor");
+    captureStdout();
+
+    await expect(
+      runCli([
+        "node",
+        "hotspot-scanner",
+        "doctor",
+        smallTsFixture,
+        "--format",
+        "xml",
+      ]),
+    ).rejects.toThrow(CliUsageError);
+
+    expect(runDoctorSpy).not.toHaveBeenCalled();
+  });
 });
 
 describe("runCli scan --dry-run", () => {
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  it("forwards --include-tests to previewScanScope on dry-run", async () => {
+    const previewSpy = vi.spyOn(scan, "previewScanScope").mockResolvedValue({
+      repoPath: smallTsFixture,
+      since: "12 months ago",
+      include: [],
+      exclude: [],
+      includeTests: true,
+      eligibleFileCount: 1,
+      concurrency: 1,
+    });
+    const { chunks } = captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      smallTsFixture,
+      "--dry-run",
+      "--include-tests",
+    ]);
+
+    expect(previewSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        includeTests: true,
+      }),
+    );
+    expect(chunks.join("")).toContain("test files: included");
   });
 
   it("prints scope preview without running full scan", async () => {

@@ -23,6 +23,7 @@ export interface AggregateAccumulators {
 
 export interface AggregateOneCommitOptions {
   isPathInScope?: (path: string) => boolean;
+  megaCommitThreshold?: number;
 }
 
 export function createAggregateAccumulators(): AggregateAccumulators {
@@ -112,12 +113,14 @@ export function aggregateOneCommit(
   }
 
   const isPathInScope = options?.isPathInScope;
+  const megaCommitThreshold =
+    options?.megaCommitThreshold ?? MEGA_COMMIT_UNIQUE_FILE_THRESHOLD;
   const inScopePaths =
     isPathInScope === undefined
       ? [...canonicalPaths]
       : [...canonicalPaths].filter((path) => isPathInScope(path));
 
-  if (inScopePaths.length > MEGA_COMMIT_UNIQUE_FILE_THRESHOLD) {
+  if (inScopePaths.length > megaCommitThreshold) {
     accumulators.megaCommitSkips.push({
       hash: commit.hash,
       uniqueFileCount: inScopePaths.length,

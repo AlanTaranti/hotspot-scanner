@@ -1,5 +1,6 @@
 import { access, stat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { MEGA_COMMIT_UNIQUE_FILE_THRESHOLD } from "../git/aggregate.js";
 import { DEFAULT_SINCE, DEFAULT_TOP } from "../scan.js";
 import { DEFAULT_MIN_COCHANGE } from "../scoring/index.js";
 import {
@@ -20,6 +21,7 @@ export const EXEMPLAR_HOTSPOT_SCANNER_CONFIG: HotspotScannerConfig = {
   exclude: [],
   granularity: "file",
   minCochange: DEFAULT_MIN_COCHANGE,
+  megaCommitThreshold: MEGA_COMMIT_UNIQUE_FILE_THRESHOLD,
   top: DEFAULT_TOP,
 };
 

@@ -16,10 +16,16 @@ Rank files to refactor this sprint. Narrow the Git window and cap table rows so 
 hotspot-scanner scan . --since "3 months ago" --top 10
 ```
 
-Focus on application source and skip tests:
+Focus on application source (tests are excluded by default):
 
 ```bash
-hotspot-scanner scan . --since "3 months ago" --top 15 --include "src/**" --exclude "**/*.test.ts"
+hotspot-scanner scan . --since "3 months ago" --top 15 --include "src/**"
+```
+
+Audit test-suite health (include co-located tests and `__tests__/`):
+
+```bash
+hotspot-scanner scan . --since "3 months ago" --top 15 --include-tests
 ```
 
 For a quieter CI or cron job (progress lines suppressed; warnings and errors still on stderr):
@@ -28,7 +34,7 @@ For a quieter CI or cron job (progress lines suppressed; warnings and errors sti
 hotspot-scanner scan . --since "3 months ago" --top 10 --quiet
 ```
 
-**Tip:** Defaults are `12 months ago` and `--top 20`. Override with CLI flags or set `since` / `top` in `.hotspot-scanner.json` (CLI wins over config).
+**Tip:** Defaults are `12 months ago`, `--top 20`, and mega-commit threshold `100`. Override with CLI flags or set `since` / `top` / `megaCommitThreshold` in `.hotspot-scanner.json` (CLI wins over config).
 
 ## PR markdown report
 
@@ -74,9 +80,9 @@ To scan the whole monorepo from a package cwd, run from the git root or pass exp
 {
   "since": "6 months ago",
   "include": ["packages/**/src/**"],
-  "exclude": ["**/*.test.ts", "**/*.spec.ts"],
   "top": 15,
-  "minCochange": 3
+  "minCochange": 3,
+  "megaCommitThreshold": 100
 }
 ```
 
@@ -91,8 +97,7 @@ hotspot-scanner scan packages/api
 ```json
 {
   "since": "3 months ago",
-  "include": ["src/**"],
-  "exclude": ["**/__tests__/**"]
+  "include": ["src/**"]
 }
 ```
 
@@ -110,14 +115,72 @@ hotspot-scanner scan . --config /ci/hotspot-scanner.json --since "3 months ago" 
 
 `format`, `output`, and `baseline` are CLI-only and cannot be set in the config file.
 
+## Excluding paths (no `.hotspotignore`)
+
+**`.hotspotignore` is not supported.** There is no gitignore-style ignore file — use config `exclude` and/or CLI `--exclude` (repeatable globs, additive on built-in artifact and test excludes).
+
+**One-off excludes** on the CLI:
+
+```bash
+hotspot-scanner scan . --exclude "**/*.stories.tsx" --exclude "legacy/**"
+```
+
+**Shared excludes** in `.hotspot-scanner.json`:
+
+```json
+{
+  "since": "6 months ago",
+  "include": ["src/**"],
+  "exclude": ["**/*.stories.tsx", "legacy/**", "generated/**"]
+}
+```
+
+Built-in artifact excludes (`node_modules`, `dist`, `.next`, and similar) always apply and cannot be disabled. Use `--include-tests` only to lift default test-file excludes — it does not bypass artifact or user excludes. See [README → Configuration](../README.md#configuration) for discovery and precedence (CLI > config > defaults).
+
 ## Baseline / compare
 
 Save a JSON snapshot, then diff a later scan to see new, removed, and rank-changed hotspots and coupling pairs.
 
-**1. Capture baseline**
+**Store baselines as CI artifacts** — do not commit large JSON snapshots to the repo. Upload the baseline from a scheduled or main-branch job and download it in PR compare jobs:
+
+```yaml
+# .github/workflows/hotspot.yml (illustrative)
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pnpm install && pnpm build
+      - run: pnpm exec hotspot-scanner baseline save . --output hotspot-baseline.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hotspot-baseline
+          path: hotspot-baseline.json
+
+  compare:
+    needs: baseline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: hotspot-baseline
+      - run: pnpm install && pnpm build
+      - run: pnpm exec hotspot-scanner compare . --baseline hotspot-baseline.json
+```
+
+**1. Capture baseline** (full, unfiltered `ScanResult` JSON)
 
 ```bash
 hotspot-scanner scan . --format json --output baseline.json
+# or: hotspot-scanner baseline save . --output baseline.json
+```
+
+**Do not use `--only` for baselines.** Section-filtered JSON omits top-level keys (`hotspots`, `coupling`, `functions`) and fails baseline validation. Save from an unfiltered scan only — see [README → Section filter (`--only`)](../README.md#output-formats).
+
+```bash
+# Partial export for triage — NOT a valid baseline
+hotspot-scanner scan . --only coupling --format json --output coupling-only.json
 ```
 
 **2. Compare current tree**
@@ -146,4 +209,29 @@ hotspot-scanner scan . --baseline baseline.json --format json --output compare.j
 hotspot-scanner scan . --baseline baseline.json --format csv --output compare.csv
 ```
 
-Use the same `--since` and `--granularity` for baseline and current scans when you care about rank deltas; mismatched windows may emit a `COMPARE_SINCE_MISMATCH` warning. Re-save the baseline after scanner upgrades that change the JSON shape.
+Use the same `--since` and `--granularity` for baseline and current scans when you care about rank deltas; mismatched windows emit a `COMPARE_SINCE_MISMATCH` warning. Re-save the baseline after scanner upgrades that change the JSON shape.
+
+### Compare interpretation (delta triage, explain, strict)
+
+Compare table and markdown include **delta-aware triage hints** by default (new dual-signal, rank worsened ≥5, new coupled-with-static). Suppress with `--no-triage-hints`. JSON and CSV omit triage.
+
+Explain a specific delta on stderr (stdout / `--output` unchanged):
+
+```bash
+hotspot-scanner compare . --baseline baseline.json --explain src/hot.ts
+hotspot-scanner scan . --baseline baseline.json -g function --explain src/hot.ts:myFn
+```
+
+Fail CI when baseline and current `--since` differ (report still written):
+
+```bash
+hotspot-scanner compare . --baseline baseline.json --strict
+```
+
+In GitHub Actions, add `--strict` to the compare step when you want mismatched windows to fail the job:
+
+```yaml
+      - run: pnpm exec hotspot-scanner compare . --baseline hotspot-baseline.json --strict
+```
+
+**Note:** Baselines captured before M46 (tests included) compared against a default scan (tests excluded) may show many "removed" test hotspots — expected; re-save the baseline or pass `--include-tests` on both legs for apples-to-apples test coverage.

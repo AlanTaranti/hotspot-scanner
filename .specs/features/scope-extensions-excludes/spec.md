@@ -14,10 +14,10 @@ Modern Node packages often ship dual-format sources (`.mjs` / `.cjs`) that today
 
 ## Goals
 
-- [ ] Add `.mjs` and `.cjs` to eligible source extensions end-to-end (discovery, complexity, git∩eligible intersection, enrich peer extensions)
-- [ ] Expand default **artifact** excludes with the locked M30 YAGNI-cut directory set
-- [ ] Leave M46 test patterns and `--include-tests` semantics unchanged
-- [ ] Document defaults in ARCHITECTURE / README; `pnpm build && pnpm test` green after Execute
+- [x] Add `.mjs` and `.cjs` to eligible source extensions end-to-end (discovery, complexity, git∩eligible intersection, enrich peer extensions)
+- [x] Expand default **artifact** excludes with the locked M30 YAGNI-cut directory set
+- [x] Leave M46 test patterns and `--include-tests` semantics unchanged
+- [x] Document defaults in ARCHITECTURE / README; `pnpm build && pnpm test` green after Execute
 
 ## Out of Scope
 
@@ -109,17 +109,17 @@ Modern Node packages often ship dual-format sources (`.mjs` / `.cjs`) that today
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| HOTSPOT-690 | P1: Eligible extensions — constant | Tasks | Pending |
-| HOTSPOT-691 | P1: Eligible extensions — discovery | Tasks | Pending |
-| HOTSPOT-692 | P1: Eligible extensions — function-mode ∩ | Tasks | Pending |
-| HOTSPOT-693 | P1: Eligible extensions — enrich SoT | Tasks | Pending |
-| HOTSPOT-694 | P1: Eligible extensions — no `.mts`/`.cts` | Tasks | Pending |
-| HOTSPOT-695 | P1: Artifact excludes — pattern set | Tasks | Pending |
-| HOTSPOT-696 | P1: Artifact excludes — isPathInScope | Tasks | Pending |
-| HOTSPOT-697 | P1: Artifact excludes — prune | Tasks | Pending |
-| HOTSPOT-698 | P1: Artifact excludes — no test-pattern churn | Tasks | Pending |
-| HOTSPOT-699 | P1: Docs — ARCHITECTURE/README | Tasks | Pending |
-| HOTSPOT-700 | P1: Docs — residual test.mjs note | Tasks | Pending |
+| HOTSPOT-690 | P1: Eligible extensions — constant | Done | Tasks |
+| HOTSPOT-691 | P1: Eligible extensions — discovery | Done | Tasks |
+| HOTSPOT-692 | P1: Eligible extensions — function-mode ∩ | Done | Tasks |
+| HOTSPOT-693 | P1: Eligible extensions — enrich SoT | Done | Tasks |
+| HOTSPOT-694 | P1: Eligible extensions — no `.mts`/`.cts` | Done | Tasks |
+| HOTSPOT-695 | P1: Artifact excludes — pattern set | Done | Tasks |
+| HOTSPOT-696 | P1: Artifact excludes — isPathInScope | Done | Tasks |
+| HOTSPOT-697 | P1: Artifact excludes — prune | Done | Tasks |
+| HOTSPOT-698 | P1: Artifact excludes — no test-pattern churn | Done | Tasks |
+| HOTSPOT-699 | P1: Docs — ARCHITECTURE/README | Done | Tasks |
+| HOTSPOT-700 | P1: Docs — residual test.mjs note | Done | Tasks |
 | HOTSPOT-701–709 | Reserved | — | — |
 
 **Coverage:** 11 mapped, 0 unmapped; 701–709 reserved.
@@ -128,7 +128,7 @@ Modern Node packages often ship dual-format sources (`.mjs` / `.cjs`) that today
 
 ## Success Criteria
 
-- [ ] `.mjs` / `.cjs` appear in discovery and function-mode allowlists when in scope
-- [ ] Locked artifact dirs are out of scope by default (including under `--include-tests`)
-- [ ] M46 test constants / CLI opt-in unchanged
-- [ ] `pnpm build && pnpm test` green
+- [x] `.mjs` / `.cjs` appear in discovery and function-mode allowlists when in scope
+- [x] Locked artifact dirs are out of scope by default (including under `--include-tests`)
+- [x] M46 test constants / CLI opt-in unchanged
+- [x] `pnpm build && pnpm test` green

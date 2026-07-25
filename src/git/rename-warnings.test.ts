@@ -1,16 +1,20 @@
 import { describe, expect, it } from "vitest";
 import type { ParsedCommit } from "./parse.js";
 import {
+  applyHeuristicRenameLinks,
   createEmptyBlindSpotSignals,
   createEmptySinceWindowWarning,
   createRenameHistoryIncompleteWarning,
+  detectUnlinkedRenamePairsFromCommit,
   formatAmbiguousRenameWarnings,
   formatFunctionPostRenameOverlapWarning,
   formatSinceTruncationWarning,
   formatUnlinkedRenameWarnings,
+  pairUnlinkedRenames,
   pathsLookLikeRename,
   recordBlindSpotsFromCommit,
 } from "./rename-warnings.js";
+import { PathAliasMap } from "./rename.js";
 
 describe("createEmptySinceWindowWarning", () => {
   it("returns structured EMPTY_SINCE_WINDOW warning", () => {
@@ -127,12 +131,94 @@ describe("pathsLookLikeRename", () => {
     expect(pathsLookLikeRename("src/foo.ts", "lib/foo.ts")).toBe(true);
   });
 
-  it("returns false for unrelated basenames", () => {
+  it("returns true for identical stem with eligible extensions", () => {
+    expect(pathsLookLikeRename("src/foo.ts", "src/foo.tsx")).toBe(true);
+    expect(pathsLookLikeRename("pkg/index.js", "pkg/index.mjs")).toBe(true);
+  });
+
+  it("returns false for unrelated basenames and stems", () => {
     expect(pathsLookLikeRename("src/foo.ts", "src/bar.ts")).toBe(false);
+    expect(pathsLookLikeRename("src/foo.ts", "src/bar.tsx")).toBe(false);
+  });
+
+  it("returns false when stem matches but extensions are not both eligible", () => {
+    expect(pathsLookLikeRename("src/foo.ts", "src/foo.md")).toBe(false);
   });
 
   it("returns false for identical paths", () => {
     expect(pathsLookLikeRename("src/foo.ts", "src/foo.ts")).toBe(false);
+  });
+});
+
+describe("pairUnlinkedRenames", () => {
+  it("pairs deterministically by sorted path order", () => {
+    expect(
+      pairUnlinkedRenames(
+        ["z/old/foo.ts", "a/old/foo.ts"],
+        ["b/foo.ts", "y/foo.ts"],
+      ),
+    ).toEqual([
+      { from: "a/old/foo.ts", to: "b/foo.ts" },
+      { from: "z/old/foo.ts", to: "y/foo.ts" },
+    ]);
+  });
+
+  it("skips unrelated paths", () => {
+    expect(pairUnlinkedRenames(["src/foo.ts"], ["src/bar.ts"])).toEqual([]);
+  });
+
+  it("uses first unused related add when multiple match", () => {
+    expect(
+      pairUnlinkedRenames(["src/old/foo.ts"], ["lib/foo.ts", "pkg/foo.ts"]),
+    ).toEqual([{ from: "src/old/foo.ts", to: "lib/foo.ts" }]);
+  });
+});
+
+describe("applyHeuristicRenameLinks", () => {
+  it("links pairs into PathAliasMap", () => {
+    const aliasMap = new PathAliasMap();
+    applyHeuristicRenameLinks(aliasMap, [
+      { from: "src/old/foo.ts", to: "lib/foo.ts" },
+    ]);
+    expect(aliasMap.canonical("src/old/foo.ts")).toBe("lib/foo.ts");
+  });
+});
+
+describe("detectUnlinkedRenamePairsFromCommit", () => {
+  const commit = (
+    files: ParsedCommit["files"],
+    hash = "abc123",
+  ): ParsedCommit => ({
+    hash,
+    date: new Date("2024-01-01"),
+    author: "dev",
+    files,
+  });
+
+  it("detects stem/extension relatedness", () => {
+    expect(
+      detectUnlinkedRenamePairsFromCommit(
+        commit([
+          { path: "src/foo.ts", additions: 0, deletions: 5 },
+          { path: "src/foo.tsx", additions: 5, deletions: 0 },
+        ]),
+      ),
+    ).toEqual([{ from: "src/foo.ts", to: "src/foo.tsx" }]);
+  });
+
+  it("returns empty when git rename metadata is present", () => {
+    expect(
+      detectUnlinkedRenamePairsFromCommit(
+        commit([
+          {
+            path: "lib/foo.ts",
+            additions: null,
+            deletions: null,
+            renameFrom: "src/old/foo.ts",
+          },
+        ]),
+      ),
+    ).toEqual([]);
   });
 });
 

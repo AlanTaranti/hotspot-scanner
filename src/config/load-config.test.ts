@@ -35,33 +35,53 @@ describe("parseHotspotScannerConfig", () => {
         exclude: ["**/*.test.ts"],
         granularity: "function",
         minCochange: 5,
+        megaCommitThreshold: 200,
         top: 10,
         concurrency: 2,
       }),
     ).toEqual({
-      since: "6 months ago",
-      include: ["src/**"],
-      exclude: ["**/*.test.ts"],
-      granularity: "function",
-      minCochange: 5,
-      top: 10,
-      concurrency: 2,
+      config: {
+        since: "6 months ago",
+        include: ["src/**"],
+        exclude: ["**/*.test.ts"],
+        granularity: "function",
+        minCochange: 5,
+        megaCommitThreshold: 200,
+        top: 10,
+        concurrency: 2,
+      },
+      unknownKeys: [],
     });
   });
 
   it("accepts empty object", () => {
-    expect(parseHotspotScannerConfig({})).toEqual({});
+    expect(parseHotspotScannerConfig({})).toEqual({
+      config: {},
+      unknownKeys: [],
+    });
   });
 
-  it("ignores unknown keys", () => {
+  it("collects unknown keys without applying them", () => {
+    const parsed = parseHotspotScannerConfig({
+      since: "1 year ago",
+      format: "json",
+      output: "/tmp/out.json",
+      unknownKey: true,
+    });
+    expect(parsed.config).toEqual({ since: "1 year ago" });
+    expect(parsed.unknownKeys).toEqual(["format", "output", "unknownKey"]);
+  });
+
+  it("accepts config with only unknown keys", () => {
     expect(
       parseHotspotScannerConfig({
-        since: "1 year ago",
         format: "json",
-        output: "/tmp/out.json",
         unknownKey: true,
       }),
-    ).toEqual({ since: "1 year ago" });
+    ).toEqual({
+      config: {},
+      unknownKeys: ["format", "unknownKey"],
+    });
   });
 
   it("rejects non-object root", () => {
@@ -126,6 +146,21 @@ describe("parseHotspotScannerConfig", () => {
     );
   });
 
+  it("rejects non-positive megaCommitThreshold", () => {
+    expect(() =>
+      parseHotspotScannerConfig({ megaCommitThreshold: 0 }),
+    ).toThrow(/"megaCommitThreshold"/);
+    expect(() =>
+      parseHotspotScannerConfig({ megaCommitThreshold: 1.5 }),
+    ).toThrow(/"megaCommitThreshold"/);
+    expect(() =>
+      parseHotspotScannerConfig({ megaCommitThreshold: -1 }),
+    ).toThrow(/"megaCommitThreshold"/);
+    expect(() =>
+      parseHotspotScannerConfig({ megaCommitThreshold: "100" }),
+    ).toThrow(/"megaCommitThreshold"/);
+  });
+
   it("rejects non-positive top", () => {
     expect(() => parseHotspotScannerConfig({ top: -1 })).toThrow(/"top"/);
     expect(() => parseHotspotScannerConfig({ top: "20" })).toThrow(/"top"/);
@@ -151,9 +186,12 @@ describe("parseHotspotScannerConfig", () => {
 });
 
 describe("loadHotspotScannerConfig", () => {
-  it("returns null when config file is missing", async () => {
+  it("returns null config when config file is missing", async () => {
     await withTempRepo({}, async (repoPath) => {
-      await expect(loadHotspotScannerConfig(repoPath)).resolves.toBeNull();
+      await expect(loadHotspotScannerConfig(repoPath)).resolves.toEqual({
+        config: null,
+        unknownKeys: [],
+      });
     });
   });
 
@@ -181,8 +219,11 @@ describe("loadHotspotScannerConfig", () => {
       },
       async (repoPath) => {
         await expect(loadHotspotScannerConfig(repoPath)).resolves.toEqual({
-          since: "3 months ago",
-          top: 15,
+          config: {
+            since: "3 months ago",
+            top: 15,
+          },
+          unknownKeys: [],
         });
       },
     );
@@ -200,8 +241,11 @@ describe("loadHotspotScannerConfig", () => {
       async (repoPath) => {
         const nestedRepoPath = join(repoPath, "repo", "nested");
         await expect(loadHotspotScannerConfig(nestedRepoPath)).resolves.toEqual({
-          since: "workspace default",
-          top: 20,
+          config: {
+            since: "workspace default",
+            top: 20,
+          },
+          unknownKeys: [],
         });
       },
     );
@@ -222,8 +266,11 @@ describe("loadHotspotScannerConfig", () => {
       async (repoPath) => {
         const repoLocalPath = join(repoPath, "repo");
         await expect(loadHotspotScannerConfig(repoLocalPath)).resolves.toEqual({
-          since: "repo override",
-          top: 5,
+          config: {
+            since: "repo override",
+            top: 5,
+          },
+          unknownKeys: [],
         });
       },
     );
@@ -247,8 +294,11 @@ describe("loadHotspotScannerConfig", () => {
         await expect(
           loadHotspotScannerConfig(nestedRepoPath, { configPath: explicitPath }),
         ).resolves.toEqual({
-          since: "explicit config",
-          top: 7,
+          config: {
+            since: "explicit config",
+            top: 7,
+          },
+          unknownKeys: [],
         });
       },
     );
@@ -282,8 +332,11 @@ describe("loadHotspotScannerConfig", () => {
       async (repoPath) => {
         const nestedRepoPath = join(repoPath, "repo", "nested");
         await expect(loadHotspotScannerConfig(nestedRepoPath)).resolves.toEqual({
-          since: "from-json",
-          top: 5,
+          config: {
+            since: "from-json",
+            top: 5,
+          },
+          unknownKeys: [],
         });
       },
     );
@@ -295,7 +348,10 @@ describe("loadHotspotScannerConfig", () => {
         ".hotspotrc": JSON.stringify({ since: "from-rc", top: 99 }),
       },
       async (repoPath) => {
-        await expect(loadHotspotScannerConfig(repoPath)).resolves.toBeNull();
+        await expect(loadHotspotScannerConfig(repoPath)).resolves.toEqual({
+          config: null,
+          unknownKeys: [],
+        });
       },
     );
 
@@ -309,8 +365,28 @@ describe("loadHotspotScannerConfig", () => {
       },
       async (repoPath) => {
         await expect(loadHotspotScannerConfig(repoPath)).resolves.toEqual({
-          since: "from-json",
-          top: 5,
+          config: {
+            since: "from-json",
+            top: 5,
+          },
+          unknownKeys: [],
+        });
+      },
+    );
+  });
+
+  it("loads unknown keys from repo config without failing", async () => {
+    await withTempRepo(
+      {
+        [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({
+          format: "json",
+          unknownKey: true,
+        }),
+      },
+      async (repoPath) => {
+        await expect(loadHotspotScannerConfig(repoPath)).resolves.toEqual({
+          config: {},
+          unknownKeys: ["format", "unknownKey"],
         });
       },
     );

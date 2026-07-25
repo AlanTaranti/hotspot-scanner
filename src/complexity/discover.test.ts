@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { afterEach, describe, expect, it } from "vitest";
 import { createPathScope } from "../paths/scope.js";
-import { discoverSourceFiles } from "./discover.js";
+import { discoverSourceFiles, ELIGIBLE_EXTENSIONS } from "./discover.js";
 
 const tempDirs: string[] = [];
 
@@ -26,6 +26,19 @@ afterEach(async () => {
   );
 });
 
+describe("ELIGIBLE_EXTENSIONS", () => {
+  it("lists TS/JS source extensions including .mjs and .cjs", () => {
+    expect([...ELIGIBLE_EXTENSIONS]).toEqual([
+      ".ts",
+      ".tsx",
+      ".js",
+      ".jsx",
+      ".mjs",
+      ".cjs",
+    ]);
+  });
+});
+
 describe("discoverSourceFiles", () => {
   it("returns only eligible extensions recursively", async () => {
     const repoPath = await createTempRepo({
@@ -33,16 +46,22 @@ describe("discoverSourceFiles", () => {
       "src/b.tsx": "export const b = 2;",
       "src/c.js": "export const c = 3;",
       "src/d.jsx": "export const d = 4;",
+      "src/a.mjs": "export const am = 5;",
+      "src/b.cjs": "module.exports = { bc: 6 };",
+      "src/c.mts": "export const cmt = 7;",
+      "src/d.cts": "export const cts = 8;",
       "src/readme.md": "# nope",
       "src/data.json": "{}",
-      "nested/deep/e.ts": "export const e = 5;",
+      "nested/deep/e.ts": "export const e = 9;",
     });
 
     const files = await discoverSourceFiles(repoPath);
 
     expect(files).toEqual([
       "nested/deep/e.ts",
+      "src/a.mjs",
       "src/a.ts",
+      "src/b.cjs",
       "src/b.tsx",
       "src/c.js",
       "src/d.jsx",

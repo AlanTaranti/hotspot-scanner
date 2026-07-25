@@ -86,7 +86,12 @@ describe("createComplexityAnalyzer", () => {
       cyclomaticComplexity: 0,
     });
 
-    expect(findResult(results, "invalid-syntax.ts")).toBeUndefined();
+    expect(findResult(results, "invalid-syntax.ts")).toEqual({
+      filePath: "invalid-syntax.ts",
+      functionCount: 0,
+      cyclomaticComplexity: 0,
+      parseFailed: true,
+    });
     expect(warnings).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -220,7 +225,7 @@ describe("createComplexityAnalyzer", () => {
     const analyzer = createComplexityAnalyzer({ concurrency: 2 });
     const { results, warnings } = await analyzer.analyze({ repoPath });
 
-    expect(results).toHaveLength(DEFAULT_BATCH_SIZE + 1 - 2);
+    expect(results).toHaveLength(DEFAULT_BATCH_SIZE + 1);
     expect(warnings).toHaveLength(2);
     expect(
       warnings.every(

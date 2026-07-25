@@ -15,6 +15,7 @@ const REQUIRED_TERMS = [
   "Funcs",
   "Authors",
   "Lines",
+  "ParseFail",
 ] as const;
 
 describe("glossary", () => {

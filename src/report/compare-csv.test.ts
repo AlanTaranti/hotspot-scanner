@@ -91,10 +91,10 @@ describe("renderCompareCsv", () => {
     );
 
     expect(bundle["hotspots.new.csv"]!.split("\n")[0]).toBe(
-      "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors",
+      "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,parseFailed",
     );
     expect(bundle["hotspots.rank-changed.csv"]!.split("\n")[0]).toBe(
-      "baselineRank,currentRank,rankDelta,file,score,cpx,cpxN,churn,churnN,funcs,authors",
+      "baselineRank,currentRank,rankDelta,file,score,cpx,cpxN,churn,churnN,funcs,authors,parseFailed",
     );
     expect(bundle["coupling.new.csv"]!.split("\n")[0]).toBe(COUPLING_CSV_HEADER);
     expect(bundle["coupling.rank-changed.csv"]!.split("\n")[0]).toBe(
@@ -160,7 +160,7 @@ describe("renderCompareCsv", () => {
 
     expect(lines).toHaveLength(1);
     expect(lines[0]).toBe(
-      "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors",
+      "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,parseFailed",
     );
   });
 

@@ -1,13 +1,12 @@
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, extname, join, normalize } from "node:path";
+import { ELIGIBLE_EXTENSIONS } from "../complexity/discover.js";
 import type {
   CouplingPair,
   StaticDependencyDirection,
 } from "../types/index.js";
 import { PackageExportsMap } from "./package-exports-map.js";
 import { TsconfigPathMap } from "./tsconfig-path-map.js";
-
-const SOURCE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx"] as const;
 
 const RELATIVE_SPECIFIER = String.raw`(\.\.?\/[^'"]+)`;
 
@@ -118,8 +117,8 @@ function normalizeRepoPath(filePath: string): string {
 
 function isSourceFile(filePath: string): boolean {
   const extension = extname(filePath);
-  return SOURCE_EXTENSIONS.includes(
-    extension as (typeof SOURCE_EXTENSIONS)[number],
+  return ELIGIBLE_EXTENSIONS.includes(
+    extension as (typeof ELIGIBLE_EXTENSIONS)[number],
   );
 }
 
@@ -185,11 +184,11 @@ function buildResolutionCandidates(basePath: string): string[] {
     return candidates;
   }
 
-  for (const suffix of SOURCE_EXTENSIONS) {
+  for (const suffix of ELIGIBLE_EXTENSIONS) {
     candidates.push(`${normalizedBase}${suffix}`);
   }
 
-  for (const suffix of SOURCE_EXTENSIONS) {
+  for (const suffix of ELIGIBLE_EXTENSIONS) {
     candidates.push(`${normalizedBase}/index${suffix}`);
   }
 
@@ -345,11 +344,14 @@ function mergeEdgeKinds(
   };
 }
 
-function collectPeerPaths(pairs: CouplingPair[]): Set<string> {
+function collectPeerPaths(
+  pairs: CouplingPair[],
+  canonicalizePath: (path: string) => string,
+): Set<string> {
   const paths = new Set<string>();
   for (const pair of pairs) {
-    paths.add(normalizeRepoPath(pair.fileA));
-    paths.add(normalizeRepoPath(pair.fileB));
+    paths.add(normalizeRepoPath(canonicalizePath(pair.fileA)));
+    paths.add(normalizeRepoPath(canonicalizePath(pair.fileB)));
   }
   return paths;
 }
@@ -390,9 +392,15 @@ function computeDirection(
   return "none";
 }
 
-function enrichPair(pair: CouplingPair, graph: StaticEdgeGraph): CouplingPair {
-  const aToB = getStaticEdge(graph, pair.fileA, pair.fileB);
-  const bToA = getStaticEdge(graph, pair.fileB, pair.fileA);
+function enrichPair(
+  pair: CouplingPair,
+  graph: StaticEdgeGraph,
+  canonicalizePath: (path: string) => string,
+): CouplingPair {
+  const fileA = normalizeRepoPath(canonicalizePath(pair.fileA));
+  const fileB = normalizeRepoPath(canonicalizePath(pair.fileB));
+  const aToB = getStaticEdge(graph, fileA, fileB);
+  const bToA = getStaticEdge(graph, fileB, fileA);
   const kinds = aggregateEdgeKinds(aToB, bToA);
 
   return {
@@ -405,20 +413,26 @@ function enrichPair(pair: CouplingPair, graph: StaticEdgeGraph): CouplingPair {
   };
 }
 
+export interface EnrichCouplingStaticDepsOptions {
+  canonicalizePath?: (path: string) => string;
+}
+
 export function enrichCouplingStaticDeps(
   pairs: CouplingPair[],
   repoPath: string,
+  options?: EnrichCouplingStaticDepsOptions,
 ): CouplingPair[] {
   if (pairs.length === 0) {
     return [];
   }
 
+  const canonicalizePath = options?.canonicalizePath ?? ((path) => path);
   const pathMap = new TsconfigPathMap(repoPath);
   const graph = buildStaticEdgeGraph(
-    collectPeerPaths(pairs),
+    collectPeerPaths(pairs, canonicalizePath),
     repoPath,
     pathMap,
   );
 
-  return pairs.map((pair) => enrichPair(pair, graph));
+  return pairs.map((pair) => enrichPair(pair, graph, canonicalizePath));
 }

@@ -8,14 +8,25 @@ import {
   HOTSPOT_SCANNER_CONFIG_FILENAME,
   loadHotspotScannerConfig,
 } from "../config/load-config.js";
-import { validateGitRepository } from "../scan.js";
+import { resolveMonorepoScanPath } from "../paths/index.js";
+import {
+  previewScanScope,
+  type ScanScopePreview,
+} from "../scan-preview.js";
+import {
+  resolveScanPipelineContext,
+  validateGitRepository,
+  type ScanPipelineContext,
+} from "../scan.js";
+import type { ScanOptions, ScanWarning } from "../types/index.js";
 
 export type DoctorFindingId =
   | "node-engines"
   | "git-path"
   | "git-repo"
   | "config"
-  | "tsconfig";
+  | "tsconfig"
+  | "scope";
 
 export type DoctorFindingStatus = "pass" | "warn" | "fail";
 
@@ -30,11 +41,18 @@ export interface DoctorResult {
   exitCode: 0 | 1 | 2;
 }
 
+export {
+  formatDoctorJsonReport,
+  type DoctorJsonReport,
+} from "./format.js";
+
 export interface RunDoctorOptions {
   targetPath: string;
   configPath?: string;
   enginesNode?: string;
   nodeVersion?: string;
+  /** Forward-compat with M46; CLI when available */
+  includeTests?: boolean;
 }
 
 const TSCONFIG_NAMES = ["tsconfig.json", "jsconfig.json"] as const;
@@ -170,7 +188,7 @@ async function checkConfig(
       };
     }
 
-    const config = await loadHotspotScannerConfig(resolvedPath);
+    const { config } = await loadHotspotScannerConfig(resolvedPath);
     if (config === null) {
       return {
         id: "config",
@@ -196,6 +214,98 @@ async function checkConfig(
       id: "config",
       status: "fail",
       message,
+    };
+  }
+}
+
+function buildScanOptions(options: RunDoctorOptions, resolvedPath: string): ScanOptions {
+  return {
+    repoPath: resolvedPath,
+    configPath: options.configPath,
+    includeTests: options.includeTests,
+  };
+}
+
+function formatGitRepoPassMessage(context: ScanPipelineContext): string {
+  let message = `Git repository: ${context.pipelineRepoPath}`;
+  if (context.remountWarning) {
+    message += ` (${context.remountWarning.message})`;
+  }
+  return message;
+}
+
+function formatPatternList(patterns: string[]): string {
+  if (patterns.length === 0) {
+    return "[]";
+  }
+  return JSON.stringify(patterns);
+}
+
+function formatScopeFindingMessage(
+  preview: ScanScopePreview,
+  remountWarning?: ScanWarning,
+): string {
+  const parts = [
+    `repo: ${preview.repoPath}`,
+    `include: ${formatPatternList(preview.include)}`,
+    `exclude: ${formatPatternList(preview.exclude)}`,
+    `eligible files: ${preview.eligibleFileCount}`,
+  ];
+  if (remountWarning) {
+    parts.push(remountWarning.message);
+  }
+  return parts.join("; ");
+}
+
+async function checkGitRepositoryFinding(
+  resolvedPath: string,
+  scanOptions: ScanOptions,
+): Promise<{
+  finding: DoctorFinding;
+  preludeContext?: ScanPipelineContext;
+}> {
+  try {
+    const preludeContext = await resolveScanPipelineContext(scanOptions);
+    return {
+      finding: {
+        id: "git-repo",
+        status: "pass",
+        message: formatGitRepoPassMessage(preludeContext),
+      },
+      preludeContext,
+    };
+  } catch (error) {
+    if (error instanceof ConfigError) {
+      try {
+        const resolved = await resolveMonorepoScanPath(resolvedPath);
+        await validateGitRepository(resolved.repoPath);
+        return {
+          finding: {
+            id: "git-repo",
+            status: "pass",
+            message: `Git repository: ${resolved.repoPath}`,
+          },
+        };
+      } catch (gitError) {
+        const message =
+          gitError instanceof Error ? gitError.message : String(gitError);
+        return {
+          finding: {
+            id: "git-repo",
+            status: "fail",
+            message,
+          },
+        };
+      }
+    }
+
+    const message = error instanceof Error ? error.message : String(error);
+    return {
+      finding: {
+        id: "git-repo",
+        status: "fail",
+        message,
+      },
     };
   }
 }
@@ -256,6 +366,7 @@ export async function runDoctor(
 
   const targetValidation = await validateTargetPath(options.targetPath);
   let resolvedPath: string | undefined;
+  let preludeContext: ScanPipelineContext | undefined;
   if (!targetValidation.ok) {
     findings.push({
       id: "git-repo",
@@ -264,26 +375,27 @@ export async function runDoctor(
     });
   } else {
     resolvedPath = targetValidation.resolvedPath;
-    try {
-      await validateGitRepository(resolvedPath);
-      findings.push({
-        id: "git-repo",
-        status: "pass",
-        message: `Git repository: ${resolvedPath}`,
-      });
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : String(error);
-      findings.push({
-        id: "git-repo",
-        status: "fail",
-        message,
-      });
-    }
+    const scanOptions = buildScanOptions(options, resolvedPath);
+    const gitCheck = await checkGitRepositoryFinding(resolvedPath, scanOptions);
+    findings.push(gitCheck.finding);
+    preludeContext = gitCheck.preludeContext;
   }
 
   if (resolvedPath) {
     findings.push(await checkConfig(resolvedPath, options.configPath));
+    if (preludeContext) {
+      const preview = await previewScanScope(
+        buildScanOptions(options, resolvedPath),
+      );
+      findings.push({
+        id: "scope",
+        status: "pass",
+        message: formatScopeFindingMessage(
+          preview,
+          preludeContext.remountWarning,
+        ),
+      });
+    }
     findings.push(checkTsConfig(resolvedPath));
   }
 

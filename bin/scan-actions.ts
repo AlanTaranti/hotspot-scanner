@@ -6,7 +6,11 @@ import { createCliDiagnosticHandlers } from "#diagnostics";
 import { createReporter } from "#report";
 import type { CsvBundle, ReportSection } from "#report";
 import { runScan } from "#scan";
-import type { ScanOptions, ScanResult } from "../src/types/index.js";
+import type {
+  CompareResult,
+  ScanOptions,
+  ScanResult,
+} from "../src/types/index.js";
 
 export type OutputFormat = "table" | "json" | "markdown" | "csv";
 
@@ -102,11 +106,83 @@ function writeReport(output: string, outputPath?: string): Promise<void> {
   return Promise.resolve();
 }
 
+export class ScanCancelExit extends Error {
+  readonly exitCode: 130 | 143;
+
+  constructor(exitCode: 130 | 143) {
+    super(`CLI exited with code ${exitCode}`);
+    this.name = "ScanCancelExit";
+    this.exitCode = exitCode;
+  }
+}
+
+export function isAbortError(error: unknown): boolean {
+  return (
+    error instanceof DOMException && error.name === "AbortError"
+  );
+}
+
+export function createVerboseSpawnArgvHandler(options: {
+  verbose: boolean;
+  quiet: boolean;
+}): ScanOptions["onSpawnArgv"] | undefined {
+  if (!options.verbose || options.quiet) {
+    return undefined;
+  }
+  return (argv) => {
+    process.stderr.write(`verbose: git ${argv.join(" ")}\n`);
+  };
+}
+
+export async function runWithScanCancelSignals<T>(
+  fn: (signal: AbortSignal) => Promise<T>,
+): Promise<T> {
+  const controller = new AbortController();
+  let cancelExitCode: 130 | 143 | undefined;
+
+  const cleanup = (): void => {
+    process.off("SIGINT", onSigint);
+    process.off("SIGTERM", onSigterm);
+  };
+
+  const onSigint = (): void => {
+    cancelExitCode = 130;
+    controller.abort();
+    cleanup();
+  };
+
+  const onSigterm = (): void => {
+    cancelExitCode = 143;
+    controller.abort();
+    cleanup();
+  };
+
+  process.on("SIGINT", onSigint);
+  process.on("SIGTERM", onSigterm);
+
+  try {
+    return await fn(controller.signal);
+  } catch (error) {
+    if (cancelExitCode !== undefined && isAbortError(error)) {
+      process.stderr.write("warning: scan cancelled\n");
+      throw new ScanCancelExit(cancelExitCode);
+    }
+    throw error;
+  } finally {
+    cleanup();
+  }
+}
+
 export function buildScanOptions(
   repoPath: string,
   cliOverrides: HotspotScannerConfig,
-  callbacks: Pick<ScanOptions, "onWarning" | "onProgress">,
+  callbacks: Pick<
+    ScanOptions,
+    "onWarning" | "onProgress" | "signal" | "onSpawnArgv"
+  >,
   configPath?: string,
+  includeTests?: boolean,
+  sequential?: boolean,
 ): ScanOptions {
   const scanOptions: ScanOptions = {
     repoPath,
@@ -132,11 +208,20 @@ export function buildScanOptions(
   if (cliOverrides.minCochange !== undefined) {
     scanOptions.minCochange = cliOverrides.minCochange;
   }
+  if (cliOverrides.megaCommitThreshold !== undefined) {
+    scanOptions.megaCommitThreshold = cliOverrides.megaCommitThreshold;
+  }
   if (cliOverrides.top !== undefined) {
     scanOptions.top = cliOverrides.top;
   }
   if (cliOverrides.concurrency !== undefined) {
     scanOptions.concurrency = cliOverrides.concurrency;
+  }
+  if (includeTests === true) {
+    scanOptions.includeTests = true;
+  }
+  if (sequential === true) {
+    scanOptions.sequential = true;
   }
 
   return scanOptions;
@@ -145,6 +230,9 @@ export function buildScanOptions(
 export type ScanDiagnosticOptions = {
   quiet?: boolean;
   noProgress?: boolean;
+  includeTests?: boolean;
+  verbose?: boolean;
+  signal?: AbortSignal;
 };
 
 export async function writeBaselineJson(
@@ -161,18 +249,30 @@ export async function executeScan(options: {
   repoPath: string;
   cliOverrides: HotspotScannerConfig;
   configPath?: string;
+  sequential?: boolean;
 } & ScanDiagnosticOptions): Promise<ScanResult> {
   const { onWarning, onProgress } = createCliDiagnosticHandlers({
     quiet: options.quiet ?? false,
     noProgress: options.noProgress ?? false,
+  });
+  const onSpawnArgv = createVerboseSpawnArgvHandler({
+    verbose: options.verbose ?? false,
+    quiet: options.quiet ?? false,
   });
 
   return runScan(
     buildScanOptions(
       options.repoPath,
       options.cliOverrides,
-      { onWarning, onProgress },
+      {
+        onWarning,
+        onProgress,
+        ...(options.signal !== undefined ? { signal: options.signal } : {}),
+        ...(onSpawnArgv !== undefined ? { onSpawnArgv } : {}),
+      },
       options.configPath,
+      options.includeTests,
+      options.sequential,
     ),
   );
 }
@@ -209,20 +309,32 @@ export async function executeCompareAndRender(options: {
   configPath?: string;
   outputPath?: string;
   reporterOptions: ReporterRenderOptions;
-} & ScanDiagnosticOptions): Promise<ScanResult> {
+  sequential?: boolean;
+} & ScanDiagnosticOptions): Promise<CompareResult> {
   await validateBaselinePath(options.baselinePath);
 
   const { onWarning, onProgress } = createCliDiagnosticHandlers({
     quiet: options.quiet ?? false,
     noProgress: options.noProgress ?? false,
   });
+  const onSpawnArgv = createVerboseSpawnArgvHandler({
+    verbose: options.verbose ?? false,
+    quiet: options.quiet ?? false,
+  });
 
   const result = await runScan(
     buildScanOptions(
       options.repoPath,
       options.cliOverrides,
-      { onWarning, onProgress },
+      {
+        onWarning,
+        onProgress,
+        ...(options.signal !== undefined ? { signal: options.signal } : {}),
+        ...(onSpawnArgv !== undefined ? { onSpawnArgv } : {}),
+      },
       options.configPath,
+      options.includeTests,
+      options.sequential,
     ),
   );
 
@@ -244,5 +356,5 @@ export async function executeCompareAndRender(options: {
     options.outputPath,
   );
 
-  return result;
+  return compareResult;
 }

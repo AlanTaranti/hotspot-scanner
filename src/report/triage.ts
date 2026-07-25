@@ -22,6 +22,9 @@ export interface TriageHint {
   rankMetric: number;
 }
 
+/** Shared render shape for scan and compare triage hints. */
+export type RenderableTriageHint = Pick<TriageHint, "message" | "target">;
+
 const DUAL_SIGNAL_MESSAGE =
   "High dual-signal hotspot — complexity and churn both elevated; prioritize review.";
 const COUPLED_WITH_STATIC_MESSAGE =
@@ -129,7 +132,7 @@ export function buildTriageHints(displayed: ScanResult): TriageHint[] {
   ];
 }
 
-export function renderTableTriageHints(hints: readonly TriageHint[]): string[] {
+export function renderTableTriageHints(hints: readonly RenderableTriageHint[]): string[] {
   if (hints.length === 0) {
     return [];
   }
@@ -140,7 +143,7 @@ export function renderTableTriageHints(hints: readonly TriageHint[]): string[] {
   ];
 }
 
-export function renderMarkdownTriageHints(hints: readonly TriageHint[]): string[] {
+export function renderMarkdownTriageHints(hints: readonly RenderableTriageHint[]): string[] {
   if (hints.length === 0) {
     return [];
   }

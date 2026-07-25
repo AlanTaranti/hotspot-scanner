@@ -23,5 +23,6 @@ export type {
   ScanProgress,
   ScanProgressPhase,
   ScanResult,
+  ScanStageTimings,
   ScanWarning,
 } from "./domain.js";

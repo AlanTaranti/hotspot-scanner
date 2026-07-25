@@ -102,7 +102,7 @@ describe("createGitMiner", () => {
     );
   });
 
-  it("warns on unlinked copy-paste rename from rename-unlinked fixture", async () => {
+  it("warns on unlinked copy-paste rename and unifies churn under new path", async () => {
     const lines = await fixtureLines("rename-unlinked.txt");
     const miner = createGitMiner({
       streamGitLog: () => streamFromLines(lines)(),
@@ -117,10 +117,50 @@ describe("createGitMiner", () => {
         ])[0]!,
       ),
     );
-    expect(result.fileStats.get("src/old/foo.ts")?.commitCount).toBe(1);
-    expect(result.fileStats.get("src/old/foo.ts")?.linesChanged).toBe(10);
+    expect(result.fileStats.has("src/old/foo.ts")).toBe(false);
     expect(result.fileStats.get("lib/foo.ts")?.commitCount).toBe(1);
-    expect(result.fileStats.get("lib/foo.ts")?.linesChanged).toBe(10);
+    expect(result.fileStats.get("lib/foo.ts")?.linesChanged).toBe(20);
+  });
+
+  it("links stem/extension unlinked renames from fixture", async () => {
+    const lines = await fixtureLines("rename-unlinked-stem.txt");
+    const miner = createGitMiner({
+      streamGitLog: () => streamFromLines(lines)(),
+    });
+
+    const result = await miner.mine({ repoPath: "/fixture" });
+
+    expect(result.warnings).toContainEqual(
+      createRenameHistoryIncompleteWarning(
+        formatUnlinkedRenameWarnings([
+          { from: "src/widget.ts", to: "src/widget.tsx" },
+        ])[0]!,
+      ),
+    );
+    expect(result.fileStats.has("src/widget.ts")).toBe(false);
+    expect(result.fileStats.get("src/widget.tsx")?.commitCount).toBe(1);
+    expect(result.fileStats.get("src/widget.tsx")?.linesChanged).toBe(16);
+  });
+
+  it("does not link unrelated delete+add paths in same commit", async () => {
+    const lines = [
+      "COMMIT|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|Mon Jan 1 00:00:00 2024 +0000|Alice",
+      "0\t5\tsrc/foo.ts",
+      "5\t0\tsrc/bar.ts",
+    ];
+    const miner = createGitMiner({
+      streamGitLog: () => streamFromLines(lines)(),
+    });
+
+    const result = await miner.mine({ repoPath: "/fixture" });
+
+    expect(
+      result.warnings.filter(
+        (warning) => warning.code === "RENAME_HISTORY_INCOMPLETE",
+      ),
+    ).toEqual([]);
+    expect(result.fileStats.get("src/foo.ts")?.commitCount).toBe(1);
+    expect(result.fileStats.get("src/bar.ts")?.commitCount).toBe(1);
   });
 
   it("warns on since truncation from rename-since-truncation fixture", async () => {
@@ -307,6 +347,54 @@ describe("createGitMiner", () => {
     await miner.mine({ repoPath: "/fixture", signal: controller.signal });
 
     expect(receivedSignal).toBe(controller.signal);
+  });
+
+  it("uses custom megaCommitThreshold for skip boundary and warning text", async () => {
+    const customThreshold = 50;
+    const lines = makeMegaCommitLines(
+      "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      51,
+    );
+    const miner = createGitMiner({
+      streamGitLog: () => streamFromLines(lines)(),
+    });
+
+    const result = await miner.mine({
+      repoPath: "/fixture",
+      megaCommitThreshold: customThreshold,
+    });
+
+    expect(result.pairCounts.size).toBe(0);
+    expect(result.fileStats.size).toBe(51);
+    expect(result.warnings).toContainEqual(
+      createScanWarning(
+        MEGA_COMMIT_SKIPPED_CODE,
+        `Mega-commit skipped for coupling (51 unique in-scope files > ${customThreshold}): eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`,
+      ),
+    );
+  });
+
+  it("raises mega-commit skip boundary when threshold is increased", async () => {
+    const customThreshold = 150;
+    const lines = makeMegaCommitLines(
+      "ffffffffffffffffffffffffffffffffffffffff",
+      101,
+    );
+    const miner = createGitMiner({
+      streamGitLog: () => streamFromLines(lines)(),
+    });
+
+    const result = await miner.mine({
+      repoPath: "/fixture",
+      megaCommitThreshold: customThreshold,
+    });
+
+    expect(result.pairCounts.size).toBe((101 * 100) / 2);
+    expect(
+      result.warnings.some(
+        (warning) => warning.code === MEGA_COMMIT_SKIPPED_CODE,
+      ),
+    ).toBe(false);
   });
 
   it("applies isPathInScope before mega-guard and pair aggregation", async () => {

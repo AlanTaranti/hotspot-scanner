@@ -55,10 +55,14 @@ describe("renderCsv", () => {
     const lines = bundle["hotspots.csv"]!.split("\n");
 
     expect(lines[0]).toBe(
-      "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,lines",
+      "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,lines,parseFailed",
     );
-    expect(lines[1]).toBe("1,src/hot.ts,0.8500,42,0.9000,15,0.9444,8,3,320");
-    expect(lines[3]).toBe("3,src/cold.ts,0.0200,3,0.1000,2,0.2000,1,1,15");
+    expect(lines[1]).toBe(
+      "1,src/hot.ts,0.8500,42,0.9000,15,0.9444,8,3,320,false",
+    );
+    expect(lines[3]).toBe(
+      "3,src/cold.ts,0.0200,3,0.1000,2,0.2000,1,1,15,false",
+    );
   });
 
   it("coupling.csv has correct header and data", () => {
@@ -104,7 +108,7 @@ describe("renderCsv", () => {
     const hotspotLines = bundle["hotspots.csv"]!.split("\n");
     expect(hotspotLines).toHaveLength(1);
     expect(hotspotLines[0]).toBe(
-      "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,lines",
+      "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,lines,parseFailed",
     );
 
     const couplingLines = bundle["coupling.csv"]!.split("\n");

@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/git-scale-pathspecs/design.md`](./design.md)  
 **Spec**: [`.specs/features/git-scale-pathspecs/spec.md`](./spec.md)  
 **Context**: [`.specs/features/git-scale-pathspecs/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -141,11 +141,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `partitionPathspecs` sorts + chunks correctly (incl. 1000 / 1001)
-- [ ] Non-empty paths always get pathspecs in argv (no length-based omit)
-- [ ] Empty / undefined paths unchanged (no `--` pathspecs)
-- [ ] Gate check passes: `pnpm exec vitest run src/git/function-churn/spawn.test.ts`
-- [ ] Test count: no silent deletions vs pre-task baseline for this file
+- [x] `partitionPathspecs` sorts + chunks correctly (incl. 1000 / 1001)
+- [x] Non-empty paths always get pathspecs in argv (no length-based omit)
+- [x] Empty / undefined paths unchanged (no `--` pathspecs)
+- [x] Gate check passes: `pnpm exec vitest run src/git/function-churn/spawn.test.ts`
+- [x] Test count: no silent deletions vs pre-task baseline for this file
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/git/function-churn/spawn.test.ts`
@@ -173,12 +173,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Over-threshold paths → ≥2 pathspec-restricted spawns (spy), sequential
-- [ ] Empty paths → no spawn
-- [ ] Merge semantics covered by unit tests (no double-count for same file functions)
-- [ ] Emergency path unit-tested with injectable spawn failure (or documented mock)
-- [ ] Gate check passes: `pnpm exec vitest run src/git/function-churn`
-- [ ] Test count: no silent deletions
+- [x] Over-threshold paths → ≥2 pathspec-restricted spawns (spy), sequential
+- [x] Empty paths → no spawn
+- [x] Merge semantics covered by unit tests (no double-count for same file functions)
+- [x] Emergency path unit-tested with injectable spawn failure (or documented mock)
+- [x] Gate check passes: `pnpm exec vitest run src/git/function-churn`
+- [x] Test count: no silent deletions
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/git/function-churn`
@@ -206,11 +206,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Default behavior remains threshold 100 when option omitted
-- [ ] Custom threshold changes skip boundary; churn still aggregated
-- [ ] Warning text uses effective threshold
-- [ ] Gate check passes: `pnpm exec vitest run src/git/aggregate.test.ts src/git/mega-commit-warnings.test.ts`
-- [ ] Test count: no silent deletions
+- [x] Default behavior remains threshold 100 when option omitted
+- [x] Custom threshold changes skip boundary; churn still aggregated
+- [x] Warning text uses effective threshold
+- [x] Gate check passes: `pnpm exec vitest run src/git/aggregate.test.ts src/git/mega-commit-warnings.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/git/aggregate.test.ts src/git/mega-commit-warnings.test.ts`
@@ -238,11 +238,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Config key parsed and validated as positive integer
-- [ ] Merge precedence CLI > config > 100
-- [ ] Exemplar includes `megaCommitThreshold: 100` (or default constant)
-- [ ] Gate check passes: `pnpm exec vitest run src/config`
-- [ ] Test count: no silent deletions
+- [x] Config key parsed and validated as positive integer
+- [x] Merge precedence CLI > config > 100
+- [x] Exemplar includes `megaCommitThreshold: 100` (or default constant)
+- [x] Gate check passes: `pnpm exec vitest run src/config`
+- [x] Test count: no silent deletions
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/config`
@@ -270,10 +270,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Warning present only when eligible count `> 1000`
-- [ ] Dry-run path still discovery-only
-- [ ] Gate check passes: `pnpm exec vitest run src/scan-preview.test.ts`
-- [ ] Test count: no silent deletions
+- [x] Warning present only when eligible count `> 1000`
+- [x] Dry-run path still discovery-only
+- [x] Gate check passes: `pnpm exec vitest run src/scan-preview.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/scan-preview.test.ts`
@@ -301,10 +301,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Effective threshold from merge reaches aggregate
-- [ ] Default 100 when unset
-- [ ] Gate check passes: `pnpm exec vitest run src/git/index.test.ts src/scan.test.ts`
-- [ ] Test count: no silent deletions
+- [x] Effective threshold from merge reaches aggregate
+- [x] Default 100 when unset
+- [x] Gate check passes: `pnpm exec vitest run src/git/index.test.ts src/scan.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/git/index.test.ts src/scan.test.ts`
@@ -332,10 +332,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Flag accepted and forwarded
-- [ ] Non-positive rejected with `CliUsageError`
-- [ ] Gate check passes: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
-- [ ] Test count: no silent deletions
+- [x] Flag accepted and forwarded
+- [x] Non-positive rejected with `CliUsageError`
+- [x] Gate check passes: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests**: unit (CLI)  
 **Gate**: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
@@ -363,10 +363,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Living docs describe batching + configurable mega threshold + dry-run warning
-- [ ] Integration: file-mode zero patch spawn; function-mode over-threshold uses pathspec batches
-- [ ] Gate check passes: `pnpm build && pnpm test`
-- [ ] Test count: no silent deletions vs pre-feature baseline
+- [x] Living docs describe batching + configurable mega threshold + dry-run warning
+- [x] Integration: file-mode zero patch spawn; function-mode over-threshold uses pathspec batches
+- [x] Gate check passes: `pnpm build && pnpm test`
+- [x] Test count: no silent deletions vs pre-feature baseline
 
 **Tests**: integration (+ docs checklist)  
 **Gate**: `pnpm build && pnpm test`

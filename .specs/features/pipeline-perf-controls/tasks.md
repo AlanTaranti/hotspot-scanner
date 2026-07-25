@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/pipeline-perf-controls/design.md`](./design.md)  
 **Spec**: [`.specs/features/pipeline-perf-controls/spec.md`](./spec.md)  
 **Context**: [`.specs/features/pipeline-perf-controls/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -123,13 +123,13 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `ScanOptions.sequential` documented as CLI/API-only (not a config key)
-- [ ] File mode + `sequential: true` → stages not concurrently in-flight (unit assert)
-- [ ] File mode + sequential unset → M34 overlap still observed (unit assert)
-- [ ] Sequential git or complexity failure rejects without scoring
-- [ ] Function-mode path still completes with `sequential: true` (unit or thin integration in T3)
-- [ ] Gate check passes: `pnpm exec vitest run src/scan.test.ts`
-- [ ] Test count: no silent deletions
+- [x] `ScanOptions.sequential` documented as CLI/API-only (not a config key)
+- [x] File mode + `sequential: true` → stages not concurrently in-flight (unit assert)
+- [x] File mode + sequential unset → M34 overlap still observed (unit assert)
+- [x] Sequential git or complexity failure rejects without scoring
+- [x] Function-mode path still completes with `sequential: true` (unit or thin integration in T3)
+- [x] Gate check passes: `pnpm exec vitest run src/scan.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/scan.test.ts`
@@ -163,13 +163,13 @@ pnpm exec vitest run src/scan.test.ts
 
 **Done when**:
 
-- [ ] Help lists `--sequential` and `--no-overlap` with alias language
-- [ ] Either flag sets `ScanOptions.sequential: true` on mocked `runScan`
-- [ ] Both flags together do not throw `CliUsageError`
-- [ ] Function-mode CLI with `--sequential` exits 0 on `small-ts` (or unit accepts granularity function)
-- [ ] No `sequential` key added to config types / merge
-- [ ] Gate check passes: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
-- [ ] Test count: no silent deletions
+- [x] Help lists `--sequential` and `--no-overlap` with alias language
+- [x] Either flag sets `ScanOptions.sequential: true` on mocked `runScan`
+- [x] Both flags together do not throw `CliUsageError`
+- [x] Function-mode CLI with `--sequential` exits 0 on `small-ts` (or unit accepts granularity function)
+- [x] No `sequential` key added to config types / merge
+- [x] Gate check passes: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests**: CLI unit  
 **Gate**: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
@@ -204,11 +204,11 @@ pnpm build && pnpm exec hotspot-scanner scan --help | rg "sequential|no-overlap"
 
 **Done when**:
 
-- [ ] Integration: sequential vs default file-mode rankings match on `small-ts`
-- [ ] Unit: sequential non-overlap + default overlap regression both present
-- [ ] Function-mode with sequential completes (exit path / integration)
-- [ ] Gate check passes: `pnpm exec vitest run src/scan.test.ts src/scan.integration.test.ts`
-- [ ] Test count: no silent deletions
+- [x] Integration: sequential vs default file-mode rankings match on `small-ts`
+- [x] Unit: sequential non-overlap + default overlap regression both present
+- [x] Function-mode with sequential completes (exit path / integration)
+- [x] Gate check passes: `pnpm exec vitest run src/scan.test.ts src/scan.integration.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests**: unit + integration  
 **Gate**: `pnpm exec vitest run src/scan.test.ts src/scan.integration.test.ts`
@@ -242,12 +242,12 @@ pnpm exec vitest run src/scan.test.ts src/scan.integration.test.ts
 
 **Done when**:
 
-- [ ] `pnpm bench` is defined and documented
-- [ ] Output includes wall-clock and at least one scale count field
-- [ ] A/B (or documented flag) exercises default vs `--sequential`
-- [ ] `package.json` `"test"` unchanged regarding bench (no bench dependency)
-- [ ] `benchmark-scan.md` states harness is not part of CI / `pnpm test`
-- [ ] Gate check: none for timing — verify script exists + `node --check` or dry help; do **not** add Vitest timing tests
+- [x] `pnpm bench` is defined and documented
+- [x] Output includes wall-clock and at least one scale count field
+- [x] A/B (or documented flag) exercises default vs `--sequential`
+- [x] `package.json` `"test"` unchanged regarding bench (no bench dependency)
+- [x] `benchmark-scan.md` states harness is not part of CI / `pnpm test`
+- [x] Gate check: none for timing — verify script exists + `node --check` or dry help; do **not** add Vitest timing tests
 
 **Tests**: none  
 **Gate**: `test -f scripts/bench-scan.mjs` (or chosen path) && `node --check <script>` (adjust if TypeScript runner)
@@ -285,10 +285,10 @@ node -e "const p=require('./package.json'); if(/bench/.test(p.scripts.test||''))
 
 **Done when**:
 
-- [ ] ARCHITECTURE documents `--sequential` / `--no-overlap` and default overlap
-- [ ] CONCERNS + TESTING note sequential opt-out and bench outside Vitest gate
-- [ ] Gate check passes: `pnpm build && pnpm test`
-- [ ] Test count: no silent deletions vs pre-task baseline
+- [x] ARCHITECTURE documents `--sequential` / `--no-overlap` and default overlap
+- [x] CONCERNS + TESTING note sequential opt-out and bench outside Vitest gate
+- [x] Gate check passes: `pnpm build && pnpm test`
+- [x] Test count: no silent deletions vs pre-task baseline
 
 **Tests**: none  
 **Gate**: `pnpm build && pnpm test`

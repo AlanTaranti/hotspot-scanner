@@ -2,17 +2,24 @@ import { cp, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   ConfigError,
   HOTSPOT_SCANNER_CONFIG_FILENAME,
 } from "./config/index.js";
 import { DEFAULT_WORKER_CONCURRENCY } from "./complexity/pool.js";
+import * as discoverModule from "./complexity/discover.js";
+import { PATCH_PATHSPEC_FALLBACK_THRESHOLD } from "./git/function-churn/spawn.js";
 import {
+  buildPathspecScaleWarning,
   formatScanScopePreview,
   previewScanScope,
 } from "./scan-preview.js";
 import { DEFAULT_SINCE } from "./scan.js";
+
+const execFileAsync = promisify(execFile);
 
 const createGitMinerSpy = vi.hoisted(() => vi.fn());
 const mineSpy = vi.hoisted(() => vi.fn());
@@ -140,6 +147,7 @@ describe("previewScanScope", () => {
       since: "6 months ago",
       include: ["src/**"],
       exclude: ["src/low.ts"],
+      includeTests: false,
       eligibleFileCount: 2,
       concurrency: 2,
     });
@@ -150,6 +158,28 @@ describe("previewScanScope", () => {
     expect(scoreCouplingSpy).not.toHaveBeenCalled();
     expect(scoreHotspotsSpy).not.toHaveBeenCalled();
     expect(scoreFunctionHotspotsSpy).not.toHaveBeenCalled();
+  });
+
+  it("excludes test files by default and includes them when includeTests is true", async () => {
+    const repoPath = await createIsolatedSmallTsRepo();
+    await writeFile(
+      join(repoPath, "src/app.test.ts"),
+      "export const test = 1;\n",
+      "utf8",
+    );
+    await execFileAsync("git", ["add", "src/app.test.ts"], { cwd: repoPath });
+
+    const defaultPreview = await previewScanScope({ repoPath });
+    const withTestsPreview = await previewScanScope({
+      repoPath,
+      includeTests: true,
+    });
+
+    expect(defaultPreview.includeTests).toBe(false);
+    expect(withTestsPreview.includeTests).toBe(true);
+    expect(withTestsPreview.eligibleFileCount).toBe(
+      defaultPreview.eligibleFileCount + 1,
+    );
   });
 
   it("merges repo config the same way as a full scan prelude", async () => {
@@ -252,6 +282,59 @@ describe("previewScanScope", () => {
     await expect(previewScanScope({ repoPath })).rejects.toThrow(ConfigError);
     await expect(previewScanScope({ repoPath })).rejects.toThrow(/Invalid JSON/);
   });
+
+  it("omits pathspecScaleWarning when eligible count is at threshold", async () => {
+    const repoPath = await createIsolatedSmallTsRepo();
+    const discoverSpy = vi
+      .spyOn(discoverModule, "discoverSourceFiles")
+      .mockResolvedValue(
+        Array.from(
+          { length: PATCH_PATHSPEC_FALLBACK_THRESHOLD },
+          (_, i) => `src/f${i}.ts`,
+        ),
+      );
+
+    try {
+      const preview = await previewScanScope({ repoPath });
+
+      expect(preview.eligibleFileCount).toBe(PATCH_PATHSPEC_FALLBACK_THRESHOLD);
+      expect(preview.pathspecScaleWarning).toBeUndefined();
+      expect(createGitMinerSpy).not.toHaveBeenCalled();
+      expect(mineSpy).not.toHaveBeenCalled();
+      expect(createComplexityAnalyzerSpy).not.toHaveBeenCalled();
+      expect(analyzeSpy).not.toHaveBeenCalled();
+    } finally {
+      discoverSpy.mockRestore();
+    }
+  });
+
+  it("sets pathspecScaleWarning when eligible count exceeds threshold without mining", async () => {
+    const repoPath = await createIsolatedSmallTsRepo();
+    const overThresholdCount = PATCH_PATHSPEC_FALLBACK_THRESHOLD + 1;
+    const discoverSpy = vi
+      .spyOn(discoverModule, "discoverSourceFiles")
+      .mockResolvedValue(
+        Array.from({ length: overThresholdCount }, (_, i) => `src/f${i}.ts`),
+      );
+
+    try {
+      const preview = await previewScanScope({ repoPath });
+
+      expect(preview.eligibleFileCount).toBe(overThresholdCount);
+      expect(preview.pathspecScaleWarning).toBe(
+        buildPathspecScaleWarning(overThresholdCount),
+      );
+      expect(createGitMinerSpy).not.toHaveBeenCalled();
+      expect(mineSpy).not.toHaveBeenCalled();
+      expect(createComplexityAnalyzerSpy).not.toHaveBeenCalled();
+      expect(analyzeSpy).not.toHaveBeenCalled();
+      expect(scoreCouplingSpy).not.toHaveBeenCalled();
+      expect(scoreHotspotsSpy).not.toHaveBeenCalled();
+      expect(scoreFunctionHotspotsSpy).not.toHaveBeenCalled();
+    } finally {
+      discoverSpy.mockRestore();
+    }
+  });
 });
 
 describe("formatScanScopePreview", () => {
@@ -261,6 +344,7 @@ describe("formatScanScopePreview", () => {
       since: "12 months ago",
       include: [],
       exclude: ["src/legacy/**"],
+      includeTests: false,
       eligibleFileCount: 7,
       concurrency: 4,
     });
@@ -272,9 +356,57 @@ describe("formatScanScopePreview", () => {
         "include: []",
         'exclude: ["src/legacy/**"]',
         "default excludes: always on",
+        "test files: excluded",
         "eligible files: 7",
         "concurrency: 4",
       ].join("\n") + "\n",
+    );
+  });
+
+  it("prints test files included when includeTests is true", () => {
+    const output = formatScanScopePreview({
+      repoPath: "/tmp/repo",
+      since: "12 months ago",
+      include: [],
+      exclude: [],
+      includeTests: true,
+      eligibleFileCount: 8,
+      concurrency: 4,
+    });
+
+    expect(output).toContain("test files: included");
+    expect(output).not.toContain("test files: excluded");
+  });
+
+  it("omits pathspec scale warning when eligible count is at threshold", () => {
+    const output = formatScanScopePreview({
+      repoPath: "/tmp/repo",
+      since: "12 months ago",
+      include: [],
+      exclude: [],
+      includeTests: false,
+      eligibleFileCount: PATCH_PATHSPEC_FALLBACK_THRESHOLD,
+      concurrency: 4,
+    });
+
+    expect(output).not.toContain("warning: eligible files");
+    expect(output).not.toContain("pathspec batch threshold");
+  });
+
+  it("includes pathspec scale warning when eligible count exceeds threshold", () => {
+    const eligibleFileCount = PATCH_PATHSPEC_FALLBACK_THRESHOLD + 1;
+    const output = formatScanScopePreview({
+      repoPath: "/tmp/repo",
+      since: "12 months ago",
+      include: [],
+      exclude: [],
+      includeTests: false,
+      eligibleFileCount,
+      concurrency: 4,
+    });
+
+    expect(output).toContain(
+      buildPathspecScaleWarning(eligibleFileCount),
     );
   });
 });

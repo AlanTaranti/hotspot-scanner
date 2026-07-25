@@ -218,7 +218,66 @@ describe("scoreHotspots", () => {
       commitCount: 10,
       linesChanged: 0,
       authorCount: 0,
+      parseFailed: false,
     });
+  });
+
+  it("scores parse-failed files with zeros and parseFailed true", () => {
+    const complexity: ComplexityResult[] = [
+      {
+        filePath: "src/broken.ts",
+        cyclomaticComplexity: 0,
+        functionCount: 0,
+        parseFailed: true,
+      },
+    ];
+    const fileStats = buildFileStats([
+      { filePath: "src/broken.ts", commitCount: 12, linesChanged: 80 },
+    ]);
+    const [result] = scoreHotspots(fileStats, complexity);
+
+    expect(result).toEqual({
+      filePath: "src/broken.ts",
+      complexityNormalized: 0,
+      churnNormalized: 0,
+      hotspotScore: 0,
+      cyclomaticComplexity: 0,
+      functionCount: 0,
+      commitCount: 12,
+      linesChanged: 80,
+      authorCount: 0,
+      parseFailed: true,
+    });
+  });
+
+  it("keeps successful-file order when parse-failed stubs are present", () => {
+    const okComplexity: ComplexityResult[] = [
+      { filePath: "src/low.ts", cyclomaticComplexity: 2, functionCount: 1 },
+      { filePath: "src/high.ts", cyclomaticComplexity: 20, functionCount: 1 },
+    ];
+    const withFailed: ComplexityResult[] = [
+      ...okComplexity,
+      {
+        filePath: "src/broken.ts",
+        cyclomaticComplexity: 0,
+        functionCount: 0,
+        parseFailed: true,
+      },
+    ];
+    const fileStats = buildFileStats([
+      { filePath: "src/low.ts", commitCount: 2 },
+      { filePath: "src/high.ts", commitCount: 20 },
+      { filePath: "src/broken.ts", commitCount: 50 },
+    ]);
+
+    const okOrder = scoreHotspots(fileStats, okComplexity).map(
+      (entry) => entry.filePath,
+    );
+    const mixedOrder = scoreHotspots(fileStats, withFailed)
+      .filter((entry) => !entry.parseFailed)
+      .map((entry) => entry.filePath);
+
+    expect(mixedOrder).toEqual(okOrder);
   });
 
   it("matches fixture expected ranking order", () => {

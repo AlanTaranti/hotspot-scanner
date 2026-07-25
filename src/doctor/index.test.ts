@@ -1,11 +1,16 @@
+import { execFile } from "node:child_process";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { promisify } from "node:util";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   HOTSPOT_SCANNER_CONFIG_FILENAME,
 } from "../config/load-config.js";
+import { previewScanScope } from "../scan-preview.js";
+
+const execFileAsync = promisify(execFile);
 
 const spawnSyncMock = vi.hoisted(() => vi.fn());
 
@@ -38,6 +43,11 @@ const smallTsFixture = join(
   "../../tests/fixtures/repos/small-ts",
 );
 
+const monorepoNestedFixture = join(
+  fileURLToPath(new URL(".", import.meta.url)),
+  "../../tests/fixtures/repos/monorepo-nested",
+);
+
 async function withTempDir(
   run: (dir: string) => Promise<void>,
 ): Promise<void> {
@@ -54,7 +64,7 @@ async function withGitRepo(
   run: (repoPath: string) => Promise<void>,
 ): Promise<void> {
   await withTempDir(async (repoPath) => {
-    await mkdir(join(repoPath, ".git"), { recursive: true });
+    await execFileAsync("git", ["init"], { cwd: repoPath });
     for (const [name, content] of Object.entries(files)) {
       const filePath = join(repoPath, name);
       await mkdir(dirname(filePath), { recursive: true });
@@ -352,7 +362,8 @@ describe("runDoctor", () => {
   it("discovers config via parent-directory walk for nested targets", async () => {
     await withTempDir(async (workspaceDir) => {
       const repoPath = join(workspaceDir, "repo");
-      await mkdir(join(repoPath, ".git"), { recursive: true });
+      await mkdir(repoPath, { recursive: true });
+      await execFileAsync("git", ["init"], { cwd: repoPath });
       await writeFile(
         join(workspaceDir, HOTSPOT_SCANNER_CONFIG_FILENAME),
         JSON.stringify({ since: "12 months ago" }),
@@ -431,6 +442,92 @@ describe("runDoctor", () => {
     expect(result.exitCode).toBe(0);
     expect(result.findings.filter((finding) => finding.status === "fail")).toEqual(
       [],
+    );
+    expect(result.findings).toContainEqual(
+      expect.objectContaining({
+        id: "scope",
+        status: "pass",
+        message: expect.stringMatching(/eligible files: \d+/),
+      }),
+    );
+  });
+
+  it("emits scope finding with eligible count matching previewScanScope", async () => {
+    const scanOptions = {
+      repoPath: smallTsFixture,
+      includeTests: false as const,
+    };
+    const preview = await previewScanScope(scanOptions);
+    const result = await runDoctor(healthyDoctorOptions(smallTsFixture));
+
+    const scopeFinding = result.findings.find((finding) => finding.id === "scope");
+    expect(scopeFinding).toEqual(
+      expect.objectContaining({
+        id: "scope",
+        status: "pass",
+      }),
+    );
+    expect(scopeFinding?.message).toContain(`eligible files: ${preview.eligibleFileCount}`);
+    expect(scopeFinding?.message).toContain(`repo: ${preview.repoPath}`);
+  });
+
+  it("passes git-repo via remount for nested package paths without local .git", async () => {
+    const packagePath = join(monorepoNestedFixture, "packages", "api");
+    const result = await runDoctor(healthyDoctorOptions(packagePath));
+
+    expect(result.exitCode).toBe(0);
+    expect(result.findings).toContainEqual(
+      expect.objectContaining({
+        id: "git-repo",
+        status: "pass",
+        message: expect.stringMatching(
+          new RegExp(`Git repository: ${monorepoNestedFixture.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`),
+        ),
+      }),
+    );
+    expect(result.findings).toContainEqual(
+      expect.objectContaining({
+        id: "scope",
+        status: "pass",
+        message: expect.stringMatching(/remounted to git root/i),
+      }),
+    );
+  });
+
+  it("emits scope eligible count matching previewScanScope on monorepo nested package", async () => {
+    const packagePath = join(monorepoNestedFixture, "packages", "api");
+    const preview = await previewScanScope({ repoPath: packagePath });
+    const result = await runDoctor(healthyDoctorOptions(packagePath));
+
+    const scopeFinding = result.findings.find((finding) => finding.id === "scope");
+    expect(scopeFinding?.message).toContain(
+      `eligible files: ${preview.eligibleFileCount}`,
+    );
+    expect(scopeFinding?.message).toContain(`repo: ${preview.repoPath}`);
+  });
+
+  it("does not emit scope when git repository check fails", async () => {
+    await withTempDir(async (repoPath) => {
+      const result = await runDoctor(healthyDoctorOptions(repoPath));
+
+      expect(result.exitCode).toBe(1);
+      expect(result.findings.map((finding) => finding.id)).not.toContain("scope");
+    });
+  });
+
+  it("forwards includeTests to scope inventory", async () => {
+    const preview = await previewScanScope({
+      repoPath: smallTsFixture,
+      includeTests: true,
+    });
+    const result = await runDoctor({
+      ...healthyDoctorOptions(smallTsFixture),
+      includeTests: true,
+    });
+
+    const scopeFinding = result.findings.find((finding) => finding.id === "scope");
+    expect(scopeFinding?.message).toContain(
+      `eligible files: ${preview.eligibleFileCount}`,
     );
   });
 

@@ -137,8 +137,11 @@ export function aggregatePatchCommit(
 
     for (const hunk of file.hunks) {
       for (const fn of functionsIntersectingHunk(sortedFunctions, hunk)) {
-        attributedFns.add(fn);
         const entry = getOrCreateAccumulator(accumulators, fn);
+        if (entry.commits.has(commit.hash)) {
+          continue;
+        }
+        attributedFns.add(fn);
         entry.stats.linesChanged += hunk.linesChanged;
       }
     }

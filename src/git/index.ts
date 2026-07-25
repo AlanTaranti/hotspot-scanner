@@ -15,9 +15,11 @@ import {
 import { createMegaCommitSkippedWarnings } from "./mega-commit-warnings.js";
 import { parseGitLogStream } from "./parse.js";
 import {
+  applyHeuristicRenameLinks,
   createEmptyBlindSpotSignals,
   createEmptySinceWindowWarning,
   createRenameHistoryIncompleteWarning,
+  detectUnlinkedRenamePairsFromCommit,
   formatAmbiguousRenameWarnings,
   formatSinceTruncationWarning,
   formatUnlinkedRenameWarnings,
@@ -31,13 +33,17 @@ export interface GitMinerOptions {
   since?: string;
   onProgress?: (progress: ScanProgress) => void;
   isPathInScope?: (path: string) => boolean;
+  megaCommitThreshold?: number;
   signal?: AbortSignal;
+  onSpawnArgv?: (argv: string[]) => void;
 }
 
 export interface GitMinerResult {
   fileStats: Map<string, FileChangeStats>;
   pairCounts: Map<string, CoChangePairCount>;
   warnings: ScanWarning[];
+  /** Rename-aware path canonicalizer from the mine-time PathAliasMap. */
+  canonicalizePath: (path: string) => string;
 }
 
 export interface GitMiner {
@@ -60,20 +66,31 @@ export function createGitMiner(deps: GitMinerDependencies = {}): GitMiner {
       let commitCount = 0;
 
       const aggregateOptions =
-        options.isPathInScope === undefined
+        options.isPathInScope === undefined &&
+        options.megaCommitThreshold === undefined
           ? undefined
-          : { isPathInScope: options.isPathInScope };
+          : {
+              ...(options.isPathInScope !== undefined && {
+                isPathInScope: options.isPathInScope,
+              }),
+              ...(options.megaCommitThreshold !== undefined && {
+                megaCommitThreshold: options.megaCommitThreshold,
+              }),
+            };
 
       for await (const commit of parseGitLogStream(
         stream({
           repoPath: options.repoPath,
           since: options.since,
           signal: options.signal,
+          onSpawnArgv: options.onSpawnArgv,
         }),
       )) {
         commitCount += 1;
-        aggregateOneCommit(commit, aliasMap, accumulators, aggregateOptions);
+        const unlinkedPairs = detectUnlinkedRenamePairsFromCommit(commit);
+        applyHeuristicRenameLinks(aliasMap, unlinkedPairs);
         recordBlindSpotsFromCommit(commit, blindSpotSignals);
+        aggregateOneCommit(commit, aliasMap, accumulators, aggregateOptions);
         options.onProgress?.({ phase: "git", commitsProcessed: commitCount });
       }
 
@@ -100,13 +117,16 @@ export function createGitMiner(deps: GitMinerDependencies = {}): GitMiner {
       }
 
       warnings.push(
-        ...createMegaCommitSkippedWarnings(accumulators.megaCommitSkips),
+        ...createMegaCommitSkippedWarnings(accumulators.megaCommitSkips, {
+          megaCommitThreshold: options.megaCommitThreshold,
+        }),
       );
 
       return {
         fileStats: canonicalizeFileStats(accumulators.fileStats, aliasMap),
         pairCounts: canonicalizePairCounts(accumulators.pairCounts, aliasMap),
         warnings,
+        canonicalizePath: (path) => aliasMap.canonical(path),
       };
     },
   };
@@ -119,4 +139,5 @@ export {
   aggregateCommits,
   aggregateOneCommit,
   createAggregateAccumulators,
+  MEGA_COMMIT_UNIQUE_FILE_THRESHOLD,
 } from "./aggregate.js";

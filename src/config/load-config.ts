@@ -10,6 +10,7 @@ const KNOWN_KEYS = new Set([
   "exclude",
   "granularity",
   "minCochange",
+  "megaCommitThreshold",
   "top",
   "concurrency",
 ]);
@@ -27,8 +28,19 @@ export interface HotspotScannerConfig {
   exclude?: string[];
   granularity?: ScanGranularity;
   minCochange?: number;
+  megaCommitThreshold?: number;
   top?: number;
   concurrency?: number;
+}
+
+export interface ParsedHotspotScannerConfig {
+  config: HotspotScannerConfig;
+  unknownKeys: string[];
+}
+
+export interface LoadedHotspotScannerConfig {
+  config: HotspotScannerConfig | null;
+  unknownKeys: string[];
 }
 
 export interface LoadConfigOptions {
@@ -79,15 +91,19 @@ function assertPositiveInteger(value: unknown, key: string): number {
   return value;
 }
 
-export function parseHotspotScannerConfig(raw: unknown): HotspotScannerConfig {
+export function parseHotspotScannerConfig(
+  raw: unknown,
+): ParsedHotspotScannerConfig {
   if (!isRecord(raw)) {
     throw new ConfigError("Config file must be a JSON object");
   }
 
   const config: HotspotScannerConfig = {};
+  const unknownKeys: string[] = [];
 
   for (const key of Object.keys(raw)) {
     if (!KNOWN_KEYS.has(key)) {
+      unknownKeys.push(key);
       continue;
     }
 
@@ -112,6 +128,9 @@ export function parseHotspotScannerConfig(raw: unknown): HotspotScannerConfig {
       case "minCochange":
         config.minCochange = assertPositiveInteger(value, key);
         break;
+      case "megaCommitThreshold":
+        config.megaCommitThreshold = assertPositiveInteger(value, key);
+        break;
       case "top":
         config.top = assertPositiveInteger(value, key);
         break;
@@ -121,7 +140,8 @@ export function parseHotspotScannerConfig(raw: unknown): HotspotScannerConfig {
     }
   }
 
-  return config;
+  unknownKeys.sort();
+  return { config, unknownKeys };
 }
 
 function isEnoent(error: unknown): boolean {
@@ -135,7 +155,7 @@ function isEnoent(error: unknown): boolean {
 async function loadConfigAtPath(
   configPath: string,
   onMissing: "error" | "null",
-): Promise<HotspotScannerConfig | null> {
+): Promise<LoadedHotspotScannerConfig> {
   let content: string;
   try {
     content = await readFile(configPath, "utf8");
@@ -146,7 +166,7 @@ async function loadConfigAtPath(
           `Config file not found: ${configPath}\nHint: the --config path must exist; omit --config to discover ${HOTSPOT_SCANNER_CONFIG_FILENAME} upward from the repo.`,
         );
       }
-      return null;
+      return { config: null, unknownKeys: [] };
     }
     throw error;
   }
@@ -164,7 +184,7 @@ async function loadConfigAtPath(
 export async function loadHotspotScannerConfig(
   repoPath: string,
   options?: LoadConfigOptions,
-): Promise<HotspotScannerConfig | null> {
+): Promise<LoadedHotspotScannerConfig> {
   if (options?.configPath) {
     return loadConfigAtPath(options.configPath, "error");
   }
@@ -173,13 +193,13 @@ export async function loadHotspotScannerConfig(
   while (true) {
     const candidatePath = join(dir, HOTSPOT_SCANNER_CONFIG_FILENAME);
     const loaded = await loadConfigAtPath(candidatePath, "null");
-    if (loaded !== null) {
+    if (loaded.config !== null) {
       return loaded;
     }
 
     const parent = dirname(dir);
     if (parent === dir) {
-      return null;
+      return { config: null, unknownKeys: [] };
     }
     dir = parent;
   }

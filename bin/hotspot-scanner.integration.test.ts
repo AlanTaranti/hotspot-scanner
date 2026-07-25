@@ -84,14 +84,20 @@ function assertCompareResultShape(parsed: CompareResultJson): void {
   }
 }
 
-/** Strip volatile timestamps so compare vs scan --baseline parity is deterministic. */
+/** Strip volatile timestamps and wall-clock timings so compare vs scan --baseline parity is deterministic. */
 function stripCompareTimestamps(parsed: CompareResultJson): CompareResultJson {
+  const stripScanMeta = (meta: CompareResultJson["meta"]["current"]) => ({
+    since: meta.since,
+    granularity: meta.granularity,
+    scannedAt: "<stripped>",
+  });
+
   return {
     ...parsed,
     meta: {
       ...parsed.meta,
-      baseline: { ...parsed.meta.baseline, scannedAt: "<stripped>" },
-      current: { ...parsed.meta.current, scannedAt: "<stripped>" },
+      baseline: stripScanMeta(parsed.meta.baseline),
+      current: stripScanMeta(parsed.meta.current),
     },
   };
 }
@@ -474,7 +480,7 @@ describe("hotspot-scanner CLI integration", () => {
 
     expect(meta.kind).toBe("scan");
     expect(hotspotsContent.split("\n")[0]).toBe(
-      "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,lines",
+      "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,lines,parseFailed",
     );
     expect(couplingContent.split("\n")[0]).toBe(
       "rank,fileA,fileB,strength,coChanges,hasStaticDependency,staticDependencyDirection,hasRuntimeStaticDependency,hasTypeOnlyStaticDependency,hasReExportStaticDependency",
@@ -673,7 +679,7 @@ describe("hotspot-scanner CLI integration", () => {
     expect(meta.kind).toBe("compare");
     const newHotspots = await readFile(`${stem}.hotspots.new.csv`, "utf8");
     expect(newHotspots.split("\n")[0]).toBe(
-      "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors",
+      "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,parseFailed",
     );
   });
 

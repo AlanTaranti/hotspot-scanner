@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/cli-adoption-extras/design.md`](./design.md)  
 **Spec**: [`.specs/features/cli-adoption-extras/spec.md`](./spec.md)  
 **Context**: [`.specs/features/cli-adoption-extras/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Small feature — `bin/` + docs. **Do not Execute in the planning session.** Promote Status → invoke `orchestrator-implementer` in a new session.
 
 ---
@@ -87,13 +87,13 @@ No `[P]` — docs depend on CLI surface existing for accurate install examples.
 
 **Done when**:
 
-- [ ] `completion bash|zsh|fish` exits 0 with non-empty stdout script
-- [ ] Invalid shell → `CliUsageError` / exit 2; message lists allowed shells
-- [ ] Scripts include commands `init`, `doctor`, `scan`, `baseline`, `compare`, `completion` (and `baseline save` if still on the program)
-- [ ] Scripts include at least `--format`, `--output`, `--exclude`, `--include`, `--config`, `--since`
-- [ ] Help for `completion` documents the three shells
-- [ ] No new runtime dependencies; no `runScan` on completion path
-- [ ] Unit tests cover all three shells + invalid shell
+- [x] `completion bash|zsh|fish` exits 0 with non-empty stdout script
+- [x] Invalid shell → `CliUsageError` / exit 2; message lists allowed shells
+- [x] Scripts include commands `init`, `doctor`, `scan`, `baseline`, `compare`, `completion` (and `baseline save` if still on the program)
+- [x] Scripts include at least `--format`, `--output`, `--exclude`, `--include`, `--config`, `--since`
+- [x] Help for `completion` documents the three shells
+- [x] No new runtime dependencies; no `runScan` on completion path
+- [x] Unit tests cover all three shells + invalid shell
 
 **Tests**: Unit in `bin/*.test.ts` (same task)
 
@@ -115,10 +115,10 @@ No `[P]` — docs depend on CLI surface existing for accurate install examples.
 
 **Done when**:
 
-- [ ] README has Shell completion subsection with bash/zsh/fish install examples using `completion`
-- [ ] `docs/recipes.md` states no `.hotspotignore` and points to `exclude` / `--exclude`
-- [ ] ARCHITECTURE documents `completion` and does not promise `.hotspotignore`
-- [ ] No PathScope / config-key changes
+- [x] README has Shell completion subsection with bash/zsh/fish install examples using `completion`
+- [x] `docs/recipes.md` states no `.hotspotignore` and points to `exclude` / `--exclude`
+- [x] ARCHITECTURE documents `completion` and does not promise `.hotspotignore`
+- [x] No PathScope / config-key changes
 
 **Tests**: none (docs)
 
@@ -140,9 +140,9 @@ No `[P]` — docs depend on CLI surface existing for accurate install examples.
 
 **Done when**:
 
-- [ ] `pnpm build && pnpm test` exits 0
-- [ ] Coverage thresholds still met for touched `bin/` files
-- [ ] Commit message proposed (e.g. `feat(cli): add bash/zsh/fish completion subcommand`)
+- [x] `pnpm build && pnpm test` exits 0
+- [x] Coverage thresholds still met for touched `bin/` files
+- [x] Commit message proposed (e.g. `feat(cli): add bash/zsh/fish completion subcommand`)
 
 **Tests**: full suite via gate
 

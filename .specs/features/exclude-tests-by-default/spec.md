@@ -14,11 +14,11 @@ Dogfooding shows co-located tests (`src/*.test.ts`, `bin/*.test.ts`, etc.) ranki
 
 ## Goals
 
-- [ ] Exclude locked test patterns from PathScope by default (git filter, complexity discovery, eligible counts)
-- [ ] Opt-in `--include-tests` / `ScanOptions.includeTests` lifts **only** built-in test patterns (artifact defaults + user excludes remain)
-- [ ] Wire through `createPathScope`, `runScan`, `previewScanScope`, CLI `scan` / `baseline save` / `compare`
-- [ ] Document breaking default + recipes/README/ARCHITECTURE; JSON contract unchanged
-- [ ] `pnpm build && pnpm test` green after Execute
+- [x] Exclude locked test patterns from PathScope by default (git filter, complexity discovery, eligible counts)
+- [x] Opt-in `--include-tests` / `ScanOptions.includeTests` lifts **only** built-in test patterns (artifact defaults + user excludes remain)
+- [x] Wire through `createPathScope`, `runScan`, `previewScanScope`, CLI `scan` / `baseline save` / `compare`
+- [x] Document breaking default + recipes/README/ARCHITECTURE; JSON contract unchanged
+- [x] `pnpm build && pnpm test` green after Execute
 
 ## Out of Scope
 
@@ -167,24 +167,24 @@ Dogfooding shows co-located tests (`src/*.test.ts`, `bin/*.test.ts`, etc.) ranki
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| HOTSPOT-640 | P1: Default test excludes in constants | Tasks | Pending |
-| HOTSPOT-641 | P1: `isPathInScope` excludes test paths by default | Tasks | Pending |
-| HOTSPOT-642 | P1: `__tests__` directory prune | Tasks | Pending |
-| HOTSPOT-643 | P1: Artifact defaults unchanged / always on | Tasks | Pending |
-| HOTSPOT-644 | P1: `includeTests: true` lifts test defaults only | Tasks | Pending |
-| HOTSPOT-645 | P1: User exclude still additive with includeTests | Tasks | Pending |
-| HOTSPOT-646 | P1: `ScanOptions.includeTests` → createPathScope | Tasks | Pending |
-| HOTSPOT-647 | P1: CLI `--include-tests` on scan | Tasks | Pending |
-| HOTSPOT-648 | P1: CLI on baseline save + compare | Tasks | Pending |
-| HOTSPOT-649 | P1: Help lists `--include-tests` | Tasks | Pending |
-| HOTSPOT-650 | P1: Dry-run shows test policy line | Tasks | Pending |
-| HOTSPOT-651 | P1: Dry-run eligible count respects scope | Tasks | Pending |
-| HOTSPOT-652 | P1: ARCHITECTURE PathScope docs | Tasks | Pending |
-| HOTSPOT-653 | P1: README CLI / path scoping | Tasks | Pending |
-| HOTSPOT-654 | P1: recipes.md + STATE decision | Tasks | Pending |
-| HOTSPOT-655 | P2: Export artifact/test constant split | Tasks | Pending |
-| HOTSPOT-656 | Cross-cutting — no config key / no schema change | Tasks | Pending |
-| HOTSPOT-657 | Cross-cutting — full project gate | Tasks | Pending |
+| HOTSPOT-640 | P1: Default test excludes in constants | Tasks | Done |
+| HOTSPOT-641 | P1: `isPathInScope` excludes test paths by default | Tasks | Done |
+| HOTSPOT-642 | P1: `__tests__` directory prune | Tasks | Done |
+| HOTSPOT-643 | P1: Artifact defaults unchanged / always on | Tasks | Done |
+| HOTSPOT-644 | P1: `includeTests: true` lifts test defaults only | Tasks | Done |
+| HOTSPOT-645 | P1: User exclude still additive with includeTests | Tasks | Done |
+| HOTSPOT-646 | P1: `ScanOptions.includeTests` → createPathScope | Tasks | Done |
+| HOTSPOT-647 | P1: CLI `--include-tests` on scan | Tasks | Done |
+| HOTSPOT-648 | P1: CLI on baseline save + compare | Tasks | Done |
+| HOTSPOT-649 | P1: Help lists `--include-tests` | Tasks | Done |
+| HOTSPOT-650 | P1: Dry-run shows test policy line | Tasks | Done |
+| HOTSPOT-651 | P1: Dry-run eligible count respects scope | Tasks | Done |
+| HOTSPOT-652 | P1: ARCHITECTURE PathScope docs | Tasks | Done |
+| HOTSPOT-653 | P1: README CLI / path scoping | Tasks | Done |
+| HOTSPOT-654 | P1: recipes.md + STATE decision | Tasks | Done |
+| HOTSPOT-655 | P2: Export artifact/test constant split | Tasks | Done |
+| HOTSPOT-656 | Cross-cutting — no config key / no schema change | Tasks | Done |
+| HOTSPOT-657 | Cross-cutting — full project gate | Tasks | Done |
 
 **Coverage:** 18 total (HOTSPOT-640–657; 658–659 reserved), mapped in tasks.md.
 
@@ -192,8 +192,8 @@ Dogfooding shows co-located tests (`src/*.test.ts`, `bin/*.test.ts`, etc.) ranki
 
 ## Success Criteria
 
-- [ ] Default dogfood scan of this repo’s top table has no `*.test.ts` / `*.spec.*` / `__tests__` paths
-- [ ] `--include-tests` can restore test paths in rankings when desired
-- [ ] Dry-run text makes the policy obvious
-- [ ] Recipes no longer tell users to manually exclude the default test set
-- [ ] `pnpm build && pnpm test` passes
+- [x] Default dogfood scan of this repo’s top table has no `*.test.ts` / `*.spec.*` / `__tests__` paths
+- [x] `--include-tests` can restore test paths in rankings when desired
+- [x] Dry-run text makes the policy obvious
+- [x] Recipes no longer tell users to manually exclude the default test set
+- [x] `pnpm build && pnpm test` passes

@@ -3,7 +3,7 @@
 **Spec**: [spec.md](./spec.md)  
 **Design**: [design.md](./design.md)  
 **Context**: [context.md](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Small / docs + exports + thin config warn + fixture wire. **Do not Execute in the planning session.**
 
 ---
@@ -94,11 +94,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `previewScanScope` and type `ScanScopePreview` exported from `src/index.ts`
-- [ ] `runDoctor` and types `DoctorFinding`, `DoctorFindingId`, `DoctorFindingStatus`, `DoctorResult`, `RunDoctorOptions` exported
-- [ ] No `formatScanScopePreview` / doctor helper sprawl on the public surface
-- [ ] `package.json` `"exports"."."` still points at `dist/index.js` / `dist/index.d.ts`
-- [ ] `pnpm build` succeeds and `dist/index.d.ts` declares the new exports
+- [x] `previewScanScope` and type `ScanScopePreview` exported from `src/index.ts`
+- [x] `runDoctor` and types `DoctorFinding`, `DoctorFindingId`, `DoctorFindingStatus`, `DoctorResult`, `RunDoctorOptions` exported
+- [x] No `formatScanScopePreview` / doctor helper sprawl on the public surface
+- [x] `package.json` `"exports"."."` still points at `dist/index.js` / `dist/index.d.ts`
+- [x] `pnpm build` succeeds and `dist/index.d.ts` declares the new exports
 
 **Tests**: none (type surface; covered by build)  
 **Gate**: `pnpm build`  
@@ -129,12 +129,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Unknown keys are collected (sorted) and not applied to `HotspotScannerConfig`
-- [ ] Successful `runScan` with unknown keys includes `meta.warnings` entry `code: "UNKNOWN_CONFIG_KEY"` and invokes `onWarning` when set
-- [ ] Unknown keys alone never throw `ConfigError` / never force non-zero exit
-- [ ] Invalid known-key types still throw `ConfigError`
-- [ ] Existing “ignores unknown keys” unit test updated to assert warn path / unknownKeys collection
-- [ ] Gate check passes: `pnpm test -- src/config/load-config.test.ts` (and any new/updated scan warn test path)
+- [x] Unknown keys are collected (sorted) and not applied to `HotspotScannerConfig`
+- [x] Successful `runScan` with unknown keys includes `meta.warnings` entry `code: "UNKNOWN_CONFIG_KEY"` and invokes `onWarning` when set
+- [x] Unknown keys alone never throw `ConfigError` / never force non-zero exit
+- [x] Invalid known-key types still throw `ConfigError`
+- [x] Existing “ignores unknown keys” unit test updated to assert warn path / unknownKeys collection
+- [x] Gate check passes: `pnpm test -- src/config/load-config.test.ts` (and any new/updated scan warn test path)
 
 **Tests**: unit  
 **Gate**: `pnpm test -- src/config/load-config.test.ts`  
@@ -165,11 +165,11 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `ensureFixtureRepo(.../merge-heavy)` runs from global setup (or equivalent guaranteed bootstrap)
-- [ ] `describe("runScan integration — merge-heavy fixture")` (or clear name) scans successfully
-- [ ] Asserts `src/keep.ts` present in hotspots; `src/remove.ts` absent
-- [ ] TESTING.md Integration layer documents `merge-heavy` as wired E2E
-- [ ] Gate check passes: `pnpm test -- src/scan.integration.test.ts`
+- [x] `ensureFixtureRepo(.../merge-heavy)` runs from global setup (or equivalent guaranteed bootstrap)
+- [x] `describe("runScan integration — merge-heavy fixture")` (or clear name) scans successfully
+- [x] Asserts `src/keep.ts` present in hotspots; `src/remove.ts` absent
+- [x] TESTING.md Integration layer documents `merge-heavy` as wired E2E
+- [x] Gate check passes: `pnpm test -- src/scan.integration.test.ts`
 
 **Tests**: integration  
 **Gate**: `pnpm test -- src/scan.integration.test.ts`  
@@ -200,15 +200,15 @@ flowchart LR
 
 **Done when**:
 
-- [ ] README has clear zero-network / local-only scan callout (no contradiction with clone/install network)
-- [ ] `SECURITY.md` exists with trust model + vulnerability reporting (GitHub Security Advisories for repo URL)
-- [ ] README TOC (or adjacent) links to `SECURITY.md`
-- [ ] Programmatic API sample imports `previewScanScope` / `runDoctor` (+ types)
-- [ ] Configuration docs say unknown keys → warn-only `UNKNOWN_CONFIG_KEY` (not silent ignore)
-- [ ] `docs/warning-codes.md` lists `UNKNOWN_CONFIG_KEY`
-- [ ] Recipes/README baseline guidance recommends CI **artifacts** storage example
-- [ ] Recipes/README restate `--only` filtered JSON ≠ baseline (cross-link M41 / section filter)
-- [ ] `package.json` `files` includes `SECURITY.md`
+- [x] README has clear zero-network / local-only scan callout (no contradiction with clone/install network)
+- [x] `SECURITY.md` exists with trust model + vulnerability reporting (GitHub Security Advisories for repo URL)
+- [x] README TOC (or adjacent) links to `SECURITY.md`
+- [x] Programmatic API sample imports `previewScanScope` / `runDoctor` (+ types)
+- [x] Configuration docs say unknown keys → warn-only `UNKNOWN_CONFIG_KEY` (not silent ignore)
+- [x] `docs/warning-codes.md` lists `UNKNOWN_CONFIG_KEY`
+- [x] Recipes/README baseline guidance recommends CI **artifacts** storage example
+- [x] Recipes/README restate `--only` filtered JSON ≠ baseline (cross-link M41 / section filter)
+- [x] `package.json` `files` includes `SECURITY.md`
 
 **Tests**: none  
 **Gate**: none (docs; verified in T5)  
@@ -239,12 +239,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Exports present in `src/index.ts` / `dist/index.d.ts`
-- [ ] `UNKNOWN_CONFIG_KEY` covered by unit test + cheatsheet
-- [ ] merge-heavy integration describe passes
-- [ ] `SECURITY.md` + README/recipes trust docs present
-- [ ] Gate check passes: `pnpm build && pnpm test`
-- [ ] Test count: no silent deletions vs pre-change baseline
+- [x] Exports present in `src/index.ts` / `dist/index.d.ts`
+- [x] `UNKNOWN_CONFIG_KEY` covered by unit test + cheatsheet
+- [x] merge-heavy integration describe passes
+- [x] `SECURITY.md` + README/recipes trust docs present
+- [x] Gate check passes: `pnpm build && pnpm test`
+- [x] Test count: no silent deletions vs pre-change baseline
 
 **Tests**: none (full suite)  
 **Gate**: `pnpm build && pnpm test`  

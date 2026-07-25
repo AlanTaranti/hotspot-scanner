@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/ranking-accuracy-plus/design.md`](./design.md)  
 **Spec**: [`.specs/features/ranking-accuracy-plus/spec.md`](./spec.md)  
 **Context**: [`.specs/features/ranking-accuracy-plus/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -100,13 +100,13 @@ flowchart TD
 
 **Done when:**
 
-- [ ] Heuristic pairs call `link(from, to)` and canonicalize unifies churn under the new path
-- [ ] Relatedness matches design (basename / stem+eligible ext); negatives do not link
-- [ ] Warnings still use `code: "RENAME_HISTORY_INCOMPLETE"`; cap preserved
-- [ ] `-M` / `renameFrom` paths are not treated as unlinked
-- [ ] Deterministic pairing for multi-match
-- [ ] Unit + fixture tests cover above
-- [ ] Gate: `pnpm exec vitest run src/git/rename-warnings.test.ts src/git/index.test.ts src/git/canonicalize.test.ts`
+- [x] Heuristic pairs call `link(from, to)` and canonicalize unifies churn under the new path
+- [x] Relatedness matches design (basename / stem+eligible ext); negatives do not link
+- [x] Warnings still use `code: "RENAME_HISTORY_INCOMPLETE"`; cap preserved
+- [x] `-M` / `renameFrom` paths are not treated as unlinked
+- [x] Deterministic pairing for multi-match
+- [x] Unit + fixture tests cover above
+- [x] Gate: `pnpm exec vitest run src/git/rename-warnings.test.ts src/git/index.test.ts src/git/canonicalize.test.ts`
 
 **Tests:** unit  
 **Gate:** `pnpm exec vitest run src/git/rename-warnings.test.ts src/git/index.test.ts src/git/canonicalize.test.ts`
@@ -140,11 +140,11 @@ pnpm exec vitest run src/git/rename-warnings.test.ts src/git/index.test.ts
 
 **Done when:**
 
-- [ ] Enrich accepts canonicalize hook; peers/edges use canonical paths
-- [ ] `runScan` passes alias map from miner
-- [ ] `couplingStrength` / order unchanged in tests
-- [ ] Without hook, prior enrich tests still pass
-- [ ] Gate: `pnpm exec vitest run src/scoring/enrich-coupling-static.test.ts src/scan.test.ts`
+- [x] Enrich accepts canonicalize hook; peers/edges use canonical paths
+- [x] `runScan` passes alias map from miner
+- [x] `couplingStrength` / order unchanged in tests
+- [x] Without hook, prior enrich tests still pass
+- [x] Gate: `pnpm exec vitest run src/scoring/enrich-coupling-static.test.ts src/scan.test.ts`
 
 **Tests:** unit  
 **Gate:** `pnpm exec vitest run src/scoring/enrich-coupling-static.test.ts src/scan.test.ts`
@@ -178,11 +178,11 @@ pnpm exec vitest run src/scoring/enrich-coupling-static.test.ts
 
 **Done when:**
 
-- [ ] Parse failures → stub + warning + `parseFailed: true` hotspot with `hotspotScore: 0`
-- [ ] Successful rows’ relative order matches scoring without stubs in the norm set
-- [ ] Schema requires `parseFailed`; baseline rejects missing field
-- [ ] Reporters expose the flag
-- [ ] Gate: `pnpm exec vitest run src/scoring/hotspot-scorer.test.ts src/complexity/analyze-batch.test.ts src/compare/load-baseline.test.ts tests/contract/json-schema.test.ts`
+- [x] Parse failures → stub + warning + `parseFailed: true` hotspot with `hotspotScore: 0`
+- [x] Successful rows’ relative order matches scoring without stubs in the norm set
+- [x] Schema requires `parseFailed`; baseline rejects missing field
+- [x] Reporters expose the flag
+- [x] Gate: `pnpm exec vitest run src/scoring/hotspot-scorer.test.ts src/complexity/analyze-batch.test.ts src/compare/load-baseline.test.ts tests/contract/json-schema.test.ts`
 
 **Tests:** unit + contract  
 **Gate:** `pnpm exec vitest run src/scoring/hotspot-scorer.test.ts src/complexity/analyze-batch.test.ts src/compare/load-baseline.test.ts tests/contract/json-schema.test.ts`
@@ -216,11 +216,11 @@ pnpm exec vitest run src/scoring/hotspot-scorer.test.ts tests/contract/json-sche
 
 **Done when:**
 
-- [ ] Callbacks and IIFEs collected with documented names/complexities
-- [ ] `mccabe.ts` decision-node semantics unchanged
-- [ ] No double-collect of the same node
-- [ ] Fixtures + unit tests lock values
-- [ ] Gate: `pnpm exec vitest run src/complexity/analyze-file.test.ts`
+- [x] Callbacks and IIFEs collected with documented names/complexities
+- [x] `mccabe.ts` decision-node semantics unchanged
+- [x] No double-collect of the same node
+- [x] Fixtures + unit tests lock values
+- [x] Gate: `pnpm exec vitest run src/complexity/analyze-file.test.ts`
 
 **Tests:** unit  
 **Gate:** `pnpm exec vitest run src/complexity/analyze-file.test.ts`
@@ -254,11 +254,11 @@ pnpm exec vitest run src/complexity/analyze-file.test.ts
 
 **Done when:**
 
-- [ ] Function mode analyze call omits `pathAllowlist`
-- [ ] Zero-churn eligible file functions appear in `ScanResult.functions`
-- [ ] Patch miner still receives churn allowlist; file mode still zero patch spawns
-- [ ] Integration tests updated (invert HOTSPOT-387/398 omission)
-- [ ] Gate: `pnpm exec vitest run src/scan.test.ts src/scan.integration.test.ts`
+- [x] Function mode analyze call omits `pathAllowlist`
+- [x] Zero-churn eligible file functions appear in `ScanResult.functions`
+- [x] Patch miner still receives churn allowlist; file mode still zero patch spawns
+- [x] Integration tests updated (invert HOTSPOT-387/398 omission)
+- [x] Gate: `pnpm exec vitest run src/scan.test.ts src/scan.integration.test.ts`
 
 **Tests:** unit + integration  
 **Gate:** `pnpm exec vitest run src/scan.test.ts src/scan.integration.test.ts`
@@ -292,9 +292,9 @@ pnpm exec vitest run src/scan.integration.test.ts -t "function-mode"
 
 **Done when:**
 
-- [ ] Integration assertions cover the three smoke themes
-- [ ] ARCHITECTURE / CONCERNS / TESTING reflect reopened boundaries
-- [ ] Gate: `pnpm exec vitest run src/scan.integration.test.ts`
+- [x] Integration assertions cover the three smoke themes
+- [x] ARCHITECTURE / CONCERNS / TESTING reflect reopened boundaries
+- [x] Gate: `pnpm exec vitest run src/scan.integration.test.ts`
 
 **Tests:** integration  
 **Gate:** `pnpm exec vitest run src/scan.integration.test.ts`
@@ -328,8 +328,8 @@ pnpm exec vitest run src/scan.integration.test.ts
 
 **Done when:**
 
-- [ ] `pnpm build && pnpm test` passes
-- [ ] No silent test deletions; coverage thresholds hold
+- [x] `pnpm build && pnpm test` passes
+- [x] No silent test deletions; coverage thresholds hold
 
 **Tests:** full  
 **Gate:** `pnpm build && pnpm test`

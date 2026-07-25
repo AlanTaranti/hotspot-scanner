@@ -21,13 +21,15 @@
     "#scoring": "./dist/scoring/index.js",
     "#compare": "./dist/compare/index.js",
     "#config": "./dist/config/index.js",
-    "#doctor": "./dist/doctor/index.js"
+    "#doctor": "./dist/doctor/index.js",
+    "#git": "./dist/git/index.js"
   },
   "files": [
     "dist",
     "schemas",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "SECURITY.md"
   ],
   "engines": {
     "node": ">=22"
@@ -42,7 +44,8 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.bin.json",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "bench": "node scripts/bench-scan.mjs"
   },
   "keywords": [
     "hotspot",

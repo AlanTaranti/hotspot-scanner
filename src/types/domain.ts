@@ -13,6 +13,8 @@ export interface ComplexityResult {
   filePath: string;
   cyclomaticComplexity: number;
   functionCount: number;
+  /** True when AST parse failed; stub rows use zeros for complexity metrics. */
+  parseFailed?: boolean;
 }
 
 /** McCabe complexity per function. */
@@ -51,6 +53,8 @@ export interface HotspotScore {
   commitCount: number;
   linesChanged: number;
   authorCount: number;
+  /** True when the file failed to parse; score and norms are zero. */
+  parseFailed: boolean;
 }
 
 /** Ranked function hotspot entry. */
@@ -136,6 +140,15 @@ export interface ScanWarning {
   code?: string;
 }
 
+/** Wall-clock stage timings in milliseconds (successful scans). */
+export interface ScanStageTimings {
+  gitMs: number;
+  complexityMs: number;
+  /** Present only when granularity === "function"; omit key in file mode */
+  functionChurnMs?: number;
+  totalMs: number;
+}
+
 /** Scan input — flags optional until M5. */
 export interface ScanOptions {
   repoPath: string;
@@ -144,13 +157,25 @@ export interface ScanOptions {
   since?: string;
   top?: number;
   minCochange?: number;
+  megaCommitThreshold?: number;
   format?: "table" | "json" | "markdown" | "csv";
   granularity?: ScanGranularity;
   include?: string[];
   exclude?: string[];
+  /** When true, include test/spec files and `__tests__/` (CLI: `--include-tests`). Not config-backed. */
+  includeTests?: boolean;
   concurrency?: number;
+  /**
+   * When true, file mode runs git mine then complexity analyze sequentially
+   * (disables M34 overlap). CLI: --sequential / --no-overlap. Not a config key.
+   */
+  sequential?: boolean;
   onWarning?: (warning: ScanWarning) => void;
   onProgress?: (progress: ScanProgress) => void;
+  /** External cancel (e.g. CLI SIGINT); linked to orchestrator AbortController */
+  signal?: AbortSignal;
+  /** Invoked with git spawn argv before each numstat/patch child (verbose trace) */
+  onSpawnArgv?: (argv: string[]) => void;
 }
 
 /** Scan metadata included in every result. */
@@ -159,6 +184,8 @@ export interface ScanMeta {
   scannedAt: string;
   granularity: ScanGranularity;
   warnings: ScanWarning[];
+  /** Present on successful scans; omitted in baseline-era documents */
+  timings?: ScanStageTimings;
 }
 
 /** Full scan output (JSON schema). */

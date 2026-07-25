@@ -10,6 +10,7 @@ import {
   type HotspotScannerConfig,
   type MergedScanConfig,
 } from "./config/index.js";
+import { createScanWarning } from "./diagnostics/logger.js";
 import { createGitMiner } from "./git/index.js";
 import { createFunctionChurnMiner } from "./git/function-churn/index.js";
 import {
@@ -18,6 +19,7 @@ import {
   filterGitMinerResult,
   isPathInScope,
   resolveMonorepoScanPath,
+  type PathScope,
   type ResolvedMonorepoScanPath,
 } from "./paths/index.js";
 import {
@@ -30,6 +32,7 @@ import type {
   FileChangeStats,
   ScanOptions,
   ScanResult,
+  ScanStageTimings,
   ScanWarning,
 } from "./types/index.js";
 
@@ -99,6 +102,9 @@ function pickCliOverrides(options: ScanOptions): HotspotScannerConfig {
   if (options.concurrency !== undefined) {
     cli.concurrency = options.concurrency;
   }
+  if (options.megaCommitThreshold !== undefined) {
+    cli.megaCommitThreshold = options.megaCommitThreshold;
+  }
 
   return cli;
 }
@@ -110,6 +116,26 @@ function forwardWarnings(
   for (const warning of warnings) {
     onWarning?.(warning);
   }
+}
+
+function linkAbortSignal(
+  external: AbortSignal | undefined,
+  controller: AbortController,
+): () => void {
+  if (!external) {
+    return () => {};
+  }
+  if (external.aborted) {
+    controller.abort(external.reason);
+    return () => {};
+  }
+  const onAbort = () => controller.abort(external.reason);
+  external.addEventListener("abort", onAbort, { once: true });
+  return () => external.removeEventListener("abort", onAbort);
+}
+
+function roundMs(durationMs: number): number {
+  return Math.round(durationMs);
 }
 
 function createMonorepoPathRemountWarning(
@@ -127,13 +153,24 @@ function createMonorepoPathRemountWarning(
   };
 }
 
+function createUnknownConfigKeyWarning(unknownKeys: string[]): ScanWarning {
+  return createScanWarning(
+    "UNKNOWN_CONFIG_KEY",
+    `Unknown config key(s) ignored: ${unknownKeys.join(", ")}`,
+    "warning",
+  );
+}
+
 async function loadMergedScanConfig(
   options: ScanOptions,
   resolved: ResolvedMonorepoScanPath,
-): Promise<MergedScanConfig> {
-  const config = await loadHotspotScannerConfig(options.repoPath, {
-    configPath: options.configPath,
-  });
+): Promise<{ merged: MergedScanConfig; unknownConfigKeys: string[] }> {
+  const { config, unknownKeys } = await loadHotspotScannerConfig(
+    options.repoPath,
+    {
+      configPath: options.configPath,
+    },
+  );
   const cli = pickCliOverrides(options);
   if (
     resolved.remounted &&
@@ -142,13 +179,17 @@ async function loadMergedScanConfig(
   ) {
     cli.include = [buildAutoIncludePattern(resolved.packagePrefix)];
   }
-  return mergeScanOptions({ config, cli });
+  return {
+    merged: mergeScanOptions({ config, cli }),
+    unknownConfigKeys: unknownKeys,
+  };
 }
 
 export interface ScanPipelineContext {
   merged: MergedScanConfig;
   pipelineRepoPath: string;
   remountWarning?: ScanWarning;
+  unknownConfigKeys: string[];
 }
 
 export async function resolveScanPipelineContext(
@@ -156,7 +197,10 @@ export async function resolveScanPipelineContext(
 ): Promise<ScanPipelineContext> {
   await validateRepoPath(options.repoPath);
   const resolved = await resolveMonorepoScanPath(options.repoPath);
-  const merged = await loadMergedScanConfig(options, resolved);
+  const { merged, unknownConfigKeys } = await loadMergedScanConfig(
+    options,
+    resolved,
+  );
   await validateGitRepository(resolved.repoPath);
   const autoIncludeApplied =
     resolved.remounted &&
@@ -169,6 +213,7 @@ export async function resolveScanPipelineContext(
     merged,
     pipelineRepoPath: resolved.repoPath,
     remountWarning,
+    unknownConfigKeys,
   };
 }
 
@@ -176,21 +221,37 @@ export async function resolveScanConfig(
   options: ScanOptions,
 ): Promise<MergedScanConfig> {
   const resolved = await resolveMonorepoScanPath(options.repoPath);
-  return loadMergedScanConfig(options, resolved);
+  const { merged } = await loadMergedScanConfig(options, resolved);
+  return merged;
+}
+
+export function createScanPathScope(
+  merged: Pick<MergedScanConfig, "include" | "exclude">,
+  options?: { includeTests?: boolean },
+): PathScope {
+  return createPathScope({
+    include: merged.include,
+    exclude: merged.exclude,
+    ...(options?.includeTests !== undefined
+      ? { includeTests: options.includeTests }
+      : {}),
+  });
 }
 
 export async function runScan(options: ScanOptions): Promise<ScanResult> {
-  const { merged, pipelineRepoPath, remountWarning } =
+  const workStart = performance.now();
+  const { merged, pipelineRepoPath, remountWarning, unknownConfigKeys } =
     await resolveScanPipelineContext(options);
 
-  const scope = createPathScope({
-    include: merged.include,
-    exclude: merged.exclude,
+  const scope = createScanPathScope(merged, {
+    includeTests: options.includeTests,
   });
 
   const since = merged.since;
   const minCochange = merged.minCochange;
+  const megaCommitThreshold = merged.megaCommitThreshold;
   const onWarning = options.onWarning;
+  const onSpawnArgv = options.onSpawnArgv;
   const collectedWarnings: ScanWarning[] = [];
 
   if (remountWarning) {
@@ -198,23 +259,33 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
     onWarning?.(remountWarning);
   }
 
+  if (unknownConfigKeys.length > 0) {
+    const unknownConfigWarning = createUnknownConfigKeyWarning(unknownConfigKeys);
+    collectedWarnings.push(unknownConfigWarning);
+    onWarning?.(unknownConfigWarning);
+  }
+
   const granularity = merged.granularity;
   const miner = createGitMiner();
   const analyzer = createComplexityAnalyzer({ concurrency: merged.concurrency });
   const abortController = new AbortController();
   const signal = abortController.signal;
+  const unlinkExternalAbort = linkAbortSignal(options.signal, abortController);
 
-  const gitPromise = miner.mine({
-    repoPath: pipelineRepoPath,
-    since,
-    onProgress: options.onProgress,
-    isPathInScope: (p) => isPathInScope(p, scope),
-    signal,
-  });
+  try {
+    if (signal.aborted) {
+      throw signal.reason ?? new DOMException("Aborted", "AbortError");
+    }
 
-  let functionModePathAllowlist: string[] | undefined;
-
-  const cxPromise = (async () => {
+    const mineOptions: Parameters<typeof miner.mine>[0] = {
+      repoPath: pipelineRepoPath,
+      since,
+      onProgress: options.onProgress,
+      isPathInScope: (p) => isPathInScope(p, scope),
+      megaCommitThreshold,
+      signal,
+      onSpawnArgv,
+    };
     const analyzeOptions: Parameters<typeof analyzer.analyze>[0] = {
       repoPath: pipelineRepoPath,
       scope,
@@ -222,105 +293,161 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
       onProgress: options.onProgress,
     };
 
-    if (granularity === "function") {
-      const rawGit = await gitPromise;
-      const { fileStats } = filterGitMinerResult(rawGit, scope);
+    let gitMs = 0;
+    let complexityMs = 0;
+    let rawGit;
+    let cxResult;
+    let functionModePathAllowlist: string[] | undefined;
+
+    const useFileModeSequential =
+      options.sequential === true && granularity !== "function";
+
+    if (useFileModeSequential) {
+      const gitStart = performance.now();
+      rawGit = await miner.mine(mineOptions);
+      gitMs = roundMs(performance.now() - gitStart);
+
+      const cxStart = performance.now();
+      cxResult = await analyzer.analyze(analyzeOptions);
+      complexityMs = roundMs(performance.now() - cxStart);
+    } else {
+      const gitStart = performance.now();
+      const gitPromise = miner.mine(mineOptions).finally(() => {
+        gitMs = roundMs(performance.now() - gitStart);
+      });
+
+      const cxStart = performance.now();
+      const cxPromise = (async () => {
+        if (granularity === "function") {
+          const rawGitForAllowlist = await gitPromise;
+          const { fileStats } = filterGitMinerResult(rawGitForAllowlist, scope);
+          functionModePathAllowlist = buildFunctionModePathAllowlist(
+            fileStats,
+            ELIGIBLE_EXTENSIONS,
+          );
+        }
+
+        return analyzer.analyze(analyzeOptions);
+      })().finally(() => {
+        complexityMs = roundMs(performance.now() - cxStart);
+      });
+
+      try {
+        [rawGit, cxResult] = await Promise.all([gitPromise, cxPromise]);
+      } catch (error) {
+        abortController.abort();
+        await Promise.allSettled([gitPromise, cxPromise]);
+        throw error;
+      }
+    }
+
+    const {
+      fileStats,
+      pairCounts,
+      warnings: gitWarnings,
+    } = filterGitMinerResult(rawGit, scope);
+
+    if (granularity === "function" && functionModePathAllowlist === undefined) {
       functionModePathAllowlist = buildFunctionModePathAllowlist(
         fileStats,
         ELIGIBLE_EXTENSIONS,
       );
-      analyzeOptions.pathAllowlist = functionModePathAllowlist;
     }
 
-    return analyzer.analyze(analyzeOptions);
-  })();
-
-  let rawGit;
-  let cxResult;
-  try {
-    [rawGit, cxResult] = await Promise.all([gitPromise, cxPromise]);
-  } catch (error) {
-    abortController.abort();
-    await Promise.allSettled([gitPromise, cxPromise]);
-    throw error;
-  }
-
-  const {
-    fileStats,
-    pairCounts,
-    warnings: gitWarnings,
-  } = filterGitMinerResult(rawGit, scope);
-
-  if (granularity === "function" && functionModePathAllowlist === undefined) {
-    functionModePathAllowlist = buildFunctionModePathAllowlist(
-      fileStats,
-      ELIGIBLE_EXTENSIONS,
-    );
-  }
-
-  const { results, functions: functionComplexity, warnings: complexityWarnings } =
-    cxResult;
-
-  collectedWarnings.push(...gitWarnings);
-  forwardWarnings(gitWarnings, onWarning);
-  collectedWarnings.push(...complexityWarnings);
-  forwardWarnings(complexityWarnings, onWarning);
-
-  const scoredCoupling = createTemporalCouplingScorer().score(
-    pairCounts,
-    fileStats,
-    minCochange,
-  );
-  const coupling = enrichCouplingStaticDeps(scoredCoupling, pipelineRepoPath);
-
-  const scannedAt = new Date().toISOString();
-
-  if (granularity === "function") {
-    const churnMiner = createFunctionChurnMiner();
-    const { functionStats, warnings: churnWarnings } = await churnMiner.mine({
-      repoPath: pipelineRepoPath,
-      since,
+    const {
+      results,
       functions: functionComplexity,
-      paths: functionModePathAllowlist,
-      onProgress: options.onProgress,
+      warnings: complexityWarnings,
+    } = cxResult;
+
+    collectedWarnings.push(...gitWarnings);
+    forwardWarnings(gitWarnings, onWarning);
+    collectedWarnings.push(...complexityWarnings);
+    forwardWarnings(complexityWarnings, onWarning);
+
+    const scoredCoupling = createTemporalCouplingScorer().score(
+      pairCounts,
+      fileStats,
+      minCochange,
+    );
+    const coupling = enrichCouplingStaticDeps(scoredCoupling, pipelineRepoPath, {
+      canonicalizePath: rawGit.canonicalizePath,
     });
 
-    collectedWarnings.push(...churnWarnings);
-    forwardWarnings(churnWarnings, onWarning);
+    const scannedAt = new Date().toISOString();
 
-    const functions = createFunctionHotspotScorer().score(
-      functionStats,
-      functionComplexity,
-    );
+    if (granularity === "function") {
+      const churnMiner = createFunctionChurnMiner();
+      let functionChurnMs = 0;
+      const churnStart = performance.now();
+      const { functionStats, warnings: churnWarnings } = await churnMiner
+        .mine({
+          repoPath: pipelineRepoPath,
+          since,
+          functions: functionComplexity,
+          paths: functionModePathAllowlist,
+          onProgress: options.onProgress,
+          signal,
+          onSpawnArgv,
+        })
+        .finally(() => {
+          functionChurnMs = roundMs(performance.now() - churnStart);
+        });
+
+      collectedWarnings.push(...churnWarnings);
+      forwardWarnings(churnWarnings, onWarning);
+
+      const functions = createFunctionHotspotScorer().score(
+        functionStats,
+        functionComplexity,
+      );
+
+      const timings: ScanStageTimings = {
+        gitMs,
+        complexityMs,
+        functionChurnMs,
+        totalMs: roundMs(performance.now() - workStart),
+      };
+
+      return {
+        version: "1.0",
+        hotspots: [],
+        functions,
+        coupling,
+        meta: {
+          since,
+          scannedAt,
+          granularity,
+          warnings: collectedWarnings,
+          timings,
+        },
+      };
+    }
+
+    const hotspots = createHotspotScorer().score(fileStats, results);
+
+    const timings: ScanStageTimings = {
+      gitMs,
+      complexityMs,
+      totalMs: roundMs(performance.now() - workStart),
+    };
 
     return {
       version: "1.0",
-      hotspots: [],
-      functions,
+      hotspots,
+      functions: [],
       coupling,
       meta: {
         since,
         scannedAt,
-        granularity,
+        granularity: "file",
         warnings: collectedWarnings,
+        timings,
       },
     };
+  } finally {
+    unlinkExternalAbort();
   }
-
-  const hotspots = createHotspotScorer().score(fileStats, results);
-
-  return {
-    version: "1.0",
-    hotspots,
-    functions: [],
-    coupling,
-    meta: {
-      since,
-      scannedAt,
-      granularity: "file",
-      warnings: collectedWarnings,
-    },
-  };
 }
 
 export {

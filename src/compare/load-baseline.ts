@@ -6,6 +6,7 @@ import type {
   HotspotScore,
   ScanGranularity,
   ScanResult,
+  ScanStageTimings,
   ScanWarning,
   StaticDependencyDirection,
 } from "../types/index.js";
@@ -167,6 +168,10 @@ function assertHotspot(item: unknown, index: number): HotspotScore {
       requireKey(record, "authorCount", path),
       `${path}.authorCount`,
     ),
+    parseFailed: assertBoolean(
+      requireKey(record, "parseFailed", path),
+      `${path}.parseFailed`,
+    ),
   };
 }
 
@@ -309,6 +314,43 @@ function assertWarnings(value: unknown): ScanWarning[] {
   return value.map((item, index) => assertScanWarning(item, index));
 }
 
+function assertNonNegativeInteger(value: unknown, path: string): number {
+  const integer = assertInteger(value, path);
+  if (integer < 0) {
+    throw new BaselineError(`Baseline ${path} must be a non-negative integer`);
+  }
+  return integer;
+}
+
+function assertScanStageTimings(value: unknown): ScanStageTimings {
+  const path = "meta.timings";
+  const record = assertRecord(value, path);
+
+  const timings: ScanStageTimings = {
+    gitMs: assertNonNegativeInteger(
+      requireKey(record, "gitMs", path),
+      `${path}.gitMs`,
+    ),
+    complexityMs: assertNonNegativeInteger(
+      requireKey(record, "complexityMs", path),
+      `${path}.complexityMs`,
+    ),
+    totalMs: assertNonNegativeInteger(
+      requireKey(record, "totalMs", path),
+      `${path}.totalMs`,
+    ),
+  };
+
+  if ("functionChurnMs" in record) {
+    timings.functionChurnMs = assertNonNegativeInteger(
+      record.functionChurnMs,
+      `${path}.functionChurnMs`,
+    );
+  }
+
+  return timings;
+}
+
 export function parseScanResult(json: unknown): ScanResult {
   if (!isRecord(json)) {
     throw new BaselineError("Baseline JSON must be an object");
@@ -348,6 +390,9 @@ export function parseScanResult(json: unknown): ScanResult {
       scannedAt: json.meta.scannedAt,
       granularity: json.meta.granularity,
       warnings: assertWarnings(json.meta.warnings),
+      ...(json.meta.timings !== undefined
+        ? { timings: assertScanStageTimings(json.meta.timings) }
+        : {}),
     },
   };
 }

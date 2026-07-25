@@ -211,6 +211,67 @@ describe("MEGA_COMMIT_UNIQUE_FILE_THRESHOLD", () => {
   });
 });
 
+describe("megaCommitThreshold option", () => {
+  const customThreshold = 50;
+
+  it("aggregates pairs when unique in-scope file count equals custom threshold", () => {
+    const commits: ParsedCommit[] = [
+      makeCommit("mega-ok", "Alice", date1, makeFiles(customThreshold)),
+    ];
+
+    const result = aggregateCommits(commits, new PathAliasMap(), {
+      megaCommitThreshold: customThreshold,
+    });
+
+    expect(result.megaCommitSkips).toEqual([]);
+    expect(result.pairCounts.size).toBe((customThreshold * (customThreshold - 1)) / 2);
+    expect(result.fileStats.size).toBe(customThreshold);
+  });
+
+  it("skips pair increments when unique in-scope file count exceeds custom threshold", () => {
+    const commits: ParsedCommit[] = [
+      makeCommit("mega-skip", "Alice", date1, makeFiles(customThreshold + 1)),
+    ];
+
+    const result = aggregateCommits(commits, new PathAliasMap(), {
+      megaCommitThreshold: customThreshold,
+    });
+
+    expect(result.pairCounts.size).toBe(0);
+    expect(result.megaCommitSkips).toEqual([
+      { hash: "mega-skip", uniqueFileCount: customThreshold + 1 },
+    ]);
+  });
+
+  it("still updates fileStats when custom threshold skips pairs", () => {
+    const commits: ParsedCommit[] = [
+      makeCommit("mega-skip", "Alice", date1, makeFiles(customThreshold + 1)),
+    ];
+
+    const result = aggregateCommits(commits, new PathAliasMap(), {
+      megaCommitThreshold: customThreshold,
+    });
+
+    expect(result.fileStats.size).toBe(customThreshold + 1);
+    expect(result.fileStats.get("file-0.ts")?.commitCount).toBe(1);
+    expect(result.fileStats.get("file-0.ts")?.linesChanged).toBe(1);
+    expect(result.fileStats.get("file-0.ts")?.authors).toEqual(
+      new Set(["Alice"]),
+    );
+  });
+
+  it("uses default threshold 100 when option omitted", () => {
+    const commits: ParsedCommit[] = [
+      makeCommit("default-threshold", "Alice", date1, makeFiles(100)),
+    ];
+
+    const result = aggregateCommits(commits, new PathAliasMap());
+
+    expect(result.megaCommitSkips).toEqual([]);
+    expect(result.pairCounts.size).toBe((100 * 99) / 2);
+  });
+});
+
 describe("aggregateOneCommit path scope", () => {
   it("filters unique paths before mega-guard and pair increments", () => {
     const outOfScope = makeFiles(150, "out");

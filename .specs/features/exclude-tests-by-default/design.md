@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/exclude-tests-by-default/spec.md`](./spec.md)  
 **Context**: [`.specs/features/exclude-tests-by-default/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Depth**: Large
 
 ---

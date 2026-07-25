@@ -4,7 +4,9 @@ export {
   loadHotspotScannerConfig,
   parseHotspotScannerConfig,
   type HotspotScannerConfig,
+  type LoadedHotspotScannerConfig,
   type LoadConfigOptions,
+  type ParsedHotspotScannerConfig,
 } from "./load-config.js";
 export {
   EXEMPLAR_HOTSPOT_SCANNER_CONFIG,

@@ -274,4 +274,34 @@ describe("aggregatePatchCommit interval index", () => {
       stats.get(functionStatsKey("src/same-line.ts", "wide", 5))?.commitCount,
     ).toBe(1);
   });
+
+  it("does not double-count linesChanged when the same commit is aggregated twice", async () => {
+    const lines = [
+      "COMMIT|deadbeef01|2024-01-08T00:00:00Z|Hank",
+      "diff --git a/src/replay.ts b/src/replay.ts",
+      "@@ -1 +1 @@",
+      "-a",
+      "+b",
+    ];
+
+    const commits = [];
+    for await (const commit of parsePatchLogStream(asyncLines(lines))) {
+      commits.push(commit);
+    }
+
+    const functions = [{ ...makeFunction("fn", 1, 10), filePath: "src/replay.ts" }];
+    const functionsByFile = indexFunctionsByFile(functions);
+    const accumulators = createFunctionChurnAccumulators();
+    const aliasMap = new PathAliasMap();
+    const commit = commits[0]!;
+
+    aggregatePatchCommit(commit, functionsByFile, aliasMap, accumulators);
+    aggregatePatchCommit(commit, functionsByFile, aliasMap, accumulators);
+
+    const stats = finalizeFunctionStats(accumulators);
+    const key = functionStatsKey("src/replay.ts", "fn", 1);
+
+    expect(stats.get(key)?.commitCount).toBe(1);
+    expect(stats.get(key)?.linesChanged).toBe(2);
+  });
 });
