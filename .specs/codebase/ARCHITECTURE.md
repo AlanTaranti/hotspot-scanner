@@ -418,7 +418,7 @@ Cap **3 matches per rule** (highest score/strength first). Full rule text and pl
 
 **`--only hotspots|coupling|functions`** (`only.ts`): Repeatable CLI flag (CLI-only, not config). Union of distinct values; invalid value → `CliUsageError` (exit 2). Excluded sections are **omitted** (no header/placeholder) in table and markdown; JSON omits top-level keys; CSV bundle omits data files (`meta.json` always retained). Filtered JSON is an intentional partial export — **not** a valid `--baseline`; `scan --help` and README warn operators. Unfiltered JSON remains schema-complete per [JSON Contract (M20)](#json-contract-m20).
 
-**Table colors** (`color.ts` + `resolveTableColor()` in bin): Enabled only when `format === "table"` and **all** of: stdout is a TTY, `--no-color` not set, `NO_COLOR` unset or empty, `--output` not used. Colors score/strength bands (green ≥ 0.7, yellow ≥ 0.4) and StaticDep yes/no (dim green / dim yellow). No color for markdown, JSON, or CSV. No new runtime color dependency.
+**Table colors** (`color.ts` + `resolveTableColor()` in bin): Enabled only when `format === "table"` and **all** of: stdout is a TTY, `--no-color` not set, `NO_COLOR` unset or empty, `--output` not used. Colors score/strength bands (red ≥ 0.7, yellow ≥ 0.4) and StaticDep yes/no (dim green / dim yellow). No color for markdown, JSON, or CSV. No new runtime color dependency.
 
 ## JSON Contract (M20)
 

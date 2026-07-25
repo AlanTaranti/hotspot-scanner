@@ -132,7 +132,7 @@ User-locked scope from the planning brief; remaining gray areas decided firmly b
 
 | Element | Behavior |
 | ------- | -------- |
-| `hotspotScore` / function Score / coupling Strength | Green ≥ 0.7, yellow ≥ 0.4, default otherwise |
+| `hotspotScore` / function Score / coupling Strength | Red ≥ 0.7, yellow ≥ 0.4, default otherwise |
 | StaticDep `yes` | Dim green |
 | StaticDep `no` | Dim yellow |
 

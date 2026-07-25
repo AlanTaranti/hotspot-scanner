@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { paintScore, paintStaticDep, stripAnsi } from "./color.js";
 
-const GREEN = "\x1b[32m";
+const RED = "\x1b[31m";
 const YELLOW = "\x1b[33m";
 const DIM_GREEN = "\x1b[2;32m";
 const DIM_YELLOW = "\x1b[2;33m";
@@ -14,9 +14,9 @@ describe("paintScore", () => {
     expect(paintScore(0.2, false)).toBe("0.2000");
   });
 
-  it("wraps high scores (≥0.7) in green", () => {
-    expect(paintScore(0.7, true)).toBe(`${GREEN}0.7000${RESET}`);
-    expect(paintScore(0.95, true)).toBe(`${GREEN}0.9500${RESET}`);
+  it("wraps high scores (≥0.7) in red", () => {
+    expect(paintScore(0.7, true)).toBe(`${RED}0.7000${RESET}`);
+    expect(paintScore(0.95, true)).toBe(`${RED}0.9500${RESET}`);
   });
 
   it("wraps medium scores (≥0.4, <0.7) in yellow", () => {
