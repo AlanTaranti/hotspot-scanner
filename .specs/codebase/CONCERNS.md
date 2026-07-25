@@ -62,7 +62,7 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 
 | Concern                                                                                         | Mitigation                                                                                                                                      |
 | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Static edge resolution gaps (relative + tsconfig aliases, M27)                                   | `enrichCouplingStaticDeps` + `TsconfigPathMap`: relative paths; nearest `tsconfig.json`/`jsconfig.json` `paths`/`baseUrl` with shallow `extends`; missing/unreadable source or unresolved alias → no edge; ranking unchanged; **`package.json` `exports`/`imports` still deferred** |
+| Static edge resolution gaps (relative + tsconfig aliases, M27; package exports Planned M44)      | `enrichCouplingStaticDeps` + `TsconfigPathMap`: relative paths; nearest `tsconfig.json`/`jsconfig.json` `paths`/`baseUrl` with shallow `extends`; missing/unreadable source or unresolved alias → no edge; ranking unchanged; **`package.json` `exports`/`imports` → M44 Planned** ([coupling-package-exports](../features/coupling-package-exports/spec.md); Execute removes this residual) |
 | Repeated enrich I/O on hub files (dense pair graphs)                                            | M33: per-call peer-scoped `StaticEdgeGraph` — one read/parse per unique participant path; O(1) pair labeling via adjacency lookup — see [ARCHITECTURE § Enriched coupling](ARCHITECTURE.md#enriched-coupling-m14-m27-m33) |
 | Renamed-but-unlinked paths may report `false`                                                   | Same PathAliasMap limits as git miner; document; do not invent alias graph in scoring without an explicit milestone                             |
 
@@ -103,7 +103,7 @@ Gaps without product mitigation (only “document / accept / `false`”, or expl
 | Item | Risco | Esforço | Caminho | Backlog |
 | ---- | ----- | ------- | ------- | ------- |
 | Post-rename hunk line mismatch (true fix) | M | A | Historical AST / per-commit function ranges — **do not prioritize**; M26 avisos shipped | Deferred |
-| Enriched coupling: no `package.json` `exports` / `imports` | M→A (monorepos) | A | Resolve package entry points | Deferred |
+| Enriched coupling: no `package.json` `exports` / `imports` | M→A (monorepos) | A | Resolve in-repo package entry points (`exports`/`imports`); no full `node_modules` | **Planned M44** — [coupling-package-exports](../features/coupling-package-exports/); Execute **removes** this row |
 | Renamed-but-unlinked → `hasStaticDependency: false` | M | M | Doc/warning via PathAliasMap limits; no alias graph in scoring | No dedicated milestone |
 
 ```text

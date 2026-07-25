@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M37 Done** — Post-M30 perf backlog complete. M37 README adoption DX Done.
+Status: **M7–M37 Done** — Post-M37 user DX backlog **M38–M45 Planned** (specs via `planner-feature`).
 
 ## Milestone 1 — Scaffold
 
@@ -410,3 +410,126 @@ Improve GitHub-facing adoption DX without npm publish. Official install remains 
 - [x] Short top + Advanced detail; slim How it works; workflows; privacy; Limitations
 - [x] Remove user-facing M26/M28/M32/RT-003 jargon and “v1” framing; keep stable warning `code`s
 - [x] Real clone URL; CONTRIBUTING pointer/dedupe; expand `package.json` keywords (no publish)
+
+---
+
+## Post-M37 backlog — user DX
+
+CLI ergonomics, interpretation UX, monorepo heuristics, coupling `exports`/`imports`, and adoption docs. **No npm publish.** Specs via `planner-feature`; checkboxes open until Execute. Suggested Execute order: **M38 → M45 → M39 → M41 → M42 → M40 → M43 → M44**.
+
+### Milestone 38 — CLI Surface Polish
+
+→ [`.specs/features/cli-surface-polish/spec.md`](../features/cli-surface-polish/spec.md)  
+**Slug:** `cli-surface-polish` | **Priority:** High | **Specs:** Planned  
+**IDs:** HOTSPOT-450–461 (range 450–469; 462–469 reserved) | **Items:** 5, 6, 8, 9, 10, 11  
+**Artifacts:** [spec.md](../features/cli-surface-polish/spec.md), [context.md](../features/cli-surface-polish/context.md), [design.md](../features/cli-surface-polish/design.md), [tasks.md](../features/cli-surface-polish/tasks.md) (`Status: Planned`)
+
+Default scan path, `--version`, `--quiet` / `--no-progress`, guided errors, help examples, short aliases. **`--verbose` omitted** (not useful beyond default diagnostics — see context.md).
+
+- [ ] Default `scan` path = `.` when argument omitted (still validate `.git`)
+- [ ] `--version` / `-V` from `package.json`
+- [ ] `--quiet` (suppress progress + `info`; keep report + warning/error) and `--no-progress`
+- [ ] Common errors with next-step hints (non-git, csv without `--output`, baseline, missing `--config`)
+- [ ] Examples in `scan --help`
+- [ ] Short aliases: `-f` format, `-o` output, `-t` top, `-g` granularity (long flags remain)
+
+### Milestone 39 — CLI Init / Doctor / Dry-run
+
+→ [`.specs/features/cli-init-doctor-dry-run/spec.md`](../features/cli-init-doctor-dry-run/spec.md)  
+**Slug:** `cli-init-doctor-dry-run` | **Priority:** High | **Specs:** Planned  
+**IDs:** HOTSPOT-470–489 | **Items:** 3, 4, 26  
+**Depth:** Large | **Sisters:** config-file (M21), path-config-dx (M30), path-scoping (M7)  
+**Artifacts:** [context.md](../features/cli-init-doctor-dry-run/context.md) · [spec.md](../features/cli-init-doctor-dry-run/spec.md) · [design.md](../features/cli-init-doctor-dry-run/design.md) · [tasks.md](../features/cli-init-doctor-dry-run/tasks.md) (Status: **Planned**)
+
+`init` / `doctor` / `scan --dry-run` for adoption DX. Domain in `src/config/` (exemplar), `src/doctor/`, `src/scan-preview.ts`; bin wires only. **Out of scope:** M38 polish aliases, M40 workflow subcommands, PathScope default changes, npm publish.
+
+**Locked (context.md):** Doctor hard-fail = Node engines / git PATH / non-repo / invalid config (`1` or `2`); soft = missing config + missing tsconfig/jsconfig (exit `0`). Init writes `<cwd|dir>/.hotspot-scanner.json`, no overwrite without `--force`; exemplar omits `concurrency`. Dry-run = text preview (since/include/exclude/count/concurrency); no mine/AST/scoring; reject `--baseline`.
+
+- [ ] `hotspot-scanner init [dir]` writes exemplar `.hotspot-scanner.json` (no overwrite without `--force`)
+- [ ] `hotspot-scanner doctor [path]` — Node engines, git on PATH, git repo, config discovery/validity, tsconfig/jsconfig info (exit policy locked)
+- [ ] `scan --dry-run` scope preview (effective since/include/exclude, eligible file count, concurrency) without mine/AST/scoring
+
+### Milestone 40 — Workflow Subcommands
+
+→ [`.specs/features/workflow-subcommands/spec.md`](../features/workflow-subcommands/spec.md)  
+**Slug:** `workflow-subcommands` | **Priority:** Medium | **Specs:** Planned  
+**IDs:** HOTSPOT-490–509 | **Items:** 7  
+**Artifacts:** [context.md](../features/workflow-subcommands/context.md) · [design.md](../features/workflow-subcommands/design.md) · [tasks.md](../features/workflow-subcommands/tasks.md) (Status: Planned)
+
+Explicit save/compare verbs wrapping existing scan/compare JSON flows. Domain stays in `src/`; bin wires only. **No** fail-on thresholds, CI action packaging, or CompareResult schema changes.
+
+- [ ] `hotspot-scanner baseline save <repoPath>` — `runScan` + ScanResult JSON; `--output` or default `./hotspot-baseline.json`
+- [ ] `hotspot-scanner compare <repoPath> --baseline <file>` — thin wrapper; same path as `scan --baseline`
+- [ ] Keep `scan --baseline` working (no removal); JSON files only (no DB)
+
+### Milestone 41 — Output Interpretation UX
+
+→ [`.specs/features/output-interpretation-ux/spec.md`](../features/output-interpretation-ux/spec.md)  
+**Slug:** `output-interpretation-ux` | **Priority:** High | **Specs:** Planned  
+**IDs:** HOTSPOT-510–539 | **Items:** 13, 14, 15, 16, 17, 19  
+**Artifacts:** [context.md](../features/output-interpretation-ux/context.md) · [design.md](../features/output-interpretation-ux/design.md) · [tasks.md](../features/output-interpretation-ux/tasks.md) (Status: Planned)
+
+Human interpretation UX for table/markdown (reporter + CLI only). No scoring/formula/schema changes. Locked decisions in context.md.
+
+- [ ] Table glossary footer (stdout/file after tables); markdown `## How to read this` (shared SoT)
+- [ ] Executive summary at top of table + markdown (scan + compare; shown vs total; coupling + static-dep-false counts)
+- [ ] Conservative triage hints — 3 deterministic rules; default ON for scan table/markdown; `--no-triage-hints`; no compare hints; no ML; rankings/JSON scores unchanged
+- [ ] Repeatable `--only hotspots|coupling|functions`; invalid → `CliUsageError`; omit excluded sections (JSON keys / CSV files); filtered JSON not a baseline
+- [ ] TTY-aware table colors only; honor `--no-color`, `NO_COLOR`, non-TTY, `--output`; no new color dependency; no markdown/JSON/CSV color
+
+### Milestone 42 — Explain & Scan Feedback
+
+→ [`.specs/features/explain-and-scan-feedback/spec.md`](../features/explain-and-scan-feedback/spec.md)  
+**Slug:** `explain-and-scan-feedback` | **Priority:** High | **Specs:** Planned  
+**IDs:** HOTSPOT-540–569 | **Items:** 18, 25, 27  
+**Artifacts:** [context.md](../features/explain-and-scan-feedback/context.md) · [design.md](../features/explain-and-scan-feedback/design.md) · [tasks.md](../features/explain-and-scan-feedback/tasks.md) (`Status: Planned`)  
+**Sister:** M38 `--no-progress` (honor via shared `onProgress`; implementable independently — default progress on)
+
+Full scan always, then explain block on **stderr**. Grammar: `<path>` | `<path>:<functionName>` (see context). Lookup uses full `ScanResult` arrays (ignores `--top` truncation). Rename: append next-step text only — **no** new/changed warning `code`s. Progress: `phase: "complexity"` with file/batch counters.
+
+- [ ] `--explain <target>` breakdown after full scan (raw + normalized c/h + harmonic score; not-found message; file vs `path:function` grammar)
+- [ ] Actionable next-steps on rename warnings (stable M26/M28 codes — `RENAME_HISTORY_INCOMPLETE` / `EMPTY_SINCE_WINDOW`)
+- [ ] Complexity-phase progress via `onProgress` (`phase: "complexity"`; beyond git / function-churn)
+
+### Milestone 43 — Monorepo Path Detect
+
+→ [`.specs/features/monorepo-path-detect/spec.md`](../features/monorepo-path-detect/spec.md)  
+**Slug:** `monorepo-path-detect` | **Priority:** Medium | **Specs:** Planned  
+**IDs:** HOTSPOT-570–589 | **Items:** 12 | **Sisters:** path-scoping (M7), path-config-dx (M30)  
+**Artifacts:** [context.md](../features/monorepo-path-detect/context.md) · [design.md](../features/monorepo-path-detect/design.md) · [tasks.md](../features/monorepo-path-detect/tasks.md) (`Status: Planned`)
+
+When scan path is a subdirectory of a git workspace (e.g. `packages/api`): remount pipeline `repoPath` to `git rev-parse --show-toplevel`; auto-apply `--include {prefix}/**` unless CLI `--include` was passed. Config discovery stays on the original request path (M30). Git-root paths unchanged. YAGNI: no workspace-yaml / nx parsers. See [context.md](../features/monorepo-path-detect/context.md).
+
+- [ ] Remount nested scan path to git root (`rev-parse --show-toplevel`); validate `.git` on root
+- [ ] Auto-include `{packagePrefix}/**` unless CLI `--include`; beats config `include`; `MONOREPO_PATH_REMOUNT` info warning
+- [ ] Config walk / `--config` from original request path; CLI > config > defaults unchanged; git-root scans unchanged
+- [ ] Document heuristic (README + ARCHITECTURE); no pnpm-workspace / nx special cases
+
+### Milestone 44 — Coupling Package Exports
+
+→ [`.specs/features/coupling-package-exports/spec.md`](../features/coupling-package-exports/spec.md)  
+**Slug:** `coupling-package-exports` | **Priority:** High | **Specs:** Planned  
+**IDs:** HOTSPOT-590–619 | **Items:** 24 | **Depth:** Complex | **Sister:** coupling-enrichment (M27), static-enrich-cache (M33)  
+**Artifacts:** `context.md`, `spec.md`, `design.md`, `tasks.md` (Status: Planned)
+
+- [ ] Resolve in-repo `package.json` `exports` / `imports` when labeling static coupling edges (close CONCERNS gap)
+- [ ] Ranking (`couplingStrength`, order) unchanged; existing static fields only — improve true-positive rate
+- [ ] Keep M33 peer-scoped graph cache; extend resolution caches (no per-pair source re-read)
+- [ ] Contract regression + fixtures for exports/imports; no JSON version bump / no `node_modules` full resolve
+- [ ] No PathAliasMap rewrite / no historical AST; Execute removes CONCERNS unmitigated `exports`/`imports` row
+
+### Milestone 45 — Adoption Docs & Package Exports Map
+
+→ [`.specs/features/adoption-docs-package-exports/spec.md`](../features/adoption-docs-package-exports/spec.md)  
+**Slug:** `adoption-docs-package-exports` | **Priority:** Medium | **Specs:** Planned  
+**IDs:** HOTSPOT-620–639 | **Items:** 29, 30, 31, 32 | **Sister:** readme-adoption-dx (M37)  
+**Artifacts:** `spec.md`, `context.md`, `design.md` (thin), `tasks.md` (**Status: Planned**) — Execute in a separate session via `orchestrator-implementer` after Status promotion
+
+- [ ] `docs/recipes.md` — weekly triage, PR markdown, monorepo config, baseline/compare
+- [ ] Sync README sample tables (Quick start + Output formats → Table) with real `small-ts` CLI output; refresh PNG if stale
+- [ ] `docs/warning-codes.md` cheatsheet + README link (stable codes only; no new codes)
+- [ ] `package.json` `"exports"` map for public entry (`./dist/index.js` + types); keep `main`/`types`/`bin` — **no npm publish**
+
+### Suggested execution order (M38–M45)
+
+M38 → M45 → M39 → M41 → M42 → M40 → M43 → M44
