@@ -99,6 +99,8 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-26 | **M58 `--warnings` default = summary** | Collapse repeated same-code / rename sub-kind stderr lines; `--warnings=full` restores per-path detail. Unlinked under summary = one aggregated count line (not 5 samples). |
 | 2026-07-26 | **M58 warnings mode = CLI-only** | No `.hotspot-scanner.json` `warnings` key — match M38 `--quiet` presentation flags. |
 | 2026-07-26 | **M58 cli-warnings-mode Done** | Execute complete: `--warnings summary\|full` (default summary); stderr aggregation via `createCliDiagnosticHandlers` + `flushWarnings()`; meta/JSON unchanged; help/completion/docs synced. Gate green (795 tests). Specs: `.specs/features/cli-warnings-mode/` (Done). |
+| 2026-07-26 | **M59 tty-ephemeral-progress Specs Planned (Large)** | TTY stderr progress: one live overwrite line (`\r` + clear-to-EOL) for `git` + `complexity`; clear on flush/teardown, before diagnostic stderr, phase switch; non-TTY keeps `\n`. No bars/ETA/spinners; no new flags/config/schema; throttles unchanged. M58 compose: clear at `flushWarnings()` (summary) and before each `logWarning` (full). Injectable `stderrIsTTY`. IDs HOTSPOT-970–989. Specs: `.specs/features/tty-ephemeral-progress/` (Status: Planned). |
+| 2026-07-26 | **M59 TTY progress = overwrite + clear (no chrome)** | Live text only; clear-to-EOL preferred over pad-to-width; quiet/no-progress unchanged. |
 
 ## Architecture decisions (ADRs)
 
@@ -135,11 +137,13 @@ _None._
 
 ## Active
 
-**M7–M58 Done** (historical). No active Execute milestone — next work is deferred horizon / new planning.
+**M7–M58 Done** (historical). **M59 Planned** — ephemeral TTY scan progress (not Execute until Status promoted).
+
+**Active pointer:** [`.specs/features/tty-ephemeral-progress/`](../features/tty-ephemeral-progress/) — `tasks.md` Status **Planned**. Promote to Approved/Ready for Execute, then `orchestrator-implementer` in a new session.
 
 **M58 delivered:** default `--warnings=summary`; stderr-only aggregation; JSON full; `--verbose` ≠ warning detail; CLI-only (no config key); file-mode rename warnings SoT. Specs: [`.specs/features/cli-warnings-mode/`](../features/cli-warnings-mode/).
 
-**Planned backlog:** see [ROADMAP.md](ROADMAP.md). Deferred horizon unchanged below.
+**Planned backlog:** M59 on [ROADMAP.md](ROADMAP.md). Deferred horizon unchanged below.
 
 ## Deferred
 

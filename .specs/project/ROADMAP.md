@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M58 Done.** Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize, residual `*.test.mjs`/`*.spec.cjs`).
+Status: **M7–M58 Done.** **M59 Planned** (ephemeral TTY scan progress). Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize, residual `*.test.mjs`/`*.spec.cjs`).
 
 **M12** intentionally absent (CI fail-on-score removed — see STATE).
 
@@ -15,7 +15,13 @@ Status: **M7–M58 Done.** Deferred horizon in [STATE.md](STATE.md) (npm publish
 | M46–M55 | Exclude tests by default, git pathspecs, scope extensions, ranking accuracy+, observability, doctor scope parity, perf controls, API trust docs, compare interpretation, CLI adoption extras |
 | M56–M58 | Remove coupling; NCLOC metric (retire McCabe/function mode); CLI `--warnings summary|full` stderr aggregation |
 
-Detailed checklists below are **historical** (all Done).
+### Planned
+
+| Band | Scope |
+| ---- | ----- |
+| M59 | Ephemeral TTY scan progress (live overwrite + clear; non-TTY newlines unchanged) |
+
+Detailed checklists for M1–M58 below are **historical** (all Done). M59 checklist is **Planned**.
 
 ## Milestone 1 — Scaffold
 
@@ -767,6 +773,26 @@ Intentional breaking **stderr** default: `--warnings summary|full` (default **`s
 - [x] Final gate `pnpm build && pnpm test`
 
 **Out of scope:** config key; schema bump; expanding unlinked pairs in JSON beyond today’s formatter; executive-summary redesign; function-churn revival; fail-on-warning CI.
+
+---
+
+## Milestone 59 — Ephemeral TTY Scan Progress — Planned
+
+→ [`.specs/features/tty-ephemeral-progress/spec.md`](../features/tty-ephemeral-progress/spec.md)  
+**Slug:** `tty-ephemeral-progress` | **Priority:** High | **Specs:** Planned  
+**IDs:** HOTSPOT-970–989 (981–989 reserved) | **Depth:** Large  
+**Sisters:** perf-diagnostics-ux (M28), cli-surface-polish (M38 quiet/no-progress), explain-and-scan-feedback (M42 complexity progress format), cli-warnings-mode (M58)  
+**Artifacts:** [context.md](../features/tty-ephemeral-progress/context.md) · [spec.md](../features/tty-ephemeral-progress/spec.md) · [design.md](../features/tty-ephemeral-progress/design.md) · [tasks.md](../features/tty-ephemeral-progress/tasks.md) (Status: **Planned**)
+
+While a scan runs on a TTY, stderr progress for `git` and `complexity` updates **one live line** (`\r` + clear-to-EOL; no bars/ETA/spinners) and **clears** on teardown, before diagnostic stderr lines, and on phase switch. Non-TTY/CI keeps `\n` lines. `--quiet` / `--no-progress` unchanged. Compose with M58: clear at `flushWarnings()` (summary) and before each `logWarning` (full). No new flags, config, or JSON/schema changes.
+
+- [ ] TTY live overwrite for `git` + `complexity`; non-TTY `\n` unchanged; injectable `stderrIsTTY` for tests
+- [ ] Clear on flush/teardown, before warning/error/info stderr, and on phase switch; quiet/no-progress unchanged
+- [ ] M58 compose (`warnings=summary` / `full`); throttle intervals and message wording unchanged
+- [ ] README + ARCHITECTURE (recipes if progress UX mentioned)
+- [ ] Final gate `pnpm build && pnpm test`
+
+**Out of scope:** bars/ETA/spinners; new flags/config; schema bump; throttle changes; function-churn progress revival; wrapping `--verbose` argv writers.
 
 ---
 
