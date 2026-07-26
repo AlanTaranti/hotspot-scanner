@@ -57,31 +57,36 @@ describe("renderTable", () => {
     expect(output).not.toContain("src/medium.ts");
   });
 
-  it("truncates long file paths in table columns", () => {
+  it("truncates long file paths with middle-ellipsis", () => {
     const longPath = "src/very/long/path/that/exceeds/column/width.ts";
-    const output = renderTable({
-      version: "3.0",
-      hotspots: [
-        {
-          filePath: longPath,
-          hotspotScore: 0.5,
-          complexityNormalized: 0.4,
-          churnNormalized: 0.6,
-          ncloc: 12,
-          commitCount: 8,
-          linesChanged: 50,
-          authorCount: 2,
+    const output = renderTable(
+      {
+        version: "3.0",
+        hotspots: [
+          {
+            filePath: longPath,
+            hotspotScore: 0.5,
+            complexityNormalized: 0.4,
+            churnNormalized: 0.6,
+            ncloc: 12,
+            commitCount: 8,
+            linesChanged: 50,
+            authorCount: 2,
+          },
+        ],
+        meta: {
+          since: "12 months ago",
+          scannedAt: "2026-07-22T12:00:00.000Z",
+          warnings: [],
         },
-      ],
-      meta: {
-        since: "12 months ago",
-        scannedAt: "2026-07-22T12:00:00.000Z",
-        warnings: [],
       },
-    });
+      { stdoutColumns: 80, triageHints: false },
+    );
 
-    expect(output).toContain(longPath.slice(0, 24));
+    expect(output).toContain("…");
+    expect(output).toContain("width.ts");
     expect(output).not.toContain(longPath);
+    expect(output).not.toContain(longPath.slice(0, 24));
   });
 
   it("renders (none) for empty sections", () => {

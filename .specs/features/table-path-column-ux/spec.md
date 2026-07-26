@@ -3,7 +3,7 @@
 **Feature slug:** `table-path-column-ux`  
 **Milestone:** M60  
 **Priority:** Medium  
-**Status:** Specs Planned  
+**Status:** Done  
 **Depth:** Medium  
 **IDs:** HOTSPOT-990–1009 (1001–1009 reserved)  
 **Artifacts:** [context.md](./context.md) · [design.md](./design.md) · [tasks.md](./tasks.md)
@@ -16,12 +16,12 @@ Scan and compare **table** formats hard-code the File column to 24 characters an
 
 ## Goals
 
-- [ ] Middle-ellipsis File cells that keep a path prefix and basename when width allows
-- [ ] Derive File column width from injectable `stdoutColumns` / `process.stdout.columns`, with min/max and fallback **24** when columns are missing
-- [ ] Cap File width so scan numeric columns still fit on ~80-col terminals when possible
-- [ ] Same helper + width rules for scan table and compare table
-- [ ] No new CLI flags, config keys, or JSON schema changes
-- [ ] Document table File-column behavior where layout is described
+- [x] Middle-ellipsis File cells that keep a path prefix and basename when width allows
+- [x] Derive File column width from injectable `stdoutColumns` / `process.stdout.columns`, with min/max and fallback **24** when columns are missing
+- [x] Cap File width so scan numeric columns still fit on ~80-col terminals when possible
+- [x] Same helper + width rules for scan table and compare table
+- [x] No new CLI flags, config keys, or JSON schema changes
+- [x] Document table File-column behavior where layout is described
 
 ## Out of Scope
 

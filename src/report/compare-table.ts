@@ -6,6 +6,12 @@ import type {
 import { paintScore } from "./color.js";
 import { buildCompareTriageHints } from "./compare-triage.js";
 import { renderTableGlossary } from "./glossary.js";
+import {
+  formatFileColumn,
+  formatFileColumnDashes,
+  formatFileColumnHeader,
+  resolveFileColumnWidth,
+} from "./path-column.js";
 import type { ReportSection } from "./only.js";
 import { buildCompareExecutiveSummary } from "./summary.js";
 import { renderTableTriageHints } from "./triage.js";
@@ -18,6 +24,8 @@ export interface CompareRenderOptions {
   triageHints?: boolean;
   /** Full compare result before slice; defaults to displayed for summary totals. */
   full?: CompareResult;
+  /** Injectable stdout column count for File width; omit → process.stdout.columns. */
+  stdoutColumns?: number;
 }
 
 const SCORE_DECIMALS = 4;
@@ -47,10 +55,6 @@ function formatScoreCell(
   return `${" ".repeat(padLen)}${colored}`;
 }
 
-function padEnd(value: string, width: number): string {
-  return value.length >= width ? value.slice(0, width) : value.padEnd(width);
-}
-
 function padStart(value: string, width: number): string {
   return value.length >= width ? value.slice(0, width) : value.padStart(width);
 }
@@ -59,6 +63,7 @@ function renderHotspotRows(
   items: HotspotScore[],
   includeRank: boolean,
   colorEnabled: boolean,
+  fileWidth: number,
 ): string[] {
   if (items.length === 0) {
     return ["  (none)"];
@@ -67,7 +72,7 @@ function renderHotspotRows(
   return items.map((hotspot, index) =>
     [
       includeRank ? padStart(String(index + 1), 4) : padStart("", 4),
-      padEnd(hotspot.filePath, 24),
+      formatFileColumn(hotspot.filePath, fileWidth),
       formatScoreCell(hotspot.hotspotScore, 8, colorEnabled),
       padStart(String(hotspot.ncloc), 4),
       formatPlainScoreCell(hotspot.complexityNormalized, 8),
@@ -81,6 +86,7 @@ function renderHotspotRows(
 function renderRankChangedHotspotRows(
   items: RankChange<HotspotScore>[],
   colorEnabled: boolean,
+  fileWidth: number,
 ): string[] {
   if (items.length === 0) {
     return ["  (none)"];
@@ -91,7 +97,7 @@ function renderRankChangedHotspotRows(
       padStart(String(change.baselineRank), 8),
       padStart(String(change.currentRank), 8),
       padStart(String(change.rankDelta), 5),
-      padEnd(change.entity.filePath, 24),
+      formatFileColumn(change.entity.filePath, fileWidth),
       formatScoreCell(change.entity.hotspotScore, 8, colorEnabled),
       padStart(String(change.entity.ncloc), 4),
       formatPlainScoreCell(change.entity.complexityNormalized, 8),
@@ -105,24 +111,28 @@ function renderRankChangedHotspotRows(
 function renderHotspotSections(
   result: CompareResult,
   colorEnabled: boolean,
+  fileWidth: number,
 ): string[] {
-  const header =
-    "Rank  File                      Score     NLOC  NLOCN     Churn  ChurnN  Authors";
-  const rankChangedHeader =
-    "Baseline  Current  Delta  File                      Score     NLOC  NLOCN     Churn  ChurnN  Authors";
+  const fileHeader = formatFileColumnHeader(fileWidth);
+  const header = `Rank  ${fileHeader}  Score     NLOC  NLOCN     Churn  ChurnN  Authors`;
+  const rankChangedHeader = `Baseline  Current  Delta  ${fileHeader}  Score     NLOC  NLOCN     Churn  ChurnN  Authors`;
 
   return [
     "=== New Hotspots ===",
     header,
-    ...renderHotspotRows(result.hotspots.new, true, colorEnabled),
+    ...renderHotspotRows(result.hotspots.new, true, colorEnabled, fileWidth),
     "",
     "=== Removed Hotspots ===",
     header,
-    ...renderHotspotRows(result.hotspots.removed, false, colorEnabled),
+    ...renderHotspotRows(result.hotspots.removed, false, colorEnabled, fileWidth),
     "",
     "=== Rank Changed Hotspots ===",
     rankChangedHeader,
-    ...renderRankChangedHotspotRows(result.hotspots.rankChanged, colorEnabled),
+    ...renderRankChangedHotspotRows(
+      result.hotspots.rankChanged,
+      colorEnabled,
+      fileWidth,
+    ),
   ];
 }
 
@@ -132,6 +142,7 @@ export function renderCompareTable(
 ): string {
   const full = options?.full ?? result;
   const colorEnabled = options?.color === true;
+  const fileWidth = resolveFileColumnWidth(options?.stdoutColumns);
 
   const lines = [
     "Scan Compare Report",
@@ -142,7 +153,7 @@ export function renderCompareTable(
     lines.push(formatScanWarning(warning));
   }
 
-  lines.push("", ...renderHotspotSections(result, colorEnabled), "");
+  lines.push("", ...renderHotspotSections(result, colorEnabled, fileWidth), "");
 
   if (options?.triageHints !== false) {
     const triageLines = renderTableTriageHints(buildCompareTriageHints(result));

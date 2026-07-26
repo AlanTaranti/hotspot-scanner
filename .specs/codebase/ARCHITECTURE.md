@@ -127,6 +127,15 @@ When `stderrIsTTY` is true (default: `process.stderr.isTTY === true`, injectable
 - Non-TTY (piped/CI) keeps `\n`-terminated progress lines unchanged.
 - `--quiet` / `--no-progress` suppress progress entirely (TTY or not). Throttle intervals unchanged.
 
+### Table File column (M60)
+
+Scan and compare **table** formats use `src/report/path-column.ts` for the File column:
+
+- **Middle-ellipsis** (Unicode `…`) keeps a path prefix and basename when the path exceeds the column width (e.g. `src/api/v1/…/schema.ts`).
+- **Width** derives from `process.stdout.columns` minus a fixed non-File budget (56 chars for scan numeric columns), clamped 16–64; fallback **24** when columns are missing/invalid (pipes, CI).
+- Injectable `stdoutColumns` on `renderTable` / `renderCompareTable` options for tests (parity with M59 `stderrIsTTY`).
+- Markdown / JSON / CSV emit full paths unchanged.
+
 ### Progress phases
 
 | `phase` | Emitter | Counter |

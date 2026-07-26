@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/table-path-column-ux/design.md`](./design.md)  
 **Spec**: [`.specs/features/table-path-column-ux/spec.md`](./spec.md)  
 **Context**: [`.specs/features/table-path-column-ux/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Medium feature — shared helper + scan/compare wiring + docs. Planning session ends here; Execute in a separate session after Status → Approved / Ready for Execute.
 
 ---
@@ -107,10 +107,10 @@ T2 and T3 may run in parallel after T1 (`[P]` on T3).
 
 **Done when**:
 
-- [ ] `resolveFileColumnWidth` matches design table (fallback 24, 80→24, clamp min/max)
-- [ ] `formatFileColumn` uses Unicode `…`; keeps prefix + basename when room; never exceeds width
-- [ ] Edge cases HOTSPOT-997 covered by unit tests
-- [ ] No CLI/config/schema edits
+- [x] `resolveFileColumnWidth` matches design table (fallback 24, 80→24, clamp min/max)
+- [x] `formatFileColumn` uses Unicode `…`; keeps prefix + basename when room; never exceeds width
+- [x] Edge cases HOTSPOT-997 covered by unit tests
+- [x] No CLI/config/schema edits
 
 **Tests**: unit in `src/report/path-column.test.ts` (same task)
 
@@ -137,11 +137,11 @@ T2 and T3 may run in parallel after T1 (`[P]` on T3).
 
 **Done when**:
 
-- [ ] Long paths show `…` + basename within File width (not left truncation SoT)
-- [ ] Short paths unchanged (full path + pad)
-- [ ] Headers/dashes align to File width
-- [ ] Injectable `stdoutColumns` used in tests
-- [ ] No new flags
+- [x] Long paths show `…` + basename within File width (not left truncation SoT)
+- [x] Short paths unchanged (full path + pad)
+- [x] Headers/dashes align to File width
+- [x] Injectable `stdoutColumns` used in tests
+- [x] No new flags
 
 **Tests**: unit in `src/report/table.test.ts` (same task)
 
@@ -168,10 +168,10 @@ T2 and T3 may run in parallel after T1 (`[P]` on T3).
 
 **Done when**:
 
-- [ ] All compare hotspot File cells use shared helper
-- [ ] Headers match File width
-- [ ] Unit coverage for long paths + injection
-- [ ] No schema/flag changes
+- [x] All compare hotspot File cells use shared helper
+- [x] Headers match File width
+- [x] Unit coverage for long paths + injection
+- [x] No schema/flag changes
 
 **Tests**: unit in `src/report/compare-table.test.ts` (same task)
 
@@ -198,9 +198,9 @@ T2 and T3 may run in parallel after T1 (`[P]` on T3).
 
 **Done when**:
 
-- [ ] ARCHITECTURE describes middle-ellipsis + columns/fallback accurately
-- [ ] README updated only if needed; no invented flags
-- [ ] STRUCTURE lists helper if applicable
+- [x] ARCHITECTURE describes middle-ellipsis + columns/fallback accurately
+- [x] README updated only if needed; no invented flags
+- [x] STRUCTURE lists helper if applicable
 
 **Tests**: none (docs)
 
@@ -227,8 +227,8 @@ T2 and T3 may run in parallel after T1 (`[P]` on T3).
 
 **Done when**:
 
-- [ ] `pnpm build && pnpm test` PASS
-- [ ] tasks.md Status → Done (Execute session); ROADMAP M60 marked Done
+- [x] `pnpm build && pnpm test` PASS
+- [x] tasks.md Status → Done (Execute session); ROADMAP M60 marked Done
 
 **Tests**: full suite via gate
 

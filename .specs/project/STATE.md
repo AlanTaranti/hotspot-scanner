@@ -103,7 +103,7 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-26 | **M59 TTY progress = overwrite + clear (no chrome)** | Live text only; clear-to-EOL preferred over pad-to-width; quiet/no-progress unchanged. |
 | 2026-07-26 | **M60 table-path-column-ux Specs Planned (Medium)** | Middle-ellipsis File column (prefix + basename, Unicode `…`); width from injectable `stdoutColumns` / `process.stdout.columns`; fallback **24**; min/max + cap via scan non-File budget 56 (80→24); shared helper for `table.ts` + `compare-table.ts`. No flags/config/schema. IDs HOTSPOT-990–1009 (1001–1009 reserved). Specs: `.specs/features/table-path-column-ux/` (Status: Planned). |
 | 2026-07-26 | **M60 truncation = middle-ellipsis (not end / basename-only)** | Keep path prefix + basename when fitting File width (e.g. `src/api/v1/…/schema.ts`). |
-| 2026-07-26 | **M60 File width from stdout.columns** | Injectable for tests; fallback 24 when columns missing (pipes/CI); cap so numeric columns fit ~80-col scan layout. |
+| 2026-07-26 | **M60 table-path-column-ux Done** | Execute complete: shared `path-column.ts` helper (middle-ellipsis `…`, `resolveFileColumnWidth` from `stdout.columns` with fallback 24, clamp 16–64); wired scan/compare tables with injectable `stdoutColumns`; docs synced (ARCHITECTURE, STRUCTURE). Gate green (812 tests). Specs: `.specs/features/table-path-column-ux/` (Done). |
 
 ## Architecture decisions (ADRs)
 
@@ -140,9 +140,9 @@ _None._
 
 ## Active
 
-**M7–M59 Done** (historical). **M60 Specs Planned** — `table-path-column-ux` (middle-ellipsis File column + terminal-derived width). Specs: [`.specs/features/table-path-column-ux/`](../features/table-path-column-ux/) (`tasks.md` Status: **Planned**). Promote Status → Execute in a new session via `orchestrator-implementer`.
+**M7–M60 Done** (historical). No open milestones — deferred horizon in [STATE.md](STATE.md) § Deferred.
 
-**M59 delivered:** ephemeral TTY scan progress — one live stderr line on interactive terminals (cleared on teardown / before warnings); piped/CI keeps newline logs; `--quiet` / `--no-progress` unchanged; M58 compose preserved. Specs: [`.specs/features/tty-ephemeral-progress/`](../features/tty-ephemeral-progress/).
+**M60 delivered:** table File column middle-ellipsis + terminal-derived width (`path-column.ts`); scan/compare parity; injectable `stdoutColumns` for tests; fallback 24 in pipes/CI. Specs: [`.specs/features/table-path-column-ux/`](../features/table-path-column-ux/).
 
 **Deferred horizon:** unchanged below.
 

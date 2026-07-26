@@ -40,7 +40,7 @@ hotspot-scanner/
 | `src/scoring/`           | implemented | `HotspotScorer` — `normalize`, `hotspot-scorer` |
 | `src/diagnostics/`       | implemented | stderr logger — warnings + throttled progress |
 | `src/doctor/`            | implemented | `runDoctor()` — Node, git, remount-aware repo, config, scope via `previewScanScope`, tsconfig |
-| `src/report/`            | implemented | Reporter — `only`, `summary`, `glossary`, `triage`, `compare-triage`, `explain`, `explain-compare`, `color`; table/json/markdown/csv + compare variants |
+| `src/report/`            | implemented | Reporter — `path-column`, `only`, `summary`, `glossary`, `triage`, `compare-triage`, `explain`, `explain-compare`, `color`; table/json/markdown/csv + compare variants |
 | `src/compare/`           | implemented | Baseline loader (`loadBaseline` rejects pre-3.0), `compareScanResults` |
 | `src/config/`            | implemented | `.hotspot-scanner.json` loader, `mergeScanOptions`, `exemplar.ts`, `UNKNOWN_CONFIG_KEY` for legacy keys |
 | `src/paths/`             | implemented | `createPathScope`, `resolveMonorepoScanPath`, `filterGitMinerResult` |

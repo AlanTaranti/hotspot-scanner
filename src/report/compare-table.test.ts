@@ -6,6 +6,7 @@ import { compareScanResults } from "../compare/compare.js";
 import type { ScanResult } from "../types/index.js";
 import { stripAnsi } from "./color.js";
 import { renderCompareTable } from "./compare-table.js";
+import { formatFileColumn } from "./path-column.js";
 import { sliceCompareResult } from "./slice-compare.js";
 
 const fixturesDir = join(
@@ -154,5 +155,43 @@ describe("renderCompareTable", () => {
 
     expect(() => renderCompareTable(identical)).not.toThrow();
     expect(renderCompareTable(identical)).toContain("(none)");
+  });
+
+  it("truncates long file paths with middle-ellipsis matching scan table", () => {
+    const longPath = "src/very/long/path/that/exceeds/column/width.ts";
+    const fileWidth = 24;
+    const expectedCell = formatFileColumn(longPath, fileWidth);
+    const baseline = JSON.parse(
+      readFileSync(join(fixturesDir, "compare-baseline-file.json"), "utf8"),
+    ) as ScanResult;
+    const current: ScanResult = {
+      ...baseline,
+      hotspots: [
+        {
+          filePath: longPath,
+          hotspotScore: 0.5,
+          complexityNormalized: 0.4,
+          churnNormalized: 0.6,
+          ncloc: 12,
+          commitCount: 8,
+          linesChanged: 50,
+          authorCount: 2,
+        },
+      ],
+      meta: {
+        ...baseline.meta,
+        scannedAt: "2026-07-22T12:00:00.000Z",
+      },
+    };
+    const result = compareScanResults(baseline, current);
+    const output = renderCompareTable(result, {
+      stdoutColumns: 80,
+      triageHints: false,
+    });
+
+    expect(output).toContain(expectedCell.trimEnd());
+    expect(output).toContain("…");
+    expect(output).toContain("width.ts");
+    expect(output).not.toContain(longPath);
   });
 });

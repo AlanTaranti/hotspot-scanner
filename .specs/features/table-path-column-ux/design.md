@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/table-path-column-ux/spec.md`](./spec.md)  
 **Context**: [`.specs/features/table-path-column-ux/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 
 ---
 
