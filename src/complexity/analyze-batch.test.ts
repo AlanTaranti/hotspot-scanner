@@ -1,9 +1,8 @@
-import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { chmod, mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { afterEach, describe, expect, it } from "vitest";
 import { analyzeBatch } from "./analyze-batch.js";
-import { createTsMorphProject } from "./project.js";
 
 const tempDirs: string[] = [];
 
@@ -27,7 +26,7 @@ afterEach(async () => {
 });
 
 describe("analyzeBatch", () => {
-  it("creates a one-shot adapter when project is omitted", async () => {
+  it("reads files and returns NCLOC results", async () => {
     const repoPath = await createTempRepo({
       "valid.ts": "export function ok() { return 1; }",
     });
@@ -37,61 +36,28 @@ describe("analyzeBatch", () => {
     expect(output.results).toEqual([
       {
         filePath: "valid.ts",
-        cyclomaticComplexity: 1,
-        functionCount: 1,
+        ncloc: 1,
       },
     ]);
-    expect(output.functions).toHaveLength(1);
-    expect(output.functions[0]).toMatchObject({
-      filePath: "valid.ts",
-      functionName: "ok",
-      complexity: 1,
-    });
     expect(output.warnings).toEqual([]);
   });
 
-  it("reuses a shared adapter across two sequential batches", async () => {
+  it("analyzes multiple files in one batch", async () => {
     const repoPath = await createTempRepo({
-      "a.ts": "export function a() { return 1; }",
-      "b.ts": "export function b() { if (true) return 2; return 3; }",
+      "a.ts": "export const a = 1;",
+      "b.ts": "export const b = 2;\n// comment",
     });
-    const adapter = createTsMorphProject({ repoPath });
 
-    const first = await analyzeBatch({ repoPath, batch: ["a.ts"] }, adapter);
-    const second = await analyzeBatch({ repoPath, batch: ["b.ts"] }, adapter);
+    const output = await analyzeBatch({ repoPath, batch: ["a.ts", "b.ts"] });
 
-    expect(first.results).toEqual([
-      {
-        filePath: "a.ts",
-        cyclomaticComplexity: 1,
-        functionCount: 1,
-      },
+    expect(output.results).toEqual([
+      { filePath: "a.ts", ncloc: 1 },
+      { filePath: "b.ts", ncloc: 1 },
     ]);
-    expect(first.functions).toHaveLength(1);
-    expect(first.functions[0]).toMatchObject({
-      filePath: "a.ts",
-      functionName: "a",
-      complexity: 1,
-    });
-    expect(first.warnings).toEqual([]);
-
-    expect(second.results).toEqual([
-      {
-        filePath: "b.ts",
-        cyclomaticComplexity: 2,
-        functionCount: 1,
-      },
-    ]);
-    expect(second.functions).toHaveLength(1);
-    expect(second.functions[0]).toMatchObject({
-      filePath: "b.ts",
-      functionName: "b",
-      complexity: 2,
-    });
-    expect(second.warnings).toEqual([]);
+    expect(output.warnings).toEqual([]);
   });
 
-  it("emits PARSE_FAILED warnings and partial results for invalid files", async () => {
+  it("still counts NCLOC for syntactically invalid source", async () => {
     const repoPath = await createTempRepo({
       "valid.ts": "export function ok() { return 1; }",
       "invalid.ts": "export function broken( { return; }",
@@ -103,24 +69,37 @@ describe("analyzeBatch", () => {
     });
 
     expect(output.results).toEqual([
-      {
-        filePath: "valid.ts",
-        cyclomaticComplexity: 1,
-        functionCount: 1,
-      },
-      {
-        filePath: "invalid.ts",
-        cyclomaticComplexity: 0,
-        functionCount: 0,
-        parseFailed: true,
-      },
+      { filePath: "valid.ts", ncloc: 1 },
+      { filePath: "invalid.ts", ncloc: 1 },
     ]);
-    expect(output.functions).toHaveLength(1);
-    expect(output.warnings).toHaveLength(1);
-    expect(output.warnings[0]).toEqual({
-      code: "PARSE_FAILED",
-      severity: "warning",
-      message: expect.stringMatching(/^Failed to parse invalid\.ts: /),
+    expect(output.warnings).toEqual([]);
+  });
+
+  it("emits READ_FAILED warnings and skips unreadable files", async () => {
+    const repoPath = await createTempRepo({
+      "valid.ts": "export function ok() { return 1; }",
+      "unreadable.ts": "export const hidden = 1;",
     });
+    const unreadablePath = join(repoPath, "unreadable.ts");
+    await chmod(unreadablePath, 0o000);
+
+    try {
+      const output = await analyzeBatch({
+        repoPath,
+        batch: ["valid.ts", "unreadable.ts"],
+      });
+
+      expect(output.results).toEqual([
+        { filePath: "valid.ts", ncloc: 1 },
+      ]);
+      expect(output.warnings).toHaveLength(1);
+      expect(output.warnings[0]).toEqual({
+        code: "READ_FAILED",
+        severity: "warning",
+        message: expect.stringMatching(/^Failed to read unreadable\.ts: /),
+      });
+    } finally {
+      await chmod(unreadablePath, 0o644);
+    }
   });
 });

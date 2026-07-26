@@ -8,44 +8,34 @@ const METRIC_GLOSSARY: readonly GlossaryEntry[] = [
   {
     term: "Score",
     definition:
-      "Hotspot score: harmonic mean of normalized complexity and churn (0–1); higher means hotter.",
+      "Hotspot score: harmonic mean of normalized NCLOC and churn (0–1); higher means hotter.",
   },
   {
-    term: "Cpx",
-    definition: "Raw McCabe cyclomatic complexity for the file or function.",
+    term: "NLOC",
+    definition: "Non-commented lines of code in the file.",
   },
   {
-    term: "CpxN",
+    term: "NLOCN",
     definition:
-      "Complexity normalized with log1p + min-max across the scan (0–1).",
+      "NCLOC normalized with log1p + min-max across the scan (0–1).",
   },
   {
     term: "Churn",
-    definition:
-      "Commit count touching the file or function in the scan window.",
+    definition: "Commit count touching the file in the scan window.",
   },
   {
     term: "ChurnN",
     definition: "Churn normalized with log1p + min-max across the scan (0–1).",
   },
   {
-    term: "Funcs",
-    definition: "Number of functions in the file (hotspot ranking rows).",
-  },
-  {
     term: "Authors",
     definition:
-      "Distinct authors who changed the file or function in the scan window.",
+      "Distinct authors who changed the file in the scan window.",
   },
   {
     term: "Lines",
     definition:
-      "Total lines changed in the scan window (markdown hotspot/function tables).",
-  },
-  {
-    term: "ParseFail",
-    definition:
-      "Whether AST parse failed for the file (yes/no); failed files rank with score 0.",
+      "Total lines changed in the scan window (markdown hotspot tables).",
   },
 ];
 

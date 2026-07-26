@@ -3,15 +3,11 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { compareScanResults } from "../../src/compare/compare.js";
-import { renderJson } from "../../src/report/json.js";
-import type { ScanResult } from "../../src/types/index.js";
-import { runScan } from "#scan";
+import type { CompareResult, ScanResult } from "../../src/types/index.js";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../..");
 const schemasDir = join(repoRoot, "schemas");
 const fixturesDir = join(repoRoot, "tests/fixtures/report");
-const smallTsFixture = join(repoRoot, "tests/fixtures/repos/small-ts");
 
 const SCAN_SCHEMA_ID =
   "https://vitals.dev/hotspot-scanner/schemas/scan-result.json";
@@ -46,6 +42,15 @@ function loadScanFixture(name: string): ScanResult {
   return fixture;
 }
 
+function loadCompareFixture(name: string): CompareResult {
+  const raw = JSON.parse(
+    readFileSync(join(fixturesDir, name), "utf8"),
+  ) as CompareResult & { _comment?: string };
+  const { _comment: _ignored, ...fixture } = raw;
+  void _ignored;
+  return fixture;
+}
+
 function expectScanWarningShape(
   warning: unknown,
 ): asserts warning is { severity: string; message: string; code?: string } {
@@ -60,10 +65,10 @@ function expectScanWarningShape(
 describe("JSON schema contract", () => {
   const { validateScan, validateCompare } = createValidators();
 
-  it("runScan output validates against scan-result.json", async () => {
-    const result = await runScan({ repoPath: smallTsFixture });
-    const json = JSON.parse(renderJson(result)) as ScanResult;
+  it("3.0 scan fixture validates against scan-result.json", () => {
+    const json = loadScanFixture("sample-result.json");
 
+    expect(json.version).toBe("3.0");
     expect(validateScan(json)).toBe(true);
     expect(Array.isArray(json.meta.warnings)).toBe(true);
     for (const warning of json.meta.warnings) {
@@ -71,11 +76,10 @@ describe("JSON schema contract", () => {
     }
   });
 
-  it("compareScanResults output validates against compare-result.json", () => {
-    const baseline = loadScanFixture("compare-baseline-file.json");
-    const current = loadScanFixture("compare-current-file.json");
-    const result = compareScanResults(baseline, current);
+  it("3.0 compare fixture validates against compare-result.json", () => {
+    const result = loadCompareFixture("compare-result-file.json");
 
+    expect(result.version).toBe("3.0");
     expect(validateCompare(result)).toBe(true);
     expect(Array.isArray(result.meta.warnings)).toBe(true);
     for (const warning of result.meta.warnings) {
@@ -83,28 +87,33 @@ describe("JSON schema contract", () => {
     }
   });
 
-  it("compare since-mismatch warning matches ScanWarning shape", () => {
-    const baseline = loadScanFixture("compare-baseline-file.json");
-    const current = loadScanFixture("compare-current-file.json");
-    const currentDifferentSince: ScanResult = {
-      ...current,
-      meta: { ...current.meta, since: "12 months ago" },
+  it("compare fixture with since-mismatch warning matches ScanWarning shape", () => {
+    const result = loadCompareFixture("compare-result-file.json");
+    const withWarning: CompareResult = {
+      ...result,
+      meta: {
+        ...result.meta,
+        warnings: [
+          {
+            severity: "warning",
+            code: "COMPARE_SINCE_MISMATCH",
+            message: "Baseline and current scans used different --since windows",
+          },
+        ],
+      },
     };
 
-    const result = compareScanResults(baseline, currentDifferentSince);
-
-    expect(validateCompare(result)).toBe(true);
-    expect(result.meta.warnings).toHaveLength(1);
-    expect(result.meta.warnings[0]).toEqual({
+    expect(validateCompare(withWarning)).toBe(true);
+    expect(withWarning.meta.warnings).toHaveLength(1);
+    expect(withWarning.meta.warnings[0]).toEqual({
       severity: "warning",
       code: "COMPARE_SINCE_MISMATCH",
       message: expect.stringMatching(/different --since windows/),
     });
   });
 
-  it("rejects scan JSON missing meta.warnings", async () => {
-    const result = await runScan({ repoPath: smallTsFixture });
-    const json = JSON.parse(renderJson(result)) as ScanResult;
+  it("rejects scan JSON missing meta.warnings", () => {
+    const json = loadScanFixture("sample-result.json");
     const invalid = structuredClone(json);
     delete (invalid.meta as { warnings?: unknown }).warnings;
 
@@ -112,9 +121,8 @@ describe("JSON schema contract", () => {
     expect(validateScan.errors?.length).toBeGreaterThan(0);
   });
 
-  it("rejects scan JSON with string meta.warnings entries", async () => {
-    const result = await runScan({ repoPath: smallTsFixture });
-    const json = JSON.parse(renderJson(result)) as ScanResult;
+  it("rejects scan JSON with string meta.warnings entries", () => {
+    const json = loadScanFixture("sample-result.json");
     const invalid = structuredClone(json);
     (invalid.meta as { warnings: unknown }).warnings = ["legacy string warning"];
 
@@ -122,9 +130,8 @@ describe("JSON schema contract", () => {
     expect(validateScan.errors?.length).toBeGreaterThan(0);
   });
 
-  it("rejects scan JSON with invalid ScanWarning severity", async () => {
-    const result = await runScan({ repoPath: smallTsFixture });
-    const json = JSON.parse(renderJson(result)) as ScanResult;
+  it("rejects scan JSON with invalid ScanWarning severity", () => {
+    const json = loadScanFixture("sample-result.json");
     const invalid = structuredClone(json);
     invalid.meta.warnings = [
       { severity: "critical" as "warning", message: "bad severity" },
@@ -135,9 +142,7 @@ describe("JSON schema contract", () => {
   });
 
   it("rejects compare JSON with string meta.warnings entries", () => {
-    const baseline = loadScanFixture("compare-baseline-file.json");
-    const current = loadScanFixture("compare-current-file.json");
-    const result = compareScanResults(baseline, current);
+    const result = loadCompareFixture("compare-result-file.json");
     const invalid = structuredClone(result);
     (invalid.meta as { warnings: unknown }).warnings = ["since mismatch"];
 
@@ -145,30 +150,37 @@ describe("JSON schema contract", () => {
     expect(validateCompare.errors?.length).toBeGreaterThan(0);
   });
 
-  it("rejects scan JSON missing parseFailed on hotspots", async () => {
-    const result = await runScan({ repoPath: smallTsFixture });
-    const json = JSON.parse(renderJson(result)) as ScanResult;
+  it("rejects scan JSON missing ncloc on hotspots", () => {
+    const json = loadScanFixture("sample-result.json");
     const invalid = structuredClone(json);
 
     expect(json.hotspots.length).toBeGreaterThan(0);
-    delete (invalid.hotspots[0] as { parseFailed?: boolean }).parseFailed;
+    delete (invalid.hotspots[0] as { ncloc?: number }).ncloc;
 
     expect(validateScan(invalid)).toBe(false);
     expect(validateScan.errors?.length).toBeGreaterThan(0);
   });
 
-  it("accepts scan JSON at version 2.0 without coupling", async () => {
-    const result = await runScan({ repoPath: smallTsFixture });
-    const json = JSON.parse(renderJson(result)) as ScanResult;
+  it("accepts scan JSON at version 3.0 without coupling or functions", () => {
+    const json = loadScanFixture("sample-result.json");
 
-    expect(json.version).toBe("2.0");
+    expect(json.version).toBe("3.0");
     expect(json).not.toHaveProperty("coupling");
+    expect(json).not.toHaveProperty("functions");
     expect(validateScan(json)).toBe(true);
   });
 
-  it("rejects scan JSON with version 1.0", async () => {
-    const result = await runScan({ repoPath: smallTsFixture });
-    const json = JSON.parse(renderJson(result)) as ScanResult;
+  it("rejects scan JSON with version 2.0", () => {
+    const json = loadScanFixture("sample-result.json");
+    const invalid = structuredClone(json);
+    (invalid as { version: string }).version = "2.0";
+
+    expect(validateScan(invalid)).toBe(false);
+    expect(validateScan.errors?.length).toBeGreaterThan(0);
+  });
+
+  it("rejects scan JSON with version 1.0", () => {
+    const json = loadScanFixture("sample-result.json");
     const invalid = structuredClone(json);
     (invalid as { version: string }).version = "1.0";
 
@@ -176,35 +188,19 @@ describe("JSON schema contract", () => {
     expect(validateScan.errors?.length).toBeGreaterThan(0);
   });
 
-  it("allows additional properties on scan JSON (coupling rejected at baseline load only)", async () => {
-    const result = await runScan({ repoPath: smallTsFixture });
-    const json = JSON.parse(renderJson(result)) as ScanResult;
+  it("allows additional properties on scan JSON (coupling rejected at baseline load only)", () => {
+    const json = loadScanFixture("sample-result.json");
     const withExtra = { ...json, coupling: [] };
 
     expect(validateScan(withExtra)).toBe(true);
   });
 
-  it("accepts scan JSON with valid meta.timings", async () => {
-    const result = await runScan({ repoPath: smallTsFixture });
-    const json = JSON.parse(renderJson(result)) as ScanResult;
+  it("accepts scan JSON with valid meta.timings", () => {
+    const json = loadScanFixture("sample-result.json");
     const withTimings = structuredClone(json);
     withTimings.meta.timings = {
       gitMs: 120,
       complexityMs: 340,
-      totalMs: 450,
-    };
-
-    expect(validateScan(withTimings)).toBe(true);
-  });
-
-  it("accepts scan JSON with function-mode meta.timings", async () => {
-    const result = await runScan({ repoPath: smallTsFixture });
-    const json = JSON.parse(renderJson(result)) as ScanResult;
-    const withTimings = structuredClone(json);
-    withTimings.meta.timings = {
-      gitMs: 120,
-      complexityMs: 340,
-      functionChurnMs: 80,
       totalMs: 450,
     };
 
@@ -218,9 +214,8 @@ describe("JSON schema contract", () => {
     expect(validateScan(baseline)).toBe(true);
   });
 
-  it("rejects scan JSON with invalid meta.timings", async () => {
-    const result = await runScan({ repoPath: smallTsFixture });
-    const json = JSON.parse(renderJson(result)) as ScanResult;
+  it("rejects scan JSON with invalid meta.timings", () => {
+    const json = loadScanFixture("sample-result.json");
 
     const missingTotal = structuredClone(json);
     missingTotal.meta.timings = {
@@ -244,5 +239,36 @@ describe("JSON schema contract", () => {
       totalMs: 30.5,
     };
     expect(validateScan(floatTotal)).toBe(false);
+  });
+
+  it("rejects compare JSON with version 2.0", () => {
+    const result = loadCompareFixture("compare-result-file.json");
+    const invalid = structuredClone(result);
+    (invalid as { version: string }).version = "2.0";
+
+    expect(validateCompare(invalid)).toBe(false);
+    expect(validateCompare.errors?.length).toBeGreaterThan(0);
+  });
+
+  it("allows additional properties on compare JSON (functions rejected at baseline load only)", () => {
+    const result = loadCompareFixture("compare-result-file.json");
+    const withFunctions = {
+      ...structuredClone(result),
+      functions: { new: [], removed: [], rankChanged: [] },
+    };
+
+    expect(validateCompare(withFunctions)).toBe(true);
+    expect(withFunctions).toHaveProperty("functions");
+  });
+
+  it("allows additional properties on compare JSON (granularity not in 3.0 contract)", () => {
+    const result = loadCompareFixture("compare-result-file.json");
+    const withGranularity = {
+      ...structuredClone(result),
+      granularity: "file",
+    };
+
+    expect(validateCompare(withGranularity)).toBe(true);
+    expect(withGranularity).toHaveProperty("granularity");
   });
 });

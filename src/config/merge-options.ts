@@ -1,13 +1,11 @@
 import { DEFAULT_WORKER_CONCURRENCY } from "../complexity/pool.js";
 import { DEFAULT_SINCE, DEFAULT_TOP } from "../scan.js";
-import type { ScanGranularity } from "../types/index.js";
 import type { HotspotScannerConfig } from "./load-config.js";
 
 export interface MergedScanConfig {
   since: string;
   include?: string[];
   exclude?: string[];
-  granularity: ScanGranularity;
   top: number;
   concurrency: number;
 }
@@ -53,7 +51,6 @@ export function mergeScanOptions(
     since: pickRequired(cli.since, config?.since, DEFAULT_SINCE),
     include: pickOptional(cli.include, config?.include),
     exclude: pickOptional(cli.exclude, config?.exclude),
-    granularity: pickRequired(cli.granularity, config?.granularity, "file"),
     top: pickRequired(cli.top, config?.top, DEFAULT_TOP),
     concurrency: pickRequired(
       cli.concurrency,

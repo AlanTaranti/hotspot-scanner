@@ -202,9 +202,6 @@ export function buildScanOptions(
   if (cliOverrides.exclude !== undefined) {
     scanOptions.exclude = cliOverrides.exclude;
   }
-  if (cliOverrides.granularity !== undefined) {
-    scanOptions.granularity = cliOverrides.granularity;
-  }
   if (cliOverrides.top !== undefined) {
     scanOptions.top = cliOverrides.top;
   }

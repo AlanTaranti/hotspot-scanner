@@ -1,6 +1,5 @@
 import type {
   CompareResult,
-  FunctionCompareSection,
   HotspotCompareSection,
   RankChange,
 } from "../types/index.js";
@@ -30,9 +29,7 @@ export function sliceCompareResult(
 ): CompareResult {
   return {
     version: result.version,
-    granularity: result.granularity,
     hotspots: sliceSection(result.hotspots, top) as HotspotCompareSection,
-    functions: sliceSection(result.functions, top) as FunctionCompareSection,
     meta: {
       baseline: { ...result.meta.baseline },
       current: { ...result.meta.current },

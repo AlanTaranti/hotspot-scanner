@@ -57,18 +57,6 @@ describe("diagnostics logger", () => {
       expect(write).toHaveBeenCalledWith("Processing git commit 5,000...\n");
     });
 
-    it("writes function-churn phase with formatted commit count", () => {
-      const write = vi
-        .spyOn(process.stderr, "write")
-        .mockImplementation(() => true);
-
-      logProgress({ phase: "function-churn", commitsProcessed: 2500 });
-
-      expect(write).toHaveBeenCalledWith(
-        "Processing function-churn commit 2,500...\n",
-      );
-    });
-
     it("writes complexity phase with batch and file counters", () => {
       const write = vi
         .spyOn(process.stderr, "write")
@@ -120,14 +108,6 @@ describe("diagnostics logger", () => {
         maybeLogProgress({ phase: "git", commitsProcessed: 1000 }),
       ).toBe(true);
       expect(write).toHaveBeenCalledWith("Processing git commit 1,000...\n");
-
-      write.mockClear();
-      expect(
-        maybeLogProgress({ phase: "function-churn", commitsProcessed: 2000 }),
-      ).toBe(true);
-      expect(write).toHaveBeenCalledWith(
-        "Processing function-churn commit 2,000...\n",
-      );
     });
 
     it("does not emit for zero commits", () => {

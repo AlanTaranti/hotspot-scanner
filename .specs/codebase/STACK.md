@@ -12,9 +12,10 @@
 
 | Library     | Role                                            |
 | ----------- | ----------------------------------------------- |
-| `ts-morph`  | AST access for complexity analysis              |
 | `commander` | CLI argument parsing (`bin/hotspot-scanner.ts`) |
 | `picomatch` | Glob matching for path scoping (`src/paths/`)   |
+
+NCLOC size analysis uses plain file reads in `src/complexity/` (no AST runtime dependency). Optional parallel batches via Node `worker_threads` (built-in).
 
 Git log invocation uses `child_process.spawn` in `src/git/` (no `simple-git`).
 

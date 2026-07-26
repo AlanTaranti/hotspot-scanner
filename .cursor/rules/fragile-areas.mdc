@@ -1,5 +1,5 @@
 ---
-description: Guardrails for fragile scanner areas (Git Miner, McCabe, scoring, compare, schemas)
+description: Guardrails for fragile scanner areas (Git Miner, NCLOC, scoring, compare, schemas)
 globs: src/git/**,src/complexity/**,src/scoring/**,src/scan.ts,src/compare/**,schemas/**
 alwaysApply: false
 ---
@@ -20,32 +20,30 @@ Streaming parse of `git log --numstat --name-only` — feeds per-file churn in a
 
 **Required:** tests for `FileChangeStats` derived from the stream.
 
-## Complexity Analyzer (`src/complexity/`)
+## Size analyzer / NCLOC (`src/complexity/`)
 
-McCabe over AST via ts-morph — detailed definition in CONCERNS/ARCHITECTURE.
+File-level NCLOC via state-machine scanner — definition in CONCERNS/ARCHITECTURE (RT-005).
 
-Decision nodes (summary): `if`/`else if`, `for`, `while`, `do-while`, `switch` `case`, `catch`, `&&`/`||`/`??` in conditions, ternaries.
+**Forbidden:** changing NCLOC counting rules (comment/string/blank handling) without fixtures in `ncloc.test.ts` or `tests/fixtures/complexity/`.
 
-**Forbidden:** changing the decision-node definition without fixtures under `tests/fixtures/complexity/` with manually verified McCabe values.
-
-**Required:** invalid syntax file → warning + skip (do not abort the scan).
+**Required:** unreadable file → `READ_FAILED` warning + skip (do not abort the scan).
 
 ## Scoring (`src/scoring/`)
 
-SoT: CONCERNS.md — `hotspotScore = 2ch / (c + h)`.
+SoT: CONCERNS.md — `hotspotScore = 2ch / (c + h)` with `c` from normalized NCLOC.
 
 **Forbidden:** changing formulas or normalization strategy without tests using fixed inputs and expected ordering.
 
-**Required:** edge cases (zero commits, single file, parse-failed stubs).
+**Required:** edge cases (zero commits, single file).
 
 ## Compare / baseline (`src/compare/`)
 
-`loadBaseline()` validates a strong structure on JSON `version: "2.0"` scan/compare payloads. Parse-contract changes require tests in `load-baseline.test.ts` and baseline fixtures.
+`loadBaseline()` validates JSON `version: "3.0"` scan/compare payloads. Rejects `1.0`, `2.0`, `coupling`, `functions`, `cyclomaticComplexity`.
 
-**Forbidden:** auto-migrating pre-M56 `1.0` baselines or payloads with a top-level `coupling` key; fail with a clear re-scan message.
+**Forbidden:** auto-migrating legacy baselines; fail with clear re-scan message.
 
 ## JSON schemas (`schemas/`)
 
-I/O contract SoT: `schemas/scan-result.json`, `schemas/compare-result.json` (`version: "2.0"` — no top-level `coupling`).
+I/O contract SoT: `schemas/scan-result.json`, `schemas/compare-result.json` (`version: "3.0"`).
 
 **Required:** after editing schemas, update `tests/contract/json-schema.test.ts` and related JSON fixtures.

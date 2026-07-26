@@ -17,7 +17,6 @@ export const EXEMPLAR_HOTSPOT_SCANNER_CONFIG: HotspotScannerConfig = {
   since: DEFAULT_SINCE,
   include: [],
   exclude: [],
-  granularity: "file",
   top: DEFAULT_TOP,
 };
 

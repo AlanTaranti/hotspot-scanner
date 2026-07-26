@@ -10,13 +10,7 @@ import {
   HOTSPOT_SCANNER_CONFIG_FILENAME,
 } from "./config/index.js";
 import { DEFAULT_WORKER_CONCURRENCY } from "./complexity/pool.js";
-import * as discoverModule from "./complexity/discover.js";
-import { PATCH_PATHSPEC_FALLBACK_THRESHOLD } from "./git/function-churn/spawn.js";
-import {
-  buildPathspecScaleWarning,
-  formatScanScopePreview,
-  previewScanScope,
-} from "./scan-preview.js";
+import { formatScanScopePreview, previewScanScope } from "./scan-preview.js";
 import { DEFAULT_SINCE } from "./scan.js";
 
 const execFileAsync = promisify(execFile);
@@ -25,9 +19,7 @@ const createGitMinerSpy = vi.hoisted(() => vi.fn());
 const mineSpy = vi.hoisted(() => vi.fn());
 const createComplexityAnalyzerSpy = vi.hoisted(() => vi.fn());
 const analyzeSpy = vi.hoisted(() => vi.fn());
-const scoreCouplingSpy = vi.hoisted(() => vi.fn());
 const scoreHotspotsSpy = vi.hoisted(() => vi.fn());
-const scoreFunctionHotspotsSpy = vi.hoisted(() => vi.fn());
 
 vi.mock("./git/index.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./git/index.js")>();
@@ -72,29 +64,11 @@ vi.mock("./scoring/index.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./scoring/index.js")>();
   return {
     ...actual,
-    createTemporalCouplingScorer: () => {
-      const scorer = actual.createTemporalCouplingScorer();
-      return {
-        score: (...args: Parameters<typeof scorer.score>) => {
-          scoreCouplingSpy(...args);
-          return scorer.score(...args);
-        },
-      };
-    },
     createHotspotScorer: () => {
       const scorer = actual.createHotspotScorer();
       return {
         score: (...args: Parameters<typeof scorer.score>) => {
           scoreHotspotsSpy(...args);
-          return scorer.score(...args);
-        },
-      };
-    },
-    createFunctionHotspotScorer: () => {
-      const scorer = actual.createFunctionHotspotScorer();
-      return {
-        score: (...args: Parameters<typeof scorer.score>) => {
-          scoreFunctionHotspotsSpy(...args);
           return scorer.score(...args);
         },
       };
@@ -121,9 +95,7 @@ afterEach(async () => {
   mineSpy.mockClear();
   createComplexityAnalyzerSpy.mockClear();
   analyzeSpy.mockClear();
-  scoreCouplingSpy.mockClear();
   scoreHotspotsSpy.mockClear();
-  scoreFunctionHotspotsSpy.mockClear();
 
   await Promise.all(
     tempDirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })),
@@ -155,9 +127,7 @@ describe("previewScanScope", () => {
     expect(mineSpy).not.toHaveBeenCalled();
     expect(createComplexityAnalyzerSpy).not.toHaveBeenCalled();
     expect(analyzeSpy).not.toHaveBeenCalled();
-    expect(scoreCouplingSpy).not.toHaveBeenCalled();
     expect(scoreHotspotsSpy).not.toHaveBeenCalled();
-    expect(scoreFunctionHotspotsSpy).not.toHaveBeenCalled();
   });
 
   it("excludes test files by default and includes them when includeTests is true", async () => {
@@ -282,59 +252,6 @@ describe("previewScanScope", () => {
     await expect(previewScanScope({ repoPath })).rejects.toThrow(ConfigError);
     await expect(previewScanScope({ repoPath })).rejects.toThrow(/Invalid JSON/);
   });
-
-  it("omits pathspecScaleWarning when eligible count is at threshold", async () => {
-    const repoPath = await createIsolatedSmallTsRepo();
-    const discoverSpy = vi
-      .spyOn(discoverModule, "discoverSourceFiles")
-      .mockResolvedValue(
-        Array.from(
-          { length: PATCH_PATHSPEC_FALLBACK_THRESHOLD },
-          (_, i) => `src/f${i}.ts`,
-        ),
-      );
-
-    try {
-      const preview = await previewScanScope({ repoPath });
-
-      expect(preview.eligibleFileCount).toBe(PATCH_PATHSPEC_FALLBACK_THRESHOLD);
-      expect(preview.pathspecScaleWarning).toBeUndefined();
-      expect(createGitMinerSpy).not.toHaveBeenCalled();
-      expect(mineSpy).not.toHaveBeenCalled();
-      expect(createComplexityAnalyzerSpy).not.toHaveBeenCalled();
-      expect(analyzeSpy).not.toHaveBeenCalled();
-    } finally {
-      discoverSpy.mockRestore();
-    }
-  });
-
-  it("sets pathspecScaleWarning when eligible count exceeds threshold without mining", async () => {
-    const repoPath = await createIsolatedSmallTsRepo();
-    const overThresholdCount = PATCH_PATHSPEC_FALLBACK_THRESHOLD + 1;
-    const discoverSpy = vi
-      .spyOn(discoverModule, "discoverSourceFiles")
-      .mockResolvedValue(
-        Array.from({ length: overThresholdCount }, (_, i) => `src/f${i}.ts`),
-      );
-
-    try {
-      const preview = await previewScanScope({ repoPath });
-
-      expect(preview.eligibleFileCount).toBe(overThresholdCount);
-      expect(preview.pathspecScaleWarning).toBe(
-        buildPathspecScaleWarning(overThresholdCount),
-      );
-      expect(createGitMinerSpy).not.toHaveBeenCalled();
-      expect(mineSpy).not.toHaveBeenCalled();
-      expect(createComplexityAnalyzerSpy).not.toHaveBeenCalled();
-      expect(analyzeSpy).not.toHaveBeenCalled();
-      expect(scoreCouplingSpy).not.toHaveBeenCalled();
-      expect(scoreHotspotsSpy).not.toHaveBeenCalled();
-      expect(scoreFunctionHotspotsSpy).not.toHaveBeenCalled();
-    } finally {
-      discoverSpy.mockRestore();
-    }
-  });
 });
 
 describe("formatScanScopePreview", () => {
@@ -376,37 +293,5 @@ describe("formatScanScopePreview", () => {
 
     expect(output).toContain("test files: included");
     expect(output).not.toContain("test files: excluded");
-  });
-
-  it("omits pathspec scale warning when eligible count is at threshold", () => {
-    const output = formatScanScopePreview({
-      repoPath: "/tmp/repo",
-      since: "12 months ago",
-      include: [],
-      exclude: [],
-      includeTests: false,
-      eligibleFileCount: PATCH_PATHSPEC_FALLBACK_THRESHOLD,
-      concurrency: 4,
-    });
-
-    expect(output).not.toContain("warning: eligible files");
-    expect(output).not.toContain("pathspec batch threshold");
-  });
-
-  it("includes pathspec scale warning when eligible count exceeds threshold", () => {
-    const eligibleFileCount = PATCH_PATHSPEC_FALLBACK_THRESHOLD + 1;
-    const output = formatScanScopePreview({
-      repoPath: "/tmp/repo",
-      since: "12 months ago",
-      include: [],
-      exclude: [],
-      includeTests: false,
-      eligibleFileCount,
-      concurrency: 4,
-    });
-
-    expect(output).toContain(
-      buildPathspecScaleWarning(eligibleFileCount),
-    );
   });
 });

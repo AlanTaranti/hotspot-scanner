@@ -2,22 +2,11 @@
 
 External dependencies and adapter boundaries. No network integrations (zero-network product policy).
 
-## ts-morph
-
-| Aspect      | Detail                                                                 |
-| ----------- | ---------------------------------------------------------------------- |
-| **Role**    | AST access for TypeScript/JavaScript files                             |
-| **Adapter** | `ComplexityAnalyzer` in `src/complexity/` (`project.ts` batch adapter) |
-| **Version** | `ts-morph@^28` (runtime dependency)                                    |
-| **Rule**    | Do not import ts-morph outside `src/complexity/`                       |
-| **Failure** | Invalid syntax → `PARSE_FAILED` `ScanWarning`, skip file (see CONCERNS.md)                                             |
-| **Tests**   | Mock at adapter boundary; use fixture TS files for real AST tests      |
-
 ## worker_threads (Node.js built-in)
 
 | Aspect      | Detail                                                                                                                 |
 | ----------- | ---------------------------------------------------------------------------------------------------------------------- |
-| **Role**    | Parallel batch processing in complexity stage (M15)                                                                    |
+| **Role**    | Parallel batch processing in size analysis stage (M15)                                                                 |
 | **Adapter** | `createWorkerPool` in `src/complexity/pool.ts`; worker entry `src/complexity/worker.ts`                                |
 | **Default** | `DEFAULT_WORKER_CONCURRENCY` = `min(availableParallelism(), 8)`                                                        |
 | **Override**| CLI `--concurrency` or config `concurrency` (M28) → `runScan()` → `createComplexityAnalyzer({ concurrency })`          |
@@ -43,31 +32,18 @@ External dependencies and adapter boundaries. No network integrations (zero-netw
 | **Role**       | `git rev-parse --show-toplevel` to resolve pipeline `repoPath` when scan path is nested inside a git workspace |
 | **Adapter**    | `resolveMonorepoScanPath` in `src/paths/resolve-repo.ts`                              |
 | **Invocation** | `child_process.execFile` — `git -C <requestPath> rev-parse --show-toplevel`         |
-| **When**       | Start of `resolveScanPipelineContext()` / `runScan()` / `previewScanScope()` before config merge and git validation |
-| **Rule**       | Do not spawn `rev-parse` outside `src/paths/resolve-repo.ts` (reuse helper)           |
-| **Failure**    | Not a git work tree → same error class as `validateGitRepository` (`repoPath is not a git repository` + Hint) |
+| **Rule**       | Do not spawn `rev-parse` outside `src/paths/resolve-repo.ts`                          |
 | **Tests**      | Inject `detectGitToplevel` in `resolve-repo.test.ts`; integration via `scan.test.ts` |
 
-### Tracked file listing (M36, complexity discovery)
+### Tracked file listing (M36, discovery)
 
 | Aspect         | Detail                                                                              |
 | -------------- | ----------------------------------------------------------------------------------- |
-| **Role**       | `git ls-files -z` for tracked-path discovery before complexity analysis               |
+| **Role**       | `git ls-files -z` for tracked-path discovery before size analysis                   |
 | **Adapter**    | `listTrackedFiles` in `src/git/ls-files.ts`                                         |
 | **Invocation** | `child_process.spawn` — `git -C <repoPath> ls-files -z`; null-delimited stdout parse |
 | **When**       | `discoverSourceFiles` primary path in Git repos; silent walk fallback on failure      |
-| **Failure**    | `GitLsFilesError` with `repoPath` + stderr; discover catches and falls back to walk |
 | **Tests**      | Mock `spawn` in `ls-files.test.ts`; inject `listTrackedFiles` in `discover.test.ts` |
-
-### Function churn patch stream (M23, function mode only)
-
-| Aspect         | Detail                                                                              |
-| -------------- | ----------------------------------------------------------------------------------- |
-| **Role**       | `git log -p --unified=0` for per-function hunk-overlap churn                        |
-| **Adapter**    | `createFunctionChurnMiner` in `src/git/function-churn/`                             |
-| **Invocation** | `streamGitPatchLog` in `src/git/function-churn/spawn.ts` — streaming parse          |
-| **When**       | Only when `--granularity function`; skipped when no functions                       |
-| **Tests**      | Mock at `FunctionChurnMiner` / spawn boundary; fixtures `tests/fixtures/git-patch/` |
 
 ## commander
 
@@ -85,8 +61,14 @@ External dependencies and adapter boundaries. No network integrations (zero-netw
 | **Adapter** | `src/paths/scope.ts` only                                                           |
 | **Version** | `picomatch@^4` (runtime dependency)                                                 |
 | **Rule**    | Do not import picomatch outside `src/paths/`                                        |
-| **Failure** | Invalid patterns propagate at scope creation; CLI rejects empty patterns            |
-| **Tests**   | Real pattern behavior in `src/paths/scope.test.ts` — do not mock picomatch          |
+| **Tests**   | Real pattern behavior in `src/paths/scope.test.ts`                                  |
+
+## Removed integrations (M57)
+
+| Dependency | Former role | M57 outcome |
+| ---------- | ----------- | ----------- |
+| **ts-morph** | AST + McCabe in `src/complexity/` | **Removed** — NCLOC uses plain file read + state machine (`ncloc.ts`) |
+| **Function-churn patch stream** | `git log -p` in `src/git/function-churn/` | **Removed** — file hotspots only |
 
 ## Adding new dependencies
 
@@ -99,5 +81,5 @@ External dependencies and adapter boundaries. No network integrations (zero-netw
 Integration errors must include context:
 
 - Git: repo path, git command, stderr snippet
-- AST: file path, parse error message
+- Size analysis: file path, read error message (`READ_FAILED`)
 - Do not swallow errors that indicate user misconfiguration (bad path, not a git repo)

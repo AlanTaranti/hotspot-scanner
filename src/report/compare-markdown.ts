@@ -1,16 +1,11 @@
 import type {
   CompareResult,
-  FunctionHotspotScore,
   HotspotScore,
   RankChange,
 } from "../types/index.js";
-import {
-  type CompareRenderOptions,
-  resolveCompareRenderSections,
-} from "./compare-table.js";
+import type { CompareRenderOptions } from "./compare-table.js";
 import { buildCompareTriageHints } from "./compare-triage.js";
 import { renderMarkdownHowToRead } from "./glossary.js";
-import { normalizeOnly } from "./only.js";
 import { buildCompareExecutiveSummary } from "./summary.js";
 import { renderMarkdownTriageHints } from "./triage.js";
 import { formatScanWarning } from "./warning-format.js";
@@ -39,14 +34,14 @@ function renderHotspotTable(
 
   const rankHeader = includeRank ? "| Rank | " : "| ";
   lines.push(
-    `${rankHeader}File | Score | Cpx | CpxN | Churn | ChurnN | Funcs | Authors | ParseFail |`,
-    `${includeRank ? "| ---: | " : "| "}--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | :---: |`,
+    `${rankHeader}File | Score | NLOC | NLOCN | Churn | ChurnN | Authors |`,
+    `${includeRank ? "| ---: | " : "| "}--- | ---: | ---: | ---: | ---: | ---: | ---: |`,
   );
 
   for (const [index, hotspot] of items.entries()) {
     const rankCell = includeRank ? `${index + 1} | ` : "";
     lines.push(
-      `| ${rankCell}${escapeCell(hotspot.filePath)} | ${formatScore(hotspot.hotspotScore)} | ${hotspot.cyclomaticComplexity} | ${formatScore(hotspot.complexityNormalized)} | ${hotspot.commitCount} | ${formatScore(hotspot.churnNormalized)} | ${hotspot.functionCount} | ${hotspot.authorCount} | ${hotspot.parseFailed ? "yes" : "no"} |`,
+      `| ${rankCell}${escapeCell(hotspot.filePath)} | ${formatScore(hotspot.hotspotScore)} | ${hotspot.ncloc} | ${formatScore(hotspot.complexityNormalized)} | ${hotspot.commitCount} | ${formatScore(hotspot.churnNormalized)} | ${hotspot.authorCount} |`,
     );
   }
 
@@ -65,66 +60,13 @@ function renderRankChangedHotspotTable(
   }
 
   lines.push(
-    "| Baseline Rank | Current Rank | Δ | File | Score | Cpx | CpxN | Churn | ChurnN | Funcs | Authors | ParseFail |",
-    "| ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | :---: |",
+    "| Baseline Rank | Current Rank | Δ | File | Score | NLOC | NLOCN | Churn | ChurnN | Authors |",
+    "| ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: |",
   );
 
   for (const change of items) {
     lines.push(
-      `| ${change.baselineRank} | ${change.currentRank} | ${change.rankDelta} | ${escapeCell(change.entity.filePath)} | ${formatScore(change.entity.hotspotScore)} | ${change.entity.cyclomaticComplexity} | ${formatScore(change.entity.complexityNormalized)} | ${change.entity.commitCount} | ${formatScore(change.entity.churnNormalized)} | ${change.entity.functionCount} | ${change.entity.authorCount} | ${change.entity.parseFailed ? "yes" : "no"} |`,
-    );
-  }
-
-  return lines;
-}
-
-function renderFunctionTable(
-  title: string,
-  items: FunctionHotspotScore[],
-  includeRank: boolean,
-): string[] {
-  const lines = [`## ${title}`, ""];
-
-  if (items.length === 0) {
-    lines.push("_No results._");
-    return lines;
-  }
-
-  const rankHeader = includeRank ? "| Rank | " : "| ";
-  lines.push(
-    `${rankHeader}File | Function | Line | Score | Cpx | CpxN | Churn | ChurnN | Authors |`,
-    `${includeRank ? "| ---: | " : "| "}--- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |`,
-  );
-
-  for (const [index, fn] of items.entries()) {
-    const rankCell = includeRank ? `${index + 1} | ` : "";
-    lines.push(
-      `| ${rankCell}${escapeCell(fn.filePath)} | ${escapeCell(fn.functionName)} | ${fn.line} | ${formatScore(fn.hotspotScore)} | ${fn.complexity} | ${formatScore(fn.complexityNormalized)} | ${fn.commitCount} | ${formatScore(fn.churnNormalized)} | ${fn.authorCount} |`,
-    );
-  }
-
-  return lines;
-}
-
-function renderRankChangedFunctionTable(
-  title: string,
-  items: RankChange<FunctionHotspotScore>[],
-): string[] {
-  const lines = [`## ${title}`, ""];
-
-  if (items.length === 0) {
-    lines.push("_No results._");
-    return lines;
-  }
-
-  lines.push(
-    "| Baseline Rank | Current Rank | Δ | File | Function | Line | Score | Cpx | CpxN | Churn | ChurnN | Authors |",
-    "| ---: | ---: | ---: | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
-  );
-
-  for (const change of items) {
-    lines.push(
-      `| ${change.baselineRank} | ${change.currentRank} | ${change.rankDelta} | ${escapeCell(change.entity.filePath)} | ${escapeCell(change.entity.functionName)} | ${change.entity.line} | ${formatScore(change.entity.hotspotScore)} | ${change.entity.complexity} | ${formatScore(change.entity.complexityNormalized)} | ${change.entity.commitCount} | ${formatScore(change.entity.churnNormalized)} | ${change.entity.authorCount} |`,
+      `| ${change.baselineRank} | ${change.currentRank} | ${change.rankDelta} | ${escapeCell(change.entity.filePath)} | ${formatScore(change.entity.hotspotScore)} | ${change.entity.ncloc} | ${formatScore(change.entity.complexityNormalized)} | ${change.entity.commitCount} | ${formatScore(change.entity.churnNormalized)} | ${change.entity.authorCount} |`,
     );
   }
 
@@ -144,25 +86,10 @@ function renderHotspotSections(result: CompareResult): string[] {
   ];
 }
 
-function renderFunctionSections(result: CompareResult): string[] {
-  return [
-    ...renderFunctionTable("New Functions", result.functions.new, true),
-    "",
-    ...renderFunctionTable("Removed Functions", result.functions.removed, false),
-    "",
-    ...renderRankChangedFunctionTable(
-      "Rank Changed Functions",
-      result.functions.rankChanged,
-    ),
-  ];
-}
-
 export function renderCompareMarkdown(
   result: CompareResult,
   options?: CompareRenderOptions,
 ): string {
-  const onlySet = normalizeOnly(options?.only);
-  const sections = resolveCompareRenderSections(onlySet, result.granularity);
   const full = options?.full ?? result;
 
   const lines = [
@@ -178,13 +105,7 @@ export function renderCompareMarkdown(
     lines.push(`> ${formatScanWarning(warning)}`, "");
   }
 
-  if (sections.hotspots) {
-    lines.push(...renderHotspotSections(result), "");
-  }
-
-  if (sections.functions) {
-    lines.push(...renderFunctionSections(result), "");
-  }
+  lines.push(...renderHotspotSections(result), "");
 
   if (options?.triageHints !== false) {
     const triageLines = renderMarkdownTriageHints(buildCompareTriageHints(result));

@@ -26,13 +26,16 @@ describe("renderCompareJson", () => {
     const output = renderCompareJson(loadCompareResult());
     const parsed = JSON.parse(output);
 
-    expect(parsed.version).toBe("2.0");
+    expect(parsed.version).toBe("3.0");
     expect(parsed.hotspots.new).toHaveLength(1);
     expect(parsed.hotspots.removed).toHaveLength(1);
     expect(parsed.hotspots.rankChanged).toHaveLength(1);
+    expect(parsed.hotspots.new[0]).toMatchObject({ ncloc: 50 });
+    expect(parsed).not.toHaveProperty("functions");
+    expect(parsed).not.toHaveProperty("granularity");
   });
 
-  it("omits excluded sections when --only is set", () => {
+  it("includes hotspots when only is set", () => {
     const output = renderCompareJson(loadCompareResult(), {
       only: ["hotspots"],
     });
@@ -41,24 +44,14 @@ describe("renderCompareJson", () => {
     expect(parsed.hotspots).toBeDefined();
     expect(parsed.functions).toBeUndefined();
     expect(parsed.meta).toBeDefined();
-    expect(parsed.version).toBe("2.0");
+    expect(parsed.version).toBe("3.0");
   });
 
-  it("keeps all section keys when unfiltered", () => {
+  it("keeps hotspots when unfiltered", () => {
     const output = renderCompareJson(loadCompareResult());
     const parsed = JSON.parse(output) as Record<string, unknown>;
 
     expect(parsed.hotspots).toBeDefined();
-    expect(parsed.functions).toBeDefined();
-  });
-
-  it("includes only functions when --only functions", () => {
-    const output = renderCompareJson(loadCompareResult(), {
-      only: ["functions"],
-    });
-    const parsed = JSON.parse(output) as Record<string, unknown>;
-
-    expect(parsed.functions).toBeDefined();
-    expect(parsed).not.toHaveProperty("hotspots");
+    expect(parsed).not.toHaveProperty("functions");
   });
 });

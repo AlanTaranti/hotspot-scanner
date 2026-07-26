@@ -3,10 +3,6 @@ import {
   analyzeBatch,
   type BatchAnalysisOutput,
 } from "./analyze-batch.js";
-import {
-  createTsMorphProject,
-  type TsMorphProjectAdapter,
-} from "./project.js";
 
 type WorkerInbound =
   | { type: "analyze"; id: number; repoPath: string; batch: string[] }
@@ -15,9 +11,6 @@ type WorkerInbound =
 type WorkerOutbound =
   | { type: "result"; id: number; ok: true; output: BatchAnalysisOutput }
   | { type: "result"; id: number; ok: false; error: string };
-
-let project: TsMorphProjectAdapter | undefined;
-let projectRepoPath: string | undefined;
 
 parentPort!.on("message", async (message: WorkerInbound) => {
   if (message.type === "shutdown") {
@@ -30,15 +23,10 @@ parentPort!.on("message", async (message: WorkerInbound) => {
   }
 
   try {
-    if (!project || projectRepoPath !== message.repoPath) {
-      project = createTsMorphProject({ repoPath: message.repoPath });
-      projectRepoPath = message.repoPath;
-    }
-
-    const output = await analyzeBatch(
-      { repoPath: message.repoPath, batch: message.batch },
-      project,
-    );
+    const output = await analyzeBatch({
+      repoPath: message.repoPath,
+      batch: message.batch,
+    });
 
     const response: WorkerOutbound = {
       type: "result",

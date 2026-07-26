@@ -1,6 +1,7 @@
 import type { CompareResult, ScanResult } from "../types/index.js";
 import { renderCompareCsv } from "./compare-csv.js";
 export type { ExplainTarget } from "./explain.js";
+export { CliUsageError } from "./explain.js";
 export {
   formatExplainBlock,
   normalizeExplainPath,
@@ -21,19 +22,13 @@ import type { CsvBundle } from "./csv-bundle.js";
 import { renderCsv } from "./csv.js";
 import { renderJson } from "./json.js";
 import { renderMarkdown } from "./markdown.js";
-import { includesSection, normalizeOnly, type ReportSection } from "./only.js";
+import type { ReportSection } from "./only.js";
 import { sliceCompareResult } from "./slice-compare.js";
 import { sliceScanResult } from "./slice.js";
 import { renderTable } from "./table.js";
 
 export type { CsvBundle } from "./csv-bundle.js";
 export type { ReportSection } from "./only.js";
-
-const EMPTY_COMPARE_SECTION = {
-  new: [],
-  removed: [],
-  rankChanged: [],
-};
 
 export interface ReporterOptions {
   format: "table" | "json" | "markdown" | "csv";
@@ -55,85 +50,45 @@ export interface Reporter {
   ): ReporterRenderResult;
 }
 
-function filterScanResultForOnly(
-  result: ScanResult,
-  only?: readonly ReportSection[],
-): ScanResult {
-  if (only === undefined || only.length === 0) {
-    return result;
-  }
-
-  const onlySet = normalizeOnly(only);
-  return {
-    ...result,
-    hotspots: includesSection(onlySet, "hotspots") ? result.hotspots : [],
-    functions: includesSection(onlySet, "functions") ? result.functions : [],
-  };
-}
-
-function filterCompareResultForOnly(
-  result: CompareResult,
-  only?: readonly ReportSection[],
-): CompareResult {
-  if (only === undefined || only.length === 0) {
-    return result;
-  }
-
-  const onlySet = normalizeOnly(only);
-  return {
-    ...result,
-    hotspots: includesSection(onlySet, "hotspots")
-      ? result.hotspots
-      : { ...EMPTY_COMPARE_SECTION },
-    functions: includesSection(onlySet, "functions")
-      ? result.functions
-      : { ...EMPTY_COMPARE_SECTION },
-  };
-}
-
 export function createReporter(): Reporter {
   return {
     render(result, options) {
-      const { only, triageHints, color } = options;
+      const { triageHints, color } = options;
 
       if (options.format === "csv") {
-        return renderCsv(result, { only });
+        return renderCsv(result, { only: options.only });
       }
       if (options.format === "json") {
-        return renderJson(result, { only });
+        return renderJson(result, { only: options.only });
       }
 
-      const filtered = filterScanResultForOnly(result, only);
-      const sliced = sliceScanResult(filtered, options.top);
+      const sliced = sliceScanResult(result, options.top);
 
       if (options.format === "markdown") {
         return renderMarkdown(sliced, {
           full: result,
-          only,
           triageHints,
         });
       }
 
       return renderTable(sliced, {
         fullResult: result,
-        only,
         triageHints,
         color,
       });
     },
     renderCompare(result, options) {
-      const { only, triageHints, color } = options;
+      const { triageHints, color } = options;
 
       if (options.format === "csv") {
-        return renderCompareCsv(result, { only });
+        return renderCompareCsv(result, { only: options.only });
       }
       if (options.format === "json") {
-        return renderCompareJson(result, { only });
+        return renderCompareJson(result, { only: options.only });
       }
 
-      const filtered = filterCompareResultForOnly(result, only);
-      const sliced = sliceCompareResult(filtered, options.top);
-      const compareRenderOptions = { only, full: result, triageHints };
+      const sliced = sliceCompareResult(result, options.top);
+      const compareRenderOptions = { only: options.only, full: result, triageHints };
 
       if (options.format === "markdown") {
         return renderCompareMarkdown(sliced, compareRenderOptions);

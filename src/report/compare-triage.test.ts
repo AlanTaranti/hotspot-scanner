@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type {
   CompareResult,
-  FunctionHotspotScore,
   HotspotScore,
   RankChange,
   ScanMeta,
@@ -20,20 +19,15 @@ import {
 const BASE_META: ScanMeta = {
   since: "6 months ago",
   scannedAt: "2026-07-22T11:00:00.000Z",
-  granularity: "file",
   warnings: [],
 };
 
 function makeCompareResult(
-  overrides: Partial<
-    Pick<CompareResult, "hotspots" | "functions" | "granularity">
-  > = {},
+  overrides: Partial<Pick<CompareResult, "hotspots">> = {},
 ): CompareResult {
   return {
-    version: "2.0",
-    granularity: "file",
+    version: "3.0",
     hotspots: { new: [], removed: [], rankChanged: [] },
-    functions: { new: [], removed: [], rankChanged: [] },
     meta: { baseline: BASE_META, current: BASE_META, warnings: [] },
     ...overrides,
   };
@@ -45,38 +39,18 @@ function makeHotspot(overrides: Partial<HotspotScore> = {}): HotspotScore {
     complexityNormalized: 0.9,
     churnNormalized: 0.9,
     hotspotScore: 0.85,
-    cyclomaticComplexity: 42,
-    functionCount: 8,
+    ncloc: 42,
     commitCount: 15,
     linesChanged: 320,
     authorCount: 3,
-    parseFailed: false,
     ...overrides,
   };
 }
 
-function makeFunctionHotspot(
-  overrides: Partial<FunctionHotspotScore> = {},
-): FunctionHotspotScore {
-  return {
-    filePath: "src/hot.ts",
-    functionName: "run",
-    line: 10,
-    complexity: 12,
-    complexityNormalized: 0.8,
-    churnNormalized: 0.7,
-    hotspotScore: 0.75,
-    commitCount: 5,
-    linesChanged: 80,
-    authorCount: 2,
-    ...overrides,
-  };
-}
-
-function makeRankChange<T extends HotspotScore | FunctionHotspotScore>(
-  entity: T,
-  overrides: Partial<RankChange<T>> = {},
-): RankChange<T> {
+function makeRankChange(
+  entity: HotspotScore,
+  overrides: Partial<RankChange<HotspotScore>> = {},
+): RankChange<HotspotScore> {
   return {
     entity,
     baselineRank: 1,
@@ -113,31 +87,9 @@ describe("buildCompareTriageHints", () => {
       {
         ruleId: "new-dual-signal",
         message:
-          "New dual-signal hotspot vs baseline — complexity and churn both elevated; prioritize review.",
+          "New dual-signal hotspot vs baseline — NCLOC and churn both elevated; prioritize review.",
         target: "src/edge.ts",
         rankMetric: TRIAGE_HOTSPOT_SCORE_THRESHOLD,
-      },
-    ]);
-  });
-
-  it("matches new-dual-signal for new function hotspots", () => {
-    const hints = buildCompareTriageHints(
-      makeCompareResult({
-        functions: {
-          new: [makeFunctionHotspot({ filePath: "src/foo.ts", functionName: "bar" })],
-          removed: [],
-          rankChanged: [],
-        },
-      }),
-    );
-
-    expect(hints).toEqual([
-      {
-        ruleId: "new-dual-signal",
-        message:
-          "New dual-signal hotspot vs baseline — complexity and churn both elevated; prioritize review.",
-        target: "src/foo.ts::bar",
-        rankMetric: 0.75,
       },
     ]);
   });
@@ -217,36 +169,6 @@ describe("buildCompareTriageHints", () => {
         message: "Rank worsened by ≥5 vs baseline — investigate regression.",
         target: "src/regressed.ts",
         rankMetric: COMPARE_TRIAGE_RANK_DELTA_THRESHOLD,
-      },
-    ]);
-  });
-
-  it("matches rank-worsened for rank-changed function hotspots", () => {
-    const hints = buildCompareTriageHints(
-      makeCompareResult({
-        functions: {
-          new: [],
-          removed: [],
-          rankChanged: [
-            makeRankChange(
-              makeFunctionHotspot({
-                filePath: "src/foo.ts",
-                functionName: "baz",
-                hotspotScore: 0.6,
-              }),
-              { rankDelta: 7 },
-            ),
-          ],
-        },
-      }),
-    );
-
-    expect(hints).toEqual([
-      {
-        ruleId: "rank-worsened",
-        message: "Rank worsened by ≥5 vs baseline — investigate regression.",
-        target: "src/foo.ts::baz",
-        rankMetric: 7,
       },
     ]);
   });

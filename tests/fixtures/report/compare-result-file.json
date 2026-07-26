@@ -1,0 +1,60 @@
+{
+  "_comment": "Hand-crafted CompareResult for contract tests (file mode). Baseline vs current from compare-baseline-file / compare-current-file.",
+  "version": "3.0",
+  "hotspots": {
+    "new": [
+      {
+        "filePath": "src/new.ts",
+        "complexityNormalized": 0.95,
+        "churnNormalized": 0.9,
+        "hotspotScore": 0.92,
+        "ncloc": 50,
+        "commitCount": 20,
+        "linesChanged": 400,
+        "authorCount": 4
+      }
+    ],
+    "removed": [
+      {
+        "filePath": "src/medium.ts",
+        "complexityNormalized": 0.6,
+        "churnNormalized": 0.5,
+        "hotspotScore": 0.3,
+        "ncloc": 20,
+        "commitCount": 8,
+        "linesChanged": 120,
+        "authorCount": 2
+      }
+    ],
+    "rankChanged": [
+      {
+        "entity": {
+          "filePath": "src/hot.ts",
+          "complexityNormalized": 0.9,
+          "churnNormalized": 0.9444,
+          "hotspotScore": 0.85,
+          "ncloc": 42,
+          "commitCount": 15,
+          "linesChanged": 320,
+          "authorCount": 3
+        },
+        "baselineRank": 1,
+        "currentRank": 2,
+        "rankDelta": 1
+      }
+    ]
+  },
+  "meta": {
+    "baseline": {
+      "since": "6 months ago",
+      "scannedAt": "2026-07-20T10:00:00.000Z",
+      "warnings": []
+    },
+    "current": {
+      "since": "6 months ago",
+      "scannedAt": "2026-07-22T11:00:00.000Z",
+      "warnings": []
+    },
+    "warnings": []
+  }
+}

@@ -11,15 +11,12 @@ import {
 } from "./config/index.js";
 import { GitLogError } from "./git/spawn.js";
 import { isPathInScope } from "./paths/index.js";
-import { ELIGIBLE_EXTENSIONS } from "./complexity/discover.js";
 import {
-  buildFunctionModePathAllowlist,
   createScanPathScope,
   DEFAULT_SINCE,
   DEFAULT_TOP,
   runScan,
 } from "#scan";
-import type { FileChangeStats } from "./types/index.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -41,8 +38,6 @@ const analyzeOverride = vi.hoisted(() => ({
       ) => Promise<import("./complexity/index.js").ComplexityAnalyzerResult>)
     | null,
 }));
-const createFunctionChurnMinerSpy = vi.hoisted(() => vi.fn());
-const churnMineSpy = vi.hoisted(() => vi.fn());
 const scoreHotspotsSpy = vi.hoisted(() => vi.fn());
 
 vi.mock("./git/index.js", async (importOriginal) => {
@@ -100,26 +95,6 @@ vi.mock("./complexity/index.js", async (importOriginal) => {
         analyze: (...analyzeArgs: Parameters<typeof analyzer.analyze>) => {
           analyzeSpy(...analyzeArgs);
           return originalAnalyze(...analyzeArgs);
-        },
-      };
-    },
-  };
-});
-
-vi.mock("./git/function-churn/index.js", async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import("./git/function-churn/index.js")>();
-  return {
-    ...actual,
-    createFunctionChurnMiner: (
-      ...args: Parameters<typeof actual.createFunctionChurnMiner>
-    ) => {
-      createFunctionChurnMinerSpy(...args);
-      const miner = actual.createFunctionChurnMiner(...args);
-      return {
-        mine: (...mineArgs: Parameters<typeof miner.mine>) => {
-          churnMineSpy(...mineArgs);
-          return miner.mine(...mineArgs);
         },
       };
     },
@@ -201,16 +176,18 @@ describe("runScan", () => {
     try {
       await writeFile(
         join(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
-        JSON.stringify({ since: "6 months ago", granularity: "function" }),
+        JSON.stringify({ since: "6 months ago" }),
         "utf8",
       );
 
       const result = await runScan({ repoPath });
 
+      expect(result.version).toBe("3.0");
+      expect(result).not.toHaveProperty("functions");
+      expect(result.meta).not.toHaveProperty("granularity");
       expect(result.meta.since).toBe("6 months ago");
-      expect(result.meta.granularity).toBe("function");
-      expect(result.functions.length).toBeGreaterThanOrEqual(1);
-      expect(result.hotspots).toEqual([]);
+      expect(result.hotspots.length).toBeGreaterThanOrEqual(1);
+      expect(result.hotspots[0]!.ncloc).toBeGreaterThan(0);
     } finally {
       await rm(repoPath, { recursive: true, force: true });
     }
@@ -221,18 +198,17 @@ describe("runScan", () => {
     try {
       await writeFile(
         join(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
-        JSON.stringify({ since: "6 months ago", granularity: "function" }),
+        JSON.stringify({ since: "6 months ago" }),
         "utf8",
       );
 
       const result = await runScan({
         repoPath,
         since: "1 week ago",
-        granularity: "file",
       });
 
+      expect(result.version).toBe("3.0");
       expect(result.meta.since).toBe("1 week ago");
-      expect(result.meta.granularity).toBe("file");
       expect(result.hotspots.length).toBeGreaterThanOrEqual(1);
     } finally {
       await rm(repoPath, { recursive: true, force: true });
@@ -246,12 +222,12 @@ describe("runScan", () => {
       const explicitConfigPath = join(workspaceDir, "ci-config.json");
       await writeFile(
         explicitConfigPath,
-        JSON.stringify({ since: "3 months ago", granularity: "function" }),
+        JSON.stringify({ since: "3 months ago" }),
         "utf8",
       );
       await writeFile(
         join(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
-        JSON.stringify({ since: "6 months ago", granularity: "file" }),
+        JSON.stringify({ since: "6 months ago" }),
         "utf8",
       );
 
@@ -260,8 +236,8 @@ describe("runScan", () => {
         configPath: explicitConfigPath,
       });
 
+      expect(result.version).toBe("3.0");
       expect(result.meta.since).toBe("3 months ago");
-      expect(result.meta.granularity).toBe("function");
     } finally {
       await rm(repoPath, { recursive: true, force: true });
       await rm(workspaceDir, { recursive: true, force: true });
@@ -275,7 +251,7 @@ describe("runScan", () => {
       const explicitConfigPath = join(workspaceDir, "ci-config.json");
       await writeFile(
         explicitConfigPath,
-        JSON.stringify({ since: "6 months ago", granularity: "function" }),
+        JSON.stringify({ since: "6 months ago" }),
         "utf8",
       );
 
@@ -283,11 +259,10 @@ describe("runScan", () => {
         repoPath,
         configPath: explicitConfigPath,
         since: "1 week ago",
-        granularity: "file",
       });
 
+      expect(result.version).toBe("3.0");
       expect(result.meta.since).toBe("1 week ago");
-      expect(result.meta.granularity).toBe("file");
     } finally {
       await rm(repoPath, { recursive: true, force: true });
       await rm(workspaceDir, { recursive: true, force: true });
@@ -415,12 +390,15 @@ describe("runScan", () => {
     expect(Array.isArray(result.meta.warnings)).toBe(true);
   });
 
-  it("always includes meta.warnings array and emits version 2.0 without coupling", async () => {
+  it("always includes meta.warnings array and emits version 3.0 without functions", async () => {
     const result = await runScan({ repoPath: smallTsFixture });
 
-    expect(result.version).toBe("2.0");
+    expect(result.version).toBe("3.0");
+    expect(result).not.toHaveProperty("functions");
     expect(result).not.toHaveProperty("coupling");
+    expect(result.meta).not.toHaveProperty("granularity");
     expect(result.meta.warnings).toEqual([]);
+    expect(result.hotspots[0]!.ncloc).toBeGreaterThan(0);
   });
 
   it("passes merged concurrency from repo config to createComplexityAnalyzer", async () => {
@@ -477,20 +455,10 @@ describe("runScan", () => {
     }
   });
 
-  it("does not construct or invoke the function churn miner in file mode", async () => {
-    createFunctionChurnMinerSpy.mockClear();
-    churnMineSpy.mockClear();
-
-    await runScan({ repoPath: smallTsFixture, granularity: "file" });
-
-    expect(createFunctionChurnMinerSpy).not.toHaveBeenCalled();
-    expect(churnMineSpy).not.toHaveBeenCalled();
-  });
-
-  it("omits pathAllowlist from complexity analyze in function mode", async () => {
+  it("omits pathAllowlist from complexity analyze", async () => {
     analyzeSpy.mockClear();
 
-    await runScan({ repoPath: smallTsFixture, granularity: "function" });
+    await runScan({ repoPath: smallTsFixture });
 
     expect(analyzeSpy).toHaveBeenCalledWith(
       expect.not.objectContaining({
@@ -499,38 +467,7 @@ describe("runScan", () => {
     );
   });
 
-  it("passes churn allowlist paths to function churn miner in function mode", async () => {
-    churnMineSpy.mockClear();
-
-    await runScan({ repoPath: smallTsFixture, granularity: "function" });
-
-    expect(churnMineSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        paths: expect.arrayContaining([
-          "bootstrap-repo.mjs",
-          "src/high.ts",
-          "src/low.ts",
-          "src/medium.ts",
-        ]),
-      }),
-    );
-    const churnPaths = churnMineSpy.mock.calls[0]![0]!.paths;
-    expect(churnPaths).toEqual([...churnPaths!].sort());
-  });
-
-  it("omits pathAllowlist from complexity analyze in file mode", async () => {
-    analyzeSpy.mockClear();
-
-    await runScan({ repoPath: smallTsFixture, granularity: "file" });
-
-    expect(analyzeSpy).toHaveBeenCalledWith(
-      expect.not.objectContaining({
-        pathAllowlist: expect.anything(),
-      }),
-    );
-  });
-
-  it("runs git mine and complexity analyze concurrently in file mode", async () => {
+  it("runs git mine and complexity analyze concurrently by default", async () => {
     const { createGitMiner } =
       await vi.importActual<typeof import("./git/index.js")>("./git/index.js");
     const { createComplexityAnalyzer } =
@@ -572,7 +509,6 @@ describe("runScan", () => {
 
     const scanPromise = runScan({
       repoPath: smallTsFixture,
-      granularity: "file",
     });
 
     await vi.waitFor(() => {
@@ -589,7 +525,7 @@ describe("runScan", () => {
     analyzeOverride.fn = null;
   });
 
-  it("runs git mine then complexity analyze sequentially in file mode when sequential is true", async () => {
+  it("runs git mine then complexity analyze sequentially when sequential is true", async () => {
     const { createGitMiner } =
       await vi.importActual<typeof import("./git/index.js")>("./git/index.js");
     const { createComplexityAnalyzer } =
@@ -637,7 +573,6 @@ describe("runScan", () => {
 
     const scanPromise = runScan({
       repoPath: smallTsFixture,
-      granularity: "file",
       sequential: true,
     });
 
@@ -661,7 +596,7 @@ describe("runScan", () => {
     analyzeOverride.fn = null;
   });
 
-  it("does not score until both git and complexity complete in file mode", async () => {
+  it("does not score until both git and complexity complete", async () => {
     const { createGitMiner } =
       await vi.importActual<typeof import("./git/index.js")>("./git/index.js");
     const { createComplexityAnalyzer } =
@@ -691,7 +626,6 @@ describe("runScan", () => {
 
     const scanPromise = runScan({
       repoPath: smallTsFixture,
-      granularity: "file",
     });
 
     await vi.waitFor(() => {
@@ -708,79 +642,6 @@ describe("runScan", () => {
 
     mineOverride.fn = null;
     analyzeOverride.fn = null;
-  });
-
-  it("starts function churn only after complexity and not during numstat", async () => {
-    const { createGitMiner } =
-      await vi.importActual<typeof import("./git/index.js")>("./git/index.js");
-    const { createComplexityAnalyzer } =
-      await vi.importActual<typeof import("./complexity/index.js")>(
-        "./complexity/index.js",
-      );
-
-    let releaseMine!: () => void;
-    let releaseAnalyze!: () => void;
-    const mineGate = new Promise<void>((resolve) => {
-      releaseMine = resolve;
-    });
-    const analyzeGate = new Promise<void>((resolve) => {
-      releaseAnalyze = resolve;
-    });
-
-    let numstatInFlight = false;
-    let analyzeCompleted = false;
-    let churnStartedDuringNumstat = false;
-    let churnStartedBeforeAnalyze = false;
-
-    churnMineSpy.mockClear();
-
-    mineOverride.fn = async (opts) => {
-      numstatInFlight = true;
-      await mineGate;
-      numstatInFlight = false;
-      return createGitMiner().mine(opts);
-    };
-    analyzeOverride.fn = async (opts) => {
-      await analyzeGate;
-      analyzeCompleted = true;
-      return createComplexityAnalyzer().analyze(opts);
-    };
-
-    churnMineSpy.mockImplementation(async (opts) => {
-      if (numstatInFlight) {
-        churnStartedDuringNumstat = true;
-      }
-      if (!analyzeCompleted) {
-        churnStartedBeforeAnalyze = true;
-      }
-      const { createFunctionChurnMiner } =
-        await vi.importActual<typeof import("./git/function-churn/index.js")>(
-          "./git/function-churn/index.js",
-        );
-      return createFunctionChurnMiner().mine(opts);
-    });
-
-    const scanPromise = runScan({
-      repoPath: smallTsFixture,
-      granularity: "function",
-    });
-
-    releaseMine();
-    await vi.waitFor(() => {
-      expect(analyzeSpy).toHaveBeenCalled();
-    });
-    expect(churnMineSpy).not.toHaveBeenCalled();
-
-    releaseAnalyze();
-    await scanPromise;
-
-    expect(churnMineSpy).toHaveBeenCalled();
-    expect(churnStartedDuringNumstat).toBe(false);
-    expect(churnStartedBeforeAnalyze).toBe(false);
-
-    mineOverride.fn = null;
-    analyzeOverride.fn = null;
-    churnMineSpy.mockRestore();
   });
 
   it("aborts complexity and rethrows when git mine fails during overlap", async () => {
@@ -809,12 +670,11 @@ describe("runScan", () => {
           reject(opts.signal?.reason);
         });
       });
-      return { results: [], functions: [], warnings: [] };
+      return { results: [], warnings: [] };
     };
 
     const rejection = runScan({
       repoPath: smallTsFixture,
-      granularity: "file",
     });
 
     await expect(rejection).rejects.toBe(gitError);
@@ -849,7 +709,7 @@ describe("runScan", () => {
     scoreHotspotsSpy.mockClear();
 
     await expect(
-      runScan({ repoPath: smallTsFixture, granularity: "file" }),
+      runScan({ repoPath: smallTsFixture }),
     ).rejects.toBe(cxError);
 
     await vi.waitFor(() => {
@@ -862,7 +722,7 @@ describe("runScan", () => {
     analyzeOverride.fn = null;
   });
 
-  it("rejects without scoring when git mine fails in sequential file mode", async () => {
+  it("rejects without scoring when git mine fails in sequential mode", async () => {
     const gitError = new GitLogError(
       smallTsFixture,
       "git log --numstat",
@@ -874,7 +734,6 @@ describe("runScan", () => {
     };
     analyzeOverride.fn = async () => ({
       results: [],
-      functions: [],
       warnings: [],
     });
 
@@ -884,7 +743,6 @@ describe("runScan", () => {
     await expect(
       runScan({
         repoPath: smallTsFixture,
-        granularity: "file",
         sequential: true,
       }),
     ).rejects.toBe(gitError);
@@ -895,7 +753,7 @@ describe("runScan", () => {
     analyzeOverride.fn = null;
   });
 
-  it("rejects without scoring when complexity analyze fails in sequential file mode", async () => {
+  it("rejects without scoring when complexity analyze fails in sequential mode", async () => {
     const { createGitMiner } =
       await vi.importActual<typeof import("./git/index.js")>("./git/index.js");
     const cxError = new Error("complexity analyze failed");
@@ -910,7 +768,6 @@ describe("runScan", () => {
     await expect(
       runScan({
         repoPath: smallTsFixture,
-        granularity: "file",
         sequential: true,
       }),
     ).rejects.toBe(cxError);
@@ -918,17 +775,6 @@ describe("runScan", () => {
 
     mineOverride.fn = null;
     analyzeOverride.fn = null;
-  });
-
-  it("completes function mode scan when sequential is true", async () => {
-    const result = await runScan({
-      repoPath: smallTsFixture,
-      granularity: "function",
-      sequential: true,
-    });
-
-    expect(result.meta.granularity).toBe("function");
-    expect(result.functions.length).toBeGreaterThan(0);
   });
 
   it("aggregates git warnings before complexity warnings after overlap succeeds", async () => {
@@ -962,7 +808,6 @@ describe("runScan", () => {
     const onWarning = vi.fn();
     const result = await runScan({
       repoPath: smallTsFixture,
-      granularity: "file",
       onWarning,
     });
 
@@ -980,7 +825,7 @@ describe("runScan", () => {
     mineSpy.mockClear();
     analyzeSpy.mockClear();
 
-    await runScan({ repoPath: smallTsFixture, granularity: "file" });
+    await runScan({ repoPath: smallTsFixture });
 
     expect(mineSpy).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -1005,28 +850,9 @@ describe("runScan", () => {
     );
   });
 
-  it("passes AbortSignal and onSpawnArgv to function churn miner", async () => {
-    churnMineSpy.mockClear();
-    const onSpawnArgv = vi.fn();
-
-    await runScan({
-      repoPath: smallTsFixture,
-      granularity: "function",
-      onSpawnArgv,
-    });
-
-    expect(churnMineSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        signal: expect.any(AbortSignal),
-        onSpawnArgv,
-      }),
-    );
-  });
-
-  it("includes meta.timings on successful file scan without functionChurnMs", async () => {
+  it("includes meta.timings on successful scan without functionChurnMs", async () => {
     const result = await runScan({
       repoPath: smallTsFixture,
-      granularity: "file",
     });
 
     expect(result.meta.timings).toEqual(
@@ -1042,21 +868,19 @@ describe("runScan", () => {
     expect(result.meta.timings).not.toHaveProperty("functionChurnMs");
   });
 
-  it("includes functionChurnMs in meta.timings for function mode", async () => {
-    const result = await runScan({
+  it("never emits function-churn progress phase", async () => {
+    const onProgress = vi.fn();
+
+    await runScan({
       repoPath: smallTsFixture,
-      granularity: "function",
+      concurrency: 1,
+      onProgress,
     });
 
-    expect(result.meta.timings).toEqual(
-      expect.objectContaining({
-        gitMs: expect.any(Number),
-        complexityMs: expect.any(Number),
-        functionChurnMs: expect.any(Number),
-        totalMs: expect.any(Number),
-      }),
-    );
-    expect(result.meta.timings!.functionChurnMs).toBeGreaterThanOrEqual(0);
+    const phases = onProgress.mock.calls.map(([progress]) => progress.phase);
+    expect(phases).toContain("git");
+    expect(phases).toContain("complexity");
+    expect(phases).not.toContain("function-churn");
   });
 
   it("cancels in-flight stages when external signal aborts", async () => {
@@ -1099,12 +923,11 @@ describe("runScan", () => {
           reject(opts.signal?.reason);
         });
       });
-      return { results: [], functions: [], warnings: [] };
+      return { results: [], warnings: [] };
     };
 
     const scanPromise = runScan({
       repoPath: smallTsFixture,
-      granularity: "file",
       signal: externalController.signal,
     });
 
@@ -1137,32 +960,27 @@ describe("runScan", () => {
     ).rejects.toBeInstanceOf(DOMException);
   });
 
-  it.each(["file", "function"] as const)(
-    "passes onProgress to complexity analyze in %s mode",
-    async (granularity) => {
-      analyzeSpy.mockClear();
-      const onProgress = vi.fn();
-
-      await runScan({
-        repoPath: smallTsFixture,
-        granularity,
-        onProgress,
-      });
-
-      expect(analyzeSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          onProgress,
-        }),
-      );
-    },
-  );
-
-  it("forwards complexity phase progress to onProgress in file mode", async () => {
+  it("passes onProgress to complexity analyze", async () => {
+    analyzeSpy.mockClear();
     const onProgress = vi.fn();
 
     await runScan({
       repoPath: smallTsFixture,
-      granularity: "file",
+      onProgress,
+    });
+
+    expect(analyzeSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        onProgress,
+      }),
+    );
+  });
+
+  it("forwards complexity phase progress to onProgress", async () => {
+    const onProgress = vi.fn();
+
+    await runScan({
+      repoPath: smallTsFixture,
       concurrency: 1,
       onProgress,
     });
@@ -1283,66 +1101,5 @@ describe("runScan", () => {
         (warning) => warning.code === "MONOREPO_PATH_REMOUNT",
       ),
     ).toBe(false);
-  });
-});
-
-describe("buildFunctionModePathAllowlist", () => {
-  it("returns eligible churned paths in stable sort order", () => {
-    const fileStats = new Map<string, FileChangeStats>([
-      [
-        "src/z.ts",
-        {
-          filePath: "src/z.ts",
-          commitCount: 1,
-          linesChanged: 1,
-          authors: new Set(),
-          lastModified: new Date(),
-        },
-      ],
-      [
-        "src/a.ts",
-        {
-          filePath: "src/a.ts",
-          commitCount: 2,
-          linesChanged: 2,
-          authors: new Set(),
-          lastModified: new Date(),
-        },
-      ],
-      [
-        "src/entry.mjs",
-        {
-          filePath: "src/entry.mjs",
-          commitCount: 1,
-          linesChanged: 1,
-          authors: new Set(),
-          lastModified: new Date(),
-        },
-      ],
-      [
-        "README.md",
-        {
-          filePath: "README.md",
-          commitCount: 1,
-          linesChanged: 1,
-          authors: new Set(),
-          lastModified: new Date(),
-        },
-      ],
-      [
-        "src/legacy.mts",
-        {
-          filePath: "src/legacy.mts",
-          commitCount: 1,
-          linesChanged: 1,
-          authors: new Set(),
-          lastModified: new Date(),
-        },
-      ],
-    ]);
-
-    expect(
-      buildFunctionModePathAllowlist(fileStats, ELIGIBLE_EXTENSIONS),
-    ).toEqual(["src/a.ts", "src/entry.mjs", "src/z.ts"]);
   });
 });

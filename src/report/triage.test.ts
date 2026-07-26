@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type {
-  FunctionHotspotScore,
-  HotspotScore,
-  ScanResult,
-} from "../types/index.js";
+import type { HotspotScore, ScanResult } from "../types/index.js";
 import {
   TRIAGE_HOTSPOT_SCORE_THRESHOLD,
   TRIAGE_MAX_HINTS_PER_RULE,
@@ -16,17 +12,15 @@ import {
 const BASE_META: ScanResult["meta"] = {
   since: "6 months ago",
   scannedAt: "2026-07-22T11:00:00.000Z",
-  granularity: "file",
   warnings: [],
 };
 
 function makeScanResult(
-  overrides: Partial<Pick<ScanResult, "hotspots" | "functions">> = {},
+  overrides: Partial<Pick<ScanResult, "hotspots">> = {},
 ): ScanResult {
   return {
-    version: "2.0",
+    version: "3.0",
     hotspots: [],
-    functions: [],
     meta: BASE_META,
     ...overrides,
   };
@@ -38,30 +32,10 @@ function makeHotspot(overrides: Partial<HotspotScore> = {}): HotspotScore {
     complexityNormalized: 0.9,
     churnNormalized: 0.9,
     hotspotScore: 0.85,
-    cyclomaticComplexity: 42,
-    functionCount: 8,
+    ncloc: 42,
     commitCount: 15,
     linesChanged: 320,
     authorCount: 3,
-    parseFailed: false,
-    ...overrides,
-  };
-}
-
-function makeFunctionHotspot(
-  overrides: Partial<FunctionHotspotScore> = {},
-): FunctionHotspotScore {
-  return {
-    filePath: "src/hot.ts",
-    functionName: "run",
-    line: 10,
-    complexity: 12,
-    complexityNormalized: 0.8,
-    churnNormalized: 0.7,
-    hotspotScore: 0.75,
-    commitCount: 5,
-    linesChanged: 80,
-    authorCount: 2,
     ...overrides,
   };
 }
@@ -89,27 +63,9 @@ describe("buildTriageHints", () => {
       {
         ruleId: "dual-signal-hotspot",
         message:
-          "High dual-signal hotspot — complexity and churn both elevated; prioritize review.",
+          "High dual-signal hotspot — NCLOC and churn both elevated; prioritize review.",
         target: "src/edge.ts",
         rankMetric: TRIAGE_HOTSPOT_SCORE_THRESHOLD,
-      },
-    ]);
-  });
-
-  it("matches dual-signal-hotspot for function hotspots", () => {
-    const hints = buildTriageHints(
-      makeScanResult({
-        functions: [makeFunctionHotspot({ filePath: "src/foo.ts", functionName: "bar" })],
-      }),
-    );
-
-    expect(hints).toEqual([
-      {
-        ruleId: "dual-signal-hotspot",
-        message:
-          "High dual-signal hotspot — complexity and churn both elevated; prioritize review.",
-        target: "src/foo.ts::bar",
-        rankMetric: 0.75,
       },
     ]);
   });
@@ -161,7 +117,7 @@ describe("renderTableTriageHints", () => {
 
     expect(renderTableTriageHints(hints)).toEqual([
       "Triage hints",
-      "  • src/hot.ts — High dual-signal hotspot — complexity and churn both elevated; prioritize review.",
+      "  • src/hot.ts — High dual-signal hotspot — NCLOC and churn both elevated; prioritize review.",
     ]);
   });
 });
@@ -181,7 +137,7 @@ describe("renderMarkdownTriageHints", () => {
     expect(renderMarkdownTriageHints(hints)).toEqual([
       "## Triage hints",
       "",
-      "- src/hot.ts — High dual-signal hotspot — complexity and churn both elevated; prioritize review.",
+      "- src/hot.ts — High dual-signal hotspot — NCLOC and churn both elevated; prioritize review.",
     ]);
   });
 });

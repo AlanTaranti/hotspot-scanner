@@ -19,14 +19,13 @@ With flags:
 
 ```bash
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --since "12 months ago" --format json --top 20  # --top ignored; full arrays
-pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --granularity function --format json
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format markdown --output /tmp/report.md
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format csv --output /tmp/report.csv
-# CSV bundle files: /tmp/report.meta.json, /tmp/report.hotspots.csv (or report.functions.csv)
+# CSV bundle files: /tmp/report.meta.json, /tmp/report.hotspots.csv
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format json --output /tmp/baseline.json
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --baseline /tmp/baseline.json --format json
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --baseline /tmp/baseline.json --format csv --output /tmp/compare.csv
-# Compare CSV bundle: /tmp/compare.meta.json + hotspot/function delta CSVs under /tmp/compare.*
+# Compare CSV bundle: /tmp/compare.meta.json + hotspot delta CSVs under /tmp/compare.*
 ```
 
 ## Exit codes
@@ -47,7 +46,6 @@ See [AGENTS.md](../../../AGENTS.md) § Validation.
 | `--format json`        | JSON instead of CLI table                                                             | table                 |
 | `--format markdown`    | GFM report for PRs                                                                    | table                 |
 | `--format csv`         | Multi-file CSV bundle (requires `--output`); stem-derived paths + `meta.json` sidecar | table                 |
-| `--granularity <mode>` | Ranking granularity: `file` or `function`                                             | `file`                |
 | `--output <path>`      | Write report to file (required for `--format csv`)                                    | stdout                |
 | `--baseline <path>`    | Compare against saved baseline JSON                                                   | —                     |
 | `--top <N>`            | Limit table/markdown rows (ignored for json/csv)                                      | `20`                  |
@@ -70,20 +68,18 @@ Test relevant flags when the feature scope touches CLI.
 
 ## JSON output checks
 
-- Top-level `version` field is `"2.0"`
-- `meta.granularity` is `"file"` or `"function"`
-- `hotspots` array sorted by score descending (file mode; empty in function mode)
-- `functions` array sorted by score descending (function mode; empty in file mode)
-- No top-level `coupling` key
+- Top-level `version` field is `"3.0"`
+- `hotspots` array sorted by score descending; each item includes `ncloc`
+- No top-level `functions`, `coupling`, or `granularity` keys
 - Required fields per domain types in `src/types/domain.ts`
 
 ## Compare output checks (`--baseline`)
 
-- Top-level `version` field is `"2.0"`
-- `hotspots` and `functions` each have `new`, `removed`, `rankChanged` arrays
+- Top-level `version` field is `"3.0"`
+- `hotspots` has `new`, `removed`, `rankChanged` arrays
 - `meta.baseline` and `meta.current` contain `ScanMeta` objects
 - `meta.warnings` is an array (may be empty)
-- Baseline file must be valid `ScanResult` v2.0 JSON with matching `meta.granularity`; rejects `1.0` or `coupling` key
+- Baseline file must be valid `ScanResult` v3.0 JSON; rejects `1.0`/`2.0`, `coupling`, `cyclomaticComplexity`, or `functions`
 
 ## Related agents
 

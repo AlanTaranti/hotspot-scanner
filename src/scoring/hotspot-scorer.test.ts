@@ -40,8 +40,8 @@ describe("scoreHotspots", () => {
 
   it("treats missing fileStats as churn 0", () => {
     const complexity: ComplexityResult[] = [
-      { filePath: "src/a.ts", cyclomaticComplexity: 10, functionCount: 1 },
-      { filePath: "src/b.ts", cyclomaticComplexity: 5, functionCount: 1 },
+      { filePath: "src/a.ts", ncloc: 10 },
+      { filePath: "src/b.ts", ncloc: 5 },
     ];
     const fileStats = buildFileStats([
       { filePath: "src/a.ts", commitCount: 10 },
@@ -58,7 +58,7 @@ describe("scoreHotspots", () => {
 
   it("populates all raw fields from complexity and fileStats", () => {
     const complexity: ComplexityResult[] = [
-      { filePath: "src/a.ts", cyclomaticComplexity: 10, functionCount: 3 },
+      { filePath: "src/a.ts", ncloc: 10 },
     ];
     const fileStats = buildFileStats([
       {
@@ -71,8 +71,7 @@ describe("scoreHotspots", () => {
     const [result] = scoreHotspots(fileStats, complexity);
 
     expect(result).toMatchObject({
-      cyclomaticComplexity: 10,
-      functionCount: 3,
+      ncloc: 10,
       commitCount: 20,
       linesChanged: 150,
       authorCount: 3,
@@ -81,7 +80,7 @@ describe("scoreHotspots", () => {
 
   it("sets authorCount from authors Set size", () => {
     const complexity: ComplexityResult[] = [
-      { filePath: "src/a.ts", cyclomaticComplexity: 5, functionCount: 1 },
+      { filePath: "src/a.ts", ncloc: 5 },
     ];
     const fileStats = buildFileStats([
       {
@@ -97,8 +96,8 @@ describe("scoreHotspots", () => {
 
   it("never leaves raw fields undefined", () => {
     const complexity: ComplexityResult[] = [
-      { filePath: "src/a.ts", cyclomaticComplexity: 10, functionCount: 2 },
-      { filePath: "src/b.ts", cyclomaticComplexity: 5, functionCount: 1 },
+      { filePath: "src/a.ts", ncloc: 10 },
+      { filePath: "src/b.ts", ncloc: 5 },
     ];
     const fileStats = buildFileStats([
       { filePath: "src/a.ts", commitCount: 10 },
@@ -106,8 +105,7 @@ describe("scoreHotspots", () => {
     const results = scoreHotspots(fileStats, complexity);
 
     for (const entry of results) {
-      expect(entry.cyclomaticComplexity).toBeDefined();
-      expect(entry.functionCount).toBeDefined();
+      expect(entry.ncloc).toBeDefined();
       expect(entry.commitCount).toBeDefined();
       expect(entry.linesChanged).toBeDefined();
       expect(entry.authorCount).toBeDefined();
@@ -116,8 +114,8 @@ describe("scoreHotspots", () => {
 
   it("computes hotspotScore as harmonic mean of normalized values", () => {
     const complexity: ComplexityResult[] = [
-      { filePath: "src/a.ts", cyclomaticComplexity: 10, functionCount: 1 },
-      { filePath: "src/b.ts", cyclomaticComplexity: 5, functionCount: 1 },
+      { filePath: "src/a.ts", ncloc: 10 },
+      { filePath: "src/b.ts", ncloc: 5 },
     ];
     const fileStats = buildFileStats([
       { filePath: "src/a.ts", commitCount: 20 },
@@ -134,17 +132,9 @@ describe("scoreHotspots", () => {
 
   it("ranks balanced file above spiky file with controlled inputs", () => {
     const complexity: ComplexityResult[] = [
-      {
-        filePath: "src/balanced.ts",
-        cyclomaticComplexity: 50,
-        functionCount: 1,
-      },
-      { filePath: "src/spiky.ts", cyclomaticComplexity: 100, functionCount: 1 },
-      {
-        filePath: "src/spiky-anchor.ts",
-        cyclomaticComplexity: 1,
-        functionCount: 1,
-      },
+      { filePath: "src/balanced.ts", ncloc: 50 },
+      { filePath: "src/spiky.ts", ncloc: 100 },
+      { filePath: "src/spiky-anchor.ts", ncloc: 1 },
     ];
     const fileStats = buildFileStats([
       { filePath: "src/balanced.ts", commitCount: 50 },
@@ -170,8 +160,8 @@ describe("scoreHotspots", () => {
 
   it("sorts by hotspotScore desc when scores differ", () => {
     const complexity: ComplexityResult[] = [
-      { filePath: "src/low.ts", cyclomaticComplexity: 2, functionCount: 1 },
-      { filePath: "src/high.ts", cyclomaticComplexity: 20, functionCount: 1 },
+      { filePath: "src/low.ts", ncloc: 2 },
+      { filePath: "src/high.ts", ncloc: 20 },
     ];
     const fileStats = buildFileStats([
       { filePath: "src/low.ts", commitCount: 2 },
@@ -185,8 +175,8 @@ describe("scoreHotspots", () => {
 
   it("sorts by hotspotScore desc then filePath asc", () => {
     const complexity: ComplexityResult[] = [
-      { filePath: "src/b.ts", cyclomaticComplexity: 5, functionCount: 1 },
-      { filePath: "src/a.ts", cyclomaticComplexity: 5, functionCount: 1 },
+      { filePath: "src/b.ts", ncloc: 5 },
+      { filePath: "src/a.ts", ncloc: 5 },
     ];
     const fileStats = buildFileStats([
       { filePath: "src/a.ts", commitCount: 10 },
@@ -201,7 +191,7 @@ describe("scoreHotspots", () => {
 
   it("returns zero score for single-file input (degenerate normalization)", () => {
     const complexity: ComplexityResult[] = [
-      { filePath: "src/only.ts", cyclomaticComplexity: 15, functionCount: 1 },
+      { filePath: "src/only.ts", ncloc: 15 },
     ];
     const fileStats = buildFileStats([
       { filePath: "src/only.ts", commitCount: 10 },
@@ -213,71 +203,11 @@ describe("scoreHotspots", () => {
       complexityNormalized: 0,
       churnNormalized: 0,
       hotspotScore: 0,
-      cyclomaticComplexity: 15,
-      functionCount: 1,
+      ncloc: 15,
       commitCount: 10,
       linesChanged: 0,
       authorCount: 0,
-      parseFailed: false,
     });
-  });
-
-  it("scores parse-failed files with zeros and parseFailed true", () => {
-    const complexity: ComplexityResult[] = [
-      {
-        filePath: "src/broken.ts",
-        cyclomaticComplexity: 0,
-        functionCount: 0,
-        parseFailed: true,
-      },
-    ];
-    const fileStats = buildFileStats([
-      { filePath: "src/broken.ts", commitCount: 12, linesChanged: 80 },
-    ]);
-    const [result] = scoreHotspots(fileStats, complexity);
-
-    expect(result).toEqual({
-      filePath: "src/broken.ts",
-      complexityNormalized: 0,
-      churnNormalized: 0,
-      hotspotScore: 0,
-      cyclomaticComplexity: 0,
-      functionCount: 0,
-      commitCount: 12,
-      linesChanged: 80,
-      authorCount: 0,
-      parseFailed: true,
-    });
-  });
-
-  it("keeps successful-file order when parse-failed stubs are present", () => {
-    const okComplexity: ComplexityResult[] = [
-      { filePath: "src/low.ts", cyclomaticComplexity: 2, functionCount: 1 },
-      { filePath: "src/high.ts", cyclomaticComplexity: 20, functionCount: 1 },
-    ];
-    const withFailed: ComplexityResult[] = [
-      ...okComplexity,
-      {
-        filePath: "src/broken.ts",
-        cyclomaticComplexity: 0,
-        functionCount: 0,
-        parseFailed: true,
-      },
-    ];
-    const fileStats = buildFileStats([
-      { filePath: "src/low.ts", commitCount: 2 },
-      { filePath: "src/high.ts", commitCount: 20 },
-      { filePath: "src/broken.ts", commitCount: 50 },
-    ]);
-
-    const okOrder = scoreHotspots(fileStats, okComplexity).map(
-      (entry) => entry.filePath,
-    );
-    const mixedOrder = scoreHotspots(fileStats, withFailed)
-      .filter((entry) => !entry.parseFailed)
-      .map((entry) => entry.filePath);
-
-    expect(mixedOrder).toEqual(okOrder);
   });
 
   it("matches fixture expected ranking order", () => {

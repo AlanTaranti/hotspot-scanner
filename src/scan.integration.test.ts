@@ -1,25 +1,12 @@
 import { execFileSync } from "node:child_process";
-import { cp, mkdtemp, readFile, rm, unlink, writeFile } from "node:fs/promises";
+import { cp, mkdtemp, rm, unlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  buildGitPatchLogArgv,
-  PATCH_PATHSPEC_FALLBACK_THRESHOLD,
-  PATHSPEC_ARG_MAX_FALLBACK_CODE,
-  partitionPathspecs,
-} from "./git/function-churn/index.js";
-import * as pathsModule from "./paths/index.js";
-import { filterGitMinerResult as realFilterGitMinerResult } from "./paths/filter-git.js";
 import { GitLogError } from "./git/spawn.js";
 import type { ScanWarning } from "./types/index.js";
 import { runScan } from "#scan";
-
-const streamGitPatchLogSpy = vi.hoisted(() => vi.fn());
-const patchStreamFailure = vi.hoisted(() => ({
-  argMaxOnPathspec: false,
-}));
 const gitMineFailure = vi.hoisted(() => ({ error: null as Error | null }));
 const analyzeFailure = vi.hoisted(() => ({ error: null as Error | null }));
 
@@ -67,34 +54,6 @@ vi.mock("./complexity/index.js", async (importOriginal) => {
     },
   };
 });
-
-vi.mock("./git/function-churn/index.js", async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import("./git/function-churn/index.js")>();
-  return {
-    ...actual,
-    createFunctionChurnMiner: (
-      deps: Parameters<typeof actual.createFunctionChurnMiner>[0] = {},
-    ) => {
-      const stream = deps.streamGitPatchLog ?? actual.streamGitPatchLog;
-      return actual.createFunctionChurnMiner({
-        ...deps,
-        streamGitPatchLog: (options) => {
-          streamGitPatchLogSpy(options);
-          if (
-            patchStreamFailure.argMaxOnPathspec &&
-            options.paths !== undefined &&
-            options.paths.length > 0
-          ) {
-            throw Object.assign(new Error("spawn E2BIG"), { code: "E2BIG" });
-          }
-          return stream(options);
-        },
-      });
-    },
-  };
-});
-
 const smallTsFixture = join(
   fileURLToPath(new URL(".", import.meta.url)),
   "../tests/fixtures/repos/small-ts",
@@ -122,14 +81,16 @@ const MONOREPO_OTHER_HOTSPOT = "packages/other/src/other.ts";
 function assertFileModeRankingBaseline(
   result: Awaited<ReturnType<typeof runScan>>,
 ): void {
-  expect(result.version).toBe("2.0");
+  expect(result.version).toBe("3.0");
+  expect(result).not.toHaveProperty("functions");
   expect(result).not.toHaveProperty("coupling");
-  expect(result.meta.granularity).toBe("file");
+  expect(result.meta).not.toHaveProperty("granularity");
   expect(result.meta.since).toBe(OVERLAP_FILE_SCAN_OPTIONS.since);
   expect(result.hotspots.map((hotspot) => hotspot.filePath)).toEqual([
     ...EXPECTED_FILE_HOTSPOT_ORDER,
   ]);
   expect(result.hotspots[0]!.filePath).toBe(EXPECTED_TOP_HOTSPOT);
+  expect(result.hotspots[0]!.ncloc).toBeGreaterThan(0);
   expect(result.hotspots[0]!.hotspotScore).toBeGreaterThan(
     result.hotspots[1]!.hotspotScore,
   );
@@ -140,24 +101,12 @@ const EXPECTED_TOP_HOTSPOT = "src/high.ts";
 const OVERLAP_FILE_SCAN_OPTIONS = {
   repoPath: smallTsFixture,
   since: "24 months ago",
-  granularity: "file" as const,
 };
 const EXPECTED_FILE_HOTSPOT_ORDER = [
   "src/high.ts",
   "src/medium.ts",
   "bootstrap-repo.mjs",
   "src/low.ts",
-] as const;
-/** M35 ranking parity baseline: churned functions on small-ts (tie-break: filePath). */
-const EXPECTED_CHURNED_FUNCTION_RANKING = [
-  { filePath: "bootstrap-repo.mjs", functionName: "git" },
-  { filePath: "bootstrap-repo.mjs", functionName: "gitWithDate" },
-  { filePath: "bootstrap-repo.mjs", functionName: "writeFile" },
-  { filePath: "bootstrap-repo.mjs", functionName: "createTree" },
-  { filePath: "bootstrap-repo.mjs", functionName: "createRef" },
-  { filePath: "src/high.ts", functionName: "high" },
-  { filePath: "src/low.ts", functionName: "low" },
-  { filePath: "src/medium.ts", functionName: "medium" },
 ] as const;
 const WITH_RENAMES_CANONICAL_PATH = "src/c.ts";
 const WITH_RENAMES_EXPECTED_COMMITS = 5;
@@ -170,19 +119,20 @@ beforeEach(() => {
 });
 
 describe("runScan integration", () => {
-  it("returns non-empty hotspot rankings at version 2.0 without coupling on small-ts fixture", async () => {
+  it("returns non-empty hotspot rankings at version 3.0 without functions on small-ts fixture", async () => {
     const result = await runScan({ repoPath: smallTsFixture });
 
-    expect(result.version).toBe("2.0");
+    expect(result.version).toBe("3.0");
+    expect(result).not.toHaveProperty("functions");
     expect(result).not.toHaveProperty("coupling");
+    expect(result.meta).not.toHaveProperty("granularity");
     expect(result.hotspots.length).toBeGreaterThanOrEqual(1);
     expect(result.hotspots[0]!.filePath).toBe(EXPECTED_TOP_HOTSPOT);
 
     const topHotspot = result.hotspots[0]!;
-    expect(topHotspot.cyclomaticComplexity).toBeGreaterThan(0);
+    expect(topHotspot.ncloc).toBeGreaterThan(0);
     expect(topHotspot.commitCount).toBeGreaterThan(0);
     expect(topHotspot.authorCount).toBeGreaterThan(0);
-    expect(topHotspot.functionCount).toBeDefined();
     expect(topHotspot.linesChanged).toBeDefined();
   });
 
@@ -217,12 +167,11 @@ describe("runScan integration", () => {
     expect(result.meta.warnings).toEqual([]);
   });
 
-  it("forwards git, complexity, and function-churn progress in function mode", async () => {
+  it("never emits function-churn progress phase", async () => {
     const onProgress = vi.fn();
 
     await runScan({
       repoPath: smallTsFixture,
-      granularity: "function",
       concurrency: 1,
       onProgress,
     });
@@ -230,7 +179,7 @@ describe("runScan integration", () => {
     const phases = onProgress.mock.calls.map(([progress]) => progress.phase);
     expect(phases).toContain("git");
     expect(phases).toContain("complexity");
-    expect(phases).toContain("function-churn");
+    expect(phases).not.toContain("function-churn");
   });
 
   it("limits output paths when include scope is set", async () => {
@@ -244,52 +193,7 @@ describe("runScan integration", () => {
       expect(hotspot.filePath.startsWith("src/")).toBe(true);
     }
   });
-
-  it("returns function rankings when granularity is function", async () => {
-    const result = await runScan({
-      repoPath: smallTsFixture,
-      granularity: "function",
-    });
-
-    expect(result.meta.granularity).toBe("function");
-    expect(result.version).toBe("2.0");
-    expect(result).not.toHaveProperty("coupling");
-    expect(result.hotspots).toEqual([]);
-    expect(result.functions.length).toBeGreaterThan(0);
-
-    const topFunction = result.functions[0]!;
-    expect(topFunction.functionName).toBeTruthy();
-    expect(topFunction.line).toBeGreaterThan(0);
-    expect(topFunction.complexity).toBeGreaterThan(0);
-    expect(topFunction.hotspotScore).toBeGreaterThanOrEqual(0);
-    expect(topFunction.commitCount).toBeGreaterThanOrEqual(0);
-  });
-
-  it("uses per-function churn in function mode (not identical siblings)", async () => {
-    const result = await runScan({
-      repoPath: smallTsFixture,
-      granularity: "function",
-    });
-
-    const byFile = new Map<string, typeof result.functions>();
-    for (const fn of result.functions) {
-      const list = byFile.get(fn.filePath) ?? [];
-      list.push(fn);
-      byFile.set(fn.filePath, list);
-    }
-
-    const multiFnFile = [...byFile.entries()].find(([, fns]) => fns.length > 1);
-    if (multiFnFile !== undefined) {
-      const commitCounts = new Set(multiFnFile[1].map((fn) => fn.commitCount));
-      expect(commitCounts.size).toBeGreaterThanOrEqual(1);
-    }
-  });
 });
-
-const callbacksIifeFixture = join(
-  fileURLToPath(new URL(".", import.meta.url)),
-  "../tests/fixtures/complexity/callbacks-iife.ts",
-);
 
 async function createIsolatedSmallTsRepo(): Promise<string> {
   const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scan-integration-"));
@@ -307,10 +211,6 @@ function configureGitForTest(repoPath: string): void {
 }
 
 describe("runScan integration — pipeline stage overlap (M34)", () => {
-  beforeEach(() => {
-    streamGitPatchLogSpy.mockClear();
-  });
-
   it("preserves file-mode hotspot rankings under fixed options (HOTSPOT-370)", async () => {
     const result = await runScan(OVERLAP_FILE_SCAN_OPTIONS);
 
@@ -331,71 +231,6 @@ describe("runScan integration — pipeline stage overlap (M34)", () => {
     expect(
       sequentialResult.hotspots.map((hotspot) => hotspot.hotspotScore),
     ).toEqual(overlapResult.hotspots.map((hotspot) => hotspot.hotspotScore));
-  });
-
-  it("preserves function-mode churn ranking under fixed options (HOTSPOT-370)", async () => {
-    const result = await runScan({
-      repoPath: smallTsFixture,
-      since: "24 months ago",
-      granularity: "function",
-    });
-
-    expect(result.version).toBe("2.0");
-    expect(result).not.toHaveProperty("coupling");
-    expect(result.meta.granularity).toBe("function");
-    expect(result.hotspots).toEqual([]);
-    expect(result.functions.length).toBeGreaterThan(0);
-    expect(
-      result.functions.map((fn) => ({
-        filePath: fn.filePath,
-        functionName: fn.functionName,
-      })),
-    ).toEqual([...EXPECTED_CHURNED_FUNCTION_RANKING]);
-  });
-
-  it("preserves function-mode churn ranking when sequential is true (HOTSPOT-714)", async () => {
-    const overlapResult = await runScan({
-      repoPath: smallTsFixture,
-      since: "24 months ago",
-      granularity: "function",
-    });
-    const sequentialResult = await runScan({
-      repoPath: smallTsFixture,
-      since: "24 months ago",
-      granularity: "function",
-      sequential: true,
-    });
-
-    expect(sequentialResult.meta.granularity).toBe("function");
-    expect(sequentialResult.version).toBe("2.0");
-    expect(sequentialResult).not.toHaveProperty("coupling");
-    expect(sequentialResult.hotspots).toEqual([]);
-    expect(sequentialResult.functions.length).toBeGreaterThan(0);
-    expect(
-      sequentialResult.functions.map((fn) => ({
-        filePath: fn.filePath,
-        functionName: fn.functionName,
-      })),
-    ).toEqual([...EXPECTED_CHURNED_FUNCTION_RANKING]);
-    expect(
-      sequentialResult.functions.map((fn) => ({
-        filePath: fn.filePath,
-        functionName: fn.functionName,
-        hotspotScore: fn.hotspotScore,
-      })),
-    ).toEqual(
-      overlapResult.functions.map((fn) => ({
-        filePath: fn.filePath,
-        functionName: fn.functionName,
-        hotspotScore: fn.hotspotScore,
-      })),
-    );
-  });
-
-  it("does not spawn patch stream in file mode under overlap (HOTSPOT-371)", async () => {
-    await runScan(OVERLAP_FILE_SCAN_OPTIONS);
-
-    expect(streamGitPatchLogSpy).not.toHaveBeenCalled();
   });
 
   it("rejects without partial scan result when git mine fails during overlap (HOTSPOT-378)", async () => {
@@ -421,175 +256,6 @@ describe("runScan integration — pipeline stage overlap (M34)", () => {
       await expect(runScan(OVERLAP_FILE_SCAN_OPTIONS)).rejects.toBe(cxError);
     } finally {
       analyzeFailure.error = null;
-    }
-  });
-});
-
-describe("runScan integration — function-mode efficiency (M35)", () => {
-  beforeEach(() => {
-    streamGitPatchLogSpy.mockClear();
-  });
-
-  it("does not spawn the patch stream in file mode (HOTSPOT-392, HOTSPOT-397)", async () => {
-    await runScan({ repoPath: smallTsFixture, granularity: "file" });
-
-    expect(streamGitPatchLogSpy).not.toHaveBeenCalled();
-  });
-
-  it("spawns batched pathspec-restricted patch streams when allowlist exceeds threshold (HOTSPOT-668)", async () => {
-    const syntheticCount = PATCH_PATHSPEC_FALLBACK_THRESHOLD + 1;
-    const filterSpy = vi
-      .spyOn(pathsModule, "filterGitMinerResult")
-      .mockImplementation((result, scope) => {
-        const filtered = realFilterGitMinerResult(result, scope);
-        const inflatedStats = new Map(filtered.fileStats);
-        for (let i = 0; i < syntheticCount; i += 1) {
-          const filePath = `src/synth-${String(i).padStart(4, "0")}.ts`;
-          inflatedStats.set(filePath, {
-            filePath,
-            commitCount: 1,
-            linesChanged: 1,
-            authors: new Set(["test"]),
-            lastModified: new Date("2024-01-01T00:00:00.000Z"),
-          });
-        }
-        return { ...filtered, fileStats: inflatedStats };
-      });
-    const allowlist = [
-      ...Array.from({ length: syntheticCount }, (_, i) =>
-        `src/synth-${String(i).padStart(4, "0")}.ts`,
-      ),
-      "bootstrap-repo.mjs",
-      "src/high.ts",
-      "src/low.ts",
-      "src/medium.ts",
-    ].sort();
-    const expectedChunks = partitionPathspecs(allowlist);
-
-    try {
-      await runScan({ repoPath: smallTsFixture, granularity: "function" });
-
-      expect(expectedChunks).toHaveLength(2);
-      expect(streamGitPatchLogSpy).toHaveBeenCalledTimes(expectedChunks.length);
-      for (let index = 0; index < expectedChunks.length; index += 1) {
-        const spawnOptions = streamGitPatchLogSpy.mock.calls[index]![0]!;
-        expect(spawnOptions.paths).toEqual(expectedChunks[index]);
-        expect(spawnOptions.paths!.length).toBeGreaterThan(0);
-        expect(spawnOptions.paths!.length).toBeLessThanOrEqual(
-          PATCH_PATHSPEC_FALLBACK_THRESHOLD,
-        );
-        const argv = buildGitPatchLogArgv(spawnOptions);
-        const separatorIndex = argv.indexOf("--");
-        expect(separatorIndex).toBeGreaterThan(-1);
-        expect(argv.slice(separatorIndex + 1).sort()).toEqual(
-          [...spawnOptions.paths!].sort(),
-        );
-        expect(argv).toEqual(
-          expect.arrayContaining(["-M", "-p", "--unified=0"]),
-        );
-      }
-      expect(
-        streamGitPatchLogSpy.mock.calls.some(
-          (call) => call[0]?.paths === undefined,
-        ),
-      ).toBe(false);
-    } finally {
-      filterSpy.mockRestore();
-    }
-  });
-
-  it("spawns pathspec-restricted patch stream in function mode (HOTSPOT-388)", async () => {
-    await runScan({ repoPath: smallTsFixture, granularity: "function" });
-
-    expect(streamGitPatchLogSpy).toHaveBeenCalledTimes(1);
-    const spawnOptions = streamGitPatchLogSpy.mock.calls[0]![0]!;
-    expect(spawnOptions.paths).toEqual(
-      expect.arrayContaining([
-        "bootstrap-repo.mjs",
-        "src/high.ts",
-        "src/low.ts",
-        "src/medium.ts",
-      ]),
-    );
-    expect(spawnOptions.paths!.length).toBeLessThanOrEqual(
-      PATCH_PATHSPEC_FALLBACK_THRESHOLD,
-    );
-
-    const argv = buildGitPatchLogArgv(spawnOptions);
-    const separatorIndex = argv.indexOf("--");
-    expect(separatorIndex).toBeGreaterThan(-1);
-    expect(argv.slice(separatorIndex + 1).sort()).toEqual(
-      [...spawnOptions.paths!].sort(),
-    );
-    expect(argv).toEqual(
-      expect.arrayContaining(["-M", "-p", "--unified=0"]),
-    );
-  });
-
-  it("emits PATHSPEC_ARG_MAX_FALLBACK when pathspec spawn hits argv limits (HOTSPOT-667)", async () => {
-    patchStreamFailure.argMaxOnPathspec = true;
-    try {
-      const result = await runScan({
-        repoPath: smallTsFixture,
-        granularity: "function",
-      });
-
-      expect(
-        result.meta.warnings.some(
-          (warning: ScanWarning) =>
-            warning.code === PATHSPEC_ARG_MAX_FALLBACK_CODE,
-        ),
-      ).toBe(true);
-      expect(
-        streamGitPatchLogSpy.mock.calls.some(
-          (call) => call[0]?.paths === undefined,
-        ),
-      ).toBe(true);
-    } finally {
-      patchStreamFailure.argMaxOnPathspec = false;
-    }
-  });
-
-  it("preserves typical churned function ranking order on small-ts (HOTSPOT-388)", async () => {
-    const result = await runScan({
-      repoPath: smallTsFixture,
-      granularity: "function",
-    });
-
-    expect(
-      result.functions.map((fn) => ({
-        filePath: fn.filePath,
-        functionName: fn.functionName,
-      })),
-    ).toEqual([...EXPECTED_CHURNED_FUNCTION_RANKING]);
-  });
-
-  it("includes zero-churn eligible files in function rankings (HOTSPOT-761)", async () => {
-    const repoPath = await createIsolatedSmallTsRepo();
-    try {
-      await writeFile(
-        join(repoPath, "src/untouched.ts"),
-        "export function untouched(): number { return 0; }\n",
-        "utf8",
-      );
-      execFileSync("git", ["add", "src/untouched.ts"], { cwd: repoPath });
-
-      const fileResult = await runScan({ repoPath, granularity: "file" });
-      expect(
-        fileResult.hotspots.some((hotspot) => hotspot.filePath === "src/untouched.ts"),
-      ).toBe(true);
-
-      const functionResult = await runScan({
-        repoPath,
-        granularity: "function",
-      });
-      expect(
-        functionResult.functions.some(
-          (fn) => fn.filePath === "src/untouched.ts",
-        ),
-      ).toBe(true);
-    } finally {
-      await rm(repoPath, { recursive: true, force: true });
     }
   });
 });
@@ -704,7 +370,8 @@ describe("runScan integration — ranking accuracy plus (M50)", () => {
 
       const result = await runScan({ repoPath });
 
-      expect(result.version).toBe("2.0");
+      expect(result.version).toBe("3.0");
+      expect(result).not.toHaveProperty("functions");
       expect(result).not.toHaveProperty("coupling");
 
       const fooHotspot = result.hotspots.find(
@@ -727,7 +394,7 @@ describe("runScan integration — ranking accuracy plus (M50)", () => {
     }
   });
 
-  it("ranks parse-failed files with parseFailed flag and score 0 (HOTSPOT-767)", async () => {
+  it("ranks syntax-broken files by NCLOC and churn (HOTSPOT-767)", async () => {
     const repoPath = await createIsolatedSmallTsRepo();
     configureGitForTest(repoPath);
     try {
@@ -750,21 +417,15 @@ describe("runScan integration — ranking accuracy plus (M50)", () => {
 
       const result = await runScan({ repoPath, since: "24 months ago" });
 
+      expect(result.version).toBe("3.0");
+      expect(result).not.toHaveProperty("functions");
+
       const broken = result.hotspots.find(
         (hotspot) => hotspot.filePath === "src/broken.ts",
       );
       expect(broken).toBeDefined();
-      expect(broken!.parseFailed).toBe(true);
-      expect(broken!.hotspotScore).toBe(0);
-      expect(broken!.complexityNormalized).toBe(0);
-      expect(broken!.churnNormalized).toBe(0);
+      expect(broken!.ncloc).toBeGreaterThan(0);
       expect(broken!.commitCount).toBeGreaterThan(0);
-      expect(
-        result.meta.warnings.some((warning) => warning.code === "PARSE_FAILED"),
-      ).toBe(true);
-      expect(
-        result.functions.some((fn) => fn.filePath === "src/broken.ts"),
-      ).toBe(false);
 
       const high = result.hotspots.find(
         (hotspot) => hotspot.filePath === "src/high.ts",
@@ -775,43 +436,6 @@ describe("runScan integration — ranking accuracy plus (M50)", () => {
       expect(high).toBeDefined();
       expect(low).toBeDefined();
       expect(high!.hotspotScore).toBeGreaterThan(low!.hotspotScore);
-    } finally {
-      await rm(repoPath, { recursive: true, force: true });
-    }
-  });
-
-  it("collects callbacks and IIFEs in function mode including zero-churn files (HOTSPOT-768)", async () => {
-    const repoPath = await createIsolatedSmallTsRepo();
-    try {
-      const callbacksContent = await readFile(callbacksIifeFixture, "utf8");
-      await writeFile(
-        join(repoPath, "src/callbacks-iife.ts"),
-        callbacksContent,
-        "utf8",
-      );
-      execFileSync("git", ["add", "src/callbacks-iife.ts"], { cwd: repoPath });
-
-      const result = await runScan({ repoPath, granularity: "function" });
-
-      expect(
-        result.functions.some(
-          (fn) =>
-            fn.filePath === "src/callbacks-iife.ts" &&
-            fn.functionName === "usesCallbacks",
-        ),
-      ).toBe(true);
-      expect(
-        result.functions.some((fn) => fn.functionName === "<anonymous>:L12"),
-      ).toBe(true);
-      expect(
-        result.functions.some((fn) => fn.functionName === "<anonymous>:L23"),
-      ).toBe(true);
-      expect(
-        result.functions.some(
-          (fn) =>
-            fn.filePath === "src/callbacks-iife.ts" && fn.commitCount === 0,
-        ),
-      ).toBe(true);
     } finally {
       await rm(repoPath, { recursive: true, force: true });
     }

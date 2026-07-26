@@ -24,7 +24,7 @@ function loadCompareResult(baselineName: string, currentName: string) {
 }
 
 describe("renderCompareTable", () => {
-  it("renders file mode sections", () => {
+  it("renders hotspot delta sections", () => {
     const output = renderCompareTable(
       loadCompareResult(
         "compare-baseline-file.json",
@@ -38,6 +38,8 @@ describe("renderCompareTable", () => {
     expect(output).toContain("=== Rank Changed Hotspots ===");
     expect(output).toContain("src/new.ts");
     expect(output).toContain("src/medium.ts");
+    expect(output).toContain("NLOC");
+    expect(output).not.toContain("=== New Functions ===");
   });
 
   it("includes executive summary and glossary footer", () => {
@@ -50,7 +52,7 @@ describe("renderCompareTable", () => {
     expect(output).toContain("Baseline since:");
     expect(output).toContain("Hotspot deltas: showing");
     expect(output).toContain("Glossary");
-    expect(output).toContain("Score");
+    expect(output).toContain("NLOC");
   });
 
   it("emits triage hints when rules match (default)", () => {
@@ -64,7 +66,7 @@ describe("renderCompareTable", () => {
     expect(output).toContain("Triage hints");
     expect(output).toContain("src/new.ts");
     expect(output).toContain(
-      "New dual-signal hotspot vs baseline — complexity and churn both elevated; prioritize review.",
+      "New dual-signal hotspot vs baseline — NCLOC and churn both elevated; prioritize review.",
     );
     const triageIndex = output.indexOf("Triage hints");
     const glossaryIndex = output.indexOf("Glossary");
@@ -83,19 +85,6 @@ describe("renderCompareTable", () => {
 
     expect(output).not.toContain("Triage hints");
     expect(output).toContain("Glossary");
-  });
-
-  it("omits hotspot sections when --only functions in file mode", () => {
-    const output = renderCompareTable(
-      loadCompareResult(
-        "compare-baseline-file.json",
-        "compare-current-file.json",
-      ),
-      { only: ["functions"] },
-    );
-
-    expect(output).not.toContain("=== New Hotspots ===");
-    expect(output).toContain("=== New Functions ===");
   });
 
   it("applies color to score cells when enabled", () => {
@@ -121,20 +110,6 @@ describe("renderCompareTable", () => {
     expect(output).toContain(
       "Hotspot deltas: showing 3 of 3 (new 1, removed 1, rank changed 1)",
     );
-  });
-
-  it("renders function mode sections", () => {
-    const output = renderCompareTable(
-      loadCompareResult(
-        "compare-baseline-function.json",
-        "compare-current-function.json",
-      ),
-    );
-
-    expect(output).toContain("=== New Functions ===");
-    expect(output).toContain("=== Removed Functions ===");
-    expect(output).toContain("=== Rank Changed Functions ===");
-    expect(output).toContain("newHandler");
   });
 
   it("renders compare warnings with severity and optional code", () => {

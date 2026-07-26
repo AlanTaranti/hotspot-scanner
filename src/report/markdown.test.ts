@@ -10,17 +10,9 @@ const fixturePath = join(
   dirname(fileURLToPath(import.meta.url)),
   "../../tests/fixtures/report/sample-result.json",
 );
-const functionFixturePath = join(
-  dirname(fileURLToPath(import.meta.url)),
-  "../../tests/fixtures/report/sample-result-functions.json",
-);
 
 function loadFixture(): ScanResult {
   return JSON.parse(readFileSync(fixturePath, "utf8")) as ScanResult;
-}
-
-function loadFunctionFixture(): ScanResult {
-  return JSON.parse(readFileSync(functionFixturePath, "utf8")) as ScanResult;
 }
 
 function sectionIndex(output: string, heading: string): number {
@@ -35,7 +27,6 @@ describe("renderMarkdown", () => {
     expect(output).toContain(
       "Scan window: 6 months ago (scanned 2026-07-22T11:00:00.000Z)",
     );
-    expect(output).toContain("Granularity: file");
     expect(output).toContain("Hotspots: showing 3 of 3");
     expect(output).toContain("## How to read this");
     expect(output).toContain("## Top Hotspots");
@@ -59,10 +50,10 @@ describe("renderMarkdown", () => {
     const output = renderMarkdown(loadFixture());
 
     expect(output).toContain(
-      "| Rank | File | Score | Cpx | CpxN | Churn | ChurnN | Funcs | Authors | Lines |",
+      "| Rank | File | Score | NLOC | NLOCN | Churn | ChurnN | Authors | Lines |",
     );
     expect(output).toContain(
-      "| 1 | src/hot.ts | 0.8500 | 42 | 0.9000 | 15 | 0.9444 | 8 | 3 | 320 |",
+      "| 1 | src/hot.ts | 0.8500 | 42 | 0.9000 | 15 | 0.9444 | 3 | 320 |",
     );
   });
 
@@ -87,43 +78,24 @@ describe("renderMarkdown", () => {
     expect(output).not.toContain("## Triage hints");
   });
 
-  it("omits excluded section headings with --only", () => {
-    const output = renderMarkdown(loadFixture(), { only: ["functions"] });
-
-    expect(output).not.toContain("## Top Hotspots");
-    expect(output).toContain("## Top Functions");
-  });
-
-  it("renders only the requested ranking section when granularity mismatches", () => {
-    const output = renderMarkdown(loadFixture(), { only: ["functions"] });
-
-    expect(output).not.toContain("## Top Hotspots");
-    expect(output).toContain("## Top Functions");
-    expect(output).toContain("_No results._");
-  });
-
   it("escapes pipe characters in file paths", () => {
     const output = renderMarkdown({
-      version: "2.0",
+      version: "3.0",
       hotspots: [
         {
           filePath: "src/a|b.ts",
           hotspotScore: 0.5,
           complexityNormalized: 0.5,
           churnNormalized: 0.5,
-          cyclomaticComplexity: 10,
-          functionCount: 2,
+          ncloc: 10,
           commitCount: 5,
           linesChanged: 100,
           authorCount: 1,
-          parseFailed: false,
         },
       ],
-      functions: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-07-22T12:00:00.000Z",
-        granularity: "file",
         warnings: [],
       },
     });
@@ -133,13 +105,11 @@ describe("renderMarkdown", () => {
 
   it("renders empty sections without throwing", () => {
     const output = renderMarkdown({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
-      functions: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-07-22T12:00:00.000Z",
-        granularity: "file",
         warnings: [],
       },
     });
@@ -148,43 +118,5 @@ describe("renderMarkdown", () => {
     expect(output).toContain("_No results._");
     expect(output).not.toContain("| Rank | File |");
     expect(output).not.toContain("## Triage hints");
-  });
-
-  it("renders function mode table with granularity metadata", () => {
-    const output = renderMarkdown(loadFunctionFixture());
-
-    expect(output).toContain("Granularity: function");
-    expect(output).toContain("## Top Functions");
-    expect(output).not.toContain("## Top Hotspots");
-    expect(output).toContain("| 1 | src/hot.ts | processOrder | 42 | 0.8200 |");
-  });
-
-  it("escapes pipe characters in function names", () => {
-    const output = renderMarkdown({
-      version: "2.0",
-      hotspots: [],
-      functions: [
-        {
-          filePath: "src/hot.ts",
-          functionName: "foo|bar",
-          line: 1,
-          complexity: 5,
-          complexityNormalized: 0.5,
-          churnNormalized: 0.5,
-          hotspotScore: 0.5,
-          commitCount: 3,
-          linesChanged: 40,
-          authorCount: 1,
-        },
-      ],
-      meta: {
-        since: "12 months ago",
-        scannedAt: "2026-07-22T12:00:00.000Z",
-        granularity: "function",
-        warnings: [],
-      },
-    });
-
-    expect(output).toContain("foo\\|bar");
   });
 });

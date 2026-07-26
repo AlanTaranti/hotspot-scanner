@@ -14,7 +14,6 @@ const LOCKED_EXEMPLAR_JSON = `{
   "since": "12 months ago",
   "include": [],
   "exclude": [],
-  "granularity": "file",
   "top": 20
 }
 `;
@@ -25,7 +24,6 @@ describe("EXEMPLAR_HOTSPOT_SCANNER_CONFIG", () => {
       since: "12 months ago",
       include: [],
       exclude: [],
-      granularity: "file",
       top: 20,
     });
   });

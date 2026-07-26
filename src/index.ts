@@ -21,10 +21,7 @@ export type { ScanScopePreview } from "./scan-preview.js";
 export type {
   CompareMeta,
   CompareResult,
-  ComplexityResult,
   FileChangeStats,
-  FunctionCompareSection,
-  FunctionHotspotScore,
   HotspotCompareSection,
   HotspotScore,
   RankChange,

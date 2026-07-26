@@ -23,8 +23,8 @@ function buildFileStats(
 describe("scoring factories", () => {
   it("createHotspotScorer scores hotspots without throwing", () => {
     const complexity: ComplexityResult[] = [
-      { filePath: "src/a.ts", cyclomaticComplexity: 10, functionCount: 1 },
-      { filePath: "src/b.ts", cyclomaticComplexity: 5, functionCount: 1 },
+      { filePath: "src/a.ts", ncloc: 10 },
+      { filePath: "src/b.ts", ncloc: 5 },
     ];
     const fileStats = buildFileStats([
       { filePath: "src/a.ts", commitCount: 20 },

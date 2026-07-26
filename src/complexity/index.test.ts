@@ -1,9 +1,10 @@
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { chmod, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { analyzeBatch } from "./analyze-batch.js";
+import { discoverSourceFiles } from "./discover.js";
 import {
   createComplexityAnalyzer,
   DEFAULT_BATCH_SIZE,
@@ -14,6 +15,14 @@ const fixtureDir = join(
   fileURLToPath(new URL(".", import.meta.url)),
   "../../tests/fixtures/complexity",
 );
+
+async function discoverFixtureFiles(repoPath: string): Promise<string[]> {
+  return discoverSourceFiles(repoPath, undefined, {
+    listTrackedFiles: async () => {
+      throw new Error("walk fixture directory");
+    },
+  });
+}
 
 function findResult(results: Array<{ filePath: string }>, fileName: string) {
   return results.find((result) => result.filePath.endsWith(fileName));
@@ -39,68 +48,52 @@ describe("createComplexityAnalyzer", () => {
     return dir;
   }
 
-  it("analyzes fixture files and returns results with warnings for invalid syntax", async () => {
-    const analyzer = createComplexityAnalyzer();
+  it("analyzes fixture files and returns NCLOC results without warnings", async () => {
+    const analyzer = createComplexityAnalyzer({
+      discoverSourceFiles: discoverFixtureFiles,
+    });
     const { results, warnings } = await analyzer.analyze({
       repoPath: fixtureDir,
     });
 
     expect(findResult(results, "if-else.ts")).toEqual({
       filePath: "if-else.ts",
-      functionCount: 1,
-      cyclomaticComplexity: 3,
+      ncloc: 9,
     });
     expect(findResult(results, "switch.ts")).toEqual({
       filePath: "switch.ts",
-      functionCount: 1,
-      cyclomaticComplexity: 5,
+      ncloc: 12,
     });
     expect(findResult(results, "loops.ts")).toEqual({
       filePath: "loops.ts",
-      functionCount: 1,
-      cyclomaticComplexity: 4,
+      ncloc: 5,
     });
     expect(findResult(results, "try-catch.ts")).toEqual({
       filePath: "try-catch.ts",
-      functionCount: 1,
-      cyclomaticComplexity: 2,
+      ncloc: 5,
     });
     expect(findResult(results, "logical-ops.ts")).toEqual({
       filePath: "logical-ops.ts",
-      functionCount: 1,
-      cyclomaticComplexity: 4,
+      ncloc: 3,
     });
     expect(findResult(results, "ternary.ts")).toEqual({
       filePath: "ternary.ts",
-      functionCount: 1,
-      cyclomaticComplexity: 2,
+      ncloc: 3,
     });
     expect(findResult(results, "nested.ts")).toEqual({
       filePath: "nested.ts",
-      functionCount: 2,
-      cyclomaticComplexity: 3,
+      ncloc: 9,
     });
     expect(findResult(results, "empty.ts")).toEqual({
       filePath: "empty.ts",
-      functionCount: 0,
-      cyclomaticComplexity: 0,
+      ncloc: 1,
     });
 
     expect(findResult(results, "invalid-syntax.ts")).toEqual({
       filePath: "invalid-syntax.ts",
-      functionCount: 0,
-      cyclomaticComplexity: 0,
-      parseFailed: true,
+      ncloc: 3,
     });
-    expect(warnings).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          code: "PARSE_FAILED",
-          severity: "warning",
-          message: expect.stringContaining("invalid-syntax.ts"),
-        }),
-      ]),
-    );
+    expect(warnings).toEqual([]);
   });
 
   it("throws when repoPath is invalid", async () => {
@@ -125,11 +118,9 @@ describe("createComplexityAnalyzer", () => {
             results: [
               {
                 filePath: "a.ts",
-                cyclomaticComplexity: 1,
-                functionCount: 0,
+                ncloc: 1,
               },
             ],
-            functions: [],
             warnings: [],
           },
         ]),
@@ -150,7 +141,7 @@ describe("createComplexityAnalyzer", () => {
 
   it("uses injected createWorkerPool when provided", async () => {
     const runBatches = vi.fn(async () => [
-      { results: [], functions: [], warnings: [] },
+      { results: [], warnings: [] },
     ]);
     const createWorkerPool = vi.fn(() => ({ runBatches }));
 
@@ -180,7 +171,6 @@ describe("createComplexityAnalyzer", () => {
 
     expect(result).toEqual({
       results: [],
-      functions: [],
       warnings: [],
     } satisfies ComplexityAnalyzerResult);
     expect(createWorkerPool).not.toHaveBeenCalled();
@@ -205,69 +195,80 @@ describe("createComplexityAnalyzer", () => {
     const parallelResult = await parallel.analyze({ repoPath });
 
     expect(parallelResult.results).toEqual(sequentialResult.results);
-    expect(parallelResult.functions).toEqual(sequentialResult.functions);
     expect(parallelResult.warnings).toEqual(sequentialResult.warnings);
     expect(parallelResult).toEqual(sequentialResult);
   });
 
-  it("collects parse failures across multiple batches without throwing", async () => {
+  it("collects read failures across multiple batches without throwing", async () => {
     const files: Record<string, string> = {};
+    const unreadablePaths: string[] = [];
     for (let index = 0; index < DEFAULT_BATCH_SIZE + 1; index += 1) {
       const fileName = `file-${String(index).padStart(3, "0")}.ts`;
-      if (index === 10 || index === DEFAULT_BATCH_SIZE) {
-        files[fileName] = "export const broken = {{{";
-      } else {
-        files[fileName] = `export const value${index} = ${index};`;
-      }
+      files[fileName] = `export const value${index} = ${index};`;
     }
 
     const repoPath = await createTempRepo(files);
-    const analyzer = createComplexityAnalyzer({ concurrency: 2 });
-    const { results, warnings } = await analyzer.analyze({ repoPath });
+    for (const fileName of ["file-010.ts", `file-${String(DEFAULT_BATCH_SIZE).padStart(3, "0")}.ts`]) {
+      const absolutePath = join(repoPath, fileName);
+      unreadablePaths.push(absolutePath);
+      await chmod(absolutePath, 0o000);
+    }
 
-    expect(results).toHaveLength(DEFAULT_BATCH_SIZE + 1);
-    expect(warnings).toHaveLength(2);
-    expect(
-      warnings.every(
-        (warning) =>
-          warning.code === "PARSE_FAILED" &&
-          warning.severity === "warning" &&
-          warning.message.startsWith("Failed to parse "),
-      ),
-    ).toBe(true);
-    expect(
-      warnings.some((warning) => warning.message.includes("file-010.ts")),
-    ).toBe(true);
-    expect(
-      warnings.some((warning) =>
-        warning.message.includes(
-          `file-${String(DEFAULT_BATCH_SIZE).padStart(3, "0")}.ts`,
+    try {
+      const analyzer = createComplexityAnalyzer({ concurrency: 2 });
+      const { results, warnings } = await analyzer.analyze({ repoPath });
+
+      expect(results).toHaveLength(DEFAULT_BATCH_SIZE + 1 - 2);
+      expect(warnings).toHaveLength(2);
+      expect(
+        warnings.every(
+          (warning) =>
+            warning.code === "READ_FAILED" &&
+            warning.severity === "warning" &&
+            warning.message.startsWith("Failed to read "),
         ),
-      ),
-    ).toBe(true);
+      ).toBe(true);
+      expect(
+        warnings.some((warning) => warning.message.includes("file-010.ts")),
+      ).toBe(true);
+      expect(
+        warnings.some((warning) =>
+          warning.message.includes(
+            `file-${String(DEFAULT_BATCH_SIZE).padStart(3, "0")}.ts`,
+          ),
+        ),
+      ).toBe(true);
+    } finally {
+      await Promise.all(unreadablePaths.map((path) => chmod(path, 0o644)));
+    }
   });
 
-  it("produces identical parse-failure output for concurrency 1 vs higher concurrency", async () => {
+  it("produces identical read-failure output for concurrency 1 vs higher concurrency", async () => {
     const files: Record<string, string> = {};
     for (let index = 0; index < DEFAULT_BATCH_SIZE + 1; index += 1) {
       const fileName = `file-${String(index).padStart(3, "0")}.ts`;
-      if (index === 10 || index === DEFAULT_BATCH_SIZE) {
-        files[fileName] = "export const broken = {{{";
-      } else {
-        files[fileName] = `export const value${index} = ${index};`;
-      }
+      files[fileName] = `export const value${index} = ${index};`;
     }
 
     const repoPath = await createTempRepo(files);
-    const sequential = createComplexityAnalyzer({ concurrency: 1 });
-    const parallel = createComplexityAnalyzer({ concurrency: 2 });
+    const unreadablePaths = [
+      join(repoPath, "file-010.ts"),
+      join(repoPath, `file-${String(DEFAULT_BATCH_SIZE).padStart(3, "0")}.ts`),
+    ];
+    await Promise.all(unreadablePaths.map((path) => chmod(path, 0o000)));
 
-    const sequentialResult = await sequential.analyze({ repoPath });
-    const parallelResult = await parallel.analyze({ repoPath });
+    try {
+      const sequential = createComplexityAnalyzer({ concurrency: 1 });
+      const parallel = createComplexityAnalyzer({ concurrency: 2 });
 
-    expect(parallelResult.results).toEqual(sequentialResult.results);
-    expect(parallelResult.functions).toEqual(sequentialResult.functions);
-    expect(parallelResult.warnings).toEqual(sequentialResult.warnings);
+      const sequentialResult = await sequential.analyze({ repoPath });
+      const parallelResult = await parallel.analyze({ repoPath });
+
+      expect(parallelResult.results).toEqual(sequentialResult.results);
+      expect(parallelResult.warnings).toEqual(sequentialResult.warnings);
+    } finally {
+      await Promise.all(unreadablePaths.map((path) => chmod(path, 0o644)));
+    }
   });
 
   it("orders merged results by discovery index after parallel batches", async () => {
@@ -317,8 +318,7 @@ describe("createComplexityAnalyzer", () => {
     const runBatches = vi.fn(async () => [
       {
         results: [],
-        functions: [],
-        warnings: ["Failed to parse legacy.ts: Unexpected token"],
+        warnings: ["Failed to read legacy.ts: EACCES"],
       },
     ]);
     const createWorkerPool = vi.fn(() => ({ runBatches }));
@@ -333,9 +333,9 @@ describe("createComplexityAnalyzer", () => {
 
     expect(warnings).toEqual([
       {
-        code: "PARSE_FAILED",
+        code: "READ_FAILED",
         severity: "warning",
-        message: "Failed to parse legacy.ts: Unexpected token",
+        message: "Failed to read legacy.ts: EACCES",
       },
     ]);
   });
@@ -345,10 +345,8 @@ describe("createComplexityAnalyzer", () => {
       {
         results: batches[0]!.map((filePath) => ({
           filePath,
-          cyclomaticComplexity: 1,
-          functionCount: 0,
+          ncloc: 1,
         })),
-        functions: [],
         warnings: [],
       },
     ]);
@@ -392,7 +390,6 @@ describe("createComplexityAnalyzer", () => {
 
     expect(result).toEqual({
       results: [],
-      functions: [],
       warnings: [],
     } satisfies ComplexityAnalyzerResult);
     expect(createWorkerPool).not.toHaveBeenCalled();
@@ -416,7 +413,6 @@ describe("createComplexityAnalyzer", () => {
 
     expect(result).toEqual({
       results: [],
-      functions: [],
       warnings: [],
     } satisfies ComplexityAnalyzerResult);
     expect(createWorkerPool).not.toHaveBeenCalled();
@@ -426,12 +422,11 @@ describe("createComplexityAnalyzer", () => {
     const runBatches = vi.fn(async () => [
       {
         results: [],
-        functions: [],
         warnings: [
           {
-            code: "PARSE_FAILED",
+            code: "READ_FAILED",
             severity: "warning",
-            message: "custom warning without parse prefix",
+            message: "custom warning without read prefix",
           },
         ],
       },
@@ -447,13 +442,13 @@ describe("createComplexityAnalyzer", () => {
     const { warnings } = await analyzer.analyze({ repoPath: fixtureDir });
 
     expect(warnings).toHaveLength(1);
-    expect(warnings[0]?.message).toBe("custom warning without parse prefix");
+    expect(warnings[0]?.message).toBe("custom warning without read prefix");
   });
 
   it("forwards signal to worker pool runBatches", async () => {
     const controller = new AbortController();
     const runBatches = vi.fn(async () => [
-      { results: [], functions: [], warnings: [] },
+      { results: [], warnings: [] },
     ]);
     const createWorkerPool = vi.fn(() => ({ runBatches }));
     const discoverSourceFiles = vi.fn(async () => ["a.ts", "b.ts"]);
@@ -480,7 +475,7 @@ describe("createComplexityAnalyzer", () => {
   it("forwards onProgress to worker pool runBatches", async () => {
     const onProgress = vi.fn();
     const runBatches = vi.fn(async () => [
-      { results: [], functions: [], warnings: [] },
+      { results: [], warnings: [] },
     ]);
     const createWorkerPool = vi.fn(() => ({ runBatches }));
     const discoverSourceFiles = vi.fn(async () => ["a.ts", "b.ts"]);

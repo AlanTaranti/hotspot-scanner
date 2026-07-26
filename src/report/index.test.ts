@@ -11,10 +11,6 @@ const fixturePath = join(
   dirname(fileURLToPath(import.meta.url)),
   "../../tests/fixtures/report/sample-result.json",
 );
-const functionFixturePath = join(
-  dirname(fileURLToPath(import.meta.url)),
-  "../../tests/fixtures/report/sample-result-functions.json",
-);
 const fixturesDir = join(
   dirname(fileURLToPath(import.meta.url)),
   "../../tests/fixtures/report",
@@ -24,26 +20,12 @@ function loadFixture(): ScanResult {
   return JSON.parse(readFileSync(fixturePath, "utf8")) as ScanResult;
 }
 
-function loadFunctionFixture(): ScanResult {
-  return JSON.parse(readFileSync(functionFixturePath, "utf8")) as ScanResult;
-}
-
 function loadCompareResult(): CompareResult {
   const baseline = JSON.parse(
     readFileSync(join(fixturesDir, "compare-baseline-file.json"), "utf8"),
   ) as ScanResult;
   const current = JSON.parse(
     readFileSync(join(fixturesDir, "compare-current-file.json"), "utf8"),
-  ) as ScanResult;
-  return compareScanResults(baseline, current);
-}
-
-function loadFunctionCompareResult(): CompareResult {
-  const baseline = JSON.parse(
-    readFileSync(join(fixturesDir, "compare-baseline-function.json"), "utf8"),
-  ) as ScanResult;
-  const current = JSON.parse(
-    readFileSync(join(fixturesDir, "compare-current-function.json"), "utf8"),
   ) as ScanResult;
   return compareScanResults(baseline, current);
 }
@@ -58,13 +40,14 @@ describe("createReporter", () => {
     expect(typeof output).toBe("object");
     expect(output).toHaveProperty("hotspots.csv");
     expect(output).toHaveProperty("meta.json");
+    expect(output).not.toHaveProperty("functions.csv");
     const hotspotsCsv = (output as Record<string, string>)["hotspots.csv"]!;
-    expect(hotspotsCsv).toContain("1,src/hot.ts,0.8500");
-    expect(hotspotsCsv).toContain("2,src/medium.ts,0.3000");
-    expect(hotspotsCsv).toContain("3,src/cold.ts,0.0200");
+    expect(hotspotsCsv).toContain("1,src/hot.ts,0.8500,42");
+    expect(hotspotsCsv).toContain("2,src/medium.ts,0.3000,20");
+    expect(hotspotsCsv).toContain("3,src/cold.ts,0.0200,3");
   });
 
-  it("renders compare CSV bundle with all sections when top is set", () => {
+  it("renders compare CSV bundle with hotspot sections when top is set", () => {
     const output = createReporter().renderCompare(loadCompareResult(), {
       format: "csv",
       top: 1,
@@ -73,6 +56,7 @@ describe("createReporter", () => {
     expect(typeof output).toBe("object");
     expect(output).toHaveProperty("hotspots.new.csv");
     expect(output).toHaveProperty("hotspots.rank-changed.csv");
+    expect(output).not.toHaveProperty("functions.new.csv");
   });
 
   it("renders JSON output with full arrays when top is set", () => {
@@ -80,16 +64,18 @@ describe("createReporter", () => {
       format: "json",
       top: 2,
     });
-    const parsed = JSON.parse(output) as ScanResult;
+    const parsed = JSON.parse(output as string) as ScanResult;
 
     expect(parsed.hotspots).toHaveLength(3);
+    expect(parsed.hotspots[0]).toMatchObject({ ncloc: 42 });
+    expect(parsed).not.toHaveProperty("functions");
   });
 
   it("renders JSON output with full arrays when top is omitted", () => {
     const output = createReporter().render(loadFixture(), {
       format: "json",
     });
-    const parsed = JSON.parse(output) as ScanResult;
+    const parsed = JSON.parse(output as string) as ScanResult;
 
     expect(parsed.hotspots).toHaveLength(3);
   });
@@ -102,6 +88,7 @@ describe("createReporter", () => {
 
     expect(output).toContain("Top Hotspots");
     expect(output).toContain("Scan window: 6 months ago");
+    expect(output).toContain("NLOC");
   });
 
   it("renders markdown output", () => {
@@ -113,38 +100,7 @@ describe("createReporter", () => {
     expect(output).toContain("# Hotspot Scanner Report");
     expect(output).toContain("## Top Hotspots");
     expect(output).toContain("Scan window: 6 months ago");
-  });
-
-  it("renders function mode table output", () => {
-    const output = createReporter().render(loadFunctionFixture(), {
-      format: "table",
-      top: 2,
-    });
-
-    expect(output).toContain("Top Functions");
-    expect(output).toContain("processOrder");
-    expect(output).not.toContain("Top Hotspots");
-  });
-
-  it("renders function mode markdown output", () => {
-    const output = createReporter().render(loadFunctionFixture(), {
-      format: "markdown",
-      top: 2,
-    });
-
-    expect(output).toContain("## Top Functions");
-    expect(output).toContain("Granularity: function");
-    expect(output).toContain("processOrder");
-  });
-
-  it("renders function mode compare markdown output", () => {
-    const output = createReporter().renderCompare(loadFunctionCompareResult(), {
-      format: "markdown",
-      top: 2,
-    });
-
-    expect(output).toContain("## New Functions");
-    expect(output).toContain("## Rank Changed Functions");
+    expect(output).toContain("| NLOC |");
   });
 
   it("renders compare JSON output with full delta arrays when top is set", () => {
@@ -153,9 +109,9 @@ describe("createReporter", () => {
       format: "json",
       top: 1,
     });
-    const parsed = JSON.parse(output);
+    const parsed = JSON.parse(output as string);
 
-    expect(parsed.version).toBe("2.0");
+    expect(parsed.version).toBe("3.0");
     expect(parsed.hotspots.new).toHaveLength(compareResult.hotspots.new.length);
     expect(parsed.hotspots.removed).toHaveLength(
       compareResult.hotspots.removed.length,
@@ -163,6 +119,7 @@ describe("createReporter", () => {
     expect(parsed.hotspots.rankChanged).toHaveLength(
       compareResult.hotspots.rankChanged.length,
     );
+    expect(parsed).not.toHaveProperty("functions");
   });
 
   it("renders compare table output", () => {
@@ -179,13 +136,11 @@ describe("createReporter", () => {
     expect(() =>
       createReporter().render(
         {
-          version: "2.0",
+          version: "3.0",
           hotspots: [],
-          functions: [],
           meta: {
             since: "12 months ago",
             scannedAt: "2026-07-22T12:00:00.000Z",
-            granularity: "file",
             warnings: [],
           },
         },
@@ -194,14 +149,14 @@ describe("createReporter", () => {
     ).not.toThrow();
   });
 
-  it("defaults to all sections, triage on, and color off for scan table", () => {
+  it("defaults to triage on and color off for scan table", () => {
     const fixture = loadFixture();
     const output = createReporter().render(fixture, { format: "table" });
 
     expect(output).toContain("Top Hotspots");
     expect(output).toContain("Triage hints");
     expect(output).toContain("Glossary");
-    expect(stripAnsi(output)).toBe(output);
+    expect(stripAnsi(output as string)).toBe(output);
     expect(output).toContain("src/hot.ts");
     expect(output).toContain("0.8500");
   });
@@ -222,9 +177,9 @@ describe("createReporter", () => {
       top: 2,
     });
 
-    const hotspotsStart = output.indexOf("Top Hotspots");
-    const glossaryStart = output.indexOf("Glossary");
-    const rankingBlock = output.slice(hotspotsStart, glossaryStart);
+    const hotspotsStart = (output as string).indexOf("Top Hotspots");
+    const glossaryStart = (output as string).indexOf("Glossary");
+    const rankingBlock = (output as string).slice(hotspotsStart, glossaryStart);
 
     expect(rankingBlock).toContain("src/hot.ts");
     expect(rankingBlock).toContain("src/medium.ts");
@@ -233,29 +188,29 @@ describe("createReporter", () => {
     expect(rankingBlock).toContain("0.3000");
   });
 
-  it("omits JSON sections when only is set without slicing arrays", () => {
+  it("always includes hotspots in JSON output", () => {
     const fixture = loadFixture();
     const output = createReporter().render(fixture, {
       format: "json",
-      only: ["functions"],
+      only: ["hotspots"],
       top: 1,
     });
-    const parsed = JSON.parse(output) as Record<string, unknown>;
+    const parsed = JSON.parse(output as string) as Record<string, unknown>;
 
-    expect(parsed).not.toHaveProperty("hotspots");
-    expect(parsed.functions).toEqual([]);
+    expect(parsed.hotspots).toHaveLength(3);
+    expect(parsed).not.toHaveProperty("functions");
   });
 
-  it("omits CSV bundle files when only is set without slicing rows", () => {
+  it("always includes hotspots.csv in CSV bundle", () => {
     const output = createReporter().render(loadFixture(), {
       format: "csv",
-      only: ["functions"],
+      only: ["hotspots"],
       top: 1,
     });
 
-    expect(output).not.toHaveProperty("hotspots.csv");
-    expect(output).toHaveProperty("functions.csv");
+    expect(output).toHaveProperty("hotspots.csv");
     expect(output).toHaveProperty("meta.json");
+    expect(output).not.toHaveProperty("functions.csv");
   });
 
   it("suppresses triage when triageHints is false", () => {
@@ -276,7 +231,7 @@ describe("createReporter", () => {
       color: true,
     });
 
-    expect(stripAnsi(colored)).toBe(plain);
+    expect(stripAnsi(colored as string)).toBe(plain);
     expect(colored).not.toBe(plain);
   });
 
@@ -302,29 +257,7 @@ describe("createReporter", () => {
     expect(output).toContain("Glossary");
   });
 
-  it("filters scan table sections when only is set", () => {
-    const output = createReporter().render(loadFixture(), {
-      format: "table",
-      only: ["functions"],
-    });
-
-    expect(output).not.toContain("Top Hotspots");
-    expect(output).toContain("Top Functions");
-    expect(output).toContain("Glossary");
-  });
-
-  it("filters compare markdown sections when only is set", () => {
-    const output = createReporter().renderCompare(loadCompareResult(), {
-      format: "markdown",
-      only: ["functions"],
-    });
-
-    expect(output).not.toContain("## New Hotspots");
-    expect(output).toContain("## New Functions");
-    expect(output).toContain("## How to read this");
-  });
-
-  it("filters compare JSON sections when only is set", () => {
+  it("filters compare JSON to hotspots only", () => {
     const output = createReporter().renderCompare(loadCompareResult(), {
       format: "json",
       only: ["hotspots"],

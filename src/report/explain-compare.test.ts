@@ -5,12 +5,7 @@ import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { compareScanResults } from "../compare/compare.js";
-import type {
-  CompareResult,
-  FunctionHotspotScore,
-  HotspotScore,
-  ScanResult,
-} from "../types/index.js";
+import type { CompareResult, HotspotScore, ScanResult } from "../types/index.js";
 import {
   findCompareExplainMatches,
   formatCompareExplain,
@@ -25,7 +20,6 @@ const fixturesDir = join(
 const BASE_META: ScanResult["meta"] = {
   since: "6 months ago",
   scannedAt: "2026-07-22T11:00:00.000Z",
-  granularity: "file",
   warnings: [],
 };
 
@@ -45,30 +39,10 @@ function makeHotspot(overrides: Partial<HotspotScore> = {}): HotspotScore {
     complexityNormalized: 0.9,
     churnNormalized: 0.85,
     hotspotScore: 0.88,
-    cyclomaticComplexity: 42,
-    functionCount: 8,
+    ncloc: 42,
     commitCount: 15,
     linesChanged: 320,
     authorCount: 3,
-    parseFailed: false,
-    ...overrides,
-  };
-}
-
-function makeFunctionHotspot(
-  overrides: Partial<FunctionHotspotScore> = {},
-): FunctionHotspotScore {
-  return {
-    filePath: "src/hot.ts",
-    functionName: "run",
-    line: 10,
-    complexity: 12,
-    complexityNormalized: 0.8,
-    churnNormalized: 0.7,
-    hotspotScore: 0.75,
-    commitCount: 5,
-    linesChanged: 80,
-    authorCount: 2,
     ...overrides,
   };
 }
@@ -78,10 +52,8 @@ function makeCompareResult(
 ): CompareResult {
   const emptySection = { new: [], removed: [], rankChanged: [] };
   return {
-    version: "2.0",
-    granularity: "file",
+    version: "3.0",
     hotspots: { ...emptySection },
-    functions: { ...emptySection },
     meta: {
       baseline: BASE_META,
       current: BASE_META,
@@ -120,7 +92,7 @@ describe("findCompareExplainMatches", () => {
       expect(matches).toHaveLength(1);
       expect(matches[0]).toMatchObject({
         classification: "new",
-        entity: expect.objectContaining({ filePath: "src/new.ts" }),
+        entity: expect.objectContaining({ filePath: "src/new.ts", ncloc: 50 }),
       });
       expect(matches[0]?.baselineRank).toBeUndefined();
       expect(matches[0]?.currentRank).toBeUndefined();
@@ -227,123 +199,6 @@ describe("findCompareExplainMatches", () => {
       await rm(repoPath, { recursive: true, force: true });
     }
   });
-
-  it("lists all function deltas for a path-only target across classifications", () => {
-    const result = makeCompareResult({
-      granularity: "function",
-      functions: {
-        new: [
-          makeFunctionHotspot({
-            filePath: "src/hot.ts",
-            functionName: "alpha",
-            line: 5,
-          }),
-        ],
-        removed: [
-          makeFunctionHotspot({
-            filePath: "src/hot.ts",
-            functionName: "beta",
-            line: 20,
-          }),
-        ],
-        rankChanged: [
-          {
-            entity: makeFunctionHotspot({
-              filePath: "src/hot.ts",
-              functionName: "gamma",
-              line: 40,
-            }),
-            baselineRank: 4,
-            currentRank: 9,
-            rankDelta: 5,
-          },
-        ],
-      },
-    });
-
-    const matches = findCompareExplainMatches(
-      result,
-      parseExplainTarget("src/hot.ts"),
-      "/tmp/repo",
-    );
-
-    expect(matches.map((match) => match.classification)).toEqual([
-      "new",
-      "removed",
-      "rank-changed",
-    ]);
-    expect(matches.map((match) =>
-      "functionName" in match.entity ? match.entity.functionName : "",
-    )).toEqual(["alpha", "beta", "gamma"]);
-  });
-
-  it("filters function targets by name using lookup order", () => {
-    const result = makeCompareResult({
-      granularity: "function",
-      functions: {
-        new: [
-          makeFunctionHotspot({
-            filePath: "src/hot.ts",
-            functionName: "run",
-            line: 10,
-          }),
-        ],
-        removed: [
-          makeFunctionHotspot({
-            filePath: "src/hot.ts",
-            functionName: "run",
-            line: 40,
-          }),
-        ],
-        rankChanged: [],
-      },
-    });
-
-    const matches = findCompareExplainMatches(
-      result,
-      parseExplainTarget("src/hot.ts:run"),
-      "/tmp/repo",
-    );
-
-    expect(matches).toHaveLength(1);
-    expect(matches[0]).toMatchObject({
-      classification: "new",
-      entity: expect.objectContaining({ functionName: "run", line: 10 }),
-    });
-  });
-
-  it("returns all overload rows for a named function target", () => {
-    const result = makeCompareResult({
-      granularity: "function",
-      functions: {
-        new: [
-          makeFunctionHotspot({
-            functionName: "overload",
-            line: 10,
-          }),
-          makeFunctionHotspot({
-            functionName: "overload",
-            line: 40,
-          }),
-        ],
-        removed: [],
-        rankChanged: [],
-      },
-    });
-
-    const matches = findCompareExplainMatches(
-      result,
-      parseExplainTarget("src/hot.ts:overload"),
-      "/tmp/repo",
-    );
-
-    expect(matches).toHaveLength(2);
-    expect(
-      matches.map((match) =>
-        "line" in match.entity ? match.entity.line : 0,
-      ),
-    ).toEqual([10, 40]);
-  });
 });
 
 describe("formatCompareExplain", () => {
@@ -351,7 +206,7 @@ describe("formatCompareExplain", () => {
     expect(formatCompareExplain([])).toBe("");
   });
 
-  it("formats new hotspot score fields", () => {
+  it("formats new hotspot score fields with ncloc", () => {
     const output = formatCompareExplain([
       {
         classification: "new",
@@ -362,10 +217,8 @@ describe("formatCompareExplain", () => {
     expect(output).toContain("=== Compare Explain: src/new.ts (new) ===");
     expect(output).toContain("classification: new");
     expect(output).toContain("filePath: src/new.ts");
-    expect(output).toContain(
-      "complexity: cyclomaticComplexity=42, functionCount=8",
-    );
-    expect(output).toContain("normalized complexity (c): 0.9000");
+    expect(output).toContain("ncloc: 42");
+    expect(output).toContain("normalized size (c): 0.9000");
     expect(output).toContain(
       "churn: commitCount=15, linesChanged=320, authorCount=3",
     );
@@ -407,48 +260,5 @@ describe("formatCompareExplain", () => {
     expect(output).toContain("currentRank: 6");
     expect(output).toContain("rankDelta: 5");
     expect(output).toContain("hotspotScore: 0.8800");
-  });
-
-  it("formats function-mode score fields", () => {
-    const output = formatCompareExplain([
-      {
-        classification: "new",
-        entity: makeFunctionHotspot({
-          filePath: "src/hot.ts",
-          functionName: "run",
-          line: 10,
-        }),
-      },
-    ]);
-
-    expect(output).toContain(
-      "=== Compare Explain: src/hot.ts — run (new) ===",
-    );
-    expect(output).toContain("functionName: run");
-    expect(output).toContain("line: 10");
-    expect(output).toContain("complexity: 12");
-    expect(output).toContain("normalized complexity (c): 0.8000");
-    expect(output).toContain(
-      "churn: commitCount=5, linesChanged=80, authorCount=2",
-    );
-    expect(output).toContain("normalized churn (h): 0.7000");
-    expect(output).toContain("hotspotScore: 0.7500");
-  });
-
-  it("joins multiple matches with a blank line", () => {
-    const output = formatCompareExplain([
-      {
-        classification: "new",
-        entity: makeFunctionHotspot({ functionName: "alpha", line: 5 }),
-      },
-      {
-        classification: "removed",
-        entity: makeFunctionHotspot({ functionName: "beta", line: 20 }),
-      },
-    ]);
-
-    expect(output.split("\n\n")).toHaveLength(2);
-    expect(output).toContain("functionName: alpha");
-    expect(output).toContain("functionName: beta");
   });
 });

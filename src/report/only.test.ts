@@ -9,19 +9,19 @@ import {
 } from "./only.js";
 
 describe("parseOnlySection", () => {
-  it.each(["hotspots", "functions"] as const)(
-    "accepts %s",
-    (value) => {
-      expect(parseOnlySection(value)).toBe(value);
-    },
-  );
+  it("accepts hotspots", () => {
+    expect(parseOnlySection("hotspots")).toBe("hotspots");
+  });
 
   it("rejects invalid values with a clear error", () => {
     expect(() => parseOnlySection("bogus")).toThrow(
-      /Invalid --only: bogus\. Expected hotspots, functions\./,
+      /Invalid --only: bogus\. Expected hotspots\./,
+    );
+    expect(() => parseOnlySection("functions")).toThrow(
+      /Invalid --only: functions\. Expected hotspots\./,
     );
     expect(() => parseOnlySection("coupling")).toThrow(
-      /Invalid --only: coupling\. Expected hotspots, functions\./,
+      /Invalid --only: coupling\. Expected hotspots\./,
     );
   });
 
@@ -35,50 +35,49 @@ describe("parseOnlySection", () => {
 describe("collectOnly", () => {
   it("accumulates valid sections", () => {
     expect(collectOnly("hotspots", [])).toEqual(["hotspots"]);
-    expect(collectOnly("functions", ["hotspots"])).toEqual([
+    expect(collectOnly("hotspots", ["hotspots"])).toEqual([
       "hotspots",
-      "functions",
+      "hotspots",
     ]);
   });
 
   it("rejects invalid values", () => {
     expect(() => collectOnly("foo", [])).toThrow(/Invalid --only/);
+    expect(() => collectOnly("functions", [])).toThrow(/Invalid --only/);
   });
 });
 
 describe("normalizeOnly", () => {
   it("returns all sections when only is undefined", () => {
     const set = normalizeOnly(undefined);
-    expect([...set].sort()).toEqual([...ALL_REPORT_SECTIONS].sort());
+    expect([...set]).toEqual([...ALL_REPORT_SECTIONS]);
   });
 
   it("returns all sections when only is empty", () => {
     const set = normalizeOnly([]);
-    expect([...set].sort()).toEqual([...ALL_REPORT_SECTIONS].sort());
+    expect([...set]).toEqual([...ALL_REPORT_SECTIONS]);
   });
 
   it("returns the union of requested sections", () => {
-    const set = normalizeOnly(["hotspots", "functions"]);
-    expect([...set].sort()).toEqual(["functions", "hotspots"]);
+    const set = normalizeOnly(["hotspots"]);
+    expect([...set]).toEqual(["hotspots"]);
     expect(includesSection(set, "hotspots")).toBe(true);
-    expect(includesSection(set, "functions")).toBe(true);
   });
 
   it("dedupes repeated sections", () => {
     const collected: ReportSection[] = collectOnly(
       "hotspots",
-      collectOnly("hotspots", collectOnly("functions", [])),
+      collectOnly("hotspots", []),
     );
     const set = normalizeOnly(collected);
-    expect([...set].sort()).toEqual(["functions", "hotspots"]);
-    expect(set.size).toBe(2);
+    expect([...set]).toEqual(["hotspots"]);
+    expect(set.size).toBe(1);
   });
 });
 
 describe("includesSection", () => {
   it("reflects membership in the normalized set", () => {
-    const onlySet = normalizeOnly(["functions"]);
-    expect(includesSection(onlySet, "functions")).toBe(true);
-    expect(includesSection(onlySet, "hotspots")).toBe(false);
+    const onlySet = normalizeOnly(["hotspots"]);
+    expect(includesSection(onlySet, "hotspots")).toBe(true);
   });
 });

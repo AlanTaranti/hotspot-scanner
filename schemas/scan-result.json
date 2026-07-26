@@ -5,11 +5,11 @@
   "description": "Full scan output from hotspot-scanner (JSON format).",
   "type": "object",
   "additionalProperties": true,
-  "required": ["version", "hotspots", "functions", "meta"],
+  "required": ["version", "hotspots", "meta"],
   "properties": {
     "version": {
       "type": "string",
-      "const": "2.0"
+      "const": "3.0"
     },
     "hotspots": {
       "type": "array",
@@ -17,21 +17,11 @@
         "$ref": "#/$defs/HotspotScore"
       }
     },
-    "functions": {
-      "type": "array",
-      "items": {
-        "$ref": "#/$defs/FunctionHotspotScore"
-      }
-    },
     "meta": {
       "$ref": "#/$defs/ScanMeta"
     }
   },
   "$defs": {
-    "ScanGranularity": {
-      "type": "string",
-      "enum": ["file", "function"]
-    },
     "HotspotScore": {
       "type": "object",
       "additionalProperties": true,
@@ -40,49 +30,17 @@
         "complexityNormalized",
         "churnNormalized",
         "hotspotScore",
-        "cyclomaticComplexity",
-        "functionCount",
-        "commitCount",
-        "linesChanged",
-        "authorCount",
-        "parseFailed"
-      ],
-      "properties": {
-        "filePath": { "type": "string" },
-        "complexityNormalized": { "type": "number" },
-        "churnNormalized": { "type": "number" },
-        "hotspotScore": { "type": "number" },
-        "cyclomaticComplexity": { "type": "number" },
-        "functionCount": { "type": "integer" },
-        "commitCount": { "type": "integer" },
-        "linesChanged": { "type": "integer" },
-        "authorCount": { "type": "integer" },
-        "parseFailed": { "type": "boolean" }
-      }
-    },
-    "FunctionHotspotScore": {
-      "type": "object",
-      "additionalProperties": true,
-      "required": [
-        "filePath",
-        "functionName",
-        "line",
-        "complexity",
-        "complexityNormalized",
-        "churnNormalized",
-        "hotspotScore",
+        "ncloc",
         "commitCount",
         "linesChanged",
         "authorCount"
       ],
       "properties": {
         "filePath": { "type": "string" },
-        "functionName": { "type": "string" },
-        "line": { "type": "integer" },
-        "complexity": { "type": "number" },
         "complexityNormalized": { "type": "number" },
         "churnNormalized": { "type": "number" },
         "hotspotScore": { "type": "number" },
+        "ncloc": { "type": "number" },
         "commitCount": { "type": "integer" },
         "linesChanged": { "type": "integer" },
         "authorCount": { "type": "integer" }
@@ -109,18 +67,16 @@
       "properties": {
         "gitMs": { "type": "integer", "minimum": 0 },
         "complexityMs": { "type": "integer", "minimum": 0 },
-        "functionChurnMs": { "type": "integer", "minimum": 0 },
         "totalMs": { "type": "integer", "minimum": 0 }
       }
     },
     "ScanMeta": {
       "type": "object",
       "additionalProperties": true,
-      "required": ["since", "scannedAt", "granularity", "warnings"],
+      "required": ["since", "scannedAt", "warnings"],
       "properties": {
         "since": { "type": "string" },
         "scannedAt": { "type": "string" },
-        "granularity": { "$ref": "#/$defs/ScanGranularity" },
         "warnings": {
           "type": "array",
           "items": { "$ref": "#/$defs/ScanWarning" }

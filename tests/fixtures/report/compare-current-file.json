@@ -1,49 +1,41 @@
 {
   "_comment": "Current ScanResult for compare tests (file mode). 1 new hotspot, 1 removed, 1 rank-changed.",
-  "version": "2.0",
+  "version": "3.0",
   "hotspots": [
     {
       "filePath": "src/new.ts",
       "complexityNormalized": 0.95,
       "churnNormalized": 0.9,
       "hotspotScore": 0.92,
-      "cyclomaticComplexity": 50,
-      "functionCount": 10,
+      "ncloc": 50,
       "commitCount": 20,
       "linesChanged": 400,
-      "authorCount": 4,
-      "parseFailed": false
+      "authorCount": 4
     },
     {
       "filePath": "src/hot.ts",
       "complexityNormalized": 0.9,
       "churnNormalized": 0.9444,
       "hotspotScore": 0.85,
-      "cyclomaticComplexity": 42,
-      "functionCount": 8,
+      "ncloc": 42,
       "commitCount": 15,
       "linesChanged": 320,
-      "authorCount": 3,
-      "parseFailed": false
+      "authorCount": 3
     },
     {
       "filePath": "src/cold.ts",
       "complexityNormalized": 0.1,
       "churnNormalized": 0.2,
       "hotspotScore": 0.02,
-      "cyclomaticComplexity": 3,
-      "functionCount": 1,
+      "ncloc": 3,
       "commitCount": 2,
       "linesChanged": 15,
-      "authorCount": 1,
-      "parseFailed": false
+      "authorCount": 1
     }
   ],
-  "functions": [],
   "meta": {
     "since": "6 months ago",
     "scannedAt": "2026-07-22T11:00:00.000Z",
-    "granularity": "file",
     "warnings": []
   }
 }

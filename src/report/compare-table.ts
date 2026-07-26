@@ -1,19 +1,12 @@
 import type {
   CompareResult,
-  FunctionHotspotScore,
   HotspotScore,
   RankChange,
-  ScanGranularity,
 } from "../types/index.js";
 import { paintScore } from "./color.js";
 import { buildCompareTriageHints } from "./compare-triage.js";
 import { renderTableGlossary } from "./glossary.js";
-import {
-  ALL_REPORT_SECTIONS,
-  includesSection,
-  normalizeOnly,
-  type ReportSection,
-} from "./only.js";
+import type { ReportSection } from "./only.js";
 import { buildCompareExecutiveSummary } from "./summary.js";
 import { renderTableTriageHints } from "./triage.js";
 import { formatScanWarning } from "./warning-format.js";
@@ -25,47 +18,6 @@ export interface CompareRenderOptions {
   triageHints?: boolean;
   /** Full compare result before slice; defaults to displayed for summary totals. */
   full?: CompareResult;
-}
-
-export type CompareSectionVisibility = {
-  hotspots: boolean;
-  functions: boolean;
-};
-
-function isUnfiltered(onlySet: ReadonlySet<ReportSection>): boolean {
-  return onlySet.size === ALL_REPORT_SECTIONS.length;
-}
-
-/** Section visibility for table/markdown/CSV (granularity-aware when unfiltered). */
-export function resolveCompareRenderSections(
-  onlySet: ReadonlySet<ReportSection>,
-  granularity: ScanGranularity,
-): CompareSectionVisibility {
-  if (isUnfiltered(onlySet)) {
-    return {
-      hotspots: granularity === "file",
-      functions: granularity === "function",
-    };
-  }
-
-  return {
-    hotspots: includesSection(onlySet, "hotspots"),
-    functions: includesSection(onlySet, "functions"),
-  };
-}
-
-/** Section visibility for JSON export (all keys when unfiltered). */
-export function resolveCompareExportSections(
-  onlySet: ReadonlySet<ReportSection>,
-): CompareSectionVisibility {
-  if (isUnfiltered(onlySet)) {
-    return { hotspots: true, functions: true };
-  }
-
-  return {
-    hotspots: includesSection(onlySet, "hotspots"),
-    functions: includesSection(onlySet, "functions"),
-  };
 }
 
 const SCORE_DECIMALS = 4;
@@ -117,13 +69,11 @@ function renderHotspotRows(
       includeRank ? padStart(String(index + 1), 4) : padStart("", 4),
       padEnd(hotspot.filePath, 24),
       formatScoreCell(hotspot.hotspotScore, 8, colorEnabled),
-      padStart(String(hotspot.cyclomaticComplexity), 4),
+      padStart(String(hotspot.ncloc), 4),
       formatPlainScoreCell(hotspot.complexityNormalized, 8),
       padStart(String(hotspot.commitCount), 5),
       formatPlainScoreCell(hotspot.churnNormalized, 6),
-      padStart(String(hotspot.functionCount), 5),
       padStart(String(hotspot.authorCount), 7),
-      padStart(hotspot.parseFailed ? "yes" : "no", 9),
     ].join("  "),
   );
 }
@@ -143,60 +93,7 @@ function renderRankChangedHotspotRows(
       padStart(String(change.rankDelta), 5),
       padEnd(change.entity.filePath, 24),
       formatScoreCell(change.entity.hotspotScore, 8, colorEnabled),
-      padStart(String(change.entity.cyclomaticComplexity), 4),
-      formatPlainScoreCell(change.entity.complexityNormalized, 8),
-      padStart(String(change.entity.commitCount), 5),
-      formatPlainScoreCell(change.entity.churnNormalized, 6),
-      padStart(String(change.entity.functionCount), 5),
-      padStart(String(change.entity.authorCount), 7),
-      padStart(change.entity.parseFailed ? "yes" : "no", 9),
-    ].join("  "),
-  );
-}
-
-function renderFunctionRows(
-  items: FunctionHotspotScore[],
-  includeRank: boolean,
-  colorEnabled: boolean,
-): string[] {
-  if (items.length === 0) {
-    return ["  (none)"];
-  }
-
-  return items.map((fn, index) =>
-    [
-      includeRank ? padStart(String(index + 1), 4) : padStart("", 4),
-      padEnd(fn.filePath, 24),
-      padEnd(fn.functionName, 20),
-      padStart(String(fn.line), 4),
-      formatScoreCell(fn.hotspotScore, 8, colorEnabled),
-      padStart(String(fn.complexity), 4),
-      formatPlainScoreCell(fn.complexityNormalized, 8),
-      padStart(String(fn.commitCount), 5),
-      formatPlainScoreCell(fn.churnNormalized, 6),
-      padStart(String(fn.authorCount), 7),
-    ].join("  "),
-  );
-}
-
-function renderRankChangedFunctionRows(
-  items: RankChange<FunctionHotspotScore>[],
-  colorEnabled: boolean,
-): string[] {
-  if (items.length === 0) {
-    return ["  (none)"];
-  }
-
-  return items.map((change) =>
-    [
-      padStart(String(change.baselineRank), 8),
-      padStart(String(change.currentRank), 8),
-      padStart(String(change.rankDelta), 5),
-      padEnd(change.entity.filePath, 24),
-      padEnd(change.entity.functionName, 20),
-      padStart(String(change.entity.line), 4),
-      formatScoreCell(change.entity.hotspotScore, 8, colorEnabled),
-      padStart(String(change.entity.complexity), 4),
+      padStart(String(change.entity.ncloc), 4),
       formatPlainScoreCell(change.entity.complexityNormalized, 8),
       padStart(String(change.entity.commitCount), 5),
       formatPlainScoreCell(change.entity.churnNormalized, 6),
@@ -210,9 +107,9 @@ function renderHotspotSections(
   colorEnabled: boolean,
 ): string[] {
   const header =
-    "Rank  File                      Score     Cpx   CpxN      Churn  ChurnN  Funcs  Authors  ParseFail";
+    "Rank  File                      Score     NLOC  NLOCN     Churn  ChurnN  Authors";
   const rankChangedHeader =
-    "Baseline  Current  Delta  File                      Score     Cpx   CpxN      Churn  ChurnN  Funcs  Authors  ParseFail";
+    "Baseline  Current  Delta  File                      Score     NLOC  NLOCN     Churn  ChurnN  Authors";
 
   return [
     "=== New Hotspots ===",
@@ -229,36 +126,10 @@ function renderHotspotSections(
   ];
 }
 
-function renderFunctionSections(
-  result: CompareResult,
-  colorEnabled: boolean,
-): string[] {
-  const header =
-    "Rank  File                      Function              Line  Score     Cpx   CpxN      Churn  ChurnN  Authors";
-  const rankChangedHeader =
-    "Baseline  Current  Delta  File                      Function              Line  Score     Cpx   CpxN      Churn  ChurnN  Authors";
-
-  return [
-    "=== New Functions ===",
-    header,
-    ...renderFunctionRows(result.functions.new, true, colorEnabled),
-    "",
-    "=== Removed Functions ===",
-    header,
-    ...renderFunctionRows(result.functions.removed, false, colorEnabled),
-    "",
-    "=== Rank Changed Functions ===",
-    rankChangedHeader,
-    ...renderRankChangedFunctionRows(result.functions.rankChanged, colorEnabled),
-  ];
-}
-
 export function renderCompareTable(
   result: CompareResult,
   options?: CompareRenderOptions,
 ): string {
-  const onlySet = normalizeOnly(options?.only);
-  const sections = resolveCompareRenderSections(onlySet, result.granularity);
   const full = options?.full ?? result;
   const colorEnabled = options?.color === true;
 
@@ -271,15 +142,7 @@ export function renderCompareTable(
     lines.push(formatScanWarning(warning));
   }
 
-  lines.push("");
-
-  if (sections.hotspots) {
-    lines.push(...renderHotspotSections(result, colorEnabled), "");
-  }
-
-  if (sections.functions) {
-    lines.push(...renderFunctionSections(result, colorEnabled), "");
-  }
+  lines.push("", ...renderHotspotSections(result, colorEnabled), "");
 
   if (options?.triageHints !== false) {
     const triageLines = renderTableTriageHints(buildCompareTriageHints(result));

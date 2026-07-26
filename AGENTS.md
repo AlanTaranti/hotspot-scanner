@@ -8,7 +8,7 @@ Canonical reference for AI agents working in this repository.
 | ----------------- | ------------------------------------------------------------------------------------------------------------ |
 | **Package**       | `@vitals/hotspot-scanner`                                                                                    |
 | **CLI bin**       | `hotspot-scanner` (unscoped)                                                                                 |
-| **Purpose**       | Local CLI that ranks TS/JS maintenance hotspots from cyclomatic complexity and Git churn |
+| **Purpose**       | Local CLI that ranks TS/JS maintenance hotspots from NCLOC and Git churn (file-level) |
 | **Design SoT**    | [`.specs/codebase/ARCHITECTURE.md`](.specs/codebase/ARCHITECTURE.md)                                         |
 | **Project docs**  | `.specs/project/`, `.specs/codebase/`                                                                        |
 | **Feature specs** | `.specs/features/<slug>/`                                                                                    |
@@ -16,10 +16,10 @@ Canonical reference for AI agents working in this repository.
 ## Pipeline
 
 ```
-git log (streaming) → complexity (ts-morph + McCabe) → scoring (hotspot) → report (table / JSON / markdown / CSV)
+git log (streaming) → NCLOC size analysis → scoring (hotspot) → report (table / JSON / markdown / CSV)
 ```
 
-Optional: `--baseline` → compare → delta report. Config: `.hotspot-scanner.json` (CLI > config > defaults).
+Optional: `--baseline` → compare → delta report. Config: `.hotspot-scanner.json` (CLI > config > defaults). JSON contract `version: "3.0"`.
 
 ## Quality gate
 
@@ -61,7 +61,7 @@ After changing Cursor hooks under `.cursor/hooks/`, run `pnpm hooks:smoke` (does
 | Skill                     | Use for                                                            |
 | ------------------------- | ------------------------------------------------------------------ |
 | `vitals-spec-driven`      | Specify → Design → Tasks → Execute workflow                        |
-| `vitals-pipeline-domain`  | Domain context (git, complexity, scoring, compare, config, report) |
+| `vitals-pipeline-domain`  | Domain context (git, NCLOC, scoring, compare, config, report) |
 | `vitals-cli-validation`   | CLI flag and fixture validation                                    |
 | `task-implementer`        | Single `tasks.md` task RED→GREEN→VERIFY (used by `implementer`)    |
 | `coding-guidelines`       | Surgical diffs, simplicity, anti-overengineering                   |

@@ -1,6 +1,5 @@
 import type {
   CompareResult,
-  FunctionHotspotScore,
   HotspotScore,
   RankChange,
 } from "../types/index.js";
@@ -13,7 +12,7 @@ export type CompareExplainClassification = "new" | "removed" | "rank-changed";
 
 export interface CompareExplainMatch {
   classification: CompareExplainClassification;
-  entity: HotspotScore | FunctionHotspotScore;
+  entity: HotspotScore;
   baselineRank?: number;
   currentRank?: number;
   rankDelta?: number;
@@ -35,20 +34,16 @@ function pathsMatch(storedPath: string, targetPath: string): boolean {
   return normalizeMatchKey(storedPath) === normalizeMatchKey(targetPath);
 }
 
-function toNewMatch(
-  entity: HotspotScore | FunctionHotspotScore,
-): CompareExplainMatch {
+function toNewMatch(entity: HotspotScore): CompareExplainMatch {
   return { classification: "new", entity };
 }
 
-function toRemovedMatch(
-  entity: HotspotScore | FunctionHotspotScore,
-): CompareExplainMatch {
+function toRemovedMatch(entity: HotspotScore): CompareExplainMatch {
   return { classification: "removed", entity };
 }
 
-function toRankChangedMatch<T extends HotspotScore | FunctionHotspotScore>(
-  change: RankChange<T>,
+function toRankChangedMatch(
+  change: RankChange<HotspotScore>,
 ): CompareExplainMatch {
   return {
     classification: "rank-changed",
@@ -87,60 +82,6 @@ function findFileHotspotMatches(
   return [];
 }
 
-function findFunctionMatchesInSection(
-  entries: FunctionHotspotScore[],
-  targetPath: string,
-  functionName?: string,
-): FunctionHotspotScore[] {
-  return entries.filter((entry) => {
-    if (!pathsMatch(entry.filePath, targetPath)) {
-      return false;
-    }
-    if (functionName !== undefined && entry.functionName !== functionName) {
-      return false;
-    }
-    return true;
-  });
-}
-
-function findFunctionDeltaMatches(
-  section: CompareResult["functions"],
-  targetPath: string,
-  functionName?: string,
-  allClassifications = false,
-): CompareExplainMatch[] {
-  const newMatches = findFunctionMatchesInSection(
-    section.new,
-    targetPath,
-    functionName,
-  ).map(toNewMatch);
-  const removedMatches = findFunctionMatchesInSection(
-    section.removed,
-    targetPath,
-    functionName,
-  ).map(toRemovedMatch);
-  const rankChangedMatches = section.rankChanged
-    .filter(
-      (change) =>
-        pathsMatch(change.entity.filePath, targetPath) &&
-        (functionName === undefined ||
-          change.entity.functionName === functionName),
-    )
-    .map(toRankChangedMatch);
-
-  if (allClassifications) {
-    return [...newMatches, ...removedMatches, ...rankChangedMatches];
-  }
-
-  if (newMatches.length > 0) {
-    return newMatches;
-  }
-  if (removedMatches.length > 0) {
-    return removedMatches;
-  }
-  return rankChangedMatches;
-}
-
 /** Lookup compare delta sections for an `--explain` target (full compare arrays). */
 export function findCompareExplainMatches(
   result: CompareResult,
@@ -148,28 +89,14 @@ export function findCompareExplainMatches(
   repoPath: string,
 ): CompareExplainMatch[] {
   const targetPath = normalizeExplainPath(target.filePath, repoPath);
-
-  if (result.granularity === "file") {
-    return findFileHotspotMatches(result.hotspots, targetPath);
-  }
-
-  const functionName =
-    target.kind === "function" ? target.functionName : undefined;
-  const allClassifications = target.kind === "file";
-
-  return findFunctionDeltaMatches(
-    result.functions,
-    targetPath,
-    functionName,
-    allClassifications,
-  );
+  return findFileHotspotMatches(result.hotspots, targetPath);
 }
 
 function formatHotspotScoreFields(hotspot: HotspotScore): string[] {
   return [
     `filePath: ${hotspot.filePath}`,
-    `complexity: cyclomaticComplexity=${hotspot.cyclomaticComplexity}, functionCount=${hotspot.functionCount}`,
-    `normalized complexity (c): ${formatScore(hotspot.complexityNormalized)}`,
+    `ncloc: ${hotspot.ncloc}`,
+    `normalized size (c): ${formatScore(hotspot.complexityNormalized)}`,
     `churn: commitCount=${hotspot.commitCount}, linesChanged=${hotspot.linesChanged}, authorCount=${hotspot.authorCount}`,
     `normalized churn (h): ${formatScore(hotspot.churnNormalized)}`,
     `hotspotScore: ${formatScore(hotspot.hotspotScore)}`,
@@ -177,31 +104,9 @@ function formatHotspotScoreFields(hotspot: HotspotScore): string[] {
   ];
 }
 
-function formatFunctionScoreFields(entry: FunctionHotspotScore): string[] {
-  return [
-    `filePath: ${entry.filePath}`,
-    `functionName: ${entry.functionName}`,
-    `line: ${entry.line}`,
-    `complexity: ${entry.complexity}`,
-    `normalized complexity (c): ${formatScore(entry.complexityNormalized)}`,
-    `churn: commitCount=${entry.commitCount}, linesChanged=${entry.linesChanged}, authorCount=${entry.authorCount}`,
-    `normalized churn (h): ${formatScore(entry.churnNormalized)}`,
-    `hotspotScore: ${formatScore(entry.hotspotScore)}`,
-    "hotspotScore = 2·c·h / (c+h)",
-  ];
-}
-
-function formatMatchIdentity(match: CompareExplainMatch): string {
-  if ("functionName" in match.entity) {
-    return `${match.entity.filePath} — ${match.entity.functionName}`;
-  }
-  return match.entity.filePath;
-}
-
 function formatCompareExplainMatch(match: CompareExplainMatch): string {
-  const identity = formatMatchIdentity(match);
   const lines = [
-    `=== Compare Explain: ${identity} (${match.classification}) ===`,
+    `=== Compare Explain: ${match.entity.filePath} (${match.classification}) ===`,
     `classification: ${match.classification}`,
   ];
 
@@ -211,11 +116,7 @@ function formatCompareExplainMatch(match: CompareExplainMatch): string {
     lines.push(`rankDelta: ${match.rankDelta}`);
   }
 
-  if ("functionName" in match.entity) {
-    lines.push(...formatFunctionScoreFields(match.entity));
-  } else {
-    lines.push(...formatHotspotScoreFields(match.entity));
-  }
+  lines.push(...formatHotspotScoreFields(match.entity));
 
   return lines.join("\n");
 }

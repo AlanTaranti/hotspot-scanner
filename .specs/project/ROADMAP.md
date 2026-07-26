@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M56 Done.** **Next:** Milestone 57 — NCLOC metric (**Specs Planned**). Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize, residual `*.test.mjs`/`*.spec.cjs`).
+Status: **M7–M57 Done.** Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize, residual `*.test.mjs`/`*.spec.cjs`).
 
 **M12** intentionally absent (CI fail-on-score removed — see STATE).
 
@@ -727,31 +727,29 @@ Hard cut — completely removed temporal coupling analysis (co-change pairs, cou
 
 ---
 
-## Milestone 57 — NCLOC metric — Specs Planned
+## Milestone 57 — NCLOC metric — Done
 
 → [`.specs/features/ncloc-metric/spec.md`](../features/ncloc-metric/spec.md)  
-**Slug:** `ncloc-metric` | **Priority:** High | **Specs:** Planned  
+**Slug:** `ncloc-metric` | **Priority:** High | **Specs:** Done  
 **IDs:** HOTSPOT-920+ (913–919 reserved from M56) | **Depth:** Complex  
 **Sisters / inverse:** remove-coupling-analysis (M56 hard-cut exemplar), complexity-analyzer (M3), harmonic-hotspot-score (M8), rich-output (M9), function-granularity (M11), per-function-churn (M23), function-mode-scan-efficiency (M35), explain-and-scan-feedback (M42), ranking-accuracy-plus (M50), json-contract (M20), csv-bundle (M18)
 
-**Artifacts:** [context.md](../features/ncloc-metric/context.md) · [spec.md](../features/ncloc-metric/spec.md) · [design.md](../features/ncloc-metric/design.md) · [tasks.md](../features/ncloc-metric/tasks.md) (Status: **Planned**)
+**Artifacts:** [context.md](../features/ncloc-metric/context.md) · [spec.md](../features/ncloc-metric/spec.md) · [design.md](../features/ncloc-metric/design.md) · [tasks.md](../features/ncloc-metric/tasks.md) (Status: **Done**)
 
 Product hard cut: replace McCabe cyclomatic complexity with **NCLOC** as axis `c` in `hotspotScore = 2ch/(c+h)` (log1p + min-max + harmonic unchanged); remove **function mode** end-to-end; bump JSON to **`"3.0"`** (`cyclomaticComplexity` → `ncloc`; no `functions` array); reject baselines `2.0` / legacy fields with re-scan `BaselineError`; revisit **ADR-2026-019**. Historical Done McCabe/function specs stay historical; M57 documents supersession.
 
-- [ ] NCLOC file analyzer (lighter scanner; prefer drop ts-morph) + scoring feeds `ncloc` as `c`
-- [ ] JSON schemas + types `"3.0"` with `ncloc`; baseline reject `2.0` / `cyclomaticComplexity` / `functions`
-- [ ] Remove function mode (CLI/config `granularity`, function-churn miner, function scorers, CSV/compare/explain)
-- [ ] Reporters: NLOC columns; glossary / triage / `--explain` file-only
-- [ ] Living docs / skills / CONCERNS RT-005 / INTEGRATIONS; ADR-2026-019 supersession
-- [ ] Final gate `pnpm build && pnpm test`
+- [x] NCLOC file analyzer (lighter scanner; drop ts-morph) + scoring feeds `ncloc` as `c`
+- [x] JSON schemas + types `"3.0"` with `ncloc`; baseline reject `2.0` / `cyclomaticComplexity` / `functions`
+- [x] Remove function mode (CLI/config `granularity`, function-churn miner, function scorers, CSV/compare/explain)
+- [x] Reporters: NLOC columns; glossary / triage / `--explain` file-only
+- [x] Living docs / skills / CONCERNS RT-005 / INTEGRATIONS; ADR-2026-019 supersession
+- [x] Final gate `pnpm build && pnpm test`
 
 **Out of scope:** npm publish, CI/SARIF, historical AST, reintroducing coupling, metrics beyond NCLOC.
 
 ---
 
-## Post-M56 / Next
-
-**Next Execute:** Milestone 57 — [ncloc-metric](../features/ncloc-metric/tasks.md) after promoting `tasks.md` Status to Approved / Ready for Execute → `orchestrator-implementer` in a new session.
+## Post-M57 / Next
 
 Further horizon remains in [STATE.md](STATE.md) **Deferred**:
 

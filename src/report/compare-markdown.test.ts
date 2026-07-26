@@ -33,6 +33,8 @@ describe("renderCompareMarkdown", () => {
     expect(output).toContain("# Hotspot Scanner — Compare Report");
     expect(output).toContain("## New Hotspots");
     expect(output).toContain("## Rank Changed Hotspots");
+    expect(output).toContain("| NLOC |");
+    expect(output).not.toContain("## New Functions");
   });
 
   it("includes executive summary and how-to-read before tables", () => {
@@ -51,7 +53,7 @@ describe("renderCompareMarkdown", () => {
     expect(howToReadIndex).toBeGreaterThan(summaryIndex);
     expect(tableIndex).toBeGreaterThan(howToReadIndex);
     expect(output).toContain("Compare reports use the same metrics");
-    expect(output).toContain("**Score** —");
+    expect(output).toContain("**NLOC** —");
   });
 
   it("emits triage hints when rules match (default)", () => {
@@ -65,7 +67,7 @@ describe("renderCompareMarkdown", () => {
     expect(output).toContain("## Triage hints");
     expect(output).toContain("src/new.ts");
     expect(output).toContain(
-      "New dual-signal hotspot vs baseline — complexity and churn both elevated; prioritize review.",
+      "New dual-signal hotspot vs baseline — NCLOC and churn both elevated; prioritize review.",
     );
     const hotspotsIndex = output.indexOf("## Rank Changed Hotspots");
     const triageIndex = output.indexOf("## Triage hints");
@@ -83,19 +85,6 @@ describe("renderCompareMarkdown", () => {
 
     expect(output).not.toContain("## Triage hints");
     expect(output).not.toContain("Triage hints");
-  });
-
-  it("omits hotspot sections when --only functions in file mode", () => {
-    const output = renderCompareMarkdown(
-      loadCompareResult(
-        "compare-baseline-file.json",
-        "compare-current-file.json",
-      ),
-      { only: ["functions"] },
-    );
-
-    expect(output).not.toContain("## New Hotspots");
-    expect(output).toContain("## New Functions");
   });
 
   it("escapes pipe characters in markdown cells", () => {
@@ -119,18 +108,6 @@ describe("renderCompareMarkdown", () => {
     const result = compareScanResults(baseline, withPipe);
     const output = renderCompareMarkdown(result);
     expect(output).toContain("src/pipe\\|file.ts");
-  });
-
-  it("renders function mode markdown sections", () => {
-    const output = renderCompareMarkdown(
-      loadCompareResult(
-        "compare-baseline-function.json",
-        "compare-current-function.json",
-      ),
-    );
-
-    expect(output).toContain("## New Functions");
-    expect(output).toContain("## Rank Changed Functions");
   });
 
   it("renders compare warnings as blockquotes with severity", () => {

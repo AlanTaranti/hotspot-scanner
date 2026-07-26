@@ -1,7 +1,7 @@
 {
   "name": "@vitals/hotspot-scanner",
   "version": "1.0.0",
-  "description": "Local CLI for TS/JS maintenance hotspot analysis",
+  "description": "Local CLI for TS/JS maintenance hotspot analysis (NCLOC + Git churn)",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -50,10 +50,9 @@
   },
   "keywords": [
     "hotspot",
-    "complexity",
+    "ncloc",
     "git",
     "maintenance",
-    "cyclomatic-complexity",
     "refactoring",
     "typescript",
     "javascript",
@@ -80,7 +79,6 @@
   },
   "dependencies": {
     "commander": "^14.0.0",
-    "picomatch": "^4.0.5",
-    "ts-morph": "^28.0.0"
+    "picomatch": "^4.0.5"
   }
 }

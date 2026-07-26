@@ -3,7 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import type { ScanResult } from "../types/index.js";
-import { CompareError, compareScanResults } from "./compare.js";
+import { compareScanResults } from "./compare.js";
 
 const fixturesDir = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -17,21 +17,22 @@ function loadFixture(name: string): ScanResult {
 }
 
 describe("compareScanResults", () => {
-  it("returns version 2.0 without a coupling section", () => {
+  it("returns version 3.0 without functions or granularity", () => {
     const baseline = loadFixture("compare-baseline-file.json");
     const current = loadFixture("compare-current-file.json");
     const result = compareScanResults(baseline, current);
 
-    expect(result.version).toBe("2.0");
+    expect(result.version).toBe("3.0");
     expect(result).not.toHaveProperty("coupling");
+    expect(result).not.toHaveProperty("functions");
+    expect(result).not.toHaveProperty("granularity");
   });
 
-  it("classifies file mode hotspots: new, removed, rankChanged", () => {
+  it("classifies hotspots: new, removed, rankChanged", () => {
     const baseline = loadFixture("compare-baseline-file.json");
     const current = loadFixture("compare-current-file.json");
     const result = compareScanResults(baseline, current);
 
-    expect(result.granularity).toBe("file");
     expect(result.hotspots.new.map((item) => item.filePath)).toEqual([
       "src/new.ts",
     ]);
@@ -43,42 +44,6 @@ describe("compareScanResults", () => {
     expect(result.hotspots.rankChanged[0]?.baselineRank).toBe(1);
     expect(result.hotspots.rankChanged[0]?.currentRank).toBe(2);
     expect(result.hotspots.rankChanged[0]?.rankDelta).toBe(1);
-    expect(result.functions).toEqual({
-      new: [],
-      removed: [],
-      rankChanged: [],
-    });
-  });
-
-  it("classifies function mode deltas", () => {
-    const baseline = loadFixture("compare-baseline-function.json");
-    const current = loadFixture("compare-current-function.json");
-    const result = compareScanResults(baseline, current);
-
-    expect(result.granularity).toBe("function");
-    expect(result.hotspots).toEqual({
-      new: [],
-      removed: [],
-      rankChanged: [],
-    });
-    expect(result.functions.new).toHaveLength(1);
-    expect(result.functions.new[0]?.functionName).toBe("newHandler");
-    expect(result.functions.removed).toHaveLength(1);
-    expect(result.functions.removed[0]?.functionName).toBe("handle");
-    expect(result.functions.rankChanged).toHaveLength(1);
-    expect(result.functions.rankChanged[0]?.entity.functionName).toBe(
-      "processOrder",
-    );
-  });
-
-  it("throws on granularity mismatch", () => {
-    const baseline = loadFixture("compare-baseline-file.json");
-    const current = loadFixture("compare-current-function.json");
-
-    expect(() => compareScanResults(baseline, current)).toThrow(CompareError);
-    expect(() => compareScanResults(baseline, current)).toThrow(
-      /Granularity mismatch/,
-    );
   });
 
   it("adds warning on since mismatch without throwing", () => {
@@ -120,22 +85,18 @@ describe("compareScanResults", () => {
       complexityNormalized: 0.5,
       churnNormalized: 0.5,
       hotspotScore,
-      cyclomaticComplexity: 10,
-      functionCount: 1,
+      ncloc: 10,
       commitCount: 5,
       linesChanged: 50,
       authorCount: 1,
-      parseFailed: false,
     });
 
     const baseline: ScanResult = {
-      version: "2.0",
+      version: "3.0",
       hotspots: [hotspot("src/z.ts", 0.9), hotspot("src/a.ts", 0.8)],
-      functions: [],
       meta: {
         since: "6 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
-        granularity: "file",
         warnings: [],
       },
     };
@@ -151,6 +112,90 @@ describe("compareScanResults", () => {
     expect(result.hotspots.rankChanged.map((c) => c.entity.filePath)).toEqual([
       "src/a.ts",
       "src/z.ts",
+    ]);
+  });
+
+  it("sorts multiple removed hotspots by baseline rank", () => {
+    const hotspot = (
+      filePath: string,
+      hotspotScore: number,
+    ): ScanResult["hotspots"][number] => ({
+      filePath,
+      complexityNormalized: 0.5,
+      churnNormalized: 0.5,
+      hotspotScore,
+      ncloc: 10,
+      commitCount: 5,
+      linesChanged: 50,
+      authorCount: 1,
+    });
+
+    const baseline: ScanResult = {
+      version: "3.0",
+      hotspots: [
+        hotspot("src/a.ts", 0.9),
+        hotspot("src/b.ts", 0.8),
+        hotspot("src/c.ts", 0.7),
+      ],
+      meta: {
+        since: "6 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+        warnings: [],
+      },
+    };
+    const current: ScanResult = {
+      ...baseline,
+      hotspots: [hotspot("src/a.ts", 0.9)],
+      meta: { ...baseline.meta, scannedAt: "2026-02-01T00:00:00.000Z" },
+    };
+
+    const result = compareScanResults(baseline, current);
+
+    expect(result.hotspots.removed.map((item) => item.filePath)).toEqual([
+      "src/b.ts",
+      "src/c.ts",
+    ]);
+  });
+
+  it("sorts multiple new hotspots by current rank", () => {
+    const hotspot = (
+      filePath: string,
+      hotspotScore: number,
+    ): ScanResult["hotspots"][number] => ({
+      filePath,
+      complexityNormalized: 0.5,
+      churnNormalized: 0.5,
+      hotspotScore,
+      ncloc: 10,
+      commitCount: 5,
+      linesChanged: 50,
+      authorCount: 1,
+    });
+
+    const baseline: ScanResult = {
+      version: "3.0",
+      hotspots: [hotspot("src/a.ts", 0.9)],
+      meta: {
+        since: "6 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+        warnings: [],
+      },
+    };
+    const current: ScanResult = {
+      ...baseline,
+      hotspots: [
+        hotspot("src/z.ts", 0.95),
+        hotspot("src/a.ts", 0.9),
+        hotspot("src/m.ts", 0.85),
+      ],
+      meta: { ...baseline.meta, scannedAt: "2026-02-01T00:00:00.000Z" },
+    };
+
+    const result = compareScanResults(baseline, current);
+
+    expect(result.hotspots.new.map((item) => item.filePath)).toEqual([
+      "src/z.ts",
+      "src/m.ts",
     ]);
   });
 });

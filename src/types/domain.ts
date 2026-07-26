@@ -8,67 +8,10 @@ export interface FileChangeStats {
   lastModified: Date;
 }
 
-/** McCabe complexity per file. */
+/** File-level NCLOC from size analysis. */
 export interface ComplexityResult {
   filePath: string;
-  cyclomaticComplexity: number;
-  functionCount: number;
-  /** True when AST parse failed; stub rows use zeros for complexity metrics. */
-  parseFailed?: boolean;
-}
-
-/** McCabe complexity per function. */
-export interface FunctionComplexityResult {
-  filePath: string;
-  functionName: string;
-  line: number;
-  endLine: number;
-  complexity: number;
-}
-
-/** Per-function churn from hunk-overlap attribution (function mode only). */
-export interface FunctionChangeStats {
-  filePath: string;
-  functionName: string;
-  line: number;
-  commitCount: number;
-  linesChanged: number;
-  authors: Set<string>;
-}
-
-/** Per-file complexity analysis with per-function breakdown. */
-export interface FileComplexityResult {
-  file: ComplexityResult;
-  functions: FunctionComplexityResult[];
-}
-
-/** Ranked hotspot entry. */
-export interface HotspotScore {
-  filePath: string;
-  complexityNormalized: number;
-  churnNormalized: number;
-  hotspotScore: number;
-  cyclomaticComplexity: number;
-  functionCount: number;
-  commitCount: number;
-  linesChanged: number;
-  authorCount: number;
-  /** True when the file failed to parse; score and norms are zero. */
-  parseFailed: boolean;
-}
-
-/** Ranked function hotspot entry. */
-export interface FunctionHotspotScore {
-  filePath: string;
-  functionName: string;
-  line: number;
-  complexity: number;
-  complexityNormalized: number;
-  churnNormalized: number;
-  hotspotScore: number;
-  commitCount: number;
-  linesChanged: number;
-  authorCount: number;
+  ncloc: number;
 }
 
 /** Co-change event from a single commit. */
@@ -104,19 +47,16 @@ export interface CouplingPair {
   hasReExportStaticDependency: boolean;
 }
 
-/** Scan granularity for ranking output. */
-export type ScanGranularity = "file" | "function";
-
 /** Diagnostic severity for warnings and stderr prefixes. */
 export type DiagnosticSeverity = "info" | "warning" | "error";
 
-/** Progress phase for git miners and complexity analysis. */
-export type ScanProgressPhase = "git" | "function-churn" | "complexity";
+/** Progress phase for git mining and size analysis. */
+export type ScanProgressPhase = "git" | "complexity";
 
-/** Phase-aware progress from git miners and complexity analysis. */
+/** Phase-aware progress from git miners and size analysis. */
 export interface ScanProgress {
   phase: ScanProgressPhase;
-  /** Git / function-churn commit counter; use 0 for complexity phase. */
+  /** Git commit counter; use 0 for complexity phase. */
   commitsProcessed: number;
   /** Files analyzed so far (complexity phase). */
   filesProcessed?: number;
@@ -139,8 +79,6 @@ export interface ScanWarning {
 export interface ScanStageTimings {
   gitMs: number;
   complexityMs: number;
-  /** Present only when granularity === "function"; omit key in file mode */
-  functionChurnMs?: number;
   totalMs: number;
 }
 
@@ -152,14 +90,13 @@ export interface ScanOptions {
   since?: string;
   top?: number;
   format?: "table" | "json" | "markdown" | "csv";
-  granularity?: ScanGranularity;
   include?: string[];
   exclude?: string[];
   /** When true, include test/spec files and `__tests__/` (CLI: `--include-tests`). Not config-backed. */
   includeTests?: boolean;
   concurrency?: number;
   /**
-   * When true, file mode runs git mine then complexity analyze sequentially
+   * When true, runs git mine then size analysis sequentially
    * (disables M34 overlap). CLI: --sequential / --no-overlap. Not a config key.
    */
   sequential?: boolean;
@@ -167,15 +104,26 @@ export interface ScanOptions {
   onProgress?: (progress: ScanProgress) => void;
   /** External cancel (e.g. CLI SIGINT); linked to orchestrator AbortController */
   signal?: AbortSignal;
-  /** Invoked with git spawn argv before each numstat/patch child (verbose trace) */
+  /** Invoked with git spawn argv before each numstat child (verbose trace) */
   onSpawnArgv?: (argv: string[]) => void;
+}
+
+/** Ranked hotspot entry. */
+export interface HotspotScore {
+  filePath: string;
+  complexityNormalized: number;
+  churnNormalized: number;
+  hotspotScore: number;
+  ncloc: number;
+  commitCount: number;
+  linesChanged: number;
+  authorCount: number;
 }
 
 /** Scan metadata included in every result. */
 export interface ScanMeta {
   since: string;
   scannedAt: string;
-  granularity: ScanGranularity;
   warnings: ScanWarning[];
   /** Present on successful scans; omitted in baseline-era documents */
   timings?: ScanStageTimings;
@@ -183,9 +131,8 @@ export interface ScanMeta {
 
 /** Full scan output (JSON schema). */
 export interface ScanResult {
-  version: "2.0";
+  version: "3.0";
   hotspots: HotspotScore[];
-  functions: FunctionHotspotScore[];
   meta: ScanMeta;
 }
 
@@ -205,13 +152,6 @@ export interface HotspotCompareSection {
   rankChanged: RankChange<HotspotScore>[];
 }
 
-/** Function hotspot delta section for compare output. */
-export interface FunctionCompareSection {
-  new: FunctionHotspotScore[];
-  removed: FunctionHotspotScore[];
-  rankChanged: RankChange<FunctionHotspotScore>[];
-}
-
 /** Compare report metadata. */
 export interface CompareMeta {
   baseline: ScanMeta;
@@ -221,9 +161,7 @@ export interface CompareMeta {
 
 /** Full compare output (JSON schema). */
 export interface CompareResult {
-  version: "2.0";
-  granularity: ScanGranularity;
+  version: "3.0";
   hotspots: HotspotCompareSection;
-  functions: FunctionCompareSection;
   meta: CompareMeta;
 }

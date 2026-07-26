@@ -8,7 +8,6 @@ describe("mergeScanOptions", () => {
     since: "6 months ago",
     include: ["src/**"],
     exclude: ["**/*.test.ts"],
-    granularity: "function" as const,
     top: 10,
     concurrency: 3,
   };
@@ -18,7 +17,6 @@ describe("mergeScanOptions", () => {
       since: DEFAULT_SINCE,
       include: undefined,
       exclude: undefined,
-      granularity: "file",
       top: DEFAULT_TOP,
       concurrency: DEFAULT_WORKER_CONCURRENCY,
     });
@@ -29,7 +27,6 @@ describe("mergeScanOptions", () => {
       since: "6 months ago",
       include: ["src/**"],
       exclude: ["**/*.test.ts"],
-      granularity: "function",
       top: 10,
       concurrency: 3,
     });
@@ -43,7 +40,6 @@ describe("mergeScanOptions", () => {
           since: "1 week ago",
           include: ["lib/**"],
           exclude: ["generated/**"],
-          granularity: "file",
           top: 50,
           concurrency: 1,
         },
@@ -52,7 +48,6 @@ describe("mergeScanOptions", () => {
       since: "1 week ago",
       include: ["lib/**"],
       exclude: ["generated/**"],
-      granularity: "file",
       top: 50,
       concurrency: 1,
     });
@@ -68,7 +63,6 @@ describe("mergeScanOptions", () => {
       since: "config-since",
       include: undefined,
       exclude: undefined,
-      granularity: "file",
       top: 25,
       concurrency: DEFAULT_WORKER_CONCURRENCY,
     });
@@ -84,7 +78,6 @@ describe("mergeScanOptions", () => {
       since: "cli-since",
       include: undefined,
       exclude: undefined,
-      granularity: "file",
       top: DEFAULT_TOP,
       concurrency: DEFAULT_WORKER_CONCURRENCY,
     });
@@ -100,7 +93,6 @@ describe("mergeScanOptions", () => {
       since: DEFAULT_SINCE,
       include: [],
       exclude: undefined,
-      granularity: "file",
       top: DEFAULT_TOP,
       concurrency: DEFAULT_WORKER_CONCURRENCY,
     });

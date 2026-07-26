@@ -1,9 +1,7 @@
 import { readFile } from "node:fs/promises";
 import type {
   DiagnosticSeverity,
-  FunctionHotspotScore,
   HotspotScore,
-  ScanGranularity,
   ScanResult,
   ScanStageTimings,
   ScanWarning,
@@ -23,10 +21,6 @@ export class BaselineError extends Error {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function isValidGranularity(value: unknown): value is ScanGranularity {
-  return value === "file" || value === "function";
 }
 
 function isInteger(value: unknown): value is number {
@@ -74,13 +68,6 @@ function assertInteger(value: unknown, path: string): number {
   return value;
 }
 
-function assertBoolean(value: unknown, path: string): boolean {
-  if (typeof value !== "boolean") {
-    throw new BaselineError(`Baseline ${path} must be a boolean`);
-  }
-  return value;
-}
-
 const DIAGNOSTIC_SEVERITIES = new Set<DiagnosticSeverity>([
   "info",
   "warning",
@@ -91,6 +78,12 @@ function assertHotspot(item: unknown, index: number): HotspotScore {
   const path = `hotspots[${index}]`;
   const record = assertRecord(item, path);
 
+  if ("cyclomaticComplexity" in record) {
+    throw new BaselineError(
+      'Baseline hotspot contains unsupported field "cyclomaticComplexity". Re-scan with a current hotspot-scanner version.',
+    );
+  }
+
   return {
     filePath: assertString(
       requireKey(record, "filePath", path),
@@ -108,65 +101,9 @@ function assertHotspot(item: unknown, index: number): HotspotScore {
       requireKey(record, "hotspotScore", path),
       `${path}.hotspotScore`,
     ),
-    cyclomaticComplexity: assertNumber(
-      requireKey(record, "cyclomaticComplexity", path),
-      `${path}.cyclomaticComplexity`,
-    ),
-    functionCount: assertInteger(
-      requireKey(record, "functionCount", path),
-      `${path}.functionCount`,
-    ),
-    commitCount: assertInteger(
-      requireKey(record, "commitCount", path),
-      `${path}.commitCount`,
-    ),
-    linesChanged: assertInteger(
-      requireKey(record, "linesChanged", path),
-      `${path}.linesChanged`,
-    ),
-    authorCount: assertInteger(
-      requireKey(record, "authorCount", path),
-      `${path}.authorCount`,
-    ),
-    parseFailed: assertBoolean(
-      requireKey(record, "parseFailed", path),
-      `${path}.parseFailed`,
-    ),
-  };
-}
-
-function assertFunctionHotspot(
-  item: unknown,
-  index: number,
-): FunctionHotspotScore {
-  const path = `functions[${index}]`;
-  const record = assertRecord(item, path);
-
-  return {
-    filePath: assertString(
-      requireKey(record, "filePath", path),
-      `${path}.filePath`,
-    ),
-    functionName: assertString(
-      requireKey(record, "functionName", path),
-      `${path}.functionName`,
-    ),
-    line: assertInteger(requireKey(record, "line", path), `${path}.line`),
-    complexity: assertNumber(
-      requireKey(record, "complexity", path),
-      `${path}.complexity`,
-    ),
-    complexityNormalized: assertNumber(
-      requireKey(record, "complexityNormalized", path),
-      `${path}.complexityNormalized`,
-    ),
-    churnNormalized: assertNumber(
-      requireKey(record, "churnNormalized", path),
-      `${path}.churnNormalized`,
-    ),
-    hotspotScore: assertNumber(
-      requireKey(record, "hotspotScore", path),
-      `${path}.hotspotScore`,
+    ncloc: assertNumber(
+      requireKey(record, "ncloc", path),
+      `${path}.ncloc`,
     ),
     commitCount: assertInteger(
       requireKey(record, "commitCount", path),
@@ -190,15 +127,6 @@ function assertHotspots(value: unknown): HotspotScore[] {
     );
   }
   return value.map((item, index) => assertHotspot(item, index));
-}
-
-function assertFunctions(value: unknown): FunctionHotspotScore[] {
-  if (!Array.isArray(value)) {
-    throw new BaselineError(
-      "Baseline JSON is missing required field: functions",
-    );
-  }
-  return value.map((item, index) => assertFunctionHotspot(item, index));
 }
 
 function assertScanWarning(value: unknown, index: number): ScanWarning {
@@ -254,13 +182,6 @@ function assertScanStageTimings(value: unknown): ScanStageTimings {
     ),
   };
 
-  if ("functionChurnMs" in record) {
-    timings.functionChurnMs = assertNonNegativeInteger(
-      record.functionChurnMs,
-      `${path}.functionChurnMs`,
-    );
-  }
-
   return timings;
 }
 
@@ -275,15 +196,21 @@ export function parseScanResult(json: unknown): ScanResult {
     );
   }
 
-  if (json.version === "1.0") {
+  if ("functions" in json) {
     throw new BaselineError(
-      'Unsupported baseline version: "1.0". Expected "2.0". Re-scan with a current hotspot-scanner version.',
+      'Baseline JSON contains unsupported field "functions". Re-scan with a current hotspot-scanner version.',
     );
   }
 
-  if (json.version !== "2.0") {
+  if (json.version === "1.0" || json.version === "2.0") {
     throw new BaselineError(
-      `Unsupported baseline version: ${String(json.version)}. Expected "2.0".`,
+      `Unsupported baseline version: "${json.version}". Expected "3.0". Re-scan with a current hotspot-scanner version.`,
+    );
+  }
+
+  if (json.version !== "3.0") {
+    throw new BaselineError(
+      `Unsupported baseline version: ${String(json.version)}. Expected "3.0".`,
     );
   }
 
@@ -299,20 +226,12 @@ export function parseScanResult(json: unknown): ScanResult {
     throw new BaselineError("Baseline meta.scannedAt must be a string");
   }
 
-  if (!isValidGranularity(json.meta.granularity)) {
-    throw new BaselineError(
-      `Invalid baseline meta.granularity: ${String(json.meta.granularity)}. Expected "file" or "function".`,
-    );
-  }
-
   return {
-    version: "2.0",
+    version: "3.0",
     hotspots: assertHotspots(json.hotspots),
-    functions: assertFunctions(json.functions),
     meta: {
       since: json.meta.since,
       scannedAt: json.meta.scannedAt,
-      granularity: json.meta.granularity,
       warnings: assertWarnings(json.meta.warnings),
       ...(json.meta.timings !== undefined
         ? { timings: assertScanStageTimings(json.meta.timings) }

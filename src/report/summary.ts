@@ -1,6 +1,5 @@
 import type {
   CompareResult,
-  FunctionCompareSection,
   HotspotCompareSection,
   ScanResult,
   ScanWarning,
@@ -51,8 +50,8 @@ function countCompareDeltas(section: {
 
 function formatCompareDeltaLine(
   label: string,
-  full: HotspotCompareSection | FunctionCompareSection,
-  displayed: HotspotCompareSection | FunctionCompareSection,
+  full: HotspotCompareSection,
+  displayed: HotspotCompareSection,
 ): string {
   const total = countCompareDeltas(full);
   const shown = countCompareDeltas(displayed);
@@ -63,22 +62,12 @@ export function buildScanExecutiveSummary(
   full: ScanResult,
   displayed: ScanResult,
 ): string[] {
-  const rankingLabel =
-    full.meta.granularity === "function" ? "Functions" : "Hotspots";
-  const fullRanking =
-    full.meta.granularity === "function" ? full.functions : full.hotspots;
-  const displayedRanking =
-    displayed.meta.granularity === "function"
-      ? displayed.functions
-      : displayed.hotspots;
-
   return [
     `Scan window: ${full.meta.since} (scanned ${full.meta.scannedAt})`,
-    `Granularity: ${full.meta.granularity}`,
     formatShownVsTotal(
-      rankingLabel,
-      displayedRanking.length,
-      fullRanking.length,
+      "Hotspots",
+      displayed.hotspots.length,
+      full.hotspots.length,
     ),
     formatWarningSummaryLine(full.meta.warnings ?? []),
   ];
@@ -88,20 +77,10 @@ export function buildCompareExecutiveSummary(
   full: CompareResult,
   displayed: CompareResult,
 ): string[] {
-  const rankingLabel =
-    full.granularity === "function" ? "Function deltas" : "Hotspot deltas";
-  const fullRanking =
-    full.granularity === "function" ? full.functions : full.hotspots;
-  const displayedRanking =
-    displayed.granularity === "function"
-      ? displayed.functions
-      : displayed.hotspots;
-
   return [
     `Baseline since: ${full.meta.baseline.since} (scanned ${full.meta.baseline.scannedAt})`,
     `Current since: ${full.meta.current.since} (scanned ${full.meta.current.scannedAt})`,
-    `Granularity: ${full.granularity}`,
-    formatCompareDeltaLine(rankingLabel, fullRanking, displayedRanking),
+    formatCompareDeltaLine("Hotspot deltas", full.hotspots, displayed.hotspots),
     formatWarningSummaryLine(full.meta.warnings ?? []),
   ];
 }

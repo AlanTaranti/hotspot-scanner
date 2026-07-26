@@ -23,13 +23,13 @@ function loadFixture(): Record<string, unknown> {
 }
 
 describe("parseScanResult", () => {
-  it("accepts valid 2.0 ScanResult JSON", () => {
+  it("accepts valid 3.0 ScanResult JSON", () => {
     const raw = loadFixture();
     const result = parseScanResult(raw);
 
-    expect(result.version).toBe("2.0");
+    expect(result.version).toBe("3.0");
     expect(result.hotspots).toHaveLength(3);
-    expect(result.meta.granularity).toBe("file");
+    expect(result.hotspots[0]?.ncloc).toBe(42);
     expect(result.meta.warnings).toEqual([]);
     expect(result.meta.timings).toBeUndefined();
   });
@@ -55,7 +55,7 @@ describe("parseScanResult", () => {
     });
   });
 
-  it("parses function-mode meta.timings with functionChurnMs", () => {
+  it("ignores legacy functionChurnMs in meta.timings", () => {
     const raw = loadFixture();
     const result = parseScanResult({
       ...raw,
@@ -73,7 +73,6 @@ describe("parseScanResult", () => {
     expect(result.meta.timings).toEqual({
       gitMs: 100,
       complexityMs: 200,
-      functionChurnMs: 50,
       totalMs: 300,
     });
   });
@@ -111,8 +110,8 @@ describe("parseScanResult", () => {
         warnings: [
           {
             severity: "warning",
-            message: "parse failed for src/bad.ts",
-            code: "PARSE_FAILED",
+            message: "unreadable file src/bad.ts",
+            code: "READ_FAILED",
           },
         ],
       },
@@ -121,8 +120,8 @@ describe("parseScanResult", () => {
     expect(result.meta.warnings).toEqual([
       {
         severity: "warning",
-        message: "parse failed for src/bad.ts",
-        code: "PARSE_FAILED",
+        message: "unreadable file src/bad.ts",
+        code: "READ_FAILED",
       },
     ]);
   });
@@ -173,12 +172,25 @@ describe("parseScanResult", () => {
     );
   });
 
+  it("rejects version 2.0 baselines with re-scan hint", () => {
+    const raw = loadFixture();
+    expect(() => parseScanResult({ ...raw, version: "2.0" })).toThrow(
+      /Unsupported baseline version: "2.0"/,
+    );
+    expect(() => parseScanResult({ ...raw, version: "2.0" })).toThrow(
+      /Expected "3.0"/,
+    );
+    expect(() => parseScanResult({ ...raw, version: "2.0" })).toThrow(
+      /Re-scan/,
+    );
+  });
+
   it("rejects unsupported version", () => {
     const raw = loadFixture();
-    expect(() => parseScanResult({ ...raw, version: "3.0" })).toThrow(
+    expect(() => parseScanResult({ ...raw, version: "4.0" })).toThrow(
       /Unsupported baseline version/,
     );
-    expect(() => parseScanResult({ ...raw, version: "3.0" })).toThrow(
+    expect(() => parseScanResult({ ...raw, version: "4.0" })).toThrow(
       /Hint:.*JSON contract/,
     );
   });
@@ -199,31 +211,40 @@ describe("parseScanResult", () => {
     ).toThrow(/Re-scan/);
   });
 
-  it("rejects spoofed 2.0 with coupling property", () => {
+  it("rejects baseline with top-level functions key", () => {
     const raw = loadFixture();
     expect(() =>
       parseScanResult({
         ...raw,
-        version: "2.0",
-        coupling: [
-          {
-            fileA: "a.ts",
-            fileB: "b.ts",
-            coChangeCount: 1,
-            couplingStrength: 0.5,
-          },
-        ],
+        functions: [],
       }),
-    ).toThrow(/unsupported field "coupling"/);
+    ).toThrow(/unsupported field "functions"/);
+    expect(() =>
+      parseScanResult({
+        ...raw,
+        functions: [],
+      }),
+    ).toThrow(/Re-scan/);
+  });
+
+  it("rejects spoofed 3.0 with cyclomaticComplexity on hotspots", () => {
+    const raw = loadFixture();
+    const hotspots = [...(raw.hotspots as unknown[])];
+    hotspots[0] = {
+      ...(hotspots[0] as Record<string, unknown>),
+      cyclomaticComplexity: 42,
+    };
+
+    expect(() => parseScanResult({ ...raw, hotspots })).toThrow(
+      /unsupported field "cyclomaticComplexity"/,
+    );
+    expect(() => parseScanResult({ ...raw, hotspots })).toThrow(/Re-scan/);
   });
 
   it("rejects missing required keys", () => {
     const raw = loadFixture();
     const { hotspots: _hotspots, ...withoutHotspots } = raw;
     expect(() => parseScanResult(withoutHotspots)).toThrow(/hotspots/);
-
-    const { functions: _functions, ...withoutFunctions } = raw;
-    expect(() => parseScanResult(withoutFunctions)).toThrow(/functions/);
 
     const { meta: _meta, ...withoutMeta } = raw;
     expect(() => parseScanResult(withoutMeta)).toThrow(/meta/);
@@ -244,19 +265,6 @@ describe("parseScanResult", () => {
         meta: { ...(raw.meta as Record<string, unknown>), scannedAt: null },
       }),
     ).toThrow(/meta.scannedAt must be a string/);
-  });
-
-  it("rejects invalid granularity", () => {
-    const raw = loadFixture();
-    expect(() =>
-      parseScanResult({
-        ...raw,
-        meta: {
-          ...(raw.meta as Record<string, unknown>),
-          granularity: "module",
-        },
-      }),
-    ).toThrow(/Invalid baseline meta.granularity/);
   });
 
   it("rejects invalid hotspot items", () => {
@@ -291,48 +299,20 @@ describe("parseScanResult", () => {
     );
 
     hotspots[0] = { ...(raw.hotspots as Record<string, unknown>[])[0] };
-    delete (hotspots[0] as Record<string, unknown>).parseFailed;
+    delete (hotspots[0] as Record<string, unknown>).ncloc;
     expect(() => parseScanResult({ ...raw, hotspots })).toThrow(
-      /hotspots\[0\] is missing required field: parseFailed/,
+      /hotspots\[0\] is missing required field: ncloc/,
     );
     expect(() => parseScanResult({ ...raw, hotspots })).toThrow(/Hint:/);
-  });
-
-  it("rejects invalid function items", () => {
-    const raw = loadFixture();
-    const functions = [
-      {
-        filePath: "src/foo.ts",
-        functionName: "bar",
-        line: 10,
-        complexity: 3,
-        complexityNormalized: 0.5,
-        churnNormalized: 0.4,
-        hotspotScore: 0.45,
-        commitCount: 2,
-        linesChanged: 20,
-        authorCount: 1,
-      },
-    ];
-
-    functions[0] = { ...functions[0], line: "ten" };
-    expect(() => parseScanResult({ ...raw, functions })).toThrow(
-      /functions\[0\]\.line must be an integer/,
-    );
-
-    const incomplete = { ...functions[0], line: 10 };
-    delete (incomplete as Record<string, unknown>).functionName;
-    expect(() => parseScanResult({ ...raw, functions: [incomplete] })).toThrow(
-      /functions\[0\] is missing required field: functionName/,
-    );
   });
 });
 
 describe("loadBaseline", () => {
   it("reads valid fixture file", async () => {
     const result = await loadBaseline(fixturePath);
-    expect(result.version).toBe("2.0");
+    expect(result.version).toBe("3.0");
     expect(result.hotspots[0]?.filePath).toBe("src/hot.ts");
+    expect(result.hotspots[0]?.ncloc).toBe(42);
   });
 
   it("throws on missing file", async () => {
@@ -372,6 +352,24 @@ describe("loadBaseline", () => {
     try {
       await expect(loadBaseline(invalidPath)).rejects.toThrow(BaselineError);
       await expect(loadBaseline(invalidPath)).rejects.toThrow(/coupling/);
+      await expect(loadBaseline(invalidPath)).rejects.toThrow(/Re-scan/);
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("throws on baseline with functions key", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
+    const invalidPath = join(tempDir, "legacy-baseline.json");
+    const raw = loadFixture();
+    await writeFile(
+      invalidPath,
+      JSON.stringify({ ...raw, functions: [] }),
+      "utf8",
+    );
+    try {
+      await expect(loadBaseline(invalidPath)).rejects.toThrow(BaselineError);
+      await expect(loadBaseline(invalidPath)).rejects.toThrow(/functions/);
       await expect(loadBaseline(invalidPath)).rejects.toThrow(/Re-scan/);
     } finally {
       await rm(tempDir, { recursive: true, force: true });

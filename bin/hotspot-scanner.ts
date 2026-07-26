@@ -27,7 +27,7 @@ import {
   previewScanScope,
 } from "#scan";
 import { runDoctor, formatDoctorJsonReport, type DoctorFinding } from "#doctor";
-import type { CompareResult, ScanGranularity, ScanResult } from "../src/types/index.js";
+import type { CompareResult, ScanResult } from "../src/types/index.js";
 import {
   buildScanOptions,
   CliUsageError,
@@ -118,27 +118,19 @@ export function parseFormat(value: string): OutputFormat {
   );
 }
 
-export function parseGranularity(value: string): ScanGranularity {
-  if (value === "file" || value === "function") {
-    return value;
-  }
-  throw new CliUsageError(
-    `Invalid --granularity: ${value}. Expected file or function.`,
-  );
-}
-
 function ensureTrailingNewline(content: string): string {
   return content.endsWith("\n") ? content : `${content}\n`;
 }
 
-export function validateExplainTarget(
-  target: ExplainTarget,
-  granularity: ScanGranularity,
-): void {
-  if (granularity === "file" && target.kind === "function") {
-    throw new CliUsageError(
-      "--explain path:function requires --granularity function",
-    );
+/** Reject path:function explain targets (file paths only). */
+export function validateExplainTarget(raw: string): void {
+  try {
+    parseExplainTarget(raw);
+  } catch (error) {
+    if (error instanceof Error && error.name === "CliUsageError") {
+      throw new CliUsageError(error.message);
+    }
+    throw error;
   }
 }
 
@@ -146,13 +138,6 @@ function normalizeExplainTarget(
   target: ExplainTarget,
   repoPath: string,
 ): ExplainTarget {
-  if (target.kind === "function") {
-    return {
-      kind: "function",
-      filePath: normalizeExplainPath(target.filePath, repoPath),
-      functionName: target.functionName,
-    };
-  }
   return {
     kind: "file",
     filePath: normalizeExplainPath(target.filePath, repoPath),
@@ -213,10 +198,7 @@ export function collectGlob(value: string, previous: string[]): string[] {
   return previous.concat([value]);
 }
 
-const VALID_ONLY_SECTIONS: readonly ReportSection[] = [
-  "hotspots",
-  "functions",
-];
+const VALID_ONLY_SECTIONS: readonly ReportSection[] = ["hotspots"];
 
 export function parseOnlySectionCli(value: string): ReportSection {
   if (value.length === 0) {
@@ -224,7 +206,7 @@ export function parseOnlySectionCli(value: string): ReportSection {
   }
   if (!VALID_ONLY_SECTIONS.includes(value as ReportSection)) {
     throw new CliUsageError(
-      `Invalid --only: ${value}. Expected hotspots or functions.`,
+      `Invalid --only: ${value}. Expected hotspots.`,
     );
   }
   return value as ReportSection;
@@ -300,9 +282,6 @@ export function buildCliConfigOverrides(
 
   if (isExplicitCliOption(cmd, "since")) {
     cli.since = options.since as string;
-  }
-  if (isExplicitCliOption(cmd, "granularity")) {
-    cli.granularity = parseGranularity(options.granularity as string);
   }
   if (isExplicitCliOption(cmd, "top")) {
     cli.top = parsePositiveInteger(options.top as string, "--top");
@@ -412,11 +391,6 @@ export function createCliProgram(): Command {
       "table",
     )
     .option(
-      "-g, --granularity <mode>",
-      "Ranking granularity: file or function",
-      "file",
-    )
-    .option(
       "-o, --output <path>",
       "Write report to file instead of stdout (required for --format csv)",
     )
@@ -463,11 +437,11 @@ export function createCliProgram(): Command {
     .option("--no-progress", "Suppress progress lines on stderr")
     .option(
       "--dry-run",
-      "Preview effective scan scope without running git history or AST analysis",
+      "Preview effective scan scope without running git history or NCLOC analysis",
     )
     .option(
       "--only <section>",
-      "Include only report sections: hotspots or functions (repeatable)",
+      "Include only report sections: hotspots (repeatable)",
       collectOnlySection,
       [] as ReportSection[],
     )
@@ -478,7 +452,7 @@ export function createCliProgram(): Command {
     .option("--no-color", "Disable ANSI colors in table output")
     .option(
       "--explain <target>",
-      "After the report, print a score breakdown for <path> or <path>:<functionName> to stderr",
+      "After the report, print a score breakdown for <path> to stderr",
     )
     .option(
       "--strict",
@@ -496,8 +470,8 @@ Examples:
   $ hotspot-scanner scan -f json -o report.json
     Write JSON report to file
 
-  $ hotspot-scanner scan -f table -t 10 -g function
-    Table output using short aliases for top and granularity
+  $ hotspot-scanner scan -f table -t 10
+    Table output using short aliases for top
 
   $ hotspot-scanner scan --baseline prior.json -f json
     Compare against a prior JSON baseline (optional)
@@ -539,10 +513,9 @@ Examples:
         cli: cliOverrides,
       });
       const top = merged.top;
-      const granularity = merged.granularity ?? "file";
 
       if (explainTarget !== undefined) {
-        validateExplainTarget(parseExplainTarget(explainTarget), granularity);
+        validateExplainTarget(explainTarget);
       }
 
       const outputPath = options.output as string | undefined;
@@ -632,11 +605,6 @@ Examples:
     )
     .option("--since <period>", "Git history window", DEFAULT_SINCE)
     .option(
-      "-g, --granularity <mode>",
-      "Ranking granularity: file or function",
-      "file",
-    )
-    .option(
       "-t, --top <n>",
       "Top N rows in table/markdown output (ignored for baseline JSON)",
       String(DEFAULT_TOP),
@@ -717,11 +685,6 @@ Examples:
       "table",
     )
     .option(
-      "-g, --granularity <mode>",
-      "Ranking granularity: file or function",
-      "file",
-    )
-    .option(
       "-o, --output <path>",
       "Write report to file instead of stdout (required for --format csv)",
     )
@@ -764,7 +727,7 @@ Examples:
     .option("--no-progress", "Suppress progress lines on stderr")
     .option(
       "--only <section>",
-      "Include only report sections: hotspots or functions (repeatable)",
+      "Include only report sections: hotspots (repeatable)",
       collectOnlySection,
       [] as ReportSection[],
     )
@@ -775,7 +738,7 @@ Examples:
     .option("--no-color", "Disable ANSI colors in table output")
     .option(
       "--explain <target>",
-      "After the report, print compare delta breakdown for <path> or <path>:<functionName> to stderr",
+      "After the report, print compare delta breakdown for <path> to stderr",
     )
     .option(
       "--strict",
@@ -815,10 +778,9 @@ Examples:
         cli: cliOverrides,
       });
       const top = merged.top;
-      const granularity = merged.granularity ?? "file";
 
       if (explainTarget !== undefined) {
-        validateExplainTarget(parseExplainTarget(explainTarget), granularity);
+        validateExplainTarget(explainTarget);
       }
 
       const outputPath = options.output as string | undefined;

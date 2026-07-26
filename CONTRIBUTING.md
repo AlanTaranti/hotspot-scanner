@@ -2,7 +2,7 @@
 
 Thank you for your interest in contributing. This document explains how to set up the project locally, verify your changes, and where to find the technical details you need before coding.
 
-**@vitals/hotspot-scanner** is a local CLI that ranks TypeScript/JavaScript maintenance hotspots by combining cyclomatic complexity and Git churn. It runs entirely on your machine — no network services or databases.
+**@vitals/hotspot-scanner** is a local CLI that ranks TypeScript/JavaScript maintenance hotspots by combining **NCLOC** (non-commented lines of code) and Git churn at file level. It runs entirely on your machine — no network services or databases.
 
 - **Design source of truth:** [.specs/codebase/ARCHITECTURE.md](.specs/codebase/ARCHITECTURE.md)
 - **License:** MIT (see [package.json](package.json))
@@ -121,8 +121,8 @@ hotspot-scanner/
 ├── bin/              # CLI entry (flags only)
 ├── src/
 │   ├── git/          # Git Change Miner
-│   ├── complexity/   # McCabe over ts-morph
-│   ├── scoring/      # Hotspot scorers (file + function)
+│   ├── complexity/   # NCLOC size analyzer (file-level)
+│   ├── scoring/      # HotspotScorer (file hotspots)
 │   ├── paths/        # Path scoping (--include, --exclude)
 │   ├── diagnostics/  # stderr warnings + progress
 │   ├── report/       # CLI table + JSON output
@@ -137,7 +137,6 @@ External dependencies must stay inside their adapter modules (see [.specs/codeba
 
 | Dependency       | Allowed location              |
 | ---------------- | ----------------------------- |
-| `ts-morph`       | `src/complexity/` only        |
 | `git` subprocess | `src/git/` only               |
 | `picomatch`      | `src/paths/` only             |
 | `commander`      | `bin/hotspot-scanner.ts` only |
@@ -151,7 +150,7 @@ Changes to these modules need extra care and targeted fixtures (see [.specs/code
 | Module            | Risk                                                                                 |
 | ----------------- | ------------------------------------------------------------------------------------ |
 | `src/git/`        | Streaming parse, renames, merges — incorrect parsing distorts all downstream scores  |
-| `src/complexity/` | McCabe decision-node definition — bugs silently change rankings                      |
+| `src/complexity/` | NCLOC definition — miscounts silently change rankings |
 | `src/scoring/`    | Normalization and formula changes — ranking order can shift without obvious failures |
 
 ## Commits and pull requests

@@ -3,14 +3,12 @@ import { renderMarkdownHowToRead, renderTableGlossary } from "./glossary.js";
 
 const REQUIRED_TERMS = [
   "Score",
-  "Cpx",
-  "CpxN",
+  "NLOC",
+  "NLOCN",
   "Churn",
   "ChurnN",
-  "Funcs",
   "Authors",
   "Lines",
-  "ParseFail",
 ] as const;
 
 describe("glossary", () => {
@@ -27,6 +25,8 @@ describe("glossary", () => {
     for (const term of REQUIRED_TERMS) {
       expect(output).toContain(term);
     }
+    expect(output).toContain("Non-commented lines of code");
+    expect(output).not.toContain("McCabe");
   });
 
   it("renderMarkdownHowToRead returns the How to read this section", () => {

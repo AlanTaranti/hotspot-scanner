@@ -1,6 +1,5 @@
 import { readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
-import type { ScanGranularity } from "../types/index.js";
 
 export const HOTSPOT_SCANNER_CONFIG_FILENAME = ".hotspot-scanner.json";
 
@@ -8,7 +7,6 @@ const KNOWN_KEYS = new Set([
   "since",
   "include",
   "exclude",
-  "granularity",
   "top",
   "concurrency",
 ]);
@@ -24,7 +22,6 @@ export interface HotspotScannerConfig {
   since?: string;
   include?: string[];
   exclude?: string[];
-  granularity?: ScanGranularity;
   top?: number;
   concurrency?: number;
 }
@@ -73,13 +70,6 @@ function assertStringArray(value: unknown, key: string): string[] {
   return result;
 }
 
-function assertGranularity(value: unknown, key: string): ScanGranularity {
-  if (value !== "file" && value !== "function") {
-    throw new ConfigError(`Config key "${key}" must be "file" or "function"`);
-  }
-  return value;
-}
-
 function assertPositiveInteger(value: unknown, key: string): number {
   if (typeof value !== "number" || !Number.isInteger(value) || value <= 0) {
     throw new ConfigError(`Config key "${key}" must be a positive integer`);
@@ -117,9 +107,6 @@ export function parseHotspotScannerConfig(
         break;
       case "exclude":
         config.exclude = assertStringArray(value, key);
-        break;
-      case "granularity":
-        config.granularity = assertGranularity(value, key);
         break;
       case "top":
         config.top = assertPositiveInteger(value, key);

@@ -1,7 +1,4 @@
-import type {
-  FunctionHotspotScore,
-  ScanResult,
-} from "../types/index.js";
+import type { ScanResult } from "../types/index.js";
 
 export const TRIAGE_HOTSPOT_SCORE_THRESHOLD = 0.7;
 export const TRIAGE_NORMALIZED_SIGNAL_THRESHOLD = 0.5;
@@ -20,7 +17,7 @@ export interface TriageHint {
 export type RenderableTriageHint = Pick<TriageHint, "message" | "target">;
 
 const DUAL_SIGNAL_MESSAGE =
-  "High dual-signal hotspot — complexity and churn both elevated; prioritize review.";
+  "High dual-signal hotspot — NCLOC and churn both elevated; prioritize review.";
 
 function isDualSignalHotspot(row: {
   hotspotScore: number;
@@ -32,10 +29,6 @@ function isDualSignalHotspot(row: {
     row.complexityNormalized >= TRIAGE_NORMALIZED_SIGNAL_THRESHOLD &&
     row.churnNormalized >= TRIAGE_NORMALIZED_SIGNAL_THRESHOLD
   );
-}
-
-function formatFunctionTarget(fn: FunctionHotspotScore): string {
-  return `${fn.filePath}::${fn.functionName}`;
 }
 
 function takeTopByMetric<T>(
@@ -58,18 +51,6 @@ function buildDualSignalHints(result: ScanResult): TriageHint[] {
       message: DUAL_SIGNAL_MESSAGE,
       target: hotspot.filePath,
       rankMetric: hotspot.hotspotScore,
-    });
-  }
-
-  for (const fn of result.functions) {
-    if (!isDualSignalHotspot(fn)) {
-      continue;
-    }
-    matches.push({
-      ruleId: "dual-signal-hotspot",
-      message: DUAL_SIGNAL_MESSAGE,
-      target: formatFunctionTarget(fn),
-      rankMetric: fn.hotspotScore,
     });
   }
 

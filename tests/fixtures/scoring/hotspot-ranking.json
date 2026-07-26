@@ -7,27 +7,11 @@
     { "filePath": "src/zero-churn.ts", "commitCount": 0 }
   ],
   "complexity": [
-    {
-      "filePath": "src/high.ts",
-      "cyclomaticComplexity": 30,
-      "functionCount": 5
-    },
-    {
-      "filePath": "src/mid.ts",
-      "cyclomaticComplexity": 15,
-      "functionCount": 3
-    },
-    { "filePath": "src/low.ts", "cyclomaticComplexity": 5, "functionCount": 2 },
-    {
-      "filePath": "src/zero-churn.ts",
-      "cyclomaticComplexity": 20,
-      "functionCount": 4
-    },
-    {
-      "filePath": "src/missing-churn.ts",
-      "cyclomaticComplexity": 10,
-      "functionCount": 2
-    }
+    { "filePath": "src/high.ts", "ncloc": 30 },
+    { "filePath": "src/mid.ts", "ncloc": 15 },
+    { "filePath": "src/low.ts", "ncloc": 5 },
+    { "filePath": "src/zero-churn.ts", "ncloc": 20 },
+    { "filePath": "src/missing-churn.ts", "ncloc": 10 }
   ],
   "expectedOrder": [
     "src/high.ts",

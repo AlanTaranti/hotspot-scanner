@@ -1,6 +1,5 @@
 import type {
   CompareResult,
-  FunctionHotspotScore,
   HotspotScore,
   RankChange,
 } from "../types/index.js";
@@ -23,7 +22,7 @@ export interface CompareTriageHint {
 }
 
 const NEW_DUAL_SIGNAL_MESSAGE =
-  "New dual-signal hotspot vs baseline — complexity and churn both elevated; prioritize review.";
+  "New dual-signal hotspot vs baseline — NCLOC and churn both elevated; prioritize review.";
 const RANK_WORSENED_MESSAGE =
   "Rank worsened by ≥5 vs baseline — investigate regression.";
 
@@ -37,10 +36,6 @@ function isDualSignalHotspot(row: {
     row.complexityNormalized >= TRIAGE_NORMALIZED_SIGNAL_THRESHOLD &&
     row.churnNormalized >= TRIAGE_NORMALIZED_SIGNAL_THRESHOLD
   );
-}
-
-function formatFunctionTarget(fn: FunctionHotspotScore): string {
-  return `${fn.filePath}::${fn.functionName}`;
 }
 
 function takeTopByMetric<T>(
@@ -66,46 +61,26 @@ function buildNewDualSignalHints(result: CompareResult): CompareTriageHint[] {
     });
   }
 
-  for (const fn of result.functions.new) {
-    if (!isDualSignalHotspot(fn)) {
-      continue;
-    }
-    matches.push({
-      ruleId: "new-dual-signal",
-      message: NEW_DUAL_SIGNAL_MESSAGE,
-      target: formatFunctionTarget(fn),
-      rankMetric: fn.hotspotScore,
-    });
-  }
-
   return takeTopByMetric(matches, (hint) => hint.rankMetric, TRIAGE_MAX_HINTS_PER_RULE);
 }
 
 function buildRankWorsenedHints(result: CompareResult): CompareTriageHint[] {
   const matches: CompareTriageHint[] = [];
 
-  const addRankChanges = <T extends HotspotScore | FunctionHotspotScore>(
-    changes: RankChange<T>[],
-    formatTarget: (entity: T) => string,
-  ) => {
-    for (const change of changes) {
-      if (
-        change.rankDelta < COMPARE_TRIAGE_RANK_DELTA_THRESHOLD ||
-        change.entity.hotspotScore < COMPARE_TRIAGE_WORSENED_SCORE_THRESHOLD
-      ) {
-        continue;
-      }
-      matches.push({
-        ruleId: "rank-worsened",
-        message: RANK_WORSENED_MESSAGE,
-        target: formatTarget(change.entity),
-        rankMetric: change.rankDelta,
-      });
+  for (const change of result.hotspots.rankChanged) {
+    if (
+      change.rankDelta < COMPARE_TRIAGE_RANK_DELTA_THRESHOLD ||
+      change.entity.hotspotScore < COMPARE_TRIAGE_WORSENED_SCORE_THRESHOLD
+    ) {
+      continue;
     }
-  };
-
-  addRankChanges(result.hotspots.rankChanged, (entity) => entity.filePath);
-  addRankChanges(result.functions.rankChanged, formatFunctionTarget);
+    matches.push({
+      ruleId: "rank-worsened",
+      message: RANK_WORSENED_MESSAGE,
+      target: change.entity.filePath,
+      rankMetric: change.rankDelta,
+    });
+  }
 
   return takeTopByMetric(matches, (hint) => hint.rankMetric, TRIAGE_MAX_HINTS_PER_RULE);
 }

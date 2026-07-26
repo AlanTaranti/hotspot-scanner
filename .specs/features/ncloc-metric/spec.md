@@ -15,12 +15,12 @@ Hotspot ranking uses cyclomatic complexity (McCabe) as axis `c`, which requires 
 
 ## Goals
 
-- [ ] File hotspots use **NCLOC** as axis `c` in `hotspotScore = 2ch/(c+h)` (log1p + min-max + harmonic unchanged)
-- [ ] JSON contract `version: "3.0"` with field `ncloc` (no `cyclomaticComplexity`, no top-level `functions`)
-- [ ] Function mode removed end-to-end (CLI/config, miner, scorers, reporters, schemas, tests, docs)
-- [ ] Baselines `2.0` / legacy complexity fields rejected with clear re-scan `BaselineError`
-- [ ] Living docs / ADR-2026-019 / skills describe NCLOC + churn (file-only)
-- [ ] `pnpm build && pnpm test` green after Execute
+- [x] File hotspots use **NCLOC** as axis `c` in `hotspotScore = 2ch/(c+h)` (log1p + min-max + harmonic unchanged)
+- [x] JSON contract `version: "3.0"` with field `ncloc` (no `cyclomaticComplexity`, no top-level `functions`)
+- [x] Function mode removed end-to-end (CLI/config, miner, scorers, reporters, schemas, tests, docs)
+- [x] Baselines `2.0` / legacy complexity fields rejected with clear re-scan `BaselineError`
+- [x] Living docs / ADR-2026-019 / skills describe NCLOC + churn (file-only)
+- [x] `pnpm build && pnpm test` green after Execute
 
 ## Out of Scope
 
@@ -163,30 +163,30 @@ Hotspot ranking uses cyclomatic complexity (McCabe) as axis `c`, which requires 
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| HOTSPOT-920 | P1: NCLOC analyzer definition | Tasks | Pending |
-| HOTSPOT-921 | P1: Scoring feeds ncloc as `c` | Tasks | Pending |
-| HOTSPOT-922 | P1: Retire McCabe product path | Tasks | Pending |
-| HOTSPOT-923 | P1: Discovery/PathScope retained | Tasks | Pending |
-| HOTSPOT-924 | P1: JSON 3.0 scan | Tasks | Pending |
-| HOTSPOT-925 | P1: JSON 3.0 compare | Tasks | Pending |
-| HOTSPOT-926 | P1: Schemas | Tasks | Pending |
-| HOTSPOT-927 | P1: Domain types | Tasks | Pending |
-| HOTSPOT-928 | P1: Reject version 2.0/1.0 | Tasks | Pending |
-| HOTSPOT-929 | P1: Reject cyclomaticComplexity | Tasks | Pending |
-| HOTSPOT-930 | P1: Reject functions key | Tasks | Pending |
-| HOTSPOT-931 | P1: Remove granularity CLI/config | Tasks | Pending |
-| HOTSPOT-932 | P1: runScan no function mode | Tasks | Pending |
-| HOTSPOT-933 | P1: compare no functions | Tasks | Pending |
-| HOTSPOT-934 | P1: CSV omit functions files | Tasks | Pending |
-| HOTSPOT-935 | P1: `--only` without functions | Tasks | Pending |
-| HOTSPOT-936 | P1: explain file-only | Tasks | Pending |
-| HOTSPOT-937 | P1: Delete function-churn + function scorers | Tasks | Pending |
-| HOTSPOT-938 | P1: Report columns NLOC | Tasks | Pending |
-| HOTSPOT-939 | P1: Glossary/triage/summary copy | Tasks | Pending |
-| HOTSPOT-940 | P1: Progress phases file-only | Tasks | Pending |
-| HOTSPOT-941 | P1: Living docs | Tasks | Pending |
-| HOTSPOT-942 | P1: Skills/rules/INTEGRATIONS | Tasks | Pending |
-| HOTSPOT-943 | P1: ADR-2026-019 supersession | Tasks | Pending |
+| HOTSPOT-920 | P1: NCLOC analyzer definition | Tasks | Done |
+| HOTSPOT-921 | P1: Scoring feeds ncloc as `c` | Tasks | Done |
+| HOTSPOT-922 | P1: Retire McCabe product path | Tasks | Done |
+| HOTSPOT-923 | P1: Discovery/PathScope retained | Tasks | Done |
+| HOTSPOT-924 | P1: JSON 3.0 scan | Tasks | Done |
+| HOTSPOT-925 | P1: JSON 3.0 compare | Tasks | Done |
+| HOTSPOT-926 | P1: Schemas | Tasks | Done |
+| HOTSPOT-927 | P1: Domain types | Tasks | Done |
+| HOTSPOT-928 | P1: Reject version 2.0/1.0 | Tasks | Done |
+| HOTSPOT-929 | P1: Reject cyclomaticComplexity | Tasks | Done |
+| HOTSPOT-930 | P1: Reject functions key | Tasks | Done |
+| HOTSPOT-931 | P1: Remove granularity CLI/config | Tasks | Done |
+| HOTSPOT-932 | P1: runScan no function mode | Tasks | Done |
+| HOTSPOT-933 | P1: compare no functions | Tasks | Done |
+| HOTSPOT-934 | P1: CSV omit functions files | Tasks | Done |
+| HOTSPOT-935 | P1: `--only` without functions | Tasks | Done |
+| HOTSPOT-936 | P1: explain file-only | Tasks | Done |
+| HOTSPOT-937 | P1: Delete function-churn + function scorers | Tasks | Done |
+| HOTSPOT-938 | P1: Report columns NLOC | Tasks | Done |
+| HOTSPOT-939 | P1: Glossary/triage/summary copy | Tasks | Done |
+| HOTSPOT-940 | P1: Progress phases file-only | Tasks | Done |
+| HOTSPOT-941 | P1: Living docs | Tasks | Done |
+| HOTSPOT-942 | P1: Skills/rules/INTEGRATIONS | Tasks | Done |
+| HOTSPOT-943 | P1: ADR-2026-019 supersession | Tasks | Done |
 
 **Coverage:** 24 total, mapped in tasks.md. IDs after 943 available for Execute gaps (do not reuse 913–919).
 
@@ -194,9 +194,9 @@ Hotspot ranking uses cyclomatic complexity (McCabe) as axis `c`, which requires 
 
 ## Success Criteria
 
-- [ ] Hotspots ranked with NCLOC + churn via unchanged harmonic formula
-- [ ] Schemas/types are `"3.0"` with `ncloc`; no McCabe fields; no `functions` array
-- [ ] Function mode absent from CLI, pipeline, CSV, compare, explain
-- [ ] Old baselines fail closed with re-scan guidance
-- [ ] Docs/skills/ADR match NCLOC product vision
-- [ ] `pnpm build && pnpm test` passes
+- [x] Hotspots ranked with NCLOC + churn via unchanged harmonic formula
+- [x] Schemas/types are `"3.0"` with `ncloc`; no McCabe fields; no `functions` array
+- [x] Function mode absent from CLI, pipeline, CSV, compare, explain
+- [x] Old baselines fail closed with re-scan guidance
+- [x] Docs/skills/ADR match NCLOC product vision
+- [x] `pnpm build && pnpm test` passes

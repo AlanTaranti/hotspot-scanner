@@ -4,7 +4,6 @@ import { fileURLToPath } from "node:url";
 import { Worker } from "node:worker_threads";
 import type { ScanProgress } from "../types/index.js";
 import { analyzeBatch, type BatchAnalysisOutput } from "./analyze-batch.js";
-import { createTsMorphProject } from "./project.js";
 
 export const DEFAULT_WORKER_CONCURRENCY = Math.min(availableParallelism(), 8);
 
@@ -115,12 +114,11 @@ export function createWorkerPool(options: WorkerPoolOptions): WorkerPool {
       throwIfAborted(signal);
 
       if (concurrency === 1) {
-        const project = createTsMorphProject({ repoPath });
         const results: BatchAnalysisOutput[] = [];
         let batchesCompleted = 0;
         for (const batch of batches) {
           throwIfAborted(signal);
-          results.push(await analyzeBatch({ repoPath, batch }, project));
+          results.push(await analyzeBatch({ repoPath, batch }));
           batchesCompleted += 1;
           emitBatchProgress(onProgress, batches, batchesCompleted);
         }

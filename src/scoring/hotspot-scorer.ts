@@ -13,67 +13,6 @@ function compareHotspotScores(left: HotspotScore, right: HotspotScore): number {
   return left.filePath.localeCompare(right.filePath);
 }
 
-function scoreSuccessfulHotspots(
-  fileStats: Map<string, FileChangeStats>,
-  complexity: ComplexityResult[],
-): HotspotScore[] {
-  if (complexity.length === 0) {
-    return [];
-  }
-
-  const complexityValues = complexity.map(
-    (entry) => entry.cyclomaticComplexity,
-  );
-  const churnValues = complexity.map(
-    (entry) => fileStats.get(entry.filePath)?.commitCount ?? 0,
-  );
-
-  const complexityNormalized = normalizeLogMinMax(complexityValues);
-  const churnNormalized = normalizeLogMinMax(churnValues);
-
-  return complexity.map((entry, index) => {
-    const c = complexityNormalized[index]!;
-    const h = churnNormalized[index]!;
-    const hotspotScore = c + h === 0 ? 0 : (2 * c * h) / (c + h);
-    const stats = fileStats.get(entry.filePath);
-
-    return {
-      filePath: entry.filePath,
-      complexityNormalized: c,
-      churnNormalized: h,
-      hotspotScore,
-      cyclomaticComplexity: entry.cyclomaticComplexity,
-      functionCount: entry.functionCount,
-      commitCount: stats?.commitCount ?? 0,
-      linesChanged: stats?.linesChanged ?? 0,
-      authorCount: stats?.authors.size ?? 0,
-      parseFailed: false,
-    };
-  });
-}
-
-function scoreParseFailedHotspots(
-  fileStats: Map<string, FileChangeStats>,
-  complexity: ComplexityResult[],
-): HotspotScore[] {
-  return complexity.map((entry) => {
-    const stats = fileStats.get(entry.filePath);
-
-    return {
-      filePath: entry.filePath,
-      complexityNormalized: 0,
-      churnNormalized: 0,
-      hotspotScore: 0,
-      cyclomaticComplexity: 0,
-      functionCount: 0,
-      commitCount: stats?.commitCount ?? 0,
-      linesChanged: stats?.linesChanged ?? 0,
-      authorCount: stats?.authors.size ?? 0,
-      parseFailed: true,
-    };
-  });
-}
-
 export function scoreHotspots(
   fileStats: Map<string, FileChangeStats>,
   complexity: ComplexityResult[],
@@ -82,11 +21,31 @@ export function scoreHotspots(
     return [];
   }
 
-  const successful = complexity.filter((entry) => !entry.parseFailed);
-  const failed = complexity.filter((entry) => entry.parseFailed);
+  const nclocValues = complexity.map((entry) => entry.ncloc);
+  const churnValues = complexity.map(
+    (entry) => fileStats.get(entry.filePath)?.commitCount ?? 0,
+  );
 
-  return [
-    ...scoreSuccessfulHotspots(fileStats, successful),
-    ...scoreParseFailedHotspots(fileStats, failed),
-  ].sort(compareHotspotScores);
+  const complexityNormalized = normalizeLogMinMax(nclocValues);
+  const churnNormalized = normalizeLogMinMax(churnValues);
+
+  return complexity
+    .map((entry, index) => {
+      const c = complexityNormalized[index]!;
+      const h = churnNormalized[index]!;
+      const hotspotScore = c + h === 0 ? 0 : (2 * c * h) / (c + h);
+      const stats = fileStats.get(entry.filePath);
+
+      return {
+        filePath: entry.filePath,
+        complexityNormalized: c,
+        churnNormalized: h,
+        hotspotScore,
+        ncloc: entry.ncloc,
+        commitCount: stats?.commitCount ?? 0,
+        linesChanged: stats?.linesChanged ?? 0,
+        authorCount: stats?.authors.size ?? 0,
+      };
+    })
+    .sort(compareHotspotScores);
 }

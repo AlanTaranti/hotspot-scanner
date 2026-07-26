@@ -4,7 +4,6 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as analyzeBatchModule from "./analyze-batch.js";
-import * as projectModule from "./project.js";
 import { createWorkerPool, DEFAULT_WORKER_CONCURRENCY } from "./pool.js";
 
 const fixtureWorkersDir = join(
@@ -140,8 +139,8 @@ describe("createWorkerPool", () => {
     expect(outputs[1]!.results[0]?.filePath).toBe("b.ts");
   });
 
-  it("reuses one Project adapter across batches when concurrency is 1", async () => {
-    const createProjectSpy = vi.spyOn(projectModule, "createTsMorphProject");
+  it("processes all inline batches sequentially when concurrency is 1", async () => {
+    const analyzeBatchSpy = vi.spyOn(analyzeBatchModule, "analyzeBatch");
     const repoPath = await createTempRepo({
       "a.ts": "export const a = 1;",
       "b.ts": "export const b = 2;",
@@ -151,8 +150,8 @@ describe("createWorkerPool", () => {
     const pool = createWorkerPool({ concurrency: 1 });
     await pool.runBatches(repoPath, [["a.ts"], ["b.ts"], ["c.ts"]]);
 
-    expect(createProjectSpy).toHaveBeenCalledTimes(1);
-    expect(createProjectSpy).toHaveBeenCalledWith({ repoPath });
+    expect(analyzeBatchSpy).toHaveBeenCalledTimes(3);
+    analyzeBatchSpy.mockRestore();
   });
 
   it("returns results aligned to input batch order with concurrency > 1", async () => {
@@ -381,7 +380,7 @@ describe("createWorkerPool", () => {
         if (analyzeBatchSpy.mock.calls.length === 1) {
           await firstBatchBlocked;
         }
-        return { results: [], functions: [], warnings: [] };
+        return { results: [], warnings: [] };
       });
 
     const repoPath = await createTempRepo({

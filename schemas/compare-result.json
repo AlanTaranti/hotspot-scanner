@@ -5,20 +5,14 @@
   "description": "Compare output from hotspot-scanner (baseline vs current scan).",
   "type": "object",
   "additionalProperties": true,
-  "required": ["version", "granularity", "hotspots", "functions", "meta"],
+  "required": ["version", "hotspots", "meta"],
   "properties": {
     "version": {
       "type": "string",
-      "const": "2.0"
-    },
-    "granularity": {
-      "$ref": "scan-result.json#/$defs/ScanGranularity"
+      "const": "3.0"
     },
     "hotspots": {
       "$ref": "#/$defs/HotspotCompareSection"
-    },
-    "functions": {
-      "$ref": "#/$defs/FunctionCompareSection"
     },
     "meta": {
       "$ref": "#/$defs/CompareMeta"
@@ -32,19 +26,6 @@
       "properties": {
         "entity": {
           "$ref": "scan-result.json#/$defs/HotspotScore"
-        },
-        "baselineRank": { "type": "integer" },
-        "currentRank": { "type": "integer" },
-        "rankDelta": { "type": "integer" }
-      }
-    },
-    "RankChangeFunction": {
-      "type": "object",
-      "additionalProperties": true,
-      "required": ["entity", "baselineRank", "currentRank", "rankDelta"],
-      "properties": {
-        "entity": {
-          "$ref": "scan-result.json#/$defs/FunctionHotspotScore"
         },
         "baselineRank": { "type": "integer" },
         "currentRank": { "type": "integer" },
@@ -72,31 +53,6 @@
           "type": "array",
           "items": {
             "$ref": "#/$defs/RankChangeHotspot"
-          }
-        }
-      }
-    },
-    "FunctionCompareSection": {
-      "type": "object",
-      "additionalProperties": true,
-      "required": ["new", "removed", "rankChanged"],
-      "properties": {
-        "new": {
-          "type": "array",
-          "items": {
-            "$ref": "scan-result.json#/$defs/FunctionHotspotScore"
-          }
-        },
-        "removed": {
-          "type": "array",
-          "items": {
-            "$ref": "scan-result.json#/$defs/FunctionHotspotScore"
-          }
-        },
-        "rankChanged": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/RankChangeFunction"
           }
         }
       }

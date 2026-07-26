@@ -1,7 +1,7 @@
-export { functionKey, hotspotKey } from "./keys.js";
+export { hotspotKey } from "./keys.js";
 export {
   BaselineError,
   loadBaseline,
   parseScanResult,
 } from "./load-baseline.js";
-export { CompareError, compareScanResults } from "./compare.js";
+export { compareScanResults } from "./compare.js";

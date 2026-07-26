@@ -33,7 +33,6 @@ describe("parseHotspotScannerConfig", () => {
         since: "6 months ago",
         include: ["src/**"],
         exclude: ["**/*.test.ts"],
-        granularity: "function",
         top: 10,
         concurrency: 2,
       }),
@@ -42,7 +41,6 @@ describe("parseHotspotScannerConfig", () => {
         since: "6 months ago",
         include: ["src/**"],
         exclude: ["**/*.test.ts"],
-        granularity: "function",
         top: 10,
         concurrency: 2,
       },
@@ -137,10 +135,13 @@ describe("parseHotspotScannerConfig", () => {
     );
   });
 
-  it("rejects invalid granularity", () => {
-    expect(() => parseHotspotScannerConfig({ granularity: "module" })).toThrow(
-      /"granularity"/,
-    );
+  it("treats leftover granularity as unknown key", () => {
+    const parsed = parseHotspotScannerConfig({
+      since: "1 year ago",
+      granularity: "function",
+    });
+    expect(parsed.config).toEqual({ since: "1 year ago" });
+    expect(parsed.unknownKeys).toEqual(["granularity"]);
   });
 
   it("rejects non-positive top", () => {

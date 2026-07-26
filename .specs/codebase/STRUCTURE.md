@@ -9,21 +9,22 @@ hotspot-scanner/
 │   ├── scan-actions.ts          # Shared scan/compare CLI wiring (runScan, compare render, path validation)
 │   └── completion-scripts.ts    # Static bash/zsh/fish completion scripts (M54)
 ├── src/
-│   ├── git/                     # Git Change Miner (+ function-churn M23)
-│   ├── complexity/              # McCabe over ts-morph
-│   ├── scoring/                 # HotspotScorer (file + function)
+│   ├── git/                     # Git Change Miner (numstat churn only)
+│   ├── complexity/              # NCLOC size analyzer (file-level)
+│   ├── scoring/                 # HotspotScorer (file hotspots)
 │   ├── diagnostics/             # stderr warnings + progress logging
 │   ├── doctor/                  # Pre-flight checks (Node, git, repo, config, scope, tsconfig)
 │   ├── compare/                 # Baseline load + compareScanResults
 │   ├── report/                  # CLI table + JSON + markdown + CSV reporter
 │   ├── config/                  # .hotspot-scanner.json load + merge + init exemplar writer
 │   ├── paths/                   # PathScope globs + monorepo git-root remount (resolve-repo)
-│   ├── scan-preview.ts          # scan --dry-run scope preview (no mine/AST)
+│   ├── scan-preview.ts          # scan --dry-run scope preview (no mine/NCLOC)
 │   ├── scan.ts                  # Pipeline orchestration
 │   ├── types/                   # Domain types (no runtime logic)
 │   └── index.ts                 # Public library API
+├── schemas/                     # JSON Schema scan/compare contracts (version 3.0)
 ├── tests/
-│   └── fixtures/                # Git repos + git log samples + TS complexity fixtures
+│   └── fixtures/                # Git repos + git log samples + NCLOC fixtures
 └── .specs/                      # Living project docs
 ```
 
@@ -31,28 +32,29 @@ hotspot-scanner/
 
 | Path                     | Status      | Role                                                                                                                                                                                               |
 | ------------------------ | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `bin/hotspot-scanner.ts` | implemented | Commander CLI — `init`, `doctor`, `scan [path]`, `baseline save <path>`, `compare <path> --baseline <file>`, `completion <shell>`; `doctor` supports `--config`, `--include-tests`, `-f/--format text\|json`; scan/compare flags include `--since`, `--format`, `--granularity`, `--top`, `--include`, `--exclude`, `--config`, `--concurrency`, `--output`, `--baseline`, `--only`, `--no-triage-hints`, `--no-color`, `--explain`, `--strict`, `--dry-run`, `--include-tests`, `--sequential` / `--no-overlap`, `--quiet`, `--no-progress`, `--verbose` |
-| `bin/scan-actions.ts`    | implemented | Shared CLI wiring — `executeScan`, `executeCompareAndRender`, `writeBaselineJson`, `runWithScanCancelSignals`, `createVerboseSpawnArgvHandler`, `validateOutputPath`, `validateBaselinePath`, `DEFAULT_BASELINE_OUTPUT` (`./hotspot-baseline.json`); I/O and flag merge only |
-| `bin/completion-scripts.ts` | implemented | `getCompletionScript(shell)` — static bash/zsh/fish scripts for `completion <shell>` (M54); no domain logic |
-| `src/git/`               | implemented | GitMiner — `spawn`, `parse`, `rename`, `aggregate`, `canonicalize`; `function-churn/` for M23 patch overlap; `ls-files.ts` (M36) |
-| `src/complexity/`        | implemented | ComplexityAnalyzer — McCabe via ts-morph (`discover`, `project`, `mccabe`, `analyze-file`, `pool`, `worker`) |
-| `src/scoring/`           | implemented | HotspotScorer, FunctionHotspotScorer — `normalize`, `hotspot-scorer`, `function-hotspot-scorer` |
-| `src/diagnostics/`       | implemented | stderr logger — warnings + throttled progress                                                                                                                                                      |
-| `src/doctor/`            | implemented | `runDoctor()` — Node engines, git on PATH, `resolveScanPipelineContext` (remount-aware `git-repo`), config discovery/validity, **`scope`** finding via `previewScanScope`, tsconfig/jsconfig info; `format.ts` (`formatDoctorJsonReport`) for `doctor --format json`; `DoctorFindingId` includes `"scope"`; aggregate exit codes |
-| `src/report/`            | implemented | Reporter — `only`, `summary`, `glossary`, `triage`, `compare-triage`, `explain`, `explain-compare`, `color` (M41/M42/M53); `slice`, `json`, `table`, `markdown`, `csv-utils`, `csv-bundle`, `csv`, `slice-compare`, `compare-*` + `createReporter()` factory (`render` + `renderCompare`; `ReporterOptions`: `only`, `triageHints`, `color`; CSV returns `CsvBundle`) |
-| `src/compare/`           | implemented | Baseline loader, entity keys, `compareScanResults()` engine                                                                                                                                        |
-| `src/config/`            | implemented | `.hotspot-scanner.json` loader — parent walk or explicit `configPath` (`loadHotspotScannerConfig`), `mergeScanOptions` (CLI > config > defaults), `exemplar.ts` (`writeInitConfig`, locked exemplar for `init`), `ConfigError`; unknown keys → `UNKNOWN_CONFIG_KEY` |
-| `src/paths/`             | implemented | `createPathScope` / `isPathInScope` / `filterGitMinerResult` (M7); `resolveMonorepoScanPath` + `buildAutoIncludePattern` (M43 git-root remount + auto-include) |
-| `src/scan-preview.ts`    | implemented | `previewScanScope()` / `formatScanScopePreview()` — `resolveScanPipelineContext` + `createScanPathScope` + `discoverSourceFiles` count for `--dry-run` and doctor `scope` (no mine/AST/scoring)    |
-| `src/scan.ts`            | implemented | `resolveScanPipelineContext`, `createScanPathScope`, `runScan()` — shared prelude + PathScope builder + pipeline orchestration with granularity branch                                              |
-| `src/types/`             | implemented | FileChangeStats, HotspotScore, ScanOptions, ScanResult, etc.                                                                                                                                       |
-| `src/index.ts`           | implemented | Public API — `runScan`, `previewScanScope`, `runDoctor`, `loadBaseline`, `compareScanResults`, `parseScanResult`, doctor/preview types, `PACKAGE_NAME` |
+| `bin/hotspot-scanner.ts` | implemented | Commander CLI — `init`, `doctor`, `scan [path]`, `baseline save <path>`, `compare <path> --baseline <file>`, `completion <shell>`; scan/compare flags include `--since`, `--format`, `--top`, `--include`, `--exclude`, `--config`, `--concurrency`, `--output`, `--baseline`, `--only`, `--no-triage-hints`, `--no-color`, `--explain`, `--strict`, `--dry-run`, `--include-tests`, `--sequential` / `--no-overlap`, `--quiet`, `--no-progress`, `--verbose` |
+| `bin/scan-actions.ts`    | implemented | Shared CLI wiring — `executeScan`, `executeCompareAndRender`, `writeBaselineJson`, `runWithScanCancelSignals`, `createVerboseSpawnArgvHandler`, path validators |
+| `bin/completion-scripts.ts` | implemented | `getCompletionScript(shell)` — static bash/zsh/fish scripts (M54) |
+| `src/git/`               | implemented | GitMiner — `spawn`, `parse`, `rename`, `aggregate`, `canonicalize`; `ls-files.ts` (M36) |
+| `src/complexity/`        | implemented | Size analyzer — NCLOC (`ncloc.ts`, `analyze-file`, `analyze-batch`, `discover`, `pool`, `worker`) |
+| `src/scoring/`           | implemented | `HotspotScorer` — `normalize`, `hotspot-scorer` |
+| `src/diagnostics/`       | implemented | stderr logger — warnings + throttled progress |
+| `src/doctor/`            | implemented | `runDoctor()` — Node, git, remount-aware repo, config, scope via `previewScanScope`, tsconfig |
+| `src/report/`            | implemented | Reporter — `only`, `summary`, `glossary`, `triage`, `compare-triage`, `explain`, `explain-compare`, `color`; table/json/markdown/csv + compare variants |
+| `src/compare/`           | implemented | Baseline loader (`loadBaseline` rejects pre-3.0), `compareScanResults` |
+| `src/config/`            | implemented | `.hotspot-scanner.json` loader, `mergeScanOptions`, `exemplar.ts`, `UNKNOWN_CONFIG_KEY` for legacy keys |
+| `src/paths/`             | implemented | `createPathScope`, `resolveMonorepoScanPath`, `filterGitMinerResult` |
+| `src/scan-preview.ts`    | implemented | `previewScanScope()` — prelude + eligible file count (no mine/NCLOC) |
+| `src/scan.ts`            | implemented | `resolveScanPipelineContext`, `createScanPathScope`, `runScan()` — file-only pipeline |
+| `src/types/`             | implemented | `FileChangeStats`, `HotspotScore`, `ScanResult` (`version: "3.0"`), etc. |
+| `src/index.ts`           | implemented | Public API — `runScan`, `previewScanScope`, `runDoctor`, compare helpers |
 
 ## Test layout
 
 - Co-located `*.test.ts` next to source modules
 - `tests/fixtures/git-log/` — raw `git log` output samples
 - `tests/fixtures/repos/` — small versioned Git repositories for integration scans
-- `tests/fixtures/complexity/` — TS files with known McCabe values
+- `tests/fixtures/complexity/` — NCLOC-verified source snippets (M57)
 - `tests/fixtures/scoring/` — fixed scoring inputs with documented expected ranking order
 - `tests/fixtures/report/` — hand-crafted `ScanResult` for reporter tests
+- `tests/contract/` — JSON schema validation against `schemas/`

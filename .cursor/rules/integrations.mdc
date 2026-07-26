@@ -1,5 +1,5 @@
 ---
-description: External integration encapsulation (ts-morph, git, commander, schemas)
+description: External integration encapsulation (git, worker_threads, commander, schemas)
 globs: src/git/**,src/complexity/**,src/scoring/**,src/report/**,src/compare/**,src/config/**,bin/**,package.json,schemas/**
 alwaysApply: false
 ---
@@ -8,14 +8,14 @@ alwaysApply: false
 
 Follow [INTEGRATIONS.md](../../.specs/codebase/INTEGRATIONS.md):
 
-- **ts-morph** — sole AST access point; mock at the `ComplexityAnalyzer` boundary, not in scorers or reporter.
-- **git** — `child_process.spawn` encapsulated in `GitMiner`; do not spawn git outside `src/git/`.
+- **git** — `child_process.spawn` encapsulated in `GitMiner`; do not spawn git outside `src/git/` (except documented `resolve-repo.ts`).
+- **worker_threads** — parallel NCLOC batches in `src/complexity/` only.
 - **commander** — CLI parsing in `bin/hotspot-scanner.ts`; no domain logic in the bin.
-- **JSON schemas** — published contracts in `schemas/`; `loadBaseline` validates against the domain contract (do not scatter ad hoc parsers).
+- **JSON schemas** — published contracts in `schemas/`; `loadBaseline` validates against the domain contract.
 
 ## Rules
 
-- Encapsulate adapters (`GitMiner`, `ComplexityAnalyzer`) — do not spread ts-morph/git imports across the pipeline.
+- Encapsulate adapters (`GitMiner`, `ComplexityAnalyzer`) — do not spread git imports across the pipeline.
 - `src/report/` stays pure (no `fs`); file I/O in bin / compare loader.
 - `src/config/` — only `.hotspot-scanner.json`; precedence CLI > config > defaults.
 - Tests mock at the adapter boundary (see TESTING.md § Mock boundaries).

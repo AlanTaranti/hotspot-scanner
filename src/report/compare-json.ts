@@ -1,29 +1,15 @@
 import type { CompareResult } from "../types/index.js";
-import {
-  type CompareRenderOptions,
-  resolveCompareExportSections,
-} from "./compare-table.js";
-import { normalizeOnly } from "./only.js";
+import type { CompareRenderOptions } from "./compare-table.js";
 
 export function renderCompareJson(
   result: CompareResult,
-  options?: CompareRenderOptions,
+  _options?: CompareRenderOptions,
 ): string {
-  const onlySet = normalizeOnly(options?.only);
-  const sections = resolveCompareExportSections(onlySet);
-
   const payload: Record<string, unknown> = {
     version: result.version,
-    granularity: result.granularity,
+    hotspots: result.hotspots,
     meta: result.meta,
   };
-
-  if (sections.hotspots) {
-    payload.hotspots = result.hotspots;
-  }
-  if (sections.functions) {
-    payload.functions = result.functions;
-  }
 
   return `${JSON.stringify(payload, null, 2)}\n`;
 }

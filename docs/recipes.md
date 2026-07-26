@@ -137,7 +137,7 @@ Built-in artifact excludes (`node_modules`, `dist`, `.next`, and similar) always
 
 ## Baseline / compare
 
-Save a JSON snapshot, then diff a later scan to see new, removed, and rank-changed hotspots (or functions in function mode).
+Save a JSON snapshot, then diff a later scan to see new, removed, and rank-changed **file hotspots**.
 
 **Store baselines as CI artifacts** — do not commit large JSON snapshots to the repo. Upload the baseline from a scheduled or main-branch job and download it in PR compare jobs:
 
@@ -174,7 +174,7 @@ hotspot-scanner scan . --format json --output baseline.json
 # or: hotspot-scanner baseline save . --output baseline.json
 ```
 
-**Do not use `--only` for baselines.** Section-filtered JSON omits top-level keys (`hotspots`, `functions`) and fails baseline validation. Save from an unfiltered scan only — see [README → Section filter (`--only`)](../README.md#output-formats).
+**Do not use `--only` for baselines.** Section-filtered JSON omits required keys and fails baseline validation. Save from an unfiltered scan only — see [README → Section filter (`--only`)](../README.md#output-formats).
 
 ```bash
 # Partial export for triage — NOT a valid baseline
@@ -201,13 +201,13 @@ Full machine-readable delta (no `--top` slicing):
 hotspot-scanner scan . --baseline baseline.json --format json --output compare.json
 ```
 
-**CSV compare bundle** (writes `compare.meta.json` plus hotspot/function delta CSVs):
+**CSV compare bundle** (writes `compare.meta.json` plus hotspot delta CSVs):
 
 ```bash
 hotspot-scanner scan . --baseline baseline.json --format csv --output compare.csv
 ```
 
-Use the same `--since` and `--granularity` for baseline and current scans when you care about rank deltas; mismatched windows emit a `COMPARE_SINCE_MISMATCH` warning. Re-save the baseline after scanner upgrades that change the JSON shape (M56: `version: "2.0"` — baselines at `1.0` or with a `coupling` key are rejected).
+Use the same `--since` for baseline and current scans when you care about rank deltas; mismatched windows emit a `COMPARE_SINCE_MISMATCH` warning. Re-save the baseline after scanner upgrades that change the JSON shape (M57: `version: "3.0"` — baselines at `2.0`/`1.0`, with `coupling`, `cyclomaticComplexity`, or `functions` are rejected).
 
 ### Compare interpretation (delta triage, explain, strict)
 
@@ -217,7 +217,7 @@ Explain a specific delta on stderr (stdout / `--output` unchanged):
 
 ```bash
 hotspot-scanner compare . --baseline baseline.json --explain src/hot.ts
-hotspot-scanner scan . --baseline baseline.json -g function --explain src/hot.ts:myFn
+hotspot-scanner scan . --baseline baseline.json --explain src/hot.ts
 ```
 
 Fail CI when baseline and current `--since` differ (report still written):

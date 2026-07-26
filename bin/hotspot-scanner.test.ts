@@ -20,7 +20,6 @@ import {
   deriveCsvStem,
   parseDoctorFormat,
   parseFormat,
-  parseGranularity,
   parseOnlySectionCli,
   parsePositiveInteger,
   resolvePackageVersion,
@@ -88,11 +87,9 @@ function loadTriageFixture() {
     _comment?: string;
     version: string;
     hotspots: unknown[];
-    functions: unknown[];
     meta: {
       since: string;
       scannedAt: string;
-      granularity: "file";
       warnings?: unknown[];
     };
   };
@@ -103,26 +100,22 @@ function loadTriageFixture() {
 
 function mockScanResult() {
   return {
-    version: "2.0",
+    version: "3.0",
     hotspots: [
       {
         filePath: "src/example.ts",
         hotspotScore: 0.88,
         complexityNormalized: 0.9,
         churnNormalized: 0.85,
-        cyclomaticComplexity: 42,
-        functionCount: 8,
+        ncloc: 42,
         commitCount: 15,
         linesChanged: 320,
         authorCount: 3,
-        parseFailed: false,
       },
     ],
-    functions: [],
     meta: {
       since: "12 months ago",
       scannedAt: "2026-01-01T00:00:00.000Z",
-      granularity: "file",
       warnings: [],
     },
   };
@@ -185,17 +178,6 @@ describe("hotspot-scanner CLI parsing", () => {
     expect(() => parseDoctorFormat("xml")).toThrow(CliUsageError);
     expect(() => parseDoctorFormat("xml")).toThrow(/Invalid --format/);
     expect(() => parseDoctorFormat("xml")).toThrow(/text or json/);
-  });
-
-  it("parseGranularity accepts file and function", () => {
-    expect(parseGranularity("file")).toBe("file");
-    expect(parseGranularity("function")).toBe("function");
-  });
-
-  it("parseGranularity rejects invalid values", () => {
-    expect(() => parseGranularity("module")).toThrow(CliUsageError);
-    expect(() => parseGranularity("module")).toThrow(/Invalid --granularity/);
-    expect(() => parseGranularity("module")).toThrow(/file or function/);
   });
 
   it("parsePositiveInteger accepts positive integers", () => {
@@ -303,7 +285,7 @@ describe("createCliProgram", () => {
     expect(help).toContain("Examples:");
     expect(help).toContain("hotspot-scanner scan");
     expect(help).toMatch(/-f json -o report\.json/);
-    expect(help).toMatch(/-f table -t 10 -g function/);
+    expect(help).toMatch(/-f table -t 10/);
     expect(help).toMatch(/--baseline prior\.json/);
   });
 
@@ -321,7 +303,6 @@ describe("createCliProgram", () => {
     expect(help).toMatch(/-f, --format/);
     expect(help).toMatch(/-o, --output/);
     expect(help).toMatch(/-t, --top/);
-    expect(help).toMatch(/-g, --granularity/);
   });
 
   it("exposes short aliases on scan options", () => {
@@ -329,14 +310,13 @@ describe("createCliProgram", () => {
     const scan = program.commands.find((command) => command.name() === "scan");
 
     expect(scan?.options.map((option) => option.short)).toEqual(
-      expect.arrayContaining(["-f", "-o", "-t", "-g"]),
+      expect.arrayContaining(["-f", "-o", "-t"]),
     );
     expect(scan?.options.map((option) => option.long)).toEqual(
       expect.arrayContaining([
         "--format",
         "--output",
         "--top",
-        "--granularity",
         "--dry-run",
       ]),
     );
@@ -389,7 +369,6 @@ describe("createCliProgram", () => {
       expect.arrayContaining([
         "--output",
         "--since",
-        "--granularity",
         "--top",
         "--concurrency",
         "--sequential",
@@ -449,7 +428,6 @@ describe("createCliProgram", () => {
         "--output",
         "--top",
         "--since",
-        "--granularity",
         "--concurrency",
         "--sequential",
         "--no-overlap",
@@ -577,6 +555,8 @@ function expectCompletionScriptBasics(script: string): void {
   for (const flag of REPRESENTATIVE_SCAN_FLAGS) {
     expect(script).toContain(flag);
   }
+  expect(script).not.toContain("--granularity");
+  expect(script).not.toContain("functions");
   expect(script).toContain("save");
 }
 
@@ -660,15 +640,18 @@ describe("collectGlob", () => {
 });
 
 describe("parseOnlySectionCli", () => {
-  it("accepts hotspots and functions", () => {
+  it("accepts hotspots only", () => {
     expect(parseOnlySectionCli("hotspots")).toBe("hotspots");
-    expect(parseOnlySectionCli("functions")).toBe("functions");
   });
 
-  it("rejects invalid and empty values", () => {
+  it("rejects functions and invalid values", () => {
+    expect(() => parseOnlySectionCli("functions")).toThrow(CliUsageError);
+    expect(() => parseOnlySectionCli("functions")).toThrow(
+      /Invalid --only: functions\. Expected hotspots\./,
+    );
     expect(() => parseOnlySectionCli("bogus")).toThrow(CliUsageError);
     expect(() => parseOnlySectionCli("bogus")).toThrow(
-      /Invalid --only: bogus\. Expected hotspots or functions\./,
+      /Invalid --only: bogus\. Expected hotspots\./,
     );
     expect(() => parseOnlySectionCli("")).toThrow(CliUsageError);
     expect(() => parseOnlySectionCli("")).toThrow(
@@ -680,9 +663,9 @@ describe("parseOnlySectionCli", () => {
 describe("collectOnlySection", () => {
   it("accumulates valid sections", () => {
     expect(collectOnlySection("hotspots", [])).toEqual(["hotspots"]);
-    expect(collectOnlySection("functions", ["hotspots"])).toEqual([
+    expect(collectOnlySection("hotspots", ["hotspots"])).toEqual([
       "hotspots",
-      "functions",
+      "hotspots",
     ]);
   });
 
@@ -852,34 +835,15 @@ describe("resolvePackageVersion", () => {
 });
 
 describe("validateExplainTarget", () => {
-  it("rejects path:function targets in file granularity", () => {
-    expect(() =>
-      validateExplainTarget(
-        { kind: "function", filePath: "src/a.ts", functionName: "run" },
-        "file",
-      ),
-    ).toThrow(CliUsageError);
-    expect(() =>
-      validateExplainTarget(
-        { kind: "function", filePath: "src/a.ts", functionName: "run" },
-        "file",
-      ),
-    ).toThrow(/--granularity function/);
+  it("rejects path:function targets", () => {
+    expect(() => validateExplainTarget("src/a.ts:run")).toThrow(CliUsageError);
+    expect(() => validateExplainTarget("src/a.ts:run")).toThrow(
+      /--explain does not support path:function/,
+    );
   });
 
-  it("allows path:function targets in function granularity", () => {
-    expect(() =>
-      validateExplainTarget(
-        { kind: "function", filePath: "src/a.ts", functionName: "run" },
-        "function",
-      ),
-    ).not.toThrow();
-  });
-
-  it("allows plain file paths in file granularity", () => {
-    expect(() =>
-      validateExplainTarget({ kind: "file", filePath: "src/a.ts" }, "file"),
-    ).not.toThrow();
+  it("allows plain file paths", () => {
+    expect(() => validateExplainTarget("src/a.ts")).not.toThrow();
   });
 });
 
@@ -910,7 +874,7 @@ describe("runCli", () => {
 
   it("prints table on successful scan", async () => {
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [
         {
           filePath: "src/example.ts",
@@ -944,7 +908,7 @@ describe("runCli", () => {
 
   it("prints JSON on successful scan", async () => {
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -958,7 +922,7 @@ describe("runCli", () => {
     await runCli(["node", "hotspot-scanner", "scan", ".", "--format", "json"]);
 
     const parsed = JSON.parse(chunks.join("")) as { version: string };
-    expect(parsed.version).toBe("2.0");
+    expect(parsed.version).toBe("3.0");
   });
 
   it("forwards scan callbacks to diagnostics", async () => {
@@ -971,7 +935,7 @@ describe("runCli", () => {
         commitsProcessed: 1000,
       });
       return {
-        version: "2.0",
+        version: "3.0",
         hotspots: [],
         functions: [],
         meta: {
@@ -1003,7 +967,7 @@ describe("runCli", () => {
         totalBatches: 2,
       });
       return {
-        version: "2.0",
+        version: "3.0",
         hotspots: [],
         functions: [],
         meta: {
@@ -1038,7 +1002,7 @@ describe("runCli", () => {
         code: "INFO_CODE",
       });
       return {
-        version: "2.0",
+        version: "3.0",
         hotspots: [],
         functions: [],
         meta: {
@@ -1088,7 +1052,7 @@ describe("runCli", () => {
         code: "WARN_CODE",
       });
       return {
-        version: "2.0",
+        version: "3.0",
         hotspots: [],
         functions: [],
         meta: {
@@ -1121,7 +1085,7 @@ describe("runCli", () => {
 
   it("still throws CliUsageError under --quiet", async () => {
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -1149,7 +1113,7 @@ describe("runCli", () => {
     const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
     const outputPath = join(tempDir, "report.json");
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -1178,7 +1142,7 @@ describe("runCli", () => {
         fs.readFile(outputPath, "utf8"),
       );
       const parsed = JSON.parse(fileContent) as { version: string };
-      expect(parsed.version).toBe("2.0");
+      expect(parsed.version).toBe("3.0");
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
@@ -1186,7 +1150,7 @@ describe("runCli", () => {
 
   it("appends newline when reporter output omits trailing newline", async () => {
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -1215,7 +1179,7 @@ describe("runCli", () => {
     const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
     const outputPath = join(tempDir, "report.csv");
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [
         {
           filePath: "src/hot.ts",
@@ -1263,7 +1227,7 @@ describe("runCli", () => {
       );
       expect(JSON.parse(metaContent).kind).toBe("scan");
       expect(hotspotsContent.split("\n")[0]).toBe(
-        "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,lines,parseFailed",
+        "rank,file,score,ncloc,nclocN,churn,churnN,authors,lines",
       );
     } finally {
       await rm(tempDir, { recursive: true, force: true });
@@ -1272,7 +1236,7 @@ describe("runCli", () => {
 
   it("throws CliUsageError when --format csv is used without --output", async () => {
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -1297,7 +1261,7 @@ describe("runCli", () => {
     const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
     const outputPath = join(tempDir, "report.json");
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -1325,7 +1289,7 @@ describe("runCli", () => {
         fs.readFile(outputPath, "utf8"),
       );
       const parsed = JSON.parse(fileContent) as { version: string };
-      expect(parsed.version).toBe("2.0");
+      expect(parsed.version).toBe("3.0");
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
@@ -1336,7 +1300,7 @@ describe("runCli", () => {
     const outputPath = join(tempDir, "report.json");
     await writeFile(outputPath, "old content", "utf8");
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -1363,7 +1327,7 @@ describe("runCli", () => {
         fs.readFile(outputPath, "utf8"),
       );
       const parsed = JSON.parse(fileContent) as { version: string };
-      expect(parsed.version).toBe("2.0");
+      expect(parsed.version).toBe("3.0");
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
@@ -1382,7 +1346,7 @@ describe("runCli", () => {
         code: "TEST_WARNING",
       });
       return {
-        version: "2.0",
+        version: "3.0",
         hotspots: [],
         functions: [],
         meta: {
@@ -1450,7 +1414,7 @@ describe("runCli", () => {
       "utf8",
     );
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -1494,7 +1458,7 @@ describe("runCli", () => {
       "utf8",
     );
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -1537,7 +1501,7 @@ describe("runCli", () => {
     const configPath = join(repoPath, "custom-config.json");
     await writeFile(configPath, JSON.stringify({ top: 5 }), "utf8");
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -1611,7 +1575,7 @@ describe("runCli", () => {
 
   it("forwards --concurrency to runScan when explicitly set", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -1643,7 +1607,7 @@ describe("runCli", () => {
 
   it("forwards --sequential to runScan when explicitly set", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -1674,7 +1638,7 @@ describe("runCli", () => {
 
   it("forwards --no-overlap to runScan as sequential: true", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -1705,7 +1669,7 @@ describe("runCli", () => {
 
   it("accepts both --sequential and --no-overlap without CliUsageError", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -1739,7 +1703,7 @@ describe("runCli", () => {
 
   it("omits sequential on runScan when neither flag is set", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -1758,15 +1722,14 @@ describe("runCli", () => {
     expect(call).not.toHaveProperty("sequential");
   });
 
-  it("accepts --sequential with function granularity", async () => {
+  it("accepts --sequential without granularity flag", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
-        granularity: "function",
         warnings: [],
       },
     });
@@ -1777,8 +1740,6 @@ describe("runCli", () => {
       "hotspot-scanner",
       "scan",
       smallTsFixture,
-      "--granularity",
-      "function",
       "--sequential",
       "--format",
       "table",
@@ -1786,7 +1747,6 @@ describe("runCli", () => {
 
     expect(runScanSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        granularity: "function",
         sequential: true,
       }),
     );
@@ -1801,7 +1761,7 @@ describe("runCli", () => {
         "utf8",
       );
       const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-        version: "2.0",
+        version: "3.0",
         hotspots: [],
         functions: [],
         meta: {
@@ -1842,7 +1802,7 @@ describe("runCli", () => {
         "utf8",
       );
       const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-        version: "2.0",
+        version: "3.0",
         hotspots: [],
         functions: [],
         meta: {
@@ -1886,7 +1846,7 @@ describe("runCli", () => {
         "utf8",
       );
       vi.spyOn(scan, "runScan").mockResolvedValue({
-        version: "2.0",
+        version: "3.0",
         hotspots: [],
         functions: [],
         meta: {
@@ -1922,7 +1882,7 @@ describe("runCli", () => {
 
   it("forwards --include-tests to runScan on scan", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -1954,7 +1914,7 @@ describe("runCli", () => {
 
   it("omits includeTests on runScan when --include-tests is not set", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -1976,7 +1936,7 @@ describe("runCli", () => {
 
   it("forwards --include-tests with --exclude to runScan", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -2008,7 +1968,7 @@ describe("runCli", () => {
 
   it("forwards include and exclude patterns to runScan", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -2039,50 +1999,19 @@ describe("runCli", () => {
     );
   });
 
-  it("forwards granularity to runScan", async () => {
-    const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
-      hotspots: [],
-      functions: [],
-      meta: {
-        since: "12 months ago",
-        scannedAt: "2026-01-01T00:00:00.000Z",
-        granularity: "function",
-        warnings: [],
-      },
-    });
-    captureStdout();
-
-    await runCli([
-      "node",
-      "hotspot-scanner",
-      "scan",
-      ".",
-      "--granularity",
-      "function",
-    ]);
-
-    expect(runScanSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        granularity: "function",
-      }),
-    );
-  });
-
-  it("accepts short aliases -f -o -t -g equivalent to long flags", async () => {
+  it("accepts short aliases -f -o -t equivalent to long flags", async () => {
     const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
     const outputPath = join(tempDir, "report.json");
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
-        granularity: "function",
       },
     });
-    const render = vi.fn(() => '{"version":"2.0"}\n');
+    const render = vi.fn(() => '{"version":"3.0"}\n');
     vi.spyOn(report, "createReporter").mockReturnValue({
       render,
       renderCompare: vi.fn(),
@@ -2101,15 +2030,9 @@ describe("runCli", () => {
         outputPath,
         "-t",
         "5",
-        "-g",
-        "function",
       ]);
 
-      expect(runScanSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          granularity: "function",
-        }),
-      );
+      expect(runScanSpy).toHaveBeenCalled();
       expect(render).toHaveBeenCalledWith(
         expect.anything(),
         expect.objectContaining({ format: "json", top: 5 }),
@@ -2118,7 +2041,7 @@ describe("runCli", () => {
       const fileContent = await import("node:fs/promises").then((fs) =>
         fs.readFile(outputPath, "utf8"),
       );
-      expect(JSON.parse(fileContent).version).toBe("2.0");
+      expect(JSON.parse(fileContent).version).toBe("3.0");
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
@@ -2126,13 +2049,12 @@ describe("runCli", () => {
 
   it("long flags still work alongside short aliases", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
-        granularity: "file",
       },
     });
     const render = vi.fn(() => "table-output\n");
@@ -2151,15 +2073,9 @@ describe("runCli", () => {
       "table",
       "--top",
       "15",
-      "--granularity",
-      "file",
     ]);
 
-    expect(runScanSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        granularity: "file",
-      }),
-    );
+    expect(runScanSpy).toHaveBeenCalled();
     expect(render).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({ format: "table", top: 15 }),
@@ -2204,9 +2120,40 @@ describe("runCli", () => {
     expect(runScanSpy).not.toHaveBeenCalled();
   });
 
-  it("forwards --only union to reporter for JSON output", async () => {
+  it("rejects --only functions before scan", async () => {
+    const runScanSpy = vi.spyOn(scan, "runScan");
+
+    await expect(
+      runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        ".",
+        "--format",
+        "json",
+        "--only",
+        "functions",
+      ]),
+    ).rejects.toThrow(CliUsageError);
+    await expect(
+      runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        ".",
+        "--format",
+        "json",
+        "--only",
+        "functions",
+      ]),
+    ).rejects.toThrow(/Invalid --only: functions/);
+
+    expect(runScanSpy).not.toHaveBeenCalled();
+  });
+
+  it("forwards --only hotspots to reporter for JSON output", async () => {
     vi.spyOn(scan, "runScan").mockResolvedValue(loadTriageFixture());
-    const render = vi.fn(() => '{"version":"2.0"}\n');
+    const render = vi.fn(() => '{"version":"3.0"}\n');
     vi.spyOn(report, "createReporter").mockReturnValue({
       render,
       renderCompare: vi.fn(),
@@ -2222,14 +2169,12 @@ describe("runCli", () => {
       "json",
       "--only",
       "hotspots",
-      "--only",
-      "functions",
     ]);
 
     expect(render).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
-        only: ["hotspots", "functions"],
+        only: ["hotspots"],
       }),
     );
   });
@@ -2364,7 +2309,7 @@ describe("runCli", () => {
 
   it("disables table color for non-table formats", async () => {
     vi.spyOn(scan, "runScan").mockResolvedValue(loadTriageFixture());
-    const render = vi.fn(() => '{"version":"2.0"}\n');
+    const render = vi.fn(() => '{"version":"3.0"}\n');
     vi.spyOn(report, "createReporter").mockReturnValue({
       render,
       renderCompare: vi.fn(),
@@ -2461,35 +2406,12 @@ describe("runCli", () => {
   it("renders compare output when --baseline is set", async () => {
     const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
     const baselinePath = join(tempDir, "baseline.json");
-    const scanResult = {
-      version: "2.0" as const,
-      hotspots: [
-        {
-          filePath: "src/example.ts",
-          hotspotScore: 1,
-          complexityNormalized: 1,
-          churnNormalized: 1,
-          cyclomaticComplexity: 10,
-          functionCount: 2,
-          commitCount: 5,
-          linesChanged: 100,
-          authorCount: 1,
-          parseFailed: false,
-        },
-      ],
-      functions: [],
-      meta: {
-        since: "12 months ago",
-        scannedAt: "2026-01-01T00:00:00.000Z",
-        granularity: "file" as const,
-        warnings: [],
-      },
-    };
+    const scanResult = mockScanResult();
     await writeFile(baselinePath, JSON.stringify(scanResult), "utf8");
     vi.spyOn(scan, "runScan").mockResolvedValue(scanResult);
     const renderCompare = vi.fn(
       () =>
-        '{"version":"2.0","hotspots":{"new":[],"removed":[],"rankChanged":[]}}\n',
+        '{"version":"3.0","hotspots":{"new":[],"removed":[],"rankChanged":[]}}\n',
     );
     vi.spyOn(report, "createReporter").mockReturnValue({
       render: vi.fn(),
@@ -2510,7 +2432,7 @@ describe("runCli", () => {
       ]);
 
       expect(renderCompare).toHaveBeenCalled();
-      expect(chunks.join("")).toContain('"version":"2.0"');
+      expect(chunks.join("")).toContain('"version":"3.0"');
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
@@ -2519,7 +2441,7 @@ describe("runCli", () => {
   it("uses normal render when --baseline is omitted", async () => {
     const render = vi.fn(() => "normal-scan-output\n");
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -2542,7 +2464,7 @@ describe("runCli", () => {
 
   it("defaults repoPath to . when scan omits path", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -2566,7 +2488,7 @@ describe("runCli", () => {
   it("honors explicit path when provided", async () => {
     const explicitPath = "/tmp/explicit-repo";
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -2599,7 +2521,7 @@ describe("runCli", () => {
     const baselinePath = join(tempDir, "invalid-baseline.json");
     await writeFile(baselinePath, '{"version":"9.9"}', "utf8");
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -2646,7 +2568,7 @@ describe("runCli", () => {
       .spyOn(process.stderr, "write")
       .mockImplementation(() => true);
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [
         {
           filePath: "src/example.ts",
@@ -2697,7 +2619,7 @@ describe("runCli", () => {
       .spyOn(process.stderr, "write")
       .mockImplementation(() => true);
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -2726,7 +2648,7 @@ describe("runCli", () => {
     );
   });
 
-  it("throws CliUsageError for path:function explain in file granularity before scan", async () => {
+  it("throws CliUsageError for path:function explain before scan", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan");
     captureStdout();
 
@@ -2749,7 +2671,7 @@ describe("runCli", () => {
         "--explain",
         "src/example.ts:run",
       ]),
-    ).rejects.toThrow(/--granularity function/);
+    ).rejects.toThrow(/--explain does not support path:function/);
 
     expect(runScanSpy).not.toHaveBeenCalled();
   });
@@ -2761,7 +2683,7 @@ describe("runCli", () => {
       .spyOn(process.stderr, "write")
       .mockImplementation(() => true);
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [
         {
           filePath: "src/example.ts",
@@ -2803,7 +2725,7 @@ describe("runCli", () => {
         fs.readFile(outputPath, "utf8"),
       );
       const parsed = JSON.parse(fileContent) as { version: string };
-      expect(parsed.version).toBe("2.0");
+      expect(parsed.version).toBe("3.0");
       expect(fileContent).not.toContain("=== Explain:");
       expect(stderrSpy).toHaveBeenCalledWith(
         expect.stringContaining("=== Explain: src/example.ts (rank 1) ==="),
@@ -2885,7 +2807,7 @@ describe("runCli", () => {
 
       const stdout = chunks.join("");
       const parsed = JSON.parse(stdout) as { version: string };
-      expect(parsed.version).toBe("2.0");
+      expect(parsed.version).toBe("3.0");
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
@@ -2989,7 +2911,7 @@ describe("runCli", () => {
     vi.spyOn(scan, "runScan").mockImplementation(async (options) => {
       options.onSpawnArgv?.(["git", "-C", "/repo", "log", "--numstat"]);
       return {
-        version: "2.0",
+        version: "3.0",
         hotspots: [],
         functions: [],
         meta: {
@@ -3024,7 +2946,7 @@ describe("runCli", () => {
     vi.spyOn(scan, "runScan").mockImplementation(async (options) => {
       options.onSpawnArgv?.(["git", "-C", "/repo", "log", "--numstat"]);
       return {
-        version: "2.0",
+        version: "3.0",
         hotspots: [],
         functions: [],
         meta: {
@@ -3055,7 +2977,7 @@ describe("runCli", () => {
 
   it("forwards onSpawnArgv to runScan when --verbose is set", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
       functions: [],
       meta: {
@@ -3183,7 +3105,7 @@ describe("runCli baseline save", () => {
       expect(chunks.join("")).toBe("");
       const baselinePath = join(tempDir, "hotspot-baseline.json");
       const loaded = await loadBaseline(baselinePath);
-      expect(loaded.version).toBe("2.0");
+      expect(loaded.version).toBe("3.0");
       expect(loaded.hotspots).toHaveLength(1);
     } finally {
       process.chdir(originalCwd);
@@ -3210,7 +3132,7 @@ describe("runCli baseline save", () => {
 
       expect(chunks.join("")).toBe("");
       const loaded = await loadBaseline(outputPath);
-      expect(loaded.version).toBe("2.0");
+      expect(loaded.version).toBe("3.0");
       expect(loaded.hotspots[0]?.filePath).toBe("src/example.ts");
     } finally {
       await rm(tempDir, { recursive: true, force: true });
@@ -3236,7 +3158,7 @@ describe("runCli baseline save", () => {
       ]);
 
       const loaded = await loadBaseline(outputPath);
-      expect(loaded.version).toBe("2.0");
+      expect(loaded.version).toBe("3.0");
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
@@ -3354,8 +3276,6 @@ describe("runCli baseline save", () => {
         outputPath,
         "--since",
         "6 months ago",
-        "--granularity",
-        "function",
         "--include",
         "src/**",
       ]);
@@ -3364,7 +3284,6 @@ describe("runCli baseline save", () => {
         expect.objectContaining({
           repoPath: ".",
           since: "6 months ago",
-          granularity: "function",
           include: ["src/**"],
         }),
       );
@@ -3430,7 +3349,7 @@ describe("runCli compare", () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue(scanResult);
     vi.spyOn(report, "createReporter").mockReturnValue({
       render: vi.fn(),
-      renderCompare: vi.fn(() => '{"version":"2.0"}\n'),
+      renderCompare: vi.fn(() => '{"version":"3.0"}\n'),
     });
     captureStdout();
 
@@ -3465,7 +3384,7 @@ describe("runCli compare", () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue(scanResult);
     vi.spyOn(report, "createReporter").mockReturnValue({
       render: vi.fn(),
-      renderCompare: vi.fn(() => '{"version":"2.0"}\n'),
+      renderCompare: vi.fn(() => '{"version":"3.0"}\n'),
     });
     captureStdout();
 
@@ -3500,7 +3419,7 @@ describe("runCli compare", () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue(scanResult);
     const renderCompare = vi.fn(
       () =>
-        '{"version":"2.0","hotspots":{"new":[],"removed":[],"rankChanged":[]}}\n',
+        '{"version":"3.0","hotspots":{"new":[],"removed":[],"rankChanged":[]}}\n',
     );
     vi.spyOn(report, "createReporter").mockReturnValue({
       render: vi.fn(),
@@ -3522,7 +3441,7 @@ describe("runCli compare", () => {
 
       expect(runScanSpy).toHaveBeenCalled();
       expect(renderCompare).toHaveBeenCalled();
-      expect(chunks.join("")).toContain('"version":"2.0"');
+      expect(chunks.join("")).toContain('"version":"3.0"');
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }

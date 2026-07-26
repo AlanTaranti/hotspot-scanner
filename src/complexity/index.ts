@@ -2,18 +2,20 @@ import { stat } from "node:fs/promises";
 import type { PathScope } from "../paths/scope.js";
 import type {
   ComplexityResult,
-  FunctionComplexityResult,
   ScanProgress,
   ScanWarning,
 } from "../types/index.js";
-import type { BatchAnalysisOutput } from "./analyze-batch.js";
+import {
+  analyzeBatch,
+  DEFAULT_BATCH_SIZE,
+  type BatchAnalysisOutput,
+} from "./analyze-batch.js";
 import { discoverSourceFiles } from "./discover.js";
 import {
   createWorkerPool,
   DEFAULT_WORKER_CONCURRENCY,
   type WorkerPool,
 } from "./pool.js";
-import { DEFAULT_BATCH_SIZE } from "./project.js";
 
 export interface ComplexityAnalyzerOptions {
   repoPath: string;
@@ -26,7 +28,6 @@ export interface ComplexityAnalyzerOptions {
 
 export interface ComplexityAnalyzerResult {
   results: ComplexityResult[];
-  functions: FunctionComplexityResult[];
   warnings: ScanWarning[];
 }
 
@@ -74,10 +75,10 @@ function buildFilePathIndex(filePaths: string[]): Map<string, number> {
   return index;
 }
 
-function normalizeParseWarning(warning: ScanWarning | string): ScanWarning {
+function normalizeReadWarning(warning: ScanWarning | string): ScanWarning {
   if (typeof warning === "string") {
     return {
-      code: "PARSE_FAILED",
+      code: "READ_FAILED",
       severity: "warning",
       message: warning,
     };
@@ -85,8 +86,8 @@ function normalizeParseWarning(warning: ScanWarning | string): ScanWarning {
   return warning;
 }
 
-function parseWarningFilePath(warning: ScanWarning): string {
-  const prefix = "Failed to parse ";
+function readWarningFilePath(warning: ScanWarning): string {
+  const prefix = "Failed to read ";
   if (!warning.message.startsWith(prefix)) {
     return "";
   }
@@ -100,13 +101,11 @@ function mergeBatchOutputs(
   filePathIndex: Map<string, number>,
 ): ComplexityAnalyzerResult {
   const results: ComplexityResult[] = [];
-  const functions: FunctionComplexityResult[] = [];
   const warnings: ScanWarning[] = [];
 
   for (const output of batchOutputs) {
     results.push(...output.results);
-    functions.push(...output.functions);
-    warnings.push(...output.warnings.map(normalizeParseWarning));
+    warnings.push(...output.warnings.map(normalizeReadWarning));
   }
 
   const discoveryIndex = (filePath: string): number =>
@@ -117,22 +116,13 @@ function mergeBatchOutputs(
       discoveryIndex(left.filePath) - discoveryIndex(right.filePath),
   );
 
-  functions.sort((left, right) => {
-    const fileOrder =
-      discoveryIndex(left.filePath) - discoveryIndex(right.filePath);
-    if (fileOrder !== 0) {
-      return fileOrder;
-    }
-    return left.line - right.line;
-  });
-
   warnings.sort((left, right) => {
-    const leftPath = parseWarningFilePath(left);
-    const rightPath = parseWarningFilePath(right);
+    const leftPath = readWarningFilePath(left);
+    const rightPath = readWarningFilePath(right);
     return discoveryIndex(leftPath) - discoveryIndex(rightPath);
   });
 
-  return { results, functions, warnings };
+  return { results, warnings };
 }
 
 export function createComplexityAnalyzer(
@@ -151,7 +141,7 @@ export function createComplexityAnalyzer(
         filePaths = filePaths.filter((filePath) => allowlistSet.has(filePath));
       }
       if (filePaths.length === 0) {
-        return { results: [], functions: [], warnings: [] };
+        return { results: [], warnings: [] };
       }
 
       const batches = chunk(filePaths, DEFAULT_BATCH_SIZE);
@@ -176,13 +166,12 @@ export function createComplexityAnalyzer(
   };
 }
 
-export { analyzeBatch } from "./analyze-batch.js";
+export { analyzeBatch, DEFAULT_BATCH_SIZE } from "./analyze-batch.js";
 export {
   createWorkerPool,
   DEFAULT_WORKER_CONCURRENCY,
   type WorkerPool,
 } from "./pool.js";
 export { discoverSourceFiles, ELIGIBLE_EXTENSIONS } from "./discover.js";
-export { createTsMorphProject, DEFAULT_BATCH_SIZE } from "./project.js";
 export { analyzeSourceFile } from "./analyze-file.js";
-export { complexityForFunction, countDecisionNodes } from "./mccabe.js";
+export { countNcloc } from "./ncloc.js";

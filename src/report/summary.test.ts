@@ -33,13 +33,12 @@ function loadCompareFixture(): CompareResult {
 }
 
 describe("buildScanExecutiveSummary", () => {
-  it("reports scan window, granularity, and ranking totals", () => {
+  it("reports scan window and ranking totals", () => {
     const full = loadScanFixture("sample-result.json");
     const lines = buildScanExecutiveSummary(full, full);
 
     expect(lines).toEqual([
       "Scan window: 6 months ago (scanned 2026-07-22T11:00:00.000Z)",
-      "Granularity: file",
       "Hotspots: showing 3 of 3",
       "Warnings: 0",
     ]);
@@ -51,16 +50,6 @@ describe("buildScanExecutiveSummary", () => {
     const lines = buildScanExecutiveSummary(full, displayed);
 
     expect(lines).toContain("Hotspots: showing 1 of 3");
-  });
-
-  it("labels function ranking when granularity is function", () => {
-    const full = loadScanFixture("sample-result-functions.json");
-    const displayed = sliceScanResult(full, 2);
-    const lines = buildScanExecutiveSummary(full, displayed);
-
-    expect(lines).toContain("Granularity: function");
-    expect(lines).toContain("Functions: showing 2 of 3");
-    expect(lines).not.toContain("Hotspots:");
   });
 
   it("appends warning summary from full meta.warnings", () => {
@@ -90,11 +79,10 @@ describe("buildCompareExecutiveSummary", () => {
     expect(lines[1]).toBe(
       "Current since: 6 months ago (scanned 2026-07-22T11:00:00.000Z)",
     );
-    expect(lines[2]).toBe("Granularity: file");
-    expect(lines[3]).toBe(
+    expect(lines[2]).toBe(
       "Hotspot deltas: showing 3 of 3 (new 1, removed 1, rank changed 1)",
     );
-    expect(lines[4]).toBe("Warnings: 0");
+    expect(lines[3]).toBe("Warnings: 0");
   });
 
   it("reports shown vs total on sliced compare deltas", () => {
@@ -102,22 +90,10 @@ describe("buildCompareExecutiveSummary", () => {
     const displayed = sliceCompareResult(full, 1);
     const lines = buildCompareExecutiveSummary(full, displayed);
 
-    expect(lines[3]).toBe(
+    expect(lines[2]).toBe(
       "Hotspot deltas: showing 3 of 3 (new 1, removed 1, rank changed 1)",
     );
-    expect(lines[4]).toBe("Warnings: 0");
-  });
-
-  it("uses function delta labels in function granularity", () => {
-    const baseline = loadScanFixture("compare-baseline-function.json");
-    const current = loadScanFixture("compare-current-function.json");
-    const full = compareScanResults(baseline, current);
-    const lines = buildCompareExecutiveSummary(full, full);
-
-    expect(lines[2]).toBe("Granularity: function");
-    expect(lines[3]).toMatch(/^Function deltas: showing/);
-    expect(lines[3]).not.toMatch(/^Hotspot deltas:/);
-    expect(lines[4]).toBe("Warnings: 0");
+    expect(lines[3]).toBe("Warnings: 0");
   });
 
   it("uses compare-level meta.warnings only, not nested scan warnings", () => {

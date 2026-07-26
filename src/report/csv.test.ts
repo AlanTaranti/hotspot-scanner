@@ -9,41 +9,34 @@ const fixturePath = join(
   dirname(fileURLToPath(import.meta.url)),
   "../../tests/fixtures/report/sample-result.json",
 );
-const functionFixturePath = join(
-  dirname(fileURLToPath(import.meta.url)),
-  "../../tests/fixtures/report/sample-result-functions.json",
-);
 
 function loadFixture(): ScanResult {
   return JSON.parse(readFileSync(fixturePath, "utf8")) as ScanResult;
 }
 
-function loadFunctionFixture(): ScanResult {
-  return JSON.parse(readFileSync(functionFixturePath, "utf8")) as ScanResult;
-}
-
 describe("renderCsv", () => {
-  it("returns CsvBundle with meta.json and hotspots.csv in file mode", () => {
+  it("returns CsvBundle with meta.json and hotspots.csv only", () => {
     const bundle = renderCsv(loadFixture());
 
     expect(bundle).toHaveProperty("meta.json");
     expect(bundle).toHaveProperty("hotspots.csv");
     expect(bundle).not.toHaveProperty("functions.csv");
+    expect(Object.keys(bundle).sort()).toEqual(["hotspots.csv", "meta.json"]);
   });
 
-  it("meta.json is parseable scan metadata", () => {
+  it("meta.json is parseable scan metadata without granularity", () => {
     const bundle = renderCsv(loadFixture());
     const meta = JSON.parse(bundle["meta.json"]!) as {
       kind: string;
       scan_window: string;
       scanned_at: string;
-      granularity: string;
+      granularity?: string;
     };
 
     expect(meta.kind).toBe("scan");
     expect(meta.scan_window).toBe("6 months ago");
     expect(meta.scanned_at).toBe("2026-07-22T11:00:00.000Z");
-    expect(meta.granularity).toBe("file");
+    expect(meta.granularity).toBeUndefined();
   });
 
   it("hotspots.csv has header row only at start (no title row)", () => {
@@ -51,40 +44,23 @@ describe("renderCsv", () => {
     const lines = bundle["hotspots.csv"]!.split("\n");
 
     expect(lines[0]).toBe(
-      "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,lines,parseFailed",
+      "rank,file,score,ncloc,nclocN,churn,churnN,authors,lines",
     );
     expect(lines[1]).toBe(
-      "1,src/hot.ts,0.8500,42,0.9000,15,0.9444,8,3,320,false",
+      "1,src/hot.ts,0.8500,42,0.9000,15,0.9444,3,320",
     );
     expect(lines[3]).toBe(
-      "3,src/cold.ts,0.0200,3,0.1000,2,0.2000,1,1,15,false",
-    );
-  });
-
-  it("returns functions.csv instead of hotspots.csv in function mode", () => {
-    const bundle = renderCsv(loadFunctionFixture());
-
-    expect(bundle).toHaveProperty("functions.csv");
-    expect(bundle).not.toHaveProperty("hotspots.csv");
-    const meta = JSON.parse(bundle["meta.json"]!) as { granularity: string };
-    expect(meta.granularity).toBe("function");
-    expect(bundle["functions.csv"]).toContain(
-      "rank,file,function,line,score,cpx,cpxN,churn,churnN,authors,lines",
-    );
-    expect(bundle["functions.csv"]).toContain(
-      "1,src/hot.ts,processOrder,42,0.8200,15,0.8500,12,0.7900,3,280",
+      "3,src/cold.ts,0.0200,3,0.1000,2,0.2000,1,15",
     );
   });
 
   it("renders empty sections as header-only CSV files", () => {
     const bundle = renderCsv({
-      version: "2.0",
+      version: "3.0",
       hotspots: [],
-      functions: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-07-22T12:00:00.000Z",
-        granularity: "file",
         warnings: [],
       },
     });
@@ -92,58 +68,28 @@ describe("renderCsv", () => {
     const hotspotLines = bundle["hotspots.csv"]!.split("\n");
     expect(hotspotLines).toHaveLength(1);
     expect(hotspotLines[0]).toBe(
-      "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,lines,parseFailed",
+      "rank,file,score,ncloc,nclocN,churn,churnN,authors,lines",
     );
-  });
-
-  it("omits non-selected data files when only is set", () => {
-    const bundle = renderCsv(loadFixture(), { only: ["functions"] });
-
-    expect(bundle).toHaveProperty("meta.json");
-    expect(bundle).toHaveProperty("functions.csv");
-    expect(bundle).not.toHaveProperty("hotspots.csv");
-  });
-
-  it("includes only requested CSV files for union --only", () => {
-    const bundle = renderCsv(loadFixture(), {
-      only: ["hotspots", "functions"],
-    });
-
-    expect(bundle).toHaveProperty("meta.json");
-    expect(bundle).toHaveProperty("hotspots.csv");
-    expect(bundle).toHaveProperty("functions.csv");
-  });
-
-  it("omits excluded ranking CSV in function mode when only functions", () => {
-    const bundle = renderCsv(loadFunctionFixture(), { only: ["functions"] });
-
-    expect(bundle).toHaveProperty("meta.json");
-    expect(bundle).toHaveProperty("functions.csv");
-    expect(bundle).not.toHaveProperty("hotspots.csv");
   });
 
   it("escapes file paths with special characters", () => {
     const bundle = renderCsv({
-      version: "2.0",
+      version: "3.0",
       hotspots: [
         {
           filePath: 'src/"weird",path.ts',
           complexityNormalized: 0.5,
           churnNormalized: 0.5,
           hotspotScore: 0.5,
-          cyclomaticComplexity: 10,
-          functionCount: 2,
+          ncloc: 10,
           commitCount: 5,
           linesChanged: 50,
           authorCount: 1,
-          parseFailed: false,
         },
       ],
-      functions: [],
       meta: {
         since: "6 months ago",
         scannedAt: "2026-07-22T11:00:00.000Z",
-        granularity: "file",
         warnings: [],
       },
     });

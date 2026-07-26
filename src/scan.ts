@@ -1,9 +1,6 @@
 import { access, stat } from "node:fs/promises";
 import { join } from "node:path";
-import {
-  createComplexityAnalyzer,
-  ELIGIBLE_EXTENSIONS,
-} from "./complexity/index.js";
+import { createComplexityAnalyzer } from "./complexity/index.js";
 import {
   loadHotspotScannerConfig,
   mergeScanOptions,
@@ -12,7 +9,6 @@ import {
 } from "./config/index.js";
 import { createScanWarning } from "./diagnostics/logger.js";
 import { createGitMiner } from "./git/index.js";
-import { createFunctionChurnMiner } from "./git/function-churn/index.js";
 import {
   buildAutoIncludePattern,
   createPathScope,
@@ -22,30 +18,13 @@ import {
   type PathScope,
   type ResolvedMonorepoScanPath,
 } from "./paths/index.js";
-import {
-  createFunctionHotspotScorer,
-  createHotspotScorer,
-} from "./scoring/index.js";
+import { createHotspotScorer } from "./scoring/index.js";
 import type {
-  FileChangeStats,
   ScanOptions,
   ScanResult,
   ScanStageTimings,
   ScanWarning,
 } from "./types/index.js";
-
-export function buildFunctionModePathAllowlist(
-  fileStats: Map<string, FileChangeStats>,
-  eligibleExtensions: readonly string[],
-): string[] {
-  const paths: string[] = [];
-  for (const filePath of fileStats.keys()) {
-    if (eligibleExtensions.some((extension) => filePath.endsWith(extension))) {
-      paths.push(filePath);
-    }
-  }
-  return paths.sort();
-}
 
 export const DEFAULT_SINCE = "12 months ago";
 export const DEFAULT_TOP = 20;
@@ -87,9 +66,6 @@ function pickCliOverrides(options: ScanOptions): HotspotScannerConfig {
   }
   if (options.exclude !== undefined) {
     cli.exclude = options.exclude;
-  }
-  if (options.granularity !== undefined) {
-    cli.granularity = options.granularity;
   }
   if (options.top !== undefined) {
     cli.top = options.top;
@@ -255,7 +231,6 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
     onWarning?.(unknownConfigWarning);
   }
 
-  const granularity = merged.granularity;
   const miner = createGitMiner();
   const analyzer = createComplexityAnalyzer({ concurrency: merged.concurrency });
   const abortController = new AbortController();
@@ -286,12 +261,8 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
     let complexityMs = 0;
     let rawGit;
     let cxResult;
-    let functionModePathAllowlist: string[] | undefined;
 
-    const useFileModeSequential =
-      options.sequential === true && granularity !== "function";
-
-    if (useFileModeSequential) {
+    if (options.sequential === true) {
       const gitStart = performance.now();
       rawGit = await miner.mine(mineOptions);
       gitMs = roundMs(performance.now() - gitStart);
@@ -306,18 +277,7 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
       });
 
       const cxStart = performance.now();
-      const cxPromise = (async () => {
-        if (granularity === "function") {
-          const rawGitForAllowlist = await gitPromise;
-          const { fileStats } = filterGitMinerResult(rawGitForAllowlist, scope);
-          functionModePathAllowlist = buildFunctionModePathAllowlist(
-            fileStats,
-            ELIGIBLE_EXTENSIONS,
-          );
-        }
-
-        return analyzer.analyze(analyzeOptions);
-      })().finally(() => {
+      const cxPromise = analyzer.analyze(analyzeOptions).finally(() => {
         complexityMs = roundMs(performance.now() - cxStart);
       });
 
@@ -335,18 +295,7 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
       warnings: gitWarnings,
     } = filterGitMinerResult(rawGit, scope);
 
-    if (granularity === "function" && functionModePathAllowlist === undefined) {
-      functionModePathAllowlist = buildFunctionModePathAllowlist(
-        fileStats,
-        ELIGIBLE_EXTENSIONS,
-      );
-    }
-
-    const {
-      results,
-      functions: functionComplexity,
-      warnings: complexityWarnings,
-    } = cxResult;
+    const { results, warnings: complexityWarnings } = cxResult;
 
     collectedWarnings.push(...gitWarnings);
     forwardWarnings(gitWarnings, onWarning);
@@ -354,54 +303,6 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
     forwardWarnings(complexityWarnings, onWarning);
 
     const scannedAt = new Date().toISOString();
-
-    if (granularity === "function") {
-      const churnMiner = createFunctionChurnMiner();
-      let functionChurnMs = 0;
-      const churnStart = performance.now();
-      const { functionStats, warnings: churnWarnings } = await churnMiner
-        .mine({
-          repoPath: pipelineRepoPath,
-          since,
-          functions: functionComplexity,
-          paths: functionModePathAllowlist,
-          onProgress: options.onProgress,
-          signal,
-          onSpawnArgv,
-        })
-        .finally(() => {
-          functionChurnMs = roundMs(performance.now() - churnStart);
-        });
-
-      collectedWarnings.push(...churnWarnings);
-      forwardWarnings(churnWarnings, onWarning);
-
-      const functions = createFunctionHotspotScorer().score(
-        functionStats,
-        functionComplexity,
-      );
-
-      const timings: ScanStageTimings = {
-        gitMs,
-        complexityMs,
-        functionChurnMs,
-        totalMs: roundMs(performance.now() - workStart),
-      };
-
-      return {
-        version: "2.0",
-        hotspots: [],
-        functions,
-        meta: {
-          since,
-          scannedAt,
-          granularity,
-          warnings: collectedWarnings,
-          timings,
-        },
-      };
-    }
-
     const hotspots = createHotspotScorer().score(fileStats, results);
 
     const timings: ScanStageTimings = {
@@ -411,13 +312,11 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
     };
 
     return {
-      version: "2.0",
+      version: "3.0",
       hotspots,
-      functions: [],
       meta: {
         since,
         scannedAt,
-        granularity: "file",
         warnings: collectedWarnings,
         timings,
       },

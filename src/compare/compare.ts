@@ -1,33 +1,12 @@
 import type {
   CompareResult,
-  FunctionCompareSection,
-  FunctionHotspotScore,
   HotspotCompareSection,
   HotspotScore,
   RankChange,
   ScanResult,
   ScanWarning,
 } from "../types/index.js";
-import { functionKey, hotspotKey } from "./keys.js";
-
-export class CompareError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "CompareError";
-  }
-}
-
-const EMPTY_HOTSPOT_SECTION: HotspotCompareSection = {
-  new: [],
-  removed: [],
-  rankChanged: [],
-};
-
-const EMPTY_FUNCTION_SECTION: FunctionCompareSection = {
-  new: [],
-  removed: [],
-  rankChanged: [],
-};
+import { hotspotKey } from "./keys.js";
 
 interface RankedEntity<T> {
   entity: T;
@@ -111,25 +90,10 @@ function compareHotspots(
   );
 }
 
-function compareFunctions(
-  baseline: FunctionHotspotScore[],
-  current: FunctionHotspotScore[],
-): FunctionCompareSection {
-  return compareRankedSections(baseline, current, (item) =>
-    functionKey(item.filePath, item.functionName, item.line),
-  );
-}
-
 export function compareScanResults(
   baseline: ScanResult,
   current: ScanResult,
 ): CompareResult {
-  if (baseline.meta.granularity !== current.meta.granularity) {
-    throw new CompareError(
-      `Granularity mismatch: baseline is "${baseline.meta.granularity}" but current scan is "${current.meta.granularity}".`,
-    );
-  }
-
   const warnings: ScanWarning[] = [];
   if (baseline.meta.since !== current.meta.since) {
     warnings.push({
@@ -139,21 +103,9 @@ export function compareScanResults(
     });
   }
 
-  const granularity = baseline.meta.granularity;
-  const hotspots =
-    granularity === "file"
-      ? compareHotspots(baseline.hotspots, current.hotspots)
-      : EMPTY_HOTSPOT_SECTION;
-  const functions =
-    granularity === "function"
-      ? compareFunctions(baseline.functions, current.functions)
-      : EMPTY_FUNCTION_SECTION;
-
   return {
-    version: "2.0",
-    granularity,
-    hotspots,
-    functions,
+    version: "3.0",
+    hotspots: compareHotspots(baseline.hotspots, current.hotspots),
     meta: {
       baseline: { ...baseline.meta },
       current: { ...current.meta },

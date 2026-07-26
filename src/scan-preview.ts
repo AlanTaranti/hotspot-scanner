@@ -1,5 +1,4 @@
 import { discoverSourceFiles } from "./complexity/discover.js";
-import { PATCH_PATHSPEC_FALLBACK_THRESHOLD } from "./git/function-churn/spawn.js";
 import { createScanPathScope, resolveScanPipelineContext } from "./scan.js";
 import type { ScanOptions } from "./types/index.js";
 
@@ -14,18 +13,6 @@ export interface ScanScopePreview {
   includeTests: boolean;
   eligibleFileCount: number;
   concurrency: number;
-  /** Set when eligible files exceed the pathspec batch threshold. */
-  pathspecScaleWarning?: string;
-}
-
-export function buildPathspecScaleWarning(
-  eligibleFileCount: number,
-): string | undefined {
-  if (eligibleFileCount <= PATCH_PATHSPEC_FALLBACK_THRESHOLD) {
-    return undefined;
-  }
-
-  return `warning: eligible files (${eligibleFileCount}) exceed pathspec batch threshold (${PATCH_PATHSPEC_FALLBACK_THRESHOLD}); function mode will batch git pathspecs`;
 }
 
 function formatPatternList(patterns: string[]): string {
@@ -57,7 +44,6 @@ export async function previewScanScope(
     includeTests,
     eligibleFileCount,
     concurrency: merged.concurrency,
-    pathspecScaleWarning: buildPathspecScaleWarning(eligibleFileCount),
   };
 }
 
@@ -72,13 +58,6 @@ export function formatScanScopePreview(preview: ScanScopePreview): string {
     `eligible files: ${preview.eligibleFileCount}`,
     `concurrency: ${preview.concurrency}`,
   ];
-
-  const pathspecScaleWarning =
-    preview.pathspecScaleWarning ??
-    buildPathspecScaleWarning(preview.eligibleFileCount);
-  if (pathspecScaleWarning) {
-    lines.push(pathspecScaleWarning);
-  }
 
   return `${lines.join("\n")}\n`;
 }

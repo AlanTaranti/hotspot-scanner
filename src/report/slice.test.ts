@@ -9,24 +9,11 @@ const fixturePath = join(
   dirname(fileURLToPath(import.meta.url)),
   "../../tests/fixtures/report/sample-result.json",
 );
-const functionFixturePath = join(
-  dirname(fileURLToPath(import.meta.url)),
-  "../../tests/fixtures/report/sample-result-functions.json",
-);
 
 function loadFixture(): ScanResult {
   const raw = JSON.parse(readFileSync(fixturePath, "utf8")) as ScanResult & {
     _comment?: string;
   };
-  const { _comment: _ignored, ...fixture } = raw;
-  void _ignored;
-  return fixture;
-}
-
-function loadFunctionFixture(): ScanResult {
-  const raw = JSON.parse(
-    readFileSync(functionFixturePath, "utf8"),
-  ) as ScanResult & { _comment?: string };
   const { _comment: _ignored, ...fixture } = raw;
   void _ignored;
   return fixture;
@@ -50,7 +37,7 @@ describe("sliceScanResult", () => {
     expect(sliced.hotspots).toHaveLength(2);
     expect(sliced.hotspots[0]?.filePath).toBe("src/hot.ts");
     expect(sliced.meta).toEqual(fixture.meta);
-    expect(sliced.version).toBe("2.0");
+    expect(sliced.version).toBe("3.0");
   });
 
   it("returns all items when top exceeds result length", () => {
@@ -58,14 +45,5 @@ describe("sliceScanResult", () => {
     const sliced = sliceScanResult(fixture, 100);
 
     expect(sliced.hotspots).toHaveLength(3);
-  });
-
-  it("slices functions in function mode", () => {
-    const fixture = loadFunctionFixture();
-    const sliced = sliceScanResult(fixture, 2);
-
-    expect(sliced.functions).toHaveLength(2);
-    expect(sliced.hotspots).toEqual([]);
-    expect(sliced.functions[0]?.functionName).toBe("processOrder");
   });
 });
