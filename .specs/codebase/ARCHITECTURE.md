@@ -57,7 +57,7 @@ Multi-command CLI via Commander in `bin/hotspot-scanner.ts` with shared wiring i
 
 ## Data flow (scan)
 
-1. CLI dispatches commands; shared scan/compare wiring in `bin/scan-actions.ts`. Scan flags include `--since`; `-f` / `--format`; `-t` / `--top`; `--include` / `--exclude`; `--config`; `--concurrency`; `-o` / `--output`; `--baseline`; `--only`; `--no-triage-hints`; `--no-color`; `--explain`; `--strict`; `--dry-run`; `--quiet`; `--no-progress`; `--verbose`; `--sequential` / `--no-overlap`.
+1. CLI dispatches commands; shared scan/compare wiring in `bin/scan-actions.ts`. Scan flags include `--since`; `-f` / `--format`; `-t` / `--top`; `--include` / `--exclude`; `--config`; `--concurrency`; `-o` / `--output`; `--baseline`; `--only`; `--no-triage-hints`; `--no-color`; `--explain`; `--strict`; `--dry-run`; `--quiet`; `--no-progress`; `--verbose`; `--warnings`; `--sequential` / `--no-overlap`.
 2. **Monorepo path resolve + config (M43 + M21 + M30)** — `resolveScanPipelineContext()`:
    - `validateRepoPath` → `resolveMonorepoScanPath` → `loadHotspotScannerConfig` (walk from request path) → `mergeScanOptions` (CLI > config > defaults for `since`, `include`, `exclude`, `top`, `concurrency`)
    - Auto-include `{packagePrefix}/**` when remounted and CLI `include` unset
@@ -76,7 +76,7 @@ Multi-command CLI via Commander in `bin/hotspot-scanner.ts` with shared wiring i
 
 - **Filename:** `.hotspot-scanner.json` only
 - **Keys:** `since`, `include`, `exclude`, `top`, `concurrency` — map to CLI semantics
-- **CLI-only:** `format`, `output`, `baseline`, `--only`, `--no-triage-hints`, `--no-color`, `--explain`, `--strict`, `quiet`, `no-progress`, `verbose`, `sequential`, `includeTests`, `version`
+- **CLI-only:** `format`, `output`, `baseline`, `--only`, `--no-triage-hints`, `--no-color`, `--explain`, `--strict`, `quiet`, `no-progress`, `verbose`, `warnings`, `sequential`, `includeTests`, `version`
 - **Removed (M57):** `granularity` — unknown key, warn-only
 
 ### Path scoping (M7 + M30 + M43 + M46 + M48)
@@ -105,9 +105,18 @@ File git miner uses `PathAliasMap` (`src/git/rename.ts`) and `src/git/rename-war
 | ----- | ------------- | ------------ | ---------- |
 | File (numstat) | `buildGitLogArgv` in `src/git/spawn.ts` | `-M` | **forbidden** |
 
-## Diagnostics (M28 + M51)
+## Diagnostics (M28 + M51 + M58)
 
-Module: `src/diagnostics/` (`logger.ts`).
+Module: `src/diagnostics/` (`logger.ts`, `warning-summary.ts`).
+
+### CLI stderr warning sink (M58)
+
+`createCliDiagnosticHandlers({ quiet, noProgress, warningsMode })` is **presentation-only**:
+
+- Pipeline / miner still emit the full `ScanWarning[]` into `meta.warnings` and programmatic `onWarning`.
+- CLI `--warnings summary` (default) buffers warning/error, then `flushWarnings()` writes one aggregated stderr line per `(code, subKind)` group.
+- `--warnings full` logs each warning immediately; flush is a no-op.
+- Not a config key; does not change the JSON contract.
 
 ### Progress phases
 

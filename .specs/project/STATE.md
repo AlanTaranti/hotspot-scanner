@@ -95,6 +95,10 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-26 | **M57 function mode hard cut** | Remove `--granularity` / config `granularity`, function ranking, function-churn patch miner, function CSV/compare/explain — no empty `functions: []`. |
 | 2026-07-26 | **M57 JSON contract `"3.0"`** | `ncloc` on hotspots; no top-level `functions`; baseline reject `2.0`/`1.0` + legacy fields with re-scan `BaselineError` (parity with M56). |
 | 2026-07-26 | **M57 ADR-2026-019 superseded** | Product size metric is NCLOC via lighter line/token scanner; `ts-morph` removed from runtime dependencies. McCabe + function granularity retired — supersede historical M3/M11/M23 milestones without reopening Done specs. |
+| 2026-07-26 | **M58 cli-warnings-mode Specs Planned (Large)** | `--warnings summary\|full` (default **summary** — intentional stderr UX break). Aggregation **stderr only**; `meta.warnings` / programmatic `onWarning` stay full; no schema bump. `--verbose` remains git argv only (M51). CLI-only — no config key (M38 quiet parity). Sink: `createCliDiagnosticHandlers({ warningsMode })` + `flushWarnings()`. Rename sub-kinds under `RENAME_HISTORY_INCOMPLETE`. IDs HOTSPOT-950–969. Specs: `.specs/features/cli-warnings-mode/` (Status: Planned). |
+| 2026-07-26 | **M58 `--warnings` default = summary** | Collapse repeated same-code / rename sub-kind stderr lines; `--warnings=full` restores per-path detail. Unlinked under summary = one aggregated count line (not 5 samples). |
+| 2026-07-26 | **M58 warnings mode = CLI-only** | No `.hotspot-scanner.json` `warnings` key — match M38 `--quiet` presentation flags. |
+| 2026-07-26 | **M58 cli-warnings-mode Done** | Execute complete: `--warnings summary\|full` (default summary); stderr aggregation via `createCliDiagnosticHandlers` + `flushWarnings()`; meta/JSON unchanged; help/completion/docs synced. Gate green (795 tests). Specs: `.specs/features/cli-warnings-mode/` (Done). |
 
 ## Architecture decisions (ADRs)
 
@@ -131,7 +135,9 @@ _None._
 
 ## Active
 
-**M7–M57 Done** (historical). **Active planning:** none — next milestones via `planner-feature` + ROADMAP.
+**M7–M58 Done** (historical). No active Execute milestone — next work is deferred horizon / new planning.
+
+**M58 delivered:** default `--warnings=summary`; stderr-only aggregation; JSON full; `--verbose` ≠ warning detail; CLI-only (no config key); file-mode rename warnings SoT. Specs: [`.specs/features/cli-warnings-mode/`](../features/cli-warnings-mode/).
 
 **Planned backlog:** see [ROADMAP.md](ROADMAP.md). Deferred horizon unchanged below.
 

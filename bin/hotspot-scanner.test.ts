@@ -22,6 +22,7 @@ import {
   parseFormat,
   parseOnlySectionCli,
   parsePositiveInteger,
+  parseWarningsMode,
   resolvePackageVersion,
   resolveSequentialCliOption,
   resolveTableColor,
@@ -35,6 +36,8 @@ import {
   COMPLETION_SHELLS,
   getCompletionScript,
 } from "./completion-scripts.js";
+import { formatAmbiguousRenameWarnings } from "../src/git/rename-warnings.js";
+import type { ScanWarning } from "../src/types/index.js";
 
 const smallTsFixture = join(
   fileURLToPath(new URL(".", import.meta.url)),
@@ -155,6 +158,15 @@ function captureStdout(): { chunks: string[]; restore: () => void } {
   };
 }
 
+function buildAmbiguousRenameWarnings(count: number): ScanWarning[] {
+  const paths = Array.from({ length: count }, (_, i) => `src/file${i}.ts`);
+  return formatAmbiguousRenameWarnings(paths).map((message) => ({
+    severity: "warning" as const,
+    code: "RENAME_HISTORY_INCOMPLETE",
+    message,
+  }));
+}
+
 describe("hotspot-scanner CLI parsing", () => {
   it("parseFormat accepts table, json, markdown, and csv", () => {
     expect(parseFormat("table")).toBe("table");
@@ -167,6 +179,17 @@ describe("hotspot-scanner CLI parsing", () => {
     expect(() => parseFormat("xml")).toThrow(CliUsageError);
     expect(() => parseFormat("xml")).toThrow(/Invalid --format/);
     expect(() => parseFormat("xml")).toThrow(/table, json, markdown, or csv/);
+  });
+
+  it("parseWarningsMode accepts summary and full", () => {
+    expect(parseWarningsMode("summary")).toBe("summary");
+    expect(parseWarningsMode("full")).toBe("full");
+  });
+
+  it("parseWarningsMode rejects invalid values", () => {
+    expect(() => parseWarningsMode("brief")).toThrow(CliUsageError);
+    expect(() => parseWarningsMode("brief")).toThrow(/Invalid --warnings/);
+    expect(() => parseWarningsMode("brief")).toThrow(/summary or full/);
   });
 
   it("parseDoctorFormat accepts text and json", () => {
@@ -225,6 +248,7 @@ describe("createCliProgram", () => {
         "--quiet",
         "--no-progress",
         "--verbose",
+        "--warnings",
         "--only",
         "--no-triage-hints",
         "--no-color",
@@ -232,6 +256,14 @@ describe("createCliProgram", () => {
         "--strict",
       ]),
     );
+  });
+
+  it("scan help lists --warnings with summary default", () => {
+    const help = getScanHelpText();
+
+    expect(help).toContain("--warnings");
+    expect(help).toMatch(/summary\|full/);
+    expect(help).toMatch(/default:\s*"summary"/);
   });
 
   it("scan help lists --strict", () => {
@@ -377,6 +409,7 @@ describe("createCliProgram", () => {
         "--exclude",
         "--include-tests",
         "--config",
+        "--warnings",
       ]),
     );
     expect(save?.options.map((option) => option.long)).not.toContain(
@@ -438,6 +471,7 @@ describe("createCliProgram", () => {
         "--quiet",
         "--no-progress",
         "--verbose",
+        "--warnings",
         "--only",
         "--no-triage-hints",
         "--no-color",
@@ -448,6 +482,28 @@ describe("createCliProgram", () => {
     expect(compare?.options.map((option) => option.long)).not.toContain(
       "--dry-run",
     );
+  });
+
+  it("compare help lists --warnings with summary default", () => {
+    const program = createCliProgram();
+    const compare = program.commands.find(
+      (command) => command.name() === "compare",
+    );
+    const chunks: string[] = [];
+    compare?.configureOutput({
+      writeOut: (str) => {
+        chunks.push(str);
+      },
+      writeErr: (str) => {
+        chunks.push(str);
+      },
+    });
+    compare?.outputHelp();
+    const help = chunks.join("");
+
+    expect(help).toContain("--warnings");
+    expect(help).toMatch(/summary\|full/);
+    expect(help).toMatch(/default:\s*"summary"/);
   });
 
   it("compare help lists --explain and --strict", () => {
@@ -546,6 +602,7 @@ const REPRESENTATIVE_SCAN_FLAGS = [
   "--include",
   "--config",
   "--since",
+  "--warnings",
 ] as const;
 
 function expectCompletionScriptBasics(script: string): void {
@@ -1107,6 +1164,301 @@ describe("runCli", () => {
         "--quiet",
       ]),
     ).rejects.toThrow(/--format csv requires --output/);
+  });
+
+  it("throws CliUsageError for invalid --warnings", async () => {
+    captureStdout();
+
+    await expect(
+      runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        ".",
+        "--warnings",
+        "brief",
+      ]),
+    ).rejects.toThrow(CliUsageError);
+    await expect(
+      runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        ".",
+        "--warnings",
+        "brief",
+      ]),
+    ).rejects.toThrow(/Invalid --warnings.*summary or full/);
+  });
+
+  it("aggregates rename warnings on stderr under default summary mode", async () => {
+    const renameWarnings = buildAmbiguousRenameWarnings(5);
+    const stderrSpy = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    vi.spyOn(scan, "runScan").mockImplementation(async (options) => {
+      for (const warning of renameWarnings) {
+        options.onWarning?.(warning);
+      }
+      return {
+        version: "3.0",
+        hotspots: [],
+        functions: [],
+        meta: {
+          since: "12 months ago",
+          scannedAt: "2026-01-01T00:00:00.000Z",
+          granularity: "file",
+          warnings: renameWarnings,
+        },
+      };
+    });
+    captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      ".",
+      "--format",
+      "json",
+    ]);
+
+    const stderr = stderrSpy.mock.calls.map((call) => String(call[0])).join("");
+    expect(stderr).toContain(
+      "warning: Rename history may be incomplete for 5 path(s).",
+    );
+    for (const warning of renameWarnings) {
+      expect(stderr).not.toContain(warning.message);
+    }
+  });
+
+  it("keeps meta.warnings complete under summary and full modes", async () => {
+    const renameWarnings = buildAmbiguousRenameWarnings(8);
+    const metaLengths: number[] = [];
+
+    for (const modeArgs of [[], ["--warnings", "summary"], ["--warnings", "full"]]) {
+      vi.restoreAllMocks();
+      const { chunks, restore } = captureStdout();
+      vi.spyOn(scan, "runScan").mockImplementation(async (options) => {
+        for (const warning of renameWarnings) {
+          options.onWarning?.(warning);
+        }
+        return {
+          version: "3.0",
+          hotspots: [],
+          functions: [],
+          meta: {
+            since: "12 months ago",
+            scannedAt: "2026-01-01T00:00:00.000Z",
+            granularity: "file",
+            warnings: renameWarnings,
+          },
+        };
+      });
+      vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        ".",
+        "--format",
+        "json",
+        ...modeArgs,
+      ]);
+
+      const parsed = JSON.parse(chunks.join("")) as {
+        meta: { warnings: ScanWarning[] };
+      };
+      metaLengths.push(parsed.meta.warnings.length);
+      restore();
+    }
+
+    expect(metaLengths).toEqual([8, 8, 8]);
+  });
+
+  it("expands per-path rename warnings on stderr with --warnings=full", async () => {
+    const renameWarnings = buildAmbiguousRenameWarnings(3);
+    const stderrSpy = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    vi.spyOn(scan, "runScan").mockImplementation(async (options) => {
+      for (const warning of renameWarnings) {
+        options.onWarning?.(warning);
+      }
+      return {
+        version: "3.0",
+        hotspots: [],
+        functions: [],
+        meta: {
+          since: "12 months ago",
+          scannedAt: "2026-01-01T00:00:00.000Z",
+          granularity: "file",
+          warnings: renameWarnings,
+        },
+      };
+    });
+    captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      ".",
+      "--format",
+      "table",
+      "--warnings",
+      "full",
+    ]);
+
+    for (const warning of renameWarnings) {
+      expect(stderrSpy).toHaveBeenCalledWith(`warning: ${warning.message}\n`);
+    }
+    expect(stderrSpy).not.toHaveBeenCalledWith(
+      expect.stringContaining("for 3 path(s)"),
+    );
+  });
+
+  it("emits full warning detail under --quiet --warnings=full while suppressing info", async () => {
+    const renameWarnings = buildAmbiguousRenameWarnings(2);
+    const stderrSpy = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    vi.spyOn(scan, "runScan").mockImplementation(async (options) => {
+      options.onProgress?.({
+        phase: "git",
+        commitsProcessed: 1000,
+      });
+      options.onWarning?.({
+        severity: "info",
+        message: "info diagnostic",
+        code: "INFO_CODE",
+      });
+      for (const warning of renameWarnings) {
+        options.onWarning?.(warning);
+      }
+      return {
+        version: "3.0",
+        hotspots: [],
+        functions: [],
+        meta: {
+          since: "12 months ago",
+          scannedAt: "2026-01-01T00:00:00.000Z",
+          granularity: "file",
+          warnings: renameWarnings,
+        },
+      };
+    });
+    captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      ".",
+      "--format",
+      "table",
+      "--quiet",
+      "--warnings",
+      "full",
+    ]);
+
+    expect(stderrSpy).not.toHaveBeenCalledWith(
+      expect.stringContaining("Processing git commit"),
+    );
+    expect(stderrSpy).not.toHaveBeenCalledWith("info: info diagnostic\n");
+    for (const warning of renameWarnings) {
+      expect(stderrSpy).toHaveBeenCalledWith(`warning: ${warning.message}\n`);
+    }
+  });
+
+  it("does not expand warnings when --verbose is set without --warnings=full", async () => {
+    const renameWarnings = buildAmbiguousRenameWarnings(4);
+    const stderrSpy = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    vi.spyOn(scan, "runScan").mockImplementation(async (options) => {
+      options.onSpawnArgv?.(["git", "-C", "/repo", "log", "--numstat"]);
+      for (const warning of renameWarnings) {
+        options.onWarning?.(warning);
+      }
+      return {
+        version: "3.0",
+        hotspots: [],
+        functions: [],
+        meta: {
+          since: "12 months ago",
+          scannedAt: "2026-01-01T00:00:00.000Z",
+          granularity: "file",
+          warnings: renameWarnings,
+        },
+      };
+    });
+    captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      ".",
+      "--format",
+      "table",
+      "--verbose",
+    ]);
+
+    expect(stderrSpy).toHaveBeenCalledWith(
+      "verbose: git git -C /repo log --numstat\n",
+    );
+    const stderr = stderrSpy.mock.calls.map((call) => String(call[0])).join("");
+    expect(stderr).toContain(
+      "warning: Rename history may be incomplete for 4 path(s).",
+    );
+    for (const warning of renameWarnings) {
+      expect(stderr).not.toContain(warning.message);
+    }
+  });
+
+  it("forwards --warnings on baseline save", async () => {
+    const renameWarnings = buildAmbiguousRenameWarnings(3);
+    const stderrSpy = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-warnings-"));
+    const originalCwd = process.cwd();
+    vi.spyOn(scan, "runScan").mockImplementation(async (options) => {
+      for (const warning of renameWarnings) {
+        options.onWarning?.(warning);
+      }
+      return {
+        ...mockScanResult(),
+        meta: {
+          ...mockScanResult().meta,
+          warnings: renameWarnings,
+        },
+      };
+    });
+    captureStdout();
+
+    try {
+      process.chdir(tempDir);
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "baseline",
+        "save",
+        ".",
+        "--warnings",
+        "summary",
+      ]);
+    } finally {
+      process.chdir(originalCwd);
+      await rm(tempDir, { recursive: true, force: true });
+    }
+
+    const stderr = stderrSpy.mock.calls.map((call) => String(call[0])).join("");
+    expect(stderr).toContain(
+      "warning: Rename history may be incomplete for 3 path(s).",
+    );
   });
 
   it("writes report to file under --quiet", async () => {

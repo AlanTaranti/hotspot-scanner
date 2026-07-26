@@ -34,6 +34,16 @@ For a quieter CI or cron job (progress lines suppressed; warnings and errors sti
 hotspot-scanner scan . --since "3 months ago" --top 10 --quiet
 ```
 
+By default, stderr warnings use **`--warnings summary`**: repeated rename / same-code lines collapse to one line per category (with count). JSON `meta.warnings` stays the full structured list either way.
+
+When debugging rename confidence (ambiguous paths, unlinked delete+add pairs), opt into per-path detail:
+
+```bash
+hotspot-scanner scan . --since "3 months ago" --warnings=full
+```
+
+`--verbose` traces git spawn argv only — it does not expand warnings. Use `--warnings=full` for that. `--warnings` is CLI-only (not a config key).
+
 **Tip:** Defaults are `12 months ago` and `--top 20`. Override with CLI flags or set `since` / `top` in `.hotspot-scanner.json` (CLI wins over config).
 
 ## PR markdown report
@@ -111,7 +121,7 @@ hotspot-scanner scan packages/web --include "src/**" --exclude "**/*.stories.tsx
 hotspot-scanner scan . --config /ci/hotspot-scanner.json --since "3 months ago" --top 10
 ```
 
-`format`, `output`, and `baseline` are CLI-only and cannot be set in the config file.
+`format`, `output`, `baseline`, and `--warnings` are CLI-only and cannot be set in the config file.
 
 ## Excluding paths (no `.hotspotignore`)
 

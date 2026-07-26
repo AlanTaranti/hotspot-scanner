@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M57 Done.** Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize, residual `*.test.mjs`/`*.spec.cjs`).
+Status: **M7–M58 Done.** Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize, residual `*.test.mjs`/`*.spec.cjs`).
 
 **M12** intentionally absent (CI fail-on-score removed — see STATE).
 
@@ -13,6 +13,7 @@ Status: **M7–M57 Done.** Deferred horizon in [STATE.md](STATE.md) (npm publish
 | M25–M36 | Product docs, rename confidence, coupling enrichment, diagnostics, AST+, path/config DX, scan performance (workers, stream aggregate, enrich cache, overlap, function I/O, discovery) |
 | M37–M45 | README adoption, CLI polish, init/doctor/dry-run, workflows, interpretation UX, explain, monorepo remount, package exports enrich, adoption docs |
 | M46–M55 | Exclude tests by default, git pathspecs, scope extensions, ranking accuracy+, observability, doctor scope parity, perf controls, API trust docs, compare interpretation, CLI adoption extras |
+| M56–M58 | Remove coupling; NCLOC metric (retire McCabe/function mode); CLI `--warnings summary|full` stderr aggregation |
 
 Detailed checklists below are **historical** (all Done).
 
@@ -749,9 +750,29 @@ Product hard cut: replace McCabe cyclomatic complexity with **NCLOC** as axis `c
 
 ---
 
-## Post-M57 / Next
+## Milestone 58 — CLI Warnings Mode — Done
 
-Further horizon remains in [STATE.md](STATE.md) **Deferred**:
+→ [`.specs/features/cli-warnings-mode/spec.md`](../features/cli-warnings-mode/spec.md)  
+**Slug:** `cli-warnings-mode` | **Priority:** High | **Specs:** Done  
+**IDs:** HOTSPOT-950–969 (963–969 reserved) | **Depth:** Large  
+**Sisters:** cli-surface-polish (M38 quiet), scan-observability (M51 `--verbose` git-argv lock + exec warning summary), explain-and-scan-feedback (M42 next-step copy), rename-confidence (M26), adoption-docs (M45 warning-codes), cli-adoption-extras (M54 completion)  
+**Artifacts:** [context.md](../features/cli-warnings-mode/context.md) · [spec.md](../features/cli-warnings-mode/spec.md) · [design.md](../features/cli-warnings-mode/design.md) · [tasks.md](../features/cli-warnings-mode/tasks.md) (Status: **Done**)
+
+Intentional breaking **stderr** default: `--warnings summary|full` (default **`summary`**) collapses repeated same-code / rename sub-kind lines before the Hotspots report. **`meta.warnings` and programmatic `onWarning` stay full** (no JSON contract change). Do **not** overload `--verbose` (M51). CLI-only — no config key (M38 quiet parity). File-mode git miner SoT post-M57; do not revive function-mode claims.
+
+- [x] `--warnings summary|full` on `scan` / `compare` / `baseline save`; default `summary`; invalid → `CliUsageError` exit 2
+- [x] CLI diagnostic sink aggregates stderr (`RENAME_HISTORY_INCOMPLETE` sub-kinds + other multi-code spam); `full` restores per-path/per-pair detail (unlinked may keep 5 + remainder)
+- [x] `flushWarnings()` after scan/compare warning emission; quiet/verbose interaction documented
+- [x] Help, completion, README, `docs/warning-codes.md`, recipes, ARCHITECTURE
+- [x] Final gate `pnpm build && pnpm test`
+
+**Out of scope:** config key; schema bump; expanding unlinked pairs in JSON beyond today’s formatter; executive-summary redesign; function-churn revival; fail-on-warning CI.
+
+---
+
+## Further horizon
+
+Remains in [STATE.md](STATE.md) **Deferred**:
 
 - npm / npx / `pnpm dlx` publish install path
 - CI recipes / fail-on stable deltas / SARIF

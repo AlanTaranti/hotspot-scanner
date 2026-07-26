@@ -7,4 +7,12 @@ export {
   logWarning,
   maybeLogProgress,
 } from "./logger.js";
-export type { CliDiagnosticOptions } from "./logger.js";
+export type { CliDiagnosticOptions, WarningsMode } from "./logger.js";
+export {
+  classifyWarning,
+  flushWarningSummary,
+} from "./warning-summary.js";
+export type {
+  WarningClassification,
+  WarningSubKind,
+} from "./warning-summary.js";

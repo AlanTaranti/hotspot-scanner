@@ -2,7 +2,10 @@ import { access, stat, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { compareScanResults, loadBaseline } from "#compare";
 import type { HotspotScannerConfig } from "#config";
-import { createCliDiagnosticHandlers } from "#diagnostics";
+import {
+  createCliDiagnosticHandlers,
+  type WarningsMode,
+} from "#diagnostics";
 import { createReporter } from "#report";
 import type { CsvBundle, ReportSection } from "#report";
 import { runScan } from "#scan";
@@ -11,6 +14,8 @@ import type {
   ScanOptions,
   ScanResult,
 } from "../src/types/index.js";
+
+export type { WarningsMode };
 
 export type OutputFormat = "table" | "json" | "markdown" | "csv";
 
@@ -223,6 +228,8 @@ export type ScanDiagnosticOptions = {
   noProgress?: boolean;
   includeTests?: boolean;
   verbose?: boolean;
+  /** CLI stderr warning presentation; default summary. */
+  warningsMode?: WarningsMode;
   signal?: AbortSignal;
 };
 
@@ -242,16 +249,17 @@ export async function executeScan(options: {
   configPath?: string;
   sequential?: boolean;
 } & ScanDiagnosticOptions): Promise<ScanResult> {
-  const { onWarning, onProgress } = createCliDiagnosticHandlers({
+  const { onWarning, onProgress, flushWarnings } = createCliDiagnosticHandlers({
     quiet: options.quiet ?? false,
     noProgress: options.noProgress ?? false,
+    warningsMode: options.warningsMode ?? "summary",
   });
   const onSpawnArgv = createVerboseSpawnArgvHandler({
     verbose: options.verbose ?? false,
     quiet: options.quiet ?? false,
   });
 
-  return runScan(
+  const result = await runScan(
     buildScanOptions(
       options.repoPath,
       options.cliOverrides,
@@ -266,6 +274,8 @@ export async function executeScan(options: {
       options.sequential,
     ),
   );
+  flushWarnings();
+  return result;
 }
 
 export type ReporterRenderOptions = {
@@ -304,9 +314,10 @@ export async function executeCompareAndRender(options: {
 } & ScanDiagnosticOptions): Promise<CompareResult> {
   await validateBaselinePath(options.baselinePath);
 
-  const { onWarning, onProgress } = createCliDiagnosticHandlers({
+  const { onWarning, onProgress, flushWarnings } = createCliDiagnosticHandlers({
     quiet: options.quiet ?? false,
     noProgress: options.noProgress ?? false,
+    warningsMode: options.warningsMode ?? "summary",
   });
   const onSpawnArgv = createVerboseSpawnArgvHandler({
     verbose: options.verbose ?? false,
@@ -334,6 +345,7 @@ export async function executeCompareAndRender(options: {
   for (const warning of compareResult.meta.warnings) {
     onWarning(warning);
   }
+  flushWarnings();
 
   const reporter = createReporter();
   const output = reporter.renderCompare(

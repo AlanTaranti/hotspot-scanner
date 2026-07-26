@@ -201,17 +201,29 @@ describe("diagnostics logger", () => {
   });
 
   describe("createCliDiagnosticHandlers", () => {
-    it("forwards progress and all warning severities by default", () => {
+    it("forwards progress immediately and flushes warning severities under default summary", () => {
       const write = vi
         .spyOn(process.stderr, "write")
         .mockImplementation(() => true);
-      const { onProgress, onWarning } = createCliDiagnosticHandlers();
+      const { onProgress, onWarning, flushWarnings } =
+        createCliDiagnosticHandlers();
 
       onProgress({ phase: "git", commitsProcessed: 1000 });
-      onWarning({ severity: "info", message: "info msg" });
-      onWarning({ severity: "warning", message: "warn msg" });
+      onWarning({
+        severity: "info",
+        code: "INFO_CODE",
+        message: "info msg",
+      });
+      onWarning({
+        severity: "warning",
+        code: "WARN_CODE",
+        message: "warn msg",
+      });
 
       expect(write).toHaveBeenCalledWith("Processing git commit 1,000...\n");
+      expect(write).toHaveBeenCalledTimes(1);
+
+      flushWarnings();
       expect(write).toHaveBeenCalledWith("info: info msg\n");
       expect(write).toHaveBeenCalledWith("warning: warn msg\n");
     });
@@ -240,13 +252,16 @@ describe("diagnostics logger", () => {
       const write = vi
         .spyOn(process.stderr, "write")
         .mockImplementation(() => true);
-      const { onProgress, onWarning } = createCliDiagnosticHandlers({
-        noProgress: true,
-      });
+      const { onProgress, onWarning, flushWarnings } =
+        createCliDiagnosticHandlers({
+          noProgress: true,
+        });
 
       onProgress({ phase: "git", commitsProcessed: 1000 });
       onWarning({ severity: "info", message: "info msg" });
 
+      expect(write).not.toHaveBeenCalled();
+      flushWarnings();
       expect(write).toHaveBeenCalledTimes(1);
       expect(write).toHaveBeenCalledWith("info: info msg\n");
     });
@@ -255,18 +270,30 @@ describe("diagnostics logger", () => {
       const write = vi
         .spyOn(process.stderr, "write")
         .mockImplementation(() => true);
-      const { onProgress, onWarning } = createCliDiagnosticHandlers({
-        quiet: true,
-      });
+      const { onProgress, onWarning, flushWarnings } =
+        createCliDiagnosticHandlers({
+          quiet: true,
+        });
 
       onProgress({ phase: "git", commitsProcessed: 1000 });
-      onWarning({ severity: "info", message: "info msg" });
-      onWarning({ severity: "warning", message: "warn msg" });
-      onWarning({ severity: "error", message: "error msg" });
+      onWarning({
+        severity: "info",
+        code: "INFO_CODE",
+        message: "info msg",
+      });
+      onWarning({
+        severity: "warning",
+        code: "WARN_CODE",
+        message: "warn msg",
+      });
+      onWarning({
+        severity: "error",
+        code: "ERR_CODE",
+        message: "error msg",
+      });
 
-      expect(write).not.toHaveBeenCalledWith(
-        expect.stringContaining("Processing git commit"),
-      );
+      expect(write).not.toHaveBeenCalled();
+      flushWarnings();
       expect(write).toHaveBeenCalledTimes(2);
       expect(write).toHaveBeenCalledWith("warning: warn msg\n");
       expect(write).toHaveBeenCalledWith("error: error msg\n");
@@ -276,14 +303,16 @@ describe("diagnostics logger", () => {
       const write = vi
         .spyOn(process.stderr, "write")
         .mockImplementation(() => true);
-      const { onProgress, onWarning } = createCliDiagnosticHandlers({
-        quiet: true,
-        noProgress: true,
-      });
+      const { onProgress, onWarning, flushWarnings } =
+        createCliDiagnosticHandlers({
+          quiet: true,
+          noProgress: true,
+        });
 
       onProgress({ phase: "git", commitsProcessed: 1000 });
       onWarning({ severity: "info", message: "info msg" });
 
+      flushWarnings();
       expect(write).not.toHaveBeenCalled();
     });
   });

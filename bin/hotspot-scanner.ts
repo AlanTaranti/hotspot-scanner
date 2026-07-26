@@ -118,6 +118,17 @@ export function parseFormat(value: string): OutputFormat {
   );
 }
 
+export type WarningsMode = "summary" | "full";
+
+export function parseWarningsMode(value: string): WarningsMode {
+  if (value === "summary" || value === "full") {
+    return value;
+  }
+  throw new CliUsageError(
+    `Invalid --warnings: ${value}. Expected summary or full.`,
+  );
+}
+
 function ensureTrailingNewline(content: string): string {
   return content.endsWith("\n") ? content : `${content}\n`;
 }
@@ -263,6 +274,8 @@ const SEQUENTIAL_OPTION_HELP =
   "Run git mining and complexity analysis sequentially (disables M34 stage overlap)";
 const NO_OVERLAP_OPTION_HELP =
   "Alias for --sequential — disable M34 git∥complexity overlap";
+const WARNINGS_OPTION_HELP =
+  "Stderr warning presentation: summary|full";
 
 export function resolveSequentialCliOption(options: {
   sequential?: boolean;
@@ -435,6 +448,7 @@ export function createCliProgram(): Command {
     )
     .option("--verbose", "Trace git spawn argv on stderr")
     .option("--no-progress", "Suppress progress lines on stderr")
+    .option("--warnings <mode>", WARNINGS_OPTION_HELP, "summary")
     .option(
       "--dry-run",
       "Preview effective scan scope without running git history or NCLOC analysis",
@@ -531,6 +545,7 @@ Examples:
       });
       const reporterOptions = { format, top, only, triageHints, color };
       const sequential = resolveSequentialCliOption(options);
+      const warningsMode = parseWarningsMode(options.warnings as string);
 
       if (format === "csv" && outputPath === undefined) {
         throw new CliUsageError(
@@ -553,6 +568,7 @@ Examples:
             noProgress: options.progress === false,
             includeTests: options.includeTests as boolean | undefined,
             verbose: options.verbose as boolean,
+            warningsMode,
             sequential,
             signal,
           }),
@@ -567,6 +583,7 @@ Examples:
             noProgress: options.progress === false,
             includeTests: options.includeTests as boolean | undefined,
             verbose: options.verbose as boolean,
+            warningsMode,
             sequential,
             signal,
           }),
@@ -635,6 +652,7 @@ Examples:
       "--config <path>",
       "Load config from explicit file (skip parent walk)",
     )
+    .option("--warnings <mode>", WARNINGS_OPTION_HELP, "summary")
     .addHelpText(
       "after",
       `
@@ -658,6 +676,7 @@ Examples:
       const cliOverrides = buildCliConfigOverrides(cmd, options);
       const outputPath = options.output as string;
       const sequential = resolveSequentialCliOption(options);
+      const warningsMode = parseWarningsMode(options.warnings as string);
 
       const result = await executeScan({
         repoPath,
@@ -665,6 +684,7 @@ Examples:
         configPath,
         includeTests: options.includeTests as boolean | undefined,
         sequential,
+        warningsMode,
       });
 
       await writeBaselineJson(result, outputPath);
@@ -725,6 +745,7 @@ Examples:
     )
     .option("--verbose", "Trace git spawn argv on stderr")
     .option("--no-progress", "Suppress progress lines on stderr")
+    .option("--warnings <mode>", WARNINGS_OPTION_HELP, "summary")
     .option(
       "--only <section>",
       "Include only report sections: hotspots (repeatable)",
@@ -796,6 +817,7 @@ Examples:
       });
       const reporterOptions = { format, top, only, triageHints, color };
       const sequential = resolveSequentialCliOption(options);
+      const warningsMode = parseWarningsMode(options.warnings as string);
 
       if (format === "csv" && outputPath === undefined) {
         throw new CliUsageError(
@@ -815,6 +837,7 @@ Examples:
           noProgress: options.progress === false,
           includeTests: options.includeTests as boolean | undefined,
           verbose: options.verbose as boolean,
+          warningsMode,
           sequential,
           signal,
         }),

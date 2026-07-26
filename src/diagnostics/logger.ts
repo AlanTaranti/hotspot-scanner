@@ -3,6 +3,12 @@ import type {
   ScanProgress,
   ScanWarning,
 } from "../types/domain.js";
+import {
+  flushWarningSummary,
+  type WarningsMode,
+} from "./warning-summary.js";
+
+export type { WarningsMode } from "./warning-summary.js";
 
 export const PROGRESS_LOG_INTERVAL = 1000;
 
@@ -103,6 +109,8 @@ export function maybeLogProgress(
 export interface CliDiagnosticOptions {
   quiet?: boolean;
   noProgress?: boolean;
+  /** Default `"summary"` — buffers warning/error for aggregated flush. */
+  warningsMode?: WarningsMode;
 }
 
 export function createCliDiagnosticHandlers(
@@ -110,20 +118,45 @@ export function createCliDiagnosticHandlers(
 ): {
   onProgress: (progress: ScanProgress) => void;
   onWarning: (warning: ScanWarning) => void;
+  flushWarnings: () => void;
 } {
-  const { quiet = false, noProgress = false } = options;
+  const {
+    quiet = false,
+    noProgress = false,
+    warningsMode = "summary",
+  } = options;
   const suppressProgress = quiet || noProgress;
+  const buffer: ScanWarning[] = [];
+
+  const onWarning =
+    warningsMode === "full"
+      ? quiet
+        ? (warning: ScanWarning) => {
+            if (warning.severity !== "info") {
+              logWarning(warning);
+            }
+          }
+        : logWarning
+      : (warning: ScanWarning) => {
+          if (quiet && warning.severity === "info") {
+            return;
+          }
+          buffer.push(warning);
+        };
+
+  const flushWarnings =
+    warningsMode === "full"
+      ? () => {}
+      : () => {
+          flushWarningSummary(buffer);
+          buffer.length = 0;
+        };
 
   return {
     onProgress: suppressProgress
       ? () => {}
       : (progress) => maybeLogProgress(progress),
-    onWarning: quiet
-      ? (warning) => {
-          if (warning.severity !== "info") {
-            logWarning(warning);
-          }
-        }
-      : logWarning,
+    onWarning,
+    flushWarnings,
   };
 }

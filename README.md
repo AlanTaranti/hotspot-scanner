@@ -123,6 +123,7 @@ See [Advanced](#advanced) for concurrency, rename confidence, and the full flag 
 | `--quiet` | — | Suppress progress, info-level stderr diagnostics, and `--verbose` git traces |
 | `--no-progress` | — | Suppress progress lines on stderr only |
 | `--verbose` | — | Trace each git spawn argv on stderr (`verbose: git …`; suppressed when `--quiet`) |
+| `--warnings` | `summary` | Stderr warning presentation: `summary` (default; one line per category with count) or `full` (per-path detail). Does not change JSON `meta.warnings` |
 | `--dry-run` | — | Preview effective scope and eligible file count (no git mine / NCLOC) |
 
 Short aliases: `-f` / `--format`, `-o` / `--output`, `-t` / `--top`.
@@ -185,7 +186,7 @@ Optional **`.hotspot-scanner.json`** supplies shared scan defaults. Discovery fi
 | `top` | `--top` | positive integer |
 | `concurrency` | `--concurrency` | positive integer |
 
-`format`, `output`, `baseline`, `--only`, `--no-triage-hints`, and `--no-color` are **CLI-only** — they cannot be set in the config file. Unknown keys are **not** applied to merge (forward-compatible) but emit a warn-only `UNKNOWN_CONFIG_KEY` diagnostic listing the key names — see [warning codes](docs/warning-codes.md). Invalid JSON or invalid values for known keys exit non-zero with a clear error.
+`format`, `output`, `baseline`, `--only`, `--no-triage-hints`, `--no-color`, `--quiet`, `--no-progress`, `--verbose`, and `--warnings` are **CLI-only** — they cannot be set in the config file. Unknown keys are **not** applied to merge (forward-compatible) but emit a warn-only `UNKNOWN_CONFIG_KEY` diagnostic listing the key names — see [warning codes](docs/warning-codes.md). Invalid JSON or invalid values for known keys exit non-zero with a clear error.
 
 Example:
 
@@ -477,14 +478,16 @@ Churn is measured as raw commit count (not relative code churn). NCLOC is comput
 
 **Cancel (`SIGINT` / `SIGTERM`).** Aborts in-progress `runScan()`; no report on cancel; exit `130`/`143`.
 
-**Verbose git argv (`--verbose`).** On `scan` and `compare` only: one stderr line per numstat spawn (`verbose: git …`). Not a config key; `--quiet` suppresses.
+**Verbose git argv (`--verbose`).** On `scan` and `compare` only: one stderr line per numstat spawn (`verbose: git …`). Not a config key; `--quiet` suppresses. Does **not** expand warning detail — use `--warnings=full` for that.
+
+**Warnings on stderr (`--warnings`).** Default `summary`: aggregate repeated same-code / rename sub-kind lines into one stderr line per group (with count + next-step). Pass `--warnings=full` for per-path / per-pair detail (useful when debugging renames). CLI-only (not a config key). Composes with `--quiet` (progress/info still suppressed; warning/error follow the mode) and `--verbose` (git argv only — does not force full warnings).
 
 | `phase` | When emitted |
 | ------- | ------------ |
 | `git` | Numstat stream (`--numstat`) |
 | `complexity` | NCLOC analyzer batches (inline or worker pool) |
 
-**Warnings (`meta.warnings`).** Structured `{ severity, message, code? }` objects. See [docs/warning-codes.md](docs/warning-codes.md).
+**Warnings (`meta.warnings`).** Structured `{ severity, message, code? }` objects — always the full list regardless of `--warnings`. See [docs/warning-codes.md](docs/warning-codes.md).
 
 #### Warning codes
 
@@ -501,7 +504,7 @@ Find-renames (`-M`) is enabled on git log spawns. The scanner does **not** use g
 
 #### Rename confidence
 
-Rename blind-spot messages use `code: "RENAME_HISTORY_INCOMPLETE"` (ambiguous chain, unlinked delete+add, `--since` truncation). Each appends an actionable **Next step:** sentence.
+Rename blind-spot messages use `code: "RENAME_HISTORY_INCOMPLETE"` (ambiguous chain, unlinked delete+add, `--since` truncation). Each appends an actionable **Next step:** sentence. Default stderr mode summarizes these; pass `--warnings=full` for per-path detail.
 
 ### Features
 
@@ -559,10 +562,11 @@ hotspot-scanner completion <bash|zsh|fish>
 | `--config <path>` | — | Load config from explicit file (skips parent-directory discovery) |
 | `--concurrency` | `min(availableParallelism(), 8)` | NCLOC analyzer worker-pool size (positive integer ≥ 1) |
 | `--sequential` | — | Run git mining then NCLOC analysis sequentially (disables M34 overlap); `--no-overlap` is an alias |
-| `--quiet` | — | Suppress progress and info-level diagnostics on stderr (warnings/errors remain) |
+| `--quiet` | — | Suppress progress and info-level diagnostics on stderr (warnings/errors remain per `--warnings`) |
 | `--no-progress` | — | Suppress progress lines on stderr only |
 | `--dry-run` | — | Preview effective since/include/exclude, test-file policy, and eligible file count without mining git or running NCLOC; `--format` / `--output` ignored; incompatible with `--baseline` |
-| `--verbose` | — | Trace each git spawn argv on stderr (`verbose: git …`; `scan` / `compare` only; suppressed when `--quiet`) |
+| `--verbose` | — | Trace each git spawn argv on stderr (`verbose: git …`; `scan` / `compare` only; suppressed when `--quiet`; does not expand warnings) |
+| `--warnings` | `summary` | Stderr warning presentation: `summary` (default) or `full` (per-path detail). JSON `meta.warnings` always full; CLI-only |
 
 **`doctor --format`** — `text` (default) prints `status: message` lines; `json` prints `{ "version": "1.0", "findings": [...], "exitCode": N }` to stdout (JSON is emitted even when `exitCode` ≠ 0). Invalid format → usage error (exit `2`). Doctor does not run the scan pipeline.
 
@@ -603,6 +607,7 @@ hotspot-scanner scan . --concurrency 1
 hotspot-scanner scan . --explain src/hot.ts
 hotspot-scanner scan . --quiet -f json -o report.json
 hotspot-scanner scan . --verbose
+hotspot-scanner scan . --warnings=full   # per-path rename / multi-file warning detail on stderr
 ```
 
 ## Limitations

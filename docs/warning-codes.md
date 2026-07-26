@@ -1,6 +1,27 @@
 # Warning codes
 
-Scan and compare JSON include structured warnings on `meta.warnings` — an array of `{ severity, message, code? }` objects (`ScanWarning`). The CLI prints each warning to stderr with a severity prefix (`info:`, `warning:`, `error:`). Programmatic callers receive the same objects via `onWarning`.
+Scan and compare JSON include structured warnings on `meta.warnings` — an array of `{ severity, message, code? }` objects (`ScanWarning`). Programmatic callers receive the same objects via `onWarning` — always the full list, one callback per warning.
+
+## Stderr presentation (`--warnings`)
+
+The CLI writes diagnostics to stderr with a severity prefix (`info:`, `warning:`, `error:`). Presentation is controlled by `--warnings` on `scan`, `compare`, and `baseline save` (**CLI-only** — not a config key):
+
+| Mode | Default? | Stderr behavior |
+| ---- | -------- | --------------- |
+| `summary` | **Yes** | Buffer warning/error lines, then emit **one line per group** (by code + rename sub-kind) with a **count** and shared next-step text. Repeated ambiguous / unlinked rename noise collapses instead of one line per path or pair. |
+| `full` | No | Emit each structured warning immediately (per-path ambiguous renames; unlinked sample + remainder lines as in `meta.warnings`). Use when debugging rename confidence. |
+
+**Unchanged by `--warnings`:** `meta.warnings` content and length; library `onWarning` payloads; JSON / CSV report bodies.
+
+**Flag composition:**
+
+| Flag | Effect on warnings |
+| ---- | ------------------ |
+| `--quiet` | Suppresses progress and `severity: "info"`; warning/error still follow `--warnings` mode |
+| `--quiet` + `--warnings=full` | Quiet wins for progress/info; warning/error emit in full detail |
+| `--verbose` | Git spawn argv trace only — does **not** expand warning stderr |
+
+Under `summary`, aggregated lines appear after the scan’s warning emission completes (before the Hotspots report on stdout).
 
 **Severity vs exit code.** `severity` classifies diagnostics only. A successful scan exits `0` even when warnings are present. Hard failures (invalid repo, git error, bad CLI args) still exit non-zero. On compare, `--strict` exits `1` after a successful report write when `COMPARE_SINCE_MISMATCH` is in `meta.warnings` (other warnings alone do not fail under `--strict`).
 
