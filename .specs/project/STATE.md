@@ -104,6 +104,8 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-26 | **M60 table-path-column-ux Specs Planned (Medium)** | Middle-ellipsis File column (prefix + basename, Unicode `…`); width from injectable `stdoutColumns` / `process.stdout.columns`; fallback **24**; min/max + cap via scan non-File budget 56 (80→24); shared helper for `table.ts` + `compare-table.ts`. No flags/config/schema. IDs HOTSPOT-990–1009 (1001–1009 reserved). Specs: `.specs/features/table-path-column-ux/` (Status: Planned). |
 | 2026-07-26 | **M60 truncation = middle-ellipsis (not end / basename-only)** | Keep path prefix + basename when fitting File width (e.g. `src/api/v1/…/schema.ts`). |
 | 2026-07-26 | **M60 table-path-column-ux Done** | Execute complete: shared `path-column.ts` helper (middle-ellipsis `…`, `resolveFileColumnWidth` from `stdout.columns` with fallback 24, clamp 16–64); wired scan/compare tables with injectable `stdoutColumns`; docs synced (ARCHITECTURE, STRUCTURE). Gate green (812 tests). Specs: `.specs/features/table-path-column-ux/` (Done). |
+| 2026-07-26 | **M61 inline-progress-bar Specs Planned (Large)** | Homegrown Option B (no ora/cli-progress): complexity fill bar TTY `█░` / non-TTY `#-` with honest file counts; git indeterminate counter only; `"finalize"` + `Finalizing…` after mine+analyze barrier; defer `flushWarnings` until after write (scan/compare/baseline). No new flags/config/schema. IDs HOTSPOT-1010–1029 (1026–1029 reserved). Specs: `.specs/features/inline-progress-bar/` (Status: Planned). |
+| 2026-07-26 | **M61 progress = honest bars + finalize (no overall %)** | No fake 0–99% meter; do not freeze complexity at 99% of files; keep M59 clear-to-EOL + quiet/no-progress + M58 compose. |
 
 ## Architecture decisions (ADRs)
 
@@ -140,7 +142,9 @@ _None._
 
 ## Active
 
-**M7–M60 Done** (historical). No open milestones — deferred horizon in [STATE.md](STATE.md) § Deferred.
+**M7–M60 Done.** **M61 Planned** — inline progress bar (Specs Planned; Execute not started). Deferred horizon below.
+
+**M61 next:** promote [`.specs/features/inline-progress-bar/tasks.md`](../features/inline-progress-bar/tasks.md) Status → Approved / Ready for Execute in a new session, then `orchestrator-implementer`. Critical wiring: defer `flushWarnings` after write; emit `finalize` at post-barrier.
 
 **M60 delivered:** table File column middle-ellipsis + terminal-derived width (`path-column.ts`); scan/compare parity; injectable `stdoutColumns` for tests; fallback 24 in pipes/CI. Specs: [`.specs/features/table-path-column-ux/`](../features/table-path-column-ux/).
 

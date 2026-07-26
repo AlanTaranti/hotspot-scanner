@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M60 Done.** Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize, residual `*.test.mjs`/`*.spec.cjs`).
+Status: **M7–M60 Done.** **M61 Planned** (inline progress bar). Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize, residual `*.test.mjs`/`*.spec.cjs`).
 
 **M12** intentionally absent (CI fail-on-score removed — see STATE).
 
@@ -13,15 +13,15 @@ Status: **M7–M60 Done.** Deferred horizon in [STATE.md](STATE.md) (npm publish
 | M25–M36 | Product docs, rename confidence, coupling enrichment, diagnostics, AST+, path/config DX, scan performance (workers, stream aggregate, enrich cache, overlap, function I/O, discovery) |
 | M37–M45 | README adoption, CLI polish, init/doctor/dry-run, workflows, interpretation UX, explain, monorepo remount, package exports enrich, adoption docs |
 | M46–M55 | Exclude tests by default, git pathspecs, scope extensions, ranking accuracy+, observability, doctor scope parity, perf controls, API trust docs, compare interpretation, CLI adoption extras |
-| M56–M59 | Remove coupling; NCLOC metric (retire McCabe/function mode); CLI `--warnings summary|full` stderr aggregation; ephemeral TTY scan progress |
+| M56–M60 | Remove coupling; NCLOC metric (retire McCabe/function mode); CLI `--warnings summary|full` stderr aggregation; ephemeral TTY scan progress; table path column UX |
 
 ### Open
 
-_None — M7–M60 Done. Deferred horizon in [STATE.md](STATE.md)._
+- [ ] **M61** — Inline progress bar (complexity fill bar + `Finalizing…` + deferred flush) — Specs Planned — [`.specs/features/inline-progress-bar/`](../features/inline-progress-bar/)
 
 ### Done
 
-M7–M59 historical detail below. Deferred horizon in [STATE.md](STATE.md).
+M7–M60 historical detail below. Deferred horizon in [STATE.md](STATE.md).
 
 ## Milestone 1 — Scaffold
 
@@ -813,6 +813,26 @@ Default table/compare-table File column: replace hard-coded width **24** + left 
 - [x] Final gate `pnpm build && pnpm test` (Execute session)
 
 **Out of scope:** markdown/JSON/CSV paths; `--full-paths`; end-ellipsis/basename-only; triage/explain changes.
+
+---
+
+## Milestone 61 — Inline Progress Bar — Planned
+
+→ [`.specs/features/inline-progress-bar/spec.md`](../features/inline-progress-bar/spec.md)  
+**Slug:** `inline-progress-bar` | **Priority:** Medium | **Specs:** Planned  
+**IDs:** HOTSPOT-1010–1029 (1026–1029 reserved) | **Depth:** Large  
+**Sisters:** tty-ephemeral-progress (M59), cli-warnings-mode (M58), explain-and-scan-feedback (M42), cli-surface-polish (M38 quiet/no-progress)  
+**Artifacts:** [context.md](../features/inline-progress-bar/context.md) · [spec.md](../features/inline-progress-bar/spec.md) · [design.md](../features/inline-progress-bar/design.md) · [tasks.md](../features/inline-progress-bar/tasks.md) (Status: **Planned**)
+
+Homegrown complexity fill bar (TTY `█░` / non-TTY `#-`) with honest `filesProcessed/totalFiles` (+ batch when known); git indeterminate counter only; post-barrier `Finalizing…` live line through score/compare/render/write; defer `flushWarnings` until after write. **No** new flags, config, schema, or progress libraries.
+
+- [ ] Domain `"finalize"` phase + diagnostics formatters/handlers + unit tests
+- [ ] Emit finalize once at post-barrier in `src/scan.ts`
+- [ ] Defer `flushWarnings` after write (scan / compare / baseline)
+- [ ] Living docs (README + ARCHITECTURE)
+- [ ] Final gate `pnpm build && pnpm test` (Execute session)
+
+**Out of scope:** ora/cli-progress; ETA/spinners; fake overall % / 99% freeze; doctor/init/dry-run/completion progress; schema/ranking changes; multi-bar; throttle interval changes (except finalize always emits once).
 
 ---
 
