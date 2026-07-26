@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M59 Done.** Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize, residual `*.test.mjs`/`*.spec.cjs`).
+Status: **M7–M59 Done.** **M60 Specs Planned** (`table-path-column-ux`). Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize, residual `*.test.mjs`/`*.spec.cjs`).
 
 **M12** intentionally absent (CI fail-on-score removed — see STATE).
 
@@ -15,9 +15,13 @@ Status: **M7–M59 Done.** Deferred horizon in [STATE.md](STATE.md) (npm publish
 | M46–M55 | Exclude tests by default, git pathspecs, scope extensions, ranking accuracy+, observability, doctor scope parity, perf controls, API trust docs, compare interpretation, CLI adoption extras |
 | M56–M59 | Remove coupling; NCLOC metric (retire McCabe/function mode); CLI `--warnings summary|full` stderr aggregation; ephemeral TTY scan progress |
 
+### Open
+
+- **M60** — Table path column UX — Specs Planned (see below)
+
 ### Done
 
-_No open milestones._ Deferred horizon in [STATE.md](STATE.md).
+M7–M59 historical detail below. Deferred horizon in [STATE.md](STATE.md).
 
 ## Milestone 1 — Scaffold
 
@@ -789,6 +793,26 @@ While a scan runs on a TTY, stderr progress for `git` and `complexity` updates *
 - [x] Final gate `pnpm build && pnpm test`
 
 **Out of scope:** bars/ETA/spinners; new flags/config; schema bump; throttle changes; function-churn progress revival; wrapping `--verbose` argv writers.
+
+---
+
+## Milestone 60 — Table Path Column UX — Specs Planned
+
+→ [`.specs/features/table-path-column-ux/spec.md`](../features/table-path-column-ux/spec.md)  
+**Slug:** `table-path-column-ux` | **Priority:** Medium | **Specs:** Planned  
+**IDs:** HOTSPOT-990–1009 (1001–1009 reserved) | **Depth:** Medium  
+**Sisters:** rich-output (M9), export-formats (M10), output-interpretation-ux (M41), compare-interpretation (M53), tty-ephemeral-progress (M59)  
+**Artifacts:** [context.md](../features/table-path-column-ux/context.md) · [spec.md](../features/table-path-column-ux/spec.md) · [design.md](../features/table-path-column-ux/design.md) · [tasks.md](../features/table-path-column-ux/tasks.md) (Status: **Planned**)
+
+Default table/compare-table File column: replace hard-coded width **24** + left `slice(0, width)` with **middle-ellipsis** (prefix + basename, Unicode `…`) and File width derived from `process.stdout.columns` (injectable for tests), min/max clamp, fallback **24** when columns missing, capped so scan numeric columns still fit on ~80-col terminals. Shared helper for scan + compare parity. **No** new flags, config keys, or JSON schema bumps.
+
+- [ ] Shared `src/report/` helper: `resolveFileColumnWidth` + `formatFileColumn` (middle-ellipsis) + unit tests
+- [ ] Wire `table.ts` + `compare-table.ts` (dynamic File header width; injectable `stdoutColumns`)
+- [ ] Update truncation tests (replace left-slice assertions); compare parity
+- [ ] Living docs (ARCHITECTURE / README if table layout mentioned)
+- [ ] Final gate `pnpm build && pnpm test` (Execute session)
+
+**Out of scope:** markdown/JSON/CSV paths; `--full-paths`; end-ellipsis/basename-only; triage/explain changes.
 
 ---
 
