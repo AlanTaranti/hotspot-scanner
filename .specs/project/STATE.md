@@ -88,6 +88,8 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-24 | **M55 api-trust-docs Done** | Execute complete (T1–T5). Public entry exports `previewScanScope`/`runDoctor` (+ types); unknown config keys → warn-only `UNKNOWN_CONFIG_KEY` via `meta.warnings`/`onWarning`; `merge-heavy` wired in globalSetup + integration; `SECURITY.md`, zero-network README callout, baseline-in-artifacts recipes, `--only` ≠ baseline cross-links. IDs HOTSPOT-860–882 delivered. Gate: `pnpm build && pnpm test` PASS (1055 tests). Specs: `.specs/features/api-trust-docs/` (Done). |
 | 2026-07-24 | **M55 api-trust-docs Planned (Small)** | Superseded by M55 Done. |
 | 2026-07-24 | **M50 ranking-accuracy-plus Done** | Execute complete: heuristic unlinked-rename `PathAliasMap.link`; enrich canonicalize via PathAliasMap; PARSE_FAILED stub hotspots (`parseFailed`, score 0); callbacks/IIFEs; zero-churn functions (revisit M35 D6). Gate green. Specs: `.specs/features/ranking-accuracy-plus/` (Done). |
+| 2026-07-26 | **M56 remove-coupling-analysis Specs Planned (Complex)** | Product hard cut: remove temporal coupling entirely (pairs, scoring, static enrich, CLI/config, JSON `coupling`, CSV coupling files). JSON `version` → `"2.0"`; reject baselines `1.0` / that still have `coupling` (`BaselineError` + re-scan). No deprecation / empty `[]` / header-only CSV. Historical Done coupling specs (M4/M14/M27/M32/M33/M44…) stay historical — M56 supersedes. IDs HOTSPOT-890+. Specs: `.specs/features/remove-coupling-analysis/` (Status: **Planned**). |
+| 2026-07-26 | **M56 ADR-2026-020 revisit (planned)** | On Execute Done: single `git log` stream continues to feed **churn** only; coupling half of ADR-2026-020 removed with the feature. Do not reopen ADR row until Execute updates wording. |
 
 ## Architecture decisions (ADRs)
 
@@ -95,7 +97,7 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | ------------ | ------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
 | ADR-2026-018 | CLI standalone and self-contained                | Decoupled from other tools; own release cycle                                                  |
 | ADR-2026-019 | `ts-morph` + project-owned McCabe, TS/JS-only    | Dedicated complexity packages abandoned 7–10 years; full control over decision-node definition |
-| ADR-2026-020 | Single `git log` stream feeds churn and coupling | Half the I/O on large repos; one parser produces `FileChangeStats` + stream-aggregated `pairCounts` (M32) |
+| ADR-2026-020 | Single `git log` stream feeds churn (and historically coupling) | Half the I/O on large repos; one parser produces `FileChangeStats` + (pre-M56) stream-aggregated `pairCounts` (M32). **M56 Planned:** remove coupling/`pairCounts` — stream retains churn-only purpose; revisit wording on M56 Execute Done |
 | ADR-2026-021 | CLI binary `hotspot-scanner` without npm scope   | Standard pattern for scoped packages exposing a CLI                                            |
 
 ### Alternatives considered and rejected
@@ -123,11 +125,11 @@ _None._
 
 ## Active
 
-**M7–M55 Done.** Post-M37 user DX (M38–M45), M46 exclude-tests-by-default, M47 git-scale-pathspecs, M48 scope-extensions-excludes, M49 pipeline-perf-controls, M50 ranking-accuracy-plus, M51 scan-observability, M52 doctor-scope-parity, M53 compare-interpretation, M54 cli-adoption-extras, M55 api-trust-docs — all complete.
+**M56 — Remove coupling analysis:** Specs **Planned** (Complex). Artifacts: [`.specs/features/remove-coupling-analysis/`](../features/remove-coupling-analysis/). ROADMAP: [Milestone 56](ROADMAP.md#milestone-56--remove-coupling-analysis).
 
-**Next Execute:** None. See **Deferred** for post-M55 horizon ([ROADMAP.md](ROADMAP.md) Post-M55 / Next).
+**M7–M55 Done** (historical). Next development step: promote M56 `tasks.md` Status to Approved / Ready for Execute, then invoke `orchestrator-implementer` in a **new** session.
 
-**Planned backlog:** None.
+**Planned backlog:** M56 only (Execute not started).
 
 ## Deferred
 
