@@ -68,7 +68,6 @@ function filterScanResultForOnly(
     ...result,
     hotspots: includesSection(onlySet, "hotspots") ? result.hotspots : [],
     functions: includesSection(onlySet, "functions") ? result.functions : [],
-    coupling: includesSection(onlySet, "coupling") ? result.coupling : [],
   };
 }
 
@@ -88,9 +87,6 @@ function filterCompareResultForOnly(
       : { ...EMPTY_COMPARE_SECTION },
     functions: includesSection(onlySet, "functions")
       ? result.functions
-      : { ...EMPTY_COMPARE_SECTION },
-    coupling: includesSection(onlySet, "coupling")
-      ? result.coupling
       : { ...EMPTY_COMPARE_SECTION },
   };
 }

@@ -24,9 +24,6 @@ export function renderCompareJson(
   if (sections.functions) {
     payload.functions = result.functions;
   }
-  if (sections.coupling) {
-    payload.coupling = result.coupling;
-  }
 
   return `${JSON.stringify(payload, null, 2)}\n`;
 }

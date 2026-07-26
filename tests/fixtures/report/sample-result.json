@@ -1,6 +1,6 @@
 {
-  "_comment": "Hand-crafted ScanResult for reporter tests. M9: hotspots include raw fields (cyclomaticComplexity, functionCount, commitCount, linesChanged, authorCount). Hotspots sorted by hotspotScore desc; coupling sorted by couplingStrength desc. Expected: 3 hotspot rows, 2 coupling rows when top=3/2; since header shows '6 months ago'.",
-  "version": "1.0",
+  "_comment": "Hand-crafted ScanResult for reporter tests. M9: hotspots include raw fields. Hotspots sorted by hotspotScore desc. Expected: 3 hotspot rows when top=3; since header shows '6 months ago'.",
+  "version": "2.0",
   "hotspots": [
     {
       "filePath": "src/hot.ts",
@@ -40,30 +40,6 @@
     }
   ],
   "functions": [],
-  "coupling": [
-    {
-      "fileA": "src/a.ts",
-      "fileB": "src/b.ts",
-      "coChangeCount": 5,
-      "couplingStrength": 0.75,
-      "hasStaticDependency": true,
-      "staticDependencyDirection": "a-to-b",
-      "hasRuntimeStaticDependency": true,
-      "hasTypeOnlyStaticDependency": false,
-      "hasReExportStaticDependency": false
-    },
-    {
-      "fileA": "src/c.ts",
-      "fileB": "src/d.ts",
-      "coChangeCount": 3,
-      "couplingStrength": 0.5,
-      "hasStaticDependency": false,
-      "staticDependencyDirection": "none",
-      "hasRuntimeStaticDependency": false,
-      "hasTypeOnlyStaticDependency": false,
-      "hasReExportStaticDependency": false
-    }
-  ],
   "meta": {
     "since": "6 months ago",
     "scannedAt": "2026-07-22T11:00:00.000Z",

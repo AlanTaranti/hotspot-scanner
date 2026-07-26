@@ -25,8 +25,6 @@ import {
 import {
   createFunctionHotspotScorer,
   createHotspotScorer,
-  createTemporalCouplingScorer,
-  enrichCouplingStaticDeps,
 } from "./scoring/index.js";
 import type {
   FileChangeStats,
@@ -93,17 +91,11 @@ function pickCliOverrides(options: ScanOptions): HotspotScannerConfig {
   if (options.granularity !== undefined) {
     cli.granularity = options.granularity;
   }
-  if (options.minCochange !== undefined) {
-    cli.minCochange = options.minCochange;
-  }
   if (options.top !== undefined) {
     cli.top = options.top;
   }
   if (options.concurrency !== undefined) {
     cli.concurrency = options.concurrency;
-  }
-  if (options.megaCommitThreshold !== undefined) {
-    cli.megaCommitThreshold = options.megaCommitThreshold;
   }
 
   return cli;
@@ -248,8 +240,6 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
   });
 
   const since = merged.since;
-  const minCochange = merged.minCochange;
-  const megaCommitThreshold = merged.megaCommitThreshold;
   const onWarning = options.onWarning;
   const onSpawnArgv = options.onSpawnArgv;
   const collectedWarnings: ScanWarning[] = [];
@@ -282,7 +272,6 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
       since,
       onProgress: options.onProgress,
       isPathInScope: (p) => isPathInScope(p, scope),
-      megaCommitThreshold,
       signal,
       onSpawnArgv,
     };
@@ -343,7 +332,6 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
 
     const {
       fileStats,
-      pairCounts,
       warnings: gitWarnings,
     } = filterGitMinerResult(rawGit, scope);
 
@@ -364,15 +352,6 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
     forwardWarnings(gitWarnings, onWarning);
     collectedWarnings.push(...complexityWarnings);
     forwardWarnings(complexityWarnings, onWarning);
-
-    const scoredCoupling = createTemporalCouplingScorer().score(
-      pairCounts,
-      fileStats,
-      minCochange,
-    );
-    const coupling = enrichCouplingStaticDeps(scoredCoupling, pipelineRepoPath, {
-      canonicalizePath: rawGit.canonicalizePath,
-    });
 
     const scannedAt = new Date().toISOString();
 
@@ -410,10 +389,9 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
       };
 
       return {
-        version: "1.0",
+        version: "2.0",
         hotspots: [],
         functions,
-        coupling,
         meta: {
           since,
           scannedAt,
@@ -433,10 +411,9 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
     };
 
     return {
-      version: "1.0",
+      version: "2.0",
       hotspots,
       functions: [],
-      coupling,
       meta: {
         since,
         scannedAt,

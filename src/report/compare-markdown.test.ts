@@ -33,7 +33,6 @@ describe("renderCompareMarkdown", () => {
     expect(output).toContain("# Hotspot Scanner — Compare Report");
     expect(output).toContain("## New Hotspots");
     expect(output).toContain("## Rank Changed Hotspots");
-    expect(output).toContain("## New Coupling Pairs");
   });
 
   it("includes executive summary and how-to-read before tables", () => {
@@ -68,9 +67,9 @@ describe("renderCompareMarkdown", () => {
     expect(output).toContain(
       "New dual-signal hotspot vs baseline — complexity and churn both elevated; prioritize review.",
     );
-    const couplingIndex = output.indexOf("## Rank Changed Coupling Pairs");
+    const hotspotsIndex = output.indexOf("## Rank Changed Hotspots");
     const triageIndex = output.indexOf("## Triage hints");
-    expect(triageIndex).toBeGreaterThan(couplingIndex);
+    expect(triageIndex).toBeGreaterThan(hotspotsIndex);
   });
 
   it("omits triage section when triageHints is false", () => {
@@ -86,33 +85,17 @@ describe("renderCompareMarkdown", () => {
     expect(output).not.toContain("Triage hints");
   });
 
-  it("omits coupling sections when --only hotspots", () => {
+  it("omits hotspot sections when --only functions in file mode", () => {
     const output = renderCompareMarkdown(
       loadCompareResult(
         "compare-baseline-file.json",
         "compare-current-file.json",
       ),
-      { only: ["hotspots"] },
+      { only: ["functions"] },
     );
 
-    expect(output).toContain("## New Hotspots");
-    expect(output).not.toContain("## New Coupling Pairs");
-  });
-
-  it("renders Has static, Direction, and Kinds columns in coupling tables", () => {
-    const output = renderCompareMarkdown(
-      loadCompareResult(
-        "compare-baseline-file.json",
-        "compare-current-file.json",
-      ),
-    );
-
-    expect(output).toContain("| Has static | Direction | Kinds |");
-    expect(output).toContain("| yes |");
-    expect(output).toContain("| no |");
-    expect(output).toContain("| a→b |");
-    expect(output).toContain("| runtime |");
-    expect(output).toContain("| — |");
+    expect(output).not.toContain("## New Hotspots");
+    expect(output).toContain("## New Functions");
   });
 
   it("escapes pipe characters in markdown cells", () => {

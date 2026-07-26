@@ -1,6 +1,6 @@
 {
-  "_comment": "Baseline ScanResult for compare tests (file mode). 3 hotspots, 2 coupling pairs.",
-  "version": "1.0",
+  "_comment": "Baseline ScanResult for compare tests (file mode). 3 hotspots.",
+  "version": "2.0",
   "hotspots": [
     {
       "filePath": "src/hot.ts",
@@ -40,30 +40,6 @@
     }
   ],
   "functions": [],
-  "coupling": [
-    {
-      "fileA": "src/a.ts",
-      "fileB": "src/b.ts",
-      "coChangeCount": 5,
-      "couplingStrength": 0.75,
-      "hasStaticDependency": true,
-      "staticDependencyDirection": "a-to-b",
-      "hasRuntimeStaticDependency": true,
-      "hasTypeOnlyStaticDependency": false,
-      "hasReExportStaticDependency": false
-    },
-    {
-      "fileA": "src/c.ts",
-      "fileB": "src/d.ts",
-      "coChangeCount": 3,
-      "couplingStrength": 0.5,
-      "hasStaticDependency": false,
-      "staticDependencyDirection": "none",
-      "hasRuntimeStaticDependency": false,
-      "hasTypeOnlyStaticDependency": false,
-      "hasReExportStaticDependency": false
-    }
-  ],
   "meta": {
     "since": "6 months ago",
     "scannedAt": "2026-07-20T10:00:00.000Z",

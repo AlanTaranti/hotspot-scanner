@@ -8,8 +8,8 @@
 
 - **Package:** `@vitals/hotspot-scanner` (npm)
 - **CLI bin:** `hotspot-scanner` (unscoped)
-- **Purpose:** Local CLI that ranks TS/JS maintenance hotspots from cyclomatic complexity, Git churn, and temporal coupling
-- **Pipeline:** `git → complexity → scoring (+ coupling enrich) → report` (+ optional `--baseline` compare)
+- **Purpose:** Local CLI that ranks TS/JS maintenance hotspots from cyclomatic complexity and Git churn
+- **Pipeline:** `git → complexity → hotspot scoring → report` (+ optional `--baseline` compare)
 - **Design SoT:** [`.specs/codebase/ARCHITECTURE.md`](../../../../.specs/codebase/ARCHITECTURE.md)
 - **Module map SoT:** [`.specs/codebase/STRUCTURE.md`](../../../../.specs/codebase/STRUCTURE.md)
 
@@ -17,10 +17,10 @@
 
 | Path                     | Status      | Role                                                                                                                                                    |
 | ------------------------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `bin/hotspot-scanner.ts` | implemented | Commander CLI — `scan <path>` with `--since`, `--format`, `--granularity`, `--top`, `--min-cochange`, `--include`/`--exclude`, `--output`, `--baseline` |
-| `src/git/`               | implemented | GitMiner — streaming `git log` parse                                                                                                                    |
+| `bin/hotspot-scanner.ts` | implemented | Commander CLI — `scan <path>` with `--since`, `--format`, `--granularity`, `--top`, `--include`/`--exclude`, `--output`, `--baseline` |
+| `src/git/`               | implemented | GitMiner — streaming `git log` parse for churn                                                                                                          |
 | `src/complexity/`        | implemented | ComplexityAnalyzer — McCabe via ts-morph                                                                                                                |
-| `src/scoring/`           | implemented | HotspotScorer, FunctionHotspotScorer, TemporalCouplingScorer, `enrichCouplingStaticDeps`                                                                |
+| `src/scoring/`           | implemented | HotspotScorer, FunctionHotspotScorer                                                                                                                    |
 | `src/diagnostics/`       | implemented | stderr warnings + progress                                                                                                                              |
 | `src/report/`            | implemented | Reporter — table, JSON, markdown, CSV bundle (+ compare variants)                                                                                       |
 | `src/compare/`           | implemented | `loadBaseline`, `compareScanResults`                                                                                                                    |
@@ -28,7 +28,7 @@
 | `src/scan.ts`            | implemented | `runScan()` — config + pipeline orchestration                                                                                                           |
 | `src/types/`             | implemented | Domain types (no runtime logic)                                                                                                                         |
 | `src/index.ts`           | implemented | Public library API                                                                                                                                      |
-| `schemas/`               | implemented | JSON Schema for `ScanResult` / `CompareResult`                                                                                                          |
+| `schemas/`               | implemented | JSON Schema for `ScanResult` / `CompareResult` (`version: "2.0"`)                                                                                       |
 
 ## Gate check
 
@@ -42,9 +42,8 @@ pnpm build && pnpm test
 
 - **FileChangeStats** — per-file churn: `commitCount`, `linesChanged`, `authors`, `lastModified`
 - **ComplexityResult** / **FunctionComplexityResult** — McCabe per file / function (working tree)
-- **hotspotScore** / **couplingStrength** — formulas SoT: [CONCERNS.md](../../../../.specs/codebase/CONCERNS.md)
-- **CouplingPair.hasStaticDependency** — post-score static import enrichment (M14)
-- **CompareResult** — delta vs `--baseline` JSON (`new` / `removed` / `rankChanged`)
+- **hotspotScore** — formula SoT: [CONCERNS.md](../../../../.specs/codebase/CONCERNS.md)
+- **CompareResult** — delta vs `--baseline` JSON (`new` / `removed` / `rankChanged`) for hotspots/functions
 - **Config** — `.hotspot-scanner.json` only; CLI-only: `format`, `output`, `baseline`
 
 ## Requirement IDs / Commit / YAGNI

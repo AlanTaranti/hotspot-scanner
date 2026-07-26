@@ -39,7 +39,6 @@ describe("renderMarkdown", () => {
     expect(output).toContain("Hotspots: showing 3 of 3");
     expect(output).toContain("## How to read this");
     expect(output).toContain("## Top Hotspots");
-    expect(output).toContain("## Top Coupling Pairs");
   });
 
   it("orders interpretation sections before tables and triage after tables", () => {
@@ -48,14 +47,12 @@ describe("renderMarkdown", () => {
     const summaryIndex = output.indexOf("Scan window: 6 months ago");
     const howToReadIndex = sectionIndex(output, "## How to read this");
     const hotspotsIndex = sectionIndex(output, "## Top Hotspots");
-    const couplingIndex = sectionIndex(output, "## Top Coupling Pairs");
     const triageIndex = sectionIndex(output, "## Triage hints");
 
     expect(summaryIndex).toBeGreaterThan(-1);
     expect(howToReadIndex).toBeGreaterThan(summaryIndex);
     expect(hotspotsIndex).toBeGreaterThan(howToReadIndex);
-    expect(couplingIndex).toBeGreaterThan(hotspotsIndex);
-    expect(triageIndex).toBeGreaterThan(couplingIndex);
+    expect(triageIndex).toBeGreaterThan(hotspotsIndex);
   });
 
   it("renders hotspot table with all columns including Lines", () => {
@@ -69,29 +66,12 @@ describe("renderMarkdown", () => {
     );
   });
 
-  it("renders coupling table with formatted values including direction and kinds", () => {
-    const output = renderMarkdown(loadFixture());
-
-    expect(output).toContain(
-      "| Rank | File A | File B | Strength | Co-changes | Has static | Direction | Kinds |",
-    );
-    expect(output).toContain(
-      "| 1 | src/a.ts | src/b.ts | 0.7500 | 5 | yes | a→b | runtime |",
-    );
-    expect(output).toContain(
-      "| 2 | src/c.ts | src/d.ts | 0.5000 | 3 | no | none | — |",
-    );
-  });
-
   it("reports shown vs total from full and displayed results", () => {
     const full = loadFixture();
     const displayed = sliceScanResult(full, 1);
     const output = renderMarkdown(displayed, { full });
 
     expect(output).toContain("Hotspots: showing 1 of 3");
-    expect(output).toContain(
-      "Coupling pairs: 2 total, 1 without static dependency; showing 1 of 2",
-    );
   });
 
   it("includes triage hints when rules match and triage is enabled", () => {
@@ -99,8 +79,6 @@ describe("renderMarkdown", () => {
 
     expect(output).toContain("## Triage hints");
     expect(output).toContain("src/hot.ts — High dual-signal hotspot");
-    expect(output).toContain("src/a.ts ↔ src/b.ts — Strong temporal coupling with a static dependency");
-    expect(output).toContain("src/c.ts ↔ src/d.ts — Strong temporal coupling without a static edge");
   });
 
   it("omits triage section when triageHints is false", () => {
@@ -110,11 +88,10 @@ describe("renderMarkdown", () => {
   });
 
   it("omits excluded section headings with --only", () => {
-    const output = renderMarkdown(loadFixture(), { only: ["coupling"] });
+    const output = renderMarkdown(loadFixture(), { only: ["functions"] });
 
     expect(output).not.toContain("## Top Hotspots");
-    expect(output).not.toContain("## Top Functions");
-    expect(output).toContain("## Top Coupling Pairs");
+    expect(output).toContain("## Top Functions");
   });
 
   it("renders only the requested ranking section when granularity mismatches", () => {
@@ -127,7 +104,7 @@ describe("renderMarkdown", () => {
 
   it("escapes pipe characters in file paths", () => {
     const output = renderMarkdown({
-      version: "1.0",
+      version: "2.0",
       hotspots: [
         {
           filePath: "src/a|b.ts",
@@ -139,43 +116,31 @@ describe("renderMarkdown", () => {
           commitCount: 5,
           linesChanged: 100,
           authorCount: 1,
+          parseFailed: false,
         },
       ],
       functions: [],
-      coupling: [
-        {
-          fileA: "src/x|y.ts",
-          fileB: "src/z.ts",
-          coChangeCount: 3,
-          couplingStrength: 0.6,
-          hasStaticDependency: true,
-          staticDependencyDirection: "b-to-a",
-          hasRuntimeStaticDependency: false,
-          hasTypeOnlyStaticDependency: true,
-          hasReExportStaticDependency: false,
-        },
-      ],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-07-22T12:00:00.000Z",
         granularity: "file",
+        warnings: [],
       },
     });
 
     expect(output).toContain("src/a\\|b.ts");
-    expect(output).toContain("src/x\\|y.ts");
   });
 
   it("renders empty sections without throwing", () => {
     const output = renderMarkdown({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-07-22T12:00:00.000Z",
         granularity: "file",
+        warnings: [],
       },
     });
 
@@ -196,7 +161,7 @@ describe("renderMarkdown", () => {
 
   it("escapes pipe characters in function names", () => {
     const output = renderMarkdown({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [
         {
@@ -212,11 +177,11 @@ describe("renderMarkdown", () => {
           authorCount: 1,
         },
       ],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-07-22T12:00:00.000Z",
         granularity: "function",
+        warnings: [],
       },
     });
 

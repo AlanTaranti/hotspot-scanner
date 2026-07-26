@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_WORKER_CONCURRENCY } from "../complexity/pool.js";
-import { MEGA_COMMIT_UNIQUE_FILE_THRESHOLD } from "../git/aggregate.js";
 import { DEFAULT_SINCE, DEFAULT_TOP } from "../scan.js";
-import { DEFAULT_MIN_COCHANGE } from "../scoring/index.js";
 import { mergeScanOptions } from "./merge-options.js";
 
 describe("mergeScanOptions", () => {
@@ -11,8 +9,6 @@ describe("mergeScanOptions", () => {
     include: ["src/**"],
     exclude: ["**/*.test.ts"],
     granularity: "function" as const,
-    minCochange: 5,
-    megaCommitThreshold: 150,
     top: 10,
     concurrency: 3,
   };
@@ -23,8 +19,6 @@ describe("mergeScanOptions", () => {
       include: undefined,
       exclude: undefined,
       granularity: "file",
-      minCochange: DEFAULT_MIN_COCHANGE,
-      megaCommitThreshold: MEGA_COMMIT_UNIQUE_FILE_THRESHOLD,
       top: DEFAULT_TOP,
       concurrency: DEFAULT_WORKER_CONCURRENCY,
     });
@@ -36,8 +30,6 @@ describe("mergeScanOptions", () => {
       include: ["src/**"],
       exclude: ["**/*.test.ts"],
       granularity: "function",
-      minCochange: 5,
-      megaCommitThreshold: 150,
       top: 10,
       concurrency: 3,
     });
@@ -52,8 +44,6 @@ describe("mergeScanOptions", () => {
           include: ["lib/**"],
           exclude: ["generated/**"],
           granularity: "file",
-          minCochange: 2,
-          megaCommitThreshold: 50,
           top: 50,
           concurrency: 1,
         },
@@ -63,8 +53,6 @@ describe("mergeScanOptions", () => {
       include: ["lib/**"],
       exclude: ["generated/**"],
       granularity: "file",
-      minCochange: 2,
-      megaCommitThreshold: 50,
       top: 50,
       concurrency: 1,
     });
@@ -73,16 +61,14 @@ describe("mergeScanOptions", () => {
   it("applies per-field precedence CLI > config > defaults", () => {
     expect(
       mergeScanOptions({
-        config: { since: "config-since", top: 15, megaCommitThreshold: 80 },
-        cli: { top: 25, megaCommitThreshold: 120 },
+        config: { since: "config-since", top: 15 },
+        cli: { top: 25 },
       }),
     ).toEqual({
       since: "config-since",
       include: undefined,
       exclude: undefined,
       granularity: "file",
-      minCochange: DEFAULT_MIN_COCHANGE,
-      megaCommitThreshold: 120,
       top: 25,
       concurrency: DEFAULT_WORKER_CONCURRENCY,
     });
@@ -99,8 +85,6 @@ describe("mergeScanOptions", () => {
       include: undefined,
       exclude: undefined,
       granularity: "file",
-      minCochange: DEFAULT_MIN_COCHANGE,
-      megaCommitThreshold: MEGA_COMMIT_UNIQUE_FILE_THRESHOLD,
       top: DEFAULT_TOP,
       concurrency: DEFAULT_WORKER_CONCURRENCY,
     });
@@ -117,8 +101,6 @@ describe("mergeScanOptions", () => {
       include: [],
       exclude: undefined,
       granularity: "file",
-      minCochange: DEFAULT_MIN_COCHANGE,
-      megaCommitThreshold: MEGA_COMMIT_UNIQUE_FILE_THRESHOLD,
       top: DEFAULT_TOP,
       concurrency: DEFAULT_WORKER_CONCURRENCY,
     });
@@ -144,31 +126,6 @@ describe("mergeScanOptions", () => {
       }),
     ).toMatchObject({
       concurrency: 8,
-    });
-  });
-
-  it("uses MEGA_COMMIT_UNIQUE_FILE_THRESHOLD when megaCommitThreshold is unset", () => {
-    expect(mergeScanOptions({})).toMatchObject({
-      megaCommitThreshold: MEGA_COMMIT_UNIQUE_FILE_THRESHOLD,
-    });
-  });
-
-  it("uses config megaCommitThreshold over default", () => {
-    expect(mergeScanOptions({ config: { megaCommitThreshold: 75 } })).toMatchObject(
-      {
-        megaCommitThreshold: 75,
-      },
-    );
-  });
-
-  it("uses cli megaCommitThreshold over config and default", () => {
-    expect(
-      mergeScanOptions({
-        config: { megaCommitThreshold: 75 },
-        cli: { megaCommitThreshold: 25 },
-      }),
-    ).toMatchObject({
-      megaCommitThreshold: 25,
     });
   });
 });

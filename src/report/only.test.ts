@@ -9,7 +9,7 @@ import {
 } from "./only.js";
 
 describe("parseOnlySection", () => {
-  it.each(["hotspots", "coupling", "functions"] as const)(
+  it.each(["hotspots", "functions"] as const)(
     "accepts %s",
     (value) => {
       expect(parseOnlySection(value)).toBe(value);
@@ -18,7 +18,10 @@ describe("parseOnlySection", () => {
 
   it("rejects invalid values with a clear error", () => {
     expect(() => parseOnlySection("bogus")).toThrow(
-      /Invalid --only: bogus\. Expected hotspots, coupling, or functions\./,
+      /Invalid --only: bogus\. Expected hotspots, functions\./,
+    );
+    expect(() => parseOnlySection("coupling")).toThrow(
+      /Invalid --only: coupling\. Expected hotspots, functions\./,
     );
   });
 
@@ -32,9 +35,9 @@ describe("parseOnlySection", () => {
 describe("collectOnly", () => {
   it("accumulates valid sections", () => {
     expect(collectOnly("hotspots", [])).toEqual(["hotspots"]);
-    expect(collectOnly("coupling", ["hotspots"])).toEqual([
+    expect(collectOnly("functions", ["hotspots"])).toEqual([
       "hotspots",
-      "coupling",
+      "functions",
     ]);
   });
 
@@ -55,20 +58,19 @@ describe("normalizeOnly", () => {
   });
 
   it("returns the union of requested sections", () => {
-    const set = normalizeOnly(["hotspots", "coupling"]);
-    expect([...set].sort()).toEqual(["coupling", "hotspots"]);
+    const set = normalizeOnly(["hotspots", "functions"]);
+    expect([...set].sort()).toEqual(["functions", "hotspots"]);
     expect(includesSection(set, "hotspots")).toBe(true);
-    expect(includesSection(set, "coupling")).toBe(true);
-    expect(includesSection(set, "functions")).toBe(false);
+    expect(includesSection(set, "functions")).toBe(true);
   });
 
   it("dedupes repeated sections", () => {
     const collected: ReportSection[] = collectOnly(
       "hotspots",
-      collectOnly("hotspots", collectOnly("coupling", [])),
+      collectOnly("hotspots", collectOnly("functions", [])),
     );
     const set = normalizeOnly(collected);
-    expect([...set].sort()).toEqual(["coupling", "hotspots"]);
+    expect([...set].sort()).toEqual(["functions", "hotspots"]);
     expect(set.size).toBe(2);
   });
 });

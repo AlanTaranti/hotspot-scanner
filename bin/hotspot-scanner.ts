@@ -20,7 +20,6 @@ import {
   parseExplainTarget,
 } from "#report";
 import type { ExplainTarget, ReportSection } from "#report";
-import { DEFAULT_MIN_COCHANGE } from "#scoring";
 import {
   DEFAULT_SINCE,
   DEFAULT_TOP,
@@ -28,7 +27,6 @@ import {
   previewScanScope,
 } from "#scan";
 import { runDoctor, formatDoctorJsonReport, type DoctorFinding } from "#doctor";
-import { MEGA_COMMIT_UNIQUE_FILE_THRESHOLD } from "#git";
 import type { CompareResult, ScanGranularity, ScanResult } from "../src/types/index.js";
 import {
   buildScanOptions,
@@ -217,7 +215,6 @@ export function collectGlob(value: string, previous: string[]): string[] {
 
 const VALID_ONLY_SECTIONS: readonly ReportSection[] = [
   "hotspots",
-  "coupling",
   "functions",
 ];
 
@@ -227,7 +224,7 @@ export function parseOnlySectionCli(value: string): ReportSection {
   }
   if (!VALID_ONLY_SECTIONS.includes(value as ReportSection)) {
     throw new CliUsageError(
-      `Invalid --only: ${value}. Expected hotspots, coupling, or functions.`,
+      `Invalid --only: ${value}. Expected hotspots or functions.`,
     );
   }
   return value as ReportSection;
@@ -309,18 +306,6 @@ export function buildCliConfigOverrides(
   }
   if (isExplicitCliOption(cmd, "top")) {
     cli.top = parsePositiveInteger(options.top as string, "--top");
-  }
-  if (isExplicitCliOption(cmd, "minCochange")) {
-    cli.minCochange = parsePositiveInteger(
-      options.minCochange as string,
-      "--min-cochange",
-    );
-  }
-  if (isExplicitCliOption(cmd, "megaCommitThreshold")) {
-    cli.megaCommitThreshold = parsePositiveInteger(
-      options.megaCommitThreshold as string,
-      "--mega-commit-threshold",
-    );
   }
   if (isExplicitCliOption(cmd, "concurrency")) {
     cli.concurrency = parsePositiveInteger(
@@ -417,7 +402,7 @@ export function createCliProgram(): Command {
   program
     .command("scan")
     .description(
-      "Run hotspot and coupling analysis on a repository (discovers .hotspot-scanner.json upward; use --config for explicit path)",
+      "Run hotspot analysis on a repository (discovers .hotspot-scanner.json upward; use --config for explicit path)",
     )
     .argument("[path]", "Repository path (default: .)", ".")
     .option("--since <period>", "Git history window", DEFAULT_SINCE)
@@ -443,16 +428,6 @@ export function createCliProgram(): Command {
       "-t, --top <n>",
       "Top N rows in table/markdown output (ignored for json/csv)",
       String(DEFAULT_TOP),
-    )
-    .option(
-      "--min-cochange <n>",
-      "Minimum co-change count for coupling pairs",
-      String(DEFAULT_MIN_COCHANGE),
-    )
-    .option(
-      "--mega-commit-threshold <n>",
-      "Unique in-scope files per commit above which coupling pairs are skipped",
-      String(MEGA_COMMIT_UNIQUE_FILE_THRESHOLD),
     )
     .option(
       "--concurrency <n>",
@@ -492,7 +467,7 @@ export function createCliProgram(): Command {
     )
     .option(
       "--only <section>",
-      "Include only report sections: hotspots, coupling, or functions (repeatable)",
+      "Include only report sections: hotspots or functions (repeatable)",
       collectOnlySection,
       [] as ReportSection[],
     )
@@ -667,16 +642,6 @@ Examples:
       String(DEFAULT_TOP),
     )
     .option(
-      "--min-cochange <n>",
-      "Minimum co-change count for coupling pairs",
-      String(DEFAULT_MIN_COCHANGE),
-    )
-    .option(
-      "--mega-commit-threshold <n>",
-      "Unique in-scope files per commit above which coupling pairs are skipped",
-      String(MEGA_COMMIT_UNIQUE_FILE_THRESHOLD),
-    )
-    .option(
       "--concurrency <n>",
       "Complexity worker pool size (positive integer)",
     )
@@ -766,16 +731,6 @@ Examples:
       String(DEFAULT_TOP),
     )
     .option(
-      "--min-cochange <n>",
-      "Minimum co-change count for coupling pairs",
-      String(DEFAULT_MIN_COCHANGE),
-    )
-    .option(
-      "--mega-commit-threshold <n>",
-      "Unique in-scope files per commit above which coupling pairs are skipped",
-      String(MEGA_COMMIT_UNIQUE_FILE_THRESHOLD),
-    )
-    .option(
       "--concurrency <n>",
       "Complexity worker pool size (positive integer)",
     )
@@ -809,7 +764,7 @@ Examples:
     .option("--no-progress", "Suppress progress lines on stderr")
     .option(
       "--only <section>",
-      "Include only report sections: hotspots, coupling, or functions (repeatable)",
+      "Include only report sections: hotspots or functions (repeatable)",
       collectOnlySection,
       [] as ReportSection[],
     )

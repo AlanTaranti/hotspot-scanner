@@ -1,6 +1,5 @@
 import { readFile } from "node:fs/promises";
 import type {
-  CouplingPair,
   DiagnosticSeverity,
   FunctionHotspotScore,
   HotspotScore,
@@ -8,7 +7,6 @@ import type {
   ScanResult,
   ScanStageTimings,
   ScanWarning,
-  StaticDependencyDirection,
 } from "../types/index.js";
 
 const BASELINE_CONTRACT_HINT =
@@ -83,49 +81,11 @@ function assertBoolean(value: unknown, path: string): boolean {
   return value;
 }
 
-const COUPLING_RESCAN_HINT =
-  " Re-scan with a current hotspot-scanner version to regenerate the baseline.";
-
-function requireCouplingField(
-  record: Record<string, unknown>,
-  key: string,
-  path: string,
-): unknown {
-  if (!(key in record)) {
-    throw new BaselineError(
-      `Baseline ${path} is missing required field: ${key}.${COUPLING_RESCAN_HINT}`,
-    );
-  }
-  return record[key];
-}
-
-const STATIC_DEPENDENCY_DIRECTIONS = new Set<StaticDependencyDirection>([
-  "none",
-  "a-to-b",
-  "b-to-a",
-  "both",
-]);
-
 const DIAGNOSTIC_SEVERITIES = new Set<DiagnosticSeverity>([
   "info",
   "warning",
   "error",
 ]);
-
-function assertStaticDependencyDirection(
-  value: unknown,
-  path: string,
-): StaticDependencyDirection {
-  if (
-    typeof value !== "string" ||
-    !STATIC_DEPENDENCY_DIRECTIONS.has(value as StaticDependencyDirection)
-  ) {
-    throw new BaselineError(
-      `Baseline ${path} must be one of: none, a-to-b, b-to-a, both`,
-    );
-  }
-  return value as StaticDependencyDirection;
-}
 
 function assertHotspot(item: unknown, index: number): HotspotScore {
   const path = `hotspots[${index}]`;
@@ -223,44 +183,6 @@ function assertFunctionHotspot(
   };
 }
 
-function assertCouplingPair(item: unknown, index: number): CouplingPair {
-  const path = `coupling[${index}]`;
-  const record = assertRecord(item, path);
-
-  return {
-    fileA: assertString(requireKey(record, "fileA", path), `${path}.fileA`),
-    fileB: assertString(requireKey(record, "fileB", path), `${path}.fileB`),
-    coChangeCount: assertInteger(
-      requireKey(record, "coChangeCount", path),
-      `${path}.coChangeCount`,
-    ),
-    couplingStrength: assertNumber(
-      requireKey(record, "couplingStrength", path),
-      `${path}.couplingStrength`,
-    ),
-    hasStaticDependency: assertBoolean(
-      requireCouplingField(record, "hasStaticDependency", path),
-      `${path}.hasStaticDependency`,
-    ),
-    staticDependencyDirection: assertStaticDependencyDirection(
-      requireCouplingField(record, "staticDependencyDirection", path),
-      `${path}.staticDependencyDirection`,
-    ),
-    hasRuntimeStaticDependency: assertBoolean(
-      requireCouplingField(record, "hasRuntimeStaticDependency", path),
-      `${path}.hasRuntimeStaticDependency`,
-    ),
-    hasTypeOnlyStaticDependency: assertBoolean(
-      requireCouplingField(record, "hasTypeOnlyStaticDependency", path),
-      `${path}.hasTypeOnlyStaticDependency`,
-    ),
-    hasReExportStaticDependency: assertBoolean(
-      requireCouplingField(record, "hasReExportStaticDependency", path),
-      `${path}.hasReExportStaticDependency`,
-    ),
-  };
-}
-
 function assertHotspots(value: unknown): HotspotScore[] {
   if (!Array.isArray(value)) {
     throw new BaselineError(
@@ -277,15 +199,6 @@ function assertFunctions(value: unknown): FunctionHotspotScore[] {
     );
   }
   return value.map((item, index) => assertFunctionHotspot(item, index));
-}
-
-function assertCoupling(value: unknown): CouplingPair[] {
-  if (!Array.isArray(value)) {
-    throw new BaselineError(
-      "Baseline JSON is missing required field: coupling",
-    );
-  }
-  return value.map((item, index) => assertCouplingPair(item, index));
 }
 
 function assertScanWarning(value: unknown, index: number): ScanWarning {
@@ -356,9 +269,21 @@ export function parseScanResult(json: unknown): ScanResult {
     throw new BaselineError("Baseline JSON must be an object");
   }
 
-  if (json.version !== "1.0") {
+  if ("coupling" in json) {
     throw new BaselineError(
-      `Unsupported baseline version: ${String(json.version)}. Expected "1.0".`,
+      'Baseline JSON contains unsupported field "coupling". Re-scan with a current hotspot-scanner version.',
+    );
+  }
+
+  if (json.version === "1.0") {
+    throw new BaselineError(
+      'Unsupported baseline version: "1.0". Expected "2.0". Re-scan with a current hotspot-scanner version.',
+    );
+  }
+
+  if (json.version !== "2.0") {
+    throw new BaselineError(
+      `Unsupported baseline version: ${String(json.version)}. Expected "2.0".`,
     );
   }
 
@@ -381,10 +306,9 @@ export function parseScanResult(json: unknown): ScanResult {
   }
 
   return {
-    version: "1.0",
+    version: "2.0",
     hotspots: assertHotspots(json.hotspots),
     functions: assertFunctions(json.functions),
-    coupling: assertCoupling(json.coupling),
     meta: {
       since: json.meta.since,
       scannedAt: json.meta.scannedAt,

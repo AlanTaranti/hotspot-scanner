@@ -1,8 +1,7 @@
-export type ReportSection = "hotspots" | "coupling" | "functions";
+export type ReportSection = "hotspots" | "functions";
 
 export const ALL_REPORT_SECTIONS: readonly ReportSection[] = [
   "hotspots",
-  "coupling",
   "functions",
 ] as const;
 
@@ -14,7 +13,7 @@ export function parseOnlySection(value: string): ReportSection {
   }
   if (!VALID_SECTIONS.has(value)) {
     throw new Error(
-      `Invalid --only: ${value}. Expected hotspots, coupling, or functions.`,
+      `Invalid --only: ${value}. Expected hotspots, functions.`,
     );
   }
   return value as ReportSection;

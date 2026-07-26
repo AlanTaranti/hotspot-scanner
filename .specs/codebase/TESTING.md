@@ -118,18 +118,17 @@ Integration and unit coverage for pathspec-restricted patch spawn, sequential ba
 | Scan wiring | HOTSPOT-384, HOTSPOT-393–395 | `src/scan.test.ts` — `buildFunctionModePathAllowlist` for patch only; complexity full discovery in function mode |
 | ARG_MAX emergency fallback | HOTSPOT-383, HOTSPOT-667 | `spawn.test.ts` / `index.test.ts` — half-size retry then unrestricted + `PATHSPEC_ARG_MAX_FALLBACK` |
 | Dry-run pathspec scale warning | HOTSPOT-680–683 | `scan-preview.test.ts` — warning only when eligible count `> 1000`; no mine |
-| Mega-commit threshold wiring | HOTSPOT-670–679 | `aggregate.test.ts`, `merge-options.test.ts`, `git/index.test.ts`, `scan.test.ts`, `bin/hotspot-scanner.test.ts` |
 | Interval index semantics | HOTSPOT-389–391 | `aggregate.test.ts` — nested, adjacent, non-overlap, multi-hunk |
 
 Mock boundary: spy/inject at `streamGitPatchLog` via `createFunctionChurnMiner` deps in integration tests — not in scorers or reporter.
 
 ## Ranking accuracy plus regressions (M50)
 
-Integration smokes in `src/scan.integration.test.ts` (describe `runScan integration — ranking accuracy plus (M50)`). Unit/contract coverage for individual slices lives in task-specific modules (`rename-warnings.test.ts`, `enrich-coupling-static.test.ts`, `hotspot-scorer.test.ts`, `analyze-file.test.ts`, etc.).
+Integration smokes in `src/scan.integration.test.ts` (describe `runScan integration — ranking accuracy plus (M50)`). Unit/contract coverage for individual slices lives in task-specific modules (`rename-warnings.test.ts`, `hotspot-scorer.test.ts`, `analyze-file.test.ts`, etc.).
 
 | Assertion | Requirement | Test surface |
 | --------- | ----------- | ------------ |
-| Heuristic rename unifies churn + enrich static edge | HOTSPOT-766 | Isolated `small-ts` — unlinked `foo.ts`→`foo.tsx`; canonical churn, `RENAME_HISTORY_INCOMPLETE`, coupling `hasStaticDependency` |
+| Heuristic rename unifies churn | HOTSPOT-766 | Isolated `small-ts` — unlinked `foo.ts`→`foo.tsx`; canonical churn, `RENAME_HISTORY_INCOMPLETE` |
 | PARSE_FAILED in file hotspots | HOTSPOT-767 | Isolated `small-ts` + `src/broken.ts` — `parseFailed: true`, score 0, warning; no function rows |
 | Callbacks/IIFEs + zero-churn function AST | HOTSPOT-768 | Isolated `small-ts` + staged `callbacks-iife.ts` — `<anonymous>:L*` names, `commitCount: 0` |
 | Living docs sync | HOTSPOT-737, HOTSPOT-745, HOTSPOT-765, HOTSPOT-769 | `.specs/codebase/ARCHITECTURE.md`, `CONCERNS.md`, `TESTING.md` |
@@ -142,7 +141,7 @@ Integration smokes in `src/scan.integration.test.ts` (describe `runScan integrat
 
 ### Pipeline overlap (M34) and sequential opt-out (M49)
 
-Structural overlap and barrier ordering are proven in `src/scan.test.ts` with injected delayed `mine` / `analyze` mocks — assert both stages in-flight concurrently (file mode, default), scoring/coupling only after both settle, function-churn only after complexity and never during numstat, sibling `AbortSignal` on failure, and git-then-complexity warning order. With `sequential: true`, unit tests assert stages are **not** concurrently in-flight and fail-closed on stage errors without scoring. **Do not** rely on wall-clock timing asserts in CI; integration equivalence on `tests/fixtures/repos/small-ts/` (default overlap vs `sequential: true` hotspot/coupling parity; function mode with sequential) lives in `src/scan.integration.test.ts`.
+Structural overlap and barrier ordering are proven in `src/scan.test.ts` with injected delayed `mine` / `analyze` mocks — assert both stages in-flight concurrently (file mode, default), hotspot scoring only after both settle, function-churn only after complexity and never during numstat, sibling `AbortSignal` on failure, and git-then-complexity warning order. With `sequential: true`, unit tests assert stages are **not** concurrently in-flight and fail-closed on stage errors without scoring. **Do not** rely on wall-clock timing asserts in CI; integration equivalence on `tests/fixtures/repos/small-ts/` (default overlap vs `sequential: true` hotspot parity; function mode with sequential) lives in `src/scan.integration.test.ts`.
 
 **Performance / bench (outside Vitest gate):** `pnpm bench` exercises default overlap vs `--sequential` A/B for operator timing — documented in `scripts/benchmark-scan.md`; not invoked by `pnpm test` and no duration fail policy in CI.
 

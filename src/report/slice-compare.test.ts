@@ -31,7 +31,6 @@ describe("sliceCompareResult", () => {
     expect(sliced.hotspots.new.length).toBeLessThanOrEqual(1);
     expect(sliced.hotspots.removed.length).toBeLessThanOrEqual(1);
     expect(sliced.hotspots.rankChanged.length).toBeLessThanOrEqual(1);
-    expect(sliced.coupling.new.length).toBeLessThanOrEqual(1);
   });
 
   it("returns full arrays when top is undefined", () => {
@@ -39,6 +38,6 @@ describe("sliceCompareResult", () => {
     const sliced = sliceCompareResult(result);
 
     expect(sliced.hotspots.new).toEqual(result.hotspots.new);
-    expect(sliced.coupling.rankChanged).toEqual(result.coupling.rankChanged);
+    expect(sliced.hotspots.rankChanged).toEqual(result.hotspots.rankChanged);
   });
 });

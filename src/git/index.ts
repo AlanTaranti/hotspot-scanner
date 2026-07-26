@@ -1,5 +1,4 @@
 import type {
-  CoChangePairCount,
   FileChangeStats,
   ScanProgress,
   ScanWarning,
@@ -8,11 +7,7 @@ import {
   aggregateOneCommit,
   createAggregateAccumulators,
 } from "./aggregate.js";
-import {
-  canonicalizeFileStats,
-  canonicalizePairCounts,
-} from "./canonicalize.js";
-import { createMegaCommitSkippedWarnings } from "./mega-commit-warnings.js";
+import { canonicalizeFileStats } from "./canonicalize.js";
 import { parseGitLogStream } from "./parse.js";
 import {
   applyHeuristicRenameLinks,
@@ -33,14 +28,12 @@ export interface GitMinerOptions {
   since?: string;
   onProgress?: (progress: ScanProgress) => void;
   isPathInScope?: (path: string) => boolean;
-  megaCommitThreshold?: number;
   signal?: AbortSignal;
   onSpawnArgv?: (argv: string[]) => void;
 }
 
 export interface GitMinerResult {
   fileStats: Map<string, FileChangeStats>;
-  pairCounts: Map<string, CoChangePairCount>;
   warnings: ScanWarning[];
   /** Rename-aware path canonicalizer from the mine-time PathAliasMap. */
   canonicalizePath: (path: string) => string;
@@ -66,17 +59,9 @@ export function createGitMiner(deps: GitMinerDependencies = {}): GitMiner {
       let commitCount = 0;
 
       const aggregateOptions =
-        options.isPathInScope === undefined &&
-        options.megaCommitThreshold === undefined
+        options.isPathInScope === undefined
           ? undefined
-          : {
-              ...(options.isPathInScope !== undefined && {
-                isPathInScope: options.isPathInScope,
-              }),
-              ...(options.megaCommitThreshold !== undefined && {
-                megaCommitThreshold: options.megaCommitThreshold,
-              }),
-            };
+          : { isPathInScope: options.isPathInScope };
 
       for await (const commit of parseGitLogStream(
         stream({
@@ -116,15 +101,8 @@ export function createGitMiner(deps: GitMinerDependencies = {}): GitMiner {
         );
       }
 
-      warnings.push(
-        ...createMegaCommitSkippedWarnings(accumulators.megaCommitSkips, {
-          megaCommitThreshold: options.megaCommitThreshold,
-        }),
-      );
-
       return {
         fileStats: canonicalizeFileStats(accumulators.fileStats, aliasMap),
-        pairCounts: canonicalizePairCounts(accumulators.pairCounts, aliasMap),
         warnings,
         canonicalizePath: (path) => aliasMap.canonical(path),
       };
@@ -139,5 +117,4 @@ export {
   aggregateCommits,
   aggregateOneCommit,
   createAggregateAccumulators,
-  MEGA_COMMIT_UNIQUE_FILE_THRESHOLD,
 } from "./aggregate.js";

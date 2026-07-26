@@ -1,9 +1,4 @@
 import type { ScanResult } from "../types/index.js";
-import {
-  formatDirection,
-  formatKinds,
-  formatStaticDep,
-} from "./coupling-format.js";
 import { renderMarkdownHowToRead } from "./glossary.js";
 import {
   includesSection,
@@ -99,28 +94,6 @@ function renderFunctionsSection(result: ScanResult): string[] {
   return lines;
 }
 
-function renderCouplingSection(result: ScanResult): string[] {
-  const lines = ["## Top Coupling Pairs", ""];
-
-  if (result.coupling.length === 0) {
-    lines.push("_No results._");
-    return lines;
-  }
-
-  lines.push(
-    "| Rank | File A | File B | Strength | Co-changes | Has static | Direction | Kinds |",
-    "| ---: | --- | --- | ---: | ---: | :---: | :---: | --- |",
-  );
-
-  for (const [index, pair] of result.coupling.entries()) {
-    lines.push(
-      `| ${index + 1} | ${escapeCell(pair.fileA)} | ${escapeCell(pair.fileB)} | ${formatScore(pair.couplingStrength)} | ${pair.coChangeCount} | ${formatStaticDep(pair.hasStaticDependency)} | ${formatDirection(pair.staticDependencyDirection)} | ${formatKinds(pair)} |`,
-    );
-  }
-
-  return lines;
-}
-
 function renderRankingSections(
   result: ScanResult,
   onlySet: ReadonlySet<ReportSection>,
@@ -156,10 +129,6 @@ export function renderMarkdown(
     "",
     ...renderRankingSections(result, onlySet, defaultOnly),
   ];
-
-  if (includesSection(onlySet, "coupling")) {
-    sections.push(...renderCouplingSection(result), "");
-  }
 
   if (triageEnabled) {
     const triageLines = renderMarkdownTriageHints(buildTriageHints(result));

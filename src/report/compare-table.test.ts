@@ -36,7 +36,6 @@ describe("renderCompareTable", () => {
     expect(output).toContain("=== New Hotspots ===");
     expect(output).toContain("=== Removed Hotspots ===");
     expect(output).toContain("=== Rank Changed Hotspots ===");
-    expect(output).toContain("=== New Coupling Pairs ===");
     expect(output).toContain("src/new.ts");
     expect(output).toContain("src/medium.ts");
   });
@@ -50,9 +49,8 @@ describe("renderCompareTable", () => {
 
     expect(output).toContain("Baseline since:");
     expect(output).toContain("Hotspot deltas: showing");
-    expect(output).toContain("Coupling deltas: showing");
     expect(output).toContain("Glossary");
-    expect(output).toContain("StaticDep");
+    expect(output).toContain("Score");
   });
 
   it("emits triage hints when rules match (default)", () => {
@@ -87,20 +85,20 @@ describe("renderCompareTable", () => {
     expect(output).toContain("Glossary");
   });
 
-  it("omits coupling sections when --only hotspots", () => {
+  it("omits hotspot sections when --only functions in file mode", () => {
     const output = renderCompareTable(
       loadCompareResult(
         "compare-baseline-file.json",
         "compare-current-file.json",
       ),
-      { only: ["hotspots"] },
+      { only: ["functions"] },
     );
 
-    expect(output).toContain("=== New Hotspots ===");
-    expect(output).not.toContain("=== New Coupling Pairs ===");
+    expect(output).not.toContain("=== New Hotspots ===");
+    expect(output).toContain("=== New Functions ===");
   });
 
-  it("applies color to score and StaticDep cells when enabled", () => {
+  it("applies color to score cells when enabled", () => {
     const result = loadCompareResult(
       "compare-baseline-file.json",
       "compare-current-file.json",
@@ -121,26 +119,8 @@ describe("renderCompareTable", () => {
     const output = renderCompareTable(displayed, { full });
 
     expect(output).toContain(
-      "Coupling deltas: showing 2 of 3 (new 1, removed 0, rank changed 2)",
+      "Hotspot deltas: showing 3 of 3 (new 1, removed 1, rank changed 1)",
     );
-  });
-
-  it("renders StaticDep, Direction, and Kinds columns in coupling sections", () => {
-    const output = renderCompareTable(
-      loadCompareResult(
-        "compare-baseline-file.json",
-        "compare-current-file.json",
-      ),
-    );
-
-    expect(output).toContain("StaticDep");
-    expect(output).toContain("Direction");
-    expect(output).toContain("Kinds");
-    expect(output).toContain("yes");
-    expect(output).toContain("no");
-    expect(output).toContain("a→b");
-    expect(output).toContain("runtime");
-    expect(output).toContain("—");
   });
 
   it("renders function mode sections", () => {

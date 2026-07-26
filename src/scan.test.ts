@@ -10,9 +10,7 @@ import {
   HOTSPOT_SCANNER_CONFIG_FILENAME,
 } from "./config/index.js";
 import { GitLogError } from "./git/spawn.js";
-import { MEGA_COMMIT_UNIQUE_FILE_THRESHOLD } from "./git/aggregate.js";
 import { isPathInScope } from "./paths/index.js";
-import { DEFAULT_MIN_COCHANGE } from "./scoring/index.js";
 import { ELIGIBLE_EXTENSIONS } from "./complexity/discover.js";
 import {
   buildFunctionModePathAllowlist,
@@ -45,9 +43,7 @@ const analyzeOverride = vi.hoisted(() => ({
 }));
 const createFunctionChurnMinerSpy = vi.hoisted(() => vi.fn());
 const churnMineSpy = vi.hoisted(() => vi.fn());
-const scoreCouplingSpy = vi.hoisted(() => vi.fn());
 const scoreHotspotsSpy = vi.hoisted(() => vi.fn());
-const enrichCouplingStaticDepsSpy = vi.hoisted(() => vi.fn());
 
 vi.mock("./git/index.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./git/index.js")>();
@@ -134,15 +130,6 @@ vi.mock("./scoring/index.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./scoring/index.js")>();
   return {
     ...actual,
-    createTemporalCouplingScorer: () => {
-      const scorer = actual.createTemporalCouplingScorer();
-      return {
-        score: (...args: Parameters<typeof scorer.score>) => {
-          scoreCouplingSpy(...args);
-          return scorer.score(...args);
-        },
-      };
-    },
     createHotspotScorer: () => {
       const scorer = actual.createHotspotScorer();
       return {
@@ -151,12 +138,6 @@ vi.mock("./scoring/index.js", async (importOriginal) => {
           return scorer.score(...args);
         },
       };
-    },
-    enrichCouplingStaticDeps: (
-      ...args: Parameters<typeof actual.enrichCouplingStaticDeps>
-    ) => {
-      enrichCouplingStaticDepsSpy(...args);
-      return actual.enrichCouplingStaticDeps(...args);
     },
   };
 });
@@ -403,7 +384,6 @@ describe("runScan", () => {
   it("exports default constants", () => {
     expect(DEFAULT_SINCE).toBe("12 months ago");
     expect(DEFAULT_TOP).toBe(20);
-    expect(DEFAULT_MIN_COCHANGE).toBe(3);
   });
 
   it("throws when repoPath is not a directory", async () => {
@@ -426,7 +406,6 @@ describe("runScan", () => {
     const result = await runScan({
       repoPath: smallTsFixture,
       top: 5,
-      minCochange: 4,
       onWarning,
       onProgress,
     });
@@ -436,9 +415,11 @@ describe("runScan", () => {
     expect(Array.isArray(result.meta.warnings)).toBe(true);
   });
 
-  it("always includes meta.warnings array", async () => {
+  it("always includes meta.warnings array and emits version 2.0 without coupling", async () => {
     const result = await runScan({ repoPath: smallTsFixture });
 
+    expect(result.version).toBe("2.0");
+    expect(result).not.toHaveProperty("coupling");
     expect(result.meta.warnings).toEqual([]);
   });
 
@@ -480,62 +461,6 @@ describe("runScan", () => {
     } finally {
       await rm(repoPath, { recursive: true, force: true });
     }
-  });
-
-  it("passes merged megaCommitThreshold from repo config to git miner", async () => {
-    mineSpy.mockClear();
-    const repoPath = await createIsolatedSmallTsRepo();
-    try {
-      await writeFile(
-        join(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
-        JSON.stringify({ megaCommitThreshold: 75 }),
-        "utf8",
-      );
-
-      await runScan({ repoPath });
-
-      expect(mineSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          megaCommitThreshold: 75,
-        }),
-      );
-    } finally {
-      await rm(repoPath, { recursive: true, force: true });
-    }
-  });
-
-  it("uses explicit megaCommitThreshold option over repo config", async () => {
-    mineSpy.mockClear();
-    const repoPath = await createIsolatedSmallTsRepo();
-    try {
-      await writeFile(
-        join(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
-        JSON.stringify({ megaCommitThreshold: 75 }),
-        "utf8",
-      );
-
-      await runScan({ repoPath, megaCommitThreshold: 25 });
-
-      expect(mineSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          megaCommitThreshold: 25,
-        }),
-      );
-    } finally {
-      await rm(repoPath, { recursive: true, force: true });
-    }
-  });
-
-  it("defaults megaCommitThreshold to 100 when unset", async () => {
-    mineSpy.mockClear();
-
-    await runScan({ repoPath: smallTsFixture });
-
-    expect(mineSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        megaCommitThreshold: MEGA_COMMIT_UNIQUE_FILE_THRESHOLD,
-      }),
-    );
   });
 
   it("validates a temporary directory path and throws on non-git repo", async () => {
@@ -753,7 +678,6 @@ describe("runScan", () => {
       releaseAnalyze = resolve;
     });
 
-    scoreCouplingSpy.mockClear();
     scoreHotspotsSpy.mockClear();
 
     mineOverride.fn = async (opts) => {
@@ -774,14 +698,12 @@ describe("runScan", () => {
       expect(mineSpy).toHaveBeenCalled();
       expect(analyzeSpy).toHaveBeenCalled();
     });
-    expect(scoreCouplingSpy).not.toHaveBeenCalled();
     expect(scoreHotspotsSpy).not.toHaveBeenCalled();
 
     releaseMine();
     releaseAnalyze();
     await scanPromise;
 
-    expect(scoreCouplingSpy).toHaveBeenCalled();
     expect(scoreHotspotsSpy).toHaveBeenCalled();
 
     mineOverride.fn = null;
@@ -924,7 +846,6 @@ describe("runScan", () => {
       throw cxError;
     };
 
-    scoreCouplingSpy.mockClear();
     scoreHotspotsSpy.mockClear();
 
     await expect(
@@ -935,7 +856,6 @@ describe("runScan", () => {
       expect(mineAborted).toBe(true);
     });
     expect(mineSignal?.aborted).toBe(true);
-    expect(scoreCouplingSpy).not.toHaveBeenCalled();
     expect(scoreHotspotsSpy).not.toHaveBeenCalled();
 
     mineOverride.fn = null;
@@ -959,7 +879,6 @@ describe("runScan", () => {
     });
 
     analyzeSpy.mockClear();
-    scoreCouplingSpy.mockClear();
     scoreHotspotsSpy.mockClear();
 
     await expect(
@@ -970,7 +889,6 @@ describe("runScan", () => {
       }),
     ).rejects.toBe(gitError);
     expect(analyzeSpy).not.toHaveBeenCalled();
-    expect(scoreCouplingSpy).not.toHaveBeenCalled();
     expect(scoreHotspotsSpy).not.toHaveBeenCalled();
 
     mineOverride.fn = null;
@@ -987,7 +905,6 @@ describe("runScan", () => {
       throw cxError;
     };
 
-    scoreCouplingSpy.mockClear();
     scoreHotspotsSpy.mockClear();
 
     await expect(
@@ -997,7 +914,6 @@ describe("runScan", () => {
         sequential: true,
       }),
     ).rejects.toBe(cxError);
-    expect(scoreCouplingSpy).not.toHaveBeenCalled();
     expect(scoreHotspotsSpy).not.toHaveBeenCalled();
 
     mineOverride.fn = null;
@@ -1166,7 +1082,6 @@ describe("runScan", () => {
       });
       return {
         fileStats: new Map(),
-        pairCounts: new Map(),
         warnings: [],
         canonicalizePath: (path: string) => path,
       };
@@ -1220,24 +1135,6 @@ describe("runScan", () => {
         signal: externalController.signal,
       }),
     ).rejects.toBeInstanceOf(DOMException);
-  });
-
-  it("passes git miner canonicalizePath to enrichCouplingStaticDeps", async () => {
-    enrichCouplingStaticDepsSpy.mockClear();
-
-    await runScan({ repoPath: smallTsFixture, granularity: "file" });
-
-    expect(enrichCouplingStaticDepsSpy).toHaveBeenCalledWith(
-      expect.any(Array),
-      expect.any(String),
-      expect.objectContaining({
-        canonicalizePath: expect.any(Function),
-      }),
-    );
-
-    const canonicalizePath = enrichCouplingStaticDepsSpy.mock.calls[0]?.[2]
-      ?.canonicalizePath as ((path: string) => string) | undefined;
-    expect(canonicalizePath?.("src/a.ts")).toBe("src/a.ts");
   });
 
   it.each(["file", "function"] as const)(

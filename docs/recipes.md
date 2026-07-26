@@ -34,7 +34,7 @@ For a quieter CI or cron job (progress lines suppressed; warnings and errors sti
 hotspot-scanner scan . --since "3 months ago" --top 10 --quiet
 ```
 
-**Tip:** Defaults are `12 months ago`, `--top 20`, and mega-commit threshold `100`. Override with CLI flags or set `since` / `top` / `megaCommitThreshold` in `.hotspot-scanner.json` (CLI wins over config).
+**Tip:** Defaults are `12 months ago` and `--top 20`. Override with CLI flags or set `since` / `top` in `.hotspot-scanner.json` (CLI wins over config).
 
 ## PR markdown report
 
@@ -44,7 +44,7 @@ Generate a GitHub-flavored report you can attach to a pull request or paste into
 hotspot-scanner scan . --format markdown --output report.md
 ```
 
-Slice to the top hotspots and coupling pairs for a shorter attachment:
+Slice to the top hotspots for a shorter attachment:
 
 ```bash
 hotspot-scanner scan . --format markdown --output report.md --top 10
@@ -56,7 +56,7 @@ From a clone of this repo (fixture example):
 pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts --format markdown --output /tmp/small-ts-report.md
 ```
 
-Commit or upload `report.md` in your PR; the file includes hotspot and coupling tables with raw and normalized columns.
+Commit or upload `report.md` in your PR; the file includes hotspot tables with raw and normalized columns.
 
 ## Monorepo config
 
@@ -80,9 +80,7 @@ To scan the whole monorepo from a package cwd, run from the git root or pass exp
 {
   "since": "6 months ago",
   "include": ["packages/**/src/**"],
-  "top": 15,
-  "minCochange": 3,
-  "megaCommitThreshold": 100
+  "top": 15
 }
 ```
 
@@ -139,7 +137,7 @@ Built-in artifact excludes (`node_modules`, `dist`, `.next`, and similar) always
 
 ## Baseline / compare
 
-Save a JSON snapshot, then diff a later scan to see new, removed, and rank-changed hotspots and coupling pairs.
+Save a JSON snapshot, then diff a later scan to see new, removed, and rank-changed hotspots (or functions in function mode).
 
 **Store baselines as CI artifacts** — do not commit large JSON snapshots to the repo. Upload the baseline from a scheduled or main-branch job and download it in PR compare jobs:
 
@@ -176,11 +174,11 @@ hotspot-scanner scan . --format json --output baseline.json
 # or: hotspot-scanner baseline save . --output baseline.json
 ```
 
-**Do not use `--only` for baselines.** Section-filtered JSON omits top-level keys (`hotspots`, `coupling`, `functions`) and fails baseline validation. Save from an unfiltered scan only — see [README → Section filter (`--only`)](../README.md#output-formats).
+**Do not use `--only` for baselines.** Section-filtered JSON omits top-level keys (`hotspots`, `functions`) and fails baseline validation. Save from an unfiltered scan only — see [README → Section filter (`--only`)](../README.md#output-formats).
 
 ```bash
 # Partial export for triage — NOT a valid baseline
-hotspot-scanner scan . --only coupling --format json --output coupling-only.json
+hotspot-scanner scan . --only hotspots --format json --output hotspots-only.json
 ```
 
 **2. Compare current tree**
@@ -203,17 +201,17 @@ Full machine-readable delta (no `--top` slicing):
 hotspot-scanner scan . --baseline baseline.json --format json --output compare.json
 ```
 
-**CSV compare bundle** (writes `compare.meta.json` plus six data CSVs):
+**CSV compare bundle** (writes `compare.meta.json` plus hotspot/function delta CSVs):
 
 ```bash
 hotspot-scanner scan . --baseline baseline.json --format csv --output compare.csv
 ```
 
-Use the same `--since` and `--granularity` for baseline and current scans when you care about rank deltas; mismatched windows emit a `COMPARE_SINCE_MISMATCH` warning. Re-save the baseline after scanner upgrades that change the JSON shape.
+Use the same `--since` and `--granularity` for baseline and current scans when you care about rank deltas; mismatched windows emit a `COMPARE_SINCE_MISMATCH` warning. Re-save the baseline after scanner upgrades that change the JSON shape (M56: `version: "2.0"` — baselines at `1.0` or with a `coupling` key are rejected).
 
 ### Compare interpretation (delta triage, explain, strict)
 
-Compare table and markdown include **delta-aware triage hints** by default (new dual-signal, rank worsened ≥5, new coupled-with-static). Suppress with `--no-triage-hints`. JSON and CSV omit triage.
+Compare table and markdown include **delta-aware triage hints** by default (new dual-signal, rank worsened ≥5). Suppress with `--no-triage-hints`. JSON and CSV omit triage.
 
 Explain a specific delta on stderr (stdout / `--output` unchanged):
 

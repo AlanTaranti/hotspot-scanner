@@ -2,7 +2,7 @@
 
 Thank you for your interest in contributing. This document explains how to set up the project locally, verify your changes, and where to find the technical details you need before coding.
 
-**@vitals/hotspot-scanner** is a local CLI that ranks TypeScript/JavaScript maintenance hotspots by combining cyclomatic complexity, Git churn, and temporal coupling. It runs entirely on your machine — no network services or databases.
+**@vitals/hotspot-scanner** is a local CLI that ranks TypeScript/JavaScript maintenance hotspots by combining cyclomatic complexity and Git churn. It runs entirely on your machine — no network services or databases.
 
 - **Design source of truth:** [.specs/codebase/ARCHITECTURE.md](.specs/codebase/ARCHITECTURE.md)
 - **License:** MIT (see [package.json](package.json))
@@ -122,7 +122,7 @@ hotspot-scanner/
 ├── src/
 │   ├── git/          # Git Change Miner
 │   ├── complexity/   # McCabe over ts-morph
-│   ├── scoring/      # Hotspot + temporal coupling scorers
+│   ├── scoring/      # Hotspot scorers (file + function)
 │   ├── paths/        # Path scoping (--include, --exclude)
 │   ├── diagnostics/  # stderr warnings + progress
 │   ├── report/       # CLI table + JSON output

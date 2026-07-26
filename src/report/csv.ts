@@ -1,8 +1,4 @@
 import type { ScanResult } from "../types/index.js";
-import {
-  COUPLING_ENRICHMENT_CSV_COLUMNS,
-  couplingEnrichmentCsvValues,
-} from "./coupling-format.js";
 import type { CsvBundle } from "./csv-bundle.js";
 import { formatCsvRow } from "./csv-utils.js";
 import { includesSection, normalizeOnly, type ReportSection } from "./only.js";
@@ -100,29 +96,6 @@ function renderFunctionsCsv(result: ScanResult): string {
   return renderCsvFile(header, rows);
 }
 
-function renderCouplingCsv(result: ScanResult): string {
-  const header = [
-    "rank",
-    "fileA",
-    "fileB",
-    "strength",
-    "coChanges",
-    "hasStaticDependency",
-    ...COUPLING_ENRICHMENT_CSV_COLUMNS,
-  ];
-  const rows = result.coupling.map((pair, index) => [
-    String(index + 1),
-    pair.fileA,
-    pair.fileB,
-    formatScore(pair.couplingStrength),
-    String(pair.coChangeCount),
-    String(pair.hasStaticDependency),
-    ...couplingEnrichmentCsvValues(pair),
-  ]);
-
-  return renderCsvFile(header, rows);
-}
-
 export function renderCsv(
   result: ScanResult,
   options?: RenderCsvOptions,
@@ -141,7 +114,6 @@ export function renderCsv(
     } else {
       bundle["hotspots.csv"] = renderHotspotsCsv(result);
     }
-    bundle["coupling.csv"] = renderCouplingCsv(result);
     return bundle;
   }
 
@@ -150,9 +122,6 @@ export function renderCsv(
   }
   if (includesSection(onlySet, "functions")) {
     bundle["functions.csv"] = renderFunctionsCsv(result);
-  }
-  if (includesSection(onlySet, "coupling")) {
-    bundle["coupling.csv"] = renderCouplingCsv(result);
   }
 
   return bundle;

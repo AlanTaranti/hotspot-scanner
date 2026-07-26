@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type {
   CompareResult,
-  CouplingPair,
   FunctionHotspotScore,
   HotspotScore,
   RankChange,
@@ -13,7 +12,6 @@ import {
   buildCompareTriageHints,
 } from "./compare-triage.js";
 import {
-  TRIAGE_COUPLING_STRENGTH_THRESHOLD,
   TRIAGE_HOTSPOT_SCORE_THRESHOLD,
   TRIAGE_MAX_HINTS_PER_RULE,
   TRIAGE_NORMALIZED_SIGNAL_THRESHOLD,
@@ -28,15 +26,14 @@ const BASE_META: ScanMeta = {
 
 function makeCompareResult(
   overrides: Partial<
-    Pick<CompareResult, "hotspots" | "functions" | "coupling" | "granularity">
+    Pick<CompareResult, "hotspots" | "functions" | "granularity">
   > = {},
 ): CompareResult {
   return {
-    version: "1.0",
+    version: "2.0",
     granularity: "file",
     hotspots: { new: [], removed: [], rankChanged: [] },
     functions: { new: [], removed: [], rankChanged: [] },
-    coupling: { new: [], removed: [], rankChanged: [] },
     meta: { baseline: BASE_META, current: BASE_META, warnings: [] },
     ...overrides,
   };
@@ -72,21 +69,6 @@ function makeFunctionHotspot(
     commitCount: 5,
     linesChanged: 80,
     authorCount: 2,
-    ...overrides,
-  };
-}
-
-function makeCouplingPair(overrides: Partial<CouplingPair> = {}): CouplingPair {
-  return {
-    fileA: "src/a.ts",
-    fileB: "src/b.ts",
-    coChangeCount: 5,
-    couplingStrength: 0.75,
-    hasStaticDependency: true,
-    staticDependencyDirection: "a-to-b",
-    hasRuntimeStaticDependency: true,
-    hasTypeOnlyStaticDependency: false,
-    hasReExportStaticDependency: false,
     ...overrides,
   };
 }
@@ -294,91 +276,6 @@ describe("buildCompareTriageHints", () => {
     ).toEqual([]);
   });
 
-  it("matches new-coupled-with-static for new coupling pairs at the strength threshold", () => {
-    const hints = buildCompareTriageHints(
-      makeCompareResult({
-        coupling: {
-          new: [
-            makeCouplingPair({
-              fileA: "src/x.ts",
-              fileB: "src/y.ts",
-              couplingStrength: TRIAGE_COUPLING_STRENGTH_THRESHOLD,
-              hasStaticDependency: true,
-            }),
-          ],
-          removed: [],
-          rankChanged: [],
-        },
-      }),
-    );
-
-    expect(hints).toEqual([
-      {
-        ruleId: "new-coupled-with-static",
-        message:
-          "New strong temporal coupling with a static dependency vs baseline — candidate boundary/split review.",
-        target: "src/x.ts ↔ src/y.ts",
-        rankMetric: TRIAGE_COUPLING_STRENGTH_THRESHOLD,
-      },
-    ]);
-  });
-
-  it("does not match new-coupled-with-static when strength is low or static dep is false", () => {
-    const lowStrength = makeCouplingPair({
-      couplingStrength: TRIAGE_COUPLING_STRENGTH_THRESHOLD - 0.01,
-      hasStaticDependency: true,
-    });
-    const noStatic = makeCouplingPair({
-      couplingStrength: 0.9,
-      hasStaticDependency: false,
-    });
-
-    expect(
-      buildCompareTriageHints(
-        makeCompareResult({
-          coupling: { new: [lowStrength], removed: [], rankChanged: [] },
-        }),
-      ).some((hint) => hint.ruleId === "new-coupled-with-static"),
-    ).toBe(false);
-    expect(
-      buildCompareTriageHints(
-        makeCompareResult({
-          coupling: { new: [noStatic], removed: [], rankChanged: [] },
-        }),
-      ).some((hint) => hint.ruleId === "new-coupled-with-static"),
-    ).toBe(false);
-  });
-
-  it("does not match new-coupled-with-static for removed or rank-changed coupling", () => {
-    const pair = makeCouplingPair();
-
-    expect(
-      buildCompareTriageHints(
-        makeCompareResult({
-          coupling: { new: [], removed: [pair], rankChanged: [] },
-        }),
-      ),
-    ).toEqual([]);
-    expect(
-      buildCompareTriageHints(
-        makeCompareResult({
-          coupling: {
-            new: [],
-            removed: [],
-            rankChanged: [
-              {
-                entity: pair,
-                baselineRank: 1,
-                currentRank: 6,
-                rankDelta: 5,
-              },
-            ],
-          },
-        }),
-      ),
-    ).toEqual([]);
-  });
-
   it("caps each rule at three matches sorted by rank metric descending", () => {
     const newHotspots = Array.from({ length: 5 }, (_, index) =>
       makeHotspot({
@@ -395,31 +292,18 @@ describe("buildCompareTriageHints", () => {
         { rankDelta: COMPARE_TRIAGE_RANK_DELTA_THRESHOLD + index },
       ),
     );
-    const newPairs = Array.from({ length: 4 }, (_, index) =>
-      makeCouplingPair({
-        fileA: `src/sa${index}.ts`,
-        fileB: `src/sb${index}.ts`,
-        couplingStrength: 0.51 + index * 0.01,
-        hasStaticDependency: true,
-      }),
-    );
 
     const hints = buildCompareTriageHints(
       makeCompareResult({
         hotspots: { new: newHotspots, removed: [], rankChanged: rankChanges },
-        coupling: { new: newPairs, removed: [], rankChanged: [] },
       }),
     );
 
     const dualSignal = hints.filter((hint) => hint.ruleId === "new-dual-signal");
     const rankWorsened = hints.filter((hint) => hint.ruleId === "rank-worsened");
-    const coupledStatic = hints.filter(
-      (hint) => hint.ruleId === "new-coupled-with-static",
-    );
 
     expect(dualSignal).toHaveLength(TRIAGE_MAX_HINTS_PER_RULE);
     expect(rankWorsened).toHaveLength(TRIAGE_MAX_HINTS_PER_RULE);
-    expect(coupledStatic).toHaveLength(TRIAGE_MAX_HINTS_PER_RULE);
 
     expect(dualSignal.map((hint) => hint.target)).toEqual([
       "src/h4.ts",
@@ -427,6 +311,5 @@ describe("buildCompareTriageHints", () => {
       "src/h2.ts",
     ]);
     expect(rankWorsened.map((hint) => hint.rankMetric)).toEqual([8, 7, 6]);
-    expect(coupledStatic.map((hint) => hint.rankMetric)).toEqual([0.54, 0.53, 0.52]);
   });
 });

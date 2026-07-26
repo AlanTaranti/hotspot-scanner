@@ -5,18 +5,11 @@
   "description": "Compare output from hotspot-scanner (baseline vs current scan).",
   "type": "object",
   "additionalProperties": true,
-  "required": [
-    "version",
-    "granularity",
-    "hotspots",
-    "functions",
-    "coupling",
-    "meta"
-  ],
+  "required": ["version", "granularity", "hotspots", "functions", "meta"],
   "properties": {
     "version": {
       "type": "string",
-      "const": "1.0"
+      "const": "2.0"
     },
     "granularity": {
       "$ref": "scan-result.json#/$defs/ScanGranularity"
@@ -26,9 +19,6 @@
     },
     "functions": {
       "$ref": "#/$defs/FunctionCompareSection"
-    },
-    "coupling": {
-      "$ref": "#/$defs/CouplingCompareSection"
     },
     "meta": {
       "$ref": "#/$defs/CompareMeta"
@@ -55,19 +45,6 @@
       "properties": {
         "entity": {
           "$ref": "scan-result.json#/$defs/FunctionHotspotScore"
-        },
-        "baselineRank": { "type": "integer" },
-        "currentRank": { "type": "integer" },
-        "rankDelta": { "type": "integer" }
-      }
-    },
-    "RankChangeCoupling": {
-      "type": "object",
-      "additionalProperties": true,
-      "required": ["entity", "baselineRank", "currentRank", "rankDelta"],
-      "properties": {
-        "entity": {
-          "$ref": "scan-result.json#/$defs/CouplingPair"
         },
         "baselineRank": { "type": "integer" },
         "currentRank": { "type": "integer" },
@@ -120,31 +97,6 @@
           "type": "array",
           "items": {
             "$ref": "#/$defs/RankChangeFunction"
-          }
-        }
-      }
-    },
-    "CouplingCompareSection": {
-      "type": "object",
-      "additionalProperties": true,
-      "required": ["new", "removed", "rankChanged"],
-      "properties": {
-        "new": {
-          "type": "array",
-          "items": {
-            "$ref": "scan-result.json#/$defs/CouplingPair"
-          }
-        },
-        "removed": {
-          "type": "array",
-          "items": {
-            "$ref": "scan-result.json#/$defs/CouplingPair"
-          }
-        },
-        "rankChanged": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/RankChangeCoupling"
           }
         }
       }

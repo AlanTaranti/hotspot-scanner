@@ -1,32 +1,19 @@
 import type {
-  CoChangePairCount,
   ComplexityResult,
-  CouplingPair,
   FileChangeStats,
   FunctionChangeStats,
   FunctionComplexityResult,
   FunctionHotspotScore,
   HotspotScore,
 } from "../types/index.js";
-import { scoreCoupling } from "./coupling-scorer.js";
 import { scoreFunctionHotspots } from "./function-hotspot-scorer.js";
 import { scoreHotspots } from "./hotspot-scorer.js";
-
-export const DEFAULT_MIN_COCHANGE = 3;
 
 export interface HotspotScorer {
   score(
     fileStats: Map<string, FileChangeStats>,
     complexity: ComplexityResult[],
   ): HotspotScore[];
-}
-
-export interface TemporalCouplingScorer {
-  score(
-    pairCounts: Map<string, CoChangePairCount> | Iterable<CoChangePairCount>,
-    fileStats: Map<string, FileChangeStats>,
-    minCochange: number,
-  ): CouplingPair[];
 }
 
 export interface FunctionHotspotScorer {
@@ -39,7 +26,6 @@ export interface FunctionHotspotScorer {
 export interface ScoringDependencies {
   scoreHotspots?: typeof scoreHotspots;
   scoreFunctionHotspots?: typeof scoreFunctionHotspots;
-  scoreCoupling?: typeof scoreCoupling;
 }
 
 export function createHotspotScorer(
@@ -66,26 +52,6 @@ export function createFunctionHotspotScorer(
   };
 }
 
-export function createTemporalCouplingScorer(
-  deps: ScoringDependencies = {},
-): TemporalCouplingScorer {
-  const score = deps.scoreCoupling ?? scoreCoupling;
-
-  return {
-    score(pairCounts, fileStats, minCochange) {
-      return score(pairCounts, fileStats, minCochange);
-    },
-  };
-}
-
-export { enrichCouplingStaticDeps } from "./enrich-coupling-static.js";
-export {
-  TsconfigPathMap,
-  loadPathMapForImporter,
-  resolveAliasSpecifier,
-} from "./tsconfig-path-map.js";
-export type { PathAliasResolver } from "./tsconfig-path-map.js";
-export { scoreCoupling } from "./coupling-scorer.js";
 export { scoreFunctionHotspots } from "./function-hotspot-scorer.js";
 export { scoreHotspots } from "./hotspot-scorer.js";
 export { normalizeLogMinMax } from "./normalize.js";

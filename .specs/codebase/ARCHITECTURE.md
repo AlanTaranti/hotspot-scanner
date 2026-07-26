@@ -17,7 +17,6 @@ flowchart TB
     GitMiner[Git Change Miner]
     Complexity[Complexity Analyzer]
     Hotspot[Hotspot Scorer]
-    Coupling[Temporal Coupling Scorer]
     Reporter[Reporter]
     Doctor[Doctor]
     ScanPreview[Scan scope preview]
@@ -28,10 +27,8 @@ flowchart TB
   CLI --> GitMiner
   CLI --> Complexity
   GitMiner --> Hotspot
-  GitMiner --> Coupling
   Complexity --> Hotspot
   Hotspot --> Reporter
-  Coupling --> Reporter
 ```
 
 ## CLI commands (M39–M40)
@@ -64,31 +61,29 @@ Multi-command CLI via Commander in `bin/hotspot-scanner.ts` with shared wiring i
 7. **tsconfig/jsconfig** — informational walk from **request path** (unchanged).
 8. **`aggregateExitCode`** — M39 policy unchanged (`scope` never drives exit alone).
 9. **Output** — `text` (default): `status: message` per finding; `json`: `formatDoctorJsonReport()` → `{ version: "1.0", findings, exitCode }` on stdout (printed even when exit ≠ 0).
-10. **No pipeline stages** — doctor does not call Git Change Miner, Complexity Analyzer, hotspot/coupling scorers, or report ranking.
+10. **No pipeline stages** — doctor does not call Git Change Miner, Complexity Analyzer, hotspot scorers, or report ranking.
 
 ## Data flow (scan)
 
-1. CLI (`bin/hotspot-scanner.ts`) dispatches `init`, `doctor`, `scan [path]`, `baseline save <path>`, `compare <path> --baseline <file>`, or `completion <shell>` (optional repo `path` on scan/compare/baseline/doctor, default `.`). Program-level `-V` / `--version` prints package `version` without running a command. Shared scan/compare wiring lives in `bin/scan-actions.ts` (`executeScan`, `executeCompareAndRender`, `writeBaselineJson`, `runWithScanCancelSignals`, `createVerboseSpawnArgvHandler`, path validators). For `scan` / `compare`, flags include `--since`; `-f` / `--format`; `-g` / `--granularity`; `-t` / `--top`; `--min-cochange`; `--include` / `--exclude`; `--config`; `--concurrency`; `-o` / `--output`; `--baseline`; `--only`; `--no-triage-hints`; `--no-color`; `--explain`; `--strict` (M53 — compare only; see [Compare strict (M53)](#compare-strict-m53)); `--dry-run`; `--quiet`; `--no-progress`; `--verbose` (CLI-only — git spawn argv trace; suppressed when `--quiet`). `--dry-run` routes to `previewScanScope()` (see [CLI commands (M39)](#cli-commands-m39)); otherwise `runWithScanCancelSignals()` passes an `AbortSignal` into `runScan()` (see [User cancel (M51)](#user-cancel-m51)). `--quiet` suppresses progress plus info-level `ScanWarning` stderr and disables verbose git traces; `--no-progress` suppresses progress only; both leave report output and warning/error diagnostics. Common errors append actionable `Hint:` lines (non-git path, csv without output, baseline path/content, missing explicit config).
+1. CLI (`bin/hotspot-scanner.ts`) dispatches `init`, `doctor`, `scan [path]`, `baseline save <path>`, `compare <path> --baseline <file>`, or `completion <shell>` (optional repo `path` on scan/compare/baseline/doctor, default `.`). Program-level `-V` / `--version` prints package `version` without running a command. Shared scan/compare wiring lives in `bin/scan-actions.ts` (`executeScan`, `executeCompareAndRender`, `writeBaselineJson`, `runWithScanCancelSignals`, `createVerboseSpawnArgvHandler`, path validators). For `scan` / `compare`, flags include `--since`; `-f` / `--format`; `-g` / `--granularity`; `-t` / `--top`; `--include` / `--exclude`; `--config`; `--concurrency`; `-o` / `--output`; `--baseline`; `--only`; `--no-triage-hints`; `--no-color`; `--explain`; `--strict` (M53 — compare only; see [Compare strict (M53)](#compare-strict-m53)); `--dry-run`; `--quiet`; `--no-progress`; `--verbose` (CLI-only — git spawn argv trace; suppressed when `--quiet`). `--dry-run` routes to `previewScanScope()` (see [CLI commands (M39)](#cli-commands-m39)); otherwise `runWithScanCancelSignals()` passes an `AbortSignal` into `runScan()` (see [User cancel (M51)](#user-cancel-m51)). `--quiet` suppresses progress plus info-level `ScanWarning` stderr and disables verbose git traces; `--no-progress` suppresses progress only; both leave report output and warning/error diagnostics. Common errors append actionable `Hint:` lines (non-git path, csv without output, baseline path/content, missing explicit config).
 2. **Monorepo path resolve + config (M43 + M21 + M30)** — `resolveScanPipelineContext()` (`src/scan.ts`) runs before pipeline stages (also used by `scan --dry-run` via `previewScanScope()` and by `runDoctor()` for remount-aware `git-repo` + `scope` inventory):
    - `validateRepoPath(options.repoPath)` on the **original request path**
    - `resolveMonorepoScanPath(requestPath)` (`src/paths/resolve-repo.ts`) via `git -C <requestPath> rev-parse --show-toplevel` → `{ repoPath (git root), packagePrefix?, remounted }`; request path already at git root → `remounted: false`; not in a work tree → same error class as today
    - `loadHotspotScannerConfig(options.repoPath, { configPath? })` — discovery walk starts from the **original request path**, not the remounted git root (M30 unchanged). When `configPath` is set, that file is read only (parent walk skipped); missing explicit path → `ConfigError`. Otherwise walk upward from request path for `.hotspot-scanner.json` (nearest wins); walk miss → built-in defaults only (not an error)
    - CLI overrides from `ScanOptions`; when `remounted && options.include === undefined`, inject synthetic CLI `include: ["{packagePrefix}/**"]` (beats config `include` via merge precedence)
-   - `mergeScanOptions()` applies **CLI > config > defaults** for `since`, `include`, `exclude`, `granularity`, `minCochange`, `top`, `concurrency`, `megaCommitThreshold`
+   - `mergeScanOptions()` applies **CLI > config > defaults** for `since`, `include`, `exclude`, `granularity`, `top`, `concurrency`
    - `validateGitRepository(resolved.repoPath)` on the **git root** (not the nested package directory)
    - When `remounted`, push `MONOREPO_PATH_REMOUNT` info `ScanWarning` (message names git root; mentions auto-include pattern only when applied)
    - **YAGNI:** path-only heuristic — no `pnpm-workspace.yaml` / nx / turborepo parsers; no `--no-remount` flag
    - `format`, `output`, `baseline`, `--only`, `--no-triage-hints`, `--no-color`, `quiet`, `no-progress`, `verbose`, `sequential` (`--sequential` / `--no-overlap`), and `version` remain CLI-only (not config keys). Invalid JSON or bad types throw `ConfigError` (non-zero exit). Unknown keys are not applied to merge (forward-compatible) but emit a warn-only `UNKNOWN_CONFIG_KEY` diagnostic (never fail). Bin pre-merge for `top` uses the same `configPath` / discovery args as `runScan()` (request path).
 3. **`runScan()`** builds `PathScope` via `createScanPathScope(merged, { includeTests? })` (`src/scan.ts` — shared with `previewScanScope` / doctor scope inventory), then runs mining/analysis on `pipelineRepoPath` (git root when remounted) with **M34 overlap by default** (or sequential opt-out when `ScanOptions.sequential === true`) and post-barrier scoring (rankings and JSON contract unchanged):
-   - **Overlap window (file mode, default)** — `GitMiner.mine` (numstat) and `ComplexityAnalyzer.analyze` start concurrently under a shared orchestrator `AbortController`; on first rejection, abort the sibling (`child.kill` / worker terminate), `Promise.allSettled` both promises, rethrow the **original** error — no hotspot/function/coupling scoring on failure
+   - **Overlap window (file mode, default)** — `GitMiner.mine` (numstat) and `ComplexityAnalyzer.analyze` start concurrently under a shared orchestrator `AbortController`; on first rejection, abort the sibling (`child.kill` / worker terminate), `Promise.allSettled` both promises, rethrow the **original** error — no hotspot/function scoring on failure
    - **Sequential opt-out (M49, file mode)** — when `ScanOptions.sequential === true` (CLI `--sequential` primary, `--no-overlap` alias on `scan`, `compare`, and `baseline save`), `await` git mine then `await` complexity analyze — stages are not concurrently in-flight; lowers peak RSS and yields deterministic stage order; rankings and JSON contract unchanged; function mode already sequences numstat before complexity (flag accepted, no extra effect on M35 boundaries)
-   - **Git Change Miner** — one `git log -M --numstat` stream → `FileChangeStats` + aggregated coupling pair counts (`pair → coChangeCount`, M32); `PathAliasMap` links renames; optional `isPathInScope` predicate applied during aggregation (mega-guard counts unique in-scope paths only); commits with unique in-scope files **>** merged `megaCommitThreshold` (default **100**) skip coupling increments but still update churn (`MEGA_COMMIT_SKIPPED` warnings use effective threshold in message text); rename blind-spot warnings as `ScanWarning[]` with `RENAME_HISTORY_INCOMPLETE` (M26 messages, M28 routing); output filtered by `PathScope` via `filterGitMinerResult()`; forwards warnings and phased `onProgress({ phase: "git", commitsProcessed })` during the overlap window
+   - **Git Change Miner** — one `git log -M --numstat` stream → `FileChangeStats`; `PathAliasMap` links renames; optional `isPathInScope` predicate applied during aggregation; rename blind-spot warnings as `ScanWarning[]` with `RENAME_HISTORY_INCOMPLETE` (M26 messages, M28 routing); output filtered by `PathScope` via `filterGitMinerResult()`; forwards warnings and phased `onProgress({ phase: "git", commitsProcessed })` during the overlap window
    - **Complexity Analyzer** — discovers in-scope TS/JS files on the main thread (prefers `git ls-files` + extension/PathScope filter in Git repos, with filesystem walk fallback); **function mode (M35 + M50)** waits for numstat to settle, then runs **full in-scope discovery** (no churn `pathAllowlist` on complexity — M50 revisit of M35 D6); file mode uses full discovery concurrently with numstat; chunks into batches of 50, dispatches batches to a bounded persistent `worker_threads` pool (`createWorkerPool`, concurrency from merged config — default `min(availableParallelism(), 8)`); each worker (or inline session when `concurrency === 1`) reuses one ts-morph `Project` across batches with source files cleared between `loadBatch` calls; parse gating uses syntactic diagnostics only → merged `ComplexityResult[]` + `FunctionComplexityResult[]` in discovery order; parse failures emit stub `ComplexityResult` rows (`parseFailed: true`) plus `PARSE_FAILED` warnings (M50); phased `onProgress({ phase: "complexity", filesProcessed, batchesProcessed, totalFiles, totalBatches, commitsProcessed: 0 })` after each batch (inline and worker paths); forwards warnings
    - **Post-barrier (both stages settled OK)** — aggregate warnings in deterministic order (git, then complexity); then scoring branch on `granularity` (default `file`):
      - **file** — `createHotspotScorer()` → `ScanResult.hotspots` (no patch spawn)
      - **function** — `buildFunctionModePathAllowlist()` from scoped `fileStats` → `createFunctionChurnMiner({ paths })` **after** complexity only (never concurrent with numstat; pathspec-restricted `git log -p` per batch when allowlist non-empty — `≤ 1000` paths → single spawn, `> 1000` → stable-sorted chunks of `≤ PATCH_PATHSPEC_FALLBACK_THRESHOLD` run **sequentially**; empty allowlist → no patch spawn; ARG_MAX emergency → half-size retry then unrestricted remainder + `PATHSPEC_ARG_MAX_FALLBACK`); interval-indexed hunk overlap in `aggregatePatchCommit`; phased `onProgress({ phase: "function-churn", commitsProcessed })` → `createFunctionHotspotScorer()` → `ScanResult.functions`
-   - **Temporal Coupling Scorer** — file-pair ranked `coupling` from pre-aggregated pair counts (starts only after numstat + complexity barrier; unchanged formula/ranking below mega-guard; unchanged in both modes)
-   - **Static coupling enricher** — `enrichCouplingStaticDeps()` builds a per-call peer-scoped edge cache (one read/parse per unique participant file; O(1) pair labeling) and sets static-dependency fields from resolvable static `import`/`export … from`/`require` edges (relative + tsconfig/jsconfig `paths`/`baseUrl`; direction and edge-kind flags; missing/unreadable source → no edge; does not change ranking); **M50** passes the file miner’s `PathAliasMap` canonicalizer so peer paths and pair endpoints resolve rename-linked aliases (reopens M27 “no PathAliasMap in scoring” boundary for linked renames only)
    - **Aggregate diagnostics** — `runScan()` collects stage `ScanWarning[]` into `ScanResult.meta.warnings` (always present, possibly empty); forwards each via `onWarning`; on successful scans, records `ScanResult.meta.timings` (`gitMs`, `complexityMs`, optional `functionChurnMs`, `totalMs` — see [Stage timings (M51)](#stage-timings-m51))
 4. CLI passes `ScanResult` to **Reporter** for table, JSON, markdown, or CSV output (`--top` applied at render time for table/markdown only; ignored for JSON and CSV). M41 interpretation options (`--only`, `--no-triage-hints`, `--no-color`) are resolved in the bin and passed as `ReporterOptions` (see [Export formats](#export-formats-m10-m17-m18-m41))
 5. With `--output <path>`, CLI writes the rendered report to file (UTF-8) instead of stdout; stderr diagnostics unchanged
@@ -100,8 +95,8 @@ Multi-command CLI via Commander in `bin/hotspot-scanner.ts` with shared wiring i
 - **Filename:** `.hotspot-scanner.json` only — not `.hotspotrc`, not dual lookup on discovery walk
 - **Discovery (default):** From `repoPath`, walk parents for `.hotspot-scanner.json`; nearest file wins; filesystem root with no file → `null` (defaults only, not an error)
 - **Explicit path:** `--config <path>` / `ScanOptions.configPath` loads that file only (skips walk); ENOENT or unreadable explicit path → `ConfigError`; relative path resolves from process cwd
-- **Keys:** `since`, `include`, `exclude`, `granularity`, `minCochange`, `top`, `concurrency`, `megaCommitThreshold` — map to the same semantics as CLI flags
-- **Precedence:** CLI flag explicitly provided → config key present → built-in default (`DEFAULT_SINCE`, `DEFAULT_TOP`, `DEFAULT_MIN_COCHANGE`, `DEFAULT_WORKER_CONCURRENCY`, granularity `file`). `--config` selects which file is read only — option merge precedence unchanged.
+- **Keys:** `since`, `include`, `exclude`, `granularity`, `top`, `concurrency` — map to the same semantics as CLI flags
+- **Precedence:** CLI flag explicitly provided → config key present → built-in default (`DEFAULT_SINCE`, `DEFAULT_TOP`, granularity `file`). `--config` selects which file is read only — option merge precedence unchanged.
 - **CLI-only:** `format`, `output`, `baseline`, `--only`, `--no-triage-hints`, `--no-color`, `--explain`, `--strict` (M53 compare exit policy), `quiet`, `no-progress`, `verbose`, `sequential` (`--sequential` / `--no-overlap`), `includeTests` (`--include-tests`), `version` (program flag; not in `.hotspot-scanner.json`)
 - **Module:** `src/config/` (`load-config.ts`, `merge-options.ts`, `exemplar.ts` for `init`); `ConfigError` on invalid JSON or value types; unknown keys → warn-only `UNKNOWN_CONFIG_KEY` (not applied to merge; never fail)
 
@@ -122,7 +117,7 @@ Multi-command CLI via Commander in `bin/hotspot-scanner.ts` with shared wiring i
 
 ## Key constraints
 
-- Single **numstat** Git log pass for file churn and coupling (ADR-2026-020); function mode adds **sequential** pathspec-restricted patch streams (`git log -p --unified=0`) for per-function churn attribution — allowlist `≤ PATCH_PATHSPEC_FALLBACK_THRESHOLD` (1000) → one spawn; allowlist `> 1000` → stable-sorted batches of `≤ 1000` (M47); empty allowlist skips spawn; unrestricted patch I/O only on documented ARG_MAX emergency (`PATHSPEC_ARG_MAX_FALLBACK`); file mode never spawns the patch stream (M35)
+- Single **numstat** Git log pass for file churn (ADR-2026-020); function mode adds **sequential** pathspec-restricted patch streams (`git log -p --unified=0`) for per-function churn attribution — allowlist `≤ PATCH_PATHSPEC_FALLBACK_THRESHOLD` (1000) → one spawn; allowlist `> 1000` → stable-sorted batches of `≤ 1000` (M47); empty allowlist skips spawn; unrestricted patch I/O only on documented ARG_MAX emergency (`PATHSPEC_ARG_MAX_FALLBACK`); file mode never spawns the patch stream (M35)
 - Both git spawns enable **find-renames** (`-M`) so git can emit `old => new` rename metadata for `PathAliasMap`; **do not** add global `git log --follow` (per-file follow is incompatible with a single numstat pass — see CONCERNS)
 - Working-tree AST only (not historical file versions)
 - Invalid TS/JS: emit `PARSE_FAILED` + stub `ComplexityResult` / hotspot with `parseFailed: true`, `hotspotScore: 0` (M50); do not abort scan
@@ -133,7 +128,7 @@ Multi-command CLI via Commander in `bin/hotspot-scanner.ts` with shared wiring i
 
 File and function git miners share rename linking via `PathAliasMap` (`src/git/rename.ts`) and actionable warnings via `src/git/rename-warnings.ts`. M28 routes existing M26 message families into structured `ScanWarning` objects (`code: "RENAME_HISTORY_INCOMPLETE"`, `severity: "warning"`) — aggregated in `ScanResult.meta.warnings`, forwarded through `onWarning`, and printed to stderr via `src/diagnostics/` (`info:` / `warning:` / `error:` prefixes). **M28 does not add new rename-confidence message families** beyond M26; deeper rename UX remains RT-003 scope.
 
-**M50 heuristic linking:** when a commit has same-commit delete+add paths with strengthened relatedness (identical basename, or identical stem with eligible extensions, per `pathsLookLikeRename` in `rename-warnings.ts`) and no git `=>` / `renameFrom` metadata, the miner calls `PathAliasMap.link(from, to)` before aggregation/canonicalize so churn and coupling unify under the new path. `RENAME_HISTORY_INCOMPLETE` warnings (`Suspected unlinked rename…`, cap preserved) still emit — stable `code`; message may note heuristic link. Deterministic pairing: lexicographic sort, first unused related add per delete. Still no global `--follow` or historical AST.
+**M50 heuristic linking:** when a commit has same-commit delete+add paths with strengthened relatedness (identical basename, or identical stem with eligible extensions, per `pathsLookLikeRename` in `rename-warnings.ts`) and no git `=>` / `renameFrom` metadata, the miner calls `PathAliasMap.link(from, to)` before aggregation/canonicalize so churn unifies under the new path. `RENAME_HISTORY_INCOMPLETE` warnings (`Suspected unlinked rename…`, cap preserved) still emit — stable `code`; message may note heuristic link. Deterministic pairing: lexicographic sort, first unused related add per delete. Still no global `--follow` or historical AST.
 
 ### Git argv
 
@@ -146,7 +141,7 @@ Function patch argv (M35 + M47): `buildGitPatchLogArgv` always appends `--` + pa
 
 ### PathAliasMap
 
-Parse `old => new` lines from the log stream, `link()` chains, `canonicalizeFileStats` + `canonicalizePairCounts` at end of mine. Ambiguous paths (multiple competing rename targets) keep the existing incomplete-history prefix.
+Parse `old => new` lines from the log stream, `link()` chains, `canonicalizeFileStats` at end of mine. Ambiguous paths (multiple competing rename targets) keep the existing incomplete-history prefix.
 
 ### File-miner warning families
 
@@ -157,7 +152,6 @@ Emitted from `createGitMiner().mine()` after the streaming aggregate loop (noise
 | Ambiguous rename | `PathAliasMap.getAmbiguousPaths()` | `Rename history may be incomplete for: …` | Verify rename detection or widen `--since` |
 | Unlinked suspected rename | Same-commit delete+add with basename relatedness, no `renameFrom` / `=>` | `Suspected unlinked rename (no git rename metadata): …` (capped, max 5 pairs + summary) | Ensure git records renames (`-M` enabled) or widen `--since` |
 | `--since` truncation | `since` set **and** at least one in-window rename link recorded | `Rename history before the --since window (…) may be missing under canonical paths` | Widen `--since` to include pre-window rename history |
-| Mega-commit coupling skip (M32, M47) | Unique in-scope canonical paths in commit `>` effective `megaCommitThreshold` (default `MEGA_COMMIT_UNIQUE_FILE_THRESHOLD` = 100) | `Mega-commit skipped for coupling (N unique in-scope files > <T>): <hash>` where `<T>` is the effective threshold (capped, max 5 detail + summary) | Raise/lower threshold via `--mega-commit-threshold` or config `megaCommitThreshold` |
 
 ### Function-mode pós-rename overlap warning
 
@@ -230,7 +224,7 @@ interface ScanStageTimings {
 }
 ```
 
-- Wall-clock ms (`performance.now()`), integers ≥ 0; `totalMs` spans full `runScan()` body through scoring/enrich (no separate `scoringMs`)
+- Wall-clock ms (`performance.now()`), integers ≥ 0; `totalMs` spans full `runScan()` body through scoring (no separate `scoringMs`)
 - **File-mode overlap:** `gitMs` and `complexityMs` are each stage's duration while M34 overlap runs — sums may exceed `totalMs`; `totalMs` is wall clock for the overlapped window plus post-barrier work
 - **Function mode:** adds `functionChurnMs` after complexity barrier; numstat still completes before complexity starts
 - Baselines without `timings` remain loadable (`loadBaseline` optional field)
@@ -248,7 +242,7 @@ interface ScanWarning {
 }
 ```
 
-- `ScanResult.meta.warnings: ScanWarning[]` — required, may be empty; `version` stays `"1.0"`
+- `ScanResult.meta.warnings: ScanWarning[]` — required, may be empty; `version` stays `"2.0"`
 - `CompareResult.meta.warnings: ScanWarning[]` — same shape (compare consumers must read objects, not bare strings)
 - `onWarning?: (warning: ScanWarning) => void` — programmatic callback
 - **Severity vs exit code:** severity is diagnostic only; successful scans exit `0` with warnings present
@@ -279,7 +273,7 @@ Lookup uses **full** `ScanResult` arrays (pre-`--top` truncation). Not found →
 
 When compare mode is active (`scan --baseline` or `compare` command) and `--explain <target>` is set, the CLI explains against **`CompareResult`** delta sections — not the bare current `ScanResult`. Module: `src/report/explain-compare.ts` (path grammar reuses `parseExplainTarget` / `normalizeExplainPath` from `explain.ts`).
 
-**Lookup order** per target: `new` → `removed` → `rankChanged` within the active granularity section (`hotspots` or `functions`). Coupling pairs are not explainable (path targets only).
+**Lookup order** per target: `new` → `removed` → `rankChanged` within the active granularity section (`hotspots` or `functions`).
 
 **Explain block** includes classification (`new` | `removed` | `rank-changed`), entity identity, score fields from the entity (M42 field set — no recomputation), and for rank-changed: `baselineRank`, `currentRank`, `rankDelta`. Lookup uses **full** compare arrays (pre-`--top` slice). Not found → `explain: no compare delta for <target>` on stderr; compare still exits `0` on success unless `--strict` fails independently.
 
@@ -297,7 +291,6 @@ CLI-only `--strict` on `scan` and `compare`. After successful compare + report w
 | `RENAME_HISTORY_INCOMPLETE` | git / function-churn | Rename tracking incomplete — see [Rename confidence (M26)](#rename-confidence-m26-rt-003) |
 | `PARSE_FAILED` | complexity | File failed parse — stub hotspot row with `parseFailed: true`, `hotspotScore: 0`; excluded from successful-file normalization universe (M50) |
 | `COMPARE_SINCE_MISMATCH` | compare | Baseline/current `since` differ — default warn-and-continue (exit `0`); use `--strict` to exit `1` after report write (M53) |
-| `MEGA_COMMIT_SKIPPED` | git miner | One or more commits exceeded the effective mega-commit threshold (default 100 unique in-scope files); those commits did not contribute to coupling pair counts. Churn still counted. Override with `--mega-commit-threshold` or config `megaCommitThreshold`. |
 | `PATHSPEC_ARG_MAX_FALLBACK` | function-churn miner | Patch pathspec batch exceeded argv limits after half-size retry; miner fell back to unrestricted stream for the failing remainder — rankings remain correct; expect higher patch I/O |
 | `MONOREPO_PATH_REMOUNT` | `resolveScanPipelineContext` | Scan path remounted to git root; auto-include pattern applied unless CLI `--include` was set |
 | `UNKNOWN_CONFIG_KEY` | config load | Unknown key(s) in `.hotspot-scanner.json` — not applied to merge; warn-only (never fail); fix typos or move CLI-only keys to flags |
@@ -324,7 +317,7 @@ flowchart LR
 
 ## Orchestration
 
-`src/scan.ts` is the pipeline orchestrator: **file mode** overlaps `createGitMiner` ∥ `createComplexityAnalyzer` (M34) by default, or runs them sequentially when `ScanOptions.sequential === true` (CLI `--sequential` / `--no-overlap`); **function mode** runs numstat first (allowlist), then complexity, then `createFunctionChurnMiner` (never ∥ numstat), then `createFunctionHotspotScorer`; both modes barrier before `createTemporalCouplingScorer` → `enrichCouplingStaticDeps`. Hotspot/function scoring formulas and `ScanResult` / JSON `version: "1.0"` semantics are unchanged. `src/scan-preview.ts` shares config/repo prelude helpers with `runScan()` but stops after `discoverSourceFiles` count (no mine/AST/scoring). `bin/hotspot-scanner.ts` registers Commander commands; `bin/scan-actions.ts` holds shared scan/compare I/O helpers (command dispatch, flags, exit codes — no domain logic).
+`src/scan.ts` is the pipeline orchestrator: **file mode** overlaps `createGitMiner` ∥ `createComplexityAnalyzer` (M34) by default, or runs them sequentially when `ScanOptions.sequential === true` (CLI `--sequential` / `--no-overlap`); **function mode** runs numstat first (allowlist), then complexity, then `createFunctionChurnMiner` (never ∥ numstat), then `createFunctionHotspotScorer`. Hotspot/function scoring formulas and `ScanResult` / JSON `version: "2.0"` semantics are unchanged. `src/scan-preview.ts` shares config/repo prelude helpers with `runScan()` but stops after `discoverSourceFiles` count (no mine/AST/scoring). `bin/hotspot-scanner.ts` registers Commander commands; `bin/scan-actions.ts` holds shared scan/compare I/O helpers (command dispatch, flags, exit codes — no domain logic).
 
 ### Pipeline stage overlap (M34)
 
@@ -336,7 +329,6 @@ flowchart TD
   FileScore[HotspotScorer]
   FnChurn[FunctionChurnMiner — after complexity only]
   FnScore[FunctionHotspotScorer]
-  Coupling[TemporalCoupling + enrich]
   Result[ScanResult — rankings unchanged]
 
   Validate --> Overlap
@@ -344,10 +336,8 @@ flowchart TD
   Barrier -->|file| FileScore
   Barrier -->|function| FnChurn
   FnChurn --> FnScore
-  Barrier --> Coupling
   FileScore --> Result
   FnScore --> Result
-  Coupling --> Result
 ```
 
 - **Default:** file mode overlaps git mining and complexity analysis (M34); function mode always sequences numstat before complexity (M35)
@@ -376,34 +366,7 @@ Each `HotspotScore` entry in `ScanResult.hotspots` carries normalized scores plu
 | `authorCount`          | `FileChangeStats.authors.size`  | yes  | yes (Authors) |
 | `parseFailed`          | complexity stub marker (M50)    | yes  | yes (`ParseFail` yes/no) |
 
-JSON `version` remains `"1.0"` (additive fields). Parse-failed rows use `hotspotScore: 0`, `complexityNormalized: 0`, `churnNormalized: 0`; churn display fields may be non-zero when `fileStats` has history. Successful-file relative order is computed as if parse-failed rows were absent from the normalization universe.
-
-## Enriched coupling (M14, M27, M33, M44)
-
-After temporal coupling scoring, `enrichCouplingStaticDeps()` (`src/scoring/enrich-coupling-static.ts`) inspects working-tree sources under `repoPath` and sets static-dependency fields on each `CouplingPair`. Ranking (`couplingStrength`, `coChangeCount`, order) is unchanged — enrichment is post-score only. Path-alias resolution uses `TsconfigPathMap` (`src/scoring/tsconfig-path-map.ts`); in-repo package entry points use `PackageExportsMap` (`src/scoring/package-exports-map.ts`); display helpers live in `src/report/coupling-format.ts`.
-
-**Per-pass edge cache (M33):** each enrich call collects the unique paths from `pairs` (peer set), then `buildStaticEdgeGraph()` reads and regex-parses each supported source **at most once**, resolves specifiers to peers under M14/M27/M44 rules, and records directed edges with OR-aggregated kind flags. Pair labeling is **O(1)** adjacency lookup into that in-memory graph — not a per-pair re-read or re-extract of either file. Empty `pairs` returns `[]` without building the graph or reading sources.
-
-| Field                               | Source                                  | JSON            | Table / markdown                | CSV                  |
-| ----------------------------------- | --------------------------------------- | --------------- | ------------------------------- | -------------------- |
-| `fileA`, `fileB`                    | coupling scorer                         | yes             | yes                             | yes                  |
-| `coChangeCount`, `couplingStrength` | coupling scorer                         | yes             | yes                             | yes                  |
-| `hasStaticDependency`               | static import/export/require resolution | yes (`boolean`) | yes (`yes`/`no` as `StaticDep`) | yes (`true`/`false`) |
-| `staticDependencyDirection`         | edge direction (`fileA`/`fileB` identity) | yes (enum)    | yes (`none` / `a→b` / `b→a` / `both`) | yes          |
-| `hasRuntimeStaticDependency`        | value import / `require` / value re-export | yes (`boolean`) | yes (in `Kinds` list)      | yes (`true`/`false`) |
-| `hasTypeOnlyStaticDependency`       | `import type` / `export type … from`    | yes (`boolean`) | yes (in `Kinds` list)         | yes (`true`/`false`) |
-| `hasReExportStaticDependency`       | `export … from` / `export * from`       | yes (`boolean`) | yes (in `Kinds` list)         | yes (`true`/`false`) |
-
-**Invariants (every pair):** `hasStaticDependency === (hasRuntimeStaticDependency || hasTypeOnlyStaticDependency)`; `staticDependencyDirection === "none"` ⇔ all static flags are `false`; direction uses pair field names (`"a-to-b"` = `fileA` references `fileB`, not lexicographic path order).
-
-- **Detection:** resolvable static `import`/`export … from`/`require` string literals from either file to the other; dynamic non-literal `import(expr)` / `require` unchanged (ignored); bare package specifiers resolve only when indexed as in-repo peers (see M44) or via tsconfig alias (M27) — external / `node_modules`-only names do not set the flag
-- **Resolution (relative, M14):** `./` / `../` specifiers → extensionless + common TS/JS extensions / `index`
-- **Resolution (aliases, M27):** non-relative specifiers → nearest `tsconfig.json` / `jsconfig.json` walking up from the importer to `repoPath`; shallow `extends` merge for `compilerOptions.baseUrl` / `paths` (JSONC comments stripped); single-`*` path patterns; first existing candidate matching the peer path wins; no config / parse failure / unresolved alias → treat as miss (scan continues)
-- **Resolution (package exports, M44):** after relative and alias misses, `PackageExportsMap` resolves peer-scoped in-repo packages only — no `node_modules` walk. `#` specifiers → nearest `package.json` `"imports"` (exact + single-`*`); other bare/scoped names → peer index built from coupling participants' owning packages, then `"exports"` expansion (string/object/conditions/array/single-`*`) with `"main"` fallback when `exports` absent; first existing candidate matching the peer path wins; malformed JSON / external name / unresolved target → miss (scan continues). `package.json` reads are cached per enrich call alongside M33 source reads.
-- **Edge kinds:** runtime vs type-only vs re-export classified from import/export form; mixed pairs set both runtime and type-only flags when applicable
-- **PathAliasMap (M50, reopens M27):** `runScan()` passes `canonicalizePath` from the file miner’s `PathAliasMap` into enrich so peer collection and pair labeling use canonical paths for **git-linked** renames (including M50 heuristic links). Ranking unchanged. Unlinked paths with no relatedness match still report `false`; full `node_modules` / publish-map resolution remains out of scope
-- **Errors:** missing or unreadable source → no edge from that side; scan continues (optional `onWarning`)
-- **Downstream:** JSON Schema requires all five static fields on coupling items — see [JSON Contract (M20)](#json-contract-m20)
+JSON `version` is `"2.0"` (additive fields on entities). Parse-failed rows use `hotspotScore: 0`, `complexityNormalized: 0`, `churnNormalized: 0`; churn display fields may be non-zero when `fileStats` has history. Successful-file relative order is computed as if parse-failed rows were absent from the normalization universe.
 
 ## Function granularity (M11, M23)
 
@@ -440,7 +403,7 @@ Function mode limits I/O and CPU without historical AST or blame-based attributi
 
 **Typical rankings:** functions in files with in-window churn keep expected relative order on churned fixtures (e.g. `tests/fixtures/repos/small-ts`); integration tests lock smoke parity.
 
-`coupling` remains file-pair ranked in both modes. `--top` slices the active ranking array at render time via `sliceScanResult` for **table and markdown only**; JSON and CSV receive full arrays.
+`--top` slices the active ranking array at render time via `sliceScanResult` for **table and markdown only**; JSON and CSV receive full arrays.
 
 ### Function AST collection (M22, M29)
 
@@ -471,10 +434,10 @@ Assignment RHS collection uses plain `=` only (`||=`, `&&=`, `??=` out of scope)
 
 ## Export formats (M10, M17, M18, M41)
 
-- **`--format markdown`** — GFM report with hotspot and coupling tables (includes `linesChanged` column)
-- **`--format csv`** — multi-file CSV bundle (M18): `renderCsv()` / `renderCompareCsv()` return a `CsvBundle` (`Record<suffix, content>`); CLI derives stem from `--output` and writes `{stem}.meta.json` plus ranking/coupling CSVs; **requires `--output`**; `--top` ignored (full export); no section title rows
-- **Scan bundle** (`--output out/report.csv`): `out/report.meta.json`, `out/report.hotspots.csv` or `out/report.functions.csv`, `out/report.coupling.csv`
-- **Compare bundle** (`--output out/compare.csv`): `out/compare.meta.json` plus six data CSVs (`hotspots.*` or `functions.*`, plus `coupling.*`); empty sections are header-only files
+- **`--format markdown`** — GFM report with hotspot tables (includes `linesChanged` column)
+- **`--format csv`** — multi-file CSV bundle (M18): `renderCsv()` / `renderCompareCsv()` return a `CsvBundle` (`Record<suffix, content>`); CLI derives stem from `--output` and writes `{stem}.meta.json` plus ranking CSVs; **requires `--output`**; `--top` ignored (full export); no section title rows
+- **Scan bundle** (`--output out/report.csv`): `out/report.meta.json`, `out/report.hotspots.csv` or `out/report.functions.csv`
+- **Compare bundle** (`--output out/compare.csv`): `out/compare.meta.json` plus hotspot/function delta CSVs (`hotspots.*` or `functions.*`); empty sections are header-only files
 - **`--output <path>`** — write report to file (`table`, `json`, `markdown`, `csv`); stdout silent for report content; csv is the only format that **requires** `--output`
 - **Reporter module**: `CsvBundle` type in `src/report/csv-bundle.ts`; `renderCsv()` / `renderCompareCsv()` in `csv.ts` / `compare-csv.ts`; `createReporter()` returns `string | CsvBundle` (JSON and CSV bypass slice helpers; table/markdown slice via `sliceScanResult` / `sliceCompareResult`). M41 pure helpers: `only.ts` (section filter), `summary.ts` (executive summary), `glossary.ts` (legend / how-to-read SoT), `triage.ts` (scan conservative hints), `compare-triage.ts` (M53 delta-aware compare hints), `explain-compare.ts` (M53 compare-mode explain), `color.ts` (manual ANSI for table cells)
 - **`ReporterOptions`** (M41): `format`, `top`, `only?: ReportSection[]`, `triageHints?: boolean` (default `true` for scan table/markdown), `color?: boolean` (table only; default `false` unless bin enables via `resolveTableColor()`)
@@ -492,33 +455,30 @@ Human-facing interpretation layers apply to **scan** and **compare** reports whe
 | `--only` section filter | all | yes | yes |
 | ANSI colors | table only | yes | yes |
 
-**Executive summary** (`summary.ts`): Short block at the **top** of table and markdown. Totals (coupling pair count, static-dep-false count on scan, delta class counts on compare) come from the **full** `ScanResult` / `CompareResult` before `--top` slicing; shown-vs-total lines reflect the **displayed** row counts after slice. Includes **warning summary** line (`Warnings: 0` or `Warnings: N total (CODE: n, …)` with sorted codes and `(uncoded): k` for warnings without `code`; compare uses `CompareResult.meta.warnings` only). Not emitted in JSON or CSV.
+**Executive summary** (`summary.ts`): Short block at the **top** of table and markdown. Totals come from the **full** `ScanResult` / `CompareResult` before `--top` slicing; shown-vs-total lines reflect the **displayed** row counts after slice. Includes **warning summary** line (`Warnings: 0` or `Warnings: N total (CODE: n, …)` with sorted codes and `(uncoded): k` for warnings without `code`; compare uses `CompareResult.meta.warnings` only). Not emitted in JSON or CSV.
 
-**Legend / glossary** (`glossary.ts`): Single SoT — `renderTableGlossary()` appends a footer after all tables in table output; `renderMarkdownHowToRead()` emits `## How to read this` after the summary and before ranking tables in markdown. Defines locked metric terms (Score, normalized columns, StaticDep, etc.).
+**Legend / glossary** (`glossary.ts`): Single SoT — `renderTableGlossary()` appends a footer after all tables in table output; `renderMarkdownHowToRead()` emits `## How to read this` after the summary and before ranking tables in markdown. Defines locked metric terms (Score, normalized columns, etc.).
 
-**Triage hints** (`triage.ts`): Advisory section for **scan** table and markdown only (`Triage hints` / `## Triage hints`), placed after ranking tables and before the table legend. Evaluated on the **displayed** (sliced + `--only` filtered) rows; omitted when no rule matches. Disable with `--no-triage-hints`. Three deterministic rules (thresholds exported as constants in `triage.ts`):
+**Triage hints** (`triage.ts`): Advisory section for **scan** table and markdown only (`Triage hints` / `## Triage hints`), placed after ranking tables and before the table legend. Evaluated on the **displayed** (sliced + `--only` filtered) rows; omitted when no rule matches. Disable with `--no-triage-hints`. One deterministic rule (threshold exported as constant in `triage.ts`):
 
 | Rule ID | Condition |
 | ------- | --------- |
 | `dual-signal-hotspot` | `hotspotScore ≥ 0.7` and `complexityNormalized ≥ 0.5` and `churnNormalized ≥ 0.5` |
-| `coupled-with-static` | `couplingStrength ≥ 0.5` and `hasStaticDependency === true` |
-| `coupled-without-static` | `couplingStrength ≥ 0.5` and `hasStaticDependency === false` |
 
-Cap **3 matches per rule** (highest score/strength first). Full rule text and placement: [output-interpretation-ux/context.md](../features/output-interpretation-ux/context.md) § D4.
+Cap **3 matches per rule** (highest score first). Full rule text and placement: [output-interpretation-ux/context.md](../features/output-interpretation-ux/context.md) § D4.
 
-**Compare triage hints** (`compare-triage.ts`, M53): Advisory section for **compare** table and markdown (`Triage hints` / `## Triage hints`), placed after delta tables and before the glossary. Evaluated on the **displayed** (sliced + `--only` filtered) `CompareResult`; omitted when no rule matches. Disable with `--no-triage-hints` (same flag as scan — effective for compare since M53). Never emitted in json/csv. Rankings, scores, and JSON/CSV payloads unchanged. Three delta-aware rules (thresholds exported as constants; reuse M41 dual-signal / coupling strength where equal):
+**Compare triage hints** (`compare-triage.ts`, M53): Advisory section for **compare** table and markdown (`Triage hints` / `## Triage hints`), placed after delta tables and before the glossary. Evaluated on the **displayed** (sliced + `--only` filtered) `CompareResult`; omitted when no rule matches. Disable with `--no-triage-hints` (same flag as scan — effective for compare since M53). Never emitted in json/csv. Rankings, scores, and JSON/CSV payloads unchanged. Two delta-aware rules (thresholds exported as constants):
 
 | Rule ID | Condition |
 | ------- | --------- |
 | `new-dual-signal` | Entity in `hotspots.new` or `functions.new` with `hotspotScore ≥ 0.7` and both normalized complexity and churn ≥ 0.5 |
 | `rank-worsened` | Entry in `hotspots.rankChanged` or `functions.rankChanged` with `rankDelta ≥ 5` (worse rank) and `entity.hotspotScore ≥ 0.5` |
-| `new-coupled-with-static` | Pair in `coupling.new` with `couplingStrength ≥ 0.5` and `hasStaticDependency === true` |
 
 Cap **3 matches per rule** (highest metric first). Full rule text: [compare-interpretation/context.md](../features/compare-interpretation/context.md).
 
-**`--only hotspots|coupling|functions`** (`only.ts`): Repeatable CLI flag (CLI-only, not config). Union of distinct values; invalid value → `CliUsageError` (exit 2). Excluded sections are **omitted** (no header/placeholder) in table and markdown; JSON omits top-level keys; CSV bundle omits data files (`meta.json` always retained). Filtered JSON is an intentional partial export — **not** a valid `--baseline`; `scan --help` and README warn operators. Unfiltered JSON remains schema-complete per [JSON Contract (M20)](#json-contract-m20).
+**`--only hotspots|functions`** (`only.ts`): Repeatable CLI flag (CLI-only, not config). Union of distinct values; invalid value → `CliUsageError` (exit 2). Excluded sections are **omitted** (no header/placeholder) in table and markdown; JSON omits top-level keys; CSV bundle omits data files (`meta.json` always retained). Filtered JSON is an intentional partial export — **not** a valid `--baseline`; `scan --help` and README warn operators. Unfiltered JSON remains schema-complete per [JSON Contract (M20)](#json-contract-m20).
 
-**Table colors** (`color.ts` + `resolveTableColor()` in bin): Enabled only when `format === "table"` and **all** of: stdout is a TTY, `--no-color` not set, `NO_COLOR` unset or empty, `--output` not used. Colors score/strength bands (red ≥ 0.7, yellow ≥ 0.4) and StaticDep yes/no (dim green / dim yellow). No color for markdown, JSON, or CSV. No new runtime color dependency.
+**Table colors** (`color.ts` + `resolveTableColor()` in bin): Enabled only when `format === "table"` and **all** of: stdout is a TTY, `--no-color` not set, `NO_COLOR` unset or empty, `--output` not used. Colors score bands (red ≥ 0.7, yellow ≥ 0.4). No color for markdown, JSON, or CSV. No new runtime color dependency.
 
 ## JSON Contract (M20)
 
@@ -529,12 +489,12 @@ Published JSON Schema files under `schemas/` define the CLI JSON contract:
 | `schemas/scan-result.json`    | `ScanResult`    |
 | `schemas/compare-result.json` | `CompareResult` |
 
-- **Coupling items** require `hasStaticDependency` plus M27 enrichment fields (`staticDependencyDirection`, `hasRuntimeStaticDependency`, `hasTypeOnlyStaticDependency`, `hasReExportStaticDependency`) in both schemas
+- **`version: "2.0"`** — no top-level `coupling`; baselines at `1.0` or with `coupling` key rejected
 - **`additionalProperties: true`** on objects for forward compatibility; `required` lists enforce the minimum contract
 - **`ScanMeta.warnings`** — required `ScanWarning[]` on scan results (M28); compare meta uses the same `$defs.ScanWarning`
 - **`ScanMeta.timings`** — optional `ScanStageTimings` on successful scans (M51); declared in schema; not required for baseline-era documents
 - **Contract tests** (`tests/contract/`) validate scan and compare JSON against these schemas in CI
-- **Baseline loading** (`loadBaseline()` / `parseScanResult()` in `src/compare/load-baseline.ts`): strong structural validation on nested hotspot, function, and coupling items — not only top-level keys. Wrong types or missing required fields (including all coupling static fields) throw `BaselineError` with a path-specific message; coupling items missing any required static field instruct the user to re-scan with a current scanner version. Pre-M14 / pre-M27 baselines are not auto-migrated.
+- **Baseline loading** (`loadBaseline()` / `parseScanResult()` in `src/compare/load-baseline.ts`): strong structural validation on nested hotspot and function items — not only top-level keys. Wrong types or missing required fields throw `BaselineError` with a path-specific message. Pre-M56 baselines (`version: "1.0"` or with `coupling`) are not auto-migrated — re-scan required.
 
 ## Scan compare (M13, M40)
 
@@ -542,8 +502,8 @@ Published JSON Schema files under `schemas/` define the CLI JSON contract:
 - **`compare <path> --baseline <file>`** (M40) — explicit compare verb; same wiring as `scan --baseline` (required `--baseline`; format/output/top/csv rules identical)
 - **`scan --baseline <path>`** (M13, retained) — compare current scan against a saved `ScanResult` JSON (from `baseline save`, or a prior `--format json --output` run)
 - **Compare module** (`src/compare/`): `loadBaseline()` validates and parses baseline JSON (see [JSON Contract (M20)](#json-contract-m20)); `compareScanResults()` classifies entities as `new`, `removed`, or `rankChanged`
-- **CompareResult** schema (`version: "1.0"`): separate from `ScanResult`; sections for hotspots/functions (mode-dependent) and coupling pairs
-- **Entity keys**: file path for hotspots; `filePath + functionName + line` for functions; canonical `(fileA, fileB)` for coupling
+- **CompareResult** schema (`version: "2.0"`): separate from `ScanResult`; sections for hotspots/functions (mode-dependent) only
+- **Entity keys**: file path for hotspots; `filePath + functionName + line` for functions
 - **Guards**: granularity mismatch → hard error; `since` mismatch → `ScanWarning` with `COMPARE_SINCE_MISMATCH` in `meta.warnings` (stderr + report)
 - **`--top`** on compare output slices delta arrays at render time via `sliceCompareResult()` for **table and markdown only** — classification uses full rankings; JSON and CSV receive unsliced deltas
 - **Reporter**: `createReporter().renderCompare()` dispatches to `compare-table`, `compare-json`, `compare-markdown`, `compare-csv` (JSON and CSV bypass slice helpers; `--top` ignored). Table/markdown include M53 delta triage when `triageHints` is true (default); `compare` command and `scan --baseline` support `--explain` (stderr) and `--strict` (exit policy on `COMPARE_SINCE_MISMATCH`)

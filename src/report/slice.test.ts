@@ -43,16 +43,14 @@ describe("sliceScanResult", () => {
     expect(sliced.meta).not.toBe(fixture.meta);
   });
 
-  it("limits hotspots and coupling arrays to top N", () => {
+  it("limits hotspots to top N", () => {
     const fixture = loadFixture();
     const sliced = sliceScanResult(fixture, 2);
 
     expect(sliced.hotspots).toHaveLength(2);
-    expect(sliced.coupling).toHaveLength(2);
     expect(sliced.hotspots[0]?.filePath).toBe("src/hot.ts");
-    expect(sliced.coupling[0]?.fileA).toBe("src/a.ts");
     expect(sliced.meta).toEqual(fixture.meta);
-    expect(sliced.version).toBe("1.0");
+    expect(sliced.version).toBe("2.0");
   });
 
   it("returns all items when top exceeds result length", () => {
@@ -60,7 +58,6 @@ describe("sliceScanResult", () => {
     const sliced = sliceScanResult(fixture, 100);
 
     expect(sliced.hotspots).toHaveLength(3);
-    expect(sliced.coupling).toHaveLength(2);
   });
 
   it("slices functions in function mode", () => {
@@ -70,6 +67,5 @@ describe("sliceScanResult", () => {
     expect(sliced.functions).toHaveLength(2);
     expect(sliced.hotspots).toEqual([]);
     expect(sliced.functions[0]?.functionName).toBe("processOrder");
-    expect(sliced.coupling).toHaveLength(2);
   });
 });

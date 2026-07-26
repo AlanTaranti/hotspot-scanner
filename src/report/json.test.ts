@@ -30,9 +30,8 @@ describe("renderJson", () => {
     const output = renderJson(sliceScanResult(fixture, 2));
     const parsed = JSON.parse(output) as ScanResult;
 
-    expect(parsed.version).toBe("1.0");
+    expect(parsed.version).toBe("2.0");
     expect(parsed.hotspots).toHaveLength(2);
-    expect(parsed.coupling).toHaveLength(2);
     expect(parsed.meta.since).toBe("6 months ago");
     expect(parsed.hotspots[0]).toMatchObject({
       filePath: "src/hot.ts",
@@ -45,62 +44,60 @@ describe("renderJson", () => {
       linesChanged: 320,
       authorCount: 3,
     });
-    expect(parsed.coupling[0]).toMatchObject({
-      fileA: "src/a.ts",
-      fileB: "src/b.ts",
-      coChangeCount: 5,
-      couplingStrength: 0.75,
-      hasStaticDependency: true,
-      staticDependencyDirection: "a-to-b",
-      hasRuntimeStaticDependency: true,
-      hasTypeOnlyStaticDependency: false,
-      hasReExportStaticDependency: false,
-    });
     expect(output.endsWith("\n")).toBe(true);
     expect(output).not.toContain("authors");
   });
 
   it("renders empty arrays for stub results", () => {
     const output = renderJson({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-07-22T12:00:00.000Z",
         granularity: "file",
+        warnings: [],
       },
     });
     const parsed = JSON.parse(output) as ScanResult;
 
     expect(parsed.hotspots).toEqual([]);
-    expect(parsed.coupling).toEqual([]);
+    expect(parsed.functions).toEqual([]);
   });
 
   it("omits excluded sections when only is set", () => {
     const fixture = loadFixture();
     const output = renderJson(sliceScanResult(fixture, 2), {
-      only: ["coupling"],
+      only: ["functions"],
     });
     const parsed = JSON.parse(output) as Record<string, unknown>;
 
-    expect(parsed.version).toBe("1.0");
+    expect(parsed.version).toBe("2.0");
     expect(parsed.meta).toBeDefined();
-    expect(parsed.coupling).toHaveLength(2);
+    expect(parsed.functions).toEqual([]);
     expect(parsed).not.toHaveProperty("hotspots");
-    expect(parsed).not.toHaveProperty("functions");
   });
 
   it("includes only requested sections for union --only", () => {
     const fixture = loadFixture();
     const output = renderJson(sliceScanResult(fixture, 2), {
-      only: ["hotspots", "coupling"],
+      only: ["hotspots", "functions"],
     });
     const parsed = JSON.parse(output) as Record<string, unknown>;
 
     expect(parsed.hotspots).toHaveLength(2);
-    expect(parsed.coupling).toHaveLength(2);
+    expect(parsed.functions).toEqual([]);
+  });
+
+  it("includes only hotspots when --only hotspots", () => {
+    const fixture = loadFixture();
+    const output = renderJson(sliceScanResult(fixture, 2), {
+      only: ["hotspots"],
+    });
+    const parsed = JSON.parse(output) as Record<string, unknown>;
+
+    expect(parsed.hotspots).toHaveLength(2);
     expect(parsed).not.toHaveProperty("functions");
   });
 

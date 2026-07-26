@@ -24,10 +24,9 @@ function makeScanResult(
   overrides: Partial<Pick<ScanResult, "hotspots" | "functions" | "meta">> = {},
 ): ScanResult {
   return {
-    version: "1.0",
+    version: "2.0",
     hotspots: [],
     functions: [],
-    coupling: [],
     meta: BASE_META,
     ...overrides,
   };

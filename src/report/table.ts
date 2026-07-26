@@ -1,10 +1,5 @@
 import type { ScanResult } from "../types/index.js";
-import { paintScore, paintStaticDep, stripAnsi } from "./color.js";
-import {
-  formatDirection,
-  formatKinds,
-  formatStaticDep,
-} from "./coupling-format.js";
+import { paintScore, stripAnsi } from "./color.js";
 import { renderTableGlossary } from "./glossary.js";
 import {
   includesSection,
@@ -114,37 +109,6 @@ function renderFunctionsSection(result: ScanResult, color: boolean): string[] {
   return lines;
 }
 
-function renderCouplingSection(result: ScanResult, color: boolean): string[] {
-  const lines = [
-    "Top Coupling Pairs",
-    "Rank  File A                    File B                    Strength  Co-changes  StaticDep  Direction  Kinds",
-    "----  ------------------------  ------------------------  --------  ----------  ---------  ---------  ----------------------",
-  ];
-
-  if (result.coupling.length === 0) {
-    lines.push("  (none)");
-    return lines;
-  }
-
-  for (const [index, pair] of result.coupling.entries()) {
-    const staticDep = paintStaticDep(formatStaticDep(pair.hasStaticDependency), color);
-    lines.push(
-      [
-        padStart(String(index + 1), 4),
-        padEnd(pair.fileA, 24),
-        padEnd(pair.fileB, 24),
-        padStart(formatScore(pair.couplingStrength, color), 8),
-        padStart(String(pair.coChangeCount), 10),
-        padStart(staticDep, 9),
-        padStart(formatDirection(pair.staticDependencyDirection), 9),
-        padEnd(formatKinds(pair), 22),
-      ].join("  "),
-    );
-  }
-
-  return lines;
-}
-
 function shouldShowHotspots(
   onlySet: ReadonlySet<ReportSection>,
   granularity: ScanResult["meta"]["granularity"],
@@ -189,13 +153,6 @@ export function renderTable(
       rankingBlocks.push("");
     }
     rankingBlocks.push(...renderFunctionsSection(result, color));
-  }
-
-  if (includesSection(onlySet, "coupling")) {
-    if (rankingBlocks.length > 0) {
-      rankingBlocks.push("");
-    }
-    rankingBlocks.push(...renderCouplingSection(result, color));
   }
 
   if (rankingBlocks.length > 0) {

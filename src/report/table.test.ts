@@ -35,31 +35,15 @@ function loadFunctionFixture(): ScanResult {
 }
 
 describe("renderTable", () => {
-  it("includes scan window header and both section headers", () => {
+  it("includes scan window header and hotspot section", () => {
     const output = renderTable(loadFixture());
 
     expect(output).toContain(
       "Scan window: 6 months ago (scanned 2026-07-22T11:00:00.000Z)",
     );
     expect(output).toContain("Top Hotspots");
-    expect(output).toContain("Top Coupling Pairs");
     expect(output).toContain("src/hot.ts");
-    expect(output).toContain("src/a.ts");
     expect(output).toContain("0.8500");
-    expect(output).toContain("0.7500");
-  });
-
-  it("renders StaticDep, Direction, and Kinds columns in coupling section", () => {
-    const output = renderTable(loadFixture());
-
-    expect(output).toContain("StaticDep");
-    expect(output).toContain("Direction");
-    expect(output).toContain("Kinds");
-    expect(output).toContain("yes");
-    expect(output).toContain("no");
-    expect(output).toContain("a→b");
-    expect(output).toContain("runtime");
-    expect(output).toContain("—");
   });
 
   it("shows raw metric columns in hotspots section", () => {
@@ -84,13 +68,12 @@ describe("renderTable", () => {
 
     expect(output.match(/src\/hot\.ts/g)?.length).toBe(1);
     expect(output).not.toContain("src/medium.ts");
-    expect(output).not.toContain("src/c.ts");
   });
 
   it("truncates long file paths in table columns", () => {
     const longPath = "src/very/long/path/that/exceeds/column/width.ts";
     const output = renderTable({
-      version: "1.0",
+      version: "2.0",
       hotspots: [
         {
           filePath: longPath,
@@ -102,26 +85,15 @@ describe("renderTable", () => {
           commitCount: 8,
           linesChanged: 50,
           authorCount: 2,
+          parseFailed: false,
         },
       ],
       functions: [],
-      coupling: [
-        {
-          fileA: longPath,
-          fileB: "src/other/also/very/long/path/name.ts",
-          couplingStrength: 0.25,
-          coChangeCount: 4,
-          hasStaticDependency: false,
-          staticDependencyDirection: "none",
-          hasRuntimeStaticDependency: false,
-          hasTypeOnlyStaticDependency: false,
-          hasReExportStaticDependency: false,
-        },
-      ],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-07-22T12:00:00.000Z",
         granularity: "file",
+        warnings: [],
       },
     });
 
@@ -131,19 +103,19 @@ describe("renderTable", () => {
 
   it("renders (none) for empty sections", () => {
     const output = renderTable({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-07-22T12:00:00.000Z",
         granularity: "file",
+        warnings: [],
       },
     });
 
     expect(output).toContain("  (none)");
-    expect(output.match(/\(none\)/g)?.length).toBe(2);
+    expect(output.match(/\(none\)/g)?.length).toBe(1);
   });
 
   it("renders Top Functions section in function mode", () => {
@@ -161,13 +133,11 @@ describe("renderTable", () => {
     const glossaryIndex = output.indexOf("Glossary");
     const triageIndex = output.indexOf("Triage hints");
     const hotspotsIndex = output.indexOf("Top Hotspots");
-    const couplingIndex = output.indexOf("Top Coupling Pairs");
 
     expect(output).toContain("Granularity: file");
     expect(output).toContain("Hotspots: showing 3 of 3");
     expect(hotspotsIndex).toBeGreaterThan(0);
-    expect(couplingIndex).toBeGreaterThan(hotspotsIndex);
-    expect(triageIndex).toBeGreaterThan(couplingIndex);
+    expect(triageIndex).toBeGreaterThan(hotspotsIndex);
     expect(glossaryIndex).toBeGreaterThan(triageIndex);
     expect(output).toContain("  Score       Hotspot score:");
     expect(output).toContain("src/hot.ts — High dual-signal hotspot");
@@ -182,21 +152,21 @@ describe("renderTable", () => {
 
   it("omits excluded sections with --only while keeping empty included sections", () => {
     const fixture = loadFixture();
-    const couplingOnly = renderTable(fixture, { only: ["coupling"] });
+    const functionsOnly = renderTable(fixture, { only: ["functions"] });
     const hotspotsOnly = renderTable(fixture, { only: ["hotspots"] });
 
-    expect(couplingOnly).not.toContain("Top Hotspots");
-    expect(couplingOnly).toContain("Top Coupling Pairs");
-    expect(hotspotsOnly).not.toContain("Top Coupling Pairs");
+    expect(functionsOnly).not.toContain("Top Hotspots");
+    expect(functionsOnly).toContain("Top Functions");
+    expect(hotspotsOnly).not.toContain("Top Functions");
     expect(hotspotsOnly).toContain("Top Hotspots");
 
     const emptyHotspots = renderTable(
-      { ...fixture, hotspots: [], coupling: [] },
+      { ...fixture, hotspots: [] },
       { only: ["hotspots"] },
     );
     expect(emptyHotspots).toContain("Top Hotspots");
     expect(emptyHotspots).toContain("  (none)");
-    expect(emptyHotspots).not.toContain("Top Coupling Pairs");
+    expect(emptyHotspots).not.toContain("Top Functions");
   });
 
   it("reports shown vs total from fullResult when sliced before render", () => {
@@ -205,9 +175,6 @@ describe("renderTable", () => {
     const output = renderTable(sliced, { fullResult: full });
 
     expect(output).toContain("Hotspots: showing 1 of 3");
-    expect(output).toContain(
-      "Coupling pairs: 2 total, 1 without static dependency; showing 1 of 2",
-    );
   });
 
   it("strip-ANSI output matches uncolored table for the same fixture", () => {

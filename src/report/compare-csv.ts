@@ -1,6 +1,5 @@
 import type {
   CompareResult,
-  CouplingPair,
   FunctionHotspotScore,
   HotspotScore,
   RankChange,
@@ -9,10 +8,6 @@ import {
   type CompareRenderOptions,
   resolveCompareRenderSections,
 } from "./compare-table.js";
-import {
-  COUPLING_ENRICHMENT_CSV_COLUMNS,
-  couplingEnrichmentCsvValues,
-} from "./coupling-format.js";
 import type { CsvBundle } from "./csv-bundle.js";
 import { formatCsvRow } from "./csv-utils.js";
 import { normalizeOnly } from "./only.js";
@@ -118,37 +113,6 @@ function renderRankChangedFunctionRows(
   ]);
 }
 
-function renderCouplingRows(
-  items: CouplingPair[],
-  includeRank: boolean,
-): string[][] {
-  return items.map((pair, index) => [
-    includeRank ? String(index + 1) : "",
-    pair.fileA,
-    pair.fileB,
-    formatScore(pair.couplingStrength),
-    String(pair.coChangeCount),
-    String(pair.hasStaticDependency),
-    ...couplingEnrichmentCsvValues(pair),
-  ]);
-}
-
-function renderRankChangedCouplingRows(
-  items: RankChange<CouplingPair>[],
-): string[][] {
-  return items.map((change) => [
-    String(change.baselineRank),
-    String(change.currentRank),
-    String(change.rankDelta),
-    change.entity.fileA,
-    change.entity.fileB,
-    formatScore(change.entity.couplingStrength),
-    String(change.entity.coChangeCount),
-    String(change.entity.hasStaticDependency),
-    ...couplingEnrichmentCsvValues(change.entity),
-  ]);
-}
-
 const HOTSPOT_HEADER = [
   "rank",
   "file",
@@ -205,28 +169,6 @@ const RANK_CHANGED_FUNCTION_HEADER = [
   "authors",
 ];
 
-const COUPLING_HEADER = [
-  "rank",
-  "fileA",
-  "fileB",
-  "strength",
-  "coChanges",
-  "hasStaticDependency",
-  ...COUPLING_ENRICHMENT_CSV_COLUMNS,
-];
-
-const RANK_CHANGED_COUPLING_HEADER = [
-  "baselineRank",
-  "currentRank",
-  "rankDelta",
-  "fileA",
-  "fileB",
-  "strength",
-  "coChanges",
-  "hasStaticDependency",
-  ...COUPLING_ENRICHMENT_CSV_COLUMNS,
-];
-
 export function renderCompareCsv(
   result: CompareResult,
   options?: CompareRenderOptions,
@@ -236,21 +178,6 @@ export function renderCompareCsv(
   const bundle: Record<string, string> = {
     "meta.json": renderCompareMeta(result),
   };
-
-  if (sections.coupling) {
-    bundle["coupling.new.csv"] = renderCsvFile(
-      COUPLING_HEADER,
-      renderCouplingRows(result.coupling.new, true),
-    );
-    bundle["coupling.removed.csv"] = renderCsvFile(
-      COUPLING_HEADER,
-      renderCouplingRows(result.coupling.removed, false),
-    );
-    bundle["coupling.rank-changed.csv"] = renderCsvFile(
-      RANK_CHANGED_COUPLING_HEADER,
-      renderRankChangedCouplingRows(result.coupling.rankChanged),
-    );
-  }
 
   if (sections.hotspots) {
     bundle["hotspots.new.csv"] = renderCsvFile(

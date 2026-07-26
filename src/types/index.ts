@@ -4,7 +4,6 @@ export type {
   CompareMeta,
   CompareResult,
   ComplexityResult,
-  CouplingCompareSection,
   CouplingPair,
   DiagnosticSeverity,
   StaticDependencyDirection,

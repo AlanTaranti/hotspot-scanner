@@ -8,7 +8,7 @@ Canonical reference for AI agents working in this repository.
 | ----------------- | ------------------------------------------------------------------------------------------------------------ |
 | **Package**       | `@vitals/hotspot-scanner`                                                                                    |
 | **CLI bin**       | `hotspot-scanner` (unscoped)                                                                                 |
-| **Purpose**       | Local CLI that ranks TS/JS maintenance hotspots from cyclomatic complexity, Git churn, and temporal coupling |
+| **Purpose**       | Local CLI that ranks TS/JS maintenance hotspots from cyclomatic complexity and Git churn |
 | **Design SoT**    | [`.specs/codebase/ARCHITECTURE.md`](.specs/codebase/ARCHITECTURE.md)                                         |
 | **Project docs**  | `.specs/project/`, `.specs/codebase/`                                                                        |
 | **Feature specs** | `.specs/features/<slug>/`                                                                                    |
@@ -16,7 +16,7 @@ Canonical reference for AI agents working in this repository.
 ## Pipeline
 
 ```
-git log (streaming) → complexity (ts-morph + McCabe) → scoring (hotspot + coupling) → report (table / JSON / markdown / CSV)
+git log (streaming) → complexity (ts-morph + McCabe) → scoring (hotspot) → report (table / JSON / markdown / CSV)
 ```
 
 Optional: `--baseline` → compare → delta report. Config: `.hotspot-scanner.json` (CLI > config > defaults).

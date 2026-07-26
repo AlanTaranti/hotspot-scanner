@@ -47,34 +47,9 @@ const METRIC_GLOSSARY: readonly GlossaryEntry[] = [
     definition:
       "Whether AST parse failed for the file (yes/no); failed files rank with score 0.",
   },
-  {
-    term: "Strength",
-    definition:
-      "Temporal coupling strength: co-change count divided by the smaller per-file commit count (0–1).",
-  },
-  {
-    term: "Co-changes",
-    definition:
-      "Number of commits where both files in the pair changed together.",
-  },
-  {
-    term: "StaticDep",
-    definition:
-      "Whether a resolvable static import/export/require edge exists between the pair (yes/no).",
-  },
-  {
-    term: "Direction",
-    definition:
-      "Static edge direction relative to file A and file B (none, a→b, b→a, or both).",
-  },
-  {
-    term: "Kinds",
-    definition:
-      "Static edge kinds present: runtime, type-only, and/or re-export.",
-  },
 ];
 
-/** Table footer lines defining ranking and coupling column metrics. */
+/** Table footer lines defining ranking column metrics. */
 export function renderTableGlossary(): string[] {
   return [
     "Glossary",

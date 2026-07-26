@@ -22,12 +22,11 @@ pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --since "12 months ag
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --granularity function --format json
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format markdown --output /tmp/report.md
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format csv --output /tmp/report.csv
-# CSV bundle files: /tmp/report.meta.json, /tmp/report.hotspots.csv, /tmp/report.coupling.csv
+# CSV bundle files: /tmp/report.meta.json, /tmp/report.hotspots.csv (or report.functions.csv)
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format json --output /tmp/baseline.json
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --baseline /tmp/baseline.json --format json
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --baseline /tmp/baseline.json --format csv --output /tmp/compare.csv
-# Compare CSV bundle: /tmp/compare.meta.json + six data CSVs under /tmp/compare.*
-pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --min-cochange 3
+# Compare CSV bundle: /tmp/compare.meta.json + hotspot/function delta CSVs under /tmp/compare.*
 ```
 
 ## Exit codes
@@ -52,7 +51,6 @@ See [AGENTS.md](../../../AGENTS.md) § Validation.
 | `--output <path>`      | Write report to file (required for `--format csv`)                                    | stdout                |
 | `--baseline <path>`    | Compare against saved baseline JSON                                                   | —                     |
 | `--top <N>`            | Limit table/markdown rows (ignored for json/csv)                                      | `20`                  |
-| `--min-cochange <N>`   | Min co-changes for coupling pairs                                                     | TBD                   |
 
 Test relevant flags when the feature scope touches CLI.
 
@@ -72,20 +70,20 @@ Test relevant flags when the feature scope touches CLI.
 
 ## JSON output checks
 
-- Top-level `version` field present
+- Top-level `version` field is `"2.0"`
 - `meta.granularity` is `"file"` or `"function"`
 - `hotspots` array sorted by score descending (file mode; empty in function mode)
 - `functions` array sorted by score descending (function mode; empty in file mode)
-- `coupling` array sorted by strength descending
+- No top-level `coupling` key
 - Required fields per domain types in `src/types/domain.ts`
 
 ## Compare output checks (`--baseline`)
 
-- Top-level `version` field is `"1.0"`
-- `hotspots`, `functions`, and `coupling` each have `new`, `removed`, `rankChanged` arrays
+- Top-level `version` field is `"2.0"`
+- `hotspots` and `functions` each have `new`, `removed`, `rankChanged` arrays
 - `meta.baseline` and `meta.current` contain `ScanMeta` objects
 - `meta.warnings` is an array (may be empty)
-- Baseline file must be valid `ScanResult` v1.0 JSON with matching `meta.granularity`
+- Baseline file must be valid `ScanResult` v2.0 JSON with matching `meta.granularity`; rejects `1.0` or `coupling` key
 
 ## Related agents
 

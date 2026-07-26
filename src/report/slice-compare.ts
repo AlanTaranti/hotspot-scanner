@@ -1,6 +1,5 @@
 import type {
   CompareResult,
-  CouplingCompareSection,
   FunctionCompareSection,
   HotspotCompareSection,
   RankChange,
@@ -34,7 +33,6 @@ export function sliceCompareResult(
     granularity: result.granularity,
     hotspots: sliceSection(result.hotspots, top) as HotspotCompareSection,
     functions: sliceSection(result.functions, top) as FunctionCompareSection,
-    coupling: sliceSection(result.coupling, top) as CouplingCompareSection,
     meta: {
       baseline: { ...result.meta.baseline },
       current: { ...result.meta.current },

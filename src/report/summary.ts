@@ -1,7 +1,5 @@
 import type {
   CompareResult,
-  CouplingCompareSection,
-  CouplingPair,
   FunctionCompareSection,
   HotspotCompareSection,
   ScanResult,
@@ -35,10 +33,6 @@ export function formatWarningSummaryLine(warnings: ScanWarning[]): string {
   return `Warnings: ${warnings.length} total (${parts.join(", ")})`;
 }
 
-function countWithoutStaticDependency(coupling: CouplingPair[]): number {
-  return coupling.filter((pair) => !pair.hasStaticDependency).length;
-}
-
 function formatShownVsTotal(
   label: string,
   shown: number,
@@ -57,8 +51,8 @@ function countCompareDeltas(section: {
 
 function formatCompareDeltaLine(
   label: string,
-  full: HotspotCompareSection | FunctionCompareSection | CouplingCompareSection,
-  displayed: HotspotCompareSection | FunctionCompareSection | CouplingCompareSection,
+  full: HotspotCompareSection | FunctionCompareSection,
+  displayed: HotspotCompareSection | FunctionCompareSection,
 ): string {
   const total = countCompareDeltas(full);
   const shown = countCompareDeltas(displayed);
@@ -77,7 +71,6 @@ export function buildScanExecutiveSummary(
     displayed.meta.granularity === "function"
       ? displayed.functions
       : displayed.hotspots;
-  const couplingWithoutStatic = countWithoutStaticDependency(full.coupling);
 
   return [
     `Scan window: ${full.meta.since} (scanned ${full.meta.scannedAt})`,
@@ -87,7 +80,6 @@ export function buildScanExecutiveSummary(
       displayedRanking.length,
       fullRanking.length,
     ),
-    `Coupling pairs: ${full.coupling.length} total, ${couplingWithoutStatic} without static dependency; showing ${displayed.coupling.length} of ${full.coupling.length}`,
     formatWarningSummaryLine(full.meta.warnings ?? []),
   ];
 }
@@ -110,7 +102,6 @@ export function buildCompareExecutiveSummary(
     `Current since: ${full.meta.current.since} (scanned ${full.meta.current.scannedAt})`,
     `Granularity: ${full.granularity}`,
     formatCompareDeltaLine(rankingLabel, fullRanking, displayedRanking),
-    formatCompareDeltaLine("Coupling deltas", full.coupling, displayed.coupling),
     formatWarningSummaryLine(full.meta.warnings ?? []),
   ];
 }

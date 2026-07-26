@@ -1,6 +1,0 @@
-{
-  "name": "@repo/provider",
-  "exports": {
-    ".": "./src/index.ts"
-  }
-}

@@ -5,11 +5,11 @@
   "description": "Full scan output from hotspot-scanner (JSON format).",
   "type": "object",
   "additionalProperties": true,
-  "required": ["version", "hotspots", "functions", "coupling", "meta"],
+  "required": ["version", "hotspots", "functions", "meta"],
   "properties": {
     "version": {
       "type": "string",
-      "const": "1.0"
+      "const": "2.0"
     },
     "hotspots": {
       "type": "array",
@@ -21,12 +21,6 @@
       "type": "array",
       "items": {
         "$ref": "#/$defs/FunctionHotspotScore"
-      }
-    },
-    "coupling": {
-      "type": "array",
-      "items": {
-        "$ref": "#/$defs/CouplingPair"
       }
     },
     "meta": {
@@ -92,35 +86,6 @@
         "commitCount": { "type": "integer" },
         "linesChanged": { "type": "integer" },
         "authorCount": { "type": "integer" }
-      }
-    },
-    "CouplingPair": {
-      "type": "object",
-      "additionalProperties": true,
-      "required": [
-        "fileA",
-        "fileB",
-        "coChangeCount",
-        "couplingStrength",
-        "hasStaticDependency",
-        "staticDependencyDirection",
-        "hasRuntimeStaticDependency",
-        "hasTypeOnlyStaticDependency",
-        "hasReExportStaticDependency"
-      ],
-      "properties": {
-        "fileA": { "type": "string" },
-        "fileB": { "type": "string" },
-        "coChangeCount": { "type": "integer" },
-        "couplingStrength": { "type": "number" },
-        "hasStaticDependency": { "type": "boolean" },
-        "staticDependencyDirection": {
-          "type": "string",
-          "enum": ["none", "a-to-b", "b-to-a", "both"]
-        },
-        "hasRuntimeStaticDependency": { "type": "boolean" },
-        "hasTypeOnlyStaticDependency": { "type": "boolean" },
-        "hasReExportStaticDependency": { "type": "boolean" }
       }
     },
     "DiagnosticSeverity": {

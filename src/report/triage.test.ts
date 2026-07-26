@@ -1,12 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type {
-  CouplingPair,
   FunctionHotspotScore,
   HotspotScore,
   ScanResult,
 } from "../types/index.js";
 import {
-  TRIAGE_COUPLING_STRENGTH_THRESHOLD,
   TRIAGE_HOTSPOT_SCORE_THRESHOLD,
   TRIAGE_MAX_HINTS_PER_RULE,
   TRIAGE_NORMALIZED_SIGNAL_THRESHOLD,
@@ -23,13 +21,12 @@ const BASE_META: ScanResult["meta"] = {
 };
 
 function makeScanResult(
-  overrides: Partial<Pick<ScanResult, "hotspots" | "functions" | "coupling">> = {},
+  overrides: Partial<Pick<ScanResult, "hotspots" | "functions">> = {},
 ): ScanResult {
   return {
-    version: "1.0",
+    version: "2.0",
     hotspots: [],
     functions: [],
-    coupling: [],
     meta: BASE_META,
     ...overrides,
   };
@@ -46,6 +43,7 @@ function makeHotspot(overrides: Partial<HotspotScore> = {}): HotspotScore {
     commitCount: 15,
     linesChanged: 320,
     authorCount: 3,
+    parseFailed: false,
     ...overrides,
   };
 }
@@ -64,21 +62,6 @@ function makeFunctionHotspot(
     commitCount: 5,
     linesChanged: 80,
     authorCount: 2,
-    ...overrides,
-  };
-}
-
-function makeCouplingPair(overrides: Partial<CouplingPair> = {}): CouplingPair {
-  return {
-    fileA: "src/a.ts",
-    fileB: "src/b.ts",
-    coChangeCount: 5,
-    couplingStrength: 0.75,
-    hasStaticDependency: true,
-    staticDependencyDirection: "a-to-b",
-    hasRuntimeStaticDependency: true,
-    hasTypeOnlyStaticDependency: false,
-    hasReExportStaticDependency: false,
     ...overrides,
   };
 }
@@ -145,152 +128,22 @@ describe("buildTriageHints", () => {
     expect(buildTriageHints(makeScanResult({ hotspots: [lowChurn] }))).toEqual([]);
   });
 
-  it("matches coupled-with-static at the strength threshold", () => {
-    const hints = buildTriageHints(
-      makeScanResult({
-        coupling: [
-          makeCouplingPair({
-            fileA: "src/x.ts",
-            fileB: "src/y.ts",
-            couplingStrength: TRIAGE_COUPLING_STRENGTH_THRESHOLD,
-            hasStaticDependency: true,
-          }),
-        ],
-      }),
-    );
-
-    expect(hints).toEqual([
-      {
-        ruleId: "coupled-with-static",
-        message:
-          "Strong temporal coupling with a static dependency — candidate boundary/split review.",
-        target: "src/x.ts ↔ src/y.ts",
-        rankMetric: TRIAGE_COUPLING_STRENGTH_THRESHOLD,
-      },
-    ]);
-  });
-
-  it("does not match coupled-with-static when strength is low or static dep is false", () => {
-    const lowStrength = makeCouplingPair({
-      couplingStrength: TRIAGE_COUPLING_STRENGTH_THRESHOLD - 0.01,
-      hasStaticDependency: true,
-    });
-    const noStatic = makeCouplingPair({
-      couplingStrength: 0.9,
-      hasStaticDependency: false,
-    });
-
-    expect(
-      buildTriageHints(makeScanResult({ coupling: [lowStrength] })).some(
-        (hint) => hint.ruleId === "coupled-with-static",
-      ),
-    ).toBe(false);
-    expect(
-      buildTriageHints(makeScanResult({ coupling: [noStatic] })).some(
-        (hint) => hint.ruleId === "coupled-with-static",
-      ),
-    ).toBe(false);
-  });
-
-  it("matches coupled-without-static at the strength threshold", () => {
-    const hints = buildTriageHints(
-      makeScanResult({
-        coupling: [
-          makeCouplingPair({
-            fileA: "src/m.ts",
-            fileB: "src/n.ts",
-            couplingStrength: TRIAGE_COUPLING_STRENGTH_THRESHOLD,
-            hasStaticDependency: false,
-            staticDependencyDirection: "none",
-            hasRuntimeStaticDependency: false,
-          }),
-        ],
-      }),
-    );
-
-    expect(hints).toEqual([
-      {
-        ruleId: "coupled-without-static",
-        message:
-          "Strong temporal coupling without a static edge — may be coincidence or unresolved import/alias; verify before refactoring.",
-        target: "src/m.ts ↔ src/n.ts",
-        rankMetric: TRIAGE_COUPLING_STRENGTH_THRESHOLD,
-      },
-    ]);
-  });
-
-  it("does not match coupled-without-static when strength is low or static dep is true", () => {
-    const lowStrength = makeCouplingPair({
-      couplingStrength: TRIAGE_COUPLING_STRENGTH_THRESHOLD - 0.01,
-      hasStaticDependency: false,
-    });
-    const withStatic = makeCouplingPair({
-      couplingStrength: 0.9,
-      hasStaticDependency: true,
-    });
-
-    expect(
-      buildTriageHints(makeScanResult({ coupling: [lowStrength] })).some(
-        (hint) => hint.ruleId === "coupled-without-static",
-      ),
-    ).toBe(false);
-    expect(
-      buildTriageHints(makeScanResult({ coupling: [withStatic] })).some(
-        (hint) => hint.ruleId === "coupled-without-static",
-      ),
-    ).toBe(false);
-  });
-
-  it("caps each rule at three matches sorted by rank metric descending", () => {
+  it("caps dual-signal matches at three sorted by rank metric descending", () => {
     const hotspots = Array.from({ length: 5 }, (_, index) =>
       makeHotspot({
         filePath: `src/h${index}.ts`,
         hotspotScore: 0.71 + index * 0.01,
       }),
     );
-    const staticPairs = Array.from({ length: 4 }, (_, index) =>
-      makeCouplingPair({
-        fileA: `src/sa${index}.ts`,
-        fileB: `src/sb${index}.ts`,
-        couplingStrength: 0.51 + index * 0.01,
-        hasStaticDependency: true,
-      }),
-    );
-    const noStaticPairs = Array.from({ length: 4 }, (_, index) =>
-      makeCouplingPair({
-        fileA: `src/na${index}.ts`,
-        fileB: `src/nb${index}.ts`,
-        couplingStrength: 0.52 + index * 0.01,
-        hasStaticDependency: false,
-        staticDependencyDirection: "none",
-        hasRuntimeStaticDependency: false,
-      }),
-    );
 
-    const hints = buildTriageHints(
-      makeScanResult({
-        hotspots,
-        coupling: [...staticPairs, ...noStaticPairs],
-      }),
-    );
+    const hints = buildTriageHints(makeScanResult({ hotspots }));
 
-    const dualSignal = hints.filter((hint) => hint.ruleId === "dual-signal-hotspot");
-    const withStatic = hints.filter((hint) => hint.ruleId === "coupled-with-static");
-    const withoutStatic = hints.filter(
-      (hint) => hint.ruleId === "coupled-without-static",
-    );
-
-    expect(dualSignal).toHaveLength(TRIAGE_MAX_HINTS_PER_RULE);
-    expect(withStatic).toHaveLength(TRIAGE_MAX_HINTS_PER_RULE);
-    expect(withoutStatic).toHaveLength(TRIAGE_MAX_HINTS_PER_RULE);
-
-    expect(dualSignal.map((hint) => hint.target)).toEqual([
+    expect(hints).toHaveLength(TRIAGE_MAX_HINTS_PER_RULE);
+    expect(hints.map((hint) => hint.target)).toEqual([
       "src/h4.ts",
       "src/h3.ts",
       "src/h2.ts",
     ]);
-    expect(withStatic.map((hint) => hint.rankMetric)).toEqual([0.54, 0.53, 0.52]);
-    expect(withoutStatic.map((hint) => hint.rankMetric)).toEqual([0.55, 0.54, 0.53]);
   });
 });
 
@@ -321,21 +174,14 @@ describe("renderMarkdownTriageHints", () => {
   it("renders a markdown section with bullets", () => {
     const hints = buildTriageHints(
       makeScanResult({
-        coupling: [
-          makeCouplingPair({
-            fileA: "src/a.ts",
-            fileB: "src/b.ts",
-            couplingStrength: 0.8,
-            hasStaticDependency: true,
-          }),
-        ],
+        hotspots: [makeHotspot({ filePath: "src/hot.ts" })],
       }),
     );
 
     expect(renderMarkdownTriageHints(hints)).toEqual([
       "## Triage hints",
       "",
-      "- src/a.ts ↔ src/b.ts — Strong temporal coupling with a static dependency — candidate boundary/split review.",
+      "- src/hot.ts — High dual-signal hotspot — complexity and churn both elevated; prioritize review.",
     ]);
   });
 });

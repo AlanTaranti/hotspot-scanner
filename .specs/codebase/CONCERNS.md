@@ -4,7 +4,7 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 
 ## Git Change Miner (`src/git/`)
 
-**Risk:** Incorrect parsing distorts churn and coupling for all downstream scores.
+**Risk:** Incorrect parsing distorts churn for all downstream scores.
 
 | Concern                                                           | Mitigation                                                                                                                                                                                                                          |
 | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -12,8 +12,6 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 | Rename handling (`old => new` + `PathAliasMap`; **not** `--follow`) | Global `git log --numstat` has no per-file follow; both file and function spawns use find-renames (`-M`); parse rename lines, `link()` chains, `canonicalize*()` at end; `rename-multi.txt` + `with-renames` fixtures; ambiguous paths warn (`Rename history may be incomplete for: …`) |
 | Rename blind spots (copy-paste, pre-`--since`, no `old => new`)   | M26 (RT-003) + **M50**: `src/git/rename-warnings.ts` — unlinked delete+add heuristic (strengthened relatedness: basename / stem+eligible ext; capped), **heuristic `PathAliasMap.link()`** before canonicalize when relatedness passes; `--since`+rename-link truncation warning, retained ambiguous warnings; M42 appends **Next step:** sentences to each message families without changing `code` values; fixtures `rename-unlinked.txt`, `rename-since-truncation.txt`; still no `--follow` globally |
 | Merge commits, deletes, numstat edge cases                        | Fixture coverage in `tests/fixtures/git-log/`                                                                                                                                                                                       |
-| Stream pair aggregation (`pair → coChangeCount`) for coupling     | M32: increment pair counts during numstat stream — do **not** retain full `coChangeEvents[]` for scoring; unit tests assert `fileStats` + `pairCounts` from same stream; `canonicalizePairCounts` at mine end |
-| Mega-commit coupling skip (`MEGA_COMMIT_UNIQUE_FILE_THRESHOLD = 100` default) | M32 + M47: when unique **in-scope** canonical paths in a commit are **>** effective `megaCommitThreshold` (CLI `--mega-commit-threshold` / config `megaCommitThreshold`; precedence CLI > config > default 100), skip coupling pair increments for that commit (emit `MEGA_COMMIT_SKIPPED` warnings with effective threshold in message, capped); **churn** (`FileChangeStats`) still aggregated; path scope applied before mega-guard; rankings may omit pairs from skipped commits — documented exception |
 
 ## Function churn miner (`src/git/function-churn/`, M23)
 
@@ -53,18 +51,6 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 | `hotspotScore = 2ch / (c + h)` (harmonic mean of normalized complexity and churn) | Unit tests with fixed inputs and expected order                                                                                         |
 | Normalization strategy (min-max vs log)                                           | Document in code; test edge cases (all zeros, single file)                                                                              |
 | Scores are **scan-relative** (log1p + min-max over current result set)            | Not comparable across scans; do not use as CI fail thresholds (STATE: M12 CI gate removed); compare uses rank/delta within paired runs |
-| `couplingStrength = coChangeCount / min(commitsA, commitsB)`                      | Test denominator edge cases (zero commits)                                                                                              |
-| `--min-cochange` threshold                                                        | Test boundary at N-1, N, N+1                                                                                                            |
-
-## Enriched coupling (`src/scoring/enrich-coupling-static.ts`, M14, M33, M44)
-
-**Risk:** `hasStaticDependency` false negatives mislabel hidden vs expected coupling.
-
-| Concern                                                                                         | Mitigation                                                                                                                                      |
-| ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Static edge resolution gaps (relative, M14; tsconfig aliases, M27; package exports/imports, M44) | `enrichCouplingStaticDeps` + `TsconfigPathMap` + `PackageExportsMap`: relative paths; nearest `tsconfig.json`/`jsconfig.json` `paths`/`baseUrl` with shallow `extends`; peer-scoped in-repo `#` `imports` and `exports`/`main` (no `node_modules`); missing/unreadable source or unresolved specifier → no edge; ranking unchanged — see [ARCHITECTURE § Enriched coupling](ARCHITECTURE.md#enriched-coupling-m14-m27-m33-m44) |
-| Repeated enrich I/O on hub files (dense pair graphs)                                            | M33: per-call peer-scoped `StaticEdgeGraph` — one read/parse per unique participant path; O(1) pair labeling via adjacency lookup — see [ARCHITECTURE § Enriched coupling](ARCHITECTURE.md#enriched-coupling-m14-m27-m33-m44) |
-| Renamed-but-unlinked paths may report `false`                                                   | **M50:** git-linked renames (including heuristic links) canonicalize in enrich via optional `canonicalizePath` from miner `PathAliasMap`; unrelated delete+add pairs still `false`; do not invent alias graph without miner links |
 
 ## Path scoping (`src/paths/`, M48)
 
@@ -81,13 +67,12 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 - **Bench harness (M49):** `pnpm bench` (`scripts/bench-scan.mjs`) reports wall-clock + scale counts and optional overlap vs sequential A/B — **outside** `pnpm test` / Vitest coverage gate and CI timing thresholds (see `scripts/benchmark-scan.md`)
 - **Overlap abort (sibling failure):** on first mining/analysis failure, `runScan()` aborts the sibling stage (`child.kill` on git spawn, worker terminate on complexity pool), awaits `Promise.allSettled` settlement, and rethrows the original error — avoids orphan git children/workers and partial rankings
 - **User cancel (M51):** CLI `runWithScanCancelSignals()` links `SIGINT`/`SIGTERM` to `ScanOptions.signal` → orchestrator `AbortController` (including function-churn patch spawn); same kill/terminate settlement as sibling abort; no successful `ScanResult` or compare report; stderr `warning: scan cancelled`; exit `130`/`143`; distinct from sibling-failure error exits
-- Git (file mode): single streaming `git log --numstat` pass (ADR-2026-020); coupling pair counts aggregated during the stream (M32) — no retained `coChangeEvents[]` for scoring; mega-commit guard skips coupling when unique in-scope files `>` effective `megaCommitThreshold` (default 100; churn still counted)
+- Git (file mode): single streaming `git log --numstat` pass (ADR-2026-020) for churn only
 - Function mode (M35 + M47): sequential pathspec-restricted `git log -p --unified=0` streams for hunk overlap — one batch when allowlist `≤ 1000`, multiple sequential batches when `> 1000`; empty allowlist skips spawn; ARG_MAX emergency unrestricted only after documented retry path; both modes must stream line-by-line; never buffer full log/patch; **file mode must not spawn the patch stream**
 - Function mode AST (M35 + M50): **full in-scope discovery** in function mode (M50); patch pathspecs still restrict git `-p` to scoped numstat churn ∩ eligible extensions — accepted wall-clock trade-off on large repos
 - Function-churn CPU (M35): interval index (`functionsIntersectingHunk`) replaces naive function×hunk nested loop hot path; semantics locked by equivalence tests vs `hunkIntersectsFunction`
 - AST: batch file processing with persistent worker-thread pool (M15 + M31); default concurrency `min(availableParallelism(), 8)` (M36; override via CLI `--concurrency` or config `concurrency` — precedence CLI > config > default); each worker (and inline `concurrency === 1` session) reuses one ts-morph `Project` across batches with source files cleared between `loadBatch` calls; parse gating locked to syntactic diagnostics only (`getSyntacticDiagnostics`) — no semantic/pre-emit work (RT-005)
 - Discovery (M36): `discoverSourceFiles` prefers `git ls-files` (tracked-only) + PathScope/extension filter; silent walk fallback on git failure or non-git trees; higher default concurrency increases peak AST heap — use `--concurrency` to lower on memory-constrained hosts
-- Enrich (M33): `enrichCouplingStaticDeps` builds a per-call peer-scoped edge cache — one read/parse per unique coupling participant; pair labeling via O(1) graph lookup (see [ARCHITECTURE § Enriched coupling](ARCHITECTURE.md#enriched-coupling-m14-m27-m33-m44))
 - Manual benchmark before declaring v1 ready
 
 ## Diagnostics (`meta.warnings`, M28)
@@ -101,7 +86,7 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 | M26 vs M28 boundary | M28 routes **existing** M26 rename messages under `RENAME_HISTORY_INCOMPLETE` — do not invent new RT-003 warning families in M28 tasks |
 | M42 rename next-steps | Append actionable next-step copy to M26 message families only — **no** new or renamed warning `code` values |
 | Complexity progress (M42) | `onProgress({ phase: "complexity", … })` from analyzer/pool; CLI `--no-progress` no-ops the shared `onProgress` hook — no separate complexity silence path |
-| Warning code stability | Stable codes (M28+): `EMPTY_SINCE_WINDOW`, `RENAME_HISTORY_INCOMPLETE`, `PARSE_FAILED`, `COMPARE_SINCE_MISMATCH`, `MEGA_COMMIT_SKIPPED`, `PATHSPEC_ARG_MAX_FALLBACK`, `MONOREPO_PATH_REMOUNT`, `UNKNOWN_CONFIG_KEY` — document in README / ARCHITECTURE / `docs/warning-codes.md` |
+| Warning code stability | Stable codes (M28+): `EMPTY_SINCE_WINDOW`, `RENAME_HISTORY_INCOMPLETE`, `PARSE_FAILED`, `COMPARE_SINCE_MISMATCH`, `PATHSPEC_ARG_MAX_FALLBACK`, `MONOREPO_PATH_REMOUNT`, `UNKNOWN_CONFIG_KEY` — document in README / ARCHITECTURE / `docs/warning-codes.md` |
 
 ## Hooks enforcement
 
@@ -114,13 +99,12 @@ Gaps without product mitigation (only “document / accept / `false`”, or expl
 | Item | Risco | Esforço | Caminho | Backlog |
 | ---- | ----- | ------- | ------- | ------- |
 | Post-rename hunk line mismatch (true fix) | M | A | Historical AST / per-commit function ranges — **do not prioritize**; M26 avisos shipped | Deferred |
-| Unrelated delete+add → `hasStaticDependency: false` | B | M | Linked renames (incl. M50 heuristic) canonicalize in enrich; unrelated pairs stay `false` — accepted | Accepted residual |
 
 ```text
                  Esforço B              Esforço M              Esforço A
 Risco A     —                      —                      —
 Risco M     —                      —                      AST histórico
                                                           (não priorizar)
-Risco B     —                      unrelated→false        —
+Risco B     —                      —                      —
 ```
 **Maintenance:** when an item gains product mitigation (e.g. M26 Done), move it into the matching Concern|Mitigation table above and **remove** it from this matrix; when planning new gaps, update this section.

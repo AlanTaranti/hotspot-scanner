@@ -1,17 +1,11 @@
 import type {
   CompareResult,
-  CouplingPair,
   FunctionHotspotScore,
   HotspotScore,
   RankChange,
   ScanGranularity,
 } from "../types/index.js";
-import { paintScore, paintStaticDep } from "./color.js";
-import {
-  formatDirection,
-  formatKinds,
-  formatStaticDep,
-} from "./coupling-format.js";
+import { paintScore } from "./color.js";
 import { buildCompareTriageHints } from "./compare-triage.js";
 import { renderTableGlossary } from "./glossary.js";
 import {
@@ -36,7 +30,6 @@ export interface CompareRenderOptions {
 export type CompareSectionVisibility = {
   hotspots: boolean;
   functions: boolean;
-  coupling: boolean;
 };
 
 function isUnfiltered(onlySet: ReadonlySet<ReportSection>): boolean {
@@ -52,14 +45,12 @@ export function resolveCompareRenderSections(
     return {
       hotspots: granularity === "file",
       functions: granularity === "function",
-      coupling: true,
     };
   }
 
   return {
     hotspots: includesSection(onlySet, "hotspots"),
     functions: includesSection(onlySet, "functions"),
-    coupling: includesSection(onlySet, "coupling"),
   };
 }
 
@@ -68,13 +59,12 @@ export function resolveCompareExportSections(
   onlySet: ReadonlySet<ReportSection>,
 ): CompareSectionVisibility {
   if (isUnfiltered(onlySet)) {
-    return { hotspots: true, functions: true, coupling: true };
+    return { hotspots: true, functions: true };
   }
 
   return {
     hotspots: includesSection(onlySet, "hotspots"),
     functions: includesSection(onlySet, "functions"),
-    coupling: includesSection(onlySet, "coupling"),
   };
 }
 
@@ -101,20 +91,6 @@ function formatScoreCell(
     return padVisible(plain, width, "start");
   }
   const colored = paintScore(value, true);
-  const padLen = Math.max(0, width - plain.length);
-  return `${" ".repeat(padLen)}${colored}`;
-}
-
-function formatStaticDepCell(
-  hasStaticDependency: boolean,
-  width: number,
-  colorEnabled: boolean,
-): string {
-  const plain = formatStaticDep(hasStaticDependency);
-  if (!colorEnabled) {
-    return padVisible(plain, width, "start");
-  }
-  const colored = paintStaticDep(plain, true);
   const padLen = Math.max(0, width - plain.length);
   return `${" ".repeat(padLen)}${colored}`;
 }
@@ -229,56 +205,6 @@ function renderRankChangedFunctionRows(
   );
 }
 
-function renderCouplingRows(
-  items: CouplingPair[],
-  includeRank: boolean,
-  colorEnabled: boolean,
-): string[] {
-  if (items.length === 0) {
-    return ["  (none)"];
-  }
-
-  return items.map((pair, index) =>
-    [
-      includeRank ? padStart(String(index + 1), 4) : padStart("", 4),
-      padEnd(pair.fileA, 24),
-      padEnd(pair.fileB, 24),
-      formatScoreCell(pair.couplingStrength, 8, colorEnabled),
-      padStart(String(pair.coChangeCount), 10),
-      formatStaticDepCell(pair.hasStaticDependency, 9, colorEnabled),
-      padStart(formatDirection(pair.staticDependencyDirection), 9),
-      padEnd(formatKinds(pair), 22),
-    ].join("  "),
-  );
-}
-
-function renderRankChangedCouplingRows(
-  items: RankChange<CouplingPair>[],
-  colorEnabled: boolean,
-): string[] {
-  if (items.length === 0) {
-    return ["  (none)"];
-  }
-
-  return items.map((change) =>
-    [
-      padStart(String(change.baselineRank), 8),
-      padStart(String(change.currentRank), 8),
-      padStart(String(change.rankDelta), 5),
-      padEnd(change.entity.fileA, 24),
-      padEnd(change.entity.fileB, 24),
-      formatScoreCell(change.entity.couplingStrength, 8, colorEnabled),
-      padStart(String(change.entity.coChangeCount), 10),
-      formatStaticDepCell(change.entity.hasStaticDependency, 9, colorEnabled),
-      padStart(
-        formatDirection(change.entity.staticDependencyDirection),
-        9,
-      ),
-      padEnd(formatKinds(change.entity), 22),
-    ].join("  "),
-  );
-}
-
 function renderHotspotSections(
   result: CompareResult,
   colorEnabled: boolean,
@@ -327,30 +253,6 @@ function renderFunctionSections(
   ];
 }
 
-function renderCouplingSections(
-  result: CompareResult,
-  colorEnabled: boolean,
-): string[] {
-  const header =
-    "Rank  File A                    File B                    Strength  Co-changes  StaticDep  Direction  Kinds";
-  const rankChangedHeader =
-    "Baseline  Current  Delta  File A                    File B                    Strength  Co-changes  StaticDep  Direction  Kinds";
-
-  return [
-    "=== New Coupling Pairs ===",
-    header,
-    ...renderCouplingRows(result.coupling.new, true, colorEnabled),
-    "",
-    "=== Removed Coupling Pairs ===",
-    header,
-    ...renderCouplingRows(result.coupling.removed, false, colorEnabled),
-    "",
-    "=== Rank Changed Coupling Pairs ===",
-    rankChangedHeader,
-    ...renderRankChangedCouplingRows(result.coupling.rankChanged, colorEnabled),
-  ];
-}
-
 export function renderCompareTable(
   result: CompareResult,
   options?: CompareRenderOptions,
@@ -377,10 +279,6 @@ export function renderCompareTable(
 
   if (sections.functions) {
     lines.push(...renderFunctionSections(result, colorEnabled), "");
-  }
-
-  if (sections.coupling) {
-    lines.push(...renderCouplingSections(result, colorEnabled), "");
   }
 
   if (options?.triageHints !== false) {

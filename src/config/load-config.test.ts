@@ -34,8 +34,6 @@ describe("parseHotspotScannerConfig", () => {
         include: ["src/**"],
         exclude: ["**/*.test.ts"],
         granularity: "function",
-        minCochange: 5,
-        megaCommitThreshold: 200,
         top: 10,
         concurrency: 2,
       }),
@@ -45,8 +43,6 @@ describe("parseHotspotScannerConfig", () => {
         include: ["src/**"],
         exclude: ["**/*.test.ts"],
         granularity: "function",
-        minCochange: 5,
-        megaCommitThreshold: 200,
         top: 10,
         concurrency: 2,
       },
@@ -59,6 +55,16 @@ describe("parseHotspotScannerConfig", () => {
       config: {},
       unknownKeys: [],
     });
+  });
+
+  it("treats removed coupling keys as unknown", () => {
+    const parsed = parseHotspotScannerConfig({
+      since: "1 year ago",
+      minCochange: 5,
+      megaCommitThreshold: 200,
+    });
+    expect(parsed.config).toEqual({ since: "1 year ago" });
+    expect(parsed.unknownKeys).toEqual(["megaCommitThreshold", "minCochange"]);
   });
 
   it("collects unknown keys without applying them", () => {
@@ -135,30 +141,6 @@ describe("parseHotspotScannerConfig", () => {
     expect(() => parseHotspotScannerConfig({ granularity: "module" })).toThrow(
       /"granularity"/,
     );
-  });
-
-  it("rejects non-positive minCochange", () => {
-    expect(() => parseHotspotScannerConfig({ minCochange: 0 })).toThrow(
-      /"minCochange"/,
-    );
-    expect(() => parseHotspotScannerConfig({ minCochange: 1.5 })).toThrow(
-      /"minCochange"/,
-    );
-  });
-
-  it("rejects non-positive megaCommitThreshold", () => {
-    expect(() =>
-      parseHotspotScannerConfig({ megaCommitThreshold: 0 }),
-    ).toThrow(/"megaCommitThreshold"/);
-    expect(() =>
-      parseHotspotScannerConfig({ megaCommitThreshold: 1.5 }),
-    ).toThrow(/"megaCommitThreshold"/);
-    expect(() =>
-      parseHotspotScannerConfig({ megaCommitThreshold: -1 }),
-    ).toThrow(/"megaCommitThreshold"/);
-    expect(() =>
-      parseHotspotScannerConfig({ megaCommitThreshold: "100" }),
-    ).toThrow(/"megaCommitThreshold"/);
   });
 
   it("rejects non-positive top", () => {

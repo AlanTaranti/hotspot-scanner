@@ -1,4 +1,4 @@
-export { couplingKey, functionKey, hotspotKey } from "./keys.js";
+export { functionKey, hotspotKey } from "./keys.js";
 export {
   BaselineError,
   loadBaseline,

@@ -23,16 +23,12 @@ function loadFixture(): Record<string, unknown> {
 }
 
 describe("parseScanResult", () => {
-  it("accepts valid M14 ScanResult JSON", () => {
+  it("accepts valid 2.0 ScanResult JSON", () => {
     const raw = loadFixture();
     const result = parseScanResult(raw);
 
-    expect(result.version).toBe("1.0");
+    expect(result.version).toBe("2.0");
     expect(result.hotspots).toHaveLength(3);
-    expect(result.coupling[0]?.hasStaticDependency).toBe(true);
-    expect(result.coupling[0]?.staticDependencyDirection).toBe("a-to-b");
-    expect(result.coupling[0]?.hasRuntimeStaticDependency).toBe(true);
-    expect(result.coupling[1]?.staticDependencyDirection).toBe("none");
     expect(result.meta.granularity).toBe("file");
     expect(result.meta.warnings).toEqual([]);
     expect(result.meta.timings).toBeUndefined();
@@ -167,14 +163,58 @@ describe("parseScanResult", () => {
     expect(() => parseScanResult(null)).toThrow(/must be an object/);
   });
 
+  it("rejects version 1.0 baselines with re-scan hint", () => {
+    const raw = loadFixture();
+    expect(() => parseScanResult({ ...raw, version: "1.0" })).toThrow(
+      /Unsupported baseline version: "1.0"/,
+    );
+    expect(() => parseScanResult({ ...raw, version: "1.0" })).toThrow(
+      /Re-scan/,
+    );
+  });
+
   it("rejects unsupported version", () => {
     const raw = loadFixture();
-    expect(() => parseScanResult({ ...raw, version: "2.0" })).toThrow(
+    expect(() => parseScanResult({ ...raw, version: "3.0" })).toThrow(
       /Unsupported baseline version/,
     );
-    expect(() => parseScanResult({ ...raw, version: "2.0" })).toThrow(
+    expect(() => parseScanResult({ ...raw, version: "3.0" })).toThrow(
       /Hint:.*JSON contract/,
     );
+  });
+
+  it("rejects baseline with top-level coupling key", () => {
+    const raw = loadFixture();
+    expect(() =>
+      parseScanResult({
+        ...raw,
+        coupling: [],
+      }),
+    ).toThrow(/unsupported field "coupling"/);
+    expect(() =>
+      parseScanResult({
+        ...raw,
+        coupling: [],
+      }),
+    ).toThrow(/Re-scan/);
+  });
+
+  it("rejects spoofed 2.0 with coupling property", () => {
+    const raw = loadFixture();
+    expect(() =>
+      parseScanResult({
+        ...raw,
+        version: "2.0",
+        coupling: [
+          {
+            fileA: "a.ts",
+            fileB: "b.ts",
+            coChangeCount: 1,
+            couplingStrength: 0.5,
+          },
+        ],
+      }),
+    ).toThrow(/unsupported field "coupling"/);
   });
 
   it("rejects missing required keys", () => {
@@ -184,9 +224,6 @@ describe("parseScanResult", () => {
 
     const { functions: _functions, ...withoutFunctions } = raw;
     expect(() => parseScanResult(withoutFunctions)).toThrow(/functions/);
-
-    const { coupling: _coupling, ...withoutCoupling } = raw;
-    expect(() => parseScanResult(withoutCoupling)).toThrow(/coupling/);
 
     const { meta: _meta, ...withoutMeta } = raw;
     expect(() => parseScanResult(withoutMeta)).toThrow(/meta/);
@@ -289,126 +326,13 @@ describe("parseScanResult", () => {
       /functions\[0\] is missing required field: functionName/,
     );
   });
-
-  it("rejects invalid coupling items", () => {
-    const raw = loadFixture();
-    const coupling = [...(raw.coupling as unknown[])];
-
-    coupling[0] = null;
-    expect(() => parseScanResult({ ...raw, coupling })).toThrow(
-      /coupling\[0\] must be an object/,
-    );
-
-    coupling[0] = { ...(raw.coupling as Record<string, unknown>[])[0] };
-    delete (coupling[0] as Record<string, unknown>).fileA;
-    expect(() => parseScanResult({ ...raw, coupling })).toThrow(
-      /coupling\[0\] is missing required field: fileA/,
-    );
-
-    coupling[0] = {
-      ...(raw.coupling as Record<string, unknown>[])[0],
-      couplingStrength: "strong",
-    };
-    expect(() => parseScanResult({ ...raw, coupling })).toThrow(
-      /coupling\[0\]\.couplingStrength must be a number/,
-    );
-  });
-
-  it("rejects coupling items missing hasStaticDependency with re-scan hint", () => {
-    const raw = loadFixture();
-    const coupling = (raw.coupling as Record<string, unknown>[]).map((item) => {
-      const { hasStaticDependency: _hasStaticDependency, ...withoutFlag } =
-        item;
-      return withoutFlag;
-    });
-
-    expect(() => parseScanResult({ ...raw, coupling })).toThrow(BaselineError);
-    expect(() => parseScanResult({ ...raw, coupling })).toThrow(
-      /coupling\[0\] is missing required field: hasStaticDependency/,
-    );
-    expect(() => parseScanResult({ ...raw, coupling })).toThrow(/Re-scan/);
-  });
-
-  it("rejects coupling items missing enrichment fields with re-scan hint", () => {
-    const raw = loadFixture();
-    const coupling = (raw.coupling as Record<string, unknown>[]).map(
-      (item, index) => {
-        if (index !== 0) {
-          return item;
-        }
-        const {
-          staticDependencyDirection: _direction,
-          hasRuntimeStaticDependency: _runtime,
-          hasTypeOnlyStaticDependency: _typeOnly,
-          hasReExportStaticDependency: _reExport,
-          ...withoutEnrichment
-        } = item;
-        return withoutEnrichment;
-      },
-    );
-
-    expect(() => parseScanResult({ ...raw, coupling })).toThrow(BaselineError);
-    expect(() => parseScanResult({ ...raw, coupling })).toThrow(
-      /coupling\[0\] is missing required field: staticDependencyDirection/,
-    );
-    expect(() => parseScanResult({ ...raw, coupling })).toThrow(/Re-scan/);
-  });
-
-  it("rejects coupling items with invalid staticDependencyDirection", () => {
-    const raw = loadFixture();
-    const coupling = [...(raw.coupling as unknown[])];
-    coupling[0] = {
-      ...(raw.coupling as Record<string, unknown>[])[0],
-      staticDependencyDirection: "mutual",
-    };
-
-    expect(() => parseScanResult({ ...raw, coupling })).toThrow(
-      /coupling\[0\]\.staticDependencyDirection must be one of/,
-    );
-  });
-
-  it("rejects coupling items with wrong enrichment boolean types", () => {
-    const raw = loadFixture();
-    const coupling = [...(raw.coupling as unknown[])];
-    coupling[0] = {
-      ...(raw.coupling as Record<string, unknown>[])[0],
-      hasRuntimeStaticDependency: "true",
-    };
-
-    expect(() => parseScanResult({ ...raw, coupling })).toThrow(
-      /coupling\[0\]\.hasRuntimeStaticDependency must be a boolean/,
-    );
-  });
-
-  it("rejects coupling items with wrong hasStaticDependency type", () => {
-    const raw = loadFixture();
-    const coupling = [...(raw.coupling as unknown[])];
-    coupling[1] = {
-      ...(raw.coupling as Record<string, unknown>[])[1],
-      hasStaticDependency: "false",
-    };
-
-    expect(() => parseScanResult({ ...raw, coupling })).toThrow(
-      /coupling\[1\]\.hasStaticDependency must be a boolean/,
-    );
-  });
 });
 
 describe("loadBaseline", () => {
   it("reads valid fixture file", async () => {
     const result = await loadBaseline(fixturePath);
-    expect(result.version).toBe("1.0");
+    expect(result.version).toBe("2.0");
     expect(result.hotspots[0]?.filePath).toBe("src/hot.ts");
-    expect(
-      result.coupling.every(
-        (pair) =>
-          typeof pair.hasStaticDependency === "boolean" &&
-          typeof pair.staticDependencyDirection === "string" &&
-          typeof pair.hasRuntimeStaticDependency === "boolean" &&
-          typeof pair.hasTypeOnlyStaticDependency === "boolean" &&
-          typeof pair.hasReExportStaticDependency === "boolean",
-      ),
-    ).toBe(true);
   });
 
   it("throws on missing file", async () => {
@@ -436,21 +360,18 @@ describe("loadBaseline", () => {
     }
   });
 
-  it("throws on baseline missing hasStaticDependency", async () => {
+  it("throws on baseline with coupling key", async () => {
     const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
-    const invalidPath = join(tempDir, "pre-m14-baseline.json");
+    const invalidPath = join(tempDir, "legacy-baseline.json");
     const raw = loadFixture();
-    const coupling = (raw.coupling as Record<string, unknown>[]).map((item) => {
-      const { hasStaticDependency: _hasStaticDependency, ...withoutFlag } =
-        item;
-      return withoutFlag;
-    });
-    await writeFile(invalidPath, JSON.stringify({ ...raw, coupling }), "utf8");
+    await writeFile(
+      invalidPath,
+      JSON.stringify({ ...raw, coupling: [] }),
+      "utf8",
+    );
     try {
       await expect(loadBaseline(invalidPath)).rejects.toThrow(BaselineError);
-      await expect(loadBaseline(invalidPath)).rejects.toThrow(
-        /hasStaticDependency/,
-      );
+      await expect(loadBaseline(invalidPath)).rejects.toThrow(/coupling/);
       await expect(loadBaseline(invalidPath)).rejects.toThrow(/Re-scan/);
     } finally {
       await rm(tempDir, { recursive: true, force: true });

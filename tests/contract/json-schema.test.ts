@@ -157,44 +157,31 @@ describe("JSON schema contract", () => {
     expect(validateScan.errors?.length).toBeGreaterThan(0);
   });
 
-  it("rejects scan JSON missing a required coupling field", async () => {
+  it("accepts scan JSON at version 2.0 without coupling", async () => {
     const result = await runScan({ repoPath: smallTsFixture });
     const json = JSON.parse(renderJson(result)) as ScanResult;
 
-    expect(json.coupling.length).toBeGreaterThan(0);
+    expect(json.version).toBe("2.0");
+    expect(json).not.toHaveProperty("coupling");
+    expect(validateScan(json)).toBe(true);
+  });
+
+  it("rejects scan JSON with version 1.0", async () => {
+    const result = await runScan({ repoPath: smallTsFixture });
+    const json = JSON.parse(renderJson(result)) as ScanResult;
     const invalid = structuredClone(json);
-    const firstPair = invalid.coupling[0]!;
-    delete (firstPair as { hasStaticDependency?: boolean }).hasStaticDependency;
+    (invalid as { version: string }).version = "1.0";
 
     expect(validateScan(invalid)).toBe(false);
     expect(validateScan.errors?.length).toBeGreaterThan(0);
   });
 
-  it("rejects scan JSON missing coupling enrichment fields", async () => {
+  it("allows additional properties on scan JSON (coupling rejected at baseline load only)", async () => {
     const result = await runScan({ repoPath: smallTsFixture });
     const json = JSON.parse(renderJson(result)) as ScanResult;
+    const withExtra = { ...json, coupling: [] };
 
-    expect(json.coupling.length).toBeGreaterThan(0);
-    const invalid = structuredClone(json);
-    const firstPair = invalid.coupling[0]!;
-    delete (firstPair as { staticDependencyDirection?: string })
-      .staticDependencyDirection;
-
-    expect(validateScan(invalid)).toBe(false);
-    expect(validateScan.errors?.length).toBeGreaterThan(0);
-  });
-
-  it("rejects scan JSON with invalid staticDependencyDirection", async () => {
-    const result = await runScan({ repoPath: smallTsFixture });
-    const json = JSON.parse(renderJson(result)) as ScanResult;
-
-    expect(json.coupling.length).toBeGreaterThan(0);
-    const invalid = structuredClone(json);
-    invalid.coupling[0]!.staticDependencyDirection =
-      "mutual" as ScanResult["coupling"][number]["staticDependencyDirection"];
-
-    expect(validateScan(invalid)).toBe(false);
-    expect(validateScan.errors?.length).toBeGreaterThan(0);
+    expect(validateScan(withExtra)).toBe(true);
   });
 
   it("accepts scan JSON with valid meta.timings", async () => {

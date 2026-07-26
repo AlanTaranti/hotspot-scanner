@@ -69,7 +69,7 @@ pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug> --since "12 months ag
 - Exit `0` — scan completed successfully
 - Exit `!= 0` — invalid repo/path, git error, or invalid CLI arguments
 
-Test `--since`, `--format json`, `--top`, `--min-cochange` when relevant per spec.
+Test `--since`, `--format json`, `--top`, `--only` when relevant per spec.
 
 ### 4. Edge cases
 

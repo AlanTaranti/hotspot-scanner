@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M55 Done.** **Active:** [Milestone 56 — Remove coupling analysis](#milestone-56--remove-coupling-analysis) (Specs **Planned**). Deferred horizon still in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize, residual `*.test.mjs`/`*.spec.cjs`).
+Status: **M7–M56 Done.** Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize, residual `*.test.mjs`/`*.spec.cjs`).
 
 **M12** intentionally absent (CI fail-on-score removed — see STATE).
 
@@ -705,31 +705,31 @@ Export preview/doctor from package entry; warn-only unknown config keys; wire `m
 
 ---
 
-## Milestone 56 — Remove coupling analysis — Specs Planned
+## Milestone 56 — Remove coupling analysis — Done
 
 → [`.specs/features/remove-coupling-analysis/spec.md`](../features/remove-coupling-analysis/spec.md)  
-**Slug:** `remove-coupling-analysis` | **Priority:** High | **Specs:** Planned  
+**Slug:** `remove-coupling-analysis` | **Priority:** High | **Specs:** Done  
 **IDs:** HOTSPOT-890+ (913–919 reserved) | **Depth:** Complex  
 **Sisters / inverse:** enriched-coupling (M14), coupling-enrichment (M27), coupling-stream-aggregate (M32), static-enrich-cache (M33), coupling-package-exports (M44), csv-bundle (M18), json-contract (M20), scan-compare (M13), output-interpretation-ux (M41)
 
-**Artifacts:** [context.md](../features/remove-coupling-analysis/context.md) · [spec.md](../features/remove-coupling-analysis/spec.md) · [design.md](../features/remove-coupling-analysis/design.md) · [tasks.md](../features/remove-coupling-analysis/tasks.md) (Status: **Planned**)
+**Artifacts:** [context.md](../features/remove-coupling-analysis/context.md) · [spec.md](../features/remove-coupling-analysis/spec.md) · [design.md](../features/remove-coupling-analysis/design.md) · [tasks.md](../features/remove-coupling-analysis/tasks.md) (Status: **Done**)
 
-Hard cut — completely remove temporal coupling analysis (co-change pairs, coupling scoring, static enrich) from pipeline, CLI/config, JSON (`version` → `"2.0"`, no `coupling` array), CSV (omit coupling files), tests, fixtures, and living docs. No deprecation window / legacy flag (M18/M12 precedent). Historical Done coupling specs stay historical; M56 documents supersession. **Keep:** churn, hotspot scoring, PathAliasMap, complexity, compare for hotspots/functions, `--only hotspots|functions`.
+Hard cut — completely removed temporal coupling analysis (co-change pairs, coupling scoring, static enrich) from pipeline, CLI/config, JSON (`version` → `"2.0"`, no `coupling` array), CSV (omit coupling files), tests, fixtures, and living docs. Historical Done coupling specs stay historical; M56 documents supersession. **Kept:** churn, hotspot scoring, PathAliasMap, complexity, compare for hotspots/functions, `--only hotspots|functions`.
 
-- [ ] JSON schemas + types `"2.0"` without top-level `coupling`; baseline reject `1.0` / leftover `coupling`
-- [ ] Pipeline / compare / reporters / CLI / config stop emitting or configuring coupling
-- [ ] Git miner: remove `pairCounts`, mega-commit coupling skip, `MEGA_COMMIT_SKIPPED`
-- [ ] Delete coupling-only modules, tests, and fixtures
-- [ ] Living docs / skills / PROJECT vision (hotspots = complexity + churn); revisit ADR-2026-020
-- [ ] Final gate `pnpm build && pnpm test`
+- [x] JSON schemas + types `"2.0"` without top-level `coupling`; baseline reject `1.0` / leftover `coupling`
+- [x] Pipeline / compare / reporters / CLI / config stop emitting or configuring coupling
+- [x] Git miner: remove `pairCounts`, mega-commit coupling skip, `MEGA_COMMIT_SKIPPED`
+- [x] Delete coupling-only modules, tests, and fixtures
+- [x] Living docs / skills / PROJECT vision (hotspots = complexity + churn); revisit ADR-2026-020
+- [x] Final gate `pnpm build && pnpm test`
 
 **Out of scope:** McCabe nodes, harmonic formula, function churn, npm publish, CI/SARIF.
 
 ---
 
-## Post-M55 / Next
+## Post-M56 / Next
 
-**Next Execute:** M56 after promoting [tasks.md](../features/remove-coupling-analysis/tasks.md) to Approved / Ready for Execute.
+**Next Execute:** see [STATE.md](STATE.md) Deferred horizon.
 
 Further horizon remains in [STATE.md](STATE.md) **Deferred**:
 

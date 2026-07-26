@@ -22,16 +22,12 @@ function loadFunctionFixture(): ScanResult {
   return JSON.parse(readFileSync(functionFixturePath, "utf8")) as ScanResult;
 }
 
-const COUPLING_CSV_HEADER =
-  "rank,fileA,fileB,strength,coChanges,hasStaticDependency,staticDependencyDirection,hasRuntimeStaticDependency,hasTypeOnlyStaticDependency,hasReExportStaticDependency";
-
 describe("renderCsv", () => {
-  it("returns CsvBundle with meta.json, hotspots.csv, and coupling.csv in file mode", () => {
+  it("returns CsvBundle with meta.json and hotspots.csv in file mode", () => {
     const bundle = renderCsv(loadFixture());
 
     expect(bundle).toHaveProperty("meta.json");
     expect(bundle).toHaveProperty("hotspots.csv");
-    expect(bundle).toHaveProperty("coupling.csv");
     expect(bundle).not.toHaveProperty("functions.csv");
   });
 
@@ -65,18 +61,6 @@ describe("renderCsv", () => {
     );
   });
 
-  it("coupling.csv has correct header and data", () => {
-    const bundle = renderCsv(loadFixture());
-
-    expect(bundle["coupling.csv"]).toContain(COUPLING_CSV_HEADER);
-    expect(bundle["coupling.csv"]).toContain(
-      "1,src/a.ts,src/b.ts,0.7500,5,true,a-to-b,true,false,false",
-    );
-    expect(bundle["coupling.csv"]).toContain(
-      "2,src/c.ts,src/d.ts,0.5000,3,false,none,false,false,false",
-    );
-  });
-
   it("returns functions.csv instead of hotspots.csv in function mode", () => {
     const bundle = renderCsv(loadFunctionFixture());
 
@@ -94,14 +78,14 @@ describe("renderCsv", () => {
 
   it("renders empty sections as header-only CSV files", () => {
     const bundle = renderCsv({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-07-22T12:00:00.000Z",
         granularity: "file",
+        warnings: [],
       },
     });
 
@@ -110,44 +94,37 @@ describe("renderCsv", () => {
     expect(hotspotLines[0]).toBe(
       "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,lines,parseFailed",
     );
-
-    const couplingLines = bundle["coupling.csv"]!.split("\n");
-    expect(couplingLines).toHaveLength(1);
-    expect(couplingLines[0]).toBe(COUPLING_CSV_HEADER);
   });
 
   it("omits non-selected data files when only is set", () => {
-    const bundle = renderCsv(loadFixture(), { only: ["coupling"] });
+    const bundle = renderCsv(loadFixture(), { only: ["functions"] });
 
     expect(bundle).toHaveProperty("meta.json");
-    expect(bundle).toHaveProperty("coupling.csv");
+    expect(bundle).toHaveProperty("functions.csv");
     expect(bundle).not.toHaveProperty("hotspots.csv");
-    expect(bundle).not.toHaveProperty("functions.csv");
   });
 
   it("includes only requested CSV files for union --only", () => {
     const bundle = renderCsv(loadFixture(), {
-      only: ["hotspots", "coupling"],
+      only: ["hotspots", "functions"],
     });
 
     expect(bundle).toHaveProperty("meta.json");
     expect(bundle).toHaveProperty("hotspots.csv");
-    expect(bundle).toHaveProperty("coupling.csv");
-    expect(bundle).not.toHaveProperty("functions.csv");
+    expect(bundle).toHaveProperty("functions.csv");
   });
 
-  it("omits excluded ranking CSV in function mode when only coupling", () => {
-    const bundle = renderCsv(loadFunctionFixture(), { only: ["coupling"] });
+  it("omits excluded ranking CSV in function mode when only functions", () => {
+    const bundle = renderCsv(loadFunctionFixture(), { only: ["functions"] });
 
     expect(bundle).toHaveProperty("meta.json");
-    expect(bundle).toHaveProperty("coupling.csv");
-    expect(bundle).not.toHaveProperty("functions.csv");
+    expect(bundle).toHaveProperty("functions.csv");
     expect(bundle).not.toHaveProperty("hotspots.csv");
   });
 
   it("escapes file paths with special characters", () => {
     const bundle = renderCsv({
-      version: "1.0",
+      version: "2.0",
       hotspots: [
         {
           filePath: 'src/"weird",path.ts',
@@ -159,14 +136,15 @@ describe("renderCsv", () => {
           commitCount: 5,
           linesChanged: 50,
           authorCount: 1,
+          parseFailed: false,
         },
       ],
       functions: [],
-      coupling: [],
       meta: {
         since: "6 months ago",
         scannedAt: "2026-07-22T11:00:00.000Z",
         granularity: "file",
+        warnings: [],
       },
     });
 

@@ -14,11 +14,11 @@ Any change under the paths below **requires** a corresponding Vitest test update
 
 ## Git Change Miner (`src/git/`)
 
-Streaming parse of `git log --numstat --name-only` — feeds churn and coupling in a single pass.
+Streaming parse of `git log --numstat --name-only` — feeds per-file churn in a single pass.
 
 **Forbidden:** loading the full log into memory; changing rename/merge/delete parsing without fixtures under `tests/fixtures/git-log/`.
 
-**Required:** tests for `FileChangeStats` and `CoChangeEvent[]` derived from the same stream.
+**Required:** tests for `FileChangeStats` derived from the stream.
 
 ## Complexity Analyzer (`src/complexity/`)
 
@@ -32,20 +32,20 @@ Decision nodes (summary): `if`/`else if`, `for`, `while`, `do-while`, `switch` `
 
 ## Scoring (`src/scoring/`)
 
-SoT: CONCERNS.md — `hotspotScore = 2ch / (c + h)`; `couplingStrength = coChangeCount / min(commitsA, commitsB)`.
+SoT: CONCERNS.md — `hotspotScore = 2ch / (c + h)`.
 
 **Forbidden:** changing formulas or normalization strategy without tests using fixed inputs and expected ordering.
 
-**Required:** edge cases (zero commits, single file, `--min-cochange` threshold).
+**Required:** edge cases (zero commits, single file, parse-failed stubs).
 
 ## Compare / baseline (`src/compare/`)
 
-`loadBaseline()` validates a strong structure (incl. `hasStaticDependency`). Parse-contract changes require tests in `load-baseline.test.ts` and baseline fixtures.
+`loadBaseline()` validates a strong structure on JSON `version: "2.0"` scan/compare payloads. Parse-contract changes require tests in `load-baseline.test.ts` and baseline fixtures.
 
-**Forbidden:** auto-migrating pre-M14 baselines; fail with a clear message.
+**Forbidden:** auto-migrating pre-M56 `1.0` baselines or payloads with a top-level `coupling` key; fail with a clear re-scan message.
 
 ## JSON schemas (`schemas/`)
 
-I/O contract SoT: `schemas/scan-result.json`, `schemas/compare-result.json`.
+I/O contract SoT: `schemas/scan-result.json`, `schemas/compare-result.json` (`version: "2.0"` — no top-level `coupling`).
 
 **Required:** after editing schemas, update `tests/contract/json-schema.test.ts` and related JSON fixtures.

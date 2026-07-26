@@ -8,7 +8,7 @@ Canonical module ownership for `tasks.md` path assignment and implementer delega
 | ----------------- | ------------------------------------------------------- |
 | `src/git/`        | Git Change Miner (streaming parse, rename handling)     |
 | `src/complexity/` | McCabe complexity via ts-morph                          |
-| `src/scoring/`    | HotspotScorer, TemporalCouplingScorer                   |
+| `src/scoring/`    | HotspotScorer, FunctionHotspotScorer                    |
 | `src/report/`     | CLI table + JSON reporter                               |
 | `src/scan.ts`     | Pipeline orchestration                                  |
 | `src/types/`      | Domain type definitions                                 |

@@ -77,35 +77,30 @@ export interface CoChangeEvent {
   filesChanged: string[];
 }
 
-/** Unordered co-change pair tally (production coupling feed). */
+/** Unordered co-change pair tally (git miner internal). */
 export interface CoChangePairCount {
   fileA: string;
   fileB: string;
   coChangeCount: number;
 }
 
-/** Aggregate static edge direction between fileA and fileB. */
+/** Aggregate static edge direction between fileA and fileB (coupling enrich internal). */
 export type StaticDependencyDirection =
   | "none"
   | "a-to-b"
   | "b-to-a"
   | "both";
 
-/** Ranked temporal coupling pair. */
+/** Ranked temporal coupling pair (coupling scorer internal; removed from JSON 2.0). */
 export interface CouplingPair {
   fileA: string;
   fileB: string;
   coChangeCount: number;
   couplingStrength: number;
-  /** True iff any static edge exists (runtime and/or type-only). */
   hasStaticDependency: boolean;
-  /** Aggregate edge direction between fileA and fileB. */
   staticDependencyDirection: StaticDependencyDirection;
-  /** At least one non-type-only static edge (value import / require / value re-export). */
   hasRuntimeStaticDependency: boolean;
-  /** At least one `import type` / `export type … from` edge. */
   hasTypeOnlyStaticDependency: boolean;
-  /** At least one `export … from` / `export * from` / `export type … from` re-export edge. */
   hasReExportStaticDependency: boolean;
 }
 
@@ -156,8 +151,6 @@ export interface ScanOptions {
   configPath?: string;
   since?: string;
   top?: number;
-  minCochange?: number;
-  megaCommitThreshold?: number;
   format?: "table" | "json" | "markdown" | "csv";
   granularity?: ScanGranularity;
   include?: string[];
@@ -190,10 +183,9 @@ export interface ScanMeta {
 
 /** Full scan output (JSON schema). */
 export interface ScanResult {
-  version: "1.0";
+  version: "2.0";
   hotspots: HotspotScore[];
   functions: FunctionHotspotScore[];
-  coupling: CouplingPair[];
   meta: ScanMeta;
 }
 
@@ -220,13 +212,6 @@ export interface FunctionCompareSection {
   rankChanged: RankChange<FunctionHotspotScore>[];
 }
 
-/** Coupling pair delta section for compare output. */
-export interface CouplingCompareSection {
-  new: CouplingPair[];
-  removed: CouplingPair[];
-  rankChanged: RankChange<CouplingPair>[];
-}
-
 /** Compare report metadata. */
 export interface CompareMeta {
   baseline: ScanMeta;
@@ -236,10 +221,9 @@ export interface CompareMeta {
 
 /** Full compare output (JSON schema). */
 export interface CompareResult {
-  version: "1.0";
+  version: "2.0";
   granularity: ScanGranularity;
   hotspots: HotspotCompareSection;
   functions: FunctionCompareSection;
-  coupling: CouplingCompareSection;
   meta: CompareMeta;
 }

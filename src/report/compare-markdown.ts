@@ -1,15 +1,9 @@
 import type {
   CompareResult,
-  CouplingPair,
   FunctionHotspotScore,
   HotspotScore,
   RankChange,
 } from "../types/index.js";
-import {
-  formatDirection,
-  formatKinds,
-  formatStaticDep,
-} from "./coupling-format.js";
 import {
   type CompareRenderOptions,
   resolveCompareRenderSections,
@@ -137,59 +131,6 @@ function renderRankChangedFunctionTable(
   return lines;
 }
 
-function renderCouplingTable(
-  title: string,
-  items: CouplingPair[],
-  includeRank: boolean,
-): string[] {
-  const lines = [`## ${title}`, ""];
-
-  if (items.length === 0) {
-    lines.push("_No results._");
-    return lines;
-  }
-
-  const rankHeader = includeRank ? "| Rank | " : "| ";
-  lines.push(
-    `${rankHeader}File A | File B | Strength | Co-changes | Has static | Direction | Kinds |`,
-    `${includeRank ? "| ---: | " : "| "}--- | --- | ---: | ---: | :---: | :---: | --- |`,
-  );
-
-  for (const [index, pair] of items.entries()) {
-    const rankCell = includeRank ? `${index + 1} | ` : "";
-    lines.push(
-      `| ${rankCell}${escapeCell(pair.fileA)} | ${escapeCell(pair.fileB)} | ${formatScore(pair.couplingStrength)} | ${pair.coChangeCount} | ${formatStaticDep(pair.hasStaticDependency)} | ${formatDirection(pair.staticDependencyDirection)} | ${formatKinds(pair)} |`,
-    );
-  }
-
-  return lines;
-}
-
-function renderRankChangedCouplingTable(
-  title: string,
-  items: RankChange<CouplingPair>[],
-): string[] {
-  const lines = [`## ${title}`, ""];
-
-  if (items.length === 0) {
-    lines.push("_No results._");
-    return lines;
-  }
-
-  lines.push(
-    "| Baseline Rank | Current Rank | Δ | File A | File B | Strength | Co-changes | Has static | Direction | Kinds |",
-    "| ---: | ---: | ---: | --- | --- | ---: | ---: | :---: | :---: | --- |",
-  );
-
-  for (const change of items) {
-    lines.push(
-      `| ${change.baselineRank} | ${change.currentRank} | ${change.rankDelta} | ${escapeCell(change.entity.fileA)} | ${escapeCell(change.entity.fileB)} | ${formatScore(change.entity.couplingStrength)} | ${change.entity.coChangeCount} | ${formatStaticDep(change.entity.hasStaticDependency)} | ${formatDirection(change.entity.staticDependencyDirection)} | ${formatKinds(change.entity)} |`,
-    );
-  }
-
-  return lines;
-}
-
 function renderHotspotSections(result: CompareResult): string[] {
   return [
     ...renderHotspotTable("New Hotspots", result.hotspots.new, true),
@@ -212,23 +153,6 @@ function renderFunctionSections(result: CompareResult): string[] {
     ...renderRankChangedFunctionTable(
       "Rank Changed Functions",
       result.functions.rankChanged,
-    ),
-  ];
-}
-
-function renderCouplingSections(result: CompareResult): string[] {
-  return [
-    ...renderCouplingTable("New Coupling Pairs", result.coupling.new, true),
-    "",
-    ...renderCouplingTable(
-      "Removed Coupling Pairs",
-      result.coupling.removed,
-      false,
-    ),
-    "",
-    ...renderRankChangedCouplingTable(
-      "Rank Changed Coupling Pairs",
-      result.coupling.rankChanged,
     ),
   ];
 }
@@ -260,10 +184,6 @@ export function renderCompareMarkdown(
 
   if (sections.functions) {
     lines.push(...renderFunctionSections(result), "");
-  }
-
-  if (sections.coupling) {
-    lines.push(...renderCouplingSections(result));
   }
 
   if (options?.triageHints !== false) {

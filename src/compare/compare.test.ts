@@ -17,6 +17,15 @@ function loadFixture(name: string): ScanResult {
 }
 
 describe("compareScanResults", () => {
+  it("returns version 2.0 without a coupling section", () => {
+    const baseline = loadFixture("compare-baseline-file.json");
+    const current = loadFixture("compare-current-file.json");
+    const result = compareScanResults(baseline, current);
+
+    expect(result.version).toBe("2.0");
+    expect(result).not.toHaveProperty("coupling");
+  });
+
   it("classifies file mode hotspots: new, removed, rankChanged", () => {
     const baseline = loadFixture("compare-baseline-file.json");
     const current = loadFixture("compare-current-file.json");
@@ -39,34 +48,6 @@ describe("compareScanResults", () => {
       removed: [],
       rankChanged: [],
     });
-  });
-
-  it("classifies coupling pairs with canonical keys", () => {
-    const baseline = loadFixture("compare-baseline-file.json");
-    const current = loadFixture("compare-current-file.json");
-    const result = compareScanResults(baseline, current);
-
-    expect(result.coupling.new).toHaveLength(1);
-    expect(result.coupling.new[0]?.fileA).toBe("src/e.ts");
-    expect(result.coupling.removed).toHaveLength(0);
-    expect(result.coupling.rankChanged).toHaveLength(2);
-  });
-
-  it("treats swapped coupling pair order as same canonical key", () => {
-    const baseline = loadFixture("compare-baseline-file.json");
-    const current = loadFixture("compare-current-file.json");
-    const swappedCurrent: ScanResult = {
-      ...current,
-      coupling: current.coupling.map((pair) => ({
-        ...pair,
-        fileA: pair.fileB,
-        fileB: pair.fileA,
-      })),
-    };
-
-    const result = compareScanResults(baseline, swappedCurrent);
-    expect(result.coupling.new).toHaveLength(1);
-    expect(result.coupling.removed).toHaveLength(0);
   });
 
   it("classifies function mode deltas", () => {
@@ -123,63 +104,53 @@ describe("compareScanResults", () => {
     const emptyBaseline: ScanResult = {
       ...baseline,
       hotspots: [],
-      coupling: [],
     };
 
     const result = compareScanResults(emptyBaseline, current);
     expect(result.hotspots.new).toHaveLength(current.hotspots.length);
     expect(result.hotspots.removed).toHaveLength(0);
-    expect(result.coupling.new).toHaveLength(current.coupling.length);
   });
 
-  it("sorts rankChanged by absolute delta then key tie-breaker", () => {
-    const baseline = loadFixture("compare-baseline-file.json");
-    const current = loadFixture("compare-current-file.json");
-    const baselineCouplingOnly: ScanResult = {
-      ...baseline,
-      hotspots: baseline.hotspots.map((hotspot) => ({ ...hotspot })),
-      coupling: [
-        {
-          fileA: "src/z.ts",
-          fileB: "src/y.ts",
-          coChangeCount: 2,
-          couplingStrength: 0.4,
-        },
-        {
-          fileA: "src/a.ts",
-          fileB: "src/b.ts",
-          coChangeCount: 5,
-          couplingStrength: 0.75,
-        },
-      ],
+  it("sorts rankChanged ties by entity key when rank delta magnitude matches", () => {
+    const hotspot = (
+      filePath: string,
+      hotspotScore: number,
+    ): ScanResult["hotspots"][number] => ({
+      filePath,
+      complexityNormalized: 0.5,
+      churnNormalized: 0.5,
+      hotspotScore,
+      cyclomaticComplexity: 10,
+      functionCount: 1,
+      commitCount: 5,
+      linesChanged: 50,
+      authorCount: 1,
+      parseFailed: false,
+    });
+
+    const baseline: ScanResult = {
+      version: "2.0",
+      hotspots: [hotspot("src/z.ts", 0.9), hotspot("src/a.ts", 0.8)],
+      functions: [],
+      meta: {
+        since: "6 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "file",
+        warnings: [],
+      },
     };
-    const currentCouplingOnly: ScanResult = {
-      ...current,
-      hotspots: baseline.hotspots.map((hotspot) => ({ ...hotspot })),
-      coupling: [
-        {
-          fileA: "src/a.ts",
-          fileB: "src/b.ts",
-          coChangeCount: 5,
-          couplingStrength: 0.75,
-        },
-        {
-          fileA: "src/z.ts",
-          fileB: "src/y.ts",
-          coChangeCount: 2,
-          couplingStrength: 0.4,
-        },
-      ],
+    const current: ScanResult = {
+      ...baseline,
+      hotspots: [hotspot("src/a.ts", 0.9), hotspot("src/z.ts", 0.8)],
+      meta: { ...baseline.meta, scannedAt: "2026-02-01T00:00:00.000Z" },
     };
 
-    const result = compareScanResults(
-      baselineCouplingOnly,
-      currentCouplingOnly,
-    );
-    expect(result.coupling.rankChanged).toHaveLength(2);
-    expect(Math.abs(result.coupling.rankChanged[0]!.rankDelta)).toBe(
-      Math.abs(result.coupling.rankChanged[1]!.rankDelta),
-    );
-    expect(result.coupling.rankChanged[0]!.entity.fileA).toBe("src/a.ts");
+    const result = compareScanResults(baseline, current);
+
+    expect(result.hotspots.rankChanged).toHaveLength(2);
+    expect(result.hotspots.rankChanged.map((c) => c.entity.filePath)).toEqual([
+      "src/a.ts",
+      "src/z.ts",
+    ]);
   });
 });

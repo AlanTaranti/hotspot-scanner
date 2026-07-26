@@ -22,9 +22,6 @@ export function renderJson(
   if (includesSection(onlySet, "hotspots")) {
     payload.hotspots = result.hotspots;
   }
-  if (includesSection(onlySet, "coupling")) {
-    payload.coupling = result.coupling;
-  }
   if (includesSection(onlySet, "functions")) {
     payload.functions = result.functions;
   }

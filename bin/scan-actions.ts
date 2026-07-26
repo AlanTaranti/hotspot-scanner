@@ -205,12 +205,6 @@ export function buildScanOptions(
   if (cliOverrides.granularity !== undefined) {
     scanOptions.granularity = cliOverrides.granularity;
   }
-  if (cliOverrides.minCochange !== undefined) {
-    scanOptions.minCochange = cliOverrides.minCochange;
-  }
-  if (cliOverrides.megaCommitThreshold !== undefined) {
-    scanOptions.megaCommitThreshold = cliOverrides.megaCommitThreshold;
-  }
   if (cliOverrides.top !== undefined) {
     scanOptions.top = cliOverrides.top;
   }

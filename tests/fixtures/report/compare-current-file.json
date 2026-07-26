@@ -1,6 +1,6 @@
 {
-  "_comment": "Current ScanResult for compare tests (file mode). 1 new hotspot, 1 removed, 1 rank-changed; coupling reordered + 1 new pair.",
-  "version": "1.0",
+  "_comment": "Current ScanResult for compare tests (file mode). 1 new hotspot, 1 removed, 1 rank-changed.",
+  "version": "2.0",
   "hotspots": [
     {
       "filePath": "src/new.ts",
@@ -40,41 +40,6 @@
     }
   ],
   "functions": [],
-  "coupling": [
-    {
-      "fileA": "src/c.ts",
-      "fileB": "src/d.ts",
-      "coChangeCount": 3,
-      "couplingStrength": 0.5,
-      "hasStaticDependency": false,
-      "staticDependencyDirection": "none",
-      "hasRuntimeStaticDependency": false,
-      "hasTypeOnlyStaticDependency": false,
-      "hasReExportStaticDependency": false
-    },
-    {
-      "fileA": "src/a.ts",
-      "fileB": "src/b.ts",
-      "coChangeCount": 5,
-      "couplingStrength": 0.75,
-      "hasStaticDependency": true,
-      "staticDependencyDirection": "a-to-b",
-      "hasRuntimeStaticDependency": true,
-      "hasTypeOnlyStaticDependency": false,
-      "hasReExportStaticDependency": false
-    },
-    {
-      "fileA": "src/e.ts",
-      "fileB": "src/f.ts",
-      "coChangeCount": 2,
-      "couplingStrength": 0.4,
-      "hasStaticDependency": false,
-      "staticDependencyDirection": "none",
-      "hasRuntimeStaticDependency": false,
-      "hasTypeOnlyStaticDependency": false,
-      "hasReExportStaticDependency": false
-    }
-  ],
   "meta": {
     "since": "6 months ago",
     "scannedAt": "2026-07-22T11:00:00.000Z",

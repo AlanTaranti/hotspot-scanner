@@ -1,10 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { ComplexityResult, FileChangeStats } from "../types/index.js";
-import {
-  createHotspotScorer,
-  createTemporalCouplingScorer,
-  DEFAULT_MIN_COCHANGE,
-} from "./index.js";
+import { createHotspotScorer } from "./index.js";
 
 function buildFileStats(
   entries: Array<{ filePath: string; commitCount: number }>,
@@ -25,10 +21,6 @@ function buildFileStats(
 }
 
 describe("scoring factories", () => {
-  it("exports DEFAULT_MIN_COCHANGE as 3", () => {
-    expect(DEFAULT_MIN_COCHANGE).toBe(3);
-  });
-
   it("createHotspotScorer scores hotspots without throwing", () => {
     const complexity: ComplexityResult[] = [
       { filePath: "src/a.ts", cyclomaticComplexity: 10, functionCount: 1 },
@@ -47,32 +39,6 @@ describe("scoring factories", () => {
     );
   });
 
-  it("createTemporalCouplingScorer scores coupling pairs without throwing", () => {
-    const fileStats = buildFileStats([
-      { filePath: "src/a.ts", commitCount: 10 },
-      { filePath: "src/b.ts", commitCount: 5 },
-    ]);
-    const pairCounts = new Map([
-      [
-        "src/a.ts|src/b.ts",
-        {
-          fileA: "src/a.ts",
-          fileB: "src/b.ts",
-          coChangeCount: 3,
-        },
-      ],
-    ]);
-
-    const results = createTemporalCouplingScorer().score(
-      pairCounts,
-      fileStats,
-      DEFAULT_MIN_COCHANGE,
-    );
-
-    expect(results).toHaveLength(1);
-    expect(results[0]?.couplingStrength).toBeCloseTo(3 / 5);
-  });
-
   it("allows dependency injection for scoreHotspots", () => {
     const mockScore = vi.fn(() => []);
     const scorer = createHotspotScorer({ scoreHotspots: mockScore });
@@ -83,16 +49,5 @@ describe("scoring factories", () => {
     scorer.score(fileStats, complexity);
 
     expect(mockScore).toHaveBeenCalledWith(fileStats, complexity);
-  });
-
-  it("allows dependency injection for scoreCoupling", () => {
-    const mockScore = vi.fn(() => []);
-    const scorer = createTemporalCouplingScorer({ scoreCoupling: mockScore });
-
-    const fileStats = buildFileStats([]);
-    const pairCounts = new Map();
-    scorer.score(pairCounts, fileStats, 3);
-
-    expect(mockScore).toHaveBeenCalledWith(pairCounts, fileStats, 3);
   });
 });

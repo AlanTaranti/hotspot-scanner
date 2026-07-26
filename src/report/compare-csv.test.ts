@@ -21,13 +21,8 @@ function loadCompareResult(baselineName: string, currentName: string) {
   return compareScanResults(baseline, current);
 }
 
-const COUPLING_CSV_HEADER =
-  "rank,fileA,fileB,strength,coChanges,hasStaticDependency,staticDependencyDirection,hasRuntimeStaticDependency,hasTypeOnlyStaticDependency,hasReExportStaticDependency";
-const RANK_CHANGED_COUPLING_CSV_HEADER =
-  "baselineRank,currentRank,rankDelta,fileA,fileB,strength,coChanges,hasStaticDependency,staticDependencyDirection,hasRuntimeStaticDependency,hasTypeOnlyStaticDependency,hasReExportStaticDependency";
-
 describe("renderCompareCsv", () => {
-  it("returns CsvBundle with meta.json and six data files in file mode", () => {
+  it("returns CsvBundle with meta.json and three hotspot files in file mode", () => {
     const bundle = renderCompareCsv(
       loadCompareResult(
         "compare-baseline-file.json",
@@ -39,24 +34,20 @@ describe("renderCompareCsv", () => {
     expect(bundle).toHaveProperty("hotspots.new.csv");
     expect(bundle).toHaveProperty("hotspots.removed.csv");
     expect(bundle).toHaveProperty("hotspots.rank-changed.csv");
-    expect(bundle).toHaveProperty("coupling.new.csv");
-    expect(bundle).toHaveProperty("coupling.removed.csv");
-    expect(bundle).toHaveProperty("coupling.rank-changed.csv");
     expect(bundle).not.toHaveProperty("functions.new.csv");
   });
 
-  it("omits excluded section files when --only coupling", () => {
+  it("omits excluded section files when --only hotspots in function mode", () => {
     const bundle = renderCompareCsv(
       loadCompareResult(
-        "compare-baseline-file.json",
-        "compare-current-file.json",
+        "compare-baseline-function.json",
+        "compare-current-function.json",
       ),
-      { only: ["coupling"] },
+      { only: ["hotspots"] },
     );
 
     expect(bundle).toHaveProperty("meta.json");
-    expect(bundle).toHaveProperty("coupling.new.csv");
-    expect(bundle).not.toHaveProperty("hotspots.new.csv");
+    expect(bundle).toHaveProperty("hotspots.new.csv");
     expect(bundle).not.toHaveProperty("functions.new.csv");
   });
 
@@ -95,10 +86,6 @@ describe("renderCompareCsv", () => {
     );
     expect(bundle["hotspots.rank-changed.csv"]!.split("\n")[0]).toBe(
       "baselineRank,currentRank,rankDelta,file,score,cpx,cpxN,churn,churnN,funcs,authors,parseFailed",
-    );
-    expect(bundle["coupling.new.csv"]!.split("\n")[0]).toBe(COUPLING_CSV_HEADER);
-    expect(bundle["coupling.rank-changed.csv"]!.split("\n")[0]).toBe(
-      RANK_CHANGED_COUPLING_CSV_HEADER,
     );
   });
 

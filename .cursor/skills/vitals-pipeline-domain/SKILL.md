@@ -1,6 +1,6 @@
 ---
 name: vitals-pipeline-domain
-description: Pipeline domain knowledge for hotspot-scanner — Git Miner, McCabe complexity, hotspot/coupling scoring, compare, config, report. Use when implementing or reviewing src/git/, src/complexity/, src/scoring/, src/compare/, src/config/, src/report/, src/scan.ts, schemas/, or bin/ wiring. Lighter than vitals-spec-driven for domain context. Do NOT use for planning specs (planner-feature) or full Execute workflow (vitals-spec-driven).
+description: Pipeline domain knowledge for hotspot-scanner — Git Miner, McCabe complexity, hotspot scoring, compare, config, report. Use when implementing or reviewing src/git/, src/complexity/, src/scoring/, src/compare/, src/config/, src/report/, src/scan.ts, schemas/, or bin/ wiring. Lighter than vitals-spec-driven for domain context. Do NOT use for planning specs (planner-feature) or full Execute workflow (vitals-spec-driven).
 ---
 
 # Hotspot Scanner Pipeline Domain
@@ -10,21 +10,21 @@ Concise domain reference for `@vitals/hotspot-scanner`. Full design: [`.specs/co
 ## Pipeline stages
 
 ```
-git log (stream) → complexity (ts-morph) → scoring (+ static coupling enrich) → report
+git log (stream) → complexity (ts-morph) → hotspot scoring → report
 optional: loadBaseline → compareScanResults → compare report
 ```
 
 | Stage         | Module                   | Key components                                                                                 |
 | ------------- | ------------------------ | ---------------------------------------------------------------------------------------------- |
-| Git           | `src/git/`               | `GitMiner` — single `git log` pass, streaming parse                                            |
+| Git           | `src/git/`               | `GitMiner` — single `git log` pass, streaming parse for churn                                 |
 | Complexity    | `src/complexity/`        | `ComplexityAnalyzer` — McCabe over ts-morph AST                                                |
-| Scoring       | `src/scoring/`           | `HotspotScorer`, `FunctionHotspotScorer`, `TemporalCouplingScorer`, `enrichCouplingStaticDeps` |
+| Scoring       | `src/scoring/`           | `HotspotScorer`, `FunctionHotspotScorer`                                                       |
 | Config        | `src/config/`            | `.hotspot-scanner.json` + `mergeScanOptions` (CLI > config > defaults)                         |
 | Compare       | `src/compare/`           | `loadBaseline`, `compareScanResults`                                                           |
 | Report        | `src/report/`            | table, JSON, markdown, CSV bundle (+ compare variants)                                         |
 | Orchestration | `src/scan.ts`            | `runScan()`                                                                                    |
 | CLI           | `bin/hotspot-scanner.ts` | commander — flags only, no domain logic                                                        |
-| Schemas       | `schemas/`               | `scan-result.json`, `compare-result.json`                                                      |
+| Schemas       | `schemas/`               | `scan-result.json`, `compare-result.json` (`version: "2.0"`)                                 |
 
 ## Data model (in-memory)
 
@@ -39,13 +39,11 @@ optional: loadBaseline → compareScanResults → compare report
 - Function: `filePath`, `functionName`, `line`, `complexity`
 - Working-tree AST only (not historical versions)
 
-### HotspotScore / FunctionHotspotScore / CouplingPair
+### HotspotScore / FunctionHotspotScore
 
-- Formulas SoT: [CONCERNS.md](../../../.specs/codebase/CONCERNS.md) — `hotspotScore = 2ch / (c + h)`; `couplingStrength = coChangeCount / min(commitsA, commitsB)`
+- Formulas SoT: [CONCERNS.md](../../../.specs/codebase/CONCERNS.md) — `hotspotScore = 2ch / (c + h)`
 - Churn = raw commit count (not relative code churn)
 - Function mode: complexity normalized across functions; churn from per-function hunk overlap (`FunctionChurnMiner`, M23)
-- `CouplingPair.hasStaticDependency` set post-score (ranking unchanged)
-- Threshold: `--min-cochange` / `DEFAULT_MIN_COCHANGE = 3`
 
 ## McCabe decision nodes (project-owned)
 
@@ -60,12 +58,11 @@ List and definition SoT: [CONCERNS.md](../../../.specs/codebase/CONCERNS.md) / [
 | `--format <fmt>`          | `table` \| `json` \| `markdown` \| `csv`                         |
 | `--granularity <mode>`    | `file` (default) or `function`                                   |
 | `--top <N>`               | Slice rankings for **table/markdown only**; ignored for json/csv |
-| `--min-cochange <N>`      | Coupling pair threshold (default 3)                              |
 | `--include` / `--exclude` | Path scoping (repeatable)                                        |
 | `--output <path>`         | Write report to file; **required** for `--format csv`            |
 | `--baseline <file>`       | Compare against prior `ScanResult` JSON                          |
 
-Config file: `<repoPath>/.hotspot-scanner.json` only (`since`, `include`, `exclude`, `granularity`, `minCochange`, `top`). CLI-only: `format`, `output`, `baseline`.
+Config file: `<repoPath>/.hotspot-scanner.json` only (`since`, `include`, `exclude`, `granularity`, `top`, `concurrency`). CLI-only: `format`, `output`, `baseline`.
 
 ## Failure modes
 
@@ -82,9 +79,10 @@ Config file: `<repoPath>/.hotspot-scanner.json` only (`since`, `include`, `exclu
 
 SoT: [`schemas/scan-result.json`](../../../schemas/scan-result.json), [`schemas/compare-result.json`](../../../schemas/compare-result.json).
 
+- `version: "2.0"` — no top-level `coupling`
 - `granularity: "file"` — `hotspots` populated, `functions` empty
 - `granularity: "function"` — `functions` populated, `hotspots` empty
-- Coupling items require `hasStaticDependency`
+- Baselines at `1.0` or with `coupling` key are rejected — re-scan required
 
 ## Related docs
 

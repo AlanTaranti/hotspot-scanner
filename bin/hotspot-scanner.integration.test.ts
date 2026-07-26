@@ -29,11 +29,6 @@ type CompareResultJson = {
     removed: unknown[];
     rankChanged: unknown[];
   };
-  coupling: {
-    new: unknown[];
-    removed: unknown[];
-    rankChanged: unknown[];
-  };
   meta: {
     baseline: { since: string; scannedAt: string; granularity: string };
     current: { since: string; scannedAt: string; granularity: string };
@@ -48,7 +43,7 @@ async function createIsolatedSmallTsRepo(): Promise<string> {
 }
 
 function assertCompareResultShape(parsed: CompareResultJson): void {
-  expect(parsed.version).toBe("1.0");
+  expect(parsed.version).toBe("2.0");
   expect(["file", "function"]).toContain(parsed.granularity);
   expect(parsed.hotspots).toMatchObject({
     new: expect.any(Array),
@@ -56,11 +51,6 @@ function assertCompareResultShape(parsed: CompareResultJson): void {
     rankChanged: expect.any(Array),
   });
   expect(parsed.functions).toMatchObject({
-    new: expect.any(Array),
-    removed: expect.any(Array),
-    rankChanged: expect.any(Array),
-  });
-  expect(parsed.coupling).toMatchObject({
     new: expect.any(Array),
     removed: expect.any(Array),
     rankChanged: expect.any(Array),
@@ -162,20 +152,12 @@ describe("hotspot-scanner CLI integration", () => {
     const parsed = JSON.parse(chunks.join("")) as {
       version: string;
       hotspots: unknown[];
-      coupling: unknown[];
       meta: { since: string; scannedAt: string };
     };
 
-    expect(parsed.version).toBe("1.0");
+    expect(parsed.version).toBe("2.0");
     expect(Array.isArray(parsed.hotspots)).toBe(true);
     expect(parsed.hotspots.length).toBeGreaterThanOrEqual(1);
-    expect(Array.isArray(parsed.coupling)).toBe(true);
-    expect(parsed.coupling.length).toBeGreaterThanOrEqual(1);
-    for (const pair of parsed.coupling as Array<{
-      hasStaticDependency: boolean;
-    }>) {
-      expect(typeof pair.hasStaticDependency).toBe("boolean");
-    }
     expect(parsed.meta.since).toBeTruthy();
     expect(parsed.meta.scannedAt).toBeTruthy();
   });
@@ -200,7 +182,6 @@ describe("hotspot-scanner CLI integration", () => {
     const content = await readFile(outputPath, "utf8");
     expect(content).toContain("# Hotspot Scanner Report");
     expect(content).toContain("## Top Hotspots");
-    expect(content).toContain("## Top Coupling Pairs");
   });
 
   it("writes JSON report to file with --output on small-ts fixture", async () => {
@@ -229,11 +210,10 @@ describe("hotspot-scanner CLI integration", () => {
         linesChanged: number;
         authorCount: number;
       }>;
-      coupling: unknown[];
       meta: { since: string; scannedAt: string };
     };
 
-    expect(parsed.version).toBe("1.0");
+    expect(parsed.version).toBe("2.0");
     expect(Array.isArray(parsed.hotspots)).toBe(true);
     expect(parsed.hotspots.length).toBeGreaterThanOrEqual(1);
     expect(parsed.hotspots[0]).toMatchObject({
@@ -242,7 +222,6 @@ describe("hotspot-scanner CLI integration", () => {
       linesChanged: expect.any(Number),
       authorCount: expect.any(Number),
     });
-    expect(Array.isArray(parsed.coupling)).toBe(true);
     expect(parsed.meta.since).toBeTruthy();
     expect(parsed.meta.scannedAt).toBeTruthy();
   });
@@ -271,7 +250,6 @@ describe("hotspot-scanner CLI integration", () => {
         complexity: number;
         hotspotScore: number;
       }>;
-      coupling: unknown[];
       meta: {
         since: string;
         scannedAt: string;
@@ -284,7 +262,7 @@ describe("hotspot-scanner CLI integration", () => {
       };
     };
 
-    expect(parsed.version).toBe("1.0");
+    expect(parsed.version).toBe("2.0");
     expect(parsed.meta.granularity).toBe("function");
     expect(parsed.hotspots).toEqual([]);
     expect(parsed.functions.length).toBeGreaterThanOrEqual(1);
@@ -295,7 +273,6 @@ describe("hotspot-scanner CLI integration", () => {
       complexity: expect.any(Number),
       hotspotScore: expect.any(Number),
     });
-    expect(Array.isArray(parsed.coupling)).toBe(true);
     expect(Array.isArray(parsed.meta.warnings)).toBe(true);
     for (const warning of parsed.meta.warnings) {
       expect(warning).toMatchObject({
@@ -320,7 +297,7 @@ describe("hotspot-scanner CLI integration", () => {
     ]);
 
     const parsed = JSON.parse(chunks.join("")) as { version: string };
-    expect(parsed.version).toBe("1.0");
+    expect(parsed.version).toBe("2.0");
   });
 
   it("rejects invalid --concurrency on small-ts fixture", async () => {
@@ -423,21 +400,11 @@ describe("hotspot-scanner CLI integration", () => {
         removed: unknown[];
         rankChanged: unknown[];
       };
-      coupling: {
-        new: unknown[];
-        removed: unknown[];
-        rankChanged: unknown[];
-      };
       meta: { baseline: unknown; current: unknown; warnings: Array<{ severity: string; message: string }> };
     };
 
-    expect(parsed.version).toBe("1.0");
+    expect(parsed.version).toBe("2.0");
     expect(parsed.hotspots).toMatchObject({
-      new: expect.any(Array),
-      removed: expect.any(Array),
-      rankChanged: expect.any(Array),
-    });
-    expect(parsed.coupling).toMatchObject({
       new: expect.any(Array),
       removed: expect.any(Array),
       rankChanged: expect.any(Array),
@@ -466,24 +433,18 @@ describe("hotspot-scanner CLI integration", () => {
     expect(chunks.join("")).toBe("");
     const metaPath = join(dir, "report.meta.json");
     const hotspotsPath = join(dir, "report.hotspots.csv");
-    const couplingPath = join(dir, "report.coupling.csv");
 
     await expect(access(metaPath)).resolves.toBeUndefined();
     await expect(access(hotspotsPath)).resolves.toBeUndefined();
-    await expect(access(couplingPath)).resolves.toBeUndefined();
 
     const meta = JSON.parse(await readFile(metaPath, "utf8")) as {
       kind: string;
     };
     const hotspotsContent = await readFile(hotspotsPath, "utf8");
-    const couplingContent = await readFile(couplingPath, "utf8");
 
     expect(meta.kind).toBe("scan");
     expect(hotspotsContent.split("\n")[0]).toBe(
       "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,lines,parseFailed",
-    );
-    expect(couplingContent.split("\n")[0]).toBe(
-      "rank,fileA,fileB,strength,coChanges,hasStaticDependency,staticDependencyDirection,hasRuntimeStaticDependency,hasTypeOnlyStaticDependency,hasReExportStaticDependency",
     );
   });
 
@@ -546,10 +507,8 @@ describe("hotspot-scanner CLI integration", () => {
 
     const parsed = JSON.parse(chunks.join("")) as {
       hotspots: unknown[];
-      coupling: unknown[];
     };
     expect(parsed.hotspots.length).toBeGreaterThan(1);
-    expect(parsed.coupling.length).toBeGreaterThan(0);
   });
 
   it("exports full compare JSON with --top 1 --format json --baseline", async () => {
@@ -589,11 +548,6 @@ describe("hotspot-scanner CLI integration", () => {
         removed: unknown[];
         rankChanged: unknown[];
       };
-      coupling: {
-        new: unknown[];
-        removed: unknown[];
-        rankChanged: unknown[];
-      };
     };
 
     const { chunks: fullChunks } = captureStdout();
@@ -615,13 +569,6 @@ describe("hotspot-scanner CLI integration", () => {
     );
     expect(parsed.hotspots.rankChanged).toHaveLength(
       fullParsed.hotspots.rankChanged.length,
-    );
-    expect(parsed.coupling.new).toHaveLength(fullParsed.coupling.new.length);
-    expect(parsed.coupling.removed).toHaveLength(
-      fullParsed.coupling.removed.length,
-    );
-    expect(parsed.coupling.rankChanged).toHaveLength(
-      fullParsed.coupling.rankChanged.length,
     );
   });
 
@@ -664,9 +611,6 @@ describe("hotspot-scanner CLI integration", () => {
       "compare.hotspots.new.csv",
       "compare.hotspots.removed.csv",
       "compare.hotspots.rank-changed.csv",
-      "compare.coupling.new.csv",
-      "compare.coupling.removed.csv",
-      "compare.coupling.rank-changed.csv",
     ];
 
     for (const file of expectedFiles) {
@@ -698,14 +642,12 @@ describe("hotspot-scanner CLI integration", () => {
     const parsed = JSON.parse(chunks.join("")) as {
       version: string;
       hotspots: unknown[];
-      coupling: unknown[];
       meta: { granularity: string };
     };
 
-    expect(parsed.version).toBe("1.0");
+    expect(parsed.version).toBe("2.0");
     expect(parsed.meta.granularity).toBe("file");
     expect(parsed.hotspots.length).toBeGreaterThanOrEqual(1);
-    expect(parsed.coupling.length).toBeGreaterThanOrEqual(1);
     expect(parsed).not.toHaveProperty("functions.new");
   });
 
@@ -722,7 +664,7 @@ describe("hotspot-scanner CLI integration", () => {
         version: string;
         hotspots: unknown[];
       };
-      expect(parsed.version).toBe("1.0");
+      expect(parsed.version).toBe("2.0");
       expect(parsed.hotspots.length).toBeGreaterThanOrEqual(1);
     } finally {
       process.chdir(originalCwd);
@@ -749,7 +691,7 @@ describe("hotspot-scanner CLI integration", () => {
       };
     };
 
-    expect(parsed.version).toBe("1.0");
+    expect(parsed.version).toBe("2.0");
     expect(parsed.hotspots.length).toBeGreaterThanOrEqual(1);
     expect(
       parsed.hotspots.every((hotspot) =>
@@ -790,7 +732,7 @@ describe("hotspot-scanner CLI integration", () => {
       ]);
 
       const loadedBaseline = await loadBaseline(baselinePath);
-      expect(loadedBaseline.version).toBe("1.0");
+      expect(loadedBaseline.version).toBe("2.0");
       expect(loadedBaseline.hotspots.length).toBeGreaterThanOrEqual(1);
 
       const { chunks } = captureStdout();

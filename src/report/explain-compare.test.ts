@@ -78,11 +78,10 @@ function makeCompareResult(
 ): CompareResult {
   const emptySection = { new: [], removed: [], rankChanged: [] };
   return {
-    version: "1.0",
+    version: "2.0",
     granularity: "file",
     hotspots: { ...emptySection },
     functions: { ...emptySection },
-    coupling: { ...emptySection },
     meta: {
       baseline: BASE_META,
       current: BASE_META,

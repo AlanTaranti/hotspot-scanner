@@ -2,7 +2,6 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { MEGA_COMMIT_UNIQUE_FILE_THRESHOLD } from "../git/aggregate.js";
 import {
   EXEMPLAR_HOTSPOT_SCANNER_CONFIG,
   formatExemplarConfig,
@@ -16,8 +15,6 @@ const LOCKED_EXEMPLAR_JSON = `{
   "include": [],
   "exclude": [],
   "granularity": "file",
-  "minCochange": 3,
-  "megaCommitThreshold": 100,
   "top": 20
 }
 `;
@@ -29,8 +26,6 @@ describe("EXEMPLAR_HOTSPOT_SCANNER_CONFIG", () => {
       include: [],
       exclude: [],
       granularity: "file",
-      minCochange: 3,
-      megaCommitThreshold: MEGA_COMMIT_UNIQUE_FILE_THRESHOLD,
       top: 20,
     });
   });

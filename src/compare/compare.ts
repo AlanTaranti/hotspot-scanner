@@ -1,7 +1,5 @@
 import type {
   CompareResult,
-  CouplingCompareSection,
-  CouplingPair,
   FunctionCompareSection,
   FunctionHotspotScore,
   HotspotCompareSection,
@@ -10,7 +8,7 @@ import type {
   ScanResult,
   ScanWarning,
 } from "../types/index.js";
-import { couplingKey, functionKey, hotspotKey } from "./keys.js";
+import { functionKey, hotspotKey } from "./keys.js";
 
 export class CompareError extends Error {
   constructor(message: string) {
@@ -122,15 +120,6 @@ function compareFunctions(
   );
 }
 
-function compareCoupling(
-  baseline: CouplingPair[],
-  current: CouplingPair[],
-): CouplingCompareSection {
-  return compareRankedSections(baseline, current, (item) =>
-    couplingKey(item.fileA, item.fileB),
-  );
-}
-
 export function compareScanResults(
   baseline: ScanResult,
   current: ScanResult,
@@ -159,14 +148,12 @@ export function compareScanResults(
     granularity === "function"
       ? compareFunctions(baseline.functions, current.functions)
       : EMPTY_FUNCTION_SECTION;
-  const coupling = compareCoupling(baseline.coupling, current.coupling);
 
   return {
-    version: "1.0",
+    version: "2.0",
     granularity,
     hotspots,
     functions,
-    coupling,
     meta: {
       baseline: { ...baseline.meta },
       current: { ...current.meta },

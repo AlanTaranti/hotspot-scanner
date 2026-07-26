@@ -9,8 +9,6 @@ const KNOWN_KEYS = new Set([
   "include",
   "exclude",
   "granularity",
-  "minCochange",
-  "megaCommitThreshold",
   "top",
   "concurrency",
 ]);
@@ -27,8 +25,6 @@ export interface HotspotScannerConfig {
   include?: string[];
   exclude?: string[];
   granularity?: ScanGranularity;
-  minCochange?: number;
-  megaCommitThreshold?: number;
   top?: number;
   concurrency?: number;
 }
@@ -124,12 +120,6 @@ export function parseHotspotScannerConfig(
         break;
       case "granularity":
         config.granularity = assertGranularity(value, key);
-        break;
-      case "minCochange":
-        config.minCochange = assertPositiveInteger(value, key);
-        break;
-      case "megaCommitThreshold":
-        config.megaCommitThreshold = assertPositiveInteger(value, key);
         break;
       case "top":
         config.top = assertPositiveInteger(value, key);

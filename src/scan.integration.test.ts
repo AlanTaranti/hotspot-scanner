@@ -13,8 +13,7 @@ import {
 import * as pathsModule from "./paths/index.js";
 import { filterGitMinerResult as realFilterGitMinerResult } from "./paths/filter-git.js";
 import { GitLogError } from "./git/spawn.js";
-import { DEFAULT_MIN_COCHANGE } from "./scoring/index.js";
-import type { CouplingPair, ScanWarning, StaticDependencyDirection } from "./types/index.js";
+import type { ScanWarning } from "./types/index.js";
 import { runScan } from "#scan";
 
 const streamGitPatchLogSpy = vi.hoisted(() => vi.fn());
@@ -101,11 +100,6 @@ const smallTsFixture = join(
   "../tests/fixtures/repos/small-ts",
 );
 
-const aliasCouplingFixture = join(
-  fileURLToPath(new URL(".", import.meta.url)),
-  "../tests/fixtures/repos/alias-coupling",
-);
-
 const withRenamesFixture = join(
   fileURLToPath(new URL(".", import.meta.url)),
   "../tests/fixtures/repos/with-renames",
@@ -125,44 +119,11 @@ const MONOREPO_API_PACKAGE_DIR = join(monorepoNestedFixture, "packages", "api");
 const MONOREPO_API_TOP_HOTSPOT = "packages/api/src/high.ts";
 const MONOREPO_OTHER_HOTSPOT = "packages/other/src/other.ts";
 
-const STATIC_DEPENDENCY_DIRECTIONS: StaticDependencyDirection[] = [
-  "none",
-  "a-to-b",
-  "b-to-a",
-  "both",
-];
-
-function assertCompleteCouplingEnrichment(pair: CouplingPair): void {
-  expect(typeof pair.hasStaticDependency).toBe("boolean");
-  expect(STATIC_DEPENDENCY_DIRECTIONS).toContain(
-    pair.staticDependencyDirection,
-  );
-  expect(typeof pair.hasRuntimeStaticDependency).toBe("boolean");
-  expect(typeof pair.hasTypeOnlyStaticDependency).toBe("boolean");
-  expect(typeof pair.hasReExportStaticDependency).toBe("boolean");
-  expect(pair.hasStaticDependency).toBe(
-    pair.hasRuntimeStaticDependency || pair.hasTypeOnlyStaticDependency,
-  );
-
-  if (pair.staticDependencyDirection === "none") {
-    expect(pair.hasStaticDependency).toBe(false);
-    expect(pair.hasRuntimeStaticDependency).toBe(false);
-    expect(pair.hasTypeOnlyStaticDependency).toBe(false);
-    expect(pair.hasReExportStaticDependency).toBe(false);
-  } else {
-    expect(pair.hasStaticDependency).toBe(true);
-  }
-}
-
-function assertAllCouplingEnriched(coupling: CouplingPair[]): void {
-  for (const pair of coupling) {
-    assertCompleteCouplingEnrichment(pair);
-  }
-}
-
 function assertFileModeRankingBaseline(
   result: Awaited<ReturnType<typeof runScan>>,
 ): void {
+  expect(result.version).toBe("2.0");
+  expect(result).not.toHaveProperty("coupling");
   expect(result.meta.granularity).toBe("file");
   expect(result.meta.since).toBe(OVERLAP_FILE_SCAN_OPTIONS.since);
   expect(result.hotspots.map((hotspot) => hotspot.filePath)).toEqual([
@@ -172,13 +133,6 @@ function assertFileModeRankingBaseline(
   expect(result.hotspots[0]!.hotspotScore).toBeGreaterThan(
     result.hotspots[1]!.hotspotScore,
   );
-  expect(result.coupling.map((pair) => [pair.fileA, pair.fileB])).toEqual([
-    ...EXPECTED_FILE_COUPLING_ORDER,
-  ]);
-  expect(result.coupling.map((pair) => pair.couplingStrength)).toEqual([
-    ...EXPECTED_FILE_COUPLING_STRENGTHS,
-  ]);
-  assertAllCouplingEnriched(result.coupling);
 }
 
 const EXPECTED_TOP_HOTSPOT = "src/high.ts";
@@ -187,7 +141,6 @@ const OVERLAP_FILE_SCAN_OPTIONS = {
   repoPath: smallTsFixture,
   since: "24 months ago",
   granularity: "file" as const,
-  minCochange: DEFAULT_MIN_COCHANGE,
 };
 const EXPECTED_FILE_HOTSPOT_ORDER = [
   "src/high.ts",
@@ -195,11 +148,6 @@ const EXPECTED_FILE_HOTSPOT_ORDER = [
   "bootstrap-repo.mjs",
   "src/low.ts",
 ] as const;
-const EXPECTED_FILE_COUPLING_ORDER = [
-  ["src/low.ts", "src/medium.ts"],
-  ["src/high.ts", "src/medium.ts"],
-] as const;
-const EXPECTED_FILE_COUPLING_STRENGTHS = [0.75, 0.6] as const;
 /** M35 ranking parity baseline: churned functions on small-ts (tie-break: filePath). */
 const EXPECTED_CHURNED_FUNCTION_RANKING = [
   { filePath: "bootstrap-repo.mjs", functionName: "git" },
@@ -222,9 +170,11 @@ beforeEach(() => {
 });
 
 describe("runScan integration", () => {
-  it("returns non-empty hotspot and coupling rankings on small-ts fixture", async () => {
+  it("returns non-empty hotspot rankings at version 2.0 without coupling on small-ts fixture", async () => {
     const result = await runScan({ repoPath: smallTsFixture });
 
+    expect(result.version).toBe("2.0");
+    expect(result).not.toHaveProperty("coupling");
     expect(result.hotspots.length).toBeGreaterThanOrEqual(1);
     expect(result.hotspots[0]!.filePath).toBe(EXPECTED_TOP_HOTSPOT);
 
@@ -234,46 +184,6 @@ describe("runScan integration", () => {
     expect(topHotspot.authorCount).toBeGreaterThan(0);
     expect(topHotspot.functionCount).toBeDefined();
     expect(topHotspot.linesChanged).toBeDefined();
-
-    expect(result.coupling.length).toBeGreaterThanOrEqual(1);
-    const topCoupling = result.coupling[0]!;
-    expect(topCoupling.coChangeCount).toBeGreaterThanOrEqual(
-      DEFAULT_MIN_COCHANGE,
-    );
-    assertAllCouplingEnriched(result.coupling);
-  });
-
-  it("enriches coupling pairs with import-linked and co-change-only cases", async () => {
-    const result = await runScan({ repoPath: smallTsFixture });
-    assertAllCouplingEnriched(result.coupling);
-
-    const highMedium = result.coupling.find(
-      (pair) => pair.fileA === "src/high.ts" && pair.fileB === "src/medium.ts",
-    );
-    const lowMedium = result.coupling.find(
-      (pair) => pair.fileA === "src/low.ts" && pair.fileB === "src/medium.ts",
-    );
-
-    expect(highMedium).toBeDefined();
-    expect(highMedium!.hasStaticDependency).toBe(true);
-    expect(highMedium!.staticDependencyDirection).toBe("a-to-b");
-    expect(highMedium!.hasRuntimeStaticDependency).toBe(true);
-    expect(lowMedium).toBeDefined();
-    expect(lowMedium!.hasStaticDependency).toBe(false);
-    expect(lowMedium!.staticDependencyDirection).toBe("none");
-  });
-
-  it("preserves temporal coupling ranking order after static enrichment", async () => {
-    const result = await runScan({ repoPath: smallTsFixture });
-    assertAllCouplingEnriched(result.coupling);
-
-    expect(result.coupling.map((pair) => [pair.fileA, pair.fileB])).toEqual([
-      ["src/low.ts", "src/medium.ts"],
-      ["src/high.ts", "src/medium.ts"],
-    ]);
-    expect(result.coupling.map((pair) => pair.couplingStrength)).toEqual([
-      0.75, 0.6,
-    ]);
   });
 
   it("forwards git progress and warnings via callbacks", async () => {
@@ -342,10 +252,10 @@ describe("runScan integration", () => {
     });
 
     expect(result.meta.granularity).toBe("function");
+    expect(result.version).toBe("2.0");
+    expect(result).not.toHaveProperty("coupling");
     expect(result.hotspots).toEqual([]);
     expect(result.functions.length).toBeGreaterThan(0);
-    expect(result.coupling.length).toBeGreaterThanOrEqual(1);
-    assertAllCouplingEnriched(result.coupling);
 
     const topFunction = result.functions[0]!;
     expect(topFunction.functionName).toBeTruthy();
@@ -401,7 +311,7 @@ describe("runScan integration — pipeline stage overlap (M34)", () => {
     streamGitPatchLogSpy.mockClear();
   });
 
-  it("preserves file-mode hotspot and coupling rankings under fixed options (HOTSPOT-370)", async () => {
+  it("preserves file-mode hotspot rankings under fixed options (HOTSPOT-370)", async () => {
     const result = await runScan(OVERLAP_FILE_SCAN_OPTIONS);
 
     assertFileModeRankingBaseline(result);
@@ -421,14 +331,6 @@ describe("runScan integration — pipeline stage overlap (M34)", () => {
     expect(
       sequentialResult.hotspots.map((hotspot) => hotspot.hotspotScore),
     ).toEqual(overlapResult.hotspots.map((hotspot) => hotspot.hotspotScore));
-    expect(
-      sequentialResult.coupling.map((pair) => [pair.fileA, pair.fileB]),
-    ).toEqual(
-      overlapResult.coupling.map((pair) => [pair.fileA, pair.fileB]),
-    );
-    expect(
-      sequentialResult.coupling.map((pair) => pair.couplingStrength),
-    ).toEqual(overlapResult.coupling.map((pair) => pair.couplingStrength));
   });
 
   it("preserves function-mode churn ranking under fixed options (HOTSPOT-370)", async () => {
@@ -436,9 +338,10 @@ describe("runScan integration — pipeline stage overlap (M34)", () => {
       repoPath: smallTsFixture,
       since: "24 months ago",
       granularity: "function",
-      minCochange: DEFAULT_MIN_COCHANGE,
     });
 
+    expect(result.version).toBe("2.0");
+    expect(result).not.toHaveProperty("coupling");
     expect(result.meta.granularity).toBe("function");
     expect(result.hotspots).toEqual([]);
     expect(result.functions.length).toBeGreaterThan(0);
@@ -448,7 +351,6 @@ describe("runScan integration — pipeline stage overlap (M34)", () => {
         functionName: fn.functionName,
       })),
     ).toEqual([...EXPECTED_CHURNED_FUNCTION_RANKING]);
-    assertAllCouplingEnriched(result.coupling);
   });
 
   it("preserves function-mode churn ranking when sequential is true (HOTSPOT-714)", async () => {
@@ -456,17 +358,17 @@ describe("runScan integration — pipeline stage overlap (M34)", () => {
       repoPath: smallTsFixture,
       since: "24 months ago",
       granularity: "function",
-      minCochange: DEFAULT_MIN_COCHANGE,
     });
     const sequentialResult = await runScan({
       repoPath: smallTsFixture,
       since: "24 months ago",
       granularity: "function",
-      minCochange: DEFAULT_MIN_COCHANGE,
       sequential: true,
     });
 
     expect(sequentialResult.meta.granularity).toBe("function");
+    expect(sequentialResult.version).toBe("2.0");
+    expect(sequentialResult).not.toHaveProperty("coupling");
     expect(sequentialResult.hotspots).toEqual([]);
     expect(sequentialResult.functions.length).toBeGreaterThan(0);
     expect(
@@ -488,7 +390,6 @@ describe("runScan integration — pipeline stage overlap (M34)", () => {
         hotspotScore: fn.hotspotScore,
       })),
     );
-    assertAllCouplingEnriched(sequentialResult.coupling);
   });
 
   it("does not spawn patch stream in file mode under overlap (HOTSPOT-371)", async () => {
@@ -693,46 +594,6 @@ describe("runScan integration — function-mode efficiency (M35)", () => {
   });
 });
 
-describe("runScan integration — alias-coupling fixture", () => {
-  it("enriches alias-linked co-changing pair with direction and kind flags", async () => {
-    const result = await runScan({ repoPath: aliasCouplingFixture });
-    assertAllCouplingEnriched(result.coupling);
-
-    const consumerProvider = result.coupling.find(
-      (pair) =>
-        pair.fileA === "src/consumer.ts" && pair.fileB === "src/provider.ts",
-    );
-    const consumerOrphan = result.coupling.find(
-      (pair) =>
-        pair.fileA === "src/consumer.ts" && pair.fileB === "src/orphan.ts",
-    );
-
-    expect(consumerProvider).toBeDefined();
-    expect(consumerProvider!.hasStaticDependency).toBe(true);
-    expect(consumerProvider!.staticDependencyDirection).toBe("a-to-b");
-    expect(consumerProvider!.hasRuntimeStaticDependency).toBe(true);
-    expect(consumerProvider!.hasTypeOnlyStaticDependency).toBe(false);
-    expect(consumerProvider!.hasReExportStaticDependency).toBe(false);
-
-    expect(consumerOrphan).toBeDefined();
-    expect(consumerOrphan!.hasStaticDependency).toBe(false);
-    expect(consumerOrphan!.staticDependencyDirection).toBe("none");
-  });
-
-  it("preserves temporal coupling ranking after alias enrichment", async () => {
-    const result = await runScan({ repoPath: aliasCouplingFixture });
-    assertAllCouplingEnriched(result.coupling);
-
-    expect(result.coupling.map((pair) => [pair.fileA, pair.fileB])).toEqual([
-      ["src/consumer.ts", "src/orphan.ts"],
-      ["src/consumer.ts", "src/provider.ts"],
-    ]);
-    expect(result.coupling.map((pair) => pair.couplingStrength)).toEqual([
-      0.75, 0.75,
-    ]);
-  });
-});
-
 describe("runScan integration — monorepo-nested fixture (M43)", () => {
   it("scopes rankings to the nested package prefix without explicit include (HOTSPOT-577, HOTSPOT-585)", async () => {
     const result = await runScan({ repoPath: MONOREPO_API_PACKAGE_DIR });
@@ -788,7 +649,7 @@ describe("runScan integration — monorepo-nested fixture (M43)", () => {
 });
 
 describe("runScan integration — ranking accuracy plus (M50)", () => {
-  it("unifies heuristic rename churn and enriches coupling via PathAliasMap (HOTSPOT-766)", async () => {
+  it("unifies heuristic rename churn for surviving paths (HOTSPOT-766)", async () => {
     const repoPath = await createIsolatedSmallTsRepo();
     configureGitForTest(repoPath);
     try {
@@ -843,6 +704,9 @@ describe("runScan integration — ranking accuracy plus (M50)", () => {
 
       const result = await runScan({ repoPath });
 
+      expect(result.version).toBe("2.0");
+      expect(result).not.toHaveProperty("coupling");
+
       const fooHotspot = result.hotspots.find(
         (hotspot) => hotspot.filePath === "src/foo.tsx",
       );
@@ -858,16 +722,6 @@ describe("runScan integration — ranking accuracy plus (M50)", () => {
             warning.message.includes("Suspected unlinked rename"),
         ),
       ).toBe(true);
-
-      const pair = result.coupling.find(
-        (entry) =>
-          (entry.fileA === "src/consumer.ts" && entry.fileB === "src/foo.tsx") ||
-          (entry.fileA === "src/foo.tsx" && entry.fileB === "src/consumer.ts"),
-      );
-      expect(pair).toBeDefined();
-      expect(pair!.hasStaticDependency).toBe(true);
-      expect(pair!.hasRuntimeStaticDependency).toBe(true);
-      assertCompleteCouplingEnrichment(pair!);
     } finally {
       await rm(repoPath, { recursive: true, force: true });
     }

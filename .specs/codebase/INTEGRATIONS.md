@@ -29,7 +29,7 @@ External dependencies and adapter boundaries. No network integrations (zero-netw
 
 | Aspect         | Detail                                                                                |
 | -------------- | ------------------------------------------------------------------------------------- |
-| **Role**       | `git log --numstat` for churn and co-change (rename lines parsed from numstat output) |
+| **Role**       | `git log --numstat` for per-file churn (rename lines parsed from numstat output) |
 | **Adapter**    | `GitMiner` in `src/git/`                                                              |
 | **Invocation** | `child_process.spawn` in `src/git/spawn.ts` — streaming parse                         |
 | **Rule**       | Do not spawn git subprocess outside `src/git/` **except** documented adapters (`src/paths/resolve-repo.ts` for `rev-parse --show-toplevel`) |

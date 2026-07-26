@@ -89,7 +89,6 @@ function loadTriageFixture() {
     version: string;
     hotspots: unknown[];
     functions: unknown[];
-    coupling: unknown[];
     meta: {
       since: string;
       scannedAt: string;
@@ -104,7 +103,7 @@ function loadTriageFixture() {
 
 function mockScanResult() {
   return {
-    version: "1.0",
+    version: "2.0",
     hotspots: [
       {
         filePath: "src/example.ts",
@@ -120,7 +119,6 @@ function mockScanResult() {
       },
     ],
     functions: [],
-    coupling: [],
     meta: {
       since: "12 months ago",
       scannedAt: "2026-01-01T00:00:00.000Z",
@@ -202,8 +200,7 @@ describe("hotspot-scanner CLI parsing", () => {
 
   it("parsePositiveInteger accepts positive integers", () => {
     expect(parsePositiveInteger("20", "--top")).toBe(20);
-    expect(parsePositiveInteger("3", "--min-cochange")).toBe(3);
-    expect(parsePositiveInteger("150", "--mega-commit-threshold")).toBe(150);
+    expect(parsePositiveInteger("3", "--concurrency")).toBe(3);
   });
 
   it("parsePositiveInteger rejects non-positive values", () => {
@@ -235,8 +232,6 @@ describe("createCliProgram", () => {
         "--format",
         "--output",
         "--top",
-        "--min-cochange",
-        "--mega-commit-threshold",
         "--concurrency",
         "--sequential",
         "--no-overlap",
@@ -375,13 +370,6 @@ describe("createCliProgram", () => {
     expect(program.helpInformation()).toContain("doctor");
   });
 
-  it("scan help lists --mega-commit-threshold", () => {
-    const help = getScanHelpText();
-
-    expect(help).toContain("--mega-commit-threshold");
-    expect(help).toMatch(/coupling pairs are skipped/i);
-  });
-
   it("scan help lists --dry-run", () => {
     const help = getScanHelpText();
 
@@ -403,8 +391,6 @@ describe("createCliProgram", () => {
         "--since",
         "--granularity",
         "--top",
-        "--min-cochange",
-        "--mega-commit-threshold",
         "--concurrency",
         "--sequential",
         "--no-overlap",
@@ -464,8 +450,6 @@ describe("createCliProgram", () => {
         "--top",
         "--since",
         "--granularity",
-        "--min-cochange",
-        "--mega-commit-threshold",
         "--concurrency",
         "--sequential",
         "--no-overlap",
@@ -676,16 +660,15 @@ describe("collectGlob", () => {
 });
 
 describe("parseOnlySectionCli", () => {
-  it("accepts hotspots, coupling, and functions", () => {
+  it("accepts hotspots and functions", () => {
     expect(parseOnlySectionCli("hotspots")).toBe("hotspots");
-    expect(parseOnlySectionCli("coupling")).toBe("coupling");
     expect(parseOnlySectionCli("functions")).toBe("functions");
   });
 
   it("rejects invalid and empty values", () => {
     expect(() => parseOnlySectionCli("bogus")).toThrow(CliUsageError);
     expect(() => parseOnlySectionCli("bogus")).toThrow(
-      /Invalid --only: bogus\. Expected hotspots, coupling, or functions\./,
+      /Invalid --only: bogus\. Expected hotspots or functions\./,
     );
     expect(() => parseOnlySectionCli("")).toThrow(CliUsageError);
     expect(() => parseOnlySectionCli("")).toThrow(
@@ -697,9 +680,9 @@ describe("parseOnlySectionCli", () => {
 describe("collectOnlySection", () => {
   it("accumulates valid sections", () => {
     expect(collectOnlySection("hotspots", [])).toEqual(["hotspots"]);
-    expect(collectOnlySection("coupling", ["hotspots"])).toEqual([
+    expect(collectOnlySection("functions", ["hotspots"])).toEqual([
       "hotspots",
-      "coupling",
+      "functions",
     ]);
   });
 
@@ -927,7 +910,7 @@ describe("runCli", () => {
 
   it("prints table on successful scan", async () => {
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [
         {
           filePath: "src/example.ts",
@@ -943,7 +926,6 @@ describe("runCli", () => {
         },
       ],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -958,15 +940,13 @@ describe("runCli", () => {
     const output = chunks.join("");
     expect(output).toContain("Scan window:");
     expect(output).toContain("Top Hotspots");
-    expect(output).toContain("Top Coupling Pairs");
   });
 
   it("prints JSON on successful scan", async () => {
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -978,7 +958,7 @@ describe("runCli", () => {
     await runCli(["node", "hotspot-scanner", "scan", ".", "--format", "json"]);
 
     const parsed = JSON.parse(chunks.join("")) as { version: string };
-    expect(parsed.version).toBe("1.0");
+    expect(parsed.version).toBe("2.0");
   });
 
   it("forwards scan callbacks to diagnostics", async () => {
@@ -991,10 +971,9 @@ describe("runCli", () => {
         commitsProcessed: 1000,
       });
       return {
-        version: "1.0",
+        version: "2.0",
         hotspots: [],
         functions: [],
-        coupling: [],
         meta: {
           since: "12 months ago",
           scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1024,10 +1003,9 @@ describe("runCli", () => {
         totalBatches: 2,
       });
       return {
-        version: "1.0",
+        version: "2.0",
         hotspots: [],
         functions: [],
-        coupling: [],
         meta: {
           since: "12 months ago",
           scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1060,10 +1038,9 @@ describe("runCli", () => {
         code: "INFO_CODE",
       });
       return {
-        version: "1.0",
+        version: "2.0",
         hotspots: [],
         functions: [],
-        coupling: [],
         meta: {
           since: "12 months ago",
           scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1111,10 +1088,9 @@ describe("runCli", () => {
         code: "WARN_CODE",
       });
       return {
-        version: "1.0",
+        version: "2.0",
         hotspots: [],
         functions: [],
-        coupling: [],
         meta: {
           since: "12 months ago",
           scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1145,10 +1121,9 @@ describe("runCli", () => {
 
   it("still throws CliUsageError under --quiet", async () => {
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1174,10 +1149,9 @@ describe("runCli", () => {
     const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
     const outputPath = join(tempDir, "report.json");
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1204,7 +1178,7 @@ describe("runCli", () => {
         fs.readFile(outputPath, "utf8"),
       );
       const parsed = JSON.parse(fileContent) as { version: string };
-      expect(parsed.version).toBe("1.0");
+      expect(parsed.version).toBe("2.0");
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
@@ -1212,10 +1186,9 @@ describe("runCli", () => {
 
   it("appends newline when reporter output omits trailing newline", async () => {
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1242,7 +1215,7 @@ describe("runCli", () => {
     const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
     const outputPath = join(tempDir, "report.csv");
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [
         {
           filePath: "src/hot.ts",
@@ -1258,7 +1231,6 @@ describe("runCli", () => {
         },
       ],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1289,16 +1261,9 @@ describe("runCli", () => {
         join(tempDir, "report.hotspots.csv"),
         "utf8",
       );
-      const couplingContent = await fs.readFile(
-        join(tempDir, "report.coupling.csv"),
-        "utf8",
-      );
       expect(JSON.parse(metaContent).kind).toBe("scan");
       expect(hotspotsContent.split("\n")[0]).toBe(
         "rank,file,score,cpx,cpxN,churn,churnN,funcs,authors,lines,parseFailed",
-      );
-      expect(couplingContent.split("\n")[0]).toBe(
-        "rank,fileA,fileB,strength,coChanges,hasStaticDependency,staticDependencyDirection,hasRuntimeStaticDependency,hasTypeOnlyStaticDependency,hasReExportStaticDependency",
       );
     } finally {
       await rm(tempDir, { recursive: true, force: true });
@@ -1307,10 +1272,9 @@ describe("runCli", () => {
 
   it("throws CliUsageError when --format csv is used without --output", async () => {
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1333,10 +1297,9 @@ describe("runCli", () => {
     const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
     const outputPath = join(tempDir, "report.json");
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1362,7 +1325,7 @@ describe("runCli", () => {
         fs.readFile(outputPath, "utf8"),
       );
       const parsed = JSON.parse(fileContent) as { version: string };
-      expect(parsed.version).toBe("1.0");
+      expect(parsed.version).toBe("2.0");
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
@@ -1373,10 +1336,9 @@ describe("runCli", () => {
     const outputPath = join(tempDir, "report.json");
     await writeFile(outputPath, "old content", "utf8");
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1401,7 +1363,7 @@ describe("runCli", () => {
         fs.readFile(outputPath, "utf8"),
       );
       const parsed = JSON.parse(fileContent) as { version: string };
-      expect(parsed.version).toBe("1.0");
+      expect(parsed.version).toBe("2.0");
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
@@ -1420,10 +1382,9 @@ describe("runCli", () => {
         code: "TEST_WARNING",
       });
       return {
-        version: "1.0",
+        version: "2.0",
         hotspots: [],
         functions: [],
-        coupling: [],
         meta: {
           since: "12 months ago",
           scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1471,35 +1432,6 @@ describe("runCli", () => {
     ).rejects.toThrow(CliUsageError);
   });
 
-  it("throws CliUsageError for non-positive --min-cochange", async () => {
-    await expect(
-      runCli(["node", "hotspot-scanner", "scan", ".", "--min-cochange", "-1"]),
-    ).rejects.toThrow(CliUsageError);
-  });
-
-  it("throws CliUsageError for non-positive --mega-commit-threshold", async () => {
-    await expect(
-      runCli([
-        "node",
-        "hotspot-scanner",
-        "scan",
-        ".",
-        "--mega-commit-threshold",
-        "0",
-      ]),
-    ).rejects.toThrow(CliUsageError);
-    await expect(
-      runCli([
-        "node",
-        "hotspot-scanner",
-        "scan",
-        ".",
-        "--mega-commit-threshold",
-        "0",
-      ]),
-    ).rejects.toThrow(/--mega-commit-threshold must be a positive integer/);
-  });
-
   it("throws CliUsageError for non-positive --concurrency", async () => {
     await expect(
       runCli(["node", "hotspot-scanner", "scan", ".", "--concurrency", "0"]),
@@ -1518,10 +1450,9 @@ describe("runCli", () => {
       "utf8",
     );
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "6 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1563,10 +1494,9 @@ describe("runCli", () => {
       "utf8",
     );
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "1 week ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1607,10 +1537,9 @@ describe("runCli", () => {
     const configPath = join(repoPath, "custom-config.json");
     await writeFile(configPath, JSON.stringify({ top: 5 }), "utf8");
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1682,10 +1611,9 @@ describe("runCli", () => {
 
   it("forwards --concurrency to runScan when explicitly set", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1715,10 +1643,9 @@ describe("runCli", () => {
 
   it("forwards --sequential to runScan when explicitly set", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1747,10 +1674,9 @@ describe("runCli", () => {
 
   it("forwards --no-overlap to runScan as sequential: true", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1779,10 +1705,9 @@ describe("runCli", () => {
 
   it("accepts both --sequential and --no-overlap without CliUsageError", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1814,10 +1739,9 @@ describe("runCli", () => {
 
   it("omits sequential on runScan when neither flag is set", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1836,10 +1760,9 @@ describe("runCli", () => {
 
   it("accepts --sequential with function granularity", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1869,39 +1792,6 @@ describe("runCli", () => {
     );
   });
 
-  it("forwards --mega-commit-threshold to runScan when explicitly set", async () => {
-    const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
-      hotspots: [],
-      functions: [],
-      coupling: [],
-      meta: {
-        since: "12 months ago",
-        scannedAt: "2026-01-01T00:00:00.000Z",
-        granularity: "file",
-        warnings: [],
-      },
-    });
-    captureStdout();
-
-    await runCli([
-      "node",
-      "hotspot-scanner",
-      "scan",
-      ".",
-      "--mega-commit-threshold",
-      "75",
-      "--format",
-      "table",
-    ]);
-
-    expect(runScanSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        megaCommitThreshold: 75,
-      }),
-    );
-  });
-
   it("forwards only explicit CLI overrides to runScan when config is present", async () => {
     const repoPath = await createIsolatedSmallTsRepo();
     try {
@@ -1911,10 +1801,9 @@ describe("runCli", () => {
         "utf8",
       );
       const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-        version: "1.0",
+        version: "2.0",
         hotspots: [],
         functions: [],
-        coupling: [],
         meta: {
           since: "6 months ago",
           scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1953,10 +1842,9 @@ describe("runCli", () => {
         "utf8",
       );
       const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-        version: "1.0",
+        version: "2.0",
         hotspots: [],
         functions: [],
-        coupling: [],
         meta: {
           since: "1 week ago",
           scannedAt: "2026-01-01T00:00:00.000Z",
@@ -1998,10 +1886,9 @@ describe("runCli", () => {
         "utf8",
       );
       vi.spyOn(scan, "runScan").mockResolvedValue({
-        version: "1.0",
+        version: "2.0",
         hotspots: [],
         functions: [],
-        coupling: [],
         meta: {
           since: "12 months ago",
           scannedAt: "2026-01-01T00:00:00.000Z",
@@ -2035,10 +1922,9 @@ describe("runCli", () => {
 
   it("forwards --include-tests to runScan on scan", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -2068,10 +1954,9 @@ describe("runCli", () => {
 
   it("omits includeTests on runScan when --include-tests is not set", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -2091,10 +1976,9 @@ describe("runCli", () => {
 
   it("forwards --include-tests with --exclude to runScan", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -2124,10 +2008,9 @@ describe("runCli", () => {
 
   it("forwards include and exclude patterns to runScan", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -2158,10 +2041,9 @@ describe("runCli", () => {
 
   it("forwards granularity to runScan", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -2191,17 +2073,16 @@ describe("runCli", () => {
     const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
     const outputPath = join(tempDir, "report.json");
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
         granularity: "function",
       },
     });
-    const render = vi.fn(() => '{"version":"1.0"}\n');
+    const render = vi.fn(() => '{"version":"2.0"}\n');
     vi.spyOn(report, "createReporter").mockReturnValue({
       render,
       renderCompare: vi.fn(),
@@ -2237,7 +2118,7 @@ describe("runCli", () => {
       const fileContent = await import("node:fs/promises").then((fs) =>
         fs.readFile(outputPath, "utf8"),
       );
-      expect(JSON.parse(fileContent).version).toBe("1.0");
+      expect(JSON.parse(fileContent).version).toBe("2.0");
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
@@ -2245,10 +2126,9 @@ describe("runCli", () => {
 
   it("long flags still work alongside short aliases", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -2326,7 +2206,7 @@ describe("runCli", () => {
 
   it("forwards --only union to reporter for JSON output", async () => {
     vi.spyOn(scan, "runScan").mockResolvedValue(loadTriageFixture());
-    const render = vi.fn(() => '{"version":"1.0"}\n');
+    const render = vi.fn(() => '{"version":"2.0"}\n');
     vi.spyOn(report, "createReporter").mockReturnValue({
       render,
       renderCompare: vi.fn(),
@@ -2343,13 +2223,13 @@ describe("runCli", () => {
       "--only",
       "hotspots",
       "--only",
-      "coupling",
+      "functions",
     ]);
 
     expect(render).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
-        only: ["hotspots", "coupling"],
+        only: ["hotspots", "functions"],
       }),
     );
   });
@@ -2484,7 +2364,7 @@ describe("runCli", () => {
 
   it("disables table color for non-table formats", async () => {
     vi.spyOn(scan, "runScan").mockResolvedValue(loadTriageFixture());
-    const render = vi.fn(() => '{"version":"1.0"}\n');
+    const render = vi.fn(() => '{"version":"2.0"}\n');
     vi.spyOn(report, "createReporter").mockReturnValue({
       render,
       renderCompare: vi.fn(),
@@ -2582,7 +2462,7 @@ describe("runCli", () => {
     const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
     const baselinePath = join(tempDir, "baseline.json");
     const scanResult = {
-      version: "1.0" as const,
+      version: "2.0" as const,
       hotspots: [
         {
           filePath: "src/example.ts",
@@ -2598,7 +2478,6 @@ describe("runCli", () => {
         },
       ],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -2610,7 +2489,7 @@ describe("runCli", () => {
     vi.spyOn(scan, "runScan").mockResolvedValue(scanResult);
     const renderCompare = vi.fn(
       () =>
-        '{"version":"1.0","hotspots":{"new":[],"removed":[],"rankChanged":[]}}\n',
+        '{"version":"2.0","hotspots":{"new":[],"removed":[],"rankChanged":[]}}\n',
     );
     vi.spyOn(report, "createReporter").mockReturnValue({
       render: vi.fn(),
@@ -2631,7 +2510,7 @@ describe("runCli", () => {
       ]);
 
       expect(renderCompare).toHaveBeenCalled();
-      expect(chunks.join("")).toContain('"version":"1.0"');
+      expect(chunks.join("")).toContain('"version":"2.0"');
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
@@ -2640,10 +2519,9 @@ describe("runCli", () => {
   it("uses normal render when --baseline is omitted", async () => {
     const render = vi.fn(() => "normal-scan-output\n");
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -2664,10 +2542,9 @@ describe("runCli", () => {
 
   it("defaults repoPath to . when scan omits path", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -2689,10 +2566,9 @@ describe("runCli", () => {
   it("honors explicit path when provided", async () => {
     const explicitPath = "/tmp/explicit-repo";
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -2723,10 +2599,9 @@ describe("runCli", () => {
     const baselinePath = join(tempDir, "invalid-baseline.json");
     await writeFile(baselinePath, '{"version":"9.9"}', "utf8");
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -2771,7 +2646,7 @@ describe("runCli", () => {
       .spyOn(process.stderr, "write")
       .mockImplementation(() => true);
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [
         {
           filePath: "src/example.ts",
@@ -2787,7 +2662,6 @@ describe("runCli", () => {
         },
       ],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -2823,10 +2697,9 @@ describe("runCli", () => {
       .spyOn(process.stderr, "write")
       .mockImplementation(() => true);
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -2888,7 +2761,7 @@ describe("runCli", () => {
       .spyOn(process.stderr, "write")
       .mockImplementation(() => true);
     vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [
         {
           filePath: "src/example.ts",
@@ -2903,7 +2776,6 @@ describe("runCli", () => {
         },
       ],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -2931,7 +2803,7 @@ describe("runCli", () => {
         fs.readFile(outputPath, "utf8"),
       );
       const parsed = JSON.parse(fileContent) as { version: string };
-      expect(parsed.version).toBe("1.0");
+      expect(parsed.version).toBe("2.0");
       expect(fileContent).not.toContain("=== Explain:");
       expect(stderrSpy).toHaveBeenCalledWith(
         expect.stringContaining("=== Explain: src/example.ts (rank 1) ==="),
@@ -3013,7 +2885,7 @@ describe("runCli", () => {
 
       const stdout = chunks.join("");
       const parsed = JSON.parse(stdout) as { version: string };
-      expect(parsed.version).toBe("1.0");
+      expect(parsed.version).toBe("2.0");
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
@@ -3117,10 +2989,9 @@ describe("runCli", () => {
     vi.spyOn(scan, "runScan").mockImplementation(async (options) => {
       options.onSpawnArgv?.(["git", "-C", "/repo", "log", "--numstat"]);
       return {
-        version: "1.0",
+        version: "2.0",
         hotspots: [],
         functions: [],
-        coupling: [],
         meta: {
           since: "12 months ago",
           scannedAt: "2026-01-01T00:00:00.000Z",
@@ -3153,10 +3024,9 @@ describe("runCli", () => {
     vi.spyOn(scan, "runScan").mockImplementation(async (options) => {
       options.onSpawnArgv?.(["git", "-C", "/repo", "log", "--numstat"]);
       return {
-        version: "1.0",
+        version: "2.0",
         hotspots: [],
         functions: [],
-        coupling: [],
         meta: {
           since: "12 months ago",
           scannedAt: "2026-01-01T00:00:00.000Z",
@@ -3185,10 +3055,9 @@ describe("runCli", () => {
 
   it("forwards onSpawnArgv to runScan when --verbose is set", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
-      version: "1.0",
+      version: "2.0",
       hotspots: [],
       functions: [],
-      coupling: [],
       meta: {
         since: "12 months ago",
         scannedAt: "2026-01-01T00:00:00.000Z",
@@ -3314,7 +3183,7 @@ describe("runCli baseline save", () => {
       expect(chunks.join("")).toBe("");
       const baselinePath = join(tempDir, "hotspot-baseline.json");
       const loaded = await loadBaseline(baselinePath);
-      expect(loaded.version).toBe("1.0");
+      expect(loaded.version).toBe("2.0");
       expect(loaded.hotspots).toHaveLength(1);
     } finally {
       process.chdir(originalCwd);
@@ -3341,7 +3210,7 @@ describe("runCli baseline save", () => {
 
       expect(chunks.join("")).toBe("");
       const loaded = await loadBaseline(outputPath);
-      expect(loaded.version).toBe("1.0");
+      expect(loaded.version).toBe("2.0");
       expect(loaded.hotspots[0]?.filePath).toBe("src/example.ts");
     } finally {
       await rm(tempDir, { recursive: true, force: true });
@@ -3367,7 +3236,7 @@ describe("runCli baseline save", () => {
       ]);
 
       const loaded = await loadBaseline(outputPath);
-      expect(loaded.version).toBe("1.0");
+      expect(loaded.version).toBe("2.0");
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
@@ -3561,7 +3430,7 @@ describe("runCli compare", () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue(scanResult);
     vi.spyOn(report, "createReporter").mockReturnValue({
       render: vi.fn(),
-      renderCompare: vi.fn(() => '{"version":"1.0"}\n'),
+      renderCompare: vi.fn(() => '{"version":"2.0"}\n'),
     });
     captureStdout();
 
@@ -3596,7 +3465,7 @@ describe("runCli compare", () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue(scanResult);
     vi.spyOn(report, "createReporter").mockReturnValue({
       render: vi.fn(),
-      renderCompare: vi.fn(() => '{"version":"1.0"}\n'),
+      renderCompare: vi.fn(() => '{"version":"2.0"}\n'),
     });
     captureStdout();
 
@@ -3631,7 +3500,7 @@ describe("runCli compare", () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue(scanResult);
     const renderCompare = vi.fn(
       () =>
-        '{"version":"1.0","hotspots":{"new":[],"removed":[],"rankChanged":[]}}\n',
+        '{"version":"2.0","hotspots":{"new":[],"removed":[],"rankChanged":[]}}\n',
     );
     vi.spyOn(report, "createReporter").mockReturnValue({
       render: vi.fn(),
@@ -3653,7 +3522,7 @@ describe("runCli compare", () => {
 
       expect(runScanSpy).toHaveBeenCalled();
       expect(renderCompare).toHaveBeenCalled();
-      expect(chunks.join("")).toContain('"version":"1.0"');
+      expect(chunks.join("")).toContain('"version":"2.0"');
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
