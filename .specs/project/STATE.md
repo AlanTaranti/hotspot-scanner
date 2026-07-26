@@ -90,13 +90,18 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-24 | **M50 ranking-accuracy-plus Done** | Execute complete: heuristic unlinked-rename `PathAliasMap.link`; enrich canonicalize via PathAliasMap; PARSE_FAILED stub hotspots (`parseFailed`, score 0); callbacks/IIFEs; zero-churn functions (revisit M35 D6). Gate green. Specs: `.specs/features/ranking-accuracy-plus/` (Done). |
 | 2026-07-26 | **M56 remove-coupling-analysis Done** | Product hard cut: temporal coupling removed (pairs, scoring, static enrich, CLI/config, JSON `coupling`, CSV coupling files). JSON `version` → `"2.0"`; reject baselines `1.0` / with `coupling` (`BaselineError` + re-scan). Historical Done coupling specs (M4/M14/M27/M32/M33/M44…) stay historical — M56 supersedes. IDs HOTSPOT-890+. Specs: `.specs/features/remove-coupling-analysis/` (Done). |
 | 2026-07-26 | **M56 ADR-2026-020 revisited** | Single `git log` stream feeds **churn only**; coupling/`pairCounts` removed with M56. ADR row updated. |
+| 2026-07-26 | **M57 ncloc-metric Specs Planned (Complex)** | Replace McCabe with **NCLOC** as axis `c` in harmonic hotspot score; remove function mode end-to-end; JSON `"3.0"` (`ncloc`); reject baselines `2.0` / legacy `cyclomaticComplexity` / `functions`; revisit ADR-2026-019. Specs: `.specs/features/ncloc-metric/` (`tasks.md` Status: **Planned**). IDs HOTSPOT-920+. |
+| 2026-07-26 | **M57 metric = NCLOC (not McCabe)** | File-level non-commented lines of code; exclude blank + comment-only; count code lines (incl. string literals containing `//`); log1p + min-max + harmonic combiner unchanged. |
+| 2026-07-26 | **M57 function mode hard cut** | Remove `--granularity` / config `granularity`, function ranking, `src/git/function-churn/`, function CSV/compare/explain, `FunctionHotspotScore` / related types — no empty `functions: []`. |
+| 2026-07-26 | **M57 JSON contract `"3.0"`** | Rename `cyclomaticComplexity` → `ncloc`; no top-level `functions`; baseline reject `2.0`/`1.0` + legacy fields with re-scan `BaselineError` (parity with M56). |
+| 2026-07-26 | **M57 ADR-2026-019 superseded (planning)** | Product metric is NCLOC via lighter line/token scanner; prefer drop `ts-morph`. Execute confirms ADR table + rejected-alternatives narrative on Done. |
 
 ## Architecture decisions (ADRs)
 
 | ID           | Decision                                         | Rationale                                                                                      |
 | ------------ | ------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
 | ADR-2026-018 | CLI standalone and self-contained                | Decoupled from other tools; own release cycle                                                  |
-| ADR-2026-019 | `ts-morph` + project-owned McCabe, TS/JS-only    | Dedicated complexity packages abandoned 7–10 years; full control over decision-node definition |
+| ADR-2026-019 | ~~`ts-morph` + project-owned McCabe, TS/JS-only~~ → **Superseded by M57 (planned): NCLOC file metric** | Originally: dedicated complexity packages abandoned 7–10 years; full control over decision-node definition. **M57:** product size axis is **NCLOC** (non-commented lines); McCabe + function mode retired; prefer lighter scanner and drop `ts-morph` when unused |
 | ADR-2026-020 | Single `git log` stream feeds churn only | Half the I/O vs per-signal queries on large repos (RT-001); one parser produces `FileChangeStats`. Pre-M56 also aggregated `pairCounts` for coupling (M32) — removed in M56 |
 | ADR-2026-021 | CLI binary `hotspot-scanner` without npm scope   | Standard pattern for scoped packages exposing a CLI                                            |
 
@@ -104,15 +109,16 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 
 | Alternative                                               | Rejected in favor of               | Why                                                                            |
 | --------------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------ |
-| ESLint `complexity` rule + `eslintcc`                     | ADR-2026-019 (own McCabe)          | Prefer direct control over metric definition over third-party rule config      |
-| Dedicated complexity packages (`ts-complex`, `escomplex`) | ADR-2026-019                       | Unmaintained 7–10 years                                                        |
-| LOC as complexity proxy                                   | ADR-2026-019                       | TS/JS scope enables real cyclomatic complexity via AST                         |
-| External CLI (`lizard`)                                   | ADR-2026-019                       | Would add Python toolchain to Node project                                     |
+| ESLint `complexity` rule + `eslintcc`                     | ADR-2026-019 (own McCabe) → M57 NCLOC | Prefer direct control over metric definition over third-party rule config; McCabe path retired in M57 |
+| Dedicated complexity packages (`ts-complex`, `escomplex`) | ADR-2026-019 → M57 NCLOC           | Unmaintained 7–10 years; M57 does not revive them                              |
+| LOC as complexity proxy                                   | ~~ADR-2026-019 (McCabe)~~ → **M57 NCLOC** | v1 rejected raw LOC for AST McCabe; **M57 product metric is NCLOC** (file-level non-commented lines — not raw LOC, not McCabe) |
+| External CLI (`lizard`)                                   | ADR-2026-019 → M57 NCLOC           | Would add Python toolchain to Node project                                     |
 | Module integrated into another internal tool              | ADR-2026-018                       | Roadmap coupling unacceptable                                                  |
-| Language-agnostic LOC-only approach                       | ADR-2026-019                       | Defeats precision goal of v1                                                   |
+| Language-agnostic LOC-only approach                       | ADR-2026-019 → M57 NCLOC scanner   | v1 precision goal via AST superseded; M57 still TS/JS-scoped NCLOC with comment/string-aware counting |
 | Separate `git log` queries per signal                     | ADR-2026-020                       | Doubles I/O cost on large repos (RT-001)                                       |
 | Relative code churn (`linesChanged / fileSize`)           | Raw commit count (Decisions table) | Moving denominator problem; aggravates RT-003 rename distortion; closed for v1 |
 | `format` / `output` / `baseline` in `.hotspot-scanner.json` | CLI-only (M21)                     | Rendering/transport stay in CLI; config holds scan parameters only (Post-M46 reject) |
+| Soft-deprecate McCabe / keep function mode                | M57 hard cut                       | Parity with M56; YAGNI on dual metrics and empty `functions: []`               |
 
 ## Blockers
 
@@ -125,9 +131,9 @@ _None._
 
 ## Active
 
-**M7–M56 Done** (historical). Next development step: see [ROADMAP.md](ROADMAP.md) Post-M56 / Deferred horizon.
+**M7–M56 Done** (historical). **Active planning:** **M57 ncloc-metric** — Specs **Planned** (`.specs/features/ncloc-metric/`; `tasks.md` Status: **Planned**). Next: promote Status → `orchestrator-implementer` in a new development session.
 
-**Planned backlog:** none in ROADMAP — see Deferred below.
+**Planned backlog:** M57 (HOTSPOT-920+). Deferred horizon unchanged below.
 
 ## Deferred
 
