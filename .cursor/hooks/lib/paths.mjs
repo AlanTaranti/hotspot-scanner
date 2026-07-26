@@ -1,7 +1,9 @@
+import path from "node:path";
+
 /** @typedef {string} RelPath */
 
 export const CODE_PATH_RE =
-  /^(src\/|bin\/|scripts\/|vitest\.config\.ts$)/;
+  /^(src\/|bin\/|scripts\/|schemas\/|vitest\.config\.ts$)/;
 
 export const FRAGILE_PATH_RES = [
   /^src\/git\//,
@@ -21,24 +23,69 @@ export const OWNERSHIP_PATH_RE = /tasks\.md$|ROADMAP\.md$/;
 export const TSCONFIG_RE = /^tsconfig\.json$/;
 
 /**
+ * Strip leading ./ and ../ segments from a path string.
+ * @param {string} p
+ * @returns {string}
+ */
+function stripDotSegments(p) {
+  let out = p;
+  while (out.startsWith("./") || out.startsWith("../")) {
+    out = out.replace(/^\.\//, "").replace(/^\.\.\//, "");
+  }
+  return out;
+}
+
+/**
  * @param {string | undefined | null} raw
  * @returns {string | null}
  */
 export function normalizeRelPath(raw) {
   if (!raw || typeof raw !== "string") return null;
-  let p = raw.replace(/\\/g, "/");
-  const roots = ["./", "../"];
-  while (roots.some((r) => p.startsWith(r))) {
-    p = p.replace(/^\.\//, "").replace(/^\.\.\//, "");
-  }
+  const p = stripDotSegments(raw.replace(/\\/g, "/"));
   return p || null;
 }
 
 /**
- * @param {unknown} toolInput
+ * Convert an absolute or relative path to a repo-relative path.
+ * @param {string | undefined | null} raw
+ * @param {string | undefined | null} workspaceRoot
  * @returns {string | null}
  */
-export function extractEditPath(toolInput) {
+export function toRelPath(raw, workspaceRoot) {
+  if (!raw || typeof raw !== "string") return null;
+  let p = raw.replace(/\\/g, "/");
+
+  if (workspaceRoot && typeof workspaceRoot === "string") {
+    const root = path.resolve(workspaceRoot).replace(/\\/g, "/");
+    const rootWithSlash = root.endsWith("/") ? root : `${root}/`;
+
+    if (path.isAbsolute(raw)) {
+      const abs = path.resolve(raw).replace(/\\/g, "/");
+      if (abs === root) return null;
+      if (abs.startsWith(rootWithSlash)) {
+        return abs.slice(rootWithSlash.length) || null;
+      }
+      // Absolute path outside workspace — keep basename-style fallback
+      return normalizeRelPath(abs);
+    }
+
+    // Relative but may still include the workspace prefix as a string
+    if (p.startsWith(rootWithSlash)) {
+      p = p.slice(rootWithSlash.length);
+    } else if (p === root) {
+      return null;
+    }
+  }
+
+  return normalizeRelPath(p);
+}
+
+/**
+ * @param {unknown} toolInput
+ * @param {string | undefined | null} [workspaceRoot]
+ * @returns {string | null}
+ */
+export function extractEditPath(toolInput, workspaceRoot) {
   if (!toolInput || typeof toolInput !== "object") return null;
   const input = /** @type {Record<string, unknown>} */ (toolInput);
   const candidates = [
@@ -46,9 +93,10 @@ export function extractEditPath(toolInput) {
     input.file_path,
     input.filePath,
     input.target_file,
+    input.target_notebook,
   ];
   for (const c of candidates) {
-    const n = normalizeRelPath(typeof c === "string" ? c : null);
+    const n = toRelPath(typeof c === "string" ? c : null, workspaceRoot);
     if (n) return n;
   }
   return null;
@@ -106,6 +154,6 @@ export function tsconfigAddsBinInclude(content) {
   return /"bin[^"]*"/.test(content) || /'bin[^']*'/.test(content);
 }
 
-export const FRAGILE_CONTEXT = `Área frágil do scanner. Regras: .cursor/rules/fragile-areas.mdc e .specs/codebase/CONCERNS.md — atualize ou adicione teste Vitest co-localizado antes de marcar Complete.`;
+export const FRAGILE_CONTEXT = `Fragile scanner area. Rules: .cursor/rules/fragile-areas.mdc and .specs/codebase/CONCERNS.md — update or add a co-located Vitest test before marking Complete.`;
 
-export const SCORING_FORMULA_CONTEXT = `Mudanças em src/scoring/ afetam hotspotScore e couplingStrength — confirme testes com inputs fixos e ordem esperada (fragile-areas.mdc).`;
+export const SCORING_FORMULA_CONTEXT = `Changes under src/scoring/ affect hotspotScore and couplingStrength — confirm tests with fixed inputs and expected ordering (fragile-areas.mdc).`;

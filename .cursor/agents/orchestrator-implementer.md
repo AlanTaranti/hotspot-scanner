@@ -25,19 +25,19 @@ You do **not** plan specs (`planner-feature`). You do **not** implement applicat
 ## Before you act — read these
 
 1. Target `tasks.md` + `design.md` + `spec.md` + `context.md` (when they exist) for each feature
-2. Playbook [`.cursor/skills/vitals-spec-driven/references/execute-orchestration-playbook.md`](.cursor/skills/vitals-spec-driven/references/execute-orchestration-playbook.md) — **follow phases A→F**
-3. [`.cursor/skills/vitals-spec-driven/references/implement.md`](.cursor/skills/vitals-spec-driven/references/implement.md) — RED→GREEN→VERIFY cycle for implementers
-4. [`.cursor/skills/vitals-spec-driven/references/orchestrated-implementer.md`](.cursor/skills/vitals-spec-driven/references/orchestrated-implementer.md) — minimum prompt contract
-5. [`.cursor/skills/vitals-spec-driven/references/implementer-routing.md`](.cursor/skills/vitals-spec-driven/references/implementer-routing.md) — module routing (canonical)
-6. [`.cursor/skills/vitals-spec-driven/references/roadmap-sync.md`](.cursor/skills/vitals-spec-driven/references/roadmap-sync.md) — sync ROADMAP on Done
-7. [`.specs/codebase/TESTING.md`](.specs/codebase/TESTING.md) — gate commands
-8. [`.specs/codebase/CONVENTIONS.md`](.specs/codebase/CONVENTIONS.md) — pass to implementers
-9. [`.cursor/skills/task-implementer/SKILL.md`](.cursor/skills/task-implementer/SKILL.md) — include in minimum prompt to `implementer`
-10. [AGENTS.md](../../AGENTS.md) + [vitals-project.md](.cursor/skills/vitals-spec-driven/references/vitals-project.md)
+2. Playbook [`.cursor/skills/vitals-spec-driven/references/execute-orchestration-playbook.md`](../skills/vitals-spec-driven/references/execute-orchestration-playbook.md) — **follow phases A→F**
+3. [`.cursor/skills/vitals-spec-driven/references/implement.md`](../skills/vitals-spec-driven/references/implement.md) — RED→GREEN→VERIFY cycle for implementers
+4. [`.cursor/skills/vitals-spec-driven/references/orchestrated-implementer.md`](../skills/vitals-spec-driven/references/orchestrated-implementer.md) — minimum prompt contract
+5. [`.cursor/skills/vitals-spec-driven/references/implementer-routing.md`](../skills/vitals-spec-driven/references/implementer-routing.md) — module routing (canonical)
+6. [`.cursor/skills/vitals-spec-driven/references/roadmap-sync.md`](../skills/vitals-spec-driven/references/roadmap-sync.md) — sync ROADMAP on Done
+7. [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md) — gate commands
+8. [`.specs/codebase/CONVENTIONS.md`](../../.specs/codebase/CONVENTIONS.md) — pass to implementers
+9. [`.cursor/skills/task-implementer/SKILL.md`](../skills/task-implementer/SKILL.md) — include in minimum prompt to `implementer`
+10. [AGENTS.md](../../AGENTS.md) + [vitals-project.md](../skills/vitals-spec-driven/references/vitals-project.md)
 
 ## Playbook
 
-Follow [execute-orchestration-playbook.md](.cursor/skills/vitals-spec-driven/references/execute-orchestration-playbook.md) phases A→F. Do not restate routing tables, minimum prompts, or report templates inline — apply the reference.
+Follow [execute-orchestration-playbook.md](../skills/vitals-spec-driven/references/execute-orchestration-playbook.md) phases A→F. Do not restate routing tables, minimum prompts, or report templates inline — apply the reference.
 
 **Phase summary:**
 
@@ -56,9 +56,9 @@ Follow [execute-orchestration-playbook.md](.cursor/skills/vitals-spec-driven/ref
 - Commit policy / YAGNI: [AGENTS.md](../../AGENTS.md).
 - Do not mark Done with failing Phase E gate, Phase D NOT_READY, or Phase C Changes needed.
 - Maximum **1 remediation round** after Phase C, D, or E failure.
-- Do not conduct AskQuestion / user discussion — return pendências in report.
+- Do not conduct AskQuestion / user discussion — return open items in the report.
 - Respect parallelism only when `[P]` **and** tests are parallel-safe per TESTING.md.
 
 ## Main agent handoff
 
-Per [execute-orchestration-playbook.md](.cursor/skills/vitals-spec-driven/references/execute-orchestration-playbook.md) § Main agent handoff.
+Per [execute-orchestration-playbook.md](../skills/vitals-spec-driven/references/execute-orchestration-playbook.md) § Main agent handoff.

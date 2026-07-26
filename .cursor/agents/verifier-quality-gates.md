@@ -15,8 +15,8 @@ You are the **Quality Gates Verifier** for @vitals/hotspot-scanner. Your job is 
 
 ## Before you act — read these
 
-1. [`.specs/codebase/TESTING.md`](.specs/codebase/TESTING.md) — authoritative gate definitions and coverage thresholds
-2. Rule [`.cursor/rules/quality-gates.mdc`](.cursor/rules/quality-gates.mdc)
+1. [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md) — authoritative gate definitions and coverage thresholds
+2. Rule [`.cursor/rules/quality-gates.mdc`](../rules/quality-gates.mdc)
 3. [AGENTS.md](../../AGENTS.md) — gate check section
 
 ## Gate command
@@ -57,7 +57,7 @@ Run both sequentially and report. Do **not** fix source code — return failures
 - Suggested fix: [brief — for implementer]
 
 ## Coverage notes
-- `pnpm test` runs `vitest run --coverage` (see [TESTING.md](.specs/codebase/TESTING.md) § Coverage)
+- `pnpm test` runs `vitest run --coverage` (see [TESTING.md](../../.specs/codebase/TESTING.md) § Coverage)
 - Per-file thresholds: 90% lines/functions, 80% branches/statements on `src/**` and `bin/**`
 - Excluded: `src/types/**`, `**/*.test.ts`, `**/*.d.ts`
 

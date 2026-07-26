@@ -23,7 +23,7 @@ The product lifecycle includes Execute — but **not in the same session** as pl
 
 - Specify → Design → Tasks per auto-sizing in [SKILL.md](../SKILL.md)
 - Artifacts under `.specs/features/<slug>/` (`spec.md`, `design.md`, `tasks.md`, `context.md`)
-- Sync [ROADMAP.md](../../../.specs/project/ROADMAP.md) — feature listed under current milestone
+- Sync [ROADMAP.md](../../../../.specs/project/ROADMAP.md) — feature listed under current milestone
 - Recommend module owner per task in `tasks.md` (for future dev — not to invoke now)
 
 ---
@@ -37,7 +37,7 @@ The product lifecycle includes Execute — but **not in the same session** as pl
 
 ---
 
-## Handoff para sessão de desenvolvimento
+## Handoff to development session
 
 When planning completes:
 
@@ -48,11 +48,11 @@ When planning completes:
 **Handoff message template:**
 
 ```
-Planejamento concluído para [feature-slug].
+Planning complete for [feature-slug].
 
-Artefatos: spec.md [, design.md] [, context.md], tasks.md (Status: Planned)
-Próximo passo: revisar tasks.md, promover Status, abrir sessão de dev e invocar orchestrator-implementer.
-Gate final esperado: pnpm build && pnpm test
+Artifacts: spec.md [, design.md] [, context.md], tasks.md (Status: Planned)
+Next step: review tasks.md, promote Status, open a dev session, and invoke orchestrator-implementer.
+Expected final gate: pnpm build && pnpm test
 ```
 
 ---

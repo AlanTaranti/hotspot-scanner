@@ -1,43 +1,46 @@
 # Cursor hooks — hotspot-scanner
 
-Project hooks em [`.cursor/hooks.json`](../hooks.json) reforçam políticas de [AGENTS.md](../../AGENTS.md), rules e subagents.
+Project hooks in [`.cursor/hooks.json`](../hooks.json) reinforce policies from [AGENTS.md](../../AGENTS.md), rules, and subagents.
 
-Estado de sessão (gitignored): `.cursor/hooks-state/<conversation_id>.json`
+Session state (gitignored): `.cursor/hooks-state/<conversation_id>.json`
 
-## Mapa rápido
+State files older than **14 days** are pruned on `sessionStart`.
 
-| Prioridade | Evento | Script | Comportamento |
-|------------|--------|--------|---------------|
-| Crítico | `beforeShellExecution` | `commit-policy.mjs` | `git commit` negado sem keyword do usuário (`commit`, `commite`, `comitar`, `versionar`) |
-| Crítico | `beforeShellExecution` | `gate-before-commit.mjs` | `git commit` negado se código mudou sem gate recente |
-| Crítico | `afterShellExecution` | `record-gate-pass.mjs` | `gatePassedAt` / `buildPassedAt` + `testPassedAt` após build e test |
-| Crítico | `subagentStop` | `subagent-stop.mjs` | Limpa estado do subagent; follow-up Phase E (quality gate) |
-| Alto | `subagentStart` | `subagent-start.mjs` | Estado subagent; bloqueio orchestrator se Status Draft/Planned |
-| Alto | `preToolUse` | `pre-edit-guard.mjs` | Planner boundary; fragile `ask`; ownership orquestrado |
-| Alto | `postToolUse` | `post-edit-guard.mjs` | Rastreia edições + alertas áreas frágeis / scoring |
-| Alto | `afterFileEdit` | `track-edit.mjs` | Rastreio de paths (fallback) |
-| Alto | `stop` | `stop-gate-reminder.mjs` | Lembrete de gate ao encerrar agente |
-| Médio | `sessionStart` | `session-context.mjs` | Injeta contexto ROADMAP + gate |
-| Médio | `beforeShellExecution` | `shell-guards.mjs` | Valida path em `hotspot-scanner scan` |
-| Médio | `afterShellExecution` | `shell-guards.mjs` | Contexto em falha de `pnpm test` |
-| Médio | `preCompact` | `pre-compact.mjs` | Checkpoint em `.specs/.hooks-checkpoint.json` |
+## Quick map
 
-## Limitações conhecidas
+| Priority | Event | Script | Behavior |
+|----------|--------|--------|----------|
+| Critical | `beforeShellExecution` | `commit-policy.mjs` | Deny `git commit` without a user keyword (`commit`, `commite`, `comitar`, `versionar`); flag is sticky until a commit is allowed |
+| Critical | `beforeShellExecution` | `gate-before-commit.mjs` | Deny `git commit` if code changed without a recent gate |
+| Critical | `afterShellExecution` | `record-gate-pass.mjs` | Record `gatePassedAt` / `buildPassedAt` + `testPassedAt` after build and test |
+| Critical | `subagentStop` | `subagent-stop.mjs` | Clear subagent state; follow-up for Phase E (quality gate) |
+| High | `subagentStart` | `subagent-start.mjs` | Subagent state; **deny** orchestrator when Status is Draft/Planned |
+| High | `preToolUse` | `pre-edit-guard.mjs` | Planner boundary; fragile `ask`; orchestrated ownership |
+| High | `postToolUse` | `post-edit-guard.mjs` | Track edits + fragile / scoring alerts |
+| High | `afterFileEdit` | `track-edit.mjs` | Path tracking (fallback); absolute paths normalized to repo-relative |
+| High | `stop` | `stop-gate-reminder.mjs` | Gate reminder when the agent stops |
+| Medium | `sessionStart` | `session-context.mjs` | Inject ROADMAP + gate context; prune stale state |
+| Medium | `beforeShellExecution` | `shell-guards.mjs` | Validate path on `hotspot-scanner scan` |
+| Medium | `afterShellExecution` | `shell-guards.mjs` | Context on `pnpm test` failure |
+| Medium | `preCompact` | `pre-compact.mjs` | Checkpoint at `.specs/.hooks-checkpoint.json` |
 
-- `sessionStart` / `postToolUse` `additional_context` pode não chegar ao modelo em algumas versões do Cursor. Enforcement principal: `preToolUse` (`deny`/`ask`) e `beforeShellExecution`.
-- Rastreio de edições ocorre em `postToolUse` (Write/StrReplace) e `afterFileEdit` (fallback).
-- Gate aceita `pnpm build && pnpm test` em um comando **ou** `pnpm build` e `pnpm test` separados (ambos com exit 0).
+## Known limitations
+
+- `sessionStart` / `postToolUse` `additional_context` may not reach the model on some Cursor versions. Primary enforcement: `preToolUse` (`deny`/`ask`) and `beforeShellExecution`.
+- Edit tracking runs on `postToolUse` (Write/StrReplace/Delete/EditNotebook) and `afterFileEdit` (fallback).
+- Gate accepts `pnpm build && pnpm test` in one command **or** separate `pnpm build` and `pnpm test` (both exit 0).
+- Paths from Cursor are often absolute; hooks strip `workspace_roots[0]` before classifying code/fragile paths.
 
 ## Smoke tests
 
 ```bash
-node .cursor/hooks/smoke-test.mjs
+pnpm hooks:smoke
 ```
 
-Requer escrita em `.cursor/hooks-state/` (gitignored).
+Requires write access to `.cursor/hooks-state/` (gitignored). Run after changing hooks.
 
 ## Debug
 
-- Painel **Hooks** nas configurações do Cursor
-- Canal de output **Hooks**
-- Salvar `hooks.json` recarrega hooks; reinicie o Cursor se não disparar
+- **Hooks** panel in Cursor settings
+- **Hooks** output channel
+- Saving `hooks.json` reloads hooks; restart Cursor if they do not fire

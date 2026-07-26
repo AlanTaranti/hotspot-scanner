@@ -1,27 +1,27 @@
 ---
-description: Ler specs do codebase antes de implementar e manter documentação viva
+description: Read codebase specs before implementing and keep documentation current
 alwaysApply: true
 ---
 
-# Contexto em Primeiro Lugar
+# Context First
 
-Antes de planejar ou implementar qualquer mudança, ler os arquivos relevantes em `.specs/codebase/` e `.specs/project/`:
+Before planning or implementing any change, read the relevant files under `.specs/codebase/` and `.specs/project/`:
 
-| Tipo de mudança | Ler |
-|-----------------|-----|
-| Código geral | `CONVENTIONS.md`, `STRUCTURE.md` |
-| Módulos scanner (git, complexity, scoring, compare, config, report) | `ARCHITECTURE.md`, `CONCERNS.md`, `INTEGRATIONS.md` |
-| Progresso / milestones | `ROADMAP.md`, `STATE.md`, `.specs/features/` |
-| Testes | `TESTING.md` |
-| Arquitetura / stack | `ARCHITECTURE.md`, `STACK.md` |
-| Integrações externas | `INTEGRATIONS.md` |
-| Áreas frágeis | `CONCERNS.md` |
-| Contrato JSON | `schemas/`, `TESTING.md` § contract |
+| Change type | Read |
+| ----- | ----- |
+| General code | `CONVENTIONS.md`, `STRUCTURE.md` |
+| Scanner modules (git, complexity, scoring, compare, config, report) | `ARCHITECTURE.md`, `CONCERNS.md`, `INTEGRATIONS.md` |
+| Progress / milestones | `ROADMAP.md`, `STATE.md`, `.specs/features/` |
+| Tests | `TESTING.md` |
+| Architecture / stack | `ARCHITECTURE.md`, `STACK.md` |
+| External integrations | `INTEGRATIONS.md` |
+| Fragile areas | `CONCERNS.md` |
+| JSON contract | `schemas/`, `TESTING.md` § contract |
 
-## Documentação viva
+## Living documentation
 
-Toda mudança significativa (novos módulos do scanner, tipos de domínio, CLI flags) deve ser refletida nos arquivos correspondentes de `.specs/codebase/`. Feature concluída → atualizar [ROADMAP.md](../../.specs/project/ROADMAP.md) conforme [roadmap-sync.md](../skills/vitals-spec-driven/references/roadmap-sync.md).
+Every significant change (new scanner modules, domain types, CLI flags) must be reflected in the corresponding `.specs/codebase/` files. Feature complete → update [ROADMAP.md](../../.specs/project/ROADMAP.md) per [roadmap-sync.md](../skills/vitals-spec-driven/references/roadmap-sync.md).
 
 ## YAGNI
 
-Ver [AGENTS.md](../../AGENTS.md) § YAGNI.
+See [AGENTS.md](../../AGENTS.md) § YAGNI.

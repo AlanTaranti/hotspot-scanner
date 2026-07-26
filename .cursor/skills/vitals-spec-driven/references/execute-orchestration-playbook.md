@@ -51,7 +51,7 @@ Set feature Status to `In Progress` in `tasks.md` when starting first task (if n
 - One task per delegation (unless user explicitly batches trivial tasks).
 - Gate-final tasks (`deferred_project_gate`: project-wide `pnpm build && pnpm test`) → **exclude from Phase B**; execute only in Phase E.
 - Respect `[P]` only when parallel-safe per TESTING.md.
-- On `Blocked` or `SPLIT_REQUIRED` → report in Pendências; do not mark Complete.
+- On `Blocked` or `SPLIT_REQUIRED` → report under Open items; do not mark Complete.
 - Update `tasks.md` checkboxes as tasks complete.
 
 **Minimum prompt to implementer:**
@@ -118,7 +118,7 @@ pnpm build && pnpm test
 
 ## Phase F — Sync
 
-**tasks.md ownership:** only **this orchestrator** updates checkboxes, task Status, and [ROADMAP.md](../../../.specs/project/ROADMAP.md). See [roadmap-sync.md](roadmap-sync.md).
+**tasks.md ownership:** only **this orchestrator** updates checkboxes, task Status, and [ROADMAP.md](../../../../.specs/project/ROADMAP.md). See [roadmap-sync.md](roadmap-sync.md).
 
 When Phase C = Approved (or Approved with caveats), Phase D = READY (or ISSUES with user approval), and Phase E = PASS:
 
@@ -150,7 +150,7 @@ When Phase C = Approved (or Approved with caveats), Phase D = READY (or ISSUES w
 
 - [list]
 
-### Pendências
+### Open items
 
 - [blocked tasks, NOT_READY items, SPLIT_REQUIRED]
 
@@ -182,4 +182,4 @@ Return the report above. The main agent:
 - Do not write implementation code directly except unblocker fixes during remediation.
 - Do not run `git commit` / `git push` unless user explicitly asks.
 - Do not mark Done with failing Phase E, Phase D NOT_READY, or Phase C Changes needed.
-- YAGNI: see [AGENTS.md](../../../AGENTS.md) § YAGNI and [vitals-project.md](../vitals-spec-driven/references/vitals-project.md).
+- YAGNI: see [AGENTS.md](../../../../AGENTS.md) § YAGNI and [vitals-project.md](vitals-project.md).

@@ -7,13 +7,19 @@ import {
   isFragileScoringPath,
   SCORING_FORMULA_CONTEXT,
 } from "./lib/paths.mjs";
-import { loadState, readStdinJson, saveState } from "./lib/state.mjs";
+import {
+  getWorkspaceRoot,
+  loadState,
+  readStdinJson,
+  saveState,
+} from "./lib/state.mjs";
 import { trackEditFromToolInput } from "./lib/track-path.mjs";
 
 const input = await readStdinJson();
 trackEditFromToolInput(input);
 
-const relPath = extractEditPath(input.tool_input);
+const workspaceRoot = getWorkspaceRoot(input);
+const relPath = extractEditPath(input.tool_input, workspaceRoot);
 
 if (relPath) {
   const isProductionFragile =

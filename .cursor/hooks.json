@@ -23,14 +23,14 @@
     "preToolUse": [
       {
         "command": "node .cursor/hooks/pre-edit-guard.mjs",
-        "matcher": "Write|StrReplace",
+        "matcher": "Write|StrReplace|Delete|EditNotebook",
         "timeout": 5
       }
     ],
     "postToolUse": [
       {
         "command": "node .cursor/hooks/post-edit-guard.mjs",
-        "matcher": "Write|StrReplace",
+        "matcher": "Write|StrReplace|Delete|EditNotebook",
         "timeout": 5
       }
     ],

@@ -1,37 +1,41 @@
-# hotspot-scanner — padrões para subagents
+# hotspot-scanner — subagent patterns
 
-Guia para criar subagents **neste repositório** (`@vitals/hotspot-scanner`).
+Guide for creating subagents **in this repository** (`@vitals/hotspot-scanner`).
 
-## Matriz reusar vs criar
+Read this file **before** writing a new file under `.cursor/agents/`. Prefer reusing an existing agent over creating a new one.
 
-| Necessidade                    | Reusar                     | Não criar                 |
+## Reuse vs create
+
+| Need | Reuse | Do not create |
 | ------------------------------ | -------------------------- | ------------------------- |
-| Planejar spec/design/tasks     | `planner-feature`          | Planner ad hoc            |
-| Orquestrar Execute             | `orchestrator-implementer` | Orchestrator duplicado    |
-| Implementar uma task           | `implementer`              | Implementer genérico      |
-| Code review pós-implementação  | `code-reviewer`            | Reviewer sem convenções   |
-| Aceitação vs spec              | `verifier-implementation`  | Verifier sem critérios    |
-| Gate `pnpm build && pnpm test` | `verifier-quality-gates`   | Script ad hoc             |
-| Criar fixtures Git/TS          | `fixture-builder`          | Fixture manual sem README |
+| Plan spec/design/tasks | `planner-feature` | Ad hoc planner |
+| Orchestrate Execute | `orchestrator-implementer` | Duplicate orchestrator |
+| Implement one task | `implementer` | Generic implementer |
+| Post-implementation code review | `code-reviewer` | Reviewer without conventions |
+| Acceptance vs spec | `verifier-implementation` | Verifier without criteria |
+| Gate `pnpm build && pnpm test` | `verifier-quality-gates` | Ad hoc script |
+| Create Git/TS fixtures | `fixture-builder` | Manual fixture without README |
 
 ## Skill vs subagent (hotspot-scanner)
 
-| Tipo         | Quando                                                                                              |
+| Type | When |
 | ------------ | --------------------------------------------------------------------------------------------------- |
-| **Skill**    | Workflow reutilizável invocado pelo agente principal (spec-driven, CLI validation, pipeline domain) |
-| **Subagent** | Sessão isolada com papel fixo e frontmatter (planner, implementer, verifiers)                       |
+| **Skill** | Reusable workflow invoked by the main agent (spec-driven, CLI validation, pipeline domain) |
+| **Subagent** | Isolated session with a fixed role and frontmatter (planner, implementer, verifiers) |
 
-## Template hotspot-scanner
+For workflows that do **not** need isolated context, prefer a skill under `.cursor/skills/<name>/SKILL.md`.
+
+## hotspot-scanner template
 
 ```markdown
 ---
 name: my-agent
-description: [Papel hotspot-scanner]. Use when [triggers específicos]. Do NOT use for [anti-triggers]. See "When to invoke" in the agent body.
+description: [hotspot-scanner role]. Use when [specific triggers]. Do NOT use for [anti-triggers]. See "When to invoke" in the agent body.
 model: inherit
 readonly: true|false
 ---
 
-You are the **[Nome legível]** for @vitals/hotspot-scanner — [uma linha: CLI local, pipeline git/complexity/scoring/report].
+You are the **[Readable Name]** for @vitals/hotspot-scanner — [one line: local CLI, git/complexity/scoring/report pipeline].
 
 ## When to invoke
 
@@ -41,30 +45,31 @@ You are the **[Nome legível]** for @vitals/hotspot-scanner — [uma linha: CLI 
 
 1. AGENTS.md
 2. vitals-project.md
-3. TESTING.md / CONCERNS.md (quando relevante)
+3. TESTING.md / CONCERNS.md (when relevant)
 
 ## Hard constraints
 
 - Gate: pnpm build && pnpm test
 - Requirement IDs: HOTSPOT-*
-- Não commitar sem pedido explícito do usuário
+- Do not commit unless the user explicitly asks
 ```
 
-## Rules relevantes
+## Relevant rules
 
-| Rule               | Escopo                                           |
+| Rule | Scope |
 | ------------------ | ------------------------------------------------ |
-| `context-first`    | Ler `.specs/codebase/` antes de mudar            |
-| `feature-planning` | Specify → Design → Tasks; sessão para em Planned |
-| `quality-gates`    | Gate obrigatório                                 |
-| `fragile-areas`    | git, complexity, scoring, compare, schemas       |
-| `integrations`     | ts-morph, git, commander, schemas                |
-| `bin-build`        | tsconfig + tsconfig.bin.json                     |
-| `testing-patterns` | Vitest, mock boundaries                          |
+| `context-first` | Read `.specs/codebase/` before changing code |
+| `feature-planning` | Specify → Design → Tasks; session stops at Planned |
+| `quality-gates` | Required gate |
+| `fragile-areas` | git, complexity, scoring, compare, schemas |
+| `integrations` | ts-morph, git, commander, schemas |
+| `bin-build` | tsconfig + tsconfig.bin.json |
+| `testing-patterns` | Vitest, mock boundaries |
 
-## Checklist pós-criação
+## Post-creation checklist
 
-- [ ] Frontmatter `description` com triggers e anti-triggers
-- [ ] Referência a AGENTS.md e vitals-project.md
-- [ ] Sem overlap com agents existentes em `.cursor/agents/`
-- [ ] Atualizar AGENTS.md § Skills and agents se agente for permanente
+- [ ] Frontmatter `description` with triggers and anti-triggers
+- [ ] References to AGENTS.md and vitals-project.md
+- [ ] No overlap with existing agents in `.cursor/agents/`
+- [ ] Update AGENTS.md § Skills and agents if the agent is permanent
+- [ ] Prefer `model: inherit`; set `readonly: true` for verifiers/reviewers

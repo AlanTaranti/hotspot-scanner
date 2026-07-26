@@ -1,12 +1,12 @@
 ---
-description: Padrões Vitest, coverage, mock boundaries e integridade de testes
+description: Vitest patterns, coverage, mock boundaries, and test integrity
 globs: **/*.test.ts,vitest.config.ts
 alwaysApply: false
 ---
 
-# Padrões de Teste
+# Testing Patterns
 
-SoT: [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md). Gate obrigatório: [quality-gates.mdc](../quality-gates.mdc).
+SoT: [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md). Required gate: [quality-gates.mdc](quality-gates.mdc).
 
 ## Coverage
 
@@ -14,24 +14,18 @@ Per-file thresholds enforced on every included `src/**` and `bin/**` file. See [
 
 ## Mock boundaries
 
-- Mock **git** apenas em `GitMiner` — não em scorers, reporter ou `scan.ts`
-- Mock **ts-morph** apenas em `ComplexityAnalyzer` — não em scoring
-- Testes de parse usam fixtures em `tests/fixtures/git-log/` e `tests/fixtures/complexity/`
+- Mock **git** only in `GitMiner` — not in scorers, reporter, or `scan.ts`
+- Mock **ts-morph** only in `ComplexityAnalyzer` — not in scoring
+- Parse tests use fixtures under `tests/fixtures/git-log/` and `tests/fixtures/complexity/`
 
 ## CLI tests (`bin/*.test.ts`)
 
-- `vi.resetModules()` antes de dynamic `import()` do CLI
-- Mock `process.stdout.write` e `process.exit`
-- Short `setTimeout` para async CLI init quando necessário
+- `vi.resetModules()` before dynamic `import()` of the CLI
+- Mock `process.stdout.write` and `process.exit`
+- Short `setTimeout` for async CLI init when needed
 
-## Fixtures
+## Integrity
 
-- Árvores Git em `tests/fixtures/repos/` — excluídas do Vitest include
-- Samples de `git log` em `tests/fixtures/git-log/`
-- Validação manual/E2E: `pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug>`
-
-## Integridade
-
-- Co-localizar `*.test.ts` com o módulo testado
-- Não enfraquecer assertions nem remover casos para passar gate
-- Test count diminuído ou assertions relaxadas = regressão potencial — investigar
+- Prefer co-located `*.test.ts` next to the module under test
+- Do not weaken coverage thresholds to greenwash a change
+- Contract tests must stay green after schema edits

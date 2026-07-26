@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
-import { allow, emptyOk, followup } from "./lib/respond.mjs";
+import { allow, deny, emptyOk } from "./lib/respond.mjs";
 import { getWorkspaceRoot, readStdinJson, saveState } from "./lib/state.mjs";
 
 /**
@@ -77,9 +77,10 @@ if (event === "subagentStart") {
     const tasksPath = resolveTasksPathFromPrompt(prompt, workspaceRoot);
     if (tasksPath) {
       const text = fs.readFileSync(tasksPath, "utf8");
-      if (/Status:\s*`?(?:Draft|Planned)`?/i.test(text)) {
-        followup(
-          "Execute bloqueado: tasks.md está Draft ou Planned. Promova Status para Approved/Ready for Execute antes do orchestrator (Phase A).",
+      if (/\*{0,2}Status\*{0,2}:\s*`?(?:Draft|Planned)`?/i.test(text)) {
+        deny(
+          "Execute blocked: tasks.md is Draft or Planned. Promote Status to Approved/Ready for Execute before starting the orchestrator (Phase A).",
+          "Planning session boundary — promote Status before orchestrator-implementer.",
         );
         process.exit(0);
       }

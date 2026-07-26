@@ -52,6 +52,8 @@ pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug> --since "12 months ag
 | `0`       | Scan completed successfully                            |
 | `!= 0`    | Invalid repo/path, git error, or invalid CLI arguments |
 
+After changing Cursor hooks under `.cursor/hooks/`, run `pnpm hooks:smoke` (does not replace the project gate).
+
 ## Skills and agents
 
 ### Skills

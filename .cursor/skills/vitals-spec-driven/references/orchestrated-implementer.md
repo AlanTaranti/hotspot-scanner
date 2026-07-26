@@ -67,6 +67,6 @@ Blockers:
 ## Direct invocation (no `orchestrated: true`)
 
 - May update `tasks.md` per [implement.md](implement.md) Step 9.
-- On Status `Done`: sync [ROADMAP.md](../../../.specs/project/ROADMAP.md) per [roadmap-sync.md](roadmap-sync.md).
+- On Status `Done`: sync [ROADMAP.md](../../../../.specs/project/ROADMAP.md) per [roadmap-sync.md](roadmap-sync.md).
 - Run `pnpm build && pnpm test` before marking Done (or task-specific Gate if narrower).
 - Recommend `verifier-implementation` before final Done on large features.

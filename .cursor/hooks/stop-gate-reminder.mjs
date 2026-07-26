@@ -11,9 +11,13 @@ const input = await readStdinJson();
 const state = loadState(input);
 const workspaceRoot = getWorkspaceRoot(input);
 
-if (state.codeTouched && gateStaleAfterEdits(workspaceRoot, state)) {
+if (
+  (state.codeTouched ||
+    state.touchedPaths.length > 0) &&
+  gateStaleAfterEdits(workspaceRoot, state)
+) {
   followup(
-    "Gate pendente antes de encerrar: execute `pnpm build && pnpm test` ou invoque verifier-quality-gates. Nenhuma tarefa é Done com gate falhando (quality-gates.mdc).",
+    "Pending gate before stopping: run `pnpm build && pnpm test` or invoke verifier-quality-gates. No task is Done with a failing gate (quality-gates.mdc).",
   );
   process.exit(0);
 }

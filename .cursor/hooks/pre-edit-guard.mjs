@@ -10,11 +10,12 @@ import {
   tsconfigAddsBinInclude,
   TSCONFIG_RE,
 } from "./lib/paths.mjs";
-import { loadState, readStdinJson } from "./lib/state.mjs";
+import { getWorkspaceRoot, loadState, readStdinJson } from "./lib/state.mjs";
 
 const input = await readStdinJson();
 const state = loadState(input);
-const relPath = extractEditPath(input.tool_input);
+const workspaceRoot = getWorkspaceRoot(input);
+const relPath = extractEditPath(input.tool_input, workspaceRoot);
 
 if (!relPath) {
   allow();
@@ -27,16 +28,16 @@ if (
   OWNERSHIP_PATH_RE.test(relPath)
 ) {
   deny(
-    "Implementer orquestrado não pode editar tasks.md nem ROADMAP.md — apenas o orchestrator-implementer atualiza Status e roadmap.",
-    "Ver orchestrated-implementer.md e roadmap-sync.md.",
+    "Orchestrated implementer cannot edit tasks.md or ROADMAP.md — only orchestrator-implementer updates Status and roadmap.",
+    "See orchestrated-implementer.md and roadmap-sync.md.",
   );
   process.exit(0);
 }
 
 if (state.activeSubagent === "planner-feature" && PLANNER_BLOCKED_RE.test(relPath)) {
   deny(
-    "Sessão de planejamento: planner-feature não edita src/, bin/ ou tests/. Artefatos ficam em .specs/features/ (planning-session-boundary.md).",
-    "Planning session boundary — Status Planned, sem Execute nesta sessão.",
+    "Planning session: planner-feature does not edit src/, bin/, or tests/. Artifacts stay under .specs/features/ (planning-session-boundary.md).",
+    "Planning session boundary — Status Planned, no Execute in this session.",
   );
   process.exit(0);
 }
@@ -45,8 +46,8 @@ if (TSCONFIG_RE.test(relPath)) {
   const content = extractEditContent(input.tool_input);
   if (tsconfigAddsBinInclude(content)) {
     deny(
-      "Proibido adicionar bin/ ao include do tsconfig.json sem reconciliar tsconfig.bin.json — causa output duplicado (bin-build.mdc).",
-      "bin/ compila via tsconfig.bin.json, não via tsconfig.json root.",
+      "Do not add bin/ to tsconfig.json include without reconciling tsconfig.bin.json — causes duplicate output (bin-build.mdc).",
+      "bin/ compiles via tsconfig.bin.json, not the root tsconfig.json.",
     );
     process.exit(0);
   }
@@ -58,7 +59,7 @@ const fragileAckPaths = state.fragileAckPaths ?? [];
 
 if (isProductionFragile && !fragileAckPaths.includes(relPath)) {
   ask(
-    `Edição em área frágil (${relPath}). Confirme que atualizará testes Vitest co-localizados antes de marcar Complete.`,
+    `Edit in fragile area (${relPath}). Confirm you will update co-located Vitest tests before marking Complete.`,
     `Fragile scanner area. ${FRAGILE_CONTEXT} Path: ${relPath}`,
   );
   process.exit(0);

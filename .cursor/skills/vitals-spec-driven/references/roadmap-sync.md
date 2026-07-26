@@ -1,6 +1,6 @@
 # ROADMAP Sync
 
-**Canonical source** for keeping [.specs/project/ROADMAP.md](../../../.specs/project/ROADMAP.md) aligned with delivered features.
+**Canonical source** for keeping [.specs/project/ROADMAP.md](../../../../.specs/project/ROADMAP.md) aligned with delivered features.
 
 **Used by:** `planner-feature` (on planning complete), `orchestrator-implementer` (on Execute Done), direct-mode implementers.
 

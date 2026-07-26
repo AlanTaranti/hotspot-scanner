@@ -1,51 +1,51 @@
 ---
-description: Guardrails para áreas frágeis do scanner (Git Miner, McCabe, scoring, compare, schemas)
+description: Guardrails for fragile scanner areas (Git Miner, McCabe, scoring, compare, schemas)
 globs: src/git/**,src/complexity/**,src/scoring/**,src/scan.ts,src/compare/**,schemas/**
 alwaysApply: false
 ---
 
-# Áreas Frágeis do Scanner
+# Fragile Scanner Areas
 
-SoT de risco e fórmulas: [`.specs/codebase/CONCERNS.md`](../../.specs/codebase/CONCERNS.md). Design: [`.specs/codebase/ARCHITECTURE.md`](../../.specs/codebase/ARCHITECTURE.md).
+Risk and formula SoT: [`.specs/codebase/CONCERNS.md`](../../.specs/codebase/CONCERNS.md). Design: [`.specs/codebase/ARCHITECTURE.md`](../../.specs/codebase/ARCHITECTURE.md).
 
-Mudanças em `src/scan.ts` que alteram ordem de estágios ou wiring do pipeline exigem testes de integração atualizados.
+Changes to `src/scan.ts` that alter stage order or pipeline wiring require updated integration tests.
 
-Qualquer mudança nos paths abaixo **exige** teste Vitest correspondente atualizado ou adicionado antes de marcar a task como Complete.
+Any change under the paths below **requires** a corresponding Vitest test updated or added before marking the task Complete.
 
 ## Git Change Miner (`src/git/`)
 
-Streaming parse de `git log --numstat --name-only` — alimenta churn e coupling numa única passada.
+Streaming parse of `git log --numstat --name-only` — feeds churn and coupling in a single pass.
 
-**Proibido:** carregar log inteiro em memória; alterar parsing de rename/merge/delete sem fixtures em `tests/fixtures/git-log/`.
+**Forbidden:** loading the full log into memory; changing rename/merge/delete parsing without fixtures under `tests/fixtures/git-log/`.
 
-**Obrigatório:** testes para `FileChangeStats` e `CoChangeEvent[]` derivados do mesmo stream.
+**Required:** tests for `FileChangeStats` and `CoChangeEvent[]` derived from the same stream.
 
 ## Complexity Analyzer (`src/complexity/`)
 
-McCabe sobre AST via ts-morph — definição detalhada em CONCERNS/ARCHITECTURE.
+McCabe over AST via ts-morph — detailed definition in CONCERNS/ARCHITECTURE.
 
-Nós de decisão (resumo): `if`/`else if`, `for`, `while`, `do-while`, `case` de `switch`, `catch`, `&&`/`||`/`??` em condições, ternários.
+Decision nodes (summary): `if`/`else if`, `for`, `while`, `do-while`, `switch` `case`, `catch`, `&&`/`||`/`??` in conditions, ternaries.
 
-**Proibido:** alterar definição de nó de decisão sem fixtures em `tests/fixtures/complexity/` com valores McCabe verificados manualmente.
+**Forbidden:** changing the decision-node definition without fixtures under `tests/fixtures/complexity/` with manually verified McCabe values.
 
-**Obrigatório:** arquivo com sintaxe inválida → warning + skip (não abortar scan).
+**Required:** invalid syntax file → warning + skip (do not abort the scan).
 
 ## Scoring (`src/scoring/`)
 
 SoT: CONCERNS.md — `hotspotScore = 2ch / (c + h)`; `couplingStrength = coChangeCount / min(commitsA, commitsB)`.
 
-**Proibido:** alterar fórmulas ou estratégia de normalização sem testes com inputs fixos e ordem esperada.
+**Forbidden:** changing formulas or normalization strategy without tests using fixed inputs and expected ordering.
 
-**Obrigatório:** testar edge cases (zero commits, arquivo único, threshold `--min-cochange`).
+**Required:** edge cases (zero commits, single file, `--min-cochange` threshold).
 
 ## Compare / baseline (`src/compare/`)
 
-`loadBaseline()` valida estrutura forte (incl. `hasStaticDependency`). Mudanças no contrato de parse exigem testes em `load-baseline.test.ts` e fixtures de baseline.
+`loadBaseline()` validates a strong structure (incl. `hasStaticDependency`). Parse-contract changes require tests in `load-baseline.test.ts` and baseline fixtures.
 
-**Proibido:** auto-migrar baselines pré-M14; falhar com mensagem clara.
+**Forbidden:** auto-migrating pre-M14 baselines; fail with a clear message.
 
 ## JSON schemas (`schemas/`)
 
-SoT de contrato I/O: `schemas/scan-result.json`, `schemas/compare-result.json`.
+I/O contract SoT: `schemas/scan-result.json`, `schemas/compare-result.json`.
 
-**Obrigatório:** após editar schemas, atualizar `tests/contract/json-schema.test.ts` e fixtures JSON relacionados.
+**Required:** after editing schemas, update `tests/contract/json-schema.test.ts` and related JSON fixtures.

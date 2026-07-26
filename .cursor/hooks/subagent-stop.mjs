@@ -21,7 +21,7 @@ const messages = [];
 
 if (state.codeTouched) {
   messages.push(
-    "Antes de marcar Done: invoque verifier-quality-gates e confirme `pnpm build && pnpm test` PASS (orchestrator Phase E).",
+    "Before marking Done: invoke verifier-quality-gates and confirm `pnpm build && pnpm test` PASS (orchestrator Phase E).",
   );
 }
 

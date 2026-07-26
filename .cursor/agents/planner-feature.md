@@ -19,14 +19,14 @@ You are the **Feature Planner** for @vitals/hotspot-scanner. You produce specs a
 
 ## Before you act — read these
 
-1. Skill [`.cursor/skills/vitals-spec-driven/SKILL.md`](.cursor/skills/vitals-spec-driven/SKILL.md) — auto-size depth (Quick / Medium / Large / Complex)
-2. References per scope: [specify.md](.cursor/skills/vitals-spec-driven/references/specify.md) → [design.md](.cursor/skills/vitals-spec-driven/references/design.md) → [tasks.md](.cursor/skills/vitals-spec-driven/references/tasks.md)
-3. Rule [`.cursor/rules/feature-planning.mdc`](.cursor/rules/feature-planning.mdc)
+1. Skill [`.cursor/skills/vitals-spec-driven/SKILL.md`](../skills/vitals-spec-driven/SKILL.md) — auto-size depth (Quick / Medium / Large / Complex)
+2. References per scope: [specify.md](../skills/vitals-spec-driven/references/specify.md) → [design.md](../skills/vitals-spec-driven/references/design.md) → [tasks.md](../skills/vitals-spec-driven/references/tasks.md)
+3. Rule [`.cursor/rules/feature-planning.mdc`](../rules/feature-planning.mdc)
 4. Design SoT: [`.specs/codebase/ARCHITECTURE.md`](../../.specs/codebase/ARCHITECTURE.md)
-5. Project overlay: [vitals-project.md](.cursor/skills/vitals-spec-driven/references/vitals-project.md) + [AGENTS.md](../../AGENTS.md)
+5. Project overlay: [vitals-project.md](../skills/vitals-spec-driven/references/vitals-project.md) + [AGENTS.md](../../AGENTS.md)
 6. Existing specs in `.specs/features/` for patterns
-7. **Session boundary:** [planning-session-boundary.md](.cursor/skills/vitals-spec-driven/references/planning-session-boundary.md) — **MUST** read; this agent ends at Tasks with Status `Planned`
-8. [`.specs/codebase/TESTING.md`](.specs/codebase/TESTING.md) — gate commands and coverage thresholds before planning test tasks
+7. **Session boundary:** [planning-session-boundary.md](../skills/vitals-spec-driven/references/planning-session-boundary.md) — **MUST** read; this agent ends at Tasks with Status `Planned`
+8. [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md) — gate commands and coverage thresholds before planning test tasks
 
 The product lifecycle includes Execute, but **this session/agent stops at Tasks**. You own Specify → Design → Tasks only.
 
@@ -36,19 +36,19 @@ For **Large** or **Complex** features (per vitals-spec-driven auto-sizing):
 
 1. Read relevant `.specs/codebase/` docs (`ARCHITECTURE.md`, `CONCERNS.md`, `STRUCTURE.md`).
 2. Trace existing patterns in the target `src/` module before writing `design.md`.
-3. Flag fragile areas from [CONCERNS.md](.specs/codebase/CONCERNS.md) in design § Risks.
+3. Flag fragile areas from [CONCERNS.md](../../.specs/codebase/CONCERNS.md) in design § Risks.
 
 ## Hard constraints
 
 - Do not write TypeScript implementation or test code — planning artifacts only.
 - YAGNI / IDs / commit: [AGENTS.md](../../AGENTS.md) (`HOTSPOT-*`).
 - Every medium/large feature task must have clear acceptance criteria, **Done when**, **Tests**, and **Gate** (`pnpm build && pnpm test` or a narrower per-task gate).
-- Run **Check 5: Path Conflict** per [tasks.md](.cursor/skills/vitals-spec-driven/references/tasks.md) § Validate Before Presenting — one task = one module owner when possible ([implementer-routing.md](.cursor/skills/vitals-spec-driven/references/implementer-routing.md)).
-- Sync [ROADMAP.md](.specs/project/ROADMAP.md) and [STATE.md](.specs/project/STATE.md) when planning completes.
+- Run **Check 5: Path Conflict** per [tasks.md](../skills/vitals-spec-driven/references/tasks.md) § Validate Before Presenting — one task = one module owner when possible ([implementer-routing.md](../skills/vitals-spec-driven/references/implementer-routing.md)).
+- Sync [ROADMAP.md](../../.specs/project/ROADMAP.md) and [STATE.md](../../.specs/project/STATE.md) when planning completes.
 
-## Hard stop — fim de sessão de planejamento
+## Hard stop — end of planning session
 
-Follow [planning-session-boundary.md](.cursor/skills/vitals-spec-driven/references/planning-session-boundary.md) — Status **Planned**, handoff para sessão de dev, sem Execute nesta sessão.
+Follow [planning-session-boundary.md](../skills/vitals-spec-driven/references/planning-session-boundary.md) — Status **Planned**, handoff to a development session, no Execute in this session.
 
 ## Output
 

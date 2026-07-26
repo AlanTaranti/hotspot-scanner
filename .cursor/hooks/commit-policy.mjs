@@ -9,7 +9,9 @@ const event = input.hook_event_name;
 
 if (event === "beforeSubmitPrompt") {
   const prompt = typeof input.prompt === "string" ? input.prompt : "";
-  const userAllowedCommit = COMMIT_REQUEST_RE.test(prompt);
+  const state = loadState(input);
+  const userAllowedCommit =
+    state.userAllowedCommit || COMMIT_REQUEST_RE.test(prompt);
   saveState(input, { userAllowedCommit });
   emptyOk();
   process.exit(0);
@@ -25,12 +27,13 @@ if (event === "beforeShellExecution") {
   const state = loadState(input);
   if (!state.userAllowedCommit) {
     deny(
-      "Commit bloqueado: o usuário não pediu explicitamente para commitar nesta sessão. Use commit, commite, comitar ou versionar na mensagem.",
+      "Commit blocked: the user did not explicitly ask to commit in this session. Include commit, commite, comitar, or versionar in the message.",
       "AGENTS.md: do not commit unless the user asks. Message must include: commit | commite | comitar | versionar.",
     );
     process.exit(0);
   }
 
+  saveState(input, { userAllowedCommit: false });
   allow();
   process.exit(0);
 }

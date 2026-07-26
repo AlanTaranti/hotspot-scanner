@@ -5,7 +5,7 @@ import {
   isCodePath,
   isFragilePath,
   isFragileScoringPath,
-  normalizeRelPath,
+  toRelPath,
 } from "./paths.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -155,7 +155,9 @@ export function trackPathInState(state, relPath) {
  * @param {SessionState} state
  */
 function gateTimestampsCurrent(workspaceRoot, state) {
-  const codePaths = state.touchedPaths.filter((rel) => isCodePath(rel));
+  const codePaths = state.touchedPaths
+    .map((p) => toRelPath(p, workspaceRoot) ?? p)
+    .filter((rel) => isCodePath(rel));
   if (codePaths.length === 0) return false;
 
   const hasCombined = Boolean(state.gatePassedAt);
@@ -196,13 +198,19 @@ function gateTimestampsCurrent(workspaceRoot, state) {
  * @param {SessionState} state
  */
 export function gateStaleAfterEdits(workspaceRoot, state) {
-  if (!state.codeTouched) return false;
+  const hasCode =
+    state.codeTouched ||
+    state.touchedPaths.some((p) =>
+      isCodePath(toRelPath(p, workspaceRoot) ?? p),
+    );
+  if (!hasCode) return false;
   return !gateTimestampsCurrent(workspaceRoot, state);
 }
 
 /**
  * @param {string | null | undefined} raw
+ * @param {string | undefined | null} [workspaceRoot]
  */
-export function trackPathFromAfterFileEdit(raw) {
-  return normalizeRelPath(typeof raw === "string" ? raw : null);
+export function trackPathFromAfterFileEdit(raw, workspaceRoot) {
+  return toRelPath(typeof raw === "string" ? raw : null, workspaceRoot);
 }

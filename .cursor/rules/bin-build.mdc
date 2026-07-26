@@ -1,23 +1,23 @@
 ---
-description: Build do CLI — tsc para src/ e tsconfig.bin.json para bin/
+description: CLI build — tsc for src/ and tsconfig.bin.json for bin/
 globs: bin/**,tsconfig.json,tsconfig.bin.json
 alwaysApply: false
 ---
 
-# Build do CLI
+# CLI Build
 
 SoT: [`.specs/codebase/CONVENTIONS.md`](../../.specs/codebase/CONVENTIONS.md) § Build conventions, [`.specs/codebase/CONCERNS.md`](../../.specs/codebase/CONCERNS.md).
 
-## Dois projetos TypeScript
+## Two TypeScript projects
 
-| Artefato | Compilador | Output |
+| Artifact | Compiler | Output |
 | -------- | ---------- | ------ |
 | `src/**` | `tsc` (`tsconfig.json`, `rootDir: src`, `outDir: dist`) | `dist/` |
 | `bin/hotspot-scanner.ts` | `tsc -p tsconfig.bin.json` | `dist/bin/` |
 
-## Regras
+## Rules
 
-- **Proibido:** adicionar `bin/` ao `tsconfig.json` `include` sem reconciliar `tsconfig.bin.json` — causa output duplicado ou conflitante.
-- Imports no bin: extensão `.js` para módulos internos (`../src/scan.js` quando existir).
+- **Forbidden:** adding `bin/` to `tsconfig.json` `include` without reconciling `tsconfig.bin.json` — causes duplicate or conflicting output.
+- Bin imports: `.js` extension for internal modules (`../src/scan.js` when present).
 - `pnpm build` = `tsc && tsc -p tsconfig.bin.json`
-- Após mudanças em `bin/`, `tsconfig.bin.json` ou `tsconfig.json`: rodar `pnpm build && pnpm test`.
+- After changes to `bin/`, `tsconfig.bin.json`, or `tsconfig.json`: run `pnpm build && pnpm test`.

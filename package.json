@@ -45,7 +45,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "bench": "node scripts/bench-scan.mjs"
+    "bench": "node scripts/bench-scan.mjs",
+    "hooks:smoke": "node .cursor/hooks/smoke-test.mjs"
   },
   "keywords": [
     "hotspot",

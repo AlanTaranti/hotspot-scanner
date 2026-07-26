@@ -1,4 +1,4 @@
-# Feature Spec Checklist — Pós-planejamento
+# Feature Spec Checklist — Post-planning
 
 **Used by:** `planner-feature` before marking planning complete.
 
@@ -22,9 +22,9 @@
 
 ## Design quality
 
-- [ ] Module boundaries align with [STRUCTURE.md](../../../.specs/codebase/STRUCTURE.md)
-- [ ] Fragile areas from [CONCERNS.md](../../../.specs/codebase/CONCERNS.md) addressed or flagged
-- [ ] Integration points reference [INTEGRATIONS.md](../../../.specs/codebase/INTEGRATIONS.md) where applicable
+- [ ] Module boundaries align with [STRUCTURE.md](../../../../.specs/codebase/STRUCTURE.md)
+- [ ] Fragile areas from [CONCERNS.md](../../../../.specs/codebase/CONCERNS.md) addressed or flagged
+- [ ] Integration points reference [INTEGRATIONS.md](../../../../.specs/codebase/INTEGRATIONS.md) where applicable
 - [ ] `.specs/codebase/` sections cited when design deviates from or extends documented architecture
 
 ## Tasks quality
@@ -37,7 +37,7 @@
 
 ## ROADMAP sync
 
-- [ ] Feature listed under correct milestone in [ROADMAP.md](../../../.specs/project/ROADMAP.md)
+- [ ] Feature listed under correct milestone in [ROADMAP.md](../../../../.specs/project/ROADMAP.md)
 - [ ] Link to `spec.md` from ROADMAP entry (or noted for sync on Done)
 
 ## Planning complete gate
@@ -45,7 +45,7 @@
 Mark **yes** only when:
 
 - [ ] `tasks.md` has **Status: Planned** (Large/Complex) or N/A (Quick/Medium implicit)
-- [ ] Zero unresolved `PENDENTE-DISCUSSÃO` in `context.md` (or explicitly deferred with user ack)
+- [ ] Zero unresolved `PENDING-DISCUSSION` in `context.md` (or explicitly deferred with user ack)
 - [ ] Handoff message prepared per [planning-session-boundary.md](planning-session-boundary.md)
 
 If **no**, list missing items before presenting to user.

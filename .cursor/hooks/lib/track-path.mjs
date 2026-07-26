@@ -1,12 +1,18 @@
 import { extractEditPath } from "./paths.mjs";
-import { loadState, saveState, trackPathInState } from "./state.mjs";
+import {
+  getWorkspaceRoot,
+  loadState,
+  saveState,
+  trackPathInState,
+} from "./state.mjs";
 
 /**
  * @param {Record<string, unknown>} input
  * @returns {import("./state.mjs").SessionState | null}
  */
 export function trackEditFromToolInput(input) {
-  const relPath = extractEditPath(input.tool_input);
+  const workspaceRoot = getWorkspaceRoot(input);
+  const relPath = extractEditPath(input.tool_input, workspaceRoot);
   if (!relPath) return null;
 
   const state = loadState(input);

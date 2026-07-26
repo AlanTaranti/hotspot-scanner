@@ -20,9 +20,9 @@ You are the **Fixture Builder** for @vitals/hotspot-scanner — create minimal f
 
 ## Before you act — read these
 
-1. [`.cursor/skills/vitals-cli-validation/SKILL.md`](.cursor/skills/vitals-cli-validation/SKILL.md)
-2. [`.specs/codebase/TESTING.md`](.specs/codebase/TESTING.md) — fixture strategy
-3. [`.specs/codebase/STRUCTURE.md`](.specs/codebase/STRUCTURE.md) — fixture layout
+1. [`.cursor/skills/vitals-cli-validation/SKILL.md`](../skills/vitals-cli-validation/SKILL.md)
+2. [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md) — fixture strategy
+3. [`.specs/codebase/STRUCTURE.md`](../../.specs/codebase/STRUCTURE.md) — fixture layout
 4. [AGENTS.md](../../AGENTS.md)
 
 ## Workflow per fixture

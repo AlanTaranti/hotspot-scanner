@@ -1,15 +1,45 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { additionalContext } from "./lib/respond.mjs";
 import { getWorkspaceRoot, readStdinJson } from "./lib/state.mjs";
 
+const STATE_TTL_MS = 14 * 24 * 60 * 60 * 1000;
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const STATE_DIR = path.resolve(__dirname, "..", "hooks-state");
+
+/**
+ * Best-effort prune of stale session state files (mtime older than TTL).
+ */
+function pruneStaleStateFiles() {
+  try {
+    if (!fs.existsSync(STATE_DIR)) return;
+    const cutoff = Date.now() - STATE_TTL_MS;
+    for (const name of fs.readdirSync(STATE_DIR)) {
+      if (!name.endsWith(".json")) continue;
+      const file = path.join(STATE_DIR, name);
+      try {
+        const stat = fs.statSync(file);
+        if (stat.mtimeMs < cutoff) fs.unlinkSync(file);
+      } catch {
+        // ignore per-file errors
+      }
+    }
+  } catch {
+    // best-effort
+  }
+}
+
 const input = await readStdinJson();
+pruneStaleStateFiles();
+
 const root = getWorkspaceRoot(input);
 
 const parts = [
-  "@vitals/hotspot-scanner — gate obrigatório: pnpm build && pnpm test",
-  "Antes de implementar: .specs/codebase/CONVENTIONS.md, TESTING.md; features em .specs/features/",
+  "@vitals/hotspot-scanner — required gate: pnpm build && pnpm test",
+  "Before implementing: .specs/codebase/CONVENTIONS.md, TESTING.md; features under .specs/features/",
   "Pipeline: git → complexity → scoring → report",
 ];
 
@@ -17,8 +47,8 @@ const roadmapPath = path.join(root, ".specs/project/ROADMAP.md");
 if (fs.existsSync(roadmapPath)) {
   const roadmap = fs.readFileSync(roadmapPath, "utf8");
   const inProgress = findInProgressFeatures(root);
-  const milestone = extractCurrentMilestone(roadmap);
-  if (milestone) parts.push(`ROADMAP milestone ativo: ${milestone}`);
+  const milestone = extractCurrentMilestone(roadmap, inProgress);
+  if (milestone) parts.push(`ROADMAP active milestone: ${milestone}`);
   if (inProgress.length > 0) {
     parts.push(`Features In Progress: ${inProgress.join(", ")}`);
   }
@@ -28,11 +58,42 @@ additionalContext(parts.join("\n"));
 process.exit(0);
 
 /**
+ * Prefer a milestone that mentions an In Progress feature, else the last
+ * Milestone heading that still has open checkbox items, else the first heading.
  * @param {string} roadmap
+ * @param {string[]} inProgress
  */
-function extractCurrentMilestone(roadmap) {
-  const match = roadmap.match(/##\s+Milestone\s+(\d+)[^\n]*/i);
-  return match ? match[0].trim() : null;
+function extractCurrentMilestone(roadmap, inProgress) {
+  const sections = [];
+  const re = /^##\s+(Milestone\s+\d+[^\n]*)/gim;
+  let match;
+  while ((match = re.exec(roadmap)) !== null) {
+    sections.push({ title: match[1].trim(), index: match.index });
+  }
+  if (sections.length === 0) return null;
+
+  const bodyOf = (i) => {
+    const start = sections[i].index;
+    const end =
+      i + 1 < sections.length ? sections[i + 1].index : roadmap.length;
+    return roadmap.slice(start, end);
+  };
+
+  for (let i = 0; i < sections.length; i++) {
+    const body = bodyOf(i);
+    if (inProgress.some((slug) => body.includes(slug))) {
+      return sections[i].title;
+    }
+  }
+
+  for (let i = sections.length - 1; i >= 0; i--) {
+    const body = bodyOf(i);
+    if (/\[[ \t]\]/.test(body) || /\bTODO\b|\bIn Progress\b/i.test(body)) {
+      return sections[i].title;
+    }
+  }
+
+  return sections[0].title;
 }
 
 /**

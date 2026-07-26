@@ -25,8 +25,8 @@ if (event === "beforeShellExecution") {
 
   if (!fs.existsSync(absPath)) {
     deny(
-      `Fixture/path inválido: ${pathArg} não existe. Use tests/fixtures/repos/<slug> ou invoque fixture-builder.`,
-      `CLI validation (vitals-cli-validation): scan path deve apontar para diretório existente. Tentado: ${absPath}`,
+      `Invalid fixture/path: ${pathArg} does not exist. Use tests/fixtures/repos/<slug> or invoke fixture-builder.`,
+      `CLI validation (vitals-cli-validation): scan path must point to an existing directory. Tried: ${absPath}`,
     );
     process.exit(0);
   }
@@ -64,7 +64,7 @@ if (event === "afterShellExecution") {
   const hints = parseCoverageHints(output);
   if (hints.length > 0) {
     additionalContext(
-      `pnpm test falhou (exit ${exitCode}). Possível coverage abaixo do threshold:\n${hints.join("\n")}`,
+      `pnpm test failed (exit ${exitCode}). Possible coverage below threshold:\n${hints.join("\n")}`,
     );
     process.exit(0);
   }
