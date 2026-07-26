@@ -14,6 +14,7 @@
 | ----------- | ----------------------------------------------- |
 | `ts-morph`  | AST access for complexity analysis              |
 | `commander` | CLI argument parsing (`bin/hotspot-scanner.ts`) |
+| `picomatch` | Glob matching for path scoping (`src/paths/`)   |
 
 Git log invocation uses `child_process.spawn` in `src/git/` (no `simple-git`).
 
@@ -29,9 +30,9 @@ Git log invocation uses `child_process.spawn` in `src/git/` (no `simple-git`).
 | `globals`                                   | ESLint Node globals for flat config         |
 | `ajv`                                       | JSON Schema contract tests (M20)            |
 
-## Package publish prep (M24)
+## Package publish prep (M24 + M55)
 
-- `package.json` `files` includes `dist/`, `schemas/`, `LICENSE`, `README.md`
+- `package.json` `files` includes `dist/`, `schemas/`, `LICENSE`, `README.md`, `SECURITY.md`
 - `engines.node` is `>=22`; `repository` points at the git remote URL
 
 ## Build

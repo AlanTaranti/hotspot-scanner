@@ -10,7 +10,7 @@
 
 - Rank files by `hotspotScore = 2ch / (c + h)` where `c` and `h` are normalized complexity and churn (harmonic mean)
 - Surface temporal coupling pairs with `couplingStrength` metric
-- Run 100% locally — no network, no CI gate in v1
+- Run 100% locally — no network, no CI gate in product scope (see STATE Deferred for future CI recipes)
 - Scale from small repos (~500 files, ~5k commits) to large repos via streaming Git parse
 
 ## Tech Stack
@@ -26,34 +26,28 @@
 
 ## Scope
 
-**Shipped (v1 + post-v1 through M24):**
+**Shipped (v1 + post-v1 through M55):**
 
-- `hotspot-scanner scan <path>` with `--since`, `--format`, `--top`, `--min-cochange`, `--baseline`, `--output`, `--granularity`, `--include`, `--exclude`
-- Git Change Miner: streaming numstat `git log` pass for file churn and coupling; function mode adds a patch stream (`git log -p --unified=0`) for per-function hunk-overlap churn (M23)
-- Complexity Analyzer (McCabe over ts-morph AST; worker-thread batches)
-- Hotspot Scorer + Temporal Coupling Scorer
-- CLI table, JSON, markdown, and CSV bundle output
-- Path scoping: default excludes + `--include`/`--exclude` globs (M7)
-- Harmonic hotspot score `2ch/(c+h)` (M8)
-- Rich output: raw metrics and `authorCount` in JSON/table (M9)
-- Export formats: `--output` file write; `--format markdown` (M10)
-- Function granularity: `--granularity file|function` (M11)
-- Baseline compare: `--baseline` delta report (M13)
-- Enriched coupling: `hasStaticDependency` on coupling pairs (M14)
-- Format-scoped `--top`: limits table/markdown only; JSON/CSV export full rankings (M16)
-- CSV bundle: multi-file stem + `{stem}.meta.json` sidecar; `--format csv` requires `--output` (M18)
-- JSON contract: published schemas for `ScanResult` and `CompareResult`; strict baseline validation (M20)
-- Config file: `.hotspot-scanner.json` with CLI > config > defaults precedence (M21)
-- Extended function AST: getters/setters, class field arrows, object-literal methods (M22)
-- Per-function Git churn: hunk-overlap attribution on patch stream in function mode (M23)
-- Package DX: `typecheck`/`lint`/`format` scripts, `engines.node >= 22`, publish `files` allowlist including `schemas/` (M24)
+- `hotspot-scanner` multi-command CLI: `init`, `doctor`, `scan`, `baseline save`, `compare`, `completion`
+- `scan` with `--since`, `--format`, `--top`, `--min-cochange`, `--baseline`, `--output`, `--granularity`, `--include` / `--exclude`, `--include-tests`, `--config`, `--concurrency`, `--sequential` / `--no-overlap`, `--mega-commit-threshold`, `--only`, `--explain`, `--strict`, `--quiet` / `--no-progress` / `--verbose`, `--dry-run`
+- Git Change Miner: streaming numstat pass for file churn and coupling; function mode adds sequential pathspec-batched patch streams for per-function hunk-overlap churn
+- Complexity Analyzer (McCabe over ts-morph AST; persistent worker-thread pool; `.ts`/`.tsx`/`.js`/`.jsx`/`.mjs`/`.cjs`)
+- Hotspot Scorer + Temporal Coupling Scorer + static coupling enrich (relative, tsconfig paths, in-repo `exports`/`imports`)
+- CLI table, JSON, markdown, and CSV bundle output; interpretation UX (summary, glossary, triage); compare deltas
+- Path scoping: artifact + test default excludes; `--include-tests` opt-in; monorepo package-cwd remount + auto-include
+- Config: `.hotspot-scanner.json` (parent walk / `--config`); CLI > config > defaults; unknown keys → warn-only `UNKNOWN_CONFIG_KEY`
+- Observability: structured `meta.warnings`, `meta.timings`, SIGINT/SIGTERM cancel, `doctor --format json`
+- Package entry exports `runScan`, `previewScanScope`, `runDoctor`, compare helpers; `SECURITY.md` + zero-network policy
+- Milestone checklist: [ROADMAP.md](ROADMAP.md) (M1–M55 Done)
 
-**Excludes / backlog:**
+**Excludes / Next:**
 
-- CI/CD gate, dashboard, persistence between runs
+- CI/CD gate, dashboard, persistence between runs (CI recipes / SARIF deferred — see [STATE.md](STATE.md) Deferred)
 - Languages beyond TS/JS
 - Relative code churn (decision closed — raw commit count only)
-- Post-M24 work: see [ROADMAP.md](ROADMAP.md) stubs M25–M30 (product docs sync, coupling enrichment, perf diagnostics, function AST+, path/config DX). M26 rename-confidence warnings are Done — see ROADMAP M26.
+- npm / npx publish install path (Deferred)
+- Historical AST post-rename (Deferred — do not prioritize)
+- Residual co-located `*.test.mjs` / `*.spec.cjs` not in default test excludes (accepted; user `--exclude` or future follow-up)
 
 ## References
 

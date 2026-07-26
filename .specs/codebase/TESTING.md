@@ -79,7 +79,7 @@ coverage: {
 | Git Miner      | Rename, merge, delete cases                          | Vitest + `tests/fixtures/git-log/`                                                           |
 | Function churn | Hunk overlap, nested credit, interval index (M35) | Vitest + `tests/fixtures/git-patch/`; `aggregate.test.ts` equivalence vs `hunkIntersectsFunction` |
 | Complexity     | Known McCabe values                                  | Vitest + `tests/fixtures/complexity/`                                                        |
-| CLI            | Flag defaults, `--concurrency`, invalid args           | Vitest; mock `process.exit`                                                                  |
+| CLI            | Flag defaults, `--concurrency`, `completion <shell>`, `doctor --format json`, invalid args | Vitest; mock `process.exit`                                                                  |
 | Integration    | Full scan on fixture repo                            | Vitest + `tests/fixtures/repos/small-ts/` (primary E2E); `with-renames/` (M26 rename confidence E2E); `merge-heavy/` (M55 merge + delete E2E) |
 | Performance    | Large repo timing; overlap vs sequential A/B         | Manual `pnpm bench` harness (`scripts/bench-scan.mjs`) — **not** part of `pnpm test` / CI    |
 
@@ -156,6 +156,10 @@ pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug> --since "12 months ag
 See skill `vitals-cli-validation` for exit codes and flag matrix.
 
 **M28 diagnostics:** integration tests assert `meta.warnings` as `ScanWarning[]` objects; contract tests (`tests/contract/json-schema.test.ts`) validate `$defs.ScanWarning` on scan and compare JSON. Invalid `--concurrency` exits non-zero before scan.
+
+**M51 doctor JSON:** `src/doctor/format.test.ts` + `bin/hotspot-scanner.test.ts` — `doctor --format json` stdout shape (`version`, `findings`, `exitCode`).
+
+**M54 completion:** `bin/hotspot-scanner.test.ts` — `completion <shell>` prints script to stdout; invalid shell → `CliUsageError`.
 
 **M42 explain + progress:** `src/report/explain.test.ts` (grammar, lookup, stderr formatting); `src/diagnostics/logger.test.ts` and `src/complexity/pool.test.ts` (complexity phase counters and throttle); `bin/hotspot-scanner.test.ts` (CLI `--explain` stderr vs JSON stdout); `src/scan.integration.test.ts` (git + complexity + function-churn progress ordering).
 

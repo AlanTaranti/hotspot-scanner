@@ -1,6 +1,20 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M48 Done** — Post-M37 user DX backlog **complete** (M38–M45 Execute done). **M46** exclude-tests-by-default — **Done**. **M47** git-scale-pathspecs — **Done**. **M52** doctor-scope-parity — **Done**. **M48** scope-extensions-excludes — **Done**. **M50** ranking-accuracy-plus — **Done**. **M51** scan-observability — **Done**. **M49** pipeline-perf-controls — **Done**. **M55** api-trust-docs — **Done**. **M53** compare-interpretation — **Done**. **M54** cli-adoption-extras — **Done**. Post-M46 backlog stubs: none remaining.
+Status: **M7–M55 Done.** No open milestones. Next: [STATE.md](STATE.md) Deferred (npm publish, CI recipes/SARIF, historical AST do-not-prioritize, residual `*.test.mjs`/`*.spec.cjs`).
+
+**M12** intentionally absent (CI fail-on-score removed — see STATE).
+
+### Done summary (historical detail below)
+
+| Band | Scope |
+| ---- | ----- |
+| M1–M6 | v1 scaffold → git miner → complexity → scoring → reporter/CLI → integration |
+| M7–M24 | Path scope, harmonic score, rich/export formats, function granularity, compare, coupling, workers, CSV bundle, JSON contract, config, function AST/churn, package DX |
+| M25–M36 | Product docs, rename confidence, coupling enrichment, diagnostics, AST+, path/config DX, scan performance (workers, stream aggregate, enrich cache, overlap, function I/O, discovery) |
+| M37–M45 | README adoption, CLI polish, init/doctor/dry-run, workflows, interpretation UX, explain, monorepo remount, package exports enrich, adoption docs |
+| M46–M55 | Exclude tests by default, git pathspecs, scope extensions, ranking accuracy+, observability, doctor scope parity, perf controls, API trust docs, compare interpretation, CLI adoption extras |
+
+Detailed checklists below are **historical** (all Done).
 
 ## Milestone 1 — Scaffold
 
@@ -238,7 +252,7 @@ M14 → M19 → M20 → M21 → M22 → M23 → M24
 
 ## Post-M24 backlog
 
-Specs Planned via `planner-feature` (2026-07-23). Checkboxes remain open until Execute. M12 (CI fail-on-score) remains intentionally absent (see STATE.md).
+Specs and Execute for M25–M30 are **Done** (2026-07-23). M12 (CI fail-on-score) remains intentionally absent (see STATE.md).
 
 ### Milestone 25 — Product docs sync — DONE
 
@@ -555,14 +569,14 @@ Intentional breaking default: test globs / `__tests__/**` excluded from PathScop
 
 ---
 
-## Post-M46 backlog — scale, accuracy, observability, DX
+## Post-M46 backlog — scale, accuracy, observability, DX (historical — all Done)
 
-Depth A: thematic milestones. **M46 unchanged** (Execute first). Full specs **Planned** for **M47 / M48 / M49 / M50 / M51 / M52 / M53 / M54 / M55** — no Post-M46 stubs remaining.
+Depth A thematic milestones **M46–M55** — Execute complete; **no open milestones**.
 
 **Rejected (not a milestone):** `format` / `output` in `.hotspot-scanner.json` — M21 CLI-only lock (see STATE).  
 **Deferred (no milestone):** Historical AST post-rename — do not prioritize (CONCERNS / STATE).
 
-### Suggested execution order (M46–M55)
+### Suggested execution order (M46–M55) — completed
 
 M46 → M47 → M52 → M48 → M50 → M51 → M49 → M55 → M53 → M54
 
@@ -688,3 +702,14 @@ Export preview/doctor from package entry; warn-only unknown config keys; wire `m
 - [x] Warn on unknown config keys (warn-only; keep forward-compat)
 - [x] Wire `tests/fixtures/repos/merge-heavy` into integration suite
 - [x] Docs: README “zero network” callout; `SECURITY.md`; baseline-in-artifacts; `--only` filtered JSON ≠ baseline
+
+---
+
+## Post-M55 / Next
+
+No open Execute milestones. Future work lives in [STATE.md](STATE.md) **Deferred** only:
+
+- npm / npx / `pnpm dlx` publish install path
+- CI recipes / fail-on stable deltas / SARIF
+- Historical AST post-rename (**do not prioritize**)
+- Residual co-located `*.test.mjs` / `*.spec.cjs` default-exclude follow-up (accepted gap today)

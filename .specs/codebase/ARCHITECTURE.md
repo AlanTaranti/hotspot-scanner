@@ -78,7 +78,7 @@ Multi-command CLI via Commander in `bin/hotspot-scanner.ts` with shared wiring i
    - `validateGitRepository(resolved.repoPath)` on the **git root** (not the nested package directory)
    - When `remounted`, push `MONOREPO_PATH_REMOUNT` info `ScanWarning` (message names git root; mentions auto-include pattern only when applied)
    - **YAGNI:** path-only heuristic — no `pnpm-workspace.yaml` / nx / turborepo parsers; no `--no-remount` flag
-   - `format`, `output`, `baseline`, `--only`, `--no-triage-hints`, `--no-color`, `quiet`, `no-progress`, `verbose`, `sequential` (`--sequential` / `--no-overlap`), and `version` remain CLI-only (not config keys). Invalid JSON or bad types throw `ConfigError` (non-zero exit). Unknown keys are ignored. Bin pre-merge for `top` uses the same `configPath` / discovery args as `runScan()` (request path).
+   - `format`, `output`, `baseline`, `--only`, `--no-triage-hints`, `--no-color`, `quiet`, `no-progress`, `verbose`, `sequential` (`--sequential` / `--no-overlap`), and `version` remain CLI-only (not config keys). Invalid JSON or bad types throw `ConfigError` (non-zero exit). Unknown keys are not applied to merge (forward-compatible) but emit a warn-only `UNKNOWN_CONFIG_KEY` diagnostic (never fail). Bin pre-merge for `top` uses the same `configPath` / discovery args as `runScan()` (request path).
 3. **`runScan()`** builds `PathScope` via `createScanPathScope(merged, { includeTests? })` (`src/scan.ts` — shared with `previewScanScope` / doctor scope inventory), then runs mining/analysis on `pipelineRepoPath` (git root when remounted) with **M34 overlap by default** (or sequential opt-out when `ScanOptions.sequential === true`) and post-barrier scoring (rankings and JSON contract unchanged):
    - **Overlap window (file mode, default)** — `GitMiner.mine` (numstat) and `ComplexityAnalyzer.analyze` start concurrently under a shared orchestrator `AbortController`; on first rejection, abort the sibling (`child.kill` / worker terminate), `Promise.allSettled` both promises, rethrow the **original** error — no hotspot/function/coupling scoring on failure
    - **Sequential opt-out (M49, file mode)** — when `ScanOptions.sequential === true` (CLI `--sequential` primary, `--no-overlap` alias on `scan`, `compare`, and `baseline save`), `await` git mine then `await` complexity analyze — stages are not concurrently in-flight; lowers peak RSS and yields deterministic stage order; rankings and JSON contract unchanged; function mode already sequences numstat before complexity (flag accepted, no extra effect on M35 boundaries)
@@ -103,7 +103,7 @@ Multi-command CLI via Commander in `bin/hotspot-scanner.ts` with shared wiring i
 - **Keys:** `since`, `include`, `exclude`, `granularity`, `minCochange`, `top`, `concurrency`, `megaCommitThreshold` — map to the same semantics as CLI flags
 - **Precedence:** CLI flag explicitly provided → config key present → built-in default (`DEFAULT_SINCE`, `DEFAULT_TOP`, `DEFAULT_MIN_COCHANGE`, `DEFAULT_WORKER_CONCURRENCY`, granularity `file`). `--config` selects which file is read only — option merge precedence unchanged.
 - **CLI-only:** `format`, `output`, `baseline`, `--only`, `--no-triage-hints`, `--no-color`, `--explain`, `--strict` (M53 compare exit policy), `quiet`, `no-progress`, `verbose`, `sequential` (`--sequential` / `--no-overlap`), `includeTests` (`--include-tests`), `version` (program flag; not in `.hotspot-scanner.json`)
-- **Module:** `src/config/` (`load-config.ts`, `merge-options.ts`, `exemplar.ts` for `init`); `ConfigError` on invalid JSON or value types; unknown keys ignored
+- **Module:** `src/config/` (`load-config.ts`, `merge-options.ts`, `exemplar.ts` for `init`); `ConfigError` on invalid JSON or value types; unknown keys → warn-only `UNKNOWN_CONFIG_KEY` (not applied to merge; never fail)
 
 ### Path scoping (M7 + M30 + M43 + M46 + M48)
 
@@ -125,7 +125,7 @@ Multi-command CLI via Commander in `bin/hotspot-scanner.ts` with shared wiring i
 - Single **numstat** Git log pass for file churn and coupling (ADR-2026-020); function mode adds **sequential** pathspec-restricted patch streams (`git log -p --unified=0`) for per-function churn attribution — allowlist `≤ PATCH_PATHSPEC_FALLBACK_THRESHOLD` (1000) → one spawn; allowlist `> 1000` → stable-sorted batches of `≤ 1000` (M47); empty allowlist skips spawn; unrestricted patch I/O only on documented ARG_MAX emergency (`PATHSPEC_ARG_MAX_FALLBACK`); file mode never spawns the patch stream (M35)
 - Both git spawns enable **find-renames** (`-M`) so git can emit `old => new` rename metadata for `PathAliasMap`; **do not** add global `git log --follow` (per-file follow is incompatible with a single numstat pass — see CONCERNS)
 - Working-tree AST only (not historical file versions)
-- Invalid TS/JS: warn and skip — do not abort scan
+- Invalid TS/JS: emit `PARSE_FAILED` + stub `ComplexityResult` / hotspot with `parseFailed: true`, `hotspotScore: 0` (M50); do not abort scan
 - Streaming required for large repos (RT-001)
 - Complexity batches processed in parallel via persistent `worker_threads` pool (M15 + M31); file discovery and merge remain on main thread
 
@@ -289,7 +289,7 @@ Without `--baseline` / not on the `compare` command, M42 scan explain is unchang
 
 CLI-only `--strict` on `scan` and `compare`. After successful compare + report write, if `CompareResult.meta.warnings` contains any entry with `code === "COMPARE_SINCE_MISMATCH"`, the process exits **`1`**. Default (no `--strict`) preserves M13 warn-and-continue — warning on stderr + `meta.warnings`, exit `0` on success. Other warning codes do **not** alone cause a hard fail under `--strict`. Enforced in `bin/hotspot-scanner.ts` via `enforceStrictCompare()` after `executeCompareAndRender()`; `compareScanResults()` stays pure.
 
-### M28 warning code catalog
+### Stable warning codes (M28+)
 
 | Code | Emitter | Operator interpretation |
 | ---- | ------- | ----------------------- |
@@ -300,6 +300,7 @@ CLI-only `--strict` on `scan` and `compare`. After successful compare + report w
 | `MEGA_COMMIT_SKIPPED` | git miner | One or more commits exceeded the effective mega-commit threshold (default 100 unique in-scope files); those commits did not contribute to coupling pair counts. Churn still counted. Override with `--mega-commit-threshold` or config `megaCommitThreshold`. |
 | `PATHSPEC_ARG_MAX_FALLBACK` | function-churn miner | Patch pathspec batch exceeded argv limits after half-size retry; miner fell back to unrestricted stream for the failing remainder — rankings remain correct; expect higher patch I/O |
 | `MONOREPO_PATH_REMOUNT` | `resolveScanPipelineContext` | Scan path remounted to git root; auto-include pattern applied unless CLI `--include` was set |
+| `UNKNOWN_CONFIG_KEY` | config load | Unknown key(s) in `.hotspot-scanner.json` — not applied to merge; warn-only (never fail); fix typos or move CLI-only keys to flags |
 
 ## Complexity stage parallelism (M15 + M31)
 

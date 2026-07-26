@@ -46,7 +46,7 @@ Project **Done gate** remains `pnpm build && pnpm test` only (see AGENTS.md). Li
 ## CLI conventions
 
 - Domain logic stays out of `bin/` — only flag parsing and `runScan()` invocation
-- Default `--since`: 12 months (proposed; show window in output)
+- Default `--since`: 12 months (STATE decision; show window in output)
 
 ## Commits
 

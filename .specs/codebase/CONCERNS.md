@@ -76,7 +76,7 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 
 **Risk RT-001:** Large repos exhaust memory or time.
 
-- **Pipeline overlap (M34):** file mode runs numstat mining and complexity analysis concurrently by default — peak RSS is **higher** than sequential stages because git stream aggregates and complexity worker/AST batches can be live at the same time; function mode still sequences numstat before complexity (M35 `pathAllowlist` needs scoped churn keys) and never overlaps function-churn with numstat; rankings and JSON contract unchanged; no CI peak-RSS gate (qualitative trade-off for operators/benchmarks)
+- **Pipeline overlap (M34):** file mode runs numstat mining and complexity analysis concurrently by default — peak RSS is **higher** than sequential stages because git stream aggregates and complexity worker/AST batches can be live at the same time; function mode sequences numstat → complexity → function-churn (patch allowlist from scoped churn; AST ranges required before hunk overlap; never overlap function-churn with numstat) — complexity uses full in-scope discovery (M50; no AST `pathAllowlist`); rankings and JSON contract unchanged; no CI peak-RSS gate (qualitative trade-off for operators/benchmarks)
 - **Sequential opt-out (M49):** CLI `--sequential` (primary) / `--no-overlap` (alias) sets `ScanOptions.sequential` (not a config key) — file mode runs git mine then complexity analyze sequentially for lower peak RSS and predictable stage order; `--concurrency` still applies to the complexity worker pool only; function mode accepts the flag without changing M35 boundaries
 - **Bench harness (M49):** `pnpm bench` (`scripts/bench-scan.mjs`) reports wall-clock + scale counts and optional overlap vs sequential A/B — **outside** `pnpm test` / Vitest coverage gate and CI timing thresholds (see `scripts/benchmark-scan.md`)
 - **Overlap abort (sibling failure):** on first mining/analysis failure, `runScan()` aborts the sibling stage (`child.kill` on git spawn, worker terminate on complexity pool), awaits `Promise.allSettled` settlement, and rethrows the original error — avoids orphan git children/workers and partial rankings
@@ -101,7 +101,7 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 | M26 vs M28 boundary | M28 routes **existing** M26 rename messages under `RENAME_HISTORY_INCOMPLETE` — do not invent new RT-003 warning families in M28 tasks |
 | M42 rename next-steps | Append actionable next-step copy to M26 message families only — **no** new or renamed warning `code` values |
 | Complexity progress (M42) | `onProgress({ phase: "complexity", … })` from analyzer/pool; CLI `--no-progress` no-ops the shared `onProgress` hook — no separate complexity silence path |
-| Warning code stability | M28 catalog (+ M32 `MEGA_COMMIT_SKIPPED`, M47 `PATHSPEC_ARG_MAX_FALLBACK`): `EMPTY_SINCE_WINDOW`, `RENAME_HISTORY_INCOMPLETE`, `PARSE_FAILED`, `COMPARE_SINCE_MISMATCH`, `MEGA_COMMIT_SKIPPED`, `PATHSPEC_ARG_MAX_FALLBACK` — document in README / ARCHITECTURE |
+| Warning code stability | Stable codes (M28+): `EMPTY_SINCE_WINDOW`, `RENAME_HISTORY_INCOMPLETE`, `PARSE_FAILED`, `COMPARE_SINCE_MISMATCH`, `MEGA_COMMIT_SKIPPED`, `PATHSPEC_ARG_MAX_FALLBACK`, `MONOREPO_PATH_REMOUNT`, `UNKNOWN_CONFIG_KEY` — document in README / ARCHITECTURE / `docs/warning-codes.md` |
 
 ## Hooks enforcement
 
@@ -114,13 +114,13 @@ Gaps without product mitigation (only “document / accept / `false`”, or expl
 | Item | Risco | Esforço | Caminho | Backlog |
 | ---- | ----- | ------- | ------- | ------- |
 | Post-rename hunk line mismatch (true fix) | M | A | Historical AST / per-commit function ranges — **do not prioritize**; M26 avisos shipped | Deferred |
-| Renamed-but-unlinked → `hasStaticDependency: false` | M | M | M50 enrich uses miner `PathAliasMap` for **linked** renames; unrelated pairs still `false` | Mitigated for linked paths (M50) |
+| Unrelated delete+add → `hasStaticDependency: false` | B | M | Linked renames (incl. M50 heuristic) canonicalize in enrich; unrelated pairs stay `false` — accepted | Accepted residual |
 
 ```text
                  Esforço B              Esforço M              Esforço A
-Risco A     —                      renamed→false          —
+Risco A     —                      —                      —
 Risco M     —                      —                      AST histórico
                                                           (não priorizar)
+Risco B     —                      unrelated→false        —
 ```
-
 **Maintenance:** when an item gains product mitigation (e.g. M26 Done), move it into the matching Concern|Mitigation table above and **remove** it from this matrix; when planning new gaps, update this section.
