@@ -3,7 +3,7 @@
 **Feature slug:** `tty-ephemeral-progress`  
 **Milestone:** M59  
 **Priority:** High  
-**Status:** Specs Planned  
+**Status:** Specs Done  
 **Depth:** Large  
 **IDs:** HOTSPOT-970–989 (981–989 reserved)  
 **Artifacts:** [context.md](./context.md) · [design.md](./design.md) · [tasks.md](./tasks.md)
@@ -16,11 +16,11 @@ Every progress tick in `src/diagnostics/logger.ts` ends with `\n`, so complexity
 
 ## Goals
 
-- [ ] On TTY stderr, overwrite one live progress line for `git` and `complexity` phases (no bars/ETA/spinners)
-- [ ] Clear the live line on teardown, before diagnostic stderr lines, and on phase switch
-- [ ] Non-TTY keeps `\n` progress lines unchanged
-- [ ] Compose with M58 `--warnings summary|full`; leave `--quiet` / `--no-progress` unchanged
-- [ ] Document TTY vs non-TTY progress UX in README / ARCHITECTURE (and recipes if progress is mentioned)
+- [x] On TTY stderr, overwrite one live progress line for `git` and `complexity` phases (no bars/ETA/spinners)
+- [x] Clear the live line on teardown, before diagnostic stderr lines, and on phase switch
+- [x] Non-TTY keeps `\n` progress lines unchanged
+- [x] Compose with M58 `--warnings summary|full`; leave `--quiet` / `--no-progress` unchanged
+- [x] Document TTY vs non-TTY progress UX in README / ARCHITECTURE (and recipes if progress is mentioned)
 
 ## Out of Scope
 
@@ -178,8 +178,8 @@ Every progress tick in `src/diagnostics/logger.ts` ends with `\n`, so complexity
 
 ## Success Criteria
 
-- [ ] Interactive scan leaves at most one transient progress line (cleared after scan), not N permanent batch lines
-- [ ] Piped/CI stderr progress remains greppable `\n` lines
-- [ ] M58 summary/full + quiet/no-progress regressions green
-- [ ] `pnpm build && pnpm test` passes
-- [ ] README + ARCHITECTURE describe TTY vs non-TTY progress
+- [x] Interactive scan leaves at most one transient progress line (cleared after scan), not N permanent batch lines
+- [x] Piped/CI stderr progress remains greppable `\n` lines
+- [x] M58 summary/full + quiet/no-progress regressions green
+- [x] `pnpm build && pnpm test` passes
+- [x] README + ARCHITECTURE describe TTY vs non-TTY progress

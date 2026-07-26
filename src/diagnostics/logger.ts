@@ -15,6 +15,8 @@ export const PROGRESS_LOG_INTERVAL = 1000;
 /** Matches complexity `DEFAULT_BATCH_SIZE` — ~one stderr line per batch. */
 export const COMPLEXITY_PROGRESS_LOG_INTERVAL = 50;
 
+const LIVE_CLEAR = "\x1b[2K\r";
+
 const SEVERITY_PREFIX: Record<DiagnosticSeverity, string> = {
   info: "info",
   warning: "warning",
@@ -34,7 +36,7 @@ export function logWarning(warning: ScanWarning): void {
   process.stderr.write(`${prefix}: ${warning.message}\n`);
 }
 
-function formatComplexityProgressLine(progress: ScanProgress): string {
+function formatComplexityProgressBody(progress: ScanProgress): string {
   const parts: string[] = ["Processing complexity"];
 
   if (progress.batchesProcessed !== undefined) {
@@ -51,18 +53,22 @@ function formatComplexityProgressLine(progress: ScanProgress): string {
     parts.push(filesLabel);
   }
 
-  return `${parts.join(" ")}...\n`;
+  return `${parts.join(" ")}...`;
+}
+
+function formatGitProgressBody(progress: ScanProgress): string {
+  return `Processing ${progress.phase} commit ${progress.commitsProcessed.toLocaleString("en-US")}...`;
+}
+
+function formatProgressBody(progress: ScanProgress): string {
+  if (progress.phase === "complexity") {
+    return formatComplexityProgressBody(progress);
+  }
+  return formatGitProgressBody(progress);
 }
 
 export function logProgress(progress: ScanProgress): void {
-  if (progress.phase === "complexity") {
-    process.stderr.write(formatComplexityProgressLine(progress));
-    return;
-  }
-
-  process.stderr.write(
-    `Processing ${progress.phase} commit ${progress.commitsProcessed.toLocaleString("en-US")}...\n`,
-  );
+  process.stderr.write(`${formatProgressBody(progress)}\n`);
 }
 
 function shouldLogComplexityProgress(
@@ -81,29 +87,68 @@ function shouldLogComplexityProgress(
   );
 }
 
-/** Returns true when a progress line was emitted (passed throttle). */
-export function maybeLogProgress(
+function shouldEmitProgress(
   progress: ScanProgress,
   interval?: number,
 ): boolean {
   if (progress.phase === "complexity") {
     const throttleInterval = interval ?? COMPLEXITY_PROGRESS_LOG_INTERVAL;
-    if (!shouldLogComplexityProgress(progress, throttleInterval)) {
-      return false;
-    }
-    logProgress(progress);
-    return true;
+    return shouldLogComplexityProgress(progress, throttleInterval);
   }
 
   const throttleInterval = interval ?? PROGRESS_LOG_INTERVAL;
-  if (
-    progress.commitsProcessed <= 0 ||
-    progress.commitsProcessed % throttleInterval !== 0
-  ) {
+  return (
+    progress.commitsProcessed > 0 &&
+    progress.commitsProcessed % throttleInterval === 0
+  );
+}
+
+/** Returns true when a progress line was emitted (passed throttle). */
+export function maybeLogProgress(
+  progress: ScanProgress,
+  interval?: number,
+): boolean {
+  if (!shouldEmitProgress(progress, interval)) {
     return false;
   }
   logProgress(progress);
   return true;
+}
+
+interface LiveProgressContext {
+  stderrIsTTY: boolean;
+  liveLineOpen: boolean;
+  lastPhase?: ScanProgress["phase"];
+}
+
+function clearLiveProgress(ctx: LiveProgressContext): void {
+  if (!ctx.liveLineOpen) {
+    return;
+  }
+  process.stderr.write(LIVE_CLEAR);
+  ctx.liveLineOpen = false;
+}
+
+function writeProgressLine(
+  progress: ScanProgress,
+  ctx: LiveProgressContext,
+): void {
+  if (
+    ctx.lastPhase !== undefined &&
+    ctx.lastPhase !== progress.phase &&
+    ctx.liveLineOpen
+  ) {
+    clearLiveProgress(ctx);
+  }
+  ctx.lastPhase = progress.phase;
+
+  const body = formatProgressBody(progress);
+  if (ctx.stderrIsTTY) {
+    process.stderr.write(`${LIVE_CLEAR}${body}`);
+    ctx.liveLineOpen = true;
+  } else {
+    process.stderr.write(`${body}\n`);
+  }
 }
 
 export interface CliDiagnosticOptions {
@@ -111,6 +156,8 @@ export interface CliDiagnosticOptions {
   noProgress?: boolean;
   /** Default `"summary"` — buffers warning/error for aggregated flush. */
   warningsMode?: WarningsMode;
+  /** Default: `process.stderr.isTTY === true` */
+  stderrIsTTY?: boolean;
 }
 
 export function createCliDiagnosticHandlers(
@@ -119,24 +166,38 @@ export function createCliDiagnosticHandlers(
   onProgress: (progress: ScanProgress) => void;
   onWarning: (warning: ScanWarning) => void;
   flushWarnings: () => void;
+  clearLiveProgress: () => void;
 } {
   const {
     quiet = false,
     noProgress = false,
     warningsMode = "summary",
+    stderrIsTTY = process.stderr.isTTY === true,
   } = options;
   const suppressProgress = quiet || noProgress;
   const buffer: ScanWarning[] = [];
+
+  const liveCtx: LiveProgressContext = {
+    stderrIsTTY,
+    liveLineOpen: false,
+  };
+
+  const clearLive = () => clearLiveProgress(liveCtx);
+
+  const logWarningWithClear = (warning: ScanWarning) => {
+    clearLive();
+    logWarning(warning);
+  };
 
   const onWarning =
     warningsMode === "full"
       ? quiet
         ? (warning: ScanWarning) => {
             if (warning.severity !== "info") {
-              logWarning(warning);
+              logWarningWithClear(warning);
             }
           }
-        : logWarning
+        : logWarningWithClear
       : (warning: ScanWarning) => {
           if (quiet && warning.severity === "info") {
             return;
@@ -144,19 +205,25 @@ export function createCliDiagnosticHandlers(
           buffer.push(warning);
         };
 
-  const flushWarnings =
-    warningsMode === "full"
-      ? () => {}
-      : () => {
-          flushWarningSummary(buffer);
-          buffer.length = 0;
-        };
+  const flushWarnings = () => {
+    clearLive();
+    if (warningsMode !== "full") {
+      flushWarningSummary(buffer);
+      buffer.length = 0;
+    }
+  };
 
   return {
     onProgress: suppressProgress
       ? () => {}
-      : (progress) => maybeLogProgress(progress),
+      : (progress) => {
+          if (!shouldEmitProgress(progress)) {
+            return;
+          }
+          writeProgressLine(progress, liveCtx);
+        },
     onWarning,
     flushWarnings,
+    clearLiveProgress: clearLive,
   };
 }

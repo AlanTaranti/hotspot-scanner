@@ -28,7 +28,7 @@ Audit test-suite health (include co-located tests and `__tests__/`):
 hotspot-scanner scan . --since "3 months ago" --top 15 --include-tests
 ```
 
-For a quieter CI or cron job (progress lines suppressed; warnings and errors still on stderr):
+For a quieter CI or cron job (progress lines suppressed; warnings and errors still on stderr). When stderr is not a TTY (typical in CI), progress lines remain permanent newline logs — use `--quiet` to suppress them entirely:
 
 ```bash
 hotspot-scanner scan . --since "3 months ago" --top 10 --quiet

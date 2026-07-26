@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/tty-ephemeral-progress/design.md`](./design.md)  
 **Spec**: [`.specs/features/tty-ephemeral-progress/spec.md`](./spec.md)  
 **Context**: [`.specs/features/tty-ephemeral-progress/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Large feature — diagnostics progress sink + docs. Planning session ends here; Execute in a separate session after Status → Approved / Ready for Execute.
 
 ---
@@ -87,14 +87,14 @@ No `[P]` — sequential docs after code. Bin wiring unchanged (existing `flushWa
 
 **Done when**:
 
-- [ ] TTY progress writes use clear-to-EOL + CR overwrite (no permanent `\n` live spam); body text matches today’s wording
-- [ ] Non-TTY progress writes remain `\n`-terminated golden strings
-- [ ] `flushWarnings()` clears any open live line (summary and full)
-- [ ] Full mode clears before each `logWarning`; summary clears at flush
-- [ ] Phase switch does not leave a stale previous-phase live line
-- [ ] Quiet / no-progress still emit no progress
-- [ ] `stderrIsTTY` injectable; unit tests cover TTY vs non-TTY, clear triggers, M58 compose, double-clear no-op
-- [ ] No new flags / schema / throttle changes
+- [x] TTY progress writes use clear-to-EOL + CR overwrite (no permanent `\n` live spam); body text matches today’s wording
+- [x] Non-TTY progress writes remain `\n`-terminated golden strings
+- [x] `flushWarnings()` clears any open live line (summary and full)
+- [x] Full mode clears before each `logWarning`; summary clears at flush
+- [x] Phase switch does not leave a stale previous-phase live line
+- [x] Quiet / no-progress still emit no progress
+- [x] `stderrIsTTY` injectable; unit tests cover TTY vs non-TTY, clear triggers, M58 compose, double-clear no-op
+- [x] No new flags / schema / throttle changes
 
 **Tests**: Unit in `src/diagnostics/logger.test.ts` (same task); optionally extend `warning-summary.test.ts` only if handlers tests live there already for compose
 
@@ -116,10 +116,10 @@ No `[P]` — sequential docs after code. Bin wiring unchanged (existing `flushWa
 
 **Done when**:
 
-- [ ] README describes TTY vs non-TTY progress UX and clear behavior
-- [ ] ARCHITECTURE notes ephemeral TTY progress under diagnostics
-- [ ] Recipes updated only if progress UX is mentioned
-- [ ] No invented flags or config keys
+- [x] README describes TTY vs non-TTY progress UX and clear behavior
+- [x] ARCHITECTURE notes ephemeral TTY progress under diagnostics
+- [x] Recipes updated only if progress UX is mentioned
+- [x] No invented flags or config keys
 
 **Tests**: none (docs)
 
@@ -141,8 +141,8 @@ No `[P]` — sequential docs after code. Bin wiring unchanged (existing `flushWa
 
 **Done when**:
 
-- [ ] `pnpm build && pnpm test` PASS
-- [ ] tasks.md Status → Done (Execute session); ROADMAP M59 marked Done
+- [x] `pnpm build && pnpm test` PASS
+- [x] tasks.md Status → Done (Execute session); ROADMAP M59 marked Done
 
 **Tests**: full suite via gate
 

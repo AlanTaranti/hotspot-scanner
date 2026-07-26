@@ -206,7 +206,7 @@ describe("diagnostics logger", () => {
         .spyOn(process.stderr, "write")
         .mockImplementation(() => true);
       const { onProgress, onWarning, flushWarnings } =
-        createCliDiagnosticHandlers();
+        createCliDiagnosticHandlers({ stderrIsTTY: false });
 
       onProgress({ phase: "git", commitsProcessed: 1000 });
       onWarning({
@@ -232,7 +232,7 @@ describe("diagnostics logger", () => {
       const write = vi
         .spyOn(process.stderr, "write")
         .mockImplementation(() => true);
-      const { onProgress } = createCliDiagnosticHandlers();
+      const { onProgress } = createCliDiagnosticHandlers({ stderrIsTTY: false });
 
       onProgress({
         phase: "complexity",
@@ -246,6 +246,147 @@ describe("diagnostics logger", () => {
       expect(write).toHaveBeenCalledWith(
         "Processing complexity batch 1/3 (50/120 files)...\n",
       );
+    });
+
+    it("overwrites one live line on TTY stderr for git progress", () => {
+      const write = vi
+        .spyOn(process.stderr, "write")
+        .mockImplementation(() => true);
+      const { onProgress } = createCliDiagnosticHandlers({ stderrIsTTY: true });
+
+      onProgress({ phase: "git", commitsProcessed: 1000 });
+      onProgress({ phase: "git", commitsProcessed: 2000 });
+
+      expect(write).toHaveBeenNthCalledWith(
+        1,
+        "\x1b[2K\rProcessing git commit 1,000...",
+      );
+      expect(write).toHaveBeenNthCalledWith(
+        2,
+        "\x1b[2K\rProcessing git commit 2,000...",
+      );
+      expect(write.mock.calls.every((call) => !String(call[0]).endsWith("\n"))).toBe(
+        true,
+      );
+    });
+
+    it("overwrites one live line on TTY stderr for complexity progress", () => {
+      const write = vi
+        .spyOn(process.stderr, "write")
+        .mockImplementation(() => true);
+      const { onProgress } = createCliDiagnosticHandlers({ stderrIsTTY: true });
+
+      onProgress({
+        phase: "complexity",
+        commitsProcessed: 0,
+        batchesProcessed: 1,
+        totalBatches: 3,
+        filesProcessed: 50,
+        totalFiles: 120,
+      });
+
+      expect(write).toHaveBeenCalledWith(
+        "\x1b[2K\rProcessing complexity batch 1/3 (50/120 files)...",
+      );
+    });
+
+    it("clears live progress at flushWarnings before summary warnings", () => {
+      const write = vi
+        .spyOn(process.stderr, "write")
+        .mockImplementation(() => true);
+      const { onProgress, onWarning, flushWarnings } =
+        createCliDiagnosticHandlers({ stderrIsTTY: true });
+
+      onProgress({ phase: "git", commitsProcessed: 1000 });
+      onWarning({
+        severity: "warning",
+        code: "WARN_CODE",
+        message: "warn msg",
+      });
+      flushWarnings();
+
+      expect(write).toHaveBeenNthCalledWith(1, "\x1b[2K\rProcessing git commit 1,000...");
+      expect(write).toHaveBeenNthCalledWith(2, "\x1b[2K\r");
+      expect(write).toHaveBeenNthCalledWith(3, "warning: warn msg\n");
+    });
+
+    it("clears live progress before each warning under warnings=full", () => {
+      const write = vi
+        .spyOn(process.stderr, "write")
+        .mockImplementation(() => true);
+      const { onProgress, onWarning } = createCliDiagnosticHandlers({
+        stderrIsTTY: true,
+        warningsMode: "full",
+      });
+
+      onProgress({ phase: "git", commitsProcessed: 1000 });
+      onWarning({
+        severity: "warning",
+        code: "WARN_CODE",
+        message: "warn msg",
+      });
+
+      expect(write).toHaveBeenNthCalledWith(1, "\x1b[2K\rProcessing git commit 1,000...");
+      expect(write).toHaveBeenNthCalledWith(2, "\x1b[2K\r");
+      expect(write).toHaveBeenNthCalledWith(3, "warning: warn msg\n");
+    });
+
+    it("clears live progress on flushWarnings even under warnings=full", () => {
+      const write = vi
+        .spyOn(process.stderr, "write")
+        .mockImplementation(() => true);
+      const { onProgress, flushWarnings } = createCliDiagnosticHandlers({
+        stderrIsTTY: true,
+        warningsMode: "full",
+      });
+
+      onProgress({ phase: "git", commitsProcessed: 1000 });
+      flushWarnings();
+
+      expect(write).toHaveBeenNthCalledWith(1, "\x1b[2K\rProcessing git commit 1,000...");
+      expect(write).toHaveBeenNthCalledWith(2, "\x1b[2K\r");
+      expect(write).toHaveBeenCalledTimes(2);
+    });
+
+    it("clears stale git line when switching to complexity phase on TTY", () => {
+      const write = vi
+        .spyOn(process.stderr, "write")
+        .mockImplementation(() => true);
+      const { onProgress } = createCliDiagnosticHandlers({ stderrIsTTY: true });
+
+      onProgress({ phase: "git", commitsProcessed: 1000 });
+      onProgress({
+        phase: "complexity",
+        commitsProcessed: 0,
+        batchesProcessed: 1,
+        totalBatches: 3,
+        filesProcessed: 50,
+        totalFiles: 120,
+      });
+
+      expect(write).toHaveBeenNthCalledWith(1, "\x1b[2K\rProcessing git commit 1,000...");
+      expect(write).toHaveBeenNthCalledWith(2, "\x1b[2K\r");
+      expect(write).toHaveBeenNthCalledWith(
+        3,
+        "\x1b[2K\rProcessing complexity batch 1/3 (50/120 files)...",
+      );
+    });
+
+    it("double clearLiveProgress is a no-op", () => {
+      const write = vi
+        .spyOn(process.stderr, "write")
+        .mockImplementation(() => true);
+      const { onProgress, clearLiveProgress } = createCliDiagnosticHandlers({
+        stderrIsTTY: true,
+      });
+
+      onProgress({ phase: "git", commitsProcessed: 1000 });
+      clearLiveProgress();
+      clearLiveProgress();
+
+      expect(write).toHaveBeenNthCalledWith(1, "\x1b[2K\rProcessing git commit 1,000...");
+      expect(write).toHaveBeenNthCalledWith(2, "\x1b[2K\r");
+      expect(write).toHaveBeenCalledTimes(2);
     });
 
     it("suppresses progress when noProgress is set", () => {

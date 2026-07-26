@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/tty-ephemeral-progress/spec.md`](./spec.md)  
 **Context**: [`.specs/features/tty-ephemeral-progress/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 
 ---
 

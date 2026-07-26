@@ -105,18 +105,27 @@ File git miner uses `PathAliasMap` (`src/git/rename.ts`) and `src/git/rename-war
 | ----- | ------------- | ------------ | ---------- |
 | File (numstat) | `buildGitLogArgv` in `src/git/spawn.ts` | `-M` | **forbidden** |
 
-## Diagnostics (M28 + M51 + M58)
+## Diagnostics (M28 + M51 + M58 + M59)
 
 Module: `src/diagnostics/` (`logger.ts`, `warning-summary.ts`).
 
 ### CLI stderr warning sink (M58)
 
-`createCliDiagnosticHandlers({ quiet, noProgress, warningsMode })` is **presentation-only**:
+`createCliDiagnosticHandlers({ quiet, noProgress, warningsMode, stderrIsTTY? })` is **presentation-only**:
 
 - Pipeline / miner still emit the full `ScanWarning[]` into `meta.warnings` and programmatic `onWarning`.
 - CLI `--warnings summary` (default) buffers warning/error, then `flushWarnings()` writes one aggregated stderr line per `(code, subKind)` group.
-- `--warnings full` logs each warning immediately; flush is a no-op.
+- `--warnings full` logs each warning immediately (after clearing any live progress line); `flushWarnings()` still clears live progress on teardown.
 - Not a config key; does not change the JSON contract.
+
+### Ephemeral TTY progress (M59)
+
+When `stderrIsTTY` is true (default: `process.stderr.isTTY === true`, injectable in tests):
+
+- Progress for `git` and `complexity` phases overwrites **one live stderr line** (`\x1b[2K\r` + text; no trailing newline while live).
+- The live line is cleared on `flushWarnings()`, before handler-driven warning/error/info stderr writes (`warnings=full`), and on phase switch.
+- Non-TTY (piped/CI) keeps `\n`-terminated progress lines unchanged.
+- `--quiet` / `--no-progress` suppress progress entirely (TTY or not). Throttle intervals unchanged.
 
 ### Progress phases
 

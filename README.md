@@ -474,7 +474,7 @@ Churn is measured as raw commit count (not relative code churn). NCLOC is comput
 
 **Source discovery.** In Git repositories, discovery prefers `git ls-files` (tracked paths only) filtered by eligible extensions and PathScope; on failure it falls back to a filesystem walk.
 
-**Progress (stderr).** Git phase: throttled every 1,000 commits. Size analysis: throttled per batch (interval = batch size 50). Use `--no-progress` or `--quiet` to suppress.
+**Progress (stderr).** Git phase: throttled every 1,000 commits. Size analysis: throttled per batch (interval = batch size 50). On an **interactive TTY**, progress updates **one live line** on stderr (overwritten in place) and is **cleared** when the scan finishes or before warning lines — no permanent scroll spam. **Piped / CI** (non-TTY) keeps permanent newline-delimited progress logs for grepping. Use `--no-progress` or `--quiet` to suppress.
 
 **Cancel (`SIGINT` / `SIGTERM`).** Aborts in-progress `runScan()`; no report on cancel; exit `130`/`143`.
 
