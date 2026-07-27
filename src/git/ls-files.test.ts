@@ -95,13 +95,37 @@ describe("listTrackedFiles", () => {
       name: "GitLsFilesError",
       repoPath: "/bad/repo",
       stderr: "fatal: not a git repository",
+      message: expect.not.stringContaining("Hint:"),
+    } satisfies Partial<GitLsFilesError>);
+  });
+
+  it("throws GitLsFilesError with Hint when stderr matches a known family", async () => {
+    createMockChild(
+      Buffer.alloc(0),
+      128,
+      "error: corrupt object at 0xdeadbeef",
+    );
+
+    await expect(listTrackedFiles("/bad/repo")).rejects.toMatchObject({
+      name: "GitLsFilesError",
+      repoPath: "/bad/repo",
+      stderr: "error: corrupt object at 0xdeadbeef",
+      message: expect.stringContaining("Hint: Run `git fsck`"),
     } satisfies Partial<GitLsFilesError>);
   });
 
   it("throws GitLsFilesError with unknown error when stderr is empty", async () => {
     createMockChild(Buffer.alloc(0), 128, "");
 
-    await expect(listTrackedFiles("/bad/repo")).rejects.toThrow(/unknown error/);
+    let caught: GitLsFilesError | undefined;
+    try {
+      await listTrackedFiles("/bad/repo");
+    } catch (err) {
+      caught = err as GitLsFilesError;
+    }
+
+    expect(caught?.message).toMatch(/unknown error/);
+    expect(caught?.message).not.toContain("Hint:");
   });
 
   it("rejects with GitLsFilesError when spawn fails", async () => {

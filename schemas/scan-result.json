@@ -7,6 +7,7 @@
   "additionalProperties": true,
   "required": ["version", "hotspots", "meta"],
   "properties": {
+    "$schema": { "type": "string" },
     "version": {
       "type": "string",
       "const": "3.0"
@@ -81,7 +82,8 @@
           "type": "array",
           "items": { "$ref": "#/$defs/ScanWarning" }
         },
-        "timings": { "$ref": "#/$defs/ScanStageTimings" }
+        "timings": { "$ref": "#/$defs/ScanStageTimings" },
+        "scannerVersion": { "type": "string" }
       }
     }
   }

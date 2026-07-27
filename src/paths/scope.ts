@@ -30,6 +30,14 @@ export const DEFAULT_TEST_EXCLUDE_PATTERNS = [
   "**/*.spec.js",
   "**/*.spec.jsx",
   "**/__tests__/**",
+  "**/*.test.mjs",
+  "**/*.test.cjs",
+  "**/*.spec.mjs",
+  "**/*.spec.cjs",
+  "**/*.test.mts",
+  "**/*.test.cts",
+  "**/*.spec.mts",
+  "**/*.spec.cts",
 ] as const;
 
 export const DEFAULT_EXCLUDE_PATTERNS = [

@@ -134,6 +134,8 @@ describe("pathsLookLikeRename", () => {
   it("returns true for identical stem with eligible extensions", () => {
     expect(pathsLookLikeRename("src/foo.ts", "src/foo.tsx")).toBe(true);
     expect(pathsLookLikeRename("pkg/index.js", "pkg/index.mjs")).toBe(true);
+    expect(pathsLookLikeRename("pkg/index.mts", "pkg/index.cts")).toBe(true);
+    expect(pathsLookLikeRename("pkg/index.ts", "pkg/index.mts")).toBe(true);
   });
 
   it("returns false for unrelated basenames and stems", () => {

@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { formatGitStderrHint } from "./git-error-hint.js";
 
 export class GitLsFilesError extends Error {
   readonly repoPath: string;
@@ -6,9 +7,10 @@ export class GitLsFilesError extends Error {
   readonly stderr: string;
 
   constructor(repoPath: string, command: string, stderr: string) {
-    super(
-      `git ls-files failed for repo ${repoPath}: ${stderr.trim() || "unknown error"}`,
-    );
+    const body = stderr.trim() || "unknown error";
+    const hint = formatGitStderrHint(stderr);
+    const base = `git ls-files failed for repo ${repoPath}: ${body}`;
+    super(hint !== undefined ? `${base}\nHint: ${hint}` : base);
     this.name = "GitLsFilesError";
     this.repoPath = repoPath;
     this.command = command;

@@ -1,7 +1,11 @@
 import { access, stat, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { compareScanResults, loadBaseline } from "#compare";
-import type { HotspotScannerConfig } from "#config";
+import {
+  loadHotspotScannerConfig,
+  mergeScanOptions,
+  type HotspotScannerConfig,
+} from "#config";
 import {
   createCliDiagnosticHandlers,
   type WarningsMode,
@@ -13,6 +17,7 @@ import type {
   CompareResult,
   ScanOptions,
   ScanResult,
+  ScanStageTimings,
 } from "../src/types/index.js";
 
 export type { WarningsMode };
@@ -23,7 +28,7 @@ export type OutputFormat = "table" | "json" | "markdown" | "csv";
 export const DEFAULT_BASELINE_OUTPUT = "./hotspot-baseline.json";
 
 const BASELINE_JSON_HINT =
-  "\nHint: pass a prior scan saved with --format json --output <path>.";
+  "\nHint: create a baseline with `hotspot-scanner baseline save`, or pass a prior scan saved with --format json --output <path>.";
 
 export class CliUsageError extends Error {
   constructor(message: string) {
@@ -91,15 +96,60 @@ export function deriveCsvStem(outputPath: string): string {
   return outputPath;
 }
 
+export const CSV_SINGLE_FILE_SCAN_KEY = "hotspots.csv";
+export const CSV_SINGLE_FILE_COMPARE_KEY = "hotspots.new.csv";
+
+export function pickSingleFileCsvContent(
+  bundle: CsvBundle,
+  key: string,
+): string {
+  const content = bundle[key];
+  if (content === undefined) {
+    throw new CliUsageError(
+      `--csv-single-file requires hotspots CSV content (${key}); ensure --only includes hotspots`,
+    );
+  }
+  return content;
+}
+
 export async function writeCsvBundle(
   stem: string,
   bundle: CsvBundle,
+  options?: { quiet?: boolean },
 ): Promise<void> {
+  const entries = Object.entries(bundle);
   await Promise.all(
-    Object.entries(bundle).map(([suffix, content]) =>
+    entries.map(([suffix, content]) =>
       writeFile(`${stem}.${suffix}`, ensureTrailingNewline(content), "utf8"),
     ),
   );
+  if (!options?.quiet) {
+    process.stderr.write("Wrote CSV bundle:\n");
+    for (const [suffix] of entries) {
+      process.stderr.write(`  ${stem}.${suffix}\n`);
+    }
+  }
+}
+
+export function emitBriefTimingStderr(
+  timings: ScanStageTimings | undefined,
+  quiet?: boolean,
+): void {
+  if (quiet || timings === undefined) {
+    return;
+  }
+  process.stderr.write(`timing: total ${timings.totalMs}ms\n`);
+}
+
+async function resolveEffectiveSince(options: {
+  repoPath: string;
+  cliOverrides: HotspotScannerConfig;
+  configPath?: string;
+}): Promise<string> {
+  const { config } = await loadHotspotScannerConfig(options.repoPath, {
+    configPath: options.configPath,
+  });
+  return mergeScanOptions({ config, cli: options.cliOverrides }).since;
 }
 
 function writeReport(output: string, outputPath?: string): Promise<void> {
@@ -243,16 +293,23 @@ export async function writeBaselineJson(
   await writeFile(outputPath, output as string, "utf8");
 }
 
+export type ExecuteScanResult = {
+  result: ScanResult;
+  flushWarnings: () => void;
+};
+
 export async function executeScan(options: {
   repoPath: string;
   cliOverrides: HotspotScannerConfig;
   configPath?: string;
   sequential?: boolean;
-} & ScanDiagnosticOptions): Promise<ScanResult> {
+} & ScanDiagnosticOptions): Promise<ExecuteScanResult> {
+  const since = await resolveEffectiveSince(options);
   const { onWarning, onProgress, flushWarnings } = createCliDiagnosticHandlers({
     quiet: options.quiet ?? false,
     noProgress: options.noProgress ?? false,
     warningsMode: options.warningsMode ?? "summary",
+    since,
   });
   const onSpawnArgv = createVerboseSpawnArgvHandler({
     verbose: options.verbose ?? false,
@@ -274,8 +331,7 @@ export async function executeScan(options: {
       options.sequential,
     ),
   );
-  flushWarnings();
-  return result;
+  return { result, flushWarnings };
 }
 
 export type ReporterRenderOptions = {
@@ -290,10 +346,27 @@ export async function writeRenderedOutput(
   output: string | CsvBundle,
   format: OutputFormat,
   outputPath?: string,
+  options?: {
+    quiet?: boolean;
+    csvSingleFile?: boolean;
+    csvBundleKey?: string;
+  },
 ): Promise<void> {
   if (format === "csv") {
     await validateOutputPath(outputPath!);
-    await writeCsvBundle(deriveCsvStem(outputPath!), output as CsvBundle);
+    if (options?.csvSingleFile) {
+      const key = options.csvBundleKey ?? CSV_SINGLE_FILE_SCAN_KEY;
+      const content = pickSingleFileCsvContent(output as CsvBundle, key);
+      await writeFile(
+        outputPath!,
+        ensureTrailingNewline(content),
+        "utf8",
+      );
+      return;
+    }
+    await writeCsvBundle(deriveCsvStem(outputPath!), output as CsvBundle, {
+      quiet: options?.quiet,
+    });
     return;
   }
 
@@ -311,13 +384,16 @@ export async function executeCompareAndRender(options: {
   outputPath?: string;
   reporterOptions: ReporterRenderOptions;
   sequential?: boolean;
+  csvSingleFile?: boolean;
 } & ScanDiagnosticOptions): Promise<CompareResult> {
   await validateBaselinePath(options.baselinePath);
 
+  const since = await resolveEffectiveSince(options);
   const { onWarning, onProgress, flushWarnings } = createCliDiagnosticHandlers({
     quiet: options.quiet ?? false,
     noProgress: options.noProgress ?? false,
     warningsMode: options.warningsMode ?? "summary",
+    since,
   });
   const onSpawnArgv = createVerboseSpawnArgvHandler({
     verbose: options.verbose ?? false,
@@ -345,7 +421,6 @@ export async function executeCompareAndRender(options: {
   for (const warning of compareResult.meta.warnings) {
     onWarning(warning);
   }
-  flushWarnings();
 
   const reporter = createReporter();
   const output = reporter.renderCompare(
@@ -357,7 +432,17 @@ export async function executeCompareAndRender(options: {
     output,
     options.reporterOptions.format,
     options.outputPath,
+    {
+      quiet: options.quiet,
+      ...(options.csvSingleFile
+        ? {
+            csvSingleFile: true,
+            csvBundleKey: CSV_SINGLE_FILE_COMPARE_KEY,
+          }
+        : {}),
+    },
   );
+  flushWarnings();
 
   return compareResult;
 }

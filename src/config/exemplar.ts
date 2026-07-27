@@ -1,10 +1,24 @@
 import { access, stat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { DEFAULT_SINCE, DEFAULT_TOP } from "../scan.js";
-import {
-  HOTSPOT_SCANNER_CONFIG_FILENAME,
-  type HotspotScannerConfig,
-} from "./load-config.js";
+import { HOTSPOT_SCANNER_CONFIG_FILENAME } from "./load-config.js";
+
+export const HOTSPOT_SCANNER_CONFIG_SCHEMA_URL =
+  "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json";
+
+export const EXEMPLAR_HOTSPOT_SCANNER_CONFIG: Record<string, unknown> = {
+  $schema: HOTSPOT_SCANNER_CONFIG_SCHEMA_URL,
+  $comments: [
+    "include: extra globs added to PathScope beyond defaults.",
+    "exclude: additional patterns; built-in excludes always apply.",
+    "concurrency is omitted — the scanner host default applies.",
+    "Precedence: CLI flags override config; config overrides built-in defaults.",
+  ],
+  since: DEFAULT_SINCE,
+  include: ["src/**"],
+  exclude: ["**/*.generated.ts"],
+  top: DEFAULT_TOP,
+};
 
 export class InitError extends Error {
   constructor(message: string) {
@@ -12,13 +26,6 @@ export class InitError extends Error {
     this.name = "InitError";
   }
 }
-
-export const EXEMPLAR_HOTSPOT_SCANNER_CONFIG: HotspotScannerConfig = {
-  since: DEFAULT_SINCE,
-  include: [],
-  exclude: [],
-  top: DEFAULT_TOP,
-};
 
 export function formatExemplarConfig(): string {
   return `${JSON.stringify(EXEMPLAR_HOTSPOT_SCANNER_CONFIG, null, 2)}\n`;

@@ -65,6 +65,22 @@ describe("renderMarkdown", () => {
     expect(output).toContain("Hotspots: showing 1 of 3");
   });
 
+  it("includes Timing in summary when meta.timings is present", () => {
+    const full = loadFixture();
+    full.meta.timings = { gitMs: 400, complexityMs: 200, totalMs: 700 };
+    const output = renderMarkdown(full);
+
+    expect(output).toContain(
+      "Timing: total 700ms (git 400ms, complexity 200ms)",
+    );
+  });
+
+  it("omits Timing in summary when meta.timings is absent", () => {
+    const output = renderMarkdown(loadFixture());
+
+    expect(output).not.toContain("Timing:");
+  });
+
   it("includes triage hints when rules match and triage is enabled", () => {
     const output = renderMarkdown(loadFixture());
 

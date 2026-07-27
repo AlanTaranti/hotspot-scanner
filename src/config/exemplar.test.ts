@@ -4,16 +4,31 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   EXEMPLAR_HOTSPOT_SCANNER_CONFIG,
+  HOTSPOT_SCANNER_CONFIG_SCHEMA_URL,
   formatExemplarConfig,
   InitError,
   writeInitConfig,
 } from "./exemplar.js";
-import { HOTSPOT_SCANNER_CONFIG_FILENAME } from "./load-config.js";
+import {
+  HOTSPOT_SCANNER_CONFIG_FILENAME,
+  parseHotspotScannerConfig,
+} from "./load-config.js";
 
 const LOCKED_EXEMPLAR_JSON = `{
+  "$schema": "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json",
+  "$comments": [
+    "include: extra globs added to PathScope beyond defaults.",
+    "exclude: additional patterns; built-in excludes always apply.",
+    "concurrency is omitted — the scanner host default applies.",
+    "Precedence: CLI flags override config; config overrides built-in defaults."
+  ],
   "since": "12 months ago",
-  "include": [],
-  "exclude": [],
+  "include": [
+    "src/**"
+  ],
+  "exclude": [
+    "**/*.generated.ts"
+  ],
   "top": 20
 }
 `;
@@ -21,17 +36,40 @@ const LOCKED_EXEMPLAR_JSON = `{
 describe("EXEMPLAR_HOTSPOT_SCANNER_CONFIG", () => {
   it("matches locked exemplar keys and values", () => {
     expect(EXEMPLAR_HOTSPOT_SCANNER_CONFIG).toEqual({
+      $schema: HOTSPOT_SCANNER_CONFIG_SCHEMA_URL,
+      $comments: [
+        "include: extra globs added to PathScope beyond defaults.",
+        "exclude: additional patterns; built-in excludes always apply.",
+        "concurrency is omitted — the scanner host default applies.",
+        "Precedence: CLI flags override config; config overrides built-in defaults.",
+      ],
       since: "12 months ago",
-      include: [],
-      exclude: [],
+      include: ["src/**"],
+      exclude: ["**/*.generated.ts"],
       top: 20,
     });
+    expect(EXEMPLAR_HOTSPOT_SCANNER_CONFIG).not.toHaveProperty("concurrency");
   });
 });
 
 describe("formatExemplarConfig", () => {
   it("returns 2-space indented JSON with trailing newline", () => {
     expect(formatExemplarConfig()).toBe(LOCKED_EXEMPLAR_JSON);
+  });
+
+  it("round-trips through parseHotspotScannerConfig without meta in unknownKeys", () => {
+    const parsed = parseHotspotScannerConfig(
+      JSON.parse(formatExemplarConfig()),
+    );
+
+    expect(parsed.unknownKeys).toEqual([]);
+    expect(parsed.config).toEqual({
+      since: "12 months ago",
+      include: ["src/**"],
+      exclude: ["**/*.generated.ts"],
+      top: 20,
+    });
+    expect(parsed.config).not.toHaveProperty("concurrency");
   });
 });
 

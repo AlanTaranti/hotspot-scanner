@@ -3,7 +3,7 @@
 **Feature slug:** `contract-enrich-additive`  
 **Milestone:** M66  
 **Priority:** High  
-**Status:** Specs Planned  
+**Status:** Specs Done  
 **Depth:** Large  
 **IDs:** HOTSPOT-1160–1199 (1185–1199 reserved)  
 **Artifacts:** [context.md](./context.md) · [design.md](./design.md) · [tasks.md](./tasks.md)  

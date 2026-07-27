@@ -33,6 +33,9 @@ describe("renderCompareMarkdown", () => {
     expect(output).toContain("# Hotspot Scanner — Compare Report");
     expect(output).toContain("## New Hotspots");
     expect(output).toContain("## Rank Changed Hotspots");
+    expect(output).toContain("| ScoreΔ |");
+    expect(output).toContain("| NLOCΔ |");
+    expect(output).toContain("| CommitsΔ |");
     expect(output).toContain("| NLOC |");
     expect(output).not.toContain("## New Functions");
   });
@@ -85,6 +88,19 @@ describe("renderCompareMarkdown", () => {
 
     expect(output).not.toContain("## Triage hints");
     expect(output).not.toContain("Triage hints");
+  });
+
+  it("renders rank-changed metric deltas alongside baseline entity columns", () => {
+    const result = loadCompareResult(
+      "compare-baseline-file.json",
+      "compare-current-file.json",
+    );
+    const output = renderCompareMarkdown(result);
+    const rankChanged = result.hotspots.rankChanged[0]!;
+
+    expect(output).toContain(
+      `| ${rankChanged.baselineRank} | ${rankChanged.currentRank} | ${rankChanged.rankDelta} | ${rankChanged.scoreDelta.toFixed(4)} | ${rankChanged.nclocDelta} | ${rankChanged.commitCountDelta} | ${rankChanged.entity.filePath} | ${rankChanged.entity.hotspotScore.toFixed(4)} |`,
+    );
   });
 
   it("escapes pipe characters in markdown cells", () => {
@@ -142,6 +158,9 @@ describe("renderCompareMarkdown", () => {
       meta: { ...baseline.meta, scannedAt: "2026-07-22T11:00:00.000Z" },
     });
 
-    expect(renderCompareMarkdown(result)).toContain("_No results._");
+    const output = renderCompareMarkdown(result);
+    expect(output).toContain("_No results._");
+    expect(output).toContain("No rank changes");
+    expect(output).not.toContain("showing 0 of 0");
   });
 });

@@ -5,6 +5,7 @@ import type {
 } from "../types/domain.js";
 import {
   flushWarningSummary,
+  flushWarningsJson,
   type WarningsMode,
 } from "./warning-summary.js";
 
@@ -15,6 +16,12 @@ export const PROGRESS_LOG_INTERVAL = 1000;
 /** Matches complexity `DEFAULT_BATCH_SIZE` — ~one stderr line per batch. */
 export const COMPLEXITY_PROGRESS_LOG_INTERVAL = 50;
 
+/** Fallback when stderr.columns missing/invalid */
+export const PROGRESS_COLUMNS_FALLBACK = 80;
+/** Clamped bar interior width (glyphs between brackets) */
+export const PROGRESS_BAR_WIDTH_MIN = 10;
+export const PROGRESS_BAR_WIDTH_MAX = 40;
+
 const LIVE_CLEAR = "\x1b[2K\r";
 
 const SEVERITY_PREFIX: Record<DiagnosticSeverity, string> = {
@@ -22,6 +29,37 @@ const SEVERITY_PREFIX: Record<DiagnosticSeverity, string> = {
   warning: "warning",
   error: "error",
 };
+
+export interface ProgressFormatOptions {
+  /** Default: `process.stderr.isTTY === true` */
+  stderrIsTTY?: boolean;
+  /** Default: `process.stderr.columns` */
+  stderrColumns?: number;
+}
+
+export function resolveProgressBarWidth(columns?: number): number {
+  const raw = columns ?? process.stderr.columns ?? PROGRESS_COLUMNS_FALLBACK;
+  const valid =
+    typeof raw === "number" && Number.isFinite(raw) && raw > 0
+      ? raw
+      : PROGRESS_COLUMNS_FALLBACK;
+  return Math.min(
+    PROGRESS_BAR_WIDTH_MAX,
+    Math.max(PROGRESS_BAR_WIDTH_MIN, Math.floor(valid * 0.25)),
+  );
+}
+
+export function formatFillBar(
+  ratio: number,
+  width: number,
+  tty: boolean,
+): string {
+  const clamped = Math.min(1, Math.max(0, ratio));
+  const filled = Math.round(clamped * width);
+  const filledChar = tty ? "█" : "#";
+  const emptyChar = tty ? "░" : "-";
+  return filledChar.repeat(filled) + emptyChar.repeat(width - filled);
+}
 
 export function createScanWarning(
   code: string,
@@ -36,39 +74,71 @@ export function logWarning(warning: ScanWarning): void {
   process.stderr.write(`${prefix}: ${warning.message}\n`);
 }
 
-function formatComplexityProgressBody(progress: ScanProgress): string {
-  const parts: string[] = ["Processing complexity"];
+function formatComplexityProgressBody(
+  progress: ScanProgress,
+  options: ProgressFormatOptions = {},
+): string {
+  const tty = options.stderrIsTTY ?? process.stderr.isTTY === true;
+  const hasKnownTotal =
+    progress.totalFiles !== undefined && progress.totalFiles > 0;
+  const filesProcessed = progress.filesProcessed;
 
-  if (progress.batchesProcessed !== undefined) {
-    const batchLabel = progress.totalBatches !== undefined
-      ? `batch ${progress.batchesProcessed.toLocaleString("en-US")}/${progress.totalBatches.toLocaleString("en-US")}`
-      : `batch ${progress.batchesProcessed.toLocaleString("en-US")}`;
-    parts.push(batchLabel);
+  const parts: string[] = ["complexity"];
+
+  if (hasKnownTotal && filesProcessed !== undefined) {
+    const barWidth = resolveProgressBarWidth(options.stderrColumns);
+    const ratio = filesProcessed / progress.totalFiles!;
+    parts.push(`[${formatFillBar(ratio, barWidth, tty)}]`);
   }
 
-  if (progress.filesProcessed !== undefined) {
-    const filesLabel = progress.totalFiles !== undefined
-      ? `(${progress.filesProcessed.toLocaleString("en-US")}/${progress.totalFiles.toLocaleString("en-US")} files)`
-      : `(${progress.filesProcessed.toLocaleString("en-US")} files)`;
+  if (filesProcessed !== undefined) {
+    const filesLabel = hasKnownTotal
+      ? `${filesProcessed.toLocaleString("en-US")}/${progress.totalFiles!.toLocaleString("en-US")} files`
+      : `${filesProcessed.toLocaleString("en-US")} files`;
     parts.push(filesLabel);
   }
 
-  return `${parts.join(" ")}...`;
+  if (progress.batchesProcessed !== undefined) {
+    const batchLabel =
+      progress.totalBatches !== undefined
+        ? `batch ${progress.batchesProcessed.toLocaleString("en-US")}/${progress.totalBatches.toLocaleString("en-US")}`
+        : `batch ${progress.batchesProcessed.toLocaleString("en-US")}`;
+    if (parts.length > 1) {
+      parts.push(`· ${batchLabel}`);
+    } else {
+      parts.push(batchLabel);
+    }
+  }
+
+  return parts.join(" ");
 }
 
 function formatGitProgressBody(progress: ScanProgress): string {
-  return `Processing ${progress.phase} commit ${progress.commitsProcessed.toLocaleString("en-US")}...`;
+  return `git ${progress.commitsProcessed.toLocaleString("en-US")} commits…`;
 }
 
-function formatProgressBody(progress: ScanProgress): string {
+function formatFinalizeProgressBody(): string {
+  return "Finalizing…";
+}
+
+export function formatProgressBody(
+  progress: ScanProgress,
+  options: ProgressFormatOptions = {},
+): string {
   if (progress.phase === "complexity") {
-    return formatComplexityProgressBody(progress);
+    return formatComplexityProgressBody(progress, options);
+  }
+  if (progress.phase === "finalize") {
+    return formatFinalizeProgressBody();
   }
   return formatGitProgressBody(progress);
 }
 
-export function logProgress(progress: ScanProgress): void {
-  process.stderr.write(`${formatProgressBody(progress)}\n`);
+export function logProgress(
+  progress: ScanProgress,
+  options: ProgressFormatOptions = {},
+): void {
+  process.stderr.write(`${formatProgressBody(progress, options)}\n`);
 }
 
 function shouldLogComplexityProgress(
@@ -87,10 +157,14 @@ function shouldLogComplexityProgress(
   );
 }
 
-function shouldEmitProgress(
+export function shouldEmitProgress(
   progress: ScanProgress,
   interval?: number,
 ): boolean {
+  if (progress.phase === "finalize") {
+    return true;
+  }
+
   if (progress.phase === "complexity") {
     const throttleInterval = interval ?? COMPLEXITY_PROGRESS_LOG_INTERVAL;
     return shouldLogComplexityProgress(progress, throttleInterval);
@@ -107,18 +181,23 @@ function shouldEmitProgress(
 export function maybeLogProgress(
   progress: ScanProgress,
   interval?: number,
+  options: ProgressFormatOptions = {},
 ): boolean {
   if (!shouldEmitProgress(progress, interval)) {
     return false;
   }
-  logProgress(progress);
+  logProgress(progress, options);
   return true;
 }
 
 interface LiveProgressContext {
   stderrIsTTY: boolean;
+  stderrColumns?: number;
   liveLineOpen: boolean;
   lastPhase?: ScanProgress["phase"];
+  /** Effective scan window — prefixed on first emitted progress line only (M62). */
+  since?: string;
+  hasEmittedProgress: boolean;
 }
 
 function clearLiveProgress(ctx: LiveProgressContext): void {
@@ -142,7 +221,14 @@ function writeProgressLine(
   }
   ctx.lastPhase = progress.phase;
 
-  const body = formatProgressBody(progress);
+  let body = formatProgressBody(progress, {
+    stderrIsTTY: ctx.stderrIsTTY,
+    stderrColumns: ctx.stderrColumns,
+  });
+  if (!ctx.hasEmittedProgress && ctx.since) {
+    body = `since=${ctx.since} · ${body}`;
+  }
+  ctx.hasEmittedProgress = true;
   if (ctx.stderrIsTTY) {
     process.stderr.write(`${LIVE_CLEAR}${body}`);
     ctx.liveLineOpen = true;
@@ -158,6 +244,10 @@ export interface CliDiagnosticOptions {
   warningsMode?: WarningsMode;
   /** Default: `process.stderr.isTTY === true` */
   stderrIsTTY?: boolean;
+  /** Default: `process.stderr.columns` — injectable for tests */
+  stderrColumns?: number;
+  /** Effective scan window for first progress line only. */
+  since?: string;
 }
 
 export function createCliDiagnosticHandlers(
@@ -173,13 +263,18 @@ export function createCliDiagnosticHandlers(
     noProgress = false,
     warningsMode = "summary",
     stderrIsTTY = process.stderr.isTTY === true,
+    stderrColumns,
+    since,
   } = options;
   const suppressProgress = quiet || noProgress;
   const buffer: ScanWarning[] = [];
 
   const liveCtx: LiveProgressContext = {
     stderrIsTTY,
+    stderrColumns,
     liveLineOpen: false,
+    since,
+    hasEmittedProgress: false,
   };
 
   const clearLive = () => clearLiveProgress(liveCtx);
@@ -207,7 +302,10 @@ export function createCliDiagnosticHandlers(
 
   const flushWarnings = () => {
     clearLive();
-    if (warningsMode !== "full") {
+    if (warningsMode === "json") {
+      flushWarningsJson(buffer);
+      buffer.length = 0;
+    } else if (warningsMode === "summary") {
       flushWarningSummary(buffer);
       buffer.length = 0;
     }

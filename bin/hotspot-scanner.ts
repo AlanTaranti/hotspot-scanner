@@ -1,18 +1,24 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { existsSync, readFileSync, statSync } from "node:fs";
+import { dirname, isAbsolute, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Command, CommanderError } from "commander";
+import { BaselineError } from "#compare";
 import {
   ConfigError,
+  formatConfigPrintJson,
+  formatConfigPrintText,
   InitError,
   loadHotspotScannerConfig,
+  loadMergedScanConfigWithSources,
   mergeScanOptions,
+  validateHotspotScannerConfigFile,
   writeInitConfig,
   type HotspotScannerConfig,
 } from "#config";
 import {
   createReporter,
+  explainTargetFound,
   formatCompareExplain,
   formatExplainBlock,
   findCompareExplainMatches,
@@ -32,6 +38,7 @@ import {
   buildScanOptions,
   CliUsageError,
   DEFAULT_BASELINE_OUTPUT,
+  emitBriefTimingStderr,
   executeCompareAndRender,
   executeScan,
   runWithScanCancelSignals,
@@ -52,6 +59,7 @@ export {
 
 export type OutputFormat = "table" | "json" | "markdown" | "csv";
 export type DoctorOutputFormat = "text" | "json";
+export type ConfigPrintFormat = "text" | "json";
 
 export function resolvePackageVersion(): string {
   const moduleDir = dirname(fileURLToPath(import.meta.url));
@@ -104,6 +112,15 @@ export function parseDoctorFormat(value: string): DoctorOutputFormat {
   );
 }
 
+export function parseConfigPrintFormat(value: string): ConfigPrintFormat {
+  if (value === "text" || value === "json") {
+    return value;
+  }
+  throw new CliUsageError(
+    `Invalid --format: ${value}. Expected text or json.`,
+  );
+}
+
 export function parseFormat(value: string): OutputFormat {
   if (
     value === "table" ||
@@ -118,14 +135,14 @@ export function parseFormat(value: string): OutputFormat {
   );
 }
 
-export type WarningsMode = "summary" | "full";
+export type WarningsMode = "summary" | "full" | "json";
 
 export function parseWarningsMode(value: string): WarningsMode {
-  if (value === "summary" || value === "full") {
+  if (value === "summary" || value === "full" || value === "json") {
     return value;
   }
   throw new CliUsageError(
-    `Invalid --warnings: ${value}. Expected summary or full.`,
+    `Invalid --warnings: ${value}. Expected summary, full, or json.`,
   );
 }
 
@@ -159,20 +176,21 @@ function writeExplainBlock(
   result: ScanResult,
   explainRaw: string,
   repoPath: string,
-): void {
+): boolean {
   const target = normalizeExplainTarget(
     parseExplainTarget(explainRaw),
     repoPath,
   );
   const block = formatExplainBlock(result, target);
   process.stderr.write(ensureTrailingNewline(block));
+  return explainTargetFound(result, target);
 }
 
 function writeCompareExplainBlock(
   compareResult: CompareResult,
   explainRaw: string,
   repoPath: string,
-): void {
+): boolean {
   const target = normalizeExplainTarget(
     parseExplainTarget(explainRaw),
     repoPath,
@@ -183,9 +201,10 @@ function writeCompareExplainBlock(
     process.stderr.write(
       ensureTrailingNewline(`explain: no compare delta for ${explainRaw}`),
     );
-    return;
+    return false;
   }
   process.stderr.write(ensureTrailingNewline(block));
+  return true;
 }
 
 function hasCompareSinceMismatch(compareResult: CompareResult): boolean {
@@ -271,11 +290,15 @@ function isExplicitCliOption(cmd: Command, optionName: string): boolean {
 }
 
 const SEQUENTIAL_OPTION_HELP =
-  "Run git mining and complexity analysis sequentially (disables M34 stage overlap)";
+  "Run git mining and complexity analysis sequentially (disables concurrent stage overlap; lowers peak memory)";
 const NO_OVERLAP_OPTION_HELP =
-  "Alias for --sequential — disable M34 git∥complexity overlap";
+  "Alias for --sequential — run git and complexity one after the other";
 const WARNINGS_OPTION_HELP =
-  "Stderr warning presentation: summary|full";
+  "Stderr warning presentation: summary|full|json (meta.warnings always full)";
+const FAIL_ON_EXPLAIN_MISS_OPTION_HELP =
+  "Exit 1 when --explain target is not found (requires --explain)";
+const CSV_SINGLE_FILE_OPTION_HELP =
+  "Write one CSV to exact --output instead of stem bundle (scan: hotspots; compare: hotspots.new; requires --format csv)";
 
 export function resolveSequentialCliOption(options: {
   sequential?: boolean;
@@ -328,6 +351,85 @@ export function createCliProgram(): Command {
       "Local CLI for TS/JS maintenance hotspot analysis (init, doctor, scan)",
     )
     .version(resolvePackageVersion(), "-V, --version");
+
+  const config = program
+    .command("config")
+    .description("Validate and inspect hotspot-scanner configuration");
+
+  config
+    .command("validate")
+    .description(
+      "Validate .hotspot-scanner.json (file path or directory with parent walk)",
+    )
+    .argument(
+      "[path]",
+      "Config file or directory to search (default: current working directory)",
+      ".",
+    )
+    .action(async (pathOrDir: string) => {
+      const { path } = await validateHotspotScannerConfigFile(pathOrDir);
+      process.stdout.write(`Config file is valid: ${path}\n`);
+    });
+
+  config
+    .command("print")
+    .description(
+      "Print effective merged scan options with cli/config/default source tags",
+    )
+    .argument(
+      "[path]",
+      "Repository path for config discovery (default: current working directory)",
+      ".",
+    )
+    .option("--since <period>", "Git history window", DEFAULT_SINCE)
+    .option(
+      "-f, --format <format>",
+      "Output format: text or json",
+      "text",
+    )
+    .option(
+      "-t, --top <n>",
+      "Top N rows in table/markdown output (ignored for json/csv)",
+      String(DEFAULT_TOP),
+    )
+    .option(
+      "--concurrency <n>",
+      "Complexity worker pool size (positive integer)",
+    )
+    .option(
+      "--include <glob>",
+      "Include only paths matching glob (repeatable)",
+      collectGlob,
+      [] as string[],
+    )
+    .option(
+      "--exclude <glob>",
+      "Exclude paths matching glob (repeatable)",
+      collectGlob,
+      [] as string[],
+    )
+    .option(
+      "--config <path>",
+      "Load config from explicit file (skip parent walk)",
+    )
+    .action(async function (repoPath: string, options) {
+      const cmd = this as Command;
+      const format = parseConfigPrintFormat(options.format as string);
+      const configPath = isExplicitCliOption(cmd, "config")
+        ? (options.config as string)
+        : undefined;
+      const cliOverrides = buildCliConfigOverrides(cmd, options);
+      const merged = await loadMergedScanConfigWithSources({
+        repoPath,
+        configPath,
+        cli: cliOverrides,
+      });
+      const output =
+        format === "json"
+          ? formatConfigPrintJson(merged)
+          : formatConfigPrintText(merged);
+      process.stdout.write(output);
+    });
 
   program
     .command("init")
@@ -469,6 +571,14 @@ export function createCliProgram(): Command {
       "After the report, print a score breakdown for <path> to stderr",
     )
     .option(
+      "--fail-on-explain-miss",
+      FAIL_ON_EXPLAIN_MISS_OPTION_HELP,
+    )
+    .option(
+      "--csv-single-file",
+      CSV_SINGLE_FILE_OPTION_HELP,
+    )
+    .option(
       "--strict",
       "Exit 1 when compare reports COMPARE_SINCE_MISMATCH (after report write)",
     )
@@ -499,7 +609,9 @@ Examples:
       const cliOverrides = buildCliConfigOverrides(cmd, options);
       const baselinePath = options.baseline as string | undefined;
       const explainTarget = options.explain as string | undefined;
+      const failOnExplainMiss = Boolean(options.failOnExplainMiss);
       const strict = Boolean(options.strict);
+      const csvSingleFile = Boolean(options.csvSingleFile);
 
       if (options.dryRun) {
         if (baselinePath !== undefined) {
@@ -530,6 +642,8 @@ Examples:
 
       if (explainTarget !== undefined) {
         validateExplainTarget(explainTarget);
+      } else if (failOnExplainMiss) {
+        throw new CliUsageError("--fail-on-explain-miss requires --explain");
       }
 
       const outputPath = options.output as string | undefined;
@@ -546,6 +660,10 @@ Examples:
       const reporterOptions = { format, top, only, triageHints, color };
       const sequential = resolveSequentialCliOption(options);
       const warningsMode = parseWarningsMode(options.warnings as string);
+
+      if (csvSingleFile && format !== "csv") {
+        throw new CliUsageError("--csv-single-file requires --format csv");
+      }
 
       if (format === "csv" && outputPath === undefined) {
         throw new CliUsageError(
@@ -570,11 +688,16 @@ Examples:
             verbose: options.verbose as boolean,
             warningsMode,
             sequential,
+            csvSingleFile,
             signal,
           }),
         );
+        emitBriefTimingStderr(
+          compareResult.meta.current.timings,
+          options.quiet as boolean,
+        );
       } else {
-        result = await runWithScanCancelSignals((signal) =>
+        const scanOutcome = await runWithScanCancelSignals((signal) =>
           executeScan({
             repoPath,
             cliOverrides,
@@ -588,17 +711,25 @@ Examples:
             signal,
           }),
         );
+        result = scanOutcome.result;
 
         const reporter = createReporter();
         const output = reporter.render(result, reporterOptions);
-        await writeRenderedOutput(output, format, outputPath);
+        await writeRenderedOutput(output, format, outputPath, {
+          quiet: options.quiet as boolean,
+          ...(csvSingleFile ? { csvSingleFile: true } : {}),
+        });
+        scanOutcome.flushWarnings();
+        emitBriefTimingStderr(result.meta.timings, options.quiet as boolean);
       }
 
       if (explainTarget !== undefined) {
-        if (compareResult !== undefined) {
-          writeCompareExplainBlock(compareResult, explainTarget, repoPath);
-        } else {
-          writeExplainBlock(result!, explainTarget, repoPath);
+        const found =
+          compareResult !== undefined
+            ? writeCompareExplainBlock(compareResult, explainTarget, repoPath)
+            : writeExplainBlock(result!, explainTarget, repoPath);
+        if (failOnExplainMiss && !found) {
+          throw new CliExitError(1);
         }
       }
 
@@ -652,6 +783,12 @@ Examples:
       "--config <path>",
       "Load config from explicit file (skip parent walk)",
     )
+    .option(
+      "--quiet",
+      "Suppress progress and info-level diagnostics (warnings/errors remain)",
+    )
+    .option("--verbose", "Trace git spawn argv on stderr")
+    .option("--no-progress", "Suppress progress lines on stderr")
     .option("--warnings <mode>", WARNINGS_OPTION_HELP, "summary")
     .addHelpText(
       "after",
@@ -678,16 +815,20 @@ Examples:
       const sequential = resolveSequentialCliOption(options);
       const warningsMode = parseWarningsMode(options.warnings as string);
 
-      const result = await executeScan({
+      const { result, flushWarnings } = await executeScan({
         repoPath,
         cliOverrides,
         configPath,
+        quiet: options.quiet as boolean,
+        noProgress: options.progress === false,
         includeTests: options.includeTests as boolean | undefined,
-        sequential,
+        verbose: options.verbose as boolean,
         warningsMode,
+        sequential,
       });
 
       await writeBaselineJson(result, outputPath);
+      flushWarnings();
     });
 
   program
@@ -762,6 +903,14 @@ Examples:
       "After the report, print compare delta breakdown for <path> to stderr",
     )
     .option(
+      "--fail-on-explain-miss",
+      FAIL_ON_EXPLAIN_MISS_OPTION_HELP,
+    )
+    .option(
+      "--csv-single-file",
+      CSV_SINGLE_FILE_OPTION_HELP,
+    )
+    .option(
       "--strict",
       "Exit 1 when compare reports COMPARE_SINCE_MISMATCH (after report write)",
     )
@@ -789,7 +938,9 @@ Examples:
       const cliOverrides = buildCliConfigOverrides(cmd, options);
       const baselinePath = options.baseline as string;
       const explainTarget = options.explain as string | undefined;
+      const failOnExplainMiss = Boolean(options.failOnExplainMiss);
       const strict = Boolean(options.strict);
+      const csvSingleFile = Boolean(options.csvSingleFile);
       const format = parseFormat(options.format);
       const { config: fileConfig } = await loadHotspotScannerConfig(repoPath, {
         configPath,
@@ -802,6 +953,8 @@ Examples:
 
       if (explainTarget !== undefined) {
         validateExplainTarget(explainTarget);
+      } else if (failOnExplainMiss) {
+        throw new CliUsageError("--fail-on-explain-miss requires --explain");
       }
 
       const outputPath = options.output as string | undefined;
@@ -818,6 +971,10 @@ Examples:
       const reporterOptions = { format, top, only, triageHints, color };
       const sequential = resolveSequentialCliOption(options);
       const warningsMode = parseWarningsMode(options.warnings as string);
+
+      if (csvSingleFile && format !== "csv") {
+        throw new CliUsageError("--csv-single-file requires --format csv");
+      }
 
       if (format === "csv" && outputPath === undefined) {
         throw new CliUsageError(
@@ -839,12 +996,24 @@ Examples:
           verbose: options.verbose as boolean,
           warningsMode,
           sequential,
+          csvSingleFile,
           signal,
         }),
       );
+      emitBriefTimingStderr(
+        compareResult.meta.current.timings,
+        options.quiet as boolean,
+      );
 
       if (explainTarget !== undefined) {
-        writeCompareExplainBlock(compareResult, explainTarget, repoPath);
+        const found = writeCompareExplainBlock(
+          compareResult,
+          explainTarget,
+          repoPath,
+        );
+        if (failOnExplainMiss && !found) {
+          throw new CliExitError(1);
+        }
       }
 
       enforceStrictCompare(compareResult, strict);
@@ -873,6 +1042,52 @@ Examples:
   return program;
 }
 
+const KNOWN_COMMANDS = new Set([
+  "init",
+  "config",
+  "doctor",
+  "scan",
+  "baseline",
+  "compare",
+  "completion",
+]);
+
+function looksLikePathToken(token: string): boolean {
+  if (token === "." || token.startsWith("./") || isAbsolute(token)) {
+    return true;
+  }
+  try {
+    return statSync(token).isDirectory();
+  } catch {
+    return false;
+  }
+}
+
+export function maybeRewritePathToScan(argv: string[]): string[] {
+  if (argv.length <= 2) {
+    return argv;
+  }
+  const first = argv[2]!;
+  if (KNOWN_COMMANDS.has(first)) {
+    return argv;
+  }
+  if (
+    first === "-h" ||
+    first === "--help" ||
+    first === "-V" ||
+    first === "--version"
+  ) {
+    return argv;
+  }
+  if (first.startsWith("-")) {
+    return argv;
+  }
+  if (!looksLikePathToken(first)) {
+    return argv;
+  }
+  return [argv[0]!, argv[1]!, "scan", ...argv.slice(2)];
+}
+
 export async function runCli(argv: string[]): Promise<void> {
   if (argv.length <= 2) {
     throw new CliUsageError(createCliProgram().helpInformation());
@@ -881,13 +1096,28 @@ export async function runCli(argv: string[]): Promise<void> {
   const program = createCliProgram();
   program.exitOverride();
   try {
-    await program.parseAsync(argv);
+    await program.parseAsync(maybeRewritePathToScan(argv));
   } catch (error) {
     if (error instanceof CommanderError && error.exitCode === 0) {
       return;
     }
     throw error;
   }
+}
+
+export function resolveCliExitCode(error: unknown): number {
+  if (error instanceof CliExitError || error instanceof ScanCancelExit) {
+    return error.exitCode;
+  }
+  if (
+    error instanceof CliUsageError ||
+    error instanceof ConfigError ||
+    error instanceof InitError ||
+    error instanceof BaselineError
+  ) {
+    return 2;
+  }
+  return 1;
 }
 
 /* v8 ignore start */
@@ -899,15 +1129,7 @@ async function main(): Promise<void> {
     if (!(error instanceof CliExitError) && !(error instanceof ScanCancelExit)) {
       console.error(message);
     }
-    const exitCode =
-      error instanceof CliExitError || error instanceof ScanCancelExit
-        ? error.exitCode
-        : error instanceof CliUsageError ||
-            error instanceof ConfigError ||
-            error instanceof InitError
-          ? 2
-          : 1;
-    process.exit(exitCode);
+    process.exit(resolveCliExitCode(error));
   }
 }
 /* v8 ignore stop */

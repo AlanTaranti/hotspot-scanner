@@ -1,6 +1,6 @@
 import { cp, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -90,6 +90,32 @@ async function createIsolatedSmallTsRepo(): Promise<string> {
   return tempDir;
 }
 
+async function createNestedMonorepoFixture(): Promise<{
+  workspaceDir: string;
+  packageDir: string;
+}> {
+  const workspaceDir = await mkdtemp(join(tmpdir(), "hotspot-preview-monorepo-"));
+  tempDirs.push(workspaceDir);
+  const packageDir = join(workspaceDir, "packages", "api");
+  await mkdir(packageDir, { recursive: true });
+  await cp(smallTsFixture, packageDir, { recursive: true });
+  await rm(join(packageDir, ".git"), { recursive: true, force: true });
+  await execFileAsync("git", ["init"], { cwd: workspaceDir });
+  await execFileAsync(
+    "git",
+    ["config", "user.email", "test@example.com"],
+    { cwd: workspaceDir },
+  );
+  await execFileAsync(
+    "git",
+    ["config", "user.name", "Test User"],
+    { cwd: workspaceDir },
+  );
+  await execFileAsync("git", ["add", "."], { cwd: workspaceDir });
+  await execFileAsync("git", ["commit", "-m", "init"], { cwd: workspaceDir });
+  return { workspaceDir, packageDir };
+}
+
 afterEach(async () => {
   createGitMinerSpy.mockClear();
   mineSpy.mockClear();
@@ -122,6 +148,8 @@ describe("previewScanScope", () => {
       includeTests: false,
       eligibleFileCount: 2,
       concurrency: 2,
+      configPath: null,
+      unknownConfigKeys: [],
     });
     expect(createGitMinerSpy).not.toHaveBeenCalled();
     expect(mineSpy).not.toHaveBeenCalled();
@@ -176,6 +204,71 @@ describe("previewScanScope", () => {
     expect(preview.exclude).toEqual(["src/medium.ts"]);
     expect(preview.concurrency).toBe(1);
     expect(preview.eligibleFileCount).toBe(2);
+    expect(preview.configPath).toBe(
+      resolve(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
+    );
+    expect(preview.unknownConfigKeys).toEqual([]);
+  });
+
+  it("reports configPath none when no config file is found", async () => {
+    const repoPath = await createIsolatedSmallTsRepo();
+
+    const preview = await previewScanScope({ repoPath });
+
+    expect(preview.configPath).toBeNull();
+    expect(preview.unknownConfigKeys).toEqual([]);
+  });
+
+  it("loads explicit configPath and surfaces its absolute path", async () => {
+    const repoPath = await createIsolatedSmallTsRepo();
+    const explicitConfigPath = join(repoPath, "custom-config.json");
+    await writeFile(
+      explicitConfigPath,
+      JSON.stringify({ since: "9 months ago" }),
+      "utf8",
+    );
+
+    const preview = await previewScanScope({
+      repoPath,
+      configPath: explicitConfigPath,
+    });
+
+    expect(preview.configPath).toBe(resolve(explicitConfigPath));
+    expect(preview.since).toBe("9 months ago");
+  });
+
+  it("includes remount message when scanning a nested package path", async () => {
+    const { workspaceDir, packageDir } = await createNestedMonorepoFixture();
+
+    const preview = await previewScanScope({ repoPath: packageDir });
+
+    expect(preview.repoPath).toBe(workspaceDir);
+    expect(preview.remountMessage).toContain("remounted to git root");
+    expect(preview.remountMessage).toContain(workspaceDir);
+    expect(preview.remountMessage).toContain("packages/api/**");
+    expect(createGitMinerSpy).not.toHaveBeenCalled();
+    expect(analyzeSpy).not.toHaveBeenCalled();
+  });
+
+  it("lists unknown config keys and ignores reserved meta keys", async () => {
+    const repoPath = await createIsolatedSmallTsRepo();
+    await writeFile(
+      join(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
+      JSON.stringify({
+        $schema: "https://example.com/schema.json",
+        $comments: ["docs"],
+        typoKey: true,
+        anotherTypo: "x",
+      }),
+      "utf8",
+    );
+
+    const preview = await previewScanScope({ repoPath });
+
+    expect(preview.unknownConfigKeys).toEqual(["anotherTypo", "typoKey"]);
+    expect(preview.configPath).toBe(
+      resolve(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
+    );
   });
 
   it("uses defaults when include and exclude are unset", async () => {
@@ -264,17 +357,52 @@ describe("formatScanScopePreview", () => {
       includeTests: false,
       eligibleFileCount: 7,
       concurrency: 4,
+      configPath: null,
+      unknownConfigKeys: [],
     });
 
     expect(output).toBe(
       [
         "repo: /tmp/repo",
+        "config file: none",
         "since: 12 months ago",
         "include: []",
         'exclude: ["src/legacy/**"]',
         "default excludes: always on",
         "test files: excluded",
         "eligible files: 7",
+        "concurrency: 4",
+      ].join("\n") + "\n",
+    );
+  });
+
+  it("prints remount and unknown config key lines when present", () => {
+    const output = formatScanScopePreview({
+      repoPath: "/tmp/repo",
+      since: "12 months ago",
+      include: [],
+      exclude: [],
+      includeTests: false,
+      eligibleFileCount: 3,
+      concurrency: 4,
+      configPath: "/tmp/repo/.hotspot-scanner.json",
+      remountMessage:
+        "Scan path remounted to git root /tmp/repo; auto-including packages/api/**",
+      unknownConfigKeys: ["typoKey"],
+    });
+
+    expect(output).toBe(
+      [
+        "repo: /tmp/repo",
+        "config file: /tmp/repo/.hotspot-scanner.json",
+        "Scan path remounted to git root /tmp/repo; auto-including packages/api/**",
+        "Unknown config key(s) ignored: typoKey",
+        "since: 12 months ago",
+        "include: []",
+        "exclude: []",
+        "default excludes: always on",
+        "test files: excluded",
+        "eligible files: 3",
         "concurrency: 4",
       ].join("\n") + "\n",
     );
@@ -289,6 +417,8 @@ describe("formatScanScopePreview", () => {
       includeTests: true,
       eligibleFileCount: 8,
       concurrency: 4,
+      configPath: null,
+      unknownConfigKeys: [],
     });
 
     expect(output).toContain("test files: included");

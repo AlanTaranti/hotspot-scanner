@@ -3,6 +3,7 @@ import { renderCompareCsv } from "./compare-csv.js";
 export type { ExplainTarget } from "./explain.js";
 export { CliUsageError } from "./explain.js";
 export {
+  explainTargetFound,
   formatExplainBlock,
   normalizeExplainPath,
   parseExplainTarget,
@@ -12,6 +13,7 @@ export type {
   CompareExplainMatch,
 } from "./explain-compare.js";
 export {
+  compareExplainTargetFound,
   findCompareExplainMatches,
   formatCompareExplain,
 } from "./explain-compare.js";

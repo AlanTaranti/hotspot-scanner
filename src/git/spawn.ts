@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
 import { createInterface, type Interface } from "node:readline";
+import { formatGitStderrHint } from "./git-error-hint.js";
 
 export interface GitLogSpawnOptions {
   repoPath: string;
@@ -14,9 +15,10 @@ export class GitLogError extends Error {
   readonly stderr: string;
 
   constructor(repoPath: string, command: string, stderr: string) {
-    super(
-      `git log failed for repo ${repoPath}: ${stderr.trim() || "unknown error"}`,
-    );
+    const body = stderr.trim() || "unknown error";
+    const hint = formatGitStderrHint(stderr);
+    const base = `git log failed for repo ${repoPath}: ${body}`;
+    super(hint !== undefined ? `${base}\nHint: ${hint}` : base);
     this.name = "GitLogError";
     this.repoPath = repoPath;
     this.command = command;

@@ -99,6 +99,14 @@ function findHotspotRank(
   return { entry: hotspots[index]!, rank: index + 1 };
 }
 
+/** Whether `--explain` would find a hotspot ranking for the target. */
+export function explainTargetFound(
+  result: ScanResult,
+  target: ExplainTarget,
+): boolean {
+  return findHotspotRank(result.hotspots, target.filePath) !== undefined;
+}
+
 function formatNotFound(target: ExplainTarget): string {
   const pathKey = normalizeMatchKey(target.filePath);
   return `explain: no hotspot ranking for ${pathKey}`;

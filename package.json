@@ -9,7 +9,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./schemas/scan-result.json": "./schemas/scan-result.json",
+    "./schemas/compare-result.json": "./schemas/compare-result.json",
+    "./schemas/hotspot-scanner-config.json": "./schemas/hotspot-scanner-config.json"
   },
   "bin": {
     "hotspot-scanner": "./dist/bin/hotspot-scanner.js"

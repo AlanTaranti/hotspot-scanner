@@ -18,6 +18,7 @@ import {
   type PathScope,
   type ResolvedMonorepoScanPath,
 } from "./paths/index.js";
+import { getPackageVersion } from "./package-meta.js";
 import { createHotspotScorer } from "./scoring/index.js";
 import type {
   ScanOptions,
@@ -132,8 +133,12 @@ function createUnknownConfigKeyWarning(unknownKeys: string[]): ScanWarning {
 async function loadMergedScanConfig(
   options: ScanOptions,
   resolved: ResolvedMonorepoScanPath,
-): Promise<{ merged: MergedScanConfig; unknownConfigKeys: string[] }> {
-  const { config, unknownKeys } = await loadHotspotScannerConfig(
+): Promise<{
+  merged: MergedScanConfig;
+  unknownConfigKeys: string[];
+  configPath: string | null;
+}> {
+  const { config, unknownKeys, path } = await loadHotspotScannerConfig(
     options.repoPath,
     {
       configPath: options.configPath,
@@ -150,6 +155,7 @@ async function loadMergedScanConfig(
   return {
     merged: mergeScanOptions({ config, cli }),
     unknownConfigKeys: unknownKeys,
+    configPath: path,
   };
 }
 
@@ -158,6 +164,7 @@ export interface ScanPipelineContext {
   pipelineRepoPath: string;
   remountWarning?: ScanWarning;
   unknownConfigKeys: string[];
+  configPath: string | null;
 }
 
 export async function resolveScanPipelineContext(
@@ -165,7 +172,7 @@ export async function resolveScanPipelineContext(
 ): Promise<ScanPipelineContext> {
   await validateRepoPath(options.repoPath);
   const resolved = await resolveMonorepoScanPath(options.repoPath);
-  const { merged, unknownConfigKeys } = await loadMergedScanConfig(
+  const { merged, unknownConfigKeys, configPath } = await loadMergedScanConfig(
     options,
     resolved,
   );
@@ -182,6 +189,7 @@ export async function resolveScanPipelineContext(
     pipelineRepoPath: resolved.repoPath,
     remountWarning,
     unknownConfigKeys,
+    configPath,
   };
 }
 
@@ -302,6 +310,8 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
     collectedWarnings.push(...complexityWarnings);
     forwardWarnings(complexityWarnings, onWarning);
 
+    options.onProgress?.({ phase: "finalize", commitsProcessed: 0 });
+
     const scannedAt = new Date().toISOString();
     const hotspots = createHotspotScorer().score(fileStats, results);
 
@@ -319,6 +329,7 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
         scannedAt,
         warnings: collectedWarnings,
         timings,
+        scannerVersion: getPackageVersion(),
       },
     };
   } finally {

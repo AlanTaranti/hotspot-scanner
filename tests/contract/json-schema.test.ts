@@ -13,6 +13,21 @@ const SCAN_SCHEMA_ID =
   "https://vitals.dev/hotspot-scanner/schemas/scan-result.json";
 const COMPARE_SCHEMA_ID =
   "https://vitals.dev/hotspot-scanner/schemas/compare-result.json";
+const CONFIG_SCHEMA_ID =
+  "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json";
+
+const LOCKED_CONFIG_EXEMPLAR = {
+  $schema: CONFIG_SCHEMA_ID,
+  $comments: [
+    "include/exclude are additive to built-in PathScope defaults.",
+    "Omit concurrency to use the host default worker pool size.",
+    "CLI flags override config; config overrides built-in defaults.",
+  ],
+  since: "12 months ago",
+  include: ["src/**"],
+  exclude: ["**/*.generated.ts"],
+  top: 20,
+} as const;
 
 function createValidators() {
   const ajv = new Ajv2020({ allErrors: true });
@@ -22,15 +37,21 @@ function createValidators() {
   ajv.addSchema(
     JSON.parse(readFileSync(join(schemasDir, "compare-result.json"), "utf8")),
   );
+  ajv.addSchema(
+    JSON.parse(
+      readFileSync(join(schemasDir, "hotspot-scanner-config.json"), "utf8"),
+    ),
+  );
 
   const validateScan = ajv.getSchema(SCAN_SCHEMA_ID);
   const validateCompare = ajv.getSchema(COMPARE_SCHEMA_ID);
+  const validateConfig = ajv.getSchema(CONFIG_SCHEMA_ID);
 
-  if (!validateScan || !validateCompare) {
+  if (!validateScan || !validateCompare || !validateConfig) {
     throw new Error("Failed to compile JSON schemas");
   }
 
-  return { validateScan, validateCompare, ajv };
+  return { validateScan, validateCompare, validateConfig, ajv };
 }
 
 function loadScanFixture(name: string): ScanResult {
@@ -51,6 +72,13 @@ function loadCompareFixture(name: string): CompareResult {
   return fixture;
 }
 
+function loadSchemaFile(name: string): Record<string, unknown> {
+  return JSON.parse(readFileSync(join(schemasDir, name), "utf8")) as Record<
+    string,
+    unknown
+  >;
+}
+
 function expectScanWarningShape(
   warning: unknown,
 ): asserts warning is { severity: string; message: string; code?: string } {
@@ -63,7 +91,53 @@ function expectScanWarningShape(
 }
 
 describe("JSON schema contract", () => {
-  const { validateScan, validateCompare } = createValidators();
+  const { validateScan, validateCompare, validateConfig } = createValidators();
+
+  it("scan-result.json declares optional root $schema and meta.scannerVersion", () => {
+    const schema = loadSchemaFile("scan-result.json");
+    const properties = schema.properties as Record<string, unknown>;
+    const scanMeta = (schema.$defs as Record<string, unknown>)
+      .ScanMeta as Record<string, unknown>;
+    const scanMetaProperties = scanMeta.properties as Record<string, unknown>;
+
+    expect(properties).toHaveProperty("$schema");
+    expect(scanMetaProperties).toHaveProperty("scannerVersion");
+    expect(scanMeta.required).toEqual(
+      expect.arrayContaining(["since", "scannedAt", "warnings"]),
+    );
+    expect(scanMeta.required).not.toContain("scannerVersion");
+  });
+
+  it("compare-result.json declares optional root $schema, CompareMeta.scannerVersion, and RankChangeHotspot deltas", () => {
+    const schema = loadSchemaFile("compare-result.json");
+    const properties = schema.properties as Record<string, unknown>;
+    const rankChange = (schema.$defs as Record<string, unknown>)
+      .RankChangeHotspot as Record<string, unknown>;
+    const compareMeta = (schema.$defs as Record<string, unknown>)
+      .CompareMeta as Record<string, unknown>;
+    const compareMetaProperties = compareMeta.properties as Record<
+      string,
+      unknown
+    >;
+
+    expect(properties).toHaveProperty("$schema");
+    expect(compareMetaProperties).toHaveProperty("scannerVersion");
+    expect(compareMeta.required).not.toContain("scannerVersion");
+    expect(rankChange.required).toEqual(
+      expect.arrayContaining([
+        "scoreDelta",
+        "nclocDelta",
+        "commitCountDelta",
+      ]),
+    );
+    expect(rankChange.properties).toEqual(
+      expect.objectContaining({
+        scoreDelta: expect.objectContaining({ type: "number" }),
+        nclocDelta: expect.objectContaining({ type: "number" }),
+        commitCountDelta: expect.objectContaining({ type: "integer" }),
+      }),
+    );
+  });
 
   it("3.0 scan fixture validates against scan-result.json", () => {
     const json = loadScanFixture("sample-result.json");
@@ -195,6 +269,60 @@ describe("JSON schema contract", () => {
     expect(validateScan(withExtra)).toBe(true);
   });
 
+  it("accepts scan JSON with meta.scannerVersion and top-level $schema", () => {
+    const json = loadScanFixture("sample-result.json");
+    const enriched = {
+      $schema: SCAN_SCHEMA_ID,
+      ...structuredClone(json),
+      meta: {
+        ...json.meta,
+        scannerVersion: "1.0.0",
+      },
+    };
+
+    expect(validateScan(enriched)).toBe(true);
+  });
+
+  it("accepts baseline-era scan JSON without meta.scannerVersion", () => {
+    const baseline = loadScanFixture("compare-baseline-file.json");
+
+    expect(baseline.meta.scannerVersion).toBeUndefined();
+    expect(validateScan(baseline)).toBe(true);
+  });
+
+  it("accepts compare JSON with meta.scannerVersion and rankChanged metric deltas", () => {
+    const result = loadCompareFixture("compare-result-file.json");
+    const enriched = {
+      $schema: COMPARE_SCHEMA_ID,
+      ...structuredClone(result),
+      meta: {
+        ...result.meta,
+        scannerVersion: "1.0.0",
+      },
+    };
+
+    expect(validateCompare(enriched)).toBe(true);
+    expect(enriched.hotspots.rankChanged[0]).toEqual(
+      expect.objectContaining({
+        scoreDelta: expect.any(Number),
+        nclocDelta: expect.any(Number),
+        commitCountDelta: expect.any(Number),
+      }),
+    );
+  });
+
+  it("rejects compare JSON with rankChanged missing metric deltas", () => {
+    const result = loadCompareFixture("compare-result-file.json");
+    const invalid = structuredClone(result);
+    const rankChanged = invalid.hotspots.rankChanged[0] as Record<string, unknown>;
+    delete rankChanged.scoreDelta;
+    delete rankChanged.nclocDelta;
+    delete rankChanged.commitCountDelta;
+
+    expect(validateCompare(invalid)).toBe(false);
+    expect(validateCompare.errors?.length).toBeGreaterThan(0);
+  });
+
   it("accepts scan JSON with valid meta.timings", () => {
     const json = loadScanFixture("sample-result.json");
     const withTimings = structuredClone(json);
@@ -270,5 +398,85 @@ describe("JSON schema contract", () => {
 
     expect(validateCompare(withGranularity)).toBe(true);
     expect(withGranularity).toHaveProperty("granularity");
+  });
+});
+
+describe("hotspot-scanner-config.json schema", () => {
+  const { validateConfig } = createValidators();
+
+  it("compiles with locked $id", () => {
+    const raw = JSON.parse(
+      readFileSync(join(schemasDir, "hotspot-scanner-config.json"), "utf8"),
+    ) as { $id?: string };
+
+    expect(raw.$id).toBe(CONFIG_SCHEMA_ID);
+    expect(validateConfig).toBeTypeOf("function");
+  });
+
+  it("accepts locked init exemplar fixture", () => {
+    expect(validateConfig(LOCKED_CONFIG_EXEMPLAR)).toBe(true);
+  });
+
+  it("accepts reserved meta keys and forward-compat unknown keys", () => {
+    const withMeta = {
+      ...LOCKED_CONFIG_EXEMPLAR,
+      $comment: "single-line hint",
+      futureKey: "allowed by additionalProperties",
+    };
+
+    expect(validateConfig(withMeta)).toBe(true);
+  });
+
+  it("rejects invalid known-key types", () => {
+    const invalidSince = { ...LOCKED_CONFIG_EXEMPLAR, since: 12 };
+    expect(validateConfig(invalidSince)).toBe(false);
+    expect(validateConfig.errors?.length).toBeGreaterThan(0);
+
+    const invalidTop = { ...LOCKED_CONFIG_EXEMPLAR, top: "20" };
+    expect(validateConfig(invalidTop)).toBe(false);
+    expect(validateConfig.errors?.length).toBeGreaterThan(0);
+
+    const invalidConcurrency = { ...LOCKED_CONFIG_EXEMPLAR, concurrency: 0 };
+    expect(validateConfig(invalidConcurrency)).toBe(false);
+    expect(validateConfig.errors?.length).toBeGreaterThan(0);
+
+    const emptyIncludePattern = {
+      ...LOCKED_CONFIG_EXEMPLAR,
+      include: [""],
+    };
+    expect(validateConfig(emptyIncludePattern)).toBe(false);
+    expect(validateConfig.errors?.length).toBeGreaterThan(0);
+  });
+});
+
+describe("package.json schema exports", () => {
+  const packageJson = JSON.parse(
+    readFileSync(join(repoRoot, "package.json"), "utf8"),
+  ) as {
+    exports: Record<string, string | { types?: string; import?: string }>;
+  };
+
+  const schemaExportPaths = [
+    "./schemas/scan-result.json",
+    "./schemas/compare-result.json",
+    "./schemas/hotspot-scanner-config.json",
+  ] as const;
+
+  it.each(schemaExportPaths)(
+    "maps %s to an on-disk schema file",
+    (exportPath) => {
+      const target = packageJson.exports[exportPath];
+      expect(target).toBe(exportPath);
+
+      const resolved = join(repoRoot, exportPath.slice(2));
+      expect(() => readFileSync(resolved, "utf8")).not.toThrow();
+    },
+  );
+
+  it("preserves the main package entry export", () => {
+    expect(packageJson.exports["."]).toEqual({
+      types: "./dist/index.d.ts",
+      import: "./dist/index.js",
+    });
   });
 });

@@ -40,7 +40,10 @@
         },
         "baselineRank": 1,
         "currentRank": 2,
-        "rankDelta": 1
+        "rankDelta": 1,
+        "scoreDelta": 0,
+        "nclocDelta": 0,
+        "commitCountDelta": 0
       }
     ]
   },

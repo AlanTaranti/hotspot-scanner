@@ -97,6 +97,9 @@ function renderRankChangedHotspotRows(
       padStart(String(change.baselineRank), 8),
       padStart(String(change.currentRank), 8),
       padStart(String(change.rankDelta), 5),
+      formatPlainScoreCell(change.scoreDelta, 8),
+      padStart(String(change.nclocDelta), 5),
+      padStart(String(change.commitCountDelta), 7),
       formatFileColumn(change.entity.filePath, fileWidth),
       formatScoreCell(change.entity.hotspotScore, 8, colorEnabled),
       padStart(String(change.entity.ncloc), 4),
@@ -115,7 +118,7 @@ function renderHotspotSections(
 ): string[] {
   const fileHeader = formatFileColumnHeader(fileWidth);
   const header = `Rank  ${fileHeader}  Score     NLOC  NLOCN     Churn  ChurnN  Authors`;
-  const rankChangedHeader = `Baseline  Current  Delta  ${fileHeader}  Score     NLOC  NLOCN     Churn  ChurnN  Authors`;
+  const rankChangedHeader = `Baseline  Current  Delta  ScoreΔ    NLOCΔ  CommitsΔ  ${fileHeader}  Score     NLOC  NLOCN     Churn  ChurnN  Authors`;
 
   return [
     "=== New Hotspots ===",

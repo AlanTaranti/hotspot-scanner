@@ -1,6 +1,6 @@
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   ConfigError,
@@ -166,6 +166,46 @@ describe("parseHotspotScannerConfig", () => {
       /"concurrency"/,
     );
   });
+
+  it("skips reserved meta keys without unknown-key warnings", () => {
+    expect(
+      parseHotspotScannerConfig({
+        $schema:
+          "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json",
+        $comment: "single-line hint",
+        $comments: ["array hint"],
+      }),
+    ).toEqual({
+      config: {},
+      unknownKeys: [],
+    });
+  });
+
+  it("skips reserved meta by name regardless of value shape", () => {
+    expect(
+      parseHotspotScannerConfig({
+        $comments: "not-an-array",
+        $schema: 123,
+      }),
+    ).toEqual({
+      config: {},
+      unknownKeys: [],
+    });
+  });
+
+  it("warns only for non-meta unknown keys when meta is present", () => {
+    expect(
+      parseHotspotScannerConfig({
+        $schema:
+          "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json",
+        since: "1 year ago",
+        typoKey: true,
+      }),
+    ).toEqual({
+      config: { since: "1 year ago" },
+      unknownKeys: ["typoKey"],
+    });
+  });
 });
 
 describe("loadHotspotScannerConfig", () => {
@@ -174,6 +214,7 @@ describe("loadHotspotScannerConfig", () => {
       await expect(loadHotspotScannerConfig(repoPath)).resolves.toEqual({
         config: null,
         unknownKeys: [],
+        path: null,
       });
     });
   });
@@ -207,6 +248,7 @@ describe("loadHotspotScannerConfig", () => {
             top: 15,
           },
           unknownKeys: [],
+          path: resolve(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
         });
       },
     );
@@ -229,6 +271,7 @@ describe("loadHotspotScannerConfig", () => {
             top: 20,
           },
           unknownKeys: [],
+          path: resolve(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
         });
       },
     );
@@ -254,6 +297,7 @@ describe("loadHotspotScannerConfig", () => {
             top: 5,
           },
           unknownKeys: [],
+          path: resolve(repoPath, "repo", HOTSPOT_SCANNER_CONFIG_FILENAME),
         });
       },
     );
@@ -282,6 +326,7 @@ describe("loadHotspotScannerConfig", () => {
             top: 7,
           },
           unknownKeys: [],
+          path: resolve(explicitPath),
         });
       },
     );
@@ -320,6 +365,7 @@ describe("loadHotspotScannerConfig", () => {
             top: 5,
           },
           unknownKeys: [],
+          path: resolve(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
         });
       },
     );
@@ -334,6 +380,7 @@ describe("loadHotspotScannerConfig", () => {
         await expect(loadHotspotScannerConfig(repoPath)).resolves.toEqual({
           config: null,
           unknownKeys: [],
+          path: null,
         });
       },
     );
@@ -353,6 +400,7 @@ describe("loadHotspotScannerConfig", () => {
             top: 5,
           },
           unknownKeys: [],
+          path: resolve(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
         });
       },
     );
@@ -370,6 +418,45 @@ describe("loadHotspotScannerConfig", () => {
         await expect(loadHotspotScannerConfig(repoPath)).resolves.toEqual({
           config: {},
           unknownKeys: ["format", "unknownKey"],
+          path: resolve(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
+        });
+      },
+    );
+  });
+
+  it("loads meta-only config without unknown keys", async () => {
+    await withTempRepo(
+      {
+        [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({
+          $schema:
+            "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json",
+          $comments: ["hint"],
+        }),
+      },
+      async (repoPath) => {
+        await expect(loadHotspotScannerConfig(repoPath)).resolves.toEqual({
+          config: {},
+          unknownKeys: [],
+          path: resolve(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
+        });
+      },
+    );
+  });
+
+  it("loads meta with typo and reports only the typo", async () => {
+    await withTempRepo(
+      {
+        [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({
+          $schema:
+            "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json",
+          typoKey: true,
+        }),
+      },
+      async (repoPath) => {
+        await expect(loadHotspotScannerConfig(repoPath)).resolves.toEqual({
+          config: {},
+          unknownKeys: ["typoKey"],
+          path: resolve(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
         });
       },
     );

@@ -13,6 +13,7 @@ import {
   previewScanScope,
   type ScanScopePreview,
 } from "../scan-preview.js";
+import { probeSinceWindow } from "../git/probe-since.js";
 import {
   resolveScanPipelineContext,
   validateGitRepository,
@@ -25,6 +26,7 @@ export type DoctorFindingId =
   | "git-path"
   | "git-repo"
   | "config"
+  | "since"
   | "tsconfig"
   | "scope";
 
@@ -174,22 +176,33 @@ export function aggregateExitCode(
   return hasNonConfigFailure ? 1 : 2;
 }
 
+function formatUnknownConfigKeysSuffix(unknownKeys: string[]): string {
+  if (unknownKeys.length === 0) {
+    return "";
+  }
+  return `; unknown config key(s) ignored: ${unknownKeys.join(", ")}`;
+}
+
 async function checkConfig(
   resolvedPath: string,
   configPath: string | undefined,
 ): Promise<DoctorFinding> {
   try {
+    const loaded = configPath
+      ? await loadHotspotScannerConfig(resolvedPath, { configPath })
+      : await loadHotspotScannerConfig(resolvedPath);
+    const unknownKeysSuffix = formatUnknownConfigKeysSuffix(loaded.unknownKeys);
+    const status = loaded.unknownKeys.length > 0 ? "warn" : "pass";
+
     if (configPath) {
-      await loadHotspotScannerConfig(resolvedPath, { configPath });
       return {
         id: "config",
-        status: "pass",
-        message: `Config file is valid: ${resolve(configPath)}`,
+        status,
+        message: `Config file is valid: ${resolve(configPath)}${unknownKeysSuffix}`,
       };
     }
 
-    const { config } = await loadHotspotScannerConfig(resolvedPath);
-    if (config === null) {
+    if (loaded.config === null) {
       return {
         id: "config",
         status: "warn",
@@ -200,8 +213,8 @@ async function checkConfig(
     const discoveredPath = await findDiscoveredConfigPath(resolvedPath);
     return {
       id: "config",
-      status: "pass",
-      message: `Config file is valid: ${discoveredPath ?? HOTSPOT_SCANNER_CONFIG_FILENAME}`,
+      status,
+      message: `Config file is valid: ${discoveredPath ?? HOTSPOT_SCANNER_CONFIG_FILENAME}${unknownKeysSuffix}`,
     };
   } catch (error) {
     const message =
@@ -255,6 +268,37 @@ function formatScopeFindingMessage(
     parts.push(remountWarning.message);
   }
   return parts.join("; ");
+}
+
+async function checkSinceFinding(
+  preludeContext: ScanPipelineContext,
+): Promise<DoctorFinding> {
+  const since = preludeContext.merged.since;
+  const result = await probeSinceWindow({
+    repoPath: preludeContext.pipelineRepoPath,
+    since,
+  });
+
+  switch (result.status) {
+    case "ok":
+      return {
+        id: "since",
+        status: "pass",
+        message: `Effective since "${since}" includes at least one commit`,
+      };
+    case "empty":
+      return {
+        id: "since",
+        status: "warn",
+        message: `No commits found for effective since "${since}". Next step: widen --since or fix the since value in config.`,
+      };
+    case "invalid":
+      return {
+        id: "since",
+        status: "fail",
+        message: `Git rejected since "${since}": ${result.message}`,
+      };
+  }
 }
 
 async function checkGitRepositoryFinding(
@@ -384,6 +428,7 @@ export async function runDoctor(
   if (resolvedPath) {
     findings.push(await checkConfig(resolvedPath, options.configPath));
     if (preludeContext) {
+      findings.push(await checkSinceFinding(preludeContext));
       const preview = await previewScanScope(
         buildScanOptions(options, resolvedPath),
       );

@@ -15,6 +15,8 @@ export const ELIGIBLE_EXTENSIONS = [
   ".jsx",
   ".mjs",
   ".cjs",
+  ".mts",
+  ".cts",
 ] as const;
 
 export interface DiscoverDependencies {

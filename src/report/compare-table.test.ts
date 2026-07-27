@@ -37,6 +37,9 @@ describe("renderCompareTable", () => {
     expect(output).toContain("=== New Hotspots ===");
     expect(output).toContain("=== Removed Hotspots ===");
     expect(output).toContain("=== Rank Changed Hotspots ===");
+    expect(output).toContain("ScoreΔ");
+    expect(output).toContain("NLOCΔ");
+    expect(output).toContain("CommitsΔ");
     expect(output).toContain("src/new.ts");
     expect(output).toContain("src/medium.ts");
     expect(output).toContain("NLOC");
@@ -155,6 +158,24 @@ describe("renderCompareTable", () => {
 
     expect(() => renderCompareTable(identical)).not.toThrow();
     expect(renderCompareTable(identical)).toContain("(none)");
+    expect(renderCompareTable(identical)).toContain("No rank changes");
+    expect(renderCompareTable(identical)).not.toContain("showing 0 of 0");
+  });
+
+  it("renders rank-changed metric deltas alongside baseline entity columns", () => {
+    const result = loadCompareResult(
+      "compare-baseline-file.json",
+      "compare-current-file.json",
+    );
+    const output = renderCompareTable(result);
+    const rankChanged = result.hotspots.rankChanged[0]!;
+
+    expect(rankChanged.entity.filePath).toBe("src/hot.ts");
+    expect(rankChanged.scoreDelta).toBe(0);
+    expect(rankChanged.nclocDelta).toBe(0);
+    expect(rankChanged.commitCountDelta).toBe(0);
+    expect(output).toContain("0.0000");
+    expect(output).toContain(rankChanged.entity.hotspotScore.toFixed(4));
   });
 
   it("truncates long file paths with middle-ellipsis matching scan table", () => {

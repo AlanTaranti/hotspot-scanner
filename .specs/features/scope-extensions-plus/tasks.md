@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/scope-extensions-plus/design.md`](./design.md)  
 **Spec**: [`.specs/features/scope-extensions-plus/spec.md`](./spec.md)  
 **Context**: [`.specs/features/scope-extensions-plus/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Medium feature — constant updates + docs. STOP at Planned; Execute in a separate session via `orchestrator-implementer` after Status promotion. Do **not** edit ROADMAP.md / STATE.md in planning; Execute Done owns those syncs.
 
 ---
@@ -84,12 +84,12 @@ T1 `[P]` with T2 — disjoint path prefixes. No other `[P]`.
 
 **Done when**:
 
-- [ ] `DEFAULT_TEST_EXCLUDE_PATTERNS` equals locked array from context (17 entries: 8 legacy file globs + `__tests__` + 8 new)
-- [ ] `DEFAULT_ARTIFACT_EXCLUDE_PATTERNS` equality assertion still matches pre-M67 set (unchanged)
-- [ ] Default scope excludes representative paths: `src/foo.test.mjs`, `pkg/bar.spec.cjs`, `src/a.test.mts`, `src/b.spec.cts`
-- [ ] `createPathScope({ includeTests: true })` includes those paths (absent user exclude)
-- [ ] Gate check passes: `pnpm exec vitest run src/paths/`
-- [ ] Test count: no silent deletions
+- [x] `DEFAULT_TEST_EXCLUDE_PATTERNS` equals locked array from context (17 entries: 8 legacy file globs + `__tests__` + 8 new)
+- [x] `DEFAULT_ARTIFACT_EXCLUDE_PATTERNS` equality assertion still matches pre-M67 set (unchanged)
+- [x] Default scope excludes representative paths: `src/foo.test.mjs`, `pkg/bar.spec.cjs`, `src/a.test.mts`, `src/b.spec.cts`
+- [x] `createPathScope({ includeTests: true })` includes those paths (absent user exclude)
+- [x] Gate check passes: `pnpm exec vitest run src/paths/`
+- [x] Test count: no silent deletions
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/paths/`
@@ -122,12 +122,12 @@ Expect: new globs present; artifact list untouched; includeTests lifts new patte
 
 **Done when**:
 
-- [ ] `ELIGIBLE_EXTENSIONS` === `[".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".mts", ".cts"]`
-- [ ] Discover includes in-scope `.mts`/`.cts` (update existing test that currently expects them omitted)
-- [ ] Rename-warnings eligible check treats `.mts`/`.cts` as eligible (shared import or updated Set — no divergent stale list)
-- [ ] No divergent hard-coded six-extension assertions left in touched tests
-- [ ] Gate check passes: `pnpm exec vitest run src/complexity/discover.test.ts src/git/rename-warnings.test.ts` (add other touched test files if needed)
-- [ ] Test count: no silent deletions
+- [x] `ELIGIBLE_EXTENSIONS` === `[".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".mts", ".cts"]`
+- [x] Discover includes in-scope `.mts`/`.cts` (update existing test that currently expects them omitted)
+- [x] Rename-warnings eligible check treats `.mts`/`.cts` as eligible (shared import or updated Set — no divergent stale list)
+- [x] No divergent hard-coded six-extension assertions left in touched tests
+- [x] Gate check passes: `pnpm exec vitest run src/complexity/discover.test.ts src/git/rename-warnings.test.ts` (add other touched test files if needed)
+- [x] Test count: no silent deletions
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/complexity/discover.test.ts src/git/rename-warnings.test.ts`
@@ -160,11 +160,11 @@ Expect: `.mts`/`.cts` eligible in discovery; rename heuristic accepts eligible m
 
 **Done when**:
 
-- [ ] ARCHITECTURE eligible extensions list includes `.mts`/`.cts`; path-scoping notes expanded test globs (or points to constant)
-- [ ] README Limitations / path-scoping no longer warn that default test excludes miss `*.test.mjs` / `*.spec.cjs`; eligible list includes `.mts`/`.cts`
-- [ ] CONCERNS § Path scoping residual row removed or rewritten as mitigated (M67)
-- [ ] Gate check passes: `pnpm build && pnpm test`
-- [ ] Test count: no silent deletions
+- [x] ARCHITECTURE eligible extensions list includes `.mts`/`.cts`; path-scoping notes expanded test globs (or points to constant)
+- [x] README Limitations / path-scoping no longer warn that default test excludes miss `*.test.mjs` / `*.spec.cjs`; eligible list includes `.mts`/`.cts`
+- [x] CONCERNS § Path scoping residual row removed or rewritten as mitigated (M67)
+- [x] Gate check passes: `pnpm build && pnpm test`
+- [x] Test count: no silent deletions
 
 **Tests**: none  
 **Gate**: `pnpm build && pnpm test`

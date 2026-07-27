@@ -11,6 +11,13 @@ const KNOWN_KEYS = new Set([
   "concurrency",
 ]);
 
+/** Reserved JSON meta keys — skipped for merge and unknown-key warnings. */
+export const RESERVED_META_KEYS: ReadonlySet<string> = new Set([
+  "$schema",
+  "$comment",
+  "$comments",
+]);
+
 export class ConfigError extends Error {
   constructor(message: string) {
     super(message);
@@ -34,6 +41,8 @@ export interface ParsedHotspotScannerConfig {
 export interface LoadedHotspotScannerConfig {
   config: HotspotScannerConfig | null;
   unknownKeys: string[];
+  /** Absolute path when a config file was loaded; null when none was found. */
+  path: string | null;
 }
 
 export interface LoadConfigOptions {
@@ -88,6 +97,10 @@ export function parseHotspotScannerConfig(
   const unknownKeys: string[] = [];
 
   for (const key of Object.keys(raw)) {
+    if (RESERVED_META_KEYS.has(key)) {
+      continue;
+    }
+
     if (!KNOWN_KEYS.has(key)) {
       unknownKeys.push(key);
       continue;
@@ -133,17 +146,18 @@ async function loadConfigAtPath(
   configPath: string,
   onMissing: "error" | "null",
 ): Promise<LoadedHotspotScannerConfig> {
+  const absolutePath = resolve(configPath);
   let content: string;
   try {
-    content = await readFile(configPath, "utf8");
+    content = await readFile(absolutePath, "utf8");
   } catch (error) {
     if (isEnoent(error)) {
       if (onMissing === "error") {
         throw new ConfigError(
-          `Config file not found: ${configPath}\nHint: the --config path must exist; omit --config to discover ${HOTSPOT_SCANNER_CONFIG_FILENAME} upward from the repo.`,
+          `Config file not found: ${absolutePath}\nHint: the --config path must exist; omit --config to discover ${HOTSPOT_SCANNER_CONFIG_FILENAME} upward from the repo.`,
         );
       }
-      return { config: null, unknownKeys: [] };
+      return { config: null, unknownKeys: [], path: null };
     }
     throw error;
   }
@@ -152,10 +166,11 @@ async function loadConfigAtPath(
   try {
     parsed = JSON.parse(content);
   } catch {
-    throw new ConfigError(`Invalid JSON in ${configPath}`);
+    throw new ConfigError(`Invalid JSON in ${absolutePath}`);
   }
 
-  return parseHotspotScannerConfig(parsed);
+  const { config, unknownKeys } = parseHotspotScannerConfig(parsed);
+  return { config, unknownKeys, path: absolutePath };
 }
 
 export async function loadHotspotScannerConfig(
@@ -176,7 +191,7 @@ export async function loadHotspotScannerConfig(
 
     const parent = dirname(dir);
     if (parent === dir) {
-      return { config: null, unknownKeys: [] };
+      return { config: null, unknownKeys: [], path: null };
     }
     dir = parent;
   }

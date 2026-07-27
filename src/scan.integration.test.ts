@@ -163,6 +163,17 @@ describe("runScan integration", () => {
         totalBatches: expect.any(Number),
       }),
     );
+    expect(onProgress).toHaveBeenCalledWith({
+      phase: "finalize",
+      commitsProcessed: 0,
+    });
+    const phases = onProgress.mock.calls.map(([progress]) => progress.phase);
+    expect(phases.filter((phase) => phase === "finalize")).toHaveLength(1);
+    const lastGitOrComplexity = Math.max(
+      phases.lastIndexOf("git"),
+      phases.lastIndexOf("complexity"),
+    );
+    expect(phases.lastIndexOf("finalize")).toBeGreaterThan(lastGitOrComplexity);
     expect(onWarning).not.toHaveBeenCalled();
     expect(result.meta.warnings).toEqual([]);
   });
@@ -179,6 +190,7 @@ describe("runScan integration", () => {
     const phases = onProgress.mock.calls.map(([progress]) => progress.phase);
     expect(phases).toContain("git");
     expect(phases).toContain("complexity");
+    expect(phases.filter((phase) => phase === "finalize")).toHaveLength(1);
     expect(phases).not.toContain("function-churn");
   });
 

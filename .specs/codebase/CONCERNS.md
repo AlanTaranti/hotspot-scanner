@@ -38,12 +38,6 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 | Normalization strategy (log1p + min-max)                                          | Document in code; test edge cases (all zeros, single file)                                                                              |
 | Scores are **scan-relative**                                                      | Not comparable across scans; compare uses rank/delta within paired runs                                                                 |
 
-## Path scoping (`src/paths/`, M48)
-
-| Concern | Mitigation |
-| ------- | ---------- |
-| Residual `*.test.mjs` / `*.spec.cjs` in rankings after `.mjs`/`.cjs` eligibility | M46 owns test globs — user `--exclude` or future follow-up; documented in ARCHITECTURE |
-
 ## Performance (cross-cutting)
 
 **Risk RT-001:** Large repos exhaust memory or time.

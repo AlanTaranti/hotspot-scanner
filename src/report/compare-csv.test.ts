@@ -77,7 +77,7 @@ describe("renderCompareCsv", () => {
       "rank,file,score,ncloc,nclocN,churn,churnN,authors",
     );
     expect(bundle["hotspots.rank-changed.csv"]!.split("\n")[0]).toBe(
-      "baselineRank,currentRank,rankDelta,file,score,ncloc,nclocN,churn,churnN,authors",
+      "baselineRank,currentRank,rankDelta,scoreDelta,nclocDelta,commitCountDelta,file,score,ncloc,nclocN,churn,churnN,authors",
     );
   });
 
@@ -96,17 +96,21 @@ describe("renderCompareCsv", () => {
     expect(dataRows.length).toBeGreaterThan(0);
   });
 
-  it("renders rank-changed rows with baselineRank, currentRank, rankDelta", () => {
-    const bundle = renderCompareCsv(
-      loadCompareResult(
-        "compare-baseline-file.json",
-        "compare-current-file.json",
-      ),
+  it("renders rank-changed rows with baselineRank, currentRank, rankDelta, and metric deltas", () => {
+    const result = loadCompareResult(
+      "compare-baseline-file.json",
+      "compare-current-file.json",
     );
+    const bundle = renderCompareCsv(result);
+    const rankChanged = result.hotspots.rankChanged[0]!;
 
     const lines = bundle["hotspots.rank-changed.csv"]!.split("\n").slice(1);
     const dataRows = lines.filter((line) => /^\d+,\d+,-?\d+,/.test(line));
     expect(dataRows.length).toBeGreaterThan(0);
+    expect(dataRows[0]).toContain(
+      `${rankChanged.rankDelta},${rankChanged.scoreDelta.toFixed(4)},${rankChanged.nclocDelta},${rankChanged.commitCountDelta},${rankChanged.entity.filePath}`,
+    );
+    expect(dataRows[0]).toContain(rankChanged.entity.hotspotScore.toFixed(4));
   });
 
   it("renders empty sections as header-only CSV files", () => {

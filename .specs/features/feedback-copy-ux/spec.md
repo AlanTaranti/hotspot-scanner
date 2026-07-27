@@ -3,7 +3,7 @@
 **Feature slug:** `feedback-copy-ux`  
 **Milestone:** M62  
 **Priority:** High  
-**Status:** Specs Planned  
+**Status:** Done  
 **Depth:** Large  
 **IDs:** HOTSPOT-1030–1059 (1046–1059 reserved)  
 **Artifacts:** [context.md](./context.md) · [design.md](./design.md) · [tasks.md](./tasks.md)
@@ -16,12 +16,12 @@ Operators get incomplete or jargon-heavy feedback after scans: CSV writes are si
 
 ## Goals
 
-- [ ] Confirm CSV bundle paths on stderr after a successful write
-- [ ] Show timings in table/markdown executive summary **and** a brief stderr line (from existing `meta.timings`)
-- [ ] Remove milestone jargon from CLI help and user-facing README
-- [ ] Prefix `since=…` on the **first** progress line only (compose with M59; do not implement M61)
-- [ ] Clear empty-compare copy including “No rank changes” (or equivalent)
-- [ ] Map `BaselineError` → exit **2**; baseline path hints mention `hotspot-scanner baseline save`
+- [x] Confirm CSV bundle paths on stderr after a successful write
+- [x] Show timings in table/markdown executive summary **and** a brief stderr line (from existing `meta.timings`)
+- [x] Remove milestone jargon from CLI help and user-facing README
+- [x] Prefix `since=…` on the **first** progress line only (compose with M59; do not implement M61)
+- [x] Clear empty-compare copy including “No rank changes” (or equivalent)
+- [x] Map `BaselineError` → exit **2**; baseline path hints mention `hotspot-scanner baseline save`
 
 ## Out of Scope
 
@@ -204,10 +204,10 @@ Operators get incomplete or jargon-heavy feedback after scans: CSV writes are si
 
 ## Success Criteria
 
-- [ ] CSV export prints written paths on stderr (unless quiet)
-- [ ] Table/markdown show Timing from `meta.timings`; brief stderr timing when not quiet
-- [ ] First progress line shows `since=…`; later lines do not repeat it
-- [ ] Empty compare deltas read clearly (“No rank changes” or equivalent)
-- [ ] `BaselineError` → exit 2; baseline hints mention `baseline save`
-- [ ] Help + README free of user-facing milestone jargon
-- [ ] `pnpm build && pnpm test` green after Execute
+- [x] CSV export prints written paths on stderr (unless quiet)
+- [x] Table/markdown show Timing from `meta.timings`; brief stderr timing when not quiet
+- [x] First progress line shows `since=…`; later lines do not repeat it
+- [x] Empty compare deltas read clearly (“No rank changes” or equivalent)
+- [x] `BaselineError` → exit 2; baseline hints mention `baseline save`
+- [x] Help + README free of user-facing milestone jargon
+- [x] `pnpm build && pnpm test` green after Execute

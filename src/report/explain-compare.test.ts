@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 import { compareScanResults } from "../compare/compare.js";
 import type { CompareResult, HotspotScore, ScanResult } from "../types/index.js";
 import {
+  compareExplainTargetFound,
   findCompareExplainMatches,
   formatCompareExplain,
 } from "./explain-compare.js";
@@ -62,6 +63,38 @@ function makeCompareResult(
     ...overrides,
   };
 }
+
+describe("compareExplainTargetFound", () => {
+  it("returns true when compare deltas include the target", async () => {
+    const repoPath = await mkdtemp(join(tmpdir(), "hotspot-explain-compare-"));
+    try {
+      const result = loadCompareResult(
+        "compare-baseline-file.json",
+        "compare-current-file.json",
+      );
+      const target = parseExplainTarget("src/new.ts");
+
+      expect(compareExplainTargetFound(result, target, repoPath)).toBe(true);
+    } finally {
+      await rm(repoPath, { recursive: true, force: true });
+    }
+  });
+
+  it("returns false when compare deltas omit the target", async () => {
+    const repoPath = await mkdtemp(join(tmpdir(), "hotspot-explain-compare-"));
+    try {
+      const result = loadCompareResult(
+        "compare-baseline-file.json",
+        "compare-current-file.json",
+      );
+      const target = parseExplainTarget("src/missing.ts");
+
+      expect(compareExplainTargetFound(result, target, repoPath)).toBe(false);
+    } finally {
+      await rm(repoPath, { recursive: true, force: true });
+    }
+  });
+});
 
 describe("findCompareExplainMatches", () => {
   it("returns empty matches for a path absent from compare deltas", async () => {
@@ -139,6 +172,9 @@ describe("findCompareExplainMatches", () => {
         baselineRank: 1,
         currentRank: 2,
         rankDelta: 1,
+        scoreDelta: 0,
+        nclocDelta: 0,
+        commitCountDelta: 0,
       });
     } finally {
       await rm(repoPath, { recursive: true, force: true });
@@ -157,6 +193,9 @@ describe("findCompareExplainMatches", () => {
             baselineRank: 1,
             currentRank: 3,
             rankDelta: 2,
+            scoreDelta: 0.05,
+            nclocDelta: 10,
+            commitCountDelta: 3,
           },
         ],
       },
@@ -241,7 +280,7 @@ describe("formatCompareExplain", () => {
     expect(output).not.toContain("baselineRank:");
   });
 
-  it("formats rank-changed hotspot fields with rank delta", () => {
+  it("formats rank-changed hotspot fields with rank and metric deltas", () => {
     const output = formatCompareExplain([
       {
         classification: "rank-changed",
@@ -249,6 +288,9 @@ describe("formatCompareExplain", () => {
         baselineRank: 1,
         currentRank: 6,
         rankDelta: 5,
+        scoreDelta: -0.12,
+        nclocDelta: -8,
+        commitCountDelta: 4,
       },
     ]);
 
@@ -259,6 +301,9 @@ describe("formatCompareExplain", () => {
     expect(output).toContain("baselineRank: 1");
     expect(output).toContain("currentRank: 6");
     expect(output).toContain("rankDelta: 5");
+    expect(output).toContain("scoreDelta: -0.1200");
+    expect(output).toContain("nclocDelta: -8");
+    expect(output).toContain("commitCountDelta: 4");
     expect(output).toContain("hotspotScore: 0.8800");
   });
 });

@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/config-doctor-dx/design.md`](./design.md)  
 **Spec**: [`.specs/features/config-doctor-dx/spec.md`](./spec.md)  
 **Context**: [`.specs/features/config-doctor-dx/context.md`](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -112,12 +112,12 @@ flowchart LR
 
 **Done when**:
 
-- [ ] Reserved meta never land in `HotspotScannerConfig` or `unknownKeys`
-- [ ] Non-meta unknowns still collected (sorted) as today
-- [ ] Loaded result includes absolute `path` when file found; `null` when missing on walk
-- [ ] Unit tests cover meta-only, meta+typo, explicit `--config` path, walk miss → `path: null`
-- [ ] Gate check passes: `pnpm exec vitest run src/config/load-config.test.ts`
-- [ ] Test count does not drop silently
+- [x] Reserved meta never land in `HotspotScannerConfig` or `unknownKeys`
+- [x] Non-meta unknowns still collected (sorted) as today
+- [x] Loaded result includes absolute `path` when file found; `null` when missing on walk
+- [x] Unit tests cover meta-only, meta+typo, explicit `--config` path, walk miss → `path: null`
+- [x] Gate check passes: `pnpm exec vitest run src/config/load-config.test.ts`
+- [x] Test count does not drop silently
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/config/load-config.test.ts`
@@ -149,12 +149,12 @@ pnpm exec vitest run src/config/load-config.test.ts
 
 **Done when**:
 
-- [ ] Written JSON matches locked `$schema` URL and includes `$comments` array
-- [ ] `include` / `exclude` are non-empty realistic examples
-- [ ] `concurrency` omitted; refuse/force rules unchanged
-- [ ] Round-trip: written file parses without `ConfigError` (meta not in unknownKeys — may rely on T1 if run after, or assert via future full gate; prefer importing parse in test and asserting after T1 lands in same feature Execute order)
-- [ ] Gate: `pnpm exec vitest run src/config/exemplar.test.ts`
-- [ ] Test count does not drop silently
+- [x] Written JSON matches locked `$schema` URL and includes `$comments` array
+- [x] `include` / `exclude` are non-empty realistic examples
+- [x] `concurrency` omitted; refuse/force rules unchanged
+- [x] Round-trip: written file parses without `ConfigError` (meta not in unknownKeys — may rely on T1 if run after, or assert via future full gate; prefer importing parse in test and asserting after T1 lands in same feature Execute order)
+- [x] Gate: `pnpm exec vitest run src/config/exemplar.test.ts`
+- [x] Test count does not drop silently
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/config/exemplar.test.ts`
@@ -188,12 +188,12 @@ pnpm exec vitest run src/config/exemplar.test.ts
 
 **Done when**:
 
-- [ ] Schema `$id` matches locked URL; known-key constraints align with runtime
-- [ ] Reserved meta properties allowed; `additionalProperties` permits forward-compat
-- [ ] `package.json` `"exports"` includes three schema subpaths; `"."` preserved
-- [ ] Contract: schema compiles; locked exemplar (or equivalent fixture) validates; invalid known-key type fails
-- [ ] Gate: `pnpm exec vitest run tests/contract/json-schema.test.ts`
-- [ ] Test count does not drop silently
+- [x] Schema `$id` matches locked URL; known-key constraints align with runtime
+- [x] Reserved meta properties allowed; `additionalProperties` permits forward-compat
+- [x] `package.json` `"exports"` includes three schema subpaths; `"."` preserved
+- [x] Contract: schema compiles; locked exemplar (or equivalent fixture) validates; invalid known-key type fails
+- [x] Gate: `pnpm exec vitest run tests/contract/json-schema.test.ts`
+- [x] Test count does not drop silently
 
 **Tests**: contract  
 **Gate**: `pnpm exec vitest run tests/contract/json-schema.test.ts`
@@ -225,12 +225,12 @@ pnpm exec vitest run tests/contract/json-schema.test.ts
 
 **Done when**:
 
-- [ ] Helper returns discriminated ok / empty / invalid
-- [ ] Invalid covers git rejection of since string (non-zero + message)
-- [ ] Empty covers accepted since with no commits
-- [ ] No git spawn added outside `src/git/` for this probe
-- [ ] Gate: `pnpm exec vitest run src/git/probe-since.test.ts` (or chosen filename)
-- [ ] Test count does not drop silently
+- [x] Helper returns discriminated ok / empty / invalid
+- [x] Invalid covers git rejection of since string (non-zero + message)
+- [x] Empty covers accepted since with no commits
+- [x] No git spawn added outside `src/git/` for this probe
+- [x] Gate: `pnpm exec vitest run src/git/probe-since.test.ts` (or chosen filename)
+- [x] Test count does not drop silently
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/git/probe-since.test.ts`
@@ -262,13 +262,13 @@ pnpm exec vitest run src/git/probe-since.test.ts
 
 **Done when**:
 
-- [ ] Validate API resolves file/dir; missing → `ConfigError`; invalid → `ConfigError`; valid → path
-- [ ] Provenance merge tags `cli` / `config` / `default` per field
-- [ ] Text + JSON formatters match design `ConfigPrintJson` intent
-- [ ] Print/validate do not require git
-- [ ] Unit tests cover override matrix + missing/invalid validate
-- [ ] Gate: `pnpm exec vitest run src/config/`
-- [ ] Test count does not drop silently
+- [x] Validate API resolves file/dir; missing → `ConfigError`; invalid → `ConfigError`; valid → path
+- [x] Provenance merge tags `cli` / `config` / `default` per field
+- [x] Text + JSON formatters match design `ConfigPrintJson` intent
+- [x] Print/validate do not require git
+- [x] Unit tests cover override matrix + missing/invalid validate
+- [x] Gate: `pnpm exec vitest run src/config/`
+- [x] Test count does not drop silently
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/config/`
@@ -300,11 +300,11 @@ pnpm exec vitest run src/config/
 
 **Done when**:
 
-- [ ] Preview includes `configPath` (or none), remount message when present, unknown keys when present
-- [ ] Formatter lines stable enough for assertions
-- [ ] Still no miner/analyzer/scorer invocation in preview path
-- [ ] Gate: `pnpm exec vitest run src/scan-preview.test.ts src/scan.test.ts`
-- [ ] Test count does not drop silently
+- [x] Preview includes `configPath` (or none), remount message when present, unknown keys when present
+- [x] Formatter lines stable enough for assertions
+- [x] Still no miner/analyzer/scorer invocation in preview path
+- [x] Gate: `pnpm exec vitest run src/scan-preview.test.ts src/scan.test.ts`
+- [x] Test count does not drop silently
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/scan-preview.test.ts src/scan.test.ts`
@@ -336,12 +336,12 @@ pnpm exec vitest run src/scan-preview.test.ts src/scan.test.ts
 
 **Done when**:
 
-- [ ] `DoctorFindingId` includes `since`
-- [ ] Pass / warn / fail mapping matches context.md; no doctor `--since` CLI flag
-- [ ] Unknown keys soft-warn; reserved meta alone does not warn
-- [ ] Aggregate exit: empty since → `0` alone; invalid since → `1`
-- [ ] Gate: `pnpm exec vitest run src/doctor/`
-- [ ] Test count does not drop silently
+- [x] `DoctorFindingId` includes `since`
+- [x] Pass / warn / fail mapping matches context.md; no doctor `--since` CLI flag
+- [x] Unknown keys soft-warn; reserved meta alone does not warn
+- [x] Aggregate exit: empty since → `0` alone; invalid since → `1`
+- [x] Gate: `pnpm exec vitest run src/doctor/`
+- [x] Test count does not drop silently
 
 **Tests**: unit  
 **Gate**: `pnpm exec vitest run src/doctor/`
@@ -373,12 +373,12 @@ pnpm exec vitest run src/doctor/
 
 **Done when**:
 
-- [ ] `hotspot-scanner config validate|print` appear in help; validate exit `0`/`2`; print text + `--format json`
-- [ ] Dry-run stdout includes config path / remount / unknowns when applicable
-- [ ] Doctor CLI still exit-policy correct with since finding
-- [ ] Domain logic not duplicated in bin
-- [ ] Gate: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
-- [ ] Test count does not drop silently
+- [x] `hotspot-scanner config validate|print` appear in help; validate exit `0`/`2`; print text + `--format json`
+- [x] Dry-run stdout includes config path / remount / unknowns when applicable
+- [x] Doctor CLI still exit-policy correct with since finding
+- [x] Domain logic not duplicated in bin
+- [x] Gate: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
+- [x] Test count does not drop silently
 
 **Tests**: CLI  
 **Gate**: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
@@ -410,9 +410,9 @@ pnpm exec vitest run bin/hotspot-scanner.test.ts
 
 **Done when**:
 
-- [ ] Docs describe M64 surfaces accurately
-- [ ] Full gate passes: `pnpm build && pnpm test`
-- [ ] No silent test deletions
+- [x] Docs describe M64 surfaces accurately
+- [x] Full gate passes: `pnpm build && pnpm test`
+- [x] No silent test deletions
 
 **Tests**: none  
 **Gate**: `pnpm build && pnpm test`
@@ -464,8 +464,6 @@ Phase 4 (sequential):
 
 ## Handoff
 
-**Status: Planned** — planning session ends here.
+**Status: Done** — Execute complete (orchestrator-implementer session).
 
-Next step: review artifacts, promote Status to `Approved` / `Ready for Execute` in a **new** development session, then invoke `orchestrator-implementer`.
-
-Expected final gate: `pnpm build && pnpm test`
+Gate: `pnpm build && pnpm test` green (979 tests).

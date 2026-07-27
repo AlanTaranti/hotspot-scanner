@@ -27,7 +27,7 @@ afterEach(async () => {
 });
 
 describe("ELIGIBLE_EXTENSIONS", () => {
-  it("lists TS/JS source extensions including .mjs and .cjs", () => {
+  it("lists TS/JS source extensions including module variants", () => {
     expect([...ELIGIBLE_EXTENSIONS]).toEqual([
       ".ts",
       ".tsx",
@@ -35,6 +35,8 @@ describe("ELIGIBLE_EXTENSIONS", () => {
       ".jsx",
       ".mjs",
       ".cjs",
+      ".mts",
+      ".cts",
     ]);
   });
 });
@@ -64,6 +66,8 @@ describe("discoverSourceFiles", () => {
       "src/b.cjs",
       "src/b.tsx",
       "src/c.js",
+      "src/c.mts",
+      "src/d.cts",
       "src/d.jsx",
     ]);
   });

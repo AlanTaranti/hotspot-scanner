@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/inline-progress-bar/design.md`](./design.md)  
 **Spec**: [`.specs/features/inline-progress-bar/spec.md`](./spec.md)  
 **Context**: [`.specs/features/inline-progress-bar/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Large feature — diagnostics formatters + finalize emit + deferred flush + docs. Planning session ends here; Execute in a separate session after Status → Approved / Ready for Execute.
 
 ---
@@ -113,9 +113,9 @@ T3 and T4 may run in parallel after T2 (`[P]` on T4).
 
 **Done when**:
 
-- [ ] `ScanProgressPhase` is `"git" | "complexity" | "finalize"`
-- [ ] No JSON schema / contract edits
-- [ ] Typecheck consumers can assign finalize progress objects
+- [x] `ScanProgressPhase` is `"git" | "complexity" | "finalize"`
+- [x] No JSON schema / contract edits
+- [x] Typecheck consumers can assign finalize progress objects
 
 **Tests**: none (types layer)
 
@@ -137,13 +137,13 @@ T3 and T4 may run in parallel after T2 (`[P]` on T4).
 
 **Done when**:
 
-- [ ] Complexity TTY/non-TTY bars match locked examples (semantics)
-- [ ] Git counter has no bar / %
-- [ ] Finalize body is `Finalizing…` and bypasses throttle
-- [ ] `stderrColumns` injectable; clear-to-EOL preferred
-- [ ] Quiet / no-progress emit nothing
-- [ ] No ora/cli-progress or other new runtime deps
-- [ ] Unit tests cover goldens + handler paths above
+- [x] Complexity TTY/non-TTY bars match locked examples (semantics)
+- [x] Git counter has no bar / %
+- [x] Finalize body is `Finalizing…` and bypasses throttle
+- [x] `stderrColumns` injectable; clear-to-EOL preferred
+- [x] Quiet / no-progress emit nothing
+- [x] No ora/cli-progress or other new runtime deps
+- [x] Unit tests cover goldens + handler paths above
 
 **Tests**: unit in `src/diagnostics/logger.test.ts` (same task)
 
@@ -165,10 +165,10 @@ T3 and T4 may run in parallel after T2 (`[P]` on T4).
 
 **Done when**:
 
-- [ ] One finalize emit per successful barrier crossing
-- [ ] Emit occurs before `createHotspotScorer().score`
-- [ ] Tests assert phase order includes `finalize` after complexity (and git)
-- [ ] No schema / ranking changes
+- [x] One finalize emit per successful barrier crossing
+- [x] Emit occurs before `createHotspotScorer().score`
+- [x] Tests assert phase order includes `finalize` after complexity (and git)
+- [x] No schema / ranking changes
 
 **Tests**: unit (and integration if existing phase list tests)
 
@@ -190,11 +190,11 @@ T3 and T4 may run in parallel after T2 (`[P]` on T4).
 
 **Done when**:
 
-- [ ] Scan / compare / baseline flush after write
-- [ ] Live finalize line can remain until after write (ordering tests)
-- [ ] Explain does not race an open live line (flush or clear first)
-- [ ] All `executeScan` callers updated; tests green
-- [ ] No new flags/config
+- [x] Scan / compare / baseline flush after write
+- [x] Live finalize line can remain until after write (ordering tests)
+- [x] Explain does not race an open live line (flush or clear first)
+- [x] All `executeScan` callers updated; tests green
+- [x] No new flags/config
 
 **Tests**: unit in bin tests (same task)
 
@@ -216,10 +216,10 @@ T3 and T4 may run in parallel after T2 (`[P]` on T4).
 
 **Done when**:
 
-- [ ] README describes bar + git counter + finalize + flush-after-write
-- [ ] ARCHITECTURE lists `finalize` and deferred flush lifecycle
-- [ ] Recipes updated only if needed
-- [ ] No invented flags/config keys
+- [x] README describes bar + git counter + finalize + flush-after-write
+- [x] ARCHITECTURE lists `finalize` and deferred flush lifecycle
+- [x] Recipes updated only if needed
+- [x] No invented flags/config keys
 
 **Tests**: none (docs)
 
@@ -241,8 +241,8 @@ T3 and T4 may run in parallel after T2 (`[P]` on T4).
 
 **Done when**:
 
-- [ ] `pnpm build && pnpm test` PASS
-- [ ] tasks.md Status → Done (Execute session); ROADMAP M61 marked Done
+- [x] `pnpm build && pnpm test` PASS
+- [x] tasks.md Status → Done (Execute session); ROADMAP M61 marked Done
 
 **Tests**: full suite via gate
 

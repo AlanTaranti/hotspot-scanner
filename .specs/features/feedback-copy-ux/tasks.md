@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/feedback-copy-ux/design.md`](./design.md)  
 **Spec**: [`.specs/features/feedback-copy-ux/spec.md`](./spec.md)  
 **Context**: [`.specs/features/feedback-copy-ux/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Large feature — diagnostics + report + bin + docs. STOP at Planned; Execute in a separate session via `orchestrator-implementer` after Status promotion. Do **not** implement M61.
 
 ---
@@ -107,12 +107,12 @@ T1 `[P]` with T2 — disjoint `src/report/` vs `src/diagnostics/`. No other `[P]
 
 **Done when**:
 
-- [ ] Scan table/markdown summary includes Timing when timings present; omits when absent
-- [ ] Compare summary uses current timings when present
-- [ ] Empty hotspot deltas → clear “No rank changes” (or equivalent) summary line
-- [ ] Non-zero deltas keep existing count wording
-- [ ] Unit tests cover timing present/absent, empty vs non-empty compare
-- [ ] No stderr/`fs` introduced under `src/report/`
+- [x] Scan table/markdown summary includes Timing when timings present; omits when absent
+- [x] Compare summary uses current timings when present
+- [x] Empty hotspot deltas → clear “No rank changes” (or equivalent) summary line
+- [x] Non-zero deltas keep existing count wording
+- [x] Unit tests cover timing present/absent, empty vs non-empty compare
+- [x] No stderr/`fs` introduced under `src/report/`
 
 **Tests**: Unit in `src/report/*.test.ts` (same task)
 
@@ -134,11 +134,11 @@ T1 `[P]` with T2 — disjoint `src/report/` vs `src/diagnostics/`. No other `[P]
 
 **Done when**:
 
-- [ ] First emitted progress includes `since=` when option set
-- [ ] Second+ emissions do not repeat `since=` (TTY and non-TTY covered)
-- [ ] Quiet / no-progress still suppress all progress
-- [ ] Omitted `since` → legacy bodies unchanged
-- [ ] Unit tests green for above
+- [x] First emitted progress includes `since=` when option set
+- [x] Second+ emissions do not repeat `since=` (TTY and non-TTY covered)
+- [x] Quiet / no-progress still suppress all progress
+- [x] Omitted `since` → legacy bodies unchanged
+- [x] Unit tests green for above
 
 **Tests**: Unit in `src/diagnostics/logger.test.ts` (same task)
 
@@ -167,13 +167,13 @@ T1 `[P]` with T2 — disjoint `src/report/` vs `src/diagnostics/`. No other `[P]
 
 **Done when**:
 
-- [ ] CSV confirm lists stem+suffix paths; quiet suppresses
-- [ ] Brief stderr timing on non-quiet success; quiet suppresses; doctor/init untouched
-- [ ] Progress first line shows resolved since in CLI-integrated tests (or handlers called with since in unit mocks)
-- [ ] `BaselineError` → exit 2; tests updated from exit 1 where applicable
-- [ ] Path + content hints mention `baseline save`
-- [ ] Help option strings have no `\bM\d+\b`
-- [ ] No M61 flush/finalize/bar changes
+- [x] CSV confirm lists stem+suffix paths; quiet suppresses
+- [x] Brief stderr timing on non-quiet success; quiet suppresses; doctor/init untouched
+- [x] Progress first line shows resolved since in CLI-integrated tests (or handlers called with since in unit mocks)
+- [x] `BaselineError` → exit 2; tests updated from exit 1 where applicable
+- [x] Path + content hints mention `baseline save`
+- [x] Help option strings have no `\bM\d+\b`
+- [x] No M61 flush/finalize/bar changes
 
 **Tests**: Unit in `bin/hotspot-scanner.test.ts`, `src/compare/load-baseline.test.ts` (same task)
 
@@ -195,9 +195,9 @@ T1 `[P]` with T2 — disjoint `src/report/` vs `src/diagnostics/`. No other `[P]
 
 **Done when**:
 
-- [ ] User-facing README sections lack bare milestone codes (`M30`, `M34`, `M40`, `M41`, `M51`, `M53`, `M57`, …)
-- [ ] Behavior descriptions remain accurate
-- [ ] Optional ARCHITECTURE timings presentation note if previously JSON-only
+- [x] User-facing README sections lack bare milestone codes (`M30`, `M34`, `M40`, `M41`, `M51`, `M53`, `M57`, …)
+- [x] Behavior descriptions remain accurate
+- [x] Optional ARCHITECTURE timings presentation note if previously JSON-only
 
 **Tests**: none (docs)
 
@@ -219,9 +219,9 @@ T1 `[P]` with T2 — disjoint `src/report/` vs `src/diagnostics/`. No other `[P]
 
 **Done when**:
 
-- [ ] `pnpm build && pnpm test` exits 0
-- [ ] Coverage thresholds met for touched `src/report/`, `src/diagnostics/`, `src/compare/`, `bin/` files
-- [ ] Commit message proposed (e.g. `feat(cli): improve feedback copy, timings, and baseline exit UX`)
+- [x] `pnpm build && pnpm test` exits 0
+- [x] Coverage thresholds met for touched `src/report/`, `src/diagnostics/`, `src/compare/`, `bin/` files
+- [x] Commit message proposed (e.g. `feat(cli): improve feedback copy, timings, and baseline exit UX`)
 
 **Tests**: full suite via gate
 

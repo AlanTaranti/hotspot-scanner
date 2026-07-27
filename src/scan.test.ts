@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { cp, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { execFile } from "node:child_process";
 import { tmpdir } from "node:os";
@@ -399,6 +400,21 @@ describe("runScan", () => {
     expect(result.meta).not.toHaveProperty("granularity");
     expect(result.meta.warnings).toEqual([]);
     expect(result.hotspots[0]!.ncloc).toBeGreaterThan(0);
+  });
+
+  it("includes meta.scannerVersion matching package.json", async () => {
+    const packageJsonPath = join(
+      fileURLToPath(new URL(".", import.meta.url)),
+      "../package.json",
+    );
+    const { version } = JSON.parse(await readFile(packageJsonPath, "utf8")) as {
+      version: string;
+    };
+
+    const result = await runScan({ repoPath: smallTsFixture });
+
+    expect(result.meta.scannerVersion).toBe(version);
+    expect(result.meta.scannerVersion!.length).toBeGreaterThan(0);
   });
 
   it("passes merged concurrency from repo config to createComplexityAnalyzer", async () => {
@@ -881,6 +897,75 @@ describe("runScan", () => {
     expect(phases).toContain("git");
     expect(phases).toContain("complexity");
     expect(phases).not.toContain("function-churn");
+  });
+
+  it("emits finalize once after git and complexity before scoring", async () => {
+    const { createGitMiner } =
+      await vi.importActual<typeof import("./git/index.js")>("./git/index.js");
+    const { createComplexityAnalyzer } =
+      await vi.importActual<typeof import("./complexity/index.js")>(
+        "./complexity/index.js",
+      );
+
+    let releaseMine!: () => void;
+    let releaseAnalyze!: () => void;
+    const mineGate = new Promise<void>((resolve) => {
+      releaseMine = resolve;
+    });
+    const analyzeGate = new Promise<void>((resolve) => {
+      releaseAnalyze = resolve;
+    });
+
+    mineOverride.fn = async (opts) => {
+      await mineGate;
+      return createGitMiner().mine(opts);
+    };
+    analyzeOverride.fn = async (opts) => {
+      await analyzeGate;
+      return createComplexityAnalyzer().analyze(opts);
+    };
+
+    const onProgress = vi.fn();
+    scoreHotspotsSpy.mockClear();
+
+    const scanPromise = runScan({
+      repoPath: smallTsFixture,
+      onProgress,
+    });
+
+    await vi.waitFor(() => {
+      expect(mineSpy).toHaveBeenCalled();
+      expect(analyzeSpy).toHaveBeenCalled();
+    });
+    expect(onProgress).not.toHaveBeenCalledWith(
+      expect.objectContaining({ phase: "finalize" }),
+    );
+    expect(scoreHotspotsSpy).not.toHaveBeenCalled();
+
+    releaseMine();
+    releaseAnalyze();
+    await scanPromise;
+
+    const finalizeCalls = onProgress.mock.calls.filter(
+      ([progress]) => progress.phase === "finalize",
+    );
+    expect(finalizeCalls).toHaveLength(1);
+    expect(finalizeCalls[0]![0]).toEqual({
+      phase: "finalize",
+      commitsProcessed: 0,
+    });
+
+    const phases = onProgress.mock.calls.map(([progress]) => progress.phase);
+    const lastGitOrComplexity = Math.max(
+      phases.lastIndexOf("git"),
+      phases.lastIndexOf("complexity"),
+    );
+    const finalizeIndex = phases.lastIndexOf("finalize");
+    expect(finalizeIndex).toBeGreaterThan(lastGitOrComplexity);
+    expect(scoreHotspotsSpy).toHaveBeenCalled();
+
+    mineOverride.fn = null;
+    analyzeOverride.fn = null;
   });
 
   it("cancels in-flight stages when external signal aborts", async () => {

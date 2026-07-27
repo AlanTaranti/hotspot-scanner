@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json",
+  "title": "HotspotScannerConfig",
+  "description": "Configuration for hotspot-scanner (.hotspot-scanner.json). Reserved meta keys ($schema, $comment, $comments) are for IDE hints only — not scan options.",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Reserved meta: JSON Schema URI for IDE validation."
+    },
+    "$comment": {
+      "type": "string",
+      "description": "Reserved meta: single-line human hint (not a scan option)."
+    },
+    "$comments": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Reserved meta: human hints (not scan options)."
+    },
+    "since": {
+      "type": "string",
+      "description": "Git history window (passed to git --since)."
+    },
+    "include": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Additional include globs (additive to PathScope defaults)."
+    },
+    "exclude": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Additional exclude globs (additive to PathScope defaults)."
+    },
+    "top": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Maximum hotspots to report."
+    },
+    "concurrency": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Worker pool size for NCLOC analysis."
+    }
+  }
+}

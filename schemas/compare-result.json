@@ -7,6 +7,7 @@
   "additionalProperties": true,
   "required": ["version", "hotspots", "meta"],
   "properties": {
+    "$schema": { "type": "string" },
     "version": {
       "type": "string",
       "const": "3.0"
@@ -22,14 +23,25 @@
     "RankChangeHotspot": {
       "type": "object",
       "additionalProperties": true,
-      "required": ["entity", "baselineRank", "currentRank", "rankDelta"],
+      "required": [
+        "entity",
+        "baselineRank",
+        "currentRank",
+        "rankDelta",
+        "scoreDelta",
+        "nclocDelta",
+        "commitCountDelta"
+      ],
       "properties": {
         "entity": {
           "$ref": "scan-result.json#/$defs/HotspotScore"
         },
         "baselineRank": { "type": "integer" },
         "currentRank": { "type": "integer" },
-        "rankDelta": { "type": "integer" }
+        "rankDelta": { "type": "integer" },
+        "scoreDelta": { "type": "number" },
+        "nclocDelta": { "type": "number" },
+        "commitCountDelta": { "type": "integer" }
       }
     },
     "HotspotCompareSection": {
@@ -71,7 +83,8 @@
         "warnings": {
           "type": "array",
           "items": { "$ref": "scan-result.json#/$defs/ScanWarning" }
-        }
+        },
+        "scannerVersion": { "type": "string" }
       }
     }
   }

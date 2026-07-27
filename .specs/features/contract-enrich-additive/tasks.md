@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/contract-enrich-additive/design.md`](./design.md)  
 **Spec**: [`.specs/features/contract-enrich-additive/spec.md`](./spec.md)  
 **Context**: [`.specs/features/contract-enrich-additive/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Large feature — types/schemas + scan + compare + report + baseline + docs. STOP at Planned; Execute in a separate session via `orchestrator-implementer` after Status promotion. Do **not** edit ROADMAP.md / STATE.md in planning.
 
 ---
@@ -145,11 +145,11 @@ T5 `[P]` with T6 `[P]` with T7 `[P]` — disjoint report files after T2/T3 (T5 w
 
 **Done when**:
 
-- [ ] Types compile with new fields
-- [ ] Schemas declare `scannerVersion`, `$schema`, and RankChange deltas
-- [ ] `version` remains `"3.0"`
-- [ ] Contract tests green for schema compile / updated fixtures
-- [ ] No runtime emit logic yet required beyond types/schemas/fixtures
+- [x] Types compile with new fields
+- [x] Schemas declare `scannerVersion`, `$schema`, and RankChange deltas
+- [x] `version` remains `"3.0"`
+- [x] Contract tests green for schema compile / updated fixtures
+- [x] No runtime emit logic yet required beyond types/schemas/fixtures
 
 **Tests**: Contract (+ fixture validity) in same task
 
@@ -173,10 +173,10 @@ T5 `[P]` with T6 `[P]` with T7 `[P]` — disjoint report files after T2/T3 (T5 w
 
 **Done when**:
 
-- [ ] Helper returns `package.json` version string (cached)
-- [ ] Successful scan always includes `meta.scannerVersion`
-- [ ] Unit tests assert presence and equality to package version
-- [ ] No JSON `$schema` work in this task
+- [x] Helper returns `package.json` version string (cached)
+- [x] Successful scan always includes `meta.scannerVersion`
+- [x] Unit tests assert presence and equality to package version
+- [x] No JSON `$schema` work in this task
 
 **Tests**: Unit in `src/scan.test.ts` (+ helper test if colocated)
 
@@ -200,11 +200,11 @@ T5 `[P]` with T6 `[P]` with T7 `[P]` — disjoint report files after T2/T3 (T5 w
 
 **Done when**:
 
-- [ ] Every `rankChanged` item has the three deltas (current − baseline)
-- [ ] `entity` remains baseline `HotspotScore`
-- [ ] `new`/`removed` lack delta fields
-- [ ] `CompareResult.meta.scannerVersion` set
-- [ ] Unit tests cover deltas + sort/classification unchanged
+- [x] Every `rankChanged` item has the three deltas (current − baseline)
+- [x] `entity` remains baseline `HotspotScore`
+- [x] `new`/`removed` lack delta fields
+- [x] `CompareResult.meta.scannerVersion` set
+- [x] Unit tests cover deltas + sort/classification unchanged
 
 **Tests**: Unit in `src/compare/compare.test.ts`
 
@@ -228,10 +228,10 @@ T5 `[P]` with T6 `[P]` with T7 `[P]` — disjoint report files after T2/T3 (T5 w
 
 **Done when**:
 
-- [ ] Baseline without `scannerVersion` loads
-- [ ] String `scannerVersion` preserved
-- [ ] Top-level `$schema` does not fail parse
-- [ ] Unit tests cover the three cases
+- [x] Baseline without `scannerVersion` loads
+- [x] String `scannerVersion` preserved
+- [x] Top-level `$schema` does not fail parse
+- [x] Unit tests cover the three cases
 
 **Tests**: Unit in `src/compare/load-baseline.test.ts`
 
@@ -255,10 +255,10 @@ T5 `[P]` with T6 `[P]` with T7 `[P]` — disjoint report files after T2/T3 (T5 w
 
 **Done when**:
 
-- [ ] Scan JSON includes scan-result `$schema` URL
-- [ ] Compare JSON includes compare-result `$schema` URL
-- [ ] Unit tests assert exact strings
-- [ ] Rendered compare JSON still includes delta fields from T3 (smoke assert OK)
+- [x] Scan JSON includes scan-result `$schema` URL
+- [x] Compare JSON includes compare-result `$schema` URL
+- [x] Unit tests assert exact strings
+- [x] Rendered compare JSON still includes delta fields from T3 (smoke assert OK)
 
 **Tests**: Unit in `src/report/json.test.ts`, `src/report/compare-json.test.ts`
 
@@ -282,11 +282,11 @@ T5 `[P]` with T6 `[P]` with T7 `[P]` — disjoint report files after T2/T3 (T5 w
 
 **Done when**:
 
-- [ ] Table shows three metric delta columns for rank-changed
-- [ ] Markdown shows three metric delta columns
-- [ ] CSV header/rows include the three fields
-- [ ] Absolute entity columns unchanged (baseline)
-- [ ] Unit tests updated
+- [x] Table shows three metric delta columns for rank-changed
+- [x] Markdown shows three metric delta columns
+- [x] CSV header/rows include the three fields
+- [x] Absolute entity columns unchanged (baseline)
+- [x] Unit tests updated
 
 **Tests**: Unit in the listed `src/report/*.test.ts`
 
@@ -310,10 +310,10 @@ T5 `[P]` with T6 `[P]` with T7 `[P]` — disjoint report files after T2/T3 (T5 w
 
 **Done when**:
 
-- [ ] Rank-changed explain output includes the three deltas
-- [ ] New/removed explain unchanged aside from any shared helpers
-- [ ] Unit tests assert deltas
-- [ ] Triage untouched
+- [x] Rank-changed explain output includes the three deltas
+- [x] New/removed explain unchanged aside from any shared helpers
+- [x] Unit tests assert deltas
+- [x] Triage untouched
 
 **Tests**: Unit in `src/report/explain-compare.test.ts`
 
@@ -337,10 +337,10 @@ T5 `[P]` with T6 `[P]` with T7 `[P]` — disjoint report files after T2/T3 (T5 w
 
 **Done when**:
 
-- [ ] Docs state no version bump; additive fields listed
-- [ ] Delta shape and entity semantics documented
-- [ ] STRUCTURE lists new helper module if present
-- [ ] No ROADMAP/STATE edits required for this task (orchestrator may sync later per project policy)
+- [x] Docs state no version bump; additive fields listed
+- [x] Delta shape and entity semantics documented
+- [x] STRUCTURE lists new helper module if present
+- [x] No ROADMAP/STATE edits required for this task (orchestrator may sync later per project policy)
 
 **Tests**: None
 
@@ -364,8 +364,8 @@ T5 `[P]` with T6 `[P]` with T7 `[P]` — disjoint report files after T2/T3 (T5 w
 
 **Done when**:
 
-- [ ] `pnpm build && pnpm test` passes
-- [ ] No failing contract/CLI tests related to JSON shape
+- [x] `pnpm build && pnpm test` passes
+- [x] No failing contract/CLI tests related to JSON shape
 
 **Tests**: Full suite via gate
 

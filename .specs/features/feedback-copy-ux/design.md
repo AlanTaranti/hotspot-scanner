@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/feedback-copy-ux/spec.md`](./spec.md)  
 **Context**: [`.specs/features/feedback-copy-ux/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 
 ---
 

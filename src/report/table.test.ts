@@ -134,6 +134,22 @@ describe("renderTable", () => {
     expect(output).toContain("Hotspots: showing 1 of 3");
   });
 
+  it("includes Timing in summary when meta.timings is present", () => {
+    const full = loadFixture();
+    full.meta.timings = { gitMs: 400, complexityMs: 200, totalMs: 700 };
+    const output = renderTable(full);
+
+    expect(output).toContain(
+      "Timing: total 700ms (git 400ms, complexity 200ms)",
+    );
+  });
+
+  it("omits Timing in summary when meta.timings is absent", () => {
+    const output = renderTable(loadFixture());
+
+    expect(output).not.toContain("Timing:");
+  });
+
   it("strip-ANSI output matches uncolored table for the same fixture", () => {
     const fixture = loadFixture();
     const plain = renderTable(fixture, { color: false });

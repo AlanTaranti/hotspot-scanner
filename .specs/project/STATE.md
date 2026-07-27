@@ -104,14 +104,21 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-26 | **M60 table-path-column-ux Specs Planned (Medium)** | Middle-ellipsis File column (prefix + basename, Unicode `…`); width from injectable `stdoutColumns` / `process.stdout.columns`; fallback **24**; min/max + cap via scan non-File budget 56 (80→24); shared helper for `table.ts` + `compare-table.ts`. No flags/config/schema. IDs HOTSPOT-990–1009 (1001–1009 reserved). Specs: `.specs/features/table-path-column-ux/` (Status: Planned). |
 | 2026-07-26 | **M60 truncation = middle-ellipsis (not end / basename-only)** | Keep path prefix + basename when fitting File width (e.g. `src/api/v1/…/schema.ts`). |
 | 2026-07-26 | **M60 table-path-column-ux Done** | Execute complete: shared `path-column.ts` helper (middle-ellipsis `…`, `resolveFileColumnWidth` from `stdout.columns` with fallback 24, clamp 16–64); wired scan/compare tables with injectable `stdoutColumns`; docs synced (ARCHITECTURE, STRUCTURE). Gate green (812 tests). Specs: `.specs/features/table-path-column-ux/` (Done). |
+| 2026-07-26 | **M61 inline-progress-bar Done** | Execute complete: homegrown complexity fill bar (TTY `█░` / non-TTY `#-`); git indeterminate counter; `"finalize"` + `Finalizing…` after mine+analyze barrier; defer `flushWarnings` until after write (scan/compare/baseline); docs synced (README, ARCHITECTURE, recipes). Gate green (832 tests). Specs: `.specs/features/inline-progress-bar/` (Done). |
 | 2026-07-26 | **M61 inline-progress-bar Specs Planned (Large)** | Homegrown Option B (no ora/cli-progress): complexity fill bar TTY `█░` / non-TTY `#-` with honest file counts; git indeterminate counter only; `"finalize"` + `Finalizing…` after mine+analyze barrier; defer `flushWarnings` until after write (scan/compare/baseline). No new flags/config/schema. IDs HOTSPOT-1010–1029 (1026–1029 reserved). Specs: `.specs/features/inline-progress-bar/` (Status: Planned). |
 | 2026-07-26 | **M61 progress = honest bars + finalize (no overall %)** | No fake 0–99% meter; do not freeze complexity at 99% of files; keep M59 clear-to-EOL + quiet/no-progress + M58 compose. |
 | 2026-07-26 | **Post-M61 DX batch M62–M67 Specs Planned** | Thematic milestones from DX backlog: M62 feedback-copy-ux; M63 cli-surface-parity; M64 config-doctor-dx; M65 git-error-ux; M66 contract-enrich-additive; M67 scope-extensions-plus. Execute order M62→M67 (M61 optional parallel). Locked best-DX: init `$schema`+`$comments` (valid JSON); contract additive under `3.0`; path→scan only for path-like argv; `--csv-single-file` / `--fail-on-explain-miss` / `--warnings=json` opt-in. |
+| 2026-07-26 | **M62 feedback-copy-ux Done** | Execute complete: CSV stderr confirm; timings in table/markdown summary + brief stderr line; first-progress `since=` prefix; empty compare “No rank changes” copy; `BaselineError`→exit 2; baseline hints mention `baseline save`; help/README de-jargon. Scan-path stderr timing ordered after `flushWarnings` (M61 compose). Gate green (`pnpm build && pnpm test`, 859 tests). Specs: `.specs/features/feedback-copy-ux/` (Done). |
 | 2026-07-26 | **M62 feedback-copy-ux Specs Planned (Large)** | CSV stderr confirm; timings summary+stderr; help/README de-jargon; `since=` first progress line; compare empty copy; `BaselineError`→exit 2; baseline hint→`baseline save`. IDs HOTSPOT-1030–1059. Specs: `.specs/features/feedback-copy-ux/` (Status: Planned). |
+| 2026-07-26 | **M63 cli-surface-parity Done** | Execute complete: path→scan argv rewrite; baseline save `--quiet`/`--no-progress`/`--verbose`; `--fail-on-explain-miss`; `--warnings=json` stderr payload; `--csv-single-file` opt-in; bash/zsh/fish completion parity via shared flag defs; README + ARCHITECTURE synced. Gate green (`pnpm build && pnpm test`, 913 tests). Specs: `.specs/features/cli-surface-parity/` (Done). |
 | 2026-07-26 | **M63 cli-surface-parity Specs Planned (Large)** | baseline save quiet/progress/verbose; completions parity; path→scan; `--fail-on-explain-miss`; `--warnings=json`; `--csv-single-file`. IDs HOTSPOT-1060–1099. Specs: `.specs/features/cli-surface-parity/` (Status: Planned). |
+| 2026-07-26 | **M64 config-doctor-dx Done** | Execute complete: reserved meta keys (`$schema`/`$comment`/`$comments`); richer init exemplar; `schemas/hotspot-scanner-config.json` + package schema exports; `config validate`/`print` with provenance; dry-run prelude enrichment; doctor `since` preflight via `probeSinceWindow`; unknown-key soft warn. Gate green (`pnpm build && pnpm test`, 979 tests). Specs: `.specs/features/config-doctor-dx/` (Done). |
 | 2026-07-26 | **M64 config-doctor-dx Specs Planned (Large)** | Rich init + config schema/exports; `config validate`/`print`; dry-run prelude; doctor since preflight. IDs HOTSPOT-1100–1139. Specs: `.specs/features/config-doctor-dx/` (Status: Planned). |
 | 2026-07-26 | **M65 git-error-ux Specs Planned (Medium)** | Runtime git error Hints (since/shallow/corrupt). IDs HOTSPOT-1140–1159. Specs: `.specs/features/git-error-ux/` (Status: Planned). |
+| 2026-07-26 | **M65 git-error-ux Done** | Execute complete: `formatGitStderrHint` helper (since/date → shallow → corrupt priority); wired into `GitLogError`/`GitLsFilesError` constructors; CLI prints `message` only; no bin/doctor duplication. Docs synced (ARCHITECTURE, INTEGRATIONS, STRUCTURE). Gate green (`pnpm build && pnpm test`, 999 tests). Specs: `.specs/features/git-error-ux/` (Done). |
+| 2026-07-26 | **M66 contract-enrich-additive Done** | Execute complete: additive `3.0` — `meta.scannerVersion` on scan/compare; render-layer `$schema` URLs; `rankChanged` `scoreDelta`/`nclocDelta`/`commitCountDelta` (current − baseline, `entity` = baseline); baseline tolerance for missing `scannerVersion` and top-level `$schema`; table/markdown/CSV/JSON/explain parity. `src/package-meta.ts` cached version helper. Gate green (`pnpm build && pnpm test`, 1001 tests). Specs: `.specs/features/contract-enrich-additive/` (Done). |
 | 2026-07-26 | **M66 contract-enrich-additive Specs Planned (Large)** | Additive `3.0`: `meta.scannerVersion`, JSON `$schema`, rankChanged `scoreDelta`/`nclocDelta`/`commitCountDelta`. No version bump. IDs HOTSPOT-1160–1199. Specs: `.specs/features/contract-enrich-additive/` (Status: Planned). |
+| 2026-07-26 | **M67 scope-extensions-plus Done** | Execute complete: expanded `DEFAULT_TEST_EXCLUDE_PATTERNS` (mjs/cjs/mts/cts test+spec globs); `.mts`/`.cts` in `ELIGIBLE_EXTENSIONS`; rename-warnings imports shared constant; CONCERNS residual cleared; living docs synced. Gate green (`pnpm build && pnpm test`, 1019 tests). Specs: `.specs/features/scope-extensions-plus/` (Done). **M62–M67 DX batch complete.** |
 | 2026-07-26 | **M67 scope-extensions-plus Specs Planned (Medium)** | Residual test globs (mjs/cjs/mts/cts) + `.mts`/`.cts` eligible. IDs HOTSPOT-1200–1229. Specs: `.specs/features/scope-extensions-plus/` (Status: Planned). |
 | 2026-07-26 | **Init exemplar = `$schema` + `$comments` (not JSONC)** | Best DX: editor schema + in-file hints without breaking strict JSON/`jq`. Reserved meta keys not merged / not UNKNOWN_CONFIG_KEY. |
 | 2026-07-26 | **Contract enrich = additive under `3.0`** | Best DX: no forced baseline re-scan for scannerVersion/`$schema`/compare deltas. |
@@ -151,23 +158,11 @@ _None._
 
 ## Active
 
-**M7–M60 Done.** **M61–M67 Specs Planned** (Execute not started). Deferred horizon below (npm/CI/SARIF/historical AST).
+**M7–M67 Done.** **M62–M67 DX batch complete.** Deferred horizon below (npm/CI/SARIF/historical AST).
 
-**Execute order:** M62 → M63 → M64 → M65 → M66 → M67. **M61** may Execute in parallel (coordinate M62 first-progress `since=` with M61 finalize if both open).
+**Execute order:** _none — open milestones exhausted._
 
-| Milestone | Slug | Depth | Specs |
-| --------- | ---- | ----- | ----- |
-| M61 | `inline-progress-bar` | Large | [`.specs/features/inline-progress-bar/`](../features/inline-progress-bar/) |
-| M62 | `feedback-copy-ux` | Large | [`.specs/features/feedback-copy-ux/`](../features/feedback-copy-ux/) |
-| M63 | `cli-surface-parity` | Large | [`.specs/features/cli-surface-parity/`](../features/cli-surface-parity/) |
-| M64 | `config-doctor-dx` | Large | [`.specs/features/config-doctor-dx/`](../features/config-doctor-dx/) |
-| M65 | `git-error-ux` | Medium | [`.specs/features/git-error-ux/`](../features/git-error-ux/) |
-| M66 | `contract-enrich-additive` | Large | [`.specs/features/contract-enrich-additive/`](../features/contract-enrich-additive/) |
-| M67 | `scope-extensions-plus` | Medium | [`.specs/features/scope-extensions-plus/`](../features/scope-extensions-plus/) |
-
-**Handoff:** promote each `tasks.md` Status → Approved / Ready for Execute in a **new** session, then `orchestrator-implementer`. Planning session ends at Status **Planned**.
-
-**Deferred horizon:** npm publish; CI/SARIF; historical AST. Residual test globs moved to **M67 Planned**.
+**Deferred horizon:** npm publish; CI/SARIF; historical AST.
 
 ## Deferred
 
@@ -175,4 +170,4 @@ _None._
 - npm private registry vs Git install distribution (superseded wording retained as umbrella for publish decision)
 - **CI recipes / fail-on stable deltas / SARIF** (DX items 20–23) — not in M38–M45 / M62–M67
 - **Historical AST post-rename** (item 28 / Post-M46 accuracy ask) — **do not prioritize**; M26 avisos only; no milestone number (CONCERNS unmitigated matrix). True fix = per-commit function ranges — effort A.
-- **Residual test globs after M48** — superseded by M67 Planned (`.specs/features/scope-extensions-plus/`).
+- **Residual test globs after M48** — **M67 Done** (`.specs/features/scope-extensions-plus/`).

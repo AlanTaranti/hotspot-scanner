@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/cli-surface-parity/design.md`](./design.md)  
 **Spec**: [`.specs/features/cli-surface-parity/spec.md`](./spec.md)  
 **Context**: [`.specs/features/cli-surface-parity/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Large feature — `bin/` + diagnostics. **Do not Execute in the planning session.** Promote Status → invoke `orchestrator-implementer` in a new session. Do **not** edit ROADMAP/STATE in planning; Execute may sync on Done.
 
 ---
@@ -127,9 +127,9 @@ No `[P]` — shared `bin/` ownership; keep sequential.
 
 **Done when**:
 
-- [ ] Rewrite matrix tests pass (positive + negative cases)
-- [ ] Bare `runCli(["node","hotspot-scanner"])` still throws help `CliUsageError`
-- [ ] `hotspot-scanner .` equivalent argv reaches `scan` action with path `.`
+- [x] Rewrite matrix tests pass (positive + negative cases)
+- [x] Bare `runCli(["node","hotspot-scanner"])` still throws help `CliUsageError`
+- [x] `hotspot-scanner .` equivalent argv reaches `scan` action with path `.`
 
 **Tests**: Unit — rewrite helper / `runCli` with mocked scan action or parse spy
 
@@ -151,9 +151,9 @@ No `[P]` — shared `bin/` ownership; keep sequential.
 
 **Done when**:
 
-- [ ] Help lists the three flags
-- [ ] Tests assert quiet/no-progress/verbose forwarding (mirror scan tests)
-- [ ] Existing `--warnings` on baseline save still works
+- [x] Help lists the three flags
+- [x] Tests assert quiet/no-progress/verbose forwarding (mirror scan tests)
+- [x] Existing `--warnings` on baseline save still works
 
 **Tests**: Unit — baseline save action with mocked `runScan`
 
@@ -175,11 +175,11 @@ No `[P]` — shared `bin/` ownership; keep sequential.
 
 **Done when**:
 
-- [ ] Default miss still completes without throwing
-- [ ] Flag + miss → exit 1 (`CliExitError`)
-- [ ] Flag without `--explain` → `CliUsageError`
-- [ ] Found target + flag → success
-- [ ] Compare miss path covered
+- [x] Default miss still completes without throwing
+- [x] Flag + miss → exit 1 (`CliExitError`)
+- [x] Flag without `--explain` → `CliUsageError`
+- [x] Found target + flag → success
+- [x] Compare miss path covered
 
 **Tests**: Unit — report helper + bin explain miss/found cases
 
@@ -201,10 +201,10 @@ No `[P]` — shared `bin/` ownership; keep sequential.
 
 **Done when**:
 
-- [ ] Diagnostics unit tests cover json flush, empty array, quiet suppresses info
-- [ ] CLI invalid value lists `summary`, `full`, or `json`
-- [ ] CLI test: stderr JSON parseable; `meta.warnings` length unchanged vs full mode fixture
-- [ ] Default remains `summary`
+- [x] Diagnostics unit tests cover json flush, empty array, quiet suppresses info
+- [x] CLI invalid value lists `summary`, `full`, or `json`
+- [x] CLI test: stderr JSON parseable; `meta.warnings` length unchanged vs full mode fixture
+- [x] Default remains `summary`
 
 **Tests**: Unit — diagnostics + bin
 
@@ -226,10 +226,10 @@ No `[P]` — shared `bin/` ownership; keep sequential.
 
 **Done when**:
 
-- [ ] Default csv still creates stem files
-- [ ] Single-file writes exactly one file at `--output`
-- [ ] Missing `--output` / flag without csv → `CliUsageError`
-- [ ] Compare single-file writes hotspots.new schema content
+- [x] Default csv still creates stem files
+- [x] Single-file writes exactly one file at `--output`
+- [x] Missing `--output` / flag without csv → `CliUsageError`
+- [x] Compare single-file writes hotspots.new schema content
 
 **Tests**: Unit — temp dir write assertions; compare branch covered
 
@@ -251,9 +251,9 @@ No `[P]` — shared `bin/` ownership; keep sequential.
 
 **Done when**:
 
-- [ ] Representative flags asserted present in bash, zsh, and fish scripts
-- [ ] New milestone flags covered by tests
-- [ ] `completion <shell>` still exits 0 for valid shells
+- [x] Representative flags asserted present in bash, zsh, and fish scripts
+- [x] New milestone flags covered by tests
+- [x] `completion <shell>` still exits 0 for valid shells
 
 **Tests**: Unit — script string contains flags
 
@@ -275,9 +275,9 @@ No `[P]` — shared `bin/` ownership; keep sequential.
 
 **Done when**:
 
-- [ ] README documents all new behaviors
-- [ ] ARCHITECTURE mentions keeping zsh/fish aligned with bash
-- [ ] Help text reviewed for new flags
+- [x] README documents all new behaviors
+- [x] ARCHITECTURE mentions keeping zsh/fish aligned with bash
+- [x] Help text reviewed for new flags
 
 **Tests**: None (docs)
 
@@ -299,9 +299,9 @@ No `[P]` — shared `bin/` ownership; keep sequential.
 
 **Done when**:
 
-- [ ] `pnpm build && pnpm test` passes
-- [ ] All T1–T7 Done when checkboxes satisfied
-- [ ] Feature `tasks.md` Status may move to Done only after gate (Execute session)
+- [x] `pnpm build && pnpm test` passes
+- [x] All T1–T7 Done when checkboxes satisfied
+- [x] Feature `tasks.md` Status may move to Done only after gate (Execute session)
 
 **Tests**: Full suite
 

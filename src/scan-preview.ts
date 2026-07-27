@@ -13,6 +13,12 @@ export interface ScanScopePreview {
   includeTests: boolean;
   eligibleFileCount: number;
   concurrency: number;
+  /** Absolute config file path when loaded; null when none was found. */
+  configPath: string | null;
+  /** Monorepo remount note when scan path was remounted to git root. */
+  remountMessage?: string;
+  /** Unknown config keys after reserved-meta strip. */
+  unknownConfigKeys: string[];
 }
 
 function formatPatternList(patterns: string[]): string {
@@ -25,7 +31,13 @@ function formatPatternList(patterns: string[]): string {
 export async function previewScanScope(
   options: ScanOptions,
 ): Promise<ScanScopePreview> {
-  const { merged, pipelineRepoPath } = await resolveScanPipelineContext(options);
+  const {
+    merged,
+    pipelineRepoPath,
+    remountWarning,
+    unknownConfigKeys,
+    configPath,
+  } = await resolveScanPipelineContext(options);
 
   const includeTests = options.includeTests === true;
 
@@ -44,12 +56,29 @@ export async function previewScanScope(
     includeTests,
     eligibleFileCount,
     concurrency: merged.concurrency,
+    configPath,
+    ...(remountWarning ? { remountMessage: remountWarning.message } : {}),
+    unknownConfigKeys,
   };
 }
 
 export function formatScanScopePreview(preview: ScanScopePreview): string {
   const lines = [
     `repo: ${preview.repoPath}`,
+    `config file: ${preview.configPath ?? "none"}`,
+  ];
+
+  if (preview.remountMessage !== undefined) {
+    lines.push(preview.remountMessage);
+  }
+
+  if (preview.unknownConfigKeys.length > 0) {
+    lines.push(
+      `Unknown config key(s) ignored: ${preview.unknownConfigKeys.join(", ")}`,
+    );
+  }
+
+  lines.push(
     `since: ${preview.since}`,
     `include: ${formatPatternList(preview.include)}`,
     `exclude: ${formatPatternList(preview.exclude)}`,
@@ -57,7 +86,7 @@ export function formatScanScopePreview(preview: ScanScopePreview): string {
     `test files: ${preview.includeTests ? "included" : "excluded"}`,
     `eligible files: ${preview.eligibleFileCount}`,
     `concurrency: ${preview.concurrency}`,
-  ];
+  );
 
   return `${lines.join("\n")}\n`;
 }

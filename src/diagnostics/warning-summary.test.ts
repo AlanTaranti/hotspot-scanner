@@ -7,6 +7,7 @@ import {
 import {
   classifyWarning,
   flushWarningSummary,
+  flushWarningsJson,
 } from "./warning-summary.js";
 import {
   createCliDiagnosticHandlers,
@@ -73,6 +74,39 @@ describe("classifyWarning", () => {
     expect(
       classifyWarning({ severity: "warning", message: "no code" }),
     ).toEqual({ code: "UNKNOWN", subKind: "default" });
+  });
+});
+
+describe("flushWarningsJson", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("emits empty warnings array for an empty buffer", () => {
+    const write = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+
+    flushWarningsJson([]);
+
+    expect(write).toHaveBeenCalledWith('{"warnings":[]}\n');
+  });
+
+  it("emits full structured warnings without aggregation", () => {
+    const write = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    const warnings = [
+      createScanWarning("READ_FAILED", "Could not read a.ts"),
+      createScanWarning("READ_FAILED", "Could not read b.ts"),
+    ];
+
+    flushWarningsJson(warnings);
+
+    expect(write).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(String(write.mock.calls[0]![0]))).toEqual({
+      warnings,
+    });
   });
 });
 
@@ -296,5 +330,59 @@ describe("createCliDiagnosticHandlers warningsMode", () => {
     write.mockClear();
     flushWarnings();
     expect(write).not.toHaveBeenCalled();
+  });
+
+  it("buffers under json and flush emits one JSON document", () => {
+    const write = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    const { onWarning, flushWarnings } = createCliDiagnosticHandlers({
+      warningsMode: "json",
+    });
+    const messages = formatAmbiguousRenameWarnings(["a.ts", "b.ts"]);
+    const warnings = messages.map(renameWarning);
+
+    for (const warning of warnings) {
+      onWarning(warning);
+    }
+    expect(write).not.toHaveBeenCalled();
+
+    flushWarnings();
+    expect(write).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(String(write.mock.calls[0]![0]))).toEqual({
+      warnings,
+    });
+  });
+
+  it("json flush emits empty array when no warnings buffered", () => {
+    const write = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    const { flushWarnings } = createCliDiagnosticHandlers({
+      warningsMode: "json",
+    });
+
+    flushWarnings();
+
+    expect(write).toHaveBeenCalledWith('{"warnings":[]}\n');
+  });
+
+  it("quiet suppresses info from json payload", () => {
+    const write = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    const { onWarning, flushWarnings } = createCliDiagnosticHandlers({
+      quiet: true,
+      warningsMode: "json",
+    });
+    const warn = createScanWarning("WARN_CODE", "warn msg");
+
+    onWarning({ severity: "info", code: "INFO_CODE", message: "info msg" });
+    onWarning(warn);
+    flushWarnings();
+
+    expect(JSON.parse(String(write.mock.calls[0]![0]))).toEqual({
+      warnings: [warn],
+    });
   });
 });

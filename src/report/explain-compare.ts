@@ -16,6 +16,9 @@ export interface CompareExplainMatch {
   baselineRank?: number;
   currentRank?: number;
   rankDelta?: number;
+  scoreDelta?: number;
+  nclocDelta?: number;
+  commitCountDelta?: number;
 }
 
 function toPosixPath(filePath: string): string {
@@ -51,6 +54,9 @@ function toRankChangedMatch(
     baselineRank: change.baselineRank,
     currentRank: change.currentRank,
     rankDelta: change.rankDelta,
+    scoreDelta: change.scoreDelta,
+    nclocDelta: change.nclocDelta,
+    commitCountDelta: change.commitCountDelta,
   };
 }
 
@@ -92,6 +98,15 @@ export function findCompareExplainMatches(
   return findFileHotspotMatches(result.hotspots, targetPath);
 }
 
+/** Whether compare `--explain` would find a delta for the target. */
+export function compareExplainTargetFound(
+  result: CompareResult,
+  target: ExplainTarget,
+  repoPath: string,
+): boolean {
+  return findCompareExplainMatches(result, target, repoPath).length > 0;
+}
+
 function formatHotspotScoreFields(hotspot: HotspotScore): string[] {
   return [
     `filePath: ${hotspot.filePath}`,
@@ -114,6 +129,9 @@ function formatCompareExplainMatch(match: CompareExplainMatch): string {
     lines.push(`baselineRank: ${match.baselineRank}`);
     lines.push(`currentRank: ${match.currentRank}`);
     lines.push(`rankDelta: ${match.rankDelta}`);
+    lines.push(`scoreDelta: ${formatScore(match.scoreDelta!)}`);
+    lines.push(`nclocDelta: ${match.nclocDelta!}`);
+    lines.push(`commitCountDelta: ${match.commitCountDelta!}`);
   }
 
   lines.push(...formatHotspotScoreFields(match.entity));

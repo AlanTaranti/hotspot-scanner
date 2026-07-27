@@ -1,3 +1,4 @@
+import { getPackageVersion } from "../package-meta.js";
 import type {
   CompareResult,
   HotspotCompareSection,
@@ -7,6 +8,11 @@ import type {
   ScanWarning,
 } from "../types/index.js";
 import { hotspotKey } from "./keys.js";
+
+type RankChangeMetricDeltas<T> = Pick<
+  RankChange<T>,
+  "scoreDelta" | "nclocDelta" | "commitCountDelta"
+>;
 
 interface RankedEntity<T> {
   entity: T;
@@ -28,6 +34,7 @@ function compareRankedSections<T>(
   baselineItems: T[],
   currentItems: T[],
   keyFn: (item: T) => string,
+  metricDeltas: (baseline: T, current: T) => RankChangeMetricDeltas<T>,
 ): {
   new: T[];
   removed: T[];
@@ -51,6 +58,7 @@ function compareRankedSections<T>(
         baselineRank: baselineEntry.rank,
         currentRank: currentEntry.rank,
         rankDelta: currentEntry.rank - baselineEntry.rank,
+        ...metricDeltas(baselineEntry.entity, currentEntry.entity),
       });
     }
   }
@@ -81,12 +89,26 @@ function compareRankedSections<T>(
   return { new: newItems, removed, rankChanged };
 }
 
+function hotspotMetricDeltas(
+  baseline: HotspotScore,
+  current: HotspotScore,
+): RankChangeMetricDeltas<HotspotScore> {
+  return {
+    scoreDelta: current.hotspotScore - baseline.hotspotScore,
+    nclocDelta: current.ncloc - baseline.ncloc,
+    commitCountDelta: current.commitCount - baseline.commitCount,
+  };
+}
+
 function compareHotspots(
   baseline: HotspotScore[],
   current: HotspotScore[],
 ): HotspotCompareSection {
-  return compareRankedSections(baseline, current, (item) =>
-    hotspotKey(item.filePath),
+  return compareRankedSections(
+    baseline,
+    current,
+    (item) => hotspotKey(item.filePath),
+    hotspotMetricDeltas,
   );
 }
 
@@ -110,6 +132,7 @@ export function compareScanResults(
       baseline: { ...baseline.meta },
       current: { ...current.meta },
       warnings,
+      scannerVersion: getPackageVersion(),
     },
   };
 }

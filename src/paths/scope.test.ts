@@ -44,6 +44,14 @@ describe("DEFAULT_TEST_EXCLUDE_PATTERNS", () => {
       "**/*.spec.js",
       "**/*.spec.jsx",
       "**/__tests__/**",
+      "**/*.test.mjs",
+      "**/*.test.cjs",
+      "**/*.spec.mjs",
+      "**/*.spec.cjs",
+      "**/*.test.mts",
+      "**/*.test.cts",
+      "**/*.spec.mts",
+      "**/*.spec.cts",
     ]);
   });
 });
@@ -153,6 +161,10 @@ describe("isPathInScope", () => {
     expect(isPathInScope("src/__tests__/helpers.ts", defaultScope)).toBe(
       false,
     );
+    expect(isPathInScope("src/foo.test.mjs", defaultScope)).toBe(false);
+    expect(isPathInScope("pkg/bar.spec.cjs", defaultScope)).toBe(false);
+    expect(isPathInScope("src/a.test.mts", defaultScope)).toBe(false);
+    expect(isPathInScope("src/b.spec.cts", defaultScope)).toBe(false);
   });
 
   it("includes eligible paths outside excludes", () => {
@@ -166,6 +178,10 @@ describe("isPathInScope", () => {
     expect(isPathInScope("src/foo.test.ts", scope)).toBe(true);
     expect(isPathInScope("a.spec.tsx", scope)).toBe(true);
     expect(isPathInScope("src/__tests__/helpers.ts", scope)).toBe(true);
+    expect(isPathInScope("src/foo.test.mjs", scope)).toBe(true);
+    expect(isPathInScope("pkg/bar.spec.cjs", scope)).toBe(true);
+    expect(isPathInScope("src/a.test.mts", scope)).toBe(true);
+    expect(isPathInScope("src/b.spec.cts", scope)).toBe(true);
   });
 
   it("still applies user exclude when includeTests is true", () => {

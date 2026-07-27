@@ -139,11 +139,16 @@ describe("streamGitLog", () => {
       name: "GitLogError",
       repoPath: "/bad/repo",
       stderr: "fatal: not a git repository",
+      message: expect.not.stringContaining("Hint:"),
     } satisfies Partial<GitLogError>);
   });
 
-  it("throws GitLogError with unknown error when stderr is empty", async () => {
-    createMockChild([], 128, "");
+  it("throws GitLogError with Hint when stderr matches a known family", async () => {
+    createMockChild(
+      [],
+      128,
+      "error: object not found - shallow clone not allowed",
+    );
 
     await expect(
       (async () => {
@@ -151,7 +156,30 @@ describe("streamGitLog", () => {
           // consume
         }
       })(),
-    ).rejects.toThrow(/unknown error/);
+    ).rejects.toMatchObject({
+      name: "GitLogError",
+      repoPath: "/bad/repo",
+      stderr: "error: object not found - shallow clone not allowed",
+      message: expect.stringContaining(
+        "Hint: Deepen the clone with `git fetch --unshallow`",
+      ),
+    } satisfies Partial<GitLogError>);
+  });
+
+  it("throws GitLogError with unknown error when stderr is empty", async () => {
+    createMockChild([], 128, "");
+
+    let caught: GitLogError | undefined;
+    try {
+      for await (const _line of streamGitLog({ repoPath: "/bad/repo" })) {
+        // consume
+      }
+    } catch (err) {
+      caught = err as GitLogError;
+    }
+
+    expect(caught?.message).toMatch(/unknown error/);
+    expect(caught?.message).not.toContain("Hint:");
   });
 
   it("throws AbortError when signal is already aborted", async () => {

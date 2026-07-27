@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import type { HotspotScore, ScanResult } from "../types/index.js";
 import {
   CliUsageError,
+  explainTargetFound,
   formatExplainBlock,
   normalizeExplainPath,
   parseExplainTarget,
@@ -98,6 +99,28 @@ describe("normalizeExplainPath", () => {
     } finally {
       await rm(repoPath, { recursive: true, force: true });
     }
+  });
+});
+
+describe("explainTargetFound", () => {
+  it("returns true when the target matches a hotspot", () => {
+    const result = makeScanResult({
+      hotspots: [makeHotspot({ filePath: "src/hot.ts" })],
+    });
+
+    expect(
+      explainTargetFound(result, { kind: "file", filePath: "src/hot.ts" }),
+    ).toBe(true);
+  });
+
+  it("returns false when the target is absent from rankings", () => {
+    const result = makeScanResult({
+      hotspots: [makeHotspot({ filePath: "src/other.ts" })],
+    });
+
+    expect(
+      explainTargetFound(result, { kind: "file", filePath: "src/missing.ts" }),
+    ).toBe(false);
   });
 });
 

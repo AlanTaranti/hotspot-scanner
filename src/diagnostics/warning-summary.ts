@@ -8,7 +8,7 @@ import {
   RENAME_UNLINKED_REMAINDER_PREFIX,
 } from "../git/rename-warnings.js";
 
-export type WarningsMode = "summary" | "full";
+export type WarningsMode = "summary" | "full" | "json";
 
 export type WarningSubKind =
   | "ambiguous"
@@ -127,6 +127,11 @@ interface BufferedGroup {
   warnings: ScanWarning[];
   /** Logical count (paths / pairs / warnings). */
   count: number;
+}
+
+/** Write one JSON document with the full buffered warnings array. */
+export function flushWarningsJson(buffer: ScanWarning[]): void {
+  process.stderr.write(`${JSON.stringify({ warnings: buffer })}\n`);
 }
 
 /** Group buffered warnings and write one stderr line per group. */

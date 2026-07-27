@@ -110,6 +110,12 @@ export function createGitMiner(deps: GitMinerDependencies = {}): GitMiner {
   };
 }
 
+export {
+  buildGitProbeSinceArgv,
+  probeSinceWindow,
+  type ProbeSinceWindowOptions,
+  type SinceProbeResult,
+} from "./probe-since.js";
 export { streamGitLog } from "./spawn.js";
 export { parseGitLogStream } from "./parse.js";
 export { PathAliasMap } from "./rename.js";

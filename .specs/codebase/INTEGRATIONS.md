@@ -21,9 +21,9 @@ External dependencies and adapter boundaries. No network integrations (zero-netw
 | **Role**       | `git log --numstat` for per-file churn (rename lines parsed from numstat output) |
 | **Adapter**    | `GitMiner` in `src/git/`                                                              |
 | **Invocation** | `child_process.spawn` in `src/git/spawn.ts` — streaming parse                         |
-| **Rule**       | Do not spawn git subprocess outside `src/git/` **except** documented adapters (`src/paths/resolve-repo.ts` for `rev-parse --show-toplevel`) |
-| **Failure**    | Invalid/corrupt repo → clear error, exit != 0                                         |
-| **Tests**      | Mock subprocess at `GitMiner` boundary; fixtures for parse logic                      |
+| **Rule**       | Do not spawn git subprocess outside `src/git/` **except** documented adapters (`src/paths/resolve-repo.ts` for `rev-parse --show-toplevel`). **Do not** parse git stderr or add git-error pattern switches in `bin/` — CLI prints `error.message` only |
+| **Failure**    | Spawn failures → `GitLogError` / `GitLsFilesError` with repo path, command, raw `stderr`, and optional `\nHint: …` when `formatGitStderrHint` matches (M65); exit `1`. Not-a-git → `resolve-repo` (M38). Invalid `since` at doctor time → `probeSinceWindow` (M64) |
+| **Tests**      | Mock subprocess at `GitMiner` boundary; fixtures for parse logic; `git-error-hint.test.ts` for stderr→Hint mapping |
 
 ### Git toplevel detection (M43, monorepo remount)
 
@@ -34,6 +34,27 @@ External dependencies and adapter boundaries. No network integrations (zero-netw
 | **Invocation** | `child_process.execFile` — `git -C <requestPath> rev-parse --show-toplevel`         |
 | **Rule**       | Do not spawn `rev-parse` outside `src/paths/resolve-repo.ts`                          |
 | **Tests**      | Inject `detectGitToplevel` in `resolve-repo.test.ts`; integration via `scan.test.ts` |
+
+### Since-window probe (M64, doctor preflight)
+
+| Aspect         | Detail                                                                              |
+| -------------- | ----------------------------------------------------------------------------------- |
+| **Role**       | Lightweight `git log -1 --since=…` to validate effective merged `since` before scan |
+| **Adapter**    | `probeSinceWindow` in `src/git/probe-since.ts`                                        |
+| **Invocation** | `child_process.spawn` — `git -C <repoPath> log -1 --since=<since> --format=%s`     |
+| **Mapping**    | exit 0 + stdout → `ok`; exit 0 + empty stdout → `empty` (doctor soft warn); non-zero → `invalid` (doctor hard fail) |
+| **Consumer**   | `src/doctor/index.ts` (`since` finding) — skipped when git-repo prelude already failed |
+| **Tests**      | Mock `spawn` in `probe-since.test.ts`; doctor unit tests inject probe boundary |
+
+### Git stderr hints (M65, scan-time spawn failures)
+
+| Aspect         | Detail                                                                                |
+| -------------- | ------------------------------------------------------------------------------------- |
+| **Role**       | Append actionable `\nHint: …` to `GitLogError` / `GitLsFilesError` `message` when stderr matches locked families (since/date, shallow, corrupt) |
+| **Adapter**    | `formatGitStderrHint` in `src/git/git-error-hint.ts`; called from error constructors in `spawn.ts` and `ls-files.ts` |
+| **Rule**       | Enrichment owned by `src/git/` only — **forbidden** in `bin/` (no ad-hoc git stderr parsing outside `src/git/`) |
+| **Boundaries** | Not-a-git `Hint:` remains on `resolve-repo` (M38). Doctor `since` preflight remains `probeSinceWindow` (M64). M65 does not add a dedicated not-a-git pattern or doctor probe |
+| **Tests**      | `git-error-hint.test.ts`; constructor assertions in `spawn.test.ts` and `ls-files.test.ts` |
 
 ### Tracked file listing (M36, discovery)
 

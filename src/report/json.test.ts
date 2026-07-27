@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import type { ScanResult } from "../types/index.js";
 import { renderJson } from "./json.js";
+import { SCAN_RESULT_SCHEMA_URL } from "./schema-urls.js";
 import { sliceScanResult } from "./slice.js";
 
 const fixturePath = join(
@@ -26,6 +27,7 @@ describe("renderJson", () => {
     const output = renderJson(sliceScanResult(fixture, 2));
     const parsed = JSON.parse(output) as ScanResult;
 
+    expect(parsed.$schema).toBe(SCAN_RESULT_SCHEMA_URL);
     expect(parsed.version).toBe("3.0");
     expect(parsed.hotspots).toHaveLength(2);
     expect(parsed.meta.since).toBe("6 months ago");

@@ -1,6 +1,11 @@
 import { DEFAULT_WORKER_CONCURRENCY } from "../complexity/pool.js";
 import { DEFAULT_SINCE, DEFAULT_TOP } from "../scan.js";
-import type { HotspotScannerConfig } from "./load-config.js";
+import {
+  loadHotspotScannerConfig,
+  type HotspotScannerConfig,
+} from "./load-config.js";
+
+export type OptionSource = "cli" | "config" | "default";
 
 export interface MergedScanConfig {
   since: string;
@@ -12,6 +17,24 @@ export interface MergedScanConfig {
 
 export interface MergeScanOptionsInput {
   config?: HotspotScannerConfig | null;
+  cli?: HotspotScannerConfig;
+}
+
+export interface MergedScanConfigWithSources {
+  values: MergedScanConfig;
+  sources: {
+    since: OptionSource;
+    include: OptionSource;
+    exclude: OptionSource;
+    top: OptionSource;
+    concurrency: OptionSource;
+  };
+  configPath: string | null;
+}
+
+export interface LoadMergedScanConfigWithSourcesInput {
+  repoPath: string;
+  configPath?: string;
   cli?: HotspotScannerConfig;
 }
 
@@ -42,6 +65,32 @@ function pickOptional<T>(
   return undefined;
 }
 
+function pickSourceRequired<T>(
+  cli: T | undefined,
+  config: T | undefined,
+): OptionSource {
+  if (cli !== undefined) {
+    return "cli";
+  }
+  if (config !== undefined) {
+    return "config";
+  }
+  return "default";
+}
+
+function pickSourceOptional<T>(
+  cli: T | undefined,
+  config: T | undefined,
+): OptionSource {
+  if (cli !== undefined) {
+    return "cli";
+  }
+  if (config !== undefined) {
+    return "config";
+  }
+  return "default";
+}
+
 export function mergeScanOptions(
   input: MergeScanOptionsInput,
 ): MergedScanConfig {
@@ -58,4 +107,36 @@ export function mergeScanOptions(
       DEFAULT_WORKER_CONCURRENCY,
     ),
   };
+}
+
+export function mergeScanOptionsWithSources(
+  input: MergeScanOptionsInput,
+  configPath: string | null,
+): MergedScanConfigWithSources {
+  const { config, cli = {} } = input;
+
+  return {
+    values: mergeScanOptions(input),
+    sources: {
+      since: pickSourceRequired(cli.since, config?.since),
+      include: pickSourceOptional(cli.include, config?.include),
+      exclude: pickSourceOptional(cli.exclude, config?.exclude),
+      top: pickSourceRequired(cli.top, config?.top),
+      concurrency: pickSourceRequired(cli.concurrency, config?.concurrency),
+    },
+    configPath,
+  };
+}
+
+export async function loadMergedScanConfigWithSources(
+  input: LoadMergedScanConfigWithSourcesInput,
+): Promise<MergedScanConfigWithSources> {
+  const loaded = await loadHotspotScannerConfig(input.repoPath, {
+    configPath: input.configPath,
+  });
+
+  return mergeScanOptionsWithSources(
+    { config: loaded.config, cli: input.cli },
+    loaded.path,
+  );
 }

@@ -32,6 +32,53 @@ describe("parseScanResult", () => {
     expect(result.hotspots[0]?.ncloc).toBe(42);
     expect(result.meta.warnings).toEqual([]);
     expect(result.meta.timings).toBeUndefined();
+    expect(result.meta.scannerVersion).toBeUndefined();
+  });
+
+  it("accepts baseline without meta.scannerVersion", () => {
+    const raw = loadFixture();
+    const result = parseScanResult(raw);
+
+    expect(result.meta.scannerVersion).toBeUndefined();
+  });
+
+  it("preserves string meta.scannerVersion", () => {
+    const raw = loadFixture();
+    const result = parseScanResult({
+      ...raw,
+      meta: {
+        ...(raw.meta as Record<string, unknown>),
+        scannerVersion: "1.2.3",
+      },
+    });
+
+    expect(result.meta.scannerVersion).toBe("1.2.3");
+  });
+
+  it("rejects non-string meta.scannerVersion", () => {
+    const raw = loadFixture();
+
+    expect(() =>
+      parseScanResult({
+        ...raw,
+        meta: {
+          ...(raw.meta as Record<string, unknown>),
+          scannerVersion: 42,
+        },
+      }),
+    ).toThrow(/meta.scannerVersion must be a string/);
+  });
+
+  it("ignores top-level $schema", () => {
+    const raw = loadFixture();
+    const result = parseScanResult({
+      ...raw,
+      $schema:
+        "https://vitals.dev/hotspot-scanner/schemas/scan-result.json",
+    });
+
+    expect(result.version).toBe("3.0");
+    expect(result.hotspots).toHaveLength(3);
   });
 
   it("parses optional meta.timings", () => {
@@ -191,7 +238,7 @@ describe("parseScanResult", () => {
       /Unsupported baseline version/,
     );
     expect(() => parseScanResult({ ...raw, version: "4.0" })).toThrow(
-      /Hint:.*JSON contract/,
+      /Hint:.*baseline save/,
     );
   });
 
@@ -303,7 +350,7 @@ describe("parseScanResult", () => {
     expect(() => parseScanResult({ ...raw, hotspots })).toThrow(
       /hotspots\[0\] is missing required field: ncloc/,
     );
-    expect(() => parseScanResult({ ...raw, hotspots })).toThrow(/Hint:/);
+    expect(() => parseScanResult({ ...raw, hotspots })).toThrow(/baseline save/);
   });
 });
 

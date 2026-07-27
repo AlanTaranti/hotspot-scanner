@@ -28,7 +28,7 @@ Audit test-suite health (include co-located tests and `__tests__/`):
 hotspot-scanner scan . --since "3 months ago" --top 15 --include-tests
 ```
 
-For a quieter CI or cron job (progress lines suppressed; warnings and errors still on stderr). When stderr is not a TTY (typical in CI), progress lines remain permanent newline logs — use `--quiet` to suppress them entirely:
+For a quieter CI or cron job (progress lines suppressed; warnings and errors still on stderr). When stderr is not a TTY (typical in CI), progress uses ASCII `#`/`-` fill bars on permanent newline-delimited lines — use `--quiet` to suppress them entirely:
 
 ```bash
 hotspot-scanner scan . --since "3 months ago" --top 10 --quiet
@@ -119,6 +119,13 @@ hotspot-scanner scan packages/web --include "src/**" --exclude "**/*.stories.tsx
 
 ```bash
 hotspot-scanner scan . --config /ci/hotspot-scanner.json --since "3 months ago" --top 10
+```
+
+Validate config in CI without running a scan:
+
+```bash
+hotspot-scanner config validate /ci/hotspot-scanner.json
+# or from repo root: hotspot-scanner config validate .
 ```
 
 `format`, `output`, `baseline`, and `--warnings` are CLI-only and cannot be set in the config file.

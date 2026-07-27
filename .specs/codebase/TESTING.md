@@ -127,6 +127,8 @@ See skill `vitals-cli-validation` for exit codes and flag matrix.
 
 **Baseline contract (M57):** `load-baseline.test.ts` rejects `2.0`, `cyclomaticComplexity`, `functions`; accepts `3.0` with `ncloc`.
 
+**Additive contract (M66):** `version` stays `"3.0"`; contract tests assert optional `scannerVersion` / root `$schema` on schemas and required `scoreDelta` / `nclocDelta` / `commitCountDelta` on `RankChangeHotspot`. `load-baseline.test.ts` accepts baselines without `scannerVersion` and with top-level `$schema` ignored. Fresh scan/compare JSON from `json.test.ts` / `compare-json.test.ts` asserts `$schema` URLs and `meta.scannerVersion`.
+
 ## Integrity rules
 
 - Do not weaken assertions or remove cases to pass the gate

@@ -8,7 +8,7 @@ import type {
 } from "../types/index.js";
 
 const BASELINE_CONTRACT_HINT =
-  "\nHint: re-scan with --format json --output <path> using the current hotspot-scanner version, or fix the baseline file to match the JSON contract.";
+  "\nHint: create a baseline with `hotspot-scanner baseline save`, re-scan with --format json --output <path> using the current hotspot-scanner version, or fix the baseline file to match the JSON contract.";
 
 export class BaselineError extends Error {
   constructor(message: string) {
@@ -235,6 +235,14 @@ export function parseScanResult(json: unknown): ScanResult {
       warnings: assertWarnings(json.meta.warnings),
       ...(json.meta.timings !== undefined
         ? { timings: assertScanStageTimings(json.meta.timings) }
+        : {}),
+      ...(json.meta.scannerVersion !== undefined
+        ? {
+            scannerVersion: assertString(
+              json.meta.scannerVersion,
+              "meta.scannerVersion",
+            ),
+          }
         : {}),
     },
   };

@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/git-error-ux/design.md`](./design.md)  
 **Spec**: [`.specs/features/git-error-ux/spec.md`](./spec.md)  
 **Context**: [`.specs/features/git-error-ux/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Medium feature — hint helper + wire error constructors + docs. Planning session ends here; Execute in a separate session after Status → Approved / Ready for Execute.
 
 ---
@@ -99,10 +99,10 @@ No `[P]` tasks — sequential chain; T2 intentionally owns both error classes to
 
 **Done when**:
 
-- [ ] `formatGitStderrHint` implements locked families and priority
-- [ ] Unit tests cover since/date, shallow, corrupt, unmatched, empty, priority
-- [ ] No constructor wiring yet (T2); no doctor/probe files; no bin edits
-- [ ] Gate: `pnpm exec vitest run src/git/git-error-hint.test.ts` — PASS
+- [x] `formatGitStderrHint` implements locked families and priority
+- [x] Unit tests cover since/date, shallow, corrupt, unmatched, empty, priority
+- [x] No constructor wiring yet (T2); no doctor/probe files; no bin edits
+- [x] Gate: `pnpm exec vitest run src/git/git-error-hint.test.ts` — PASS
 
 **Tests**: unit in `src/git/git-error-hint.test.ts` (same task)
 
@@ -135,12 +135,12 @@ pnpm exec vitest run src/git/git-error-hint.test.ts
 
 **Done when**:
 
-- [ ] `GitLogError` message includes Hint for locked families
-- [ ] `GitLsFilesError` shares the same helper behavior
-- [ ] Unmatched / empty stderr: no `Hint:` line; unknown-error path preserved
-- [ ] No dedicated not-a-git Hint pattern added; no `probe-since` / doctor files
-- [ ] No bin edits for git stderr parsing
-- [ ] Gate: `pnpm exec vitest run src/git/spawn.test.ts src/git/ls-files.test.ts src/git/git-error-hint.test.ts` — PASS
+- [x] `GitLogError` message includes Hint for locked families
+- [x] `GitLsFilesError` shares the same helper behavior
+- [x] Unmatched / empty stderr: no `Hint:` line; unknown-error path preserved
+- [x] No dedicated not-a-git Hint pattern added; no `probe-since` / doctor files
+- [x] No bin edits for git stderr parsing
+- [x] Gate: `pnpm exec vitest run src/git/spawn.test.ts src/git/ls-files.test.ts src/git/git-error-hint.test.ts` — PASS
 
 **Tests**: unit in `spawn.test.ts` + `ls-files.test.ts` (same task)
 
@@ -173,9 +173,9 @@ pnpm exec vitest run src/git/spawn.test.ts src/git/ls-files.test.ts src/git/git-
 
 **Done when**:
 
-- [ ] Docs mention hint helper / constructor enrichment and sister boundaries (M38 tone, M64 not duplicated)
-- [ ] INTEGRATIONS still forbids bin-side git stderr parsing
-- [ ] No src/bin/tests edits in this task
+- [x] Docs mention hint helper / constructor enrichment and sister boundaries (M38 tone, M64 not duplicated)
+- [x] INTEGRATIONS still forbids bin-side git stderr parsing
+- [x] No src/bin/tests edits in this task
 
 **Tests**: none
 
@@ -202,8 +202,8 @@ pnpm exec vitest run src/git/spawn.test.ts src/git/ls-files.test.ts src/git/git-
 
 **Done when**:
 
-- [ ] `pnpm build && pnpm test` exits 0
-- [ ] No silent test deletions
+- [x] `pnpm build && pnpm test` exits 0
+- [x] No silent test deletions
 
 **Tests**: full suite via gate
 

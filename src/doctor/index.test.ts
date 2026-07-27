@@ -13,6 +13,7 @@ import { previewScanScope } from "../scan-preview.js";
 const execFileAsync = promisify(execFile);
 
 const spawnSyncMock = vi.hoisted(() => vi.fn());
+const probeSinceWindowMock = vi.hoisted(() => vi.fn());
 
 vi.mock("node:child_process", async (importOriginal) => {
   const actual = await importOriginal<typeof import("node:child_process")>();
@@ -27,6 +28,10 @@ vi.mock("node:child_process", async (importOriginal) => {
     },
   };
 });
+
+vi.mock("../git/probe-since.js", () => ({
+  probeSinceWindow: (...args: unknown[]) => probeSinceWindowMock(...args),
+}));
 
 import {
   aggregateExitCode,
@@ -167,6 +172,11 @@ describe("isGitOnPath", () => {
 describe("runDoctor", () => {
   beforeEach(() => {
     spawnSyncMock.mockReset();
+    probeSinceWindowMock.mockReset();
+    probeSinceWindowMock.mockResolvedValue({
+      status: "ok",
+      tipSubject: "fixture commit",
+    });
   });
 
   afterEach(() => {
@@ -329,6 +339,13 @@ describe("runDoctor", () => {
             id: "config",
             status: "pass",
             message: expect.stringMatching(/Config file is valid/i),
+          }),
+        );
+        expect(result.findings).toContainEqual(
+          expect.objectContaining({
+            id: "since",
+            status: "pass",
+            message: expect.stringMatching(/includes at least one commit/i),
           }),
         );
       },
@@ -546,5 +563,155 @@ describe("runDoctor", () => {
         }),
       );
     });
+  });
+
+  it("warns and exits 0 when since window is empty", async () => {
+    probeSinceWindowMock.mockResolvedValue({ status: "empty" });
+
+    await withGitRepo({}, async (repoPath) => {
+      const result = await runDoctor(healthyDoctorOptions(repoPath));
+
+      expect(result.exitCode).toBe(0);
+      expect(result.findings).toContainEqual(
+        expect.objectContaining({
+          id: "since",
+          status: "warn",
+          message: expect.stringMatching(/No commits found for effective since/i),
+        }),
+      );
+      expect(result.findings).toContainEqual(
+        expect.objectContaining({
+          id: "since",
+          status: "warn",
+          message: expect.stringMatching(/widen --since/i),
+        }),
+      );
+    });
+  });
+
+  it("fails with exit 1 when git rejects the since string", async () => {
+    probeSinceWindowMock.mockResolvedValue({
+      status: "invalid",
+      message: "fatal: bad since format",
+    });
+
+    await withGitRepo({}, async (repoPath) => {
+      const result = await runDoctor(healthyDoctorOptions(repoPath));
+
+      expect(result.exitCode).toBe(1);
+      expect(result.findings).toContainEqual(
+        expect.objectContaining({
+          id: "since",
+          status: "fail",
+          message: expect.stringMatching(/Git rejected since/i),
+        }),
+      );
+      expect(result.findings).toContainEqual(
+        expect.objectContaining({
+          id: "since",
+          status: "fail",
+          message: expect.stringMatching(/bad since format/i),
+        }),
+      );
+    });
+  });
+
+  it("probes effective merged since from prelude context", async () => {
+    await withGitRepo(
+      {
+        [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({
+          since: "6 months ago",
+        }),
+      },
+      async (repoPath) => {
+        await runDoctor(healthyDoctorOptions(repoPath));
+
+        expect(probeSinceWindowMock).toHaveBeenCalledWith({
+          repoPath,
+          since: "6 months ago",
+        });
+      },
+    );
+  });
+
+  it("does not emit since finding when git repository check fails", async () => {
+    await withTempDir(async (repoPath) => {
+      const result = await runDoctor(healthyDoctorOptions(repoPath));
+
+      expect(result.exitCode).toBe(1);
+      expect(result.findings.map((finding) => finding.id)).not.toContain("since");
+      expect(probeSinceWindowMock).not.toHaveBeenCalled();
+    });
+  });
+
+  it("warns on unknown config keys without failing", async () => {
+    await withGitRepo(
+      {
+        [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({
+          since: "12 months ago",
+          typoKey: true,
+        }),
+      },
+      async (repoPath) => {
+        const result = await runDoctor(healthyDoctorOptions(repoPath));
+
+        expect(result.exitCode).toBe(0);
+        expect(result.findings).toContainEqual(
+          expect.objectContaining({
+            id: "config",
+            status: "warn",
+            message: expect.stringMatching(/unknown config key\(s\) ignored: typoKey/i),
+          }),
+        );
+      },
+    );
+  });
+
+  it("does not warn for reserved meta keys alone", async () => {
+    await withGitRepo(
+      {
+        [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({
+          $schema:
+            "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json",
+          $comments: ["include/exclude semantics"],
+        }),
+      },
+      async (repoPath) => {
+        const result = await runDoctor(healthyDoctorOptions(repoPath));
+
+        expect(result.exitCode).toBe(0);
+        expect(result.findings).toContainEqual(
+          expect.objectContaining({
+            id: "config",
+            status: "pass",
+            message: expect.not.stringMatching(/unknown config key/i),
+          }),
+        );
+      },
+    );
+  });
+
+  it("warns only non-meta unknown keys when meta and typo coexist", async () => {
+    await withGitRepo(
+      {
+        [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({
+          $schema:
+            "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json",
+          since: "12 months ago",
+          typoKey: "oops",
+        }),
+      },
+      async (repoPath) => {
+        const result = await runDoctor(healthyDoctorOptions(repoPath));
+
+        expect(result.exitCode).toBe(0);
+        const configFinding = result.findings.find(
+          (finding) => finding.id === "config",
+        );
+        expect(configFinding?.status).toBe("warn");
+        expect(configFinding?.message).toMatch(/unknown config key\(s\) ignored: typoKey/);
+        expect(configFinding?.message).not.toMatch(/\$schema/);
+      },
+    );
   });
 });

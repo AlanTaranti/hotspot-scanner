@@ -50,13 +50,13 @@ export interface CouplingPair {
 /** Diagnostic severity for warnings and stderr prefixes. */
 export type DiagnosticSeverity = "info" | "warning" | "error";
 
-/** Progress phase for git mining and size analysis. */
-export type ScanProgressPhase = "git" | "complexity";
+/** Progress phase for git mining, size analysis, and finalize. Finalize uses `commitsProcessed: 0`. */
+export type ScanProgressPhase = "git" | "complexity" | "finalize";
 
-/** Phase-aware progress from git miners and size analysis. */
+/** Phase-aware progress from git miners, size analysis, and finalize. */
 export interface ScanProgress {
   phase: ScanProgressPhase;
-  /** Git commit counter; use 0 for complexity phase. */
+  /** Git commit counter; use 0 for complexity and finalize phases. */
   commitsProcessed: number;
   /** Files analyzed so far (complexity phase). */
   filesProcessed?: number;
@@ -127,6 +127,8 @@ export interface ScanMeta {
   warnings: ScanWarning[];
   /** Present on successful scans; omitted in baseline-era documents */
   timings?: ScanStageTimings;
+  /** Package version that produced the scan; omitted in baseline-era documents */
+  scannerVersion?: string;
 }
 
 /** Full scan output (JSON schema). */
@@ -143,6 +145,12 @@ export interface RankChange<T> {
   currentRank: number;
   /** currentRank - baselineRank; positive = moved down in ranking */
   rankDelta: number;
+  /** current.hotspotScore - baseline.hotspotScore */
+  scoreDelta: number;
+  /** current.ncloc - baseline.ncloc */
+  nclocDelta: number;
+  /** current.commitCount - baseline.commitCount */
+  commitCountDelta: number;
 }
 
 /** Hotspot delta section for compare output. */
@@ -157,6 +165,8 @@ export interface CompareMeta {
   baseline: ScanMeta;
   current: ScanMeta;
   warnings: ScanWarning[];
+  /** Package version that produced the compare; omitted on legacy compares */
+  scannerVersion?: string;
 }
 
 /** Full compare output (JSON schema). */

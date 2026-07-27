@@ -1,3 +1,4 @@
+import { ELIGIBLE_EXTENSIONS } from "../complexity/discover.js";
 import type { ScanWarning } from "../types/index.js";
 import type { ParsedCommit, ParsedFileChange } from "./parse.js";
 import type { PathAliasMap } from "./rename.js";
@@ -106,14 +107,7 @@ export function formatFunctionPostRenameOverlapWarning(): string {
   );
 }
 
-const ELIGIBLE_EXTENSIONS = new Set([
-  ".ts",
-  ".tsx",
-  ".js",
-  ".jsx",
-  ".mjs",
-  ".cjs",
-]);
+const ELIGIBLE_EXTENSION_SET = new Set<string>(ELIGIBLE_EXTENSIONS);
 
 function basename(filePath: string): string {
   const slash = filePath.lastIndexOf("/");
@@ -159,8 +153,8 @@ export function pathsLookLikeRename(a: string, b: string): boolean {
   const extB = extension(b);
   if (
     stem(a) === stem(b) &&
-    ELIGIBLE_EXTENSIONS.has(extA) &&
-    ELIGIBLE_EXTENSIONS.has(extB)
+    ELIGIBLE_EXTENSION_SET.has(extA) &&
+    ELIGIBLE_EXTENSION_SET.has(extB)
   ) {
     return true;
   }

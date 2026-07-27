@@ -60,13 +60,13 @@ function renderRankChangedHotspotTable(
   }
 
   lines.push(
-    "| Baseline Rank | Current Rank | Δ | File | Score | NLOC | NLOCN | Churn | ChurnN | Authors |",
-    "| ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+    "| Baseline Rank | Current Rank | Δ | ScoreΔ | NLOCΔ | CommitsΔ | File | Score | NLOC | NLOCN | Churn | ChurnN | Authors |",
+    "| ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: |",
   );
 
   for (const change of items) {
     lines.push(
-      `| ${change.baselineRank} | ${change.currentRank} | ${change.rankDelta} | ${escapeCell(change.entity.filePath)} | ${formatScore(change.entity.hotspotScore)} | ${change.entity.ncloc} | ${formatScore(change.entity.complexityNormalized)} | ${change.entity.commitCount} | ${formatScore(change.entity.churnNormalized)} | ${change.entity.authorCount} |`,
+      `| ${change.baselineRank} | ${change.currentRank} | ${change.rankDelta} | ${formatScore(change.scoreDelta)} | ${change.nclocDelta} | ${change.commitCountDelta} | ${escapeCell(change.entity.filePath)} | ${formatScore(change.entity.hotspotScore)} | ${change.entity.ncloc} | ${formatScore(change.entity.complexityNormalized)} | ${change.entity.commitCount} | ${formatScore(change.entity.churnNormalized)} | ${change.entity.authorCount} |`,
     );
   }
 
