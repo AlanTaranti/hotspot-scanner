@@ -138,6 +138,8 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-27 | **M72 indent metric = Tornhill whitespace (4 spaces / tab)** | No AST/McCabe; aligns with M57 lightweight metrics; blank lines ignored. |
 | 2026-07-27 | **M72 trend ≠ scan / ≠ compare** | Sibling command + own schema; historical blobs are trend-only; scan stays working-tree NCLOC; M71 compare stays gone. |
 | 2026-07-27 | **M72 sparkline ASCII P1** | Glyphs `▁▂▃▄▅▆▇█` for post-sample `mean` + `ncloc`; table + JSON meta; omitted from CSV. |
+| 2026-07-27 | **M73 top-only-rollups Specs Planned (Medium)** | Warnings/Timing rollups only in table/markdown exec summary; drop M68 pre-write stderr teaser + M62 brief `timing: total Nms` stderr. Keep post-write `flushWarnings` detail. No new flags/schema. IDs HOTSPOT-1500–1519. Specs: `.specs/features/top-only-rollups/` (Status: Planned). |
+| 2026-07-27 | **M73 lock — top-only rollups** | Supersedes M68 teaser half and M62 dual-surface brief stderr timing for default human UX. Reject bottom-only and dropping detail flush. Historical M68/M62 Done specs stay historical. |
 
 ## Architecture decisions (ADRs)
 
@@ -174,7 +176,7 @@ _None._
 
 ## Active
 
-**M72 Done** — `complexity-trend` Execute complete (T1–T10). CLI `trend <file>`, `runComplexityTrend`, schema `complexity-trend.json` `1.0`, fixture `trend-indent`. Gate: `pnpm build && pnpm test` PASS. M7–M72 Done. Deferred horizon: npm publish; CI/SARIF; historical AST; item C (scan body full warnings); fail-on-warning.
+**M73 Specs Planned** — `top-only-rollups` (HOTSPOT-1500–1519). Artifacts under `.specs/features/top-only-rollups/` (`Status: Planned`). Promote Status → Execute via `orchestrator-implementer` in a new session. M7–M72 Done. Deferred horizon: npm publish; CI/SARIF; historical AST; item C (scan body full warnings); fail-on-warning.
 
 ## Deferred
 

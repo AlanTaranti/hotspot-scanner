@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M72 Done**. Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
+Status: **M7–M72 Done**; **M73 Specs Planned**. Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
 
 **M12** intentionally absent (CI fail-on-score removed — see STATE).
 
@@ -14,17 +14,17 @@ Status: **M7–M72 Done**. Deferred horizon in [STATE.md](STATE.md) (npm publish
 | M37–M45 | README adoption, CLI polish, init/doctor/dry-run, workflows, interpretation UX, explain, monorepo remount, package exports enrich, adoption docs |
 | M46–M55 | Exclude tests by default, git pathspecs, scope extensions, ranking accuracy+, observability, doctor scope parity, perf controls, API trust docs, compare interpretation, CLI adoption extras |
 | M56–M65 | Remove coupling; NCLOC metric (retire McCabe/function mode); CLI `--warnings summary|full|json` stderr aggregation; ephemeral TTY scan progress; table path column UX; inline progress bar; feedback/copy UX; CLI surface parity; config/doctor DX; git error UX |
-| M66–M71 | DX batch: contract enrich, scope+, warnings bookend, write confirm, table Lines parity; **remove compare/baseline (scan-only)** |
+| M66–M72 | DX batch: contract enrich, scope+, warnings bookend, write confirm, table Lines parity; **remove compare/baseline (scan-only)**; complexity trend CLI |
 
 ### Open
 
 | Milestone | Slug | Specs |
 | --------- | ---- | ----- |
-| **M72** | `complexity-trend` | [Done](../features/complexity-trend/tasks.md) — indentation complexity vs size over Git history for one file; ASCII sparklines; CLI `trend` |
+| **M73** | `top-only-rollups` | [Planned](../features/top-only-rollups/tasks.md) — Warnings/Timing rollups only in exec summary; drop stderr teaser + brief timing |
 
 ### Done
 
-M7–M71 historical detail below. M72 Planned under Open. Deferred horizon in [STATE.md](STATE.md).
+M7–M72 historical detail below. M73 Specs Planned under Open. Deferred horizon in [STATE.md](STATE.md).
 
 ## Milestone 1 — Scaffold
 
@@ -1026,6 +1026,26 @@ Dedicated `hotspot-scanner trend <file>` command: path-scoped Git history (`--fo
 - [x] Final gate `pnpm build && pnpm test`
 
 **Out of scope:** `--classify`; `git cat-file --batch`; explain auto-hint; config inheritance; markdown/charts; McCabe; compare/baseline; scan contract changes.
+
+---
+
+## Milestone 73 — Top-only summary rollups — Specs Planned
+
+→ [`.specs/features/top-only-rollups/spec.md`](../features/top-only-rollups/spec.md)  
+**Slug:** `top-only-rollups` | **Priority:** Medium | **Specs:** Planned  
+**IDs:** HOTSPOT-1500–1519 (1515–1519 reserved) | **Depth:** Medium  
+**Sisters:** warnings-bookend-dx (M68), feedback-copy-ux (M62), inline-progress-bar (M61), cli-warnings-mode (M58)  
+**Artifacts:** [context.md](../features/top-only-rollups/context.md) · [spec.md](../features/top-only-rollups/spec.md) · [design.md](../features/top-only-rollups/design.md) · [tasks.md](../features/top-only-rollups/tasks.md) (`Status: Planned`)
+
+Remove duplicate human rollups on default scan output: keep `Warnings:` + `Timing:` only in the table/markdown executive summary; drop M68 pre-write stderr teaser and M62 brief `timing: total Nms` stderr echo. Keep post-write aggregated `warning:` detail via `flushWarnings`. No new flags, schema, or ranking changes.
+
+- [ ] Remove `emitWarningTeaser` from scan lifecycle / diagnostics API
+- [ ] Remove `emitBriefTimingStderr` and call sites
+- [ ] Update bin/diagnostics lifecycle tests (write → flush → explain)
+- [ ] Sync `docs/warning-codes.md`, README, ARCHITECTURE
+- [ ] Final gate `pnpm build && pnpm test`
+
+**Out of scope:** Bottom-only; item C (scan body full warnings); changing `--warnings=full`/`json` semantics beyond teaser absence; compare/baseline.
 
 ---
 
