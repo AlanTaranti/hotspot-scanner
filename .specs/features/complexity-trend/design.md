@@ -160,9 +160,9 @@ type ComplexityTrendResult = {
 ### 7. Reporters
 
 - **Location**: `src/report/trend-table.ts`, `trend-json.ts`, `trend-csv.ts` (or single `trend-format.ts` with three exports — prefer split if files stay small)
-- **table**: header + `mean <spark>` / `ncloc <spark>` + rows (`rev`, `date?`, `n`, `ncloc`, `mean`, `sd`, `max`, `total` as space allows)
-- **json**: `JSON.stringify(result, null, 2)` (+ `$schema` URL optional, M66-style — include if cheap)
-- **csv**: RFC-like header `rev,date,n,total,mean,sd,max,ncloc` — no sparkline fields
+- **table**: header + legend + `indent_mean <spark>` / `ncloc <spark>` + rows (`rev`, `date?`, `indentLines?`, `ncloc`, `indentMean`, `indentSd`, `indentMax`, `indentTotal`); omit `indentLines` when equal to `ncloc` on all points
+- **json**: `JSON.stringify(result, null, 2)` (+ `$schema` URL); contract `version: "2.0"` with `meta.metricLegend`
+- **csv**: RFC-like header `rev,date,indentLines,indentTotal,indentMean,indentSd,indentMax,ncloc` — no sparkline fields
 - **index**: re-export formatters; no fs
 
 ### 8. CLI

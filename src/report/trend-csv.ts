@@ -8,7 +8,16 @@ function formatMetric(value: number): string {
 }
 
 export function renderTrendCsv(result: ComplexityTrendResult): string {
-  const header = ["rev", "date", "n", "total", "mean", "sd", "max", "ncloc"];
+  const header = [
+    "rev",
+    "date",
+    "indentLines",
+    "indentTotal",
+    "indentMean",
+    "indentSd",
+    "indentMax",
+    "ncloc",
+  ];
   const lines = [formatCsvRow(header)];
 
   for (const point of result.points) {
@@ -16,11 +25,11 @@ export function renderTrendCsv(result: ComplexityTrendResult): string {
       formatCsvRow([
         point.rev,
         point.date ?? "",
-        String(point.n),
-        formatMetric(point.total),
-        formatMetric(point.mean),
-        formatMetric(point.sd),
-        formatMetric(point.max),
+        String(point.indentLines),
+        formatMetric(point.indentTotal),
+        formatMetric(point.indentMean),
+        formatMetric(point.indentSd),
+        formatMetric(point.indentMax),
         String(point.ncloc),
       ]),
     );

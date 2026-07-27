@@ -101,12 +101,16 @@ describe.sequential("runComplexityTrend", () => {
       includeScannerVersion: false,
     });
 
-    expect(result.version).toBe("1.0");
+    expect(result.version).toBe("2.0");
     expect(result.kind).toBe("complexity-trend");
     expect(result.points).toHaveLength(3);
-    expect(result.points[0]!.mean).toBeLessThanOrEqual(result.points.at(-1)!.mean);
-    expect(result.meta.sparklines.mean.length).toBeGreaterThan(0);
+    expect(result.points[0]!.indentMean).toBeLessThanOrEqual(
+      result.points.at(-1)!.indentMean,
+    );
+    expect(result.meta.sparklines.indentMean.length).toBeGreaterThan(0);
     expect(result.meta.sparklines.ncloc.length).toBeGreaterThan(0);
+    expect(result.meta.metricLegend.indentMean).toBeDefined();
+    expect("follow" in result.meta).toBe(false);
   });
 
   it("sets truncated meta when sampling", async () => {

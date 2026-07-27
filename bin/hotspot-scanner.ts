@@ -46,6 +46,7 @@ import {
   mapTrendError,
   parseTrendFormat,
 } from "./trend-actions.js";
+import { TREND_CLI_METRICS_HELP } from "../src/trend/metric-legend.js";
 
 export {
   CliUsageError,
@@ -460,7 +461,7 @@ export function createCliProgram(): Command {
   program
     .command("trend")
     .description(
-      "Show indentation complexity and NCLOC trend for one file over Git history",
+      `Show indentation complexity and NCLOC trend for one file over Git history. ${TREND_CLI_METRICS_HELP}`,
     )
     .argument("<file>", "File path to analyze")
     .option("--repo <path>", "Repository root")

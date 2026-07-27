@@ -277,6 +277,22 @@ describe("complexity-trend.json schema", () => {
     delete json.meta.sparklines;
     expect(validateTrend(json)).toBe(false);
   });
+
+  it("rejects version 1.0", () => {
+    const json = JSON.parse(
+      readFileSync(join(fixturesDir, "sample-trend-result.json"), "utf8"),
+    );
+    json.version = "1.0";
+    expect(validateTrend(json)).toBe(false);
+  });
+
+  it("rejects missing metricLegend", () => {
+    const json = JSON.parse(
+      readFileSync(join(fixturesDir, "sample-trend-result.json"), "utf8"),
+    );
+    delete json.meta.metricLegend;
+    expect(validateTrend(json)).toBe(false);
+  });
 });
 
 describe("hotspot-scanner-config.json schema", () => {

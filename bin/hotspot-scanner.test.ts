@@ -3872,8 +3872,9 @@ describe("runCli trend", () => {
 
     const output = chunks.join("");
     expect(output).toContain("Complexity trend: src/trend.ts");
-    expect(output).toContain("mean");
+    expect(output).toContain("indent_mean");
     expect(output).toContain("ncloc");
+    expect(output).not.toContain("follow=");
   });
 
   it("exits 2 when file argument is missing", async () => {
@@ -3916,8 +3917,14 @@ describe("runCli trend", () => {
       "json",
     ]);
 
-    const parsed = JSON.parse(chunks.join("")) as { kind: string };
+    const parsed = JSON.parse(chunks.join("")) as {
+      kind: string;
+      version: string;
+      meta: { metricLegend: unknown };
+    };
     expect(parsed.kind).toBe("complexity-trend");
+    expect(parsed.version).toBe("2.0");
+    expect(parsed.meta.metricLegend).toBeDefined();
   });
 
   it("writes csv to --output", async () => {
@@ -3938,7 +3945,9 @@ describe("runCli trend", () => {
     ]);
 
     const content = readFileSync(outputPath, "utf8");
-    expect(content).toContain("rev,date,n,total,mean,sd,max,ncloc");
+    expect(content).toContain(
+      "rev,date,indentLines,indentTotal,indentMean,indentSd,indentMax,ncloc",
+    );
     await rm(outputPath, { force: true });
   });
 });

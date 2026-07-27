@@ -18,8 +18,12 @@ describe("complexity trend integration", () => {
     });
 
     expect(result.points.length).toBeGreaterThanOrEqual(2);
-    expect(result.meta.sparklines.mean.length).toBeGreaterThan(0);
+    expect(result.version).toBe("2.0");
+    expect(result.meta.sparklines.indentMean.length).toBeGreaterThan(0);
     expect(result.meta.sparklines.ncloc.length).toBeGreaterThan(0);
-    expect(result.points[0]!.mean).toBeLessThanOrEqual(result.points.at(-1)!.mean);
+    expect(result.meta.metricLegend).toBeDefined();
+    expect(result.points[0]!.indentMean).toBeLessThanOrEqual(
+      result.points.at(-1)!.indentMean,
+    );
   });
 });

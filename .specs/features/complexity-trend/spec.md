@@ -113,9 +113,9 @@
 
 **Acceptance Criteria**:
 
-1. WHEN JSON is emitted THEN `version` SHALL be `"1.0"` and `kind` SHALL be `"complexity-trend"`
-2. WHEN a point is emitted THEN it SHALL include at least `rev`, `n`, `total`, `mean`, `sd`, `max`, `ncloc` (and `date` when available from git)
-3. WHEN meta is emitted THEN it SHALL include `filePath`, range provenance (`since` or `start`/`end`), `follow`, `revisionCount`, `truncated`, `sparklines`, and `scannerVersion` when practical
+1. WHEN JSON is emitted THEN `version` SHALL be `"2.0"` and `kind` SHALL be `"complexity-trend"`
+2. WHEN a point is emitted THEN it SHALL include at least `rev`, `indentLines`, `indentTotal`, `indentMean`, `indentSd`, `indentMax`, `ncloc` (and `date` when available from git)
+3. WHEN meta is emitted THEN it SHALL include range provenance (`since` or `start`/`end`), `revisionCount`, `truncated`, `sparklines`, `metricLegend`, and `scannerVersion` when practical; `follow` SHALL NOT appear in output
 4. WHEN `schemas/complexity-trend.json` is published THEN contract tests SHALL validate fixtures; scan `schemas/scan-result.json` SHALL remain unchanged at `"3.0"`
 5. WHEN `.hotspot-scanner.json` exists THEN `trend` SHALL **not** load it for options
 
@@ -133,7 +133,7 @@
 
 **Acceptance Criteria**:
 
-1. WHEN `--format table` (default) THEN stdout SHALL show a header for the file/range, **two sparkline lines** (`mean`, `ncloc`), then revision rows with key columns including `rev`, `n`, `ncloc`, `mean`, `max`
+1. WHEN `--format table` (default) THEN stdout SHALL show a header for the file/range, a metric legend, **two sparkline lines** (`indent_mean`, `ncloc`), then revision rows with key columns including `rev`, `ncloc`, `indentMean`, `indentMax` (and `indentLines` when it differs from `ncloc`)
 2. WHEN `--format json` THEN stdout SHALL be the contract payload including `meta.sparklines`
 3. WHEN `--format csv` THEN stdout (or `-o` file) SHALL be header + data rows **without** sparkline columns
 4. WHEN `-o` / `--output` is set THEN the rendered body SHALL be written to that path; when unset, stdout

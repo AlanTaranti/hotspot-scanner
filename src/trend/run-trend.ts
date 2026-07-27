@@ -9,6 +9,7 @@ import {
 import { getPackageVersion } from "../package-meta.js";
 import { resolveMonorepoScanPath } from "../paths/resolve-repo.js";
 import { DEFAULT_SINCE } from "../scan.js";
+import { TREND_METRIC_LEGEND } from "./metric-legend.js";
 import { uniformSample } from "./sample.js";
 import { sparkline } from "./sparkline.js";
 import {
@@ -119,7 +120,6 @@ export async function runComplexityTrend(
       filePath,
       points: [],
       warnings,
-      follow,
       timeOptions,
       revisionCount: 0,
       truncated: false,
@@ -157,8 +157,12 @@ export async function runComplexityTrend(
       points.push({
         rev: revision.rev,
         date: revision.date,
+        indentLines: indent.n,
+        indentTotal: indent.total,
+        indentMean: indent.mean,
+        indentSd: indent.sd,
+        indentMax: indent.max,
         ncloc: countNcloc(source),
-        ...indent,
       });
     } catch (error) {
       warnings.push({
@@ -174,7 +178,6 @@ export async function runComplexityTrend(
     filePath,
     points,
     warnings,
-    follow,
     timeOptions,
     revisionCount,
     truncated,
@@ -187,18 +190,17 @@ function buildResult(input: {
   filePath: string;
   points: ComplexityTrendPoint[];
   warnings: ComplexityTrendWarning[];
-  follow: boolean;
   timeOptions: Pick<ComplexityTrendOptions, "since" | "start" | "end">;
   revisionCount: number;
   truncated: boolean;
   maxRevisions: number | null;
   includeScannerVersion?: boolean;
 }): ComplexityTrendResult {
-  const meanSeries = input.points.map((point) => point.mean);
+  const indentMeanSeries = input.points.map((point) => point.indentMean);
   const nclocSeries = input.points.map((point) => point.ncloc);
 
   return {
-    version: "1.0",
+    version: "2.0",
     kind: "complexity-trend",
     filePath: input.filePath,
     points: input.points,
@@ -206,14 +208,14 @@ function buildResult(input: {
       since: input.timeOptions.since,
       start: input.timeOptions.start,
       end: input.timeOptions.end,
-      follow: input.follow,
       revisionCount: input.revisionCount,
       truncated: input.truncated,
       maxRevisions: input.maxRevisions,
       sparklines: {
-        mean: sparkline(meanSeries),
+        indentMean: sparkline(indentMeanSeries),
         ncloc: sparkline(nclocSeries),
       },
+      metricLegend: TREND_METRIC_LEGEND,
       scannerVersion:
         input.includeScannerVersion === false
           ? undefined

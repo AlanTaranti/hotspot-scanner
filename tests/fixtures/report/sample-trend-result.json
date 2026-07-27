@@ -1,38 +1,45 @@
 {
-  "version": "1.0",
+  "version": "2.0",
   "kind": "complexity-trend",
   "filePath": "src/example.ts",
   "points": [
     {
       "rev": "abc123",
       "date": "2024-01-01T00:00:00Z",
-      "n": 2,
-      "total": 1,
-      "mean": 0.5,
-      "sd": 0.5,
-      "max": 1,
+      "indentLines": 2,
+      "indentTotal": 1,
+      "indentMean": 0.5,
+      "indentSd": 0.5,
+      "indentMax": 1,
       "ncloc": 2
     },
     {
       "rev": "def456",
       "date": "2024-02-01T00:00:00Z",
-      "n": 3,
-      "total": 3,
-      "mean": 1,
-      "sd": 0.816,
-      "max": 2,
+      "indentLines": 3,
+      "indentTotal": 3,
+      "indentMean": 1,
+      "indentSd": 0.816,
+      "indentMax": 2,
       "ncloc": 3
     }
   ],
   "meta": {
     "since": "12 months ago",
-    "follow": true,
     "revisionCount": 2,
     "truncated": false,
     "maxRevisions": 100,
     "sparklines": {
-      "mean": "▁█",
+      "indentMean": "▁█",
       "ncloc": "▁█"
+    },
+    "metricLegend": {
+      "indentLines": "Non-blank lines used for indentation analysis",
+      "indentMean": "Average indent depth per analyzed line (4 spaces or 1 tab = 1 level)",
+      "indentSd": "Spread of indent depths across analyzed lines",
+      "indentMax": "Deepest indent level in the file",
+      "indentTotal": "Sum of indent levels across analyzed lines",
+      "ncloc": "Non-comment lines of code (file size)"
     },
     "scannerVersion": "1.0.0",
     "warnings": []

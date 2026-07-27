@@ -1,8 +1,13 @@
-import type { IndentationMetrics } from "../complexity/indentation.js";
+import type { TrendMetricLegend } from "./metric-legend.js";
 
-export type ComplexityTrendPoint = IndentationMetrics & {
+export type ComplexityTrendPoint = {
   rev: string;
   date?: string;
+  indentLines: number;
+  indentTotal: number;
+  indentMean: number;
+  indentSd: number;
+  indentMax: number;
   ncloc: number;
 };
 
@@ -12,7 +17,7 @@ export type ComplexityTrendWarning = {
 };
 
 export type ComplexityTrendResult = {
-  version: "1.0";
+  version: "2.0";
   kind: "complexity-trend";
   filePath: string;
   points: ComplexityTrendPoint[];
@@ -20,11 +25,11 @@ export type ComplexityTrendResult = {
     since?: string;
     start?: string;
     end?: string;
-    follow: boolean;
     revisionCount: number;
     truncated: boolean;
     maxRevisions: number | null;
-    sparklines: { mean: string; ncloc: string };
+    sparklines: { indentMean: string; ncloc: string };
+    metricLegend: TrendMetricLegend;
     scannerVersion?: string;
     warnings: ComplexityTrendWarning[];
   };
