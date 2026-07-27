@@ -5,12 +5,14 @@
 ```
 hotspot-scanner/
 ├── bin/
-│   ├── hotspot-scanner.ts       # CLI entry (commander) — init, config validate/print, doctor, scan, completion
+│   ├── hotspot-scanner.ts       # CLI entry (commander) — init, config validate/print, doctor, trend, scan, completion
 │   ├── scan-actions.ts          # Shared scan CLI wiring (runScan, path validation, render/write)
+│   ├── trend-actions.ts         # trend CLI wiring (runComplexityTrend, formats, cancel)
 │   └── completion-scripts.ts    # Static bash/zsh/fish completion scripts (M54)
 ├── src/
 │   ├── git/                     # Git Change Miner (numstat churn only)
-│   ├── complexity/              # NCLOC size analyzer (file-level)
+│   ├── complexity/              # NCLOC + indentation metrics (file-level)
+│   ├── trend/                   # Complexity trend orchestration (M72)
 │   ├── scoring/                 # HotspotScorer (file hotspots)
 │   ├── diagnostics/             # stderr warnings + progress logging
 │   ├── doctor/                  # Pre-flight checks (Node, git, repo, config, scope, tsconfig)
@@ -23,7 +25,7 @@ hotspot-scanner/
 │   ├── package-meta.ts          # Cached package.json version for meta.scannerVersion (M66)
 │   ├── types/                   # Domain types (no runtime logic)
 │   └── index.ts                 # Public library API
-├── schemas/                     # JSON Schema scan + config contracts
+├── schemas/                     # JSON Schema scan + config + complexity-trend contracts
 ├── tests/
 │   └── fixtures/                # Git repos + git log samples + NCLOC fixtures
 └── .specs/                      # Living project docs

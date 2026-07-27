@@ -63,3 +63,7 @@ export function createReporter(): Reporter {
     },
   };
 }
+
+export { renderTrendCsv } from "./trend-csv.js";
+export { renderTrendJson } from "./trend-json.js";
+export { renderTrendTable } from "./trend-table.js";

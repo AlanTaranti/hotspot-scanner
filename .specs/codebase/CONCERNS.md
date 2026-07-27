@@ -12,6 +12,18 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 | Rename handling (`old => new` + `PathAliasMap`; **not** `--follow`) | Global `git log --numstat` has no per-file follow; find-renames (`-M`); parse rename lines, `link()` chains, `canonicalize*()` at end; `rename-multi.txt` + `with-renames` fixtures; ambiguous paths warn |
 | Rename blind spots (copy-paste, pre-`--since`, no `old => new`)   | M26 + M50: `src/git/rename-warnings.ts` — unlinked delete+add heuristic, heuristic `PathAliasMap.link()`; `--since`+rename-link truncation warning; fixtures `rename-unlinked.txt`, `rename-since-truncation.txt` |
 | Merge commits, deletes, numstat edge cases                        | Fixture coverage in `tests/fixtures/git-log/`                                                                                                                                                                                       |
+| Per-file history (`--follow`) for trend only                        | `src/git/file-history.ts` — **must not** add `--follow` to scan numstat `buildGitLogArgv`; trend reads historical blobs via `git show`                                                                                              |
+
+## Complexity trend (`src/trend/`, M72)
+
+**Risk:** Confusion with scan NCLOC or false cliffs from mass reformatting.
+
+| Concern | Mitigation |
+| ------- | ---------- |
+| Scan uses working-tree NCLOC only | Trend reads historical blobs; documented in ARCHITECTURE + README drill-down |
+| Indentation proxy vs AST | Tornhill whitespace rules in `analyzeIndentation`; no ts-morph |
+| Prettier / mass-indent cliffs | Document in recipes; sparklines are indicative |
+| Trend JSON vs scan `3.0` | Separate `schemas/complexity-trend.json`; `kind: complexity-trend` |
 
 ## Size analyzer / NCLOC (`src/complexity/`)
 

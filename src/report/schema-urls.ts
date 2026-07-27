@@ -1,2 +1,5 @@
 export const SCAN_RESULT_SCHEMA_URL =
   "https://vitals.dev/hotspot-scanner/schemas/scan-result.json";
+
+export const COMPLEXITY_TREND_SCHEMA_URL =
+  "https://vitals.dev/hotspot-scanner/schemas/complexity-trend.json";

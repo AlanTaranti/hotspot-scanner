@@ -45,6 +45,7 @@ No interactive UI UAT. Fixture repos live under `tests/fixtures/repos/<slug>`.
 ```bash
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug>
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug> --since "12 months ago" --format json
+pnpm exec hotspot-scanner trend tests/fixtures/repos/trend-indent/src/trend.ts --since "10 years ago"
 ```
 
 | Exit code | Meaning |

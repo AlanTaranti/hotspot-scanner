@@ -6,6 +6,12 @@ export {
   ScanResultParseError,
 } from "./scan-result/index.js";
 export { runDoctor } from "./doctor/index.js";
+export {
+  runComplexityTrend,
+  formatTruncationNote,
+  TrendNotTrackedError,
+  TrendUsageError,
+} from "./trend/index.js";
 export { previewScanScope } from "./scan-preview.js";
 export { runScan } from "./scan.js";
 
@@ -16,6 +22,12 @@ export type {
   DoctorResult,
   RunDoctorOptions,
 } from "./doctor/index.js";
+export type {
+  ComplexityTrendOptions,
+  ComplexityTrendPoint,
+  ComplexityTrendResult,
+  ComplexityTrendWarning,
+} from "./trend/index.js";
 export type { ScanScopePreview } from "./scan-preview.js";
 export type {
   FileChangeStats,

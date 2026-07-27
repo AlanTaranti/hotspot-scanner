@@ -8,8 +8,18 @@ import {
 const LOCKED_COMMANDS = [
   "init",
   "doctor",
+  "trend",
   "scan",
   "completion",
+] as const;
+
+const REPRESENTATIVE_TREND_FLAGS = [
+  "--since",
+  "--max-revisions",
+  "--all",
+  "--follow",
+  "--format",
+  "--output",
 ] as const;
 
 const REPRESENTATIVE_SCAN_FLAGS = [
@@ -45,6 +55,9 @@ function expectCompletionScriptBasics(script: string): void {
     expect(script).toContain(command);
   }
   for (const flag of REPRESENTATIVE_SCAN_FLAGS) {
+    expect(script).toContain(flag);
+  }
+  for (const flag of REPRESENTATIVE_TREND_FLAGS) {
     expect(script).toContain(flag);
   }
   expect(script).not.toContain("--granularity");

@@ -46,6 +46,11 @@ const smallTsFixture = join(
   "../tests/fixtures/repos/small-ts",
 );
 
+const trendIndentFixture = join(
+  fileURLToPath(new URL(".", import.meta.url)),
+  "../tests/fixtures/repos/trend-indent",
+);
+
 const monorepoNestedFixture = join(
   fileURLToPath(new URL(".", import.meta.url)),
   "../tests/fixtures/repos/monorepo-nested",
@@ -409,6 +414,18 @@ describe("createCliProgram", () => {
     expect(optionLongs).toContain("--format");
   });
 
+  it("exposes trend command with history flags", () => {
+    const program = createCliProgram();
+    const trend = program.commands.find((command) => command.name() === "trend");
+
+    expect(trend).toBeDefined();
+    const optionLongs = trend?.options.map((option) => option.long) ?? [];
+    expect(optionLongs).toContain("--since");
+    expect(optionLongs).toContain("--max-revisions");
+    expect(optionLongs).toContain("--all");
+    expect(optionLongs).toContain("--format");
+  });
+
   it("root help mentions init and doctor commands", () => {
     const program = createCliProgram();
 
@@ -517,8 +534,18 @@ describe("removed compare/baseline CLI surface", () => {
 const LOCKED_COMMANDS = [
   "init",
   "doctor",
+  "trend",
   "scan",
   "completion",
+] as const;
+
+const REPRESENTATIVE_TREND_FLAGS = [
+  "--since",
+  "--max-revisions",
+  "--all",
+  "--follow",
+  "--format",
+  "--output",
 ] as const;
 
 const REPRESENTATIVE_SCAN_FLAGS = [
@@ -543,6 +570,9 @@ function expectCompletionScriptBasics(script: string): void {
     expect(script).toContain(command);
   }
   for (const flag of REPRESENTATIVE_SCAN_FLAGS) {
+    expect(script).toContain(flag);
+  }
+  for (const flag of REPRESENTATIVE_TREND_FLAGS) {
     expect(script).toContain(flag);
   }
   expect(script).not.toContain("--granularity");
@@ -837,6 +867,7 @@ describe("maybeRewritePathToScan", () => {
     ["known subcommand scan", [...nodeArgv, "scan", "."]],
     ["known subcommand init", [...nodeArgv, "init", "."]],
     ["known subcommand doctor", [...nodeArgv, "doctor", "."]],
+    ["known subcommand trend", [...nodeArgv, "trend", "src/a.ts"]],
     ["known subcommand completion", [...nodeArgv, "completion", "bash"]],
     ["help token", [...nodeArgv, "--help"]],
     ["version token", [...nodeArgv, "--version"]],
@@ -3818,6 +3849,97 @@ describe("runCli doctor", () => {
     const output = chunks.join("");
     expect(output).toMatch(/warn:.*since/i);
     expect(output).toMatch(/No commits found for effective since/i);
+  });
+});
+
+describe("runCli trend", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("exits 0 and prints table on trend-indent fixture", async () => {
+    const trendFile = join(trendIndentFixture, "src/trend.ts");
+    const { chunks } = captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "trend",
+      trendFile,
+      "--since",
+      "10 years ago",
+    ]);
+
+    const output = chunks.join("");
+    expect(output).toContain("Complexity trend: src/trend.ts");
+    expect(output).toContain("mean");
+    expect(output).toContain("ncloc");
+  });
+
+  it("exits 2 when file argument is missing", async () => {
+    await expect(
+      runCli(["node", "hotspot-scanner", "trend"]),
+    ).rejects.toThrow(CliUsageError);
+  });
+
+  it("exits 2 when mixing since with start/end", async () => {
+    const trendFile = join(trendIndentFixture, "src/trend.ts");
+
+    await expect(
+      runCli([
+        "node",
+        "hotspot-scanner",
+        "trend",
+        trendFile,
+        "--since",
+        "1 year ago",
+        "--start",
+        "abc",
+        "--end",
+        "def",
+      ]),
+    ).rejects.toThrow(CliUsageError);
+  });
+
+  it("prints json format", async () => {
+    const trendFile = join(trendIndentFixture, "src/trend.ts");
+    const { chunks } = captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "trend",
+      trendFile,
+      "--since",
+      "10 years ago",
+      "--format",
+      "json",
+    ]);
+
+    const parsed = JSON.parse(chunks.join("")) as { kind: string };
+    expect(parsed.kind).toBe("complexity-trend");
+  });
+
+  it("writes csv to --output", async () => {
+    const trendFile = join(trendIndentFixture, "src/trend.ts");
+    const outputPath = join(tmpdir(), `trend-out-${Date.now()}.csv`);
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "trend",
+      trendFile,
+      "--since",
+      "10 years ago",
+      "--format",
+      "csv",
+      "--output",
+      outputPath,
+    ]);
+
+    const content = readFileSync(outputPath, "utf8");
+    expect(content).toContain("rev,date,n,total,mean,sd,max,ncloc");
+    await rm(outputPath, { force: true });
   });
 });
 

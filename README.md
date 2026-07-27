@@ -64,6 +64,7 @@ hotspot-scanner init              # write schema-linked exemplar .hotspot-scanne
 hotspot-scanner config validate   # CI-check config parse without a full scan
 hotspot-scanner config print      # show effective options with cli/config/default source tags
 hotspot-scanner doctor .          # check Node, git, repo, config, since window, and scope
+hotspot-scanner trend src/foo.ts  # complexity vs size trend for one file (after scan drill-down)
 hotspot-scanner scan . --dry-run  # preview config path, remount, unknown keys, and eligible file count
 ```
 

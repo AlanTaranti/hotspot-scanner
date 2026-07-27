@@ -13,6 +13,8 @@ const SCAN_SCHEMA_ID =
   "https://vitals.dev/hotspot-scanner/schemas/scan-result.json";
 const CONFIG_SCHEMA_ID =
   "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json";
+const TREND_SCHEMA_ID =
+  "https://vitals.dev/hotspot-scanner/schemas/complexity-trend.json";
 
 const LOCKED_CONFIG_EXEMPLAR = {
   $schema: CONFIG_SCHEMA_ID,
@@ -37,15 +39,19 @@ function createValidators() {
       readFileSync(join(schemasDir, "hotspot-scanner-config.json"), "utf8"),
     ),
   );
+  ajv.addSchema(
+    JSON.parse(readFileSync(join(schemasDir, "complexity-trend.json"), "utf8")),
+  );
 
   const validateScan = ajv.getSchema(SCAN_SCHEMA_ID);
   const validateConfig = ajv.getSchema(CONFIG_SCHEMA_ID);
+  const validateTrend = ajv.getSchema(TREND_SCHEMA_ID);
 
-  if (!validateScan || !validateConfig) {
+  if (!validateScan || !validateConfig || !validateTrend) {
     throw new Error("Failed to compile JSON schemas");
   }
 
-  return { validateScan, validateConfig, ajv };
+  return { validateScan, validateConfig, validateTrend, ajv };
 }
 
 function loadScanFixture(name: string): ScanResult {
@@ -246,6 +252,33 @@ describe("JSON schema contract", () => {
   });
 });
 
+describe("complexity-trend.json schema", () => {
+  const { validateTrend } = createValidators();
+
+  it("validates sample trend fixture", () => {
+    const json = JSON.parse(
+      readFileSync(join(fixturesDir, "sample-trend-result.json"), "utf8"),
+    );
+    expect(validateTrend(json)).toBe(true);
+  });
+
+  it("rejects wrong kind", () => {
+    const json = JSON.parse(
+      readFileSync(join(fixturesDir, "sample-trend-result.json"), "utf8"),
+    );
+    json.kind = "scan";
+    expect(validateTrend(json)).toBe(false);
+  });
+
+  it("rejects missing sparklines", () => {
+    const json = JSON.parse(
+      readFileSync(join(fixturesDir, "sample-trend-result.json"), "utf8"),
+    );
+    delete json.meta.sparklines;
+    expect(validateTrend(json)).toBe(false);
+  });
+});
+
 describe("hotspot-scanner-config.json schema", () => {
   const { validateConfig } = createValidators();
 
@@ -304,6 +337,7 @@ describe("package.json schema exports", () => {
   const schemaExportPaths = [
     "./schemas/scan-result.json",
     "./schemas/hotspot-scanner-config.json",
+    "./schemas/complexity-trend.json",
   ] as const;
 
   it.each(schemaExportPaths)(

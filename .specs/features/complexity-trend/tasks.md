@@ -3,7 +3,7 @@
 **Design**: [design.md](./design.md)  
 **Spec**: [spec.md](./spec.md)  
 **Context**: [context.md](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -125,9 +125,9 @@ flowchart TD
 **Reuses**: None (pure). Do not change `ncloc.ts` semantics.  
 **Requirements**: HOTSPOT-1400, HOTSPOT-1401, HOTSPOT-1402  
 **Done when**:
-- [ ] Function exported and documented briefly
-- [ ] Fixtures cover flat, nested, tabs, blanks, empty source
-- [ ] No ts-morph / AST imports
+- [x] Function exported and documented briefly
+- [x] Fixtures cover flat, nested, tabs, blanks, empty source
+- [x] No ts-morph / AST imports
 **Tests**: Co-located unit tests with exact expected metrics  
 **Gate**: `pnpm test -- src/complexity/indentation.test.ts`
 
@@ -141,8 +141,8 @@ flowchart TD
 **Reuses**: None  
 **Requirements**: HOTSPOT-1403, HOTSPOT-1404 (helper half)  
 **Done when**:
-- [ ] Edge cases unit-tested
-- [ ] Module creatable without git deps
+- [x] Edge cases unit-tested
+- [x] Module creatable without git deps
 **Tests**: Co-located unit tests  
 **Gate**: `pnpm test -- src/trend/sparkline.test.ts`
 
@@ -156,8 +156,8 @@ flowchart TD
 **Reuses**: None  
 **Requirements**: HOTSPOT-1408 (algorithm)  
 **Done when**:
-- [ ] `length <= max` returns full copy
-- [ ] Truncation picks evenly; deterministic
+- [x] `length <= max` returns full copy
+- [x] Truncation picks evenly; deterministic
 **Tests**: Co-located unit tests (including max=1, max=2, exact length)  
 **Gate**: `pnpm test -- src/trend/sample.test.ts`
 
@@ -171,9 +171,9 @@ flowchart TD
 **Reuses**: spawn patterns, `formatGitStderrHint`  
 **Requirements**: HOTSPOT-1406, HOTSPOT-1409, HOTSPOT-1411  
 **Done when**:
-- [ ] Follow on/off works in tests
-- [ ] Show returns blob text; failures typed/clear
-- [ ] Scan miner argv tests still assert no global `--follow`
+- [x] Follow on/off works in tests
+- [x] Show returns blob text; failures typed/clear
+- [x] Scan miner argv tests still assert no global `--follow`
 **Tests**: Unit/integration with temp or fixture git repo  
 **Gate**: `pnpm test -- src/git/`
 
@@ -187,11 +187,11 @@ flowchart TD
 **Reuses**: `countNcloc`, `analyzeIndentation`, `sparkline`, `uniformSample`, `getPackageVersion` optional  
 **Requirements**: HOTSPOT-1404, HOTSPOT-1405, HOTSPOT-1407, HOTSPOT-1408, HOTSPOT-1410, HOTSPOT-1411, HOTSPOT-1412, HOTSPOT-1413, HOTSPOT-1414  
 **Done when**:
-- [ ] Result matches contract sketch in design.md
-- [ ] Truncation sets `meta.truncated` + sample size
-- [ ] `--all` path leaves truncated false
-- [ ] Contract tests pass; scan-result schema untouched
-- [ ] No `loadHotspotScannerConfig` in trend path
+- [x] Result matches contract sketch in design.md
+- [x] Truncation sets `meta.truncated` + sample size
+- [x] `--all` path leaves truncated false
+- [x] Contract tests pass; scan-result schema untouched
+- [x] No `loadHotspotScannerConfig` in trend path
 **Tests**: Unit tests for run-trend with mocked git or fixture; contract Ajv  
 **Gate**: `pnpm test -- src/trend/ tests/contract/`
 
@@ -205,9 +205,9 @@ flowchart TD
 **Reuses**: Report purity pattern (no fs)  
 **Requirements**: HOTSPOT-1415, HOTSPOT-1416, HOTSPOT-1417  
 **Done when**:
-- [ ] Fixed fixture result snapshots/assertions for all three formats
-- [ ] Table contains both sparkline strings from meta
-- [ ] CSV header has no sparkline fields
+- [x] Fixed fixture result snapshots/assertions for all three formats
+- [x] Table contains both sparkline strings from meta
+- [x] CSV header has no sparkline fields
 **Tests**: Co-located reporter unit tests  
 **Gate**: `pnpm test -- src/report/trend`
 
@@ -221,10 +221,10 @@ flowchart TD
 **Reuses**: cancel helper from scan-actions if clean; `CliUsageError` patterns  
 **Requirements**: HOTSPOT-1418, HOTSPOT-1419, HOTSPOT-1420, HOTSPOT-1421  
 **Done when**:
-- [ ] `trend --help` lists flags
-- [ ] Negative tests: missing file arg, directory, since+start mix, never-tracked path → exit 2
-- [ ] Completions include `trend` in bash/zsh/fish tests
-- [ ] Known-subcommand list includes `trend`
+- [x] `trend --help` lists flags
+- [x] Negative tests: missing file arg, directory, since+start mix, never-tracked path → exit 2
+- [x] Completions include `trend` in bash/zsh/fish tests
+- [x] Known-subcommand list includes `trend`
 **Tests**: `bin/hotspot-scanner.test.ts`, `bin/completion-scripts.test.ts`  
 **Gate**: `pnpm test -- bin/hotspot-scanner.test.ts bin/completion-scripts.test.ts`
 
@@ -238,9 +238,9 @@ flowchart TD
 **Reuses**: Existing fixture-builder patterns / real git repos under `tests/fixtures/repos/`  
 **Requirements**: HOTSPOT-1425  
 **Done when**:
-- [ ] ≥3 commits; trend returns ≥2 points with changing metrics
-- [ ] Sparklines non-empty on happy path
-- [ ] CLI exit 0 on fixture file
+- [x] ≥3 commits; trend returns ≥2 points with changing metrics
+- [x] Sparklines non-empty on happy path
+- [x] CLI exit 0 on fixture file
 **Tests**: Integration + CLI smoke  
 **Gate**: `pnpm test --` paths covering trend integration/CLI fixture
 
@@ -254,9 +254,9 @@ flowchart TD
 **Reuses**: M45/M66 docs patterns  
 **Requirements**: HOTSPOT-1422, HOTSPOT-1423, HOTSPOT-1424  
 **Done when**:
-- [ ] Public export smoke test
-- [ ] Docs claim scan→trend drill-down; no compare resurrection
-- [ ] CONCERNS clarifies scan working-tree vs trend history
+- [x] Public export smoke test
+- [x] Docs claim scan→trend drill-down; no compare resurrection
+- [x] CONCERNS clarifies scan working-tree vs trend history
 **Tests**: `src/index.test.ts`  
 **Gate**: `pnpm test -- src/index.test.ts`
 
@@ -269,9 +269,9 @@ flowchart TD
 **Depends on**: T9  
 **Requirements**: HOTSPOT-1400–1425 (verification)  
 **Done when**:
-- [ ] `pnpm build && pnpm test` passes
-- [ ] tasks.md Status → Done (Execute session only)
-- [ ] ROADMAP M72 marked Done (Execute Phase F)
+- [x] `pnpm build && pnpm test` passes
+- [x] tasks.md Status → Done (Execute session only)
+- [x] ROADMAP M72 marked Done (Execute Phase F)
 **Tests**: Full suite  
 **Gate**: `pnpm build && pnpm test`  
 **Note**: `deferred_project_gate` — this is the milestone gate task

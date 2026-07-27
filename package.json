@@ -11,7 +11,8 @@
       "import": "./dist/index.js"
     },
     "./schemas/scan-result.json": "./schemas/scan-result.json",
-    "./schemas/hotspot-scanner-config.json": "./schemas/hotspot-scanner-config.json"
+    "./schemas/hotspot-scanner-config.json": "./schemas/hotspot-scanner-config.json",
+    "./schemas/complexity-trend.json": "./schemas/complexity-trend.json"
   },
   "bin": {
     "hotspot-scanner": "./dist/bin/hotspot-scanner.js"

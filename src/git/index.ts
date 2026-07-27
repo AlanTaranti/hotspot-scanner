@@ -116,6 +116,16 @@ export {
   type ProbeSinceWindowOptions,
   type SinceProbeResult,
 } from "./probe-since.js";
+export {
+  buildGitFileLogArgv,
+  buildGitShowFileArgv,
+  listFileRevisions,
+  showFileAtRevision,
+  GitFileHistoryError,
+  type FileRevisionRef,
+  type ListFileRevisionsOptions,
+  type ShowFileAtRevisionOptions,
+} from "./file-history.js";
 export { streamGitLog } from "./spawn.js";
 export { parseGitLogStream } from "./parse.js";
 export { PathAliasMap } from "./rename.js";

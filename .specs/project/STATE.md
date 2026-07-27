@@ -134,7 +134,7 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-27 | **M71 hard cut — no deprecation** | No shim flags, no empty compare stubs, no soft-deprecation window (M56 precedent). |
 | 2026-07-27 | **M71 public API — parse only** | Remove `compareScanResults`, `loadBaseline`, `Compare*`; keep `parseScanResult` + `ScanResultParseError`. Drop `#compare`. |
 | 2026-07-27 | **M71 scan contract unchanged** | Stay at JSON `"3.0"`; delete `schemas/compare-result.json` entirely (no compare contract migration). |
-| 2026-07-27 | **M72 complexity-trend Specs Planned (Complex)** | CLI `trend <file>`: indentation complexity vs `ncloc` over Git history; `--follow` default; uniform `--max-revisions` 100 / `--all`; table/json/csv; ASCII sparklines (`mean`/`ncloc`); separate JSON `1.0` / `kind: complexity-trend`; export `runComplexityTrend`; CLI-only (no config). Does not change scan `3.0` or reopen compare. IDs HOTSPOT-1400–1499. Specs: `.specs/features/complexity-trend/` (Status: Planned). |
+| 2026-07-27 | **M72 complexity-trend Done** | Execute complete (T1–T10). CLI `trend <file>`, indentation metrics + NCLOC series, sparklines, `runComplexityTrend` export, schema `complexity-trend.json` `1.0`, fixture `trend-indent`. Gate PASS. Specs: `.specs/features/complexity-trend/` (Done). |
 | 2026-07-27 | **M72 indent metric = Tornhill whitespace (4 spaces / tab)** | No AST/McCabe; aligns with M57 lightweight metrics; blank lines ignored. |
 | 2026-07-27 | **M72 trend ≠ scan / ≠ compare** | Sibling command + own schema; historical blobs are trend-only; scan stays working-tree NCLOC; M71 compare stays gone. |
 | 2026-07-27 | **M72 sparkline ASCII P1** | Glyphs `▁▂▃▄▅▆▇█` for post-sample `mean` + `ncloc`; table + JSON meta; omitted from CSV. |
@@ -174,7 +174,7 @@ _None._
 
 ## Active
 
-**M72 Planned** — `complexity-trend` specs **Planned** (`.specs/features/complexity-trend/`). Promote tasks.md Status → Approved/Ready for Execute in a **new** session, then `orchestrator-implementer`. M7–M71 Done. Deferred horizon: npm publish; CI/SARIF; historical AST; item C (scan body full warnings); fail-on-warning.
+**M72 Done** — `complexity-trend` Execute complete (T1–T10). CLI `trend <file>`, `runComplexityTrend`, schema `complexity-trend.json` `1.0`, fixture `trend-indent`. Gate: `pnpm build && pnpm test` PASS. M7–M72 Done. Deferred horizon: npm publish; CI/SARIF; historical AST; item C (scan body full warnings); fail-on-warning.
 
 ## Deferred
 

@@ -41,6 +41,11 @@ import {
   writeRenderedOutput,
 } from "./scan-actions.js";
 import { getCompletionScript } from "./completion-scripts.js";
+import {
+  executeTrend,
+  mapTrendError,
+  parseTrendFormat,
+} from "./trend-actions.js";
 
 export {
   CliUsageError,
@@ -453,6 +458,63 @@ export function createCliProgram(): Command {
     });
 
   program
+    .command("trend")
+    .description(
+      "Show indentation complexity and NCLOC trend for one file over Git history",
+    )
+    .argument("<file>", "File path to analyze")
+    .option("--repo <path>", "Repository root")
+    .option("--since <period>", "Git history window", DEFAULT_SINCE)
+    .option("--start <rev>", "Start revision (requires --end)")
+    .option("--end <rev>", "End revision (requires --start)")
+    .option("--max-revisions <n>", "Uniform sample cap", "100")
+    .option("--all", "Analyze all revisions in range (disable cap)")
+    .option("--follow", "Follow renames", true)
+    .option(
+      "-f, --format <format>",
+      "Output format: table|json|csv",
+      "table",
+    )
+    .option("-o, --output <path>", "Write report to file instead of stdout")
+    .action(async function (file: string, options) {
+      const cmd = this as Command;
+      try {
+        const format = parseTrendFormat(options.format as string);
+        const explicitStart = isExplicitCliOption(cmd, "start");
+        const explicitEnd = isExplicitCliOption(cmd, "end");
+        const explicitSince = isExplicitCliOption(cmd, "since");
+        await executeTrend({
+          filePath: file,
+          repoPath: isExplicitCliOption(cmd, "repo")
+            ? (options.repo as string)
+            : undefined,
+          since:
+            explicitStart || explicitEnd
+              ? explicitSince
+                ? (options.since as string)
+                : undefined
+              : (options.since as string),
+          start: explicitStart ? (options.start as string) : undefined,
+          end: explicitEnd ? (options.end as string) : undefined,
+          maxRevisions: isExplicitCliOption(cmd, "maxRevisions")
+            ? parsePositiveInteger(
+                options.maxRevisions as string,
+                "--max-revisions",
+              )
+            : undefined,
+          all: Boolean(options.all),
+          follow: options.follow as boolean,
+          format,
+          outputPath: isExplicitCliOption(cmd, "output")
+            ? (options.output as string)
+            : undefined,
+        });
+      } catch (error) {
+        mapTrendError(error);
+      }
+    });
+
+  program
     .command("scan")
     .description(
       "Run hotspot analysis on a repository (discovers .hotspot-scanner.json upward; use --config for explicit path)",
@@ -674,6 +736,7 @@ const KNOWN_COMMANDS = new Set([
   "init",
   "config",
   "doctor",
+  "trend",
   "scan",
   "completion",
 ]);
