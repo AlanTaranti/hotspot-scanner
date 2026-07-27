@@ -1,14 +1,11 @@
 import { readFileSync } from "node:fs";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
-  BaselineError,
-  loadBaseline,
   parseScanResult,
-} from "./load-baseline.js";
+  ScanResultParseError,
+} from "./parse-scan-result.js";
 
 const fixturePath = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -35,7 +32,7 @@ describe("parseScanResult", () => {
     expect(result.meta.scannerVersion).toBeUndefined();
   });
 
-  it("accepts baseline without meta.scannerVersion", () => {
+  it("accepts scan result without meta.scannerVersion", () => {
     const raw = loadFixture();
     const result = parseScanResult(raw);
 
@@ -205,24 +202,24 @@ describe("parseScanResult", () => {
   });
 
   it("rejects malformed JSON root", () => {
-    expect(() => parseScanResult(null)).toThrow(BaselineError);
+    expect(() => parseScanResult(null)).toThrow(ScanResultParseError);
     expect(() => parseScanResult(null)).toThrow(/must be an object/);
   });
 
-  it("rejects version 1.0 baselines with re-scan hint", () => {
+  it("rejects version 1.0 scan results with re-scan hint", () => {
     const raw = loadFixture();
     expect(() => parseScanResult({ ...raw, version: "1.0" })).toThrow(
-      /Unsupported baseline version: "1.0"/,
+      /Unsupported scan result version: "1.0"/,
     );
     expect(() => parseScanResult({ ...raw, version: "1.0" })).toThrow(
       /Re-scan/,
     );
   });
 
-  it("rejects version 2.0 baselines with re-scan hint", () => {
+  it("rejects version 2.0 scan results with re-scan hint", () => {
     const raw = loadFixture();
     expect(() => parseScanResult({ ...raw, version: "2.0" })).toThrow(
-      /Unsupported baseline version: "2.0"/,
+      /Unsupported scan result version: "2.0"/,
     );
     expect(() => parseScanResult({ ...raw, version: "2.0" })).toThrow(
       /Expected "3.0"/,
@@ -235,14 +232,14 @@ describe("parseScanResult", () => {
   it("rejects unsupported version", () => {
     const raw = loadFixture();
     expect(() => parseScanResult({ ...raw, version: "4.0" })).toThrow(
-      /Unsupported baseline version/,
+      /Unsupported scan result version/,
     );
     expect(() => parseScanResult({ ...raw, version: "4.0" })).toThrow(
-      /Hint:.*baseline save/,
+      /Hint:.*--format json --output/,
     );
   });
 
-  it("rejects baseline with top-level coupling key", () => {
+  it("rejects scan result with top-level coupling key", () => {
     const raw = loadFixture();
     expect(() =>
       parseScanResult({
@@ -258,7 +255,7 @@ describe("parseScanResult", () => {
     ).toThrow(/Re-scan/);
   });
 
-  it("rejects baseline with top-level functions key", () => {
+  it("rejects scan result with top-level functions key", () => {
     const raw = loadFixture();
     expect(() =>
       parseScanResult({
@@ -350,76 +347,8 @@ describe("parseScanResult", () => {
     expect(() => parseScanResult({ ...raw, hotspots })).toThrow(
       /hotspots\[0\] is missing required field: ncloc/,
     );
-    expect(() => parseScanResult({ ...raw, hotspots })).toThrow(/baseline save/);
-  });
-});
-
-describe("loadBaseline", () => {
-  it("reads valid fixture file", async () => {
-    const result = await loadBaseline(fixturePath);
-    expect(result.version).toBe("3.0");
-    expect(result.hotspots[0]?.filePath).toBe("src/hot.ts");
-    expect(result.hotspots[0]?.ncloc).toBe(42);
-  });
-
-  it("throws on missing file", async () => {
-    const invalidPath = join(
-      dirname(fileURLToPath(import.meta.url)),
-      "../../tests/fixtures/report/sample-result-missing.json",
+    expect(() => parseScanResult({ ...raw, hotspots })).toThrow(
+      /--format json --output/,
     );
-    await expect(loadBaseline(invalidPath)).rejects.toThrow(BaselineError);
-    await expect(loadBaseline(invalidPath)).rejects.toThrow(
-      /Failed to read baseline file/,
-    );
-  });
-
-  it("throws on malformed JSON file", async () => {
-    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
-    const invalidPath = join(tempDir, "invalid.json");
-    await writeFile(invalidPath, "{ not json", "utf8");
-    try {
-      await expect(loadBaseline(invalidPath)).rejects.toThrow(BaselineError);
-      await expect(loadBaseline(invalidPath)).rejects.toThrow(
-        /Failed to parse baseline JSON/,
-      );
-    } finally {
-      await rm(tempDir, { recursive: true, force: true });
-    }
-  });
-
-  it("throws on baseline with coupling key", async () => {
-    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
-    const invalidPath = join(tempDir, "legacy-baseline.json");
-    const raw = loadFixture();
-    await writeFile(
-      invalidPath,
-      JSON.stringify({ ...raw, coupling: [] }),
-      "utf8",
-    );
-    try {
-      await expect(loadBaseline(invalidPath)).rejects.toThrow(BaselineError);
-      await expect(loadBaseline(invalidPath)).rejects.toThrow(/coupling/);
-      await expect(loadBaseline(invalidPath)).rejects.toThrow(/Re-scan/);
-    } finally {
-      await rm(tempDir, { recursive: true, force: true });
-    }
-  });
-
-  it("throws on baseline with functions key", async () => {
-    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
-    const invalidPath = join(tempDir, "legacy-baseline.json");
-    const raw = loadFixture();
-    await writeFile(
-      invalidPath,
-      JSON.stringify({ ...raw, functions: [] }),
-      "utf8",
-    );
-    try {
-      await expect(loadBaseline(invalidPath)).rejects.toThrow(BaselineError);
-      await expect(loadBaseline(invalidPath)).rejects.toThrow(/functions/);
-      await expect(loadBaseline(invalidPath)).rejects.toThrow(/Re-scan/);
-    } finally {
-      await rm(tempDir, { recursive: true, force: true });
-    }
   });
 });

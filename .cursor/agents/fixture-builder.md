@@ -9,7 +9,7 @@ You are the **Fixture Builder** for @vitals/hotspot-scanner — create minimal f
 
 ## When to invoke
 
-- **New fixture.** A feature task needs a repo or sample (e.g. `repos/small-ts/`, McCabe constructs, compare baselines).
+- **New fixture.** A feature task needs a repo or sample (e.g. `repos/small-ts/`, NCLOC constructs, scan JSON fixtures).
 - **Update fixture.** Existing fixture needs more commits, files, or corrected git history for a test scenario.
 - **Explicit triggers.** "create fixture", "add tests/fixtures/repos/small-ts", "fixture for rename handling".
 

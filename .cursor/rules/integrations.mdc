@@ -1,6 +1,6 @@
 ---
 description: External integration encapsulation (git, worker_threads, commander, schemas)
-globs: src/git/**,src/complexity/**,src/scoring/**,src/report/**,src/compare/**,src/config/**,bin/**,package.json,schemas/**
+globs: src/git/**,src/complexity/**,src/scoring/**,src/report/**,src/scan-result/**,src/config/**,bin/**,package.json,schemas/**
 alwaysApply: false
 ---
 
@@ -11,12 +11,12 @@ Follow [INTEGRATIONS.md](../../.specs/codebase/INTEGRATIONS.md):
 - **git** — `child_process.spawn` encapsulated in `GitMiner`; do not spawn git outside `src/git/` (except documented `resolve-repo.ts`).
 - **worker_threads** — parallel NCLOC batches in `src/complexity/` only.
 - **commander** — CLI parsing in `bin/hotspot-scanner.ts`; no domain logic in the bin.
-- **JSON schemas** — published contracts in `schemas/`; `loadBaseline` validates against the domain contract.
+- **JSON schemas** — published contracts in `schemas/`; `parseScanResult` validates scan JSON for library consumers.
 
 ## Rules
 
 - Encapsulate adapters (`GitMiner`, `ComplexityAnalyzer`) — do not spread git imports across the pipeline.
-- `src/report/` stays pure (no `fs`); file I/O in bin / compare loader.
+- `src/report/` stays pure (no `fs`); file I/O in bin only.
 - `src/config/` — only `.hotspot-scanner.json`; precedence CLI > config > defaults.
 - Tests mock at the adapter boundary (see TESTING.md § Mock boundaries).
 - New runtime dependencies require an `INTEGRATIONS.md` entry and justification in the feature design.

@@ -1,4 +1,3 @@
-import { readFile } from "node:fs/promises";
 import type {
   DiagnosticSeverity,
   HotspotScore,
@@ -7,15 +6,15 @@ import type {
   ScanWarning,
 } from "../types/index.js";
 
-const BASELINE_CONTRACT_HINT =
-  "\nHint: create a baseline with `hotspot-scanner baseline save`, re-scan with --format json --output <path> using the current hotspot-scanner version, or fix the baseline file to match the JSON contract.";
+const SCAN_RESULT_CONTRACT_HINT =
+  "\nHint: re-scan with `hotspot-scanner scan --format json --output <path>` using the current hotspot-scanner version, or fix the file to match the JSON contract.";
 
-export class BaselineError extends Error {
+export class ScanResultParseError extends Error {
   constructor(message: string) {
     const withHint =
       !message.includes("Hint:") && !message.includes("Re-scan");
-    super(withHint ? `${message}${BASELINE_CONTRACT_HINT}` : message);
-    this.name = "BaselineError";
+    super(withHint ? `${message}${SCAN_RESULT_CONTRACT_HINT}` : message);
+    this.name = "ScanResultParseError";
   }
 }
 
@@ -33,8 +32,8 @@ function requireKey(
   path: string,
 ): unknown {
   if (!(key in record)) {
-    throw new BaselineError(
-      `Baseline ${path} is missing required field: ${key}`,
+    throw new ScanResultParseError(
+      `Scan result ${path} is missing required field: ${key}`,
     );
   }
   return record[key];
@@ -42,28 +41,28 @@ function requireKey(
 
 function assertRecord(value: unknown, path: string): Record<string, unknown> {
   if (!isRecord(value)) {
-    throw new BaselineError(`Baseline ${path} must be an object`);
+    throw new ScanResultParseError(`Scan result ${path} must be an object`);
   }
   return value;
 }
 
 function assertString(value: unknown, path: string): string {
   if (typeof value !== "string") {
-    throw new BaselineError(`Baseline ${path} must be a string`);
+    throw new ScanResultParseError(`Scan result ${path} must be a string`);
   }
   return value;
 }
 
 function assertNumber(value: unknown, path: string): number {
   if (typeof value !== "number" || Number.isNaN(value)) {
-    throw new BaselineError(`Baseline ${path} must be a number`);
+    throw new ScanResultParseError(`Scan result ${path} must be a number`);
   }
   return value;
 }
 
 function assertInteger(value: unknown, path: string): number {
   if (!isInteger(value)) {
-    throw new BaselineError(`Baseline ${path} must be an integer`);
+    throw new ScanResultParseError(`Scan result ${path} must be an integer`);
   }
   return value;
 }
@@ -79,8 +78,8 @@ function assertHotspot(item: unknown, index: number): HotspotScore {
   const record = assertRecord(item, path);
 
   if ("cyclomaticComplexity" in record) {
-    throw new BaselineError(
-      'Baseline hotspot contains unsupported field "cyclomaticComplexity". Re-scan with a current hotspot-scanner version.',
+    throw new ScanResultParseError(
+      'Scan result hotspot contains unsupported field "cyclomaticComplexity". Re-scan with a current hotspot-scanner version.',
     );
   }
 
@@ -122,8 +121,8 @@ function assertHotspot(item: unknown, index: number): HotspotScore {
 
 function assertHotspots(value: unknown): HotspotScore[] {
   if (!Array.isArray(value)) {
-    throw new BaselineError(
-      "Baseline JSON is missing required field: hotspots",
+    throw new ScanResultParseError(
+      "Scan result JSON is missing required field: hotspots",
     );
   }
   return value.map((item, index) => assertHotspot(item, index));
@@ -134,8 +133,8 @@ function assertScanWarning(value: unknown, index: number): ScanWarning {
   const record = assertRecord(value, path);
   const severity = assertString(requireKey(record, "severity", path), `${path}.severity`);
   if (!DIAGNOSTIC_SEVERITIES.has(severity as DiagnosticSeverity)) {
-    throw new BaselineError(
-      `Baseline ${path}.severity must be one of: info, warning, error`,
+    throw new ScanResultParseError(
+      `Scan result ${path}.severity must be one of: info, warning, error`,
     );
   }
   const warning: ScanWarning = {
@@ -150,7 +149,7 @@ function assertScanWarning(value: unknown, index: number): ScanWarning {
 
 function assertWarnings(value: unknown): ScanWarning[] {
   if (!Array.isArray(value)) {
-    throw new BaselineError("Baseline meta.warnings must be an array");
+    throw new ScanResultParseError("Scan result meta.warnings must be an array");
   }
   return value.map((item, index) => assertScanWarning(item, index));
 }
@@ -158,7 +157,9 @@ function assertWarnings(value: unknown): ScanWarning[] {
 function assertNonNegativeInteger(value: unknown, path: string): number {
   const integer = assertInteger(value, path);
   if (integer < 0) {
-    throw new BaselineError(`Baseline ${path} must be a non-negative integer`);
+    throw new ScanResultParseError(
+      `Scan result ${path} must be a non-negative integer`,
+    );
   }
   return integer;
 }
@@ -187,43 +188,45 @@ function assertScanStageTimings(value: unknown): ScanStageTimings {
 
 export function parseScanResult(json: unknown): ScanResult {
   if (!isRecord(json)) {
-    throw new BaselineError("Baseline JSON must be an object");
+    throw new ScanResultParseError("Scan result JSON must be an object");
   }
 
   if ("coupling" in json) {
-    throw new BaselineError(
-      'Baseline JSON contains unsupported field "coupling". Re-scan with a current hotspot-scanner version.',
+    throw new ScanResultParseError(
+      'Scan result JSON contains unsupported field "coupling". Re-scan with a current hotspot-scanner version.',
     );
   }
 
   if ("functions" in json) {
-    throw new BaselineError(
-      'Baseline JSON contains unsupported field "functions". Re-scan with a current hotspot-scanner version.',
+    throw new ScanResultParseError(
+      'Scan result JSON contains unsupported field "functions". Re-scan with a current hotspot-scanner version.',
     );
   }
 
   if (json.version === "1.0" || json.version === "2.0") {
-    throw new BaselineError(
-      `Unsupported baseline version: "${json.version}". Expected "3.0". Re-scan with a current hotspot-scanner version.`,
+    throw new ScanResultParseError(
+      `Unsupported scan result version: "${json.version}". Expected "3.0". Re-scan with a current hotspot-scanner version.`,
     );
   }
 
   if (json.version !== "3.0") {
-    throw new BaselineError(
-      `Unsupported baseline version: ${String(json.version)}. Expected "3.0".`,
+    throw new ScanResultParseError(
+      `Unsupported scan result version: ${String(json.version)}. Expected "3.0".`,
     );
   }
 
   if (!isRecord(json.meta)) {
-    throw new BaselineError("Baseline JSON is missing required field: meta");
+    throw new ScanResultParseError(
+      "Scan result JSON is missing required field: meta",
+    );
   }
 
   if (typeof json.meta.since !== "string") {
-    throw new BaselineError("Baseline meta.since must be a string");
+    throw new ScanResultParseError("Scan result meta.since must be a string");
   }
 
   if (typeof json.meta.scannedAt !== "string") {
-    throw new BaselineError("Baseline meta.scannedAt must be a string");
+    throw new ScanResultParseError("Scan result meta.scannedAt must be a string");
   }
 
   return {
@@ -246,24 +249,4 @@ export function parseScanResult(json: unknown): ScanResult {
         : {}),
     },
   };
-}
-
-export async function loadBaseline(filePath: string): Promise<ScanResult> {
-  let raw: string;
-  try {
-    raw = await readFile(filePath, "utf8");
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    throw new BaselineError(`Failed to read baseline file: ${message}`);
-  }
-
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(raw);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    throw new BaselineError(`Failed to parse baseline JSON: ${message}`);
-  }
-
-  return parseScanResult(parsed);
 }

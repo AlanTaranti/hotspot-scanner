@@ -8,7 +8,7 @@ flowchart TB
   CLI[hotspot-scanner CLI]
   Repo[(Local Git repo)]
 
-  Dev -->|"init / doctor / scan / baseline save / compare / completion"| CLI
+  Dev -->|"init / doctor / scan / completion"| CLI
   CLI -->|"git log stream"| Repo
   CLI -->|"file read + NCLOC"| Repo
   CLI -->|"stdout / file"| Dev
@@ -31,15 +31,15 @@ flowchart TB
   Hotspot --> Reporter
 ```
 
-## Pipeline (M57)
+## Pipeline (M57 + M71)
 
 ```
 git log (streaming numstat) → NCLOC size analysis (file-level) → hotspot score → report
 ```
 
-Optional `--baseline` → compare → delta report. JSON contract **`version: "3.0"`** with `ncloc` on each hotspot. **File hotspots only** — no function granularity, no McCabe, no `ts-morph`.
+JSON contract **`version: "3.0"`** with `ncloc` on each hotspot. **File hotspots only** — no function granularity, no McCabe, no `ts-morph`. Compare/baseline removed in M71; `parseScanResult` retained under `src/scan-result/` for library consumers.
 
-## CLI commands (M39–M40)
+## CLI commands (M39–M40, M71)
 
 Multi-command CLI via Commander in `bin/hotspot-scanner.ts` with shared wiring in `bin/scan-actions.ts` (flags, I/O, exit mapping only — no domain logic):
 
@@ -49,21 +49,21 @@ Multi-command CLI via Commander in `bin/hotspot-scanner.ts` with shared wiring i
 | `config validate [path]` | `src/config/validate-config.ts` (`validateHotspotScannerConfigFile`) | Parse/validate config file or directory walk; exit `0` valid / `2` invalid or missing; **does not** require git |
 | `config print [path]` | `src/config/print-config.ts` + `merge-options.ts` (`loadMergedScanConfigWithSources`) | Effective merged `since`/`include`/`exclude`/`top`/`concurrency` with per-field `cli` \| `config` \| `default` source tags; `-f, --format text\|json`; scan-like CLI overrides (`--since`, `--include`, `--exclude`, `--top`, `--concurrency`, `--config`); **does not** require git or invoke pipeline stages |
 | `doctor [path]` | `src/doctor/` (`runDoctor`, `formatDoctorJsonReport`) | Pre-flight checks: Node `engines`, git on PATH, git repo via shared `resolveScanPipelineContext`, config discovery/validity (unknown keys soft-warn), **`since`** preflight via `probeSinceWindow` (pass / empty warn / git-reject fail), **`scope`** inventory (`previewScanScope` — eligible count parity with `scan --dry-run`), tsconfig/jsconfig info; optional `--include-tests`; `-f, --format text\|json`; aggregate exit policy; **does not** invoke Git Change Miner, size analyzer, scorers, or Reporter |
-| `scan [path]` | `src/scan.ts` (`runScan`) via `bin/scan-actions.ts` | Full pipeline (see [Data flow (scan)](#data-flow-scan)); optional `--baseline` → compare path |
+| `scan [path]` | `src/scan.ts` (`runScan`) via `bin/scan-actions.ts` | Full pipeline (see [Data flow (scan)](#data-flow-scan)) |
 | `scan --dry-run` | `src/scan-preview.ts` (`previewScanScope`) | Merges config, validates repo + git, builds `PathScope`, counts via `discoverSourceFiles`; prints config file path (or `none`), remount message when present, unknown config keys when present — **does not** mine git or run NCLOC |
-| `baseline save <path>` | `runScan()` + `bin/scan-actions.ts` | Runs full scan, writes loadable `ScanResult` JSON; `--output` default `./hotspot-baseline.json`; `--quiet` / `--no-progress` / `--verbose` / `--warnings` parity with scan (M63) |
-| `compare <path> --baseline <file>` | `runScan()` + `src/compare/` + `src/report/` via `bin/scan-actions.ts` | Same compare-and-render sequence as `scan --baseline` |
 | `completion <shell>` | `bin/completion-scripts.ts` (`getCompletionScript`) | Static bash/zsh/fish completion script to stdout |
 
 **Path-first argv (M63).** `maybeRewritePathToScan()` in `bin/hotspot-scanner.ts` rewrites `hotspot-scanner <path> …` to `hotspot-scanner scan <path> …` when the first token is `.`, `./…`, absolute, or an existing directory (not a known subcommand, help/version, or flag). Bare invocation (`argv.length <= 2`) still throws help `CliUsageError` (exit `2`).
 
-**Shell completion drift control (M54 + M63).** `bin/completion-scripts.ts` owns bash/zsh/fish scripts; zsh and fish long-flag lists must stay aligned with bash `SCAN_FLAGS` (and baseline subset). Unit tests assert representative flags in all three shells when adding CLI surface.
+**Shell completion drift control (M54 + M63).** `bin/completion-scripts.ts` owns bash/zsh/fish scripts; zsh and fish long-flag lists must stay aligned with bash `SCAN_FLAGS`. Unit tests assert representative flags in all three shells when adding CLI surface.
 
-`--dry-run` rejects `--baseline` (`CliUsageError`); `--format` / `--output` are ignored (plain-text preview on stdout).
+`--dry-run` ignores `--format` / `--output` (plain-text preview on stdout).
+
+**Removed (M71):** `baseline save`, `compare`, `scan --baseline`, `--strict` — unknown command/option → exit `2`.
 
 ## Data flow (scan)
 
-1. CLI dispatches commands; shared scan/compare wiring in `bin/scan-actions.ts`. Scan flags include `--since`; `-f` / `--format`; `-t` / `--top`; `--include` / `--exclude`; `--config`; `--concurrency`; `-o` / `--output`; `--baseline`; `--only`; `--no-triage-hints`; `--no-color`; `--explain`; `--fail-on-explain-miss`; `--strict`; `--dry-run`; `--quiet`; `--no-progress`; `--verbose`; `--warnings`; `--csv-single-file`; `--sequential` / `--no-overlap`.
+1. CLI dispatches commands; shared scan wiring in `bin/scan-actions.ts`. Scan flags include `--since`; `-f` / `--format`; `-t` / `--top`; `--include` / `--exclude`; `--config`; `--concurrency`; `-o` / `--output`; `--only`; `--no-triage-hints`; `--no-color`; `--explain`; `--fail-on-explain-miss`; `--dry-run`; `--quiet`; `--no-progress`; `--verbose`; `--warnings`; `--csv-single-file`; `--sequential` / `--no-overlap`.
 2. **Monorepo path resolve + config (M43 + M21 + M30)** — `resolveScanPipelineContext()`:
    - `validateRepoPath` → `resolveMonorepoScanPath` → `loadHotspotScannerConfig` (walk from request path) → `mergeScanOptions` (CLI > config > defaults for `since`, `include`, `exclude`, `top`, `concurrency`)
    - Auto-include `{packagePrefix}/**` when remounted and CLI `include` unset
@@ -75,8 +75,7 @@ Multi-command CLI via Commander in `bin/hotspot-scanner.ts` with shared wiring i
    - **Size analyzer (`src/complexity/`)** — discovers in-scope TS/JS files (`git ls-files` preferred, walk fallback); reads file text; `countNcloc()` per file; optional worker-thread pool (`--concurrency`); unreadable files → `READ_FAILED` warning + skip (omit from hotspots); `onProgress({ phase: "complexity", filesProcessed, batchesProcessed, … })`
    - **Post-barrier** — `createHotspotScorer().score(fileStats, nclocResults)` → `ScanResult.hotspots`; `meta.timings` (`gitMs`, `complexityMs`, `totalMs`); `meta.scannerVersion` from cached `getPackageVersion()` (`src/package-meta.ts`)
 4. CLI passes `ScanResult` to **Reporter** (`--top` at render time for table/markdown only)
-5. With `--baseline` or `compare`, loads baseline, `compareScanResults()`, `renderCompare()`
-6. With `--explain <path>`, file-path breakdown on stderr after report (compare mode: delta classification)
+5. With `--explain <path>`, file-path breakdown on stderr after report
 
 ### Config file (M21 + M30 + M64)
 
@@ -85,10 +84,10 @@ Multi-command CLI via Commander in `bin/hotspot-scanner.ts` with shared wiring i
 - **Reserved meta (M64):** `$schema`, `$comment`, `$comments` — name-based skip in `parseHotspotScannerConfig`; not merged, not listed in `unknownKeys`, never emit `UNKNOWN_CONFIG_KEY`
 - **Load path:** `LoadedHotspotScannerConfig.path` — absolute path when discovered or explicit; `null` when none
 - **Schema:** `schemas/hotspot-scanner-config.json` (`$id` `https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json`); package export `./schemas/hotspot-scanner-config.json`; init exemplar links `$schema` to that URI
-- **CLI-only:** `format`, `output`, `baseline`, `--only`, `--no-triage-hints`, `--no-color`, `--explain`, `--fail-on-explain-miss`, `--strict`, `quiet`, `no-progress`, `verbose`, `warnings`, `csv-single-file`, `sequential`, `includeTests`, `version`
+- **CLI-only:** `format`, `output`, `--only`, `--no-triage-hints`, `--no-color`, `--explain`, `--fail-on-explain-miss`, `quiet`, `no-progress`, `verbose`, `warnings`, `csv-single-file`, `sequential`, `includeTests`, `version`
 - **Removed (M57):** `granularity` — unknown key, warn-only
 
-### Path scoping (M7 + M30 + M43 + M46 + M48 + M67)
+### Path scoping (M7 + M30 + M43 + M46 + M67)
 
 - **Eligible extensions:** `.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`, `.mts`, `.cts` (`ELIGIBLE_EXTENSIONS` in `src/complexity/discover.ts`)
 - Default artifact and test excludes; `--include-tests` lifts test globs only
@@ -150,7 +149,7 @@ When `stderrIsTTY` is true (default: `process.stderr.isTTY === true`, injectable
 - Progress for `git`, `complexity`, and `finalize` phases overwrites **one live stderr line** (`\x1b[2K\r` + text; no trailing newline while live).
 - **Complexity** (M61): inline fill bar when `totalFiles` is known — TTY `█`/`░`, non-TTY `#`/`-`; honest `filesProcessed/totalFiles` (+ batch when known); omit bar when total unknown; no overall scan percentage.
 - **Git** (M61): indeterminate counter only (`git N commits…`); no bar or fake %.
-- **Finalize** (M61): body `Finalizing…`; emitted once post-barrier in `runScan`; bypasses throttle; survives through score / compare / render until deferred flush.
+- **Finalize** (M61): body `Finalizing…`; emitted once post-barrier in `runScan`; bypasses throttle; survives through score / render until deferred flush.
 - Bar width from `stderrColumns` (default `process.stderr.columns`, injectable) via `resolveProgressBarWidth` (clamped 10–40; fallback 80 columns).
 - The live line is cleared on `flushWarnings()`, before handler-driven warning/error/info stderr writes (`warnings=full`), and on phase switch.
 - Non-TTY (piped/CI) keeps `\n`-terminated progress lines unchanged (ASCII bar on complexity when total known).
@@ -163,18 +162,16 @@ When `stderrIsTTY` is true (default: `process.stderr.isTTY === true`, injectable
 | Path | Order (success) |
 | ---- | ----------------- |
 | `scan` | `emitWarningTeaser()` → write → `flushWarnings()` → timing stderr → `--explain` |
-| `compare` / `scan --baseline` | same inside `executeCompareAndRender` |
-| `baseline save` | `emitWarningTeaser()` → `writeBaselineJson` → `flushWarnings()` |
 
 M58 clear-before-warning/error/info unchanged. `emitWarningTeaser()` clears live progress and writes the short rollup under `summary` only.
 
 ### Table File column (M60)
 
-Scan and compare **table** formats use `src/report/path-column.ts` for the File column:
+Scan **table** format uses `src/report/path-column.ts` for the File column:
 
 - **Middle-ellipsis** (Unicode `…`) keeps a path prefix and basename when the path exceeds the column width (e.g. `src/api/v1/…/schema.ts`).
 - **Width** derives from `process.stdout.columns` minus a fixed non-File budget (56 chars for scan numeric columns), clamped 16–64; fallback **24** when columns are missing/invalid (pipes, CI).
-- Injectable `stdoutColumns` on `renderTable` / `renderCompareTable` options for tests (parity with M59 `stderrIsTTY`).
+- Injectable `stdoutColumns` on `renderTable` options for tests (parity with M59 `stderrIsTTY`).
 - Markdown / JSON / CSV emit full paths unchanged.
 
 ### Progress phases
@@ -183,7 +180,7 @@ Scan and compare **table** formats use `src/report/path-column.ts` for the File 
 | ------- | ------- | -------------- |
 | `git` | `GitMiner` numstat stream | `commitsProcessed` — indeterminate counter, no bar |
 | `complexity` | Size analyzer / worker pool | `filesProcessed`, `batchesProcessed`, optional `totalFiles` / `totalBatches`; fill bar when total known; `commitsProcessed` is `0` |
-| `finalize` | `runScan` post-barrier (once) | `commitsProcessed: 0`; body `Finalizing…`; through score / compare / render until deferred flush |
+| `finalize` | `runScan` post-barrier (once) | `commitsProcessed: 0`; body `Finalizing…`; through score / render until deferred flush |
 
 ### Stage timings
 
@@ -197,26 +194,27 @@ interface ScanStageTimings {
 
 File-mode overlap: `gitMs` + `complexityMs` may sum above `totalMs`.
 
-**Presentation (HOTSPOT-1042):** Table and markdown executive summaries include a Timing line when `meta.timings` is present; after successful scan/compare the CLI may echo a brief one-line total on stderr (suppressed under `--quiet`). JSON and CSV payloads unchanged.
+**Presentation (HOTSPOT-1042):** Table and markdown executive summaries include a Timing line when `meta.timings` is present; after successful scan the CLI may echo a brief one-line total on stderr (suppressed under `--quiet`). JSON and CSV payloads unchanged.
 
-### Stable warning codes (M28+ / M57)
+### Stable warning codes (M28+ / M57 / M71)
 
 | Code | Emitter | Operator interpretation |
 | ---- | ------- | ----------------------- |
 | `EMPTY_SINCE_WINDOW` | git | No commits in `--since`; widen window |
 | `RENAME_HISTORY_INCOMPLETE` | git | Rename tracking incomplete |
 | `READ_FAILED` | size analyzer | File I/O failed — file omitted from hotspots |
-| `COMPARE_SINCE_MISMATCH` | compare | Baseline/current `since` differ — `--strict` exits `1` after report |
 | `MONOREPO_PATH_REMOUNT` | scan prelude | Remounted to git root; auto-include when applicable |
 | `UNKNOWN_CONFIG_KEY` | config load | Unknown key(s) — not applied; includes legacy `granularity` |
 
+**Removed (M71):** `COMPARE_SINCE_MISMATCH`.
+
 ### Explain breakdown (M42 + M53 + M63)
 
-`--explain <path>` — file path only (repo-relative or absolute under repo). Compare mode explains delta sections (`new` / `removed` / `rank-changed`). `path:function` syntax rejected (`CliUsageError`). Default miss prints not-found on stderr and exits `0` on success; `--fail-on-explain-miss` (M63) exits `1` when target missing (requires `--explain`).
+`--explain <path>` — file path only (repo-relative or absolute under repo). Explains current file hotspot ranking. `path:function` syntax rejected (`CliUsageError`). Default miss prints not-found on stderr and exits `0` on success; `--fail-on-explain-miss` (M63) exits `1` when target missing (requires `--explain`).
 
 ### CSV single-file write path (M63)
 
-`--csv-single-file` with `--format csv` and `--output` is a **bin write-path** choice in `writeRenderedOutput` (not a new `renderCsv` layout): scan writes `hotspots.csv` bundle key to exact `--output`; compare writes `hotspots.new.csv` only. Default M18 stem bundle unchanged when flag omitted.
+`--csv-single-file` with `--format csv` and `--output` is a **bin write-path** choice in `writeRenderedOutput` (not a new `renderCsv` layout): scan writes `hotspots.csv` bundle key to exact `--output`. Default M18 stem bundle unchanged when flag omitted.
 
 ## Size analysis stage (M57)
 
@@ -258,44 +256,34 @@ JSON `version` is **`"3.0"`**. Field name `complexityNormalized` retained for th
 ## Export formats (M10, M17, M18, M41, M53)
 
 - **Scan CSV bundle:** `{stem}.meta.json` + `{stem}.hotspots.csv` only (no functions sidecar)
-- **Compare CSV bundle:** `compare.meta.json` + hotspot delta trio (`new`, `removed`, `rank-changed`)
 - **`--only hotspots`** — only valid section (functions rejected)
-- **Triage:** scan rule `dual-signal-hotspot`; compare rules `new-dual-signal`, `rank-worsened`
+- **Triage:** scan rule `dual-signal-hotspot`
 
-## JSON Contract (M20 + M57 + M64 + M66)
+## JSON Contract (M20 + M57 + M64 + M66 + M71)
 
 | File | Root type |
 | ---- | --------- |
 | `schemas/scan-result.json` | `ScanResult` |
-| `schemas/compare-result.json` | `CompareResult` |
 | `schemas/hotspot-scanner-config.json` | `.hotspot-scanner.json` config (known keys + reserved meta) |
 
-- **Scan/compare `version: "3.0"`** — `hotspots` + `meta` only; no `functions`, no `granularity`, no `coupling`. **No version bump for M66** — enrichments are additive under `"3.0"` (same pattern as M51 `meta.timings`).
-- **Config schema (M64):** documents known keys and reserved meta; `additionalProperties: true` (runtime still warns unknowns); package exports all three schema subpaths
-- **Baseline reject:** `1.0`, `2.0`, top-level `coupling`, `cyclomaticComplexity`, `functions`, `parseFailed`, `functionCount` → `BaselineError` + re-scan
-- **Contract tests:** `tests/contract/json-schema.test.ts` (scan, compare, config)
+- **Scan `version: "3.0"`** — `hotspots` + `meta` only; no `functions`, no `granularity`, no `coupling`. **No version bump for M66** — enrichments are additive under `"3.0"` (same pattern as M51 `meta.timings`).
+- **Config schema (M64):** documents known keys and reserved meta; `additionalProperties: true` (runtime still warns unknowns); package exports both schema subpaths
+- **Contract tests:** `tests/contract/json-schema.test.ts` (scan, config)
+- **Removed (M71):** `schemas/compare-result.json`, compare contract tests
 
 ### Additive fields under `3.0` (M66)
 
 | Field | Where | Emission / read |
 | ----- | ----- | --------------- |
-| `meta.scannerVersion` | `ScanMeta`, `CompareMeta` | Always on fresh scan/compare (`getPackageVersion()`); optional in schema for baseline-era docs; preserved when string on load |
-| Top-level `$schema` | JSON render only | `renderJson` / `renderCompareJson` inject URL matching schema `$id`; not on in-memory domain types; ignored on baseline parse |
-| `scoreDelta`, `nclocDelta`, `commitCountDelta` | `RankChange<HotspotScore>` in compare `rankChanged` | Always on new compares; **not** on `new` / `removed` |
+| `meta.scannerVersion` | `ScanMeta` | Always on fresh scan (`getPackageVersion()`); optional in schema; preserved when string on parse |
+| Top-level `$schema` | JSON render only | `renderJson` injects URL matching schema `$id`; not on in-memory domain types; ignored on `parseScanResult` |
 
-**`$schema` URLs** (`src/report/schema-urls.ts`):
+**`$schema` URL** (`src/report/schema-urls.ts`): `https://vitals.dev/hotspot-scanner/schemas/scan-result.json`
 
-| Payload | URL |
-| ------- | --- |
-| Scan JSON | `https://vitals.dev/hotspot-scanner/schemas/scan-result.json` |
-| Compare JSON | `https://vitals.dev/hotspot-scanner/schemas/compare-result.json` |
+**Parse tolerance:** `parseScanResult` accepts `3.0` scans without `scannerVersion` or top-level `$schema`; when `scannerVersion` is present as a string it is preserved on parsed `ScanMeta` (parity with optional `timings`). Non-string `scannerVersion` when the key is present → `ScanResultParseError`. Rejects `1.0`/`2.0`, `coupling`, `functions`, `cyclomaticComplexity`.
 
-**Baseline tolerance:** `loadBaseline` / `parseScanResult` accept `3.0` scans without `scannerVersion` or top-level `$schema`; when `scannerVersion` is present as a string it is preserved on parsed `ScanMeta` (parity with optional `timings`). Non-string `scannerVersion` when the key is present → `BaselineError`.
+## Scan-result parse (M71)
 
-## Scan compare (M13, M40, M66)
-
-- `baseline save`, `compare --baseline`, `scan --baseline` — hotspots-only deltas
-- Entity key: file path
-- `since` mismatch → `COMPARE_SINCE_MISMATCH` in `meta.warnings`
-- `--top` slices table/markdown only; JSON/CSV full deltas
-- **`rankChanged` metric deltas (M66):** each item includes `scoreDelta`, `nclocDelta`, `commitCountDelta` computed as **current − baseline** from the two `ScanResult` hotspot entries. **`entity` remains the baseline `HotspotScore`** (absolute Score/NLOC/Churn columns in table/markdown/CSV use `entity.*`). Reconstruct current metrics: `entity.hotspotScore + scoreDelta`, `entity.ncloc + nclocDelta`, `entity.commitCount + commitCountDelta`. Same-rank files are omitted from `rankChanged` (unchanged). Compare `meta.scannerVersion` records the package version that produced the compare output.
+- **Module:** `src/scan-result/parse-scan-result.ts`
+- **Public API:** `parseScanResult(raw: unknown): ScanResult`, `ScanResultParseError`
+- **Use:** programmatic validation of scan JSON — no CLI loader path

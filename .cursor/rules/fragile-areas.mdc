@@ -1,6 +1,6 @@
 ---
-description: Guardrails for fragile scanner areas (Git Miner, NCLOC, scoring, compare, schemas)
-globs: src/git/**,src/complexity/**,src/scoring/**,src/scan.ts,src/compare/**,schemas/**
+description: Guardrails for fragile scanner areas (Git Miner, NCLOC, scoring, scan-result parse, schemas)
+globs: src/git/**,src/complexity/**,src/scoring/**,src/scan.ts,src/scan-result/**,schemas/**
 alwaysApply: false
 ---
 
@@ -36,14 +36,16 @@ SoT: CONCERNS.md — `hotspotScore = 2ch / (c + h)` with `c` from normalized NCL
 
 **Required:** edge cases (zero commits, single file).
 
-## Compare / baseline (`src/compare/`)
+## Scan-result parse (`src/scan-result/`)
 
-`loadBaseline()` validates JSON `version: "3.0"` scan/compare payloads. Rejects `1.0`, `2.0`, `coupling`, `functions`, `cyclomaticComplexity`.
+`parseScanResult()` validates JSON `version: "3.0"` scan payloads for programmatic consumers. Rejects `1.0`, `2.0`, `coupling`, `functions`, `cyclomaticComplexity`.
 
-**Forbidden:** auto-migrating legacy baselines; fail with clear re-scan message.
+**Forbidden:** auto-migrating legacy JSON; fail with clear re-scan message via `ScanResultParseError`.
 
 ## JSON schemas (`schemas/`)
 
-I/O contract SoT: `schemas/scan-result.json`, `schemas/compare-result.json` (`version: "3.0"`).
+I/O contract SoT: `schemas/scan-result.json`, `schemas/hotspot-scanner-config.json` (`version: "3.0"`).
 
 **Required:** after editing schemas, update `tests/contract/json-schema.test.ts` and related JSON fixtures.
+
+**Superseded (M71):** `schemas/compare-result.json` deleted — do not reintroduce compare contract without a new feature spec.

@@ -61,7 +61,7 @@ You are the **[Readable Name]** for @vitals/hotspot-scanner — [one line: local
 | `context-first` | Read `.specs/codebase/` before changing code |
 | `feature-planning` | Specify → Design → Tasks; session stops at Planned |
 | `quality-gates` | Required gate |
-| `fragile-areas` | git, complexity, scoring, compare, schemas |
+| `fragile-areas` | git, complexity, scoring, scan-result, schemas |
 | `integrations` | ts-morph, git, commander, schemas |
 | `bin-build` | tsconfig + tsconfig.bin.json |
 | `testing-patterns` | Vitest, mock boundaries |

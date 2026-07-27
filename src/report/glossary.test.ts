@@ -46,14 +46,6 @@ describe("glossary", () => {
     }
   });
 
-  it("renderMarkdownHowToRead mentions rank deltas when compare is true", () => {
-    const scanLines = renderMarkdownHowToRead();
-    const compareLines = renderMarkdownHowToRead({ compare: true });
-
-    expect(compareLines.join("\n")).toContain("rank delta");
-    expect(scanLines.join("\n")).not.toContain("rank delta");
-  });
-
   it("table and markdown share the same term count", () => {
     expect(renderTableGlossary().length - 1).toBe(REQUIRED_TERMS.length);
     expect(

@@ -1,6 +1,6 @@
 ---
 name: vitals-pipeline-domain
-description: Pipeline domain knowledge for hotspot-scanner — Git Miner, NCLOC size analysis, hotspot scoring, compare, config, report. Use when implementing or reviewing src/git/, src/complexity/, src/scoring/, src/compare/, src/config/, src/report/, src/scan.ts, schemas/, or bin/ wiring. Lighter than vitals-spec-driven for domain context. Do NOT use for planning specs (planner-feature) or full Execute workflow (vitals-spec-driven).
+description: Pipeline domain knowledge for hotspot-scanner — Git Miner, NCLOC size analysis, hotspot scoring, scan-result parse, config, report. Use when implementing or reviewing src/git/, src/complexity/, src/scoring/, src/scan-result/, src/config/, src/report/, src/scan.ts, schemas/, or bin/ wiring. Lighter than vitals-spec-driven for domain context. Do NOT use for planning specs (planner-feature) or full Execute workflow (vitals-spec-driven).
 ---
 
 # Hotspot Scanner Pipeline Domain
@@ -11,7 +11,6 @@ Concise domain reference for `@vitals/hotspot-scanner`. Full design: [`.specs/co
 
 ```
 git log (stream) → NCLOC size analysis → hotspot scoring → report
-optional: loadBaseline → compareScanResults → compare report
 ```
 
 | Stage         | Module                   | Key components                                                                                 |
@@ -20,11 +19,13 @@ optional: loadBaseline → compareScanResults → compare report
 | Size          | `src/complexity/`        | `ComplexityAnalyzer` — `countNcloc()` over file text (no AST)                                  |
 | Scoring       | `src/scoring/`           | `HotspotScorer` — file hotspots only                                                           |
 | Config        | `src/config/`            | `.hotspot-scanner.json` + `mergeScanOptions` (CLI > config > defaults)                         |
-| Compare       | `src/compare/`           | `loadBaseline`, `compareScanResults` (hotspots only)                                           |
-| Report        | `src/report/`            | table, JSON, markdown, CSV bundle (+ compare variants)                                         |
+| Scan-result   | `src/scan-result/`       | `parseScanResult`, `ScanResultParseError` — programmatic JSON validation (library only)        |
+| Report        | `src/report/`            | table, JSON, markdown, CSV bundle                                                              |
 | Orchestration | `src/scan.ts`            | `runScan()` — file-only pipeline                                                               |
 | CLI           | `bin/hotspot-scanner.ts` | commander — flags only, no domain logic                                                        |
-| Schemas       | `schemas/`               | `scan-result.json`, `compare-result.json` (`version: "3.0"`)                                   |
+| Schemas       | `schemas/`               | `scan-result.json`, `hotspot-scanner-config.json` (`version: "3.0"`)                           |
+
+**Superseded (M71):** `src/compare/`, compare report modules, `schemas/compare-result.json`, CLI compare/baseline — see Done spec `.specs/features/remove-compare-baseline/`.
 
 ## Data model (in-memory)
 
@@ -58,10 +59,11 @@ SoT: [CONCERNS.md](../../../.specs/codebase/CONCERNS.md) / `src/complexity/ncloc
 | `--top <N>`               | Slice rankings for **table/markdown only**; ignored for json/csv |
 | `--include` / `--exclude` | Path scoping (repeatable)                                        |
 | `--output <path>`         | Write report to file; **required** for `--format csv`            |
-| `--baseline <file>`       | Compare against prior `ScanResult` JSON                          |
 | `--only hotspots`         | Section filter (only valid value post-M57)                       |
+| `--explain <path>`        | File-path score breakdown on stderr after report                 |
+| `--fail-on-explain-miss`  | Exit `1` when `--explain` target missing (requires `--explain`)  |
 
-Config file: `.hotspot-scanner.json` (`since`, `include`, `exclude`, `top`, `concurrency`). CLI-only: `format`, `output`, `baseline`. Legacy `granularity` → `UNKNOWN_CONFIG_KEY`.
+Config file: `.hotspot-scanner.json` (`since`, `include`, `exclude`, `top`, `concurrency`). CLI-only: `format`, `output`. Legacy `granularity` → `UNKNOWN_CONFIG_KEY`.
 
 ## Failure modes
 
@@ -71,16 +73,16 @@ Config file: `.hotspot-scanner.json` (`since`, `include`, `exclude`, `top`, `con
 | Unreadable source file    | `READ_FAILED` warning, omit from hotspots |
 | Insufficient history      | Warning, proceed with available data      |
 | File renames              | `old => new` + `PathAliasMap` (not `--follow`); warn if incomplete |
-| Bad baseline / schema     | `BaselineError`, exit != 0 (reject pre-3.0) |
+| Invalid scan JSON (lib)   | `ScanResultParseError` — library throw     |
 | Invalid config JSON/types | `ConfigError`, exit != 0                  |
 
 ## Output JSON contract
 
-SoT: [`schemas/scan-result.json`](../../../schemas/scan-result.json), [`schemas/compare-result.json`](../../../schemas/compare-result.json).
+SoT: [`schemas/scan-result.json`](../../../schemas/scan-result.json).
 
 - `version: "3.0"` — `hotspots` + `meta` only
 - Each hotspot includes `ncloc` (not `cyclomaticComplexity`)
-- Baselines at `1.0`, `2.0`, with `coupling`, `functions`, or `cyclomaticComplexity` rejected — re-scan required
+- `parseScanResult` rejects `1.0`/`2.0`, `coupling`, `functions`, `cyclomaticComplexity` on hotspot items
 
 ## Related docs
 

@@ -4,7 +4,7 @@ export const COMPLETION_SHELLS = ["bash", "zsh", "fish"] as const;
 export type CompletionShell = (typeof COMPLETION_SHELLS)[number];
 
 const TOP_LEVEL_COMMANDS =
-  "init doctor scan baseline compare completion" as const;
+  "init doctor scan completion" as const;
 
 const WARNINGS_DESC = "Stderr warning presentation: summary|full|json";
 
@@ -18,7 +18,6 @@ const SCAN_FLAG_DEFS: readonly FlagDef[] = [
   { long: "include", desc: "Include only paths matching glob" },
   { long: "config", desc: "Load config from explicit file" },
   { long: "top", desc: "Top N rows in table/markdown output" },
-  { long: "baseline", desc: "Compare scan against baseline JSON" },
   { long: "concurrency", desc: "Complexity worker pool size" },
   { long: "sequential", desc: "Run git and complexity sequentially" },
   { long: "no-overlap", desc: "Alias for --sequential" },
@@ -39,24 +38,6 @@ const SCAN_FLAG_DEFS: readonly FlagDef[] = [
     long: "csv-single-file",
     desc: "Write hotspots CSV to exact --output path",
   },
-  { long: "strict", desc: "Exit 1 when compare reports COMPARE_SINCE_MISMATCH" },
-  { long: "warnings", desc: WARNINGS_DESC },
-];
-
-const BASELINE_SAVE_FLAG_DEFS: readonly FlagDef[] = [
-  { long: "output", desc: "Baseline file path" },
-  { long: "since", desc: "Git history window" },
-  { long: "exclude", desc: "Exclude paths matching glob" },
-  { long: "include", desc: "Include only paths matching glob" },
-  { long: "config", desc: "Load config from explicit file" },
-  { long: "top", desc: "Top N rows in table/markdown output" },
-  { long: "concurrency", desc: "Complexity worker pool size" },
-  { long: "sequential", desc: "Run git and complexity sequentially" },
-  { long: "no-overlap", desc: "Alias for --sequential" },
-  { long: "include-tests", desc: "Include test files in scan scope" },
-  { long: "quiet", desc: "Suppress progress and info-level diagnostics" },
-  { long: "verbose", desc: "Trace git spawn argv on stderr" },
-  { long: "no-progress", desc: "Suppress progress lines on stderr" },
   { long: "warnings", desc: WARNINGS_DESC },
 ];
 
@@ -65,7 +46,6 @@ function flagWordList(defs: readonly FlagDef[]): string {
 }
 
 const SCAN_FLAGS = flagWordList(SCAN_FLAG_DEFS);
-const BASELINE_SAVE_FLAGS = flagWordList(BASELINE_SAVE_FLAG_DEFS);
 
 function zshFlagArguments(defs: readonly FlagDef[]): string {
   return defs
@@ -100,14 +80,7 @@ _hotspot_scanner() {
   fi
 
   case "\${COMP_WORDS[1]}" in
-    baseline)
-      if [[ \${COMP_CWORD} -eq 2 ]]; then
-        COMPREPLY=( $(compgen -W "save" -- "\${cur}") )
-      else
-        COMPREPLY=( $(compgen -W "${BASELINE_SAVE_FLAGS} --help" -- "\${cur}") )
-      fi
-      ;;
-    scan|compare)
+    scan)
       COMPREPLY=( $(compgen -W "${SCAN_FLAGS} --help" -- "\${cur}") )
       ;;
     completion)
@@ -139,8 +112,6 @@ _hotspot_scanner() {
         'init:Write exemplar .hotspot-scanner.json'
         'doctor:Check Node, git, repository, and config readiness'
         'scan:Run hotspot analysis'
-        'baseline:Baseline file workflows'
-        'compare:Compare current scan against a baseline JSON file'
         'completion:Print shell completion script'
       )
       _describe 'command' commands
@@ -151,20 +122,6 @@ _hotspot_scanner() {
           _arguments \\
             ${zshFlagArguments(SCAN_FLAG_DEFS)}
             '*:path:_files'
-          ;;
-        compare)
-          _arguments \\
-            ${zshFlagArguments(SCAN_FLAG_DEFS)}
-            '*:path:_files'
-          ;;
-        baseline)
-          if (( CURRENT == 2 )); then
-            _describe 'subcommand' '(save)'
-          else
-            _arguments \\
-              ${zshFlagArguments(BASELINE_SAVE_FLAG_DEFS)}
-              '*:path:_files'
-          fi
           ;;
         completion)
           _arguments '1:shell:(bash zsh fish)'
@@ -189,21 +146,9 @@ complete -c hotspot-scanner -f
 complete -c hotspot-scanner -n '__fish_use_subcommand' -a init -d 'Write exemplar config'
 complete -c hotspot-scanner -n '__fish_use_subcommand' -a doctor -d 'Check readiness'
 complete -c hotspot-scanner -n '__fish_use_subcommand' -a scan -d 'Run hotspot analysis'
-complete -c hotspot-scanner -n '__fish_use_subcommand' -a baseline -d 'Baseline workflows'
-complete -c hotspot-scanner -n '__fish_use_subcommand' -a compare -d 'Compare against baseline'
 complete -c hotspot-scanner -n '__fish_use_subcommand' -a completion -d 'Print completion script'
 
-complete -c hotspot-scanner -n '__fish_seen_subcommand_from baseline; and not __fish_seen_subcommand_from save' -a save -d 'Run scan and write baseline JSON'
-
 ${fishFlagCompletes("scan", "__fish_seen_subcommand_from scan", SCAN_FLAG_DEFS)}
-
-${fishFlagCompletes("compare", "__fish_seen_subcommand_from compare", SCAN_FLAG_DEFS)}
-
-${fishFlagCompletes(
-  "baseline save",
-  "__fish_seen_subcommand_from baseline; and __fish_seen_subcommand_from save",
-  BASELINE_SAVE_FLAG_DEFS,
-)}
 
 complete -c hotspot-scanner -n '__fish_seen_subcommand_from completion' -a 'bash zsh fish' -d 'Shell type'
 `;

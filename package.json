@@ -11,7 +11,6 @@
       "import": "./dist/index.js"
     },
     "./schemas/scan-result.json": "./schemas/scan-result.json",
-    "./schemas/compare-result.json": "./schemas/compare-result.json",
     "./schemas/hotspot-scanner-config.json": "./schemas/hotspot-scanner-config.json"
   },
   "bin": {
@@ -22,7 +21,6 @@
     "#diagnostics": "./dist/diagnostics/index.js",
     "#report": "./dist/report/index.js",
     "#scoring": "./dist/scoring/index.js",
-    "#compare": "./dist/compare/index.js",
     "#config": "./dist/config/index.js",
     "#doctor": "./dist/doctor/index.js",
     "#git": "./dist/git/index.js"

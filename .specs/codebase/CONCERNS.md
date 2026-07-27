@@ -36,7 +36,7 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | `hotspotScore = 2ch / (c + h)` (harmonic mean; `c` = normalized NCLOC)            | Unit tests with fixed inputs and expected order                                                                                         |
 | Normalization strategy (log1p + min-max)                                          | Document in code; test edge cases (all zeros, single file)                                                                              |
-| Scores are **scan-relative**                                                      | Not comparable across scans; compare uses rank/delta within paired runs                                                                 |
+| Scores are **scan-relative**                                                      | Not comparable across scans without external diff tooling                                                                 |
 
 ## Performance (cross-cutting)
 
@@ -54,12 +54,21 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 | Concern | Mitigation |
 | ------- | ---------- |
 | Severity vs exit code | Document: successful scan exits `0` with warnings |
-| Compare `meta.warnings` shape | `ScanWarning[]` objects; contract tests |
-| Warning code stability | `EMPTY_SINCE_WINDOW`, `RENAME_HISTORY_INCOMPLETE`, `READ_FAILED`, `COMPARE_SINCE_MISMATCH`, `MONOREPO_PATH_REMOUNT`, `UNKNOWN_CONFIG_KEY` — README / ARCHITECTURE / `docs/warning-codes.md` |
+| Compare `meta.warnings` shape | N/A — compare removed M71; scan `meta.warnings` is `ScanWarning[]`; contract tests |
+| Warning code stability | `EMPTY_SINCE_WINDOW`, `RENAME_HISTORY_INCOMPLETE`, `READ_FAILED`, `MONOREPO_PATH_REMOUNT`, `UNKNOWN_CONFIG_KEY` — README / ARCHITECTURE / `docs/warning-codes.md` |
+
+## Scan-result parse (`src/scan-result/`)
+
+**Risk:** Invalid programmatic JSON acceptance or false rejects break library consumers.
+
+| Concern | Mitigation |
+| ------- | ---------- |
+| `parseScanResult` contract | Co-located `parse-scan-result.test.ts`; rejects pre-3.0 and legacy hotspot fields |
+| Error surface | `ScanResultParseError` with scan-oriented hint (no baseline wording) |
 
 ## Hooks enforcement
 
-Edits to `src/git/`, `src/complexity/`, `src/scoring/`, `src/scan.ts`, `src/compare/`, or `schemas/` trigger fragile-area warnings. Tests must be updated before marking tasks Complete.
+Edits to `src/git/`, `src/complexity/`, `src/scoring/`, `src/scan.ts`, `src/scan-result/`, or `schemas/` trigger fragile-area warnings. Tests must be updated before marking tasks Complete.
 
 ## Unmitigated — risk × effort
 

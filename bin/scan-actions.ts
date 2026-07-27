@@ -1,6 +1,5 @@
 import { access, stat, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
-import { compareScanResults, loadBaseline } from "#compare";
 import {
   loadHotspotScannerConfig,
   mergeScanOptions,
@@ -10,11 +9,9 @@ import {
   createCliDiagnosticHandlers,
   type WarningsMode,
 } from "#diagnostics";
-import { createReporter } from "#report";
 import type { CsvBundle, ReportSection } from "#report";
 import { runScan } from "#scan";
 import type {
-  CompareResult,
   ScanOptions,
   ScanResult,
   ScanStageTimings,
@@ -23,12 +20,6 @@ import type {
 export type { WarningsMode };
 
 export type OutputFormat = "table" | "json" | "markdown" | "csv";
-
-/** Default path for `baseline save` when `--output` is omitted (T2). */
-export const DEFAULT_BASELINE_OUTPUT = "./hotspot-baseline.json";
-
-const BASELINE_JSON_HINT =
-  "\nHint: create a baseline with `hotspot-scanner baseline save`, or pass a prior scan saved with --format json --output <path>.";
 
 export class CliUsageError extends Error {
   constructor(message: string) {
@@ -66,29 +57,6 @@ export async function validateOutputPath(outputPath: string): Promise<void> {
   }
 }
 
-export async function validateBaselinePath(
-  baselinePath: string,
-): Promise<void> {
-  if (baselinePath.length === 0) {
-    throw new CliUsageError("--baseline path must not be empty");
-  }
-
-  let baselineStat;
-  try {
-    baselineStat = await stat(baselinePath);
-  } catch {
-    throw new CliUsageError(
-      `--baseline file does not exist: ${baselinePath}${BASELINE_JSON_HINT}`,
-    );
-  }
-
-  if (baselineStat.isDirectory()) {
-    throw new CliUsageError(
-      `--baseline path is a directory: ${baselinePath}${BASELINE_JSON_HINT}`,
-    );
-  }
-}
-
 export function deriveCsvStem(outputPath: string): string {
   if (outputPath.endsWith(".csv")) {
     return outputPath.slice(0, -4);
@@ -97,7 +65,6 @@ export function deriveCsvStem(outputPath: string): string {
 }
 
 export const CSV_SINGLE_FILE_SCAN_KEY = "hotspots.csv";
-export const CSV_SINGLE_FILE_COMPARE_KEY = "hotspots.new.csv";
 
 export function pickSingleFileCsvContent(
   bundle: CsvBundle,
@@ -289,16 +256,6 @@ export type ScanDiagnosticOptions = {
   signal?: AbortSignal;
 };
 
-export async function writeBaselineJson(
-  result: ScanResult,
-  outputPath: string,
-): Promise<void> {
-  await validateOutputPath(outputPath);
-  const reporter = createReporter();
-  const output = reporter.render(result, { format: "json" });
-  await writeFile(outputPath, output as string, "utf8");
-}
-
 export type ExecuteScanResult = {
   result: ScanResult;
   emitWarningTeaser: () => void;
@@ -386,77 +343,4 @@ export async function writeRenderedOutput(
   if (outputPath) {
     emitWriteConfirm(outputPath, options?.quiet);
   }
-}
-
-export async function executeCompareAndRender(options: {
-  repoPath: string;
-  baselinePath: string;
-  cliOverrides: HotspotScannerConfig;
-  configPath?: string;
-  outputPath?: string;
-  reporterOptions: ReporterRenderOptions;
-  sequential?: boolean;
-  csvSingleFile?: boolean;
-} & ScanDiagnosticOptions): Promise<CompareResult> {
-  await validateBaselinePath(options.baselinePath);
-
-  const since = await resolveEffectiveSince(options);
-  const { onWarning, onProgress, emitWarningTeaser, flushWarnings } =
-    createCliDiagnosticHandlers({
-    quiet: options.quiet ?? false,
-    noProgress: options.noProgress ?? false,
-    warningsMode: options.warningsMode ?? "summary",
-    since,
-  });
-  const onSpawnArgv = createVerboseSpawnArgvHandler({
-    verbose: options.verbose ?? false,
-    quiet: options.quiet ?? false,
-  });
-
-  const result = await runScan(
-    buildScanOptions(
-      options.repoPath,
-      options.cliOverrides,
-      {
-        onWarning,
-        onProgress,
-        ...(options.signal !== undefined ? { signal: options.signal } : {}),
-        ...(onSpawnArgv !== undefined ? { onSpawnArgv } : {}),
-      },
-      options.configPath,
-      options.includeTests,
-      options.sequential,
-    ),
-  );
-
-  const baseline = await loadBaseline(options.baselinePath);
-  const compareResult = compareScanResults(baseline, result);
-  for (const warning of compareResult.meta.warnings) {
-    onWarning(warning);
-  }
-
-  const reporter = createReporter();
-  const output = reporter.renderCompare(
-    compareResult,
-    options.reporterOptions,
-  );
-
-  emitWarningTeaser();
-  await writeRenderedOutput(
-    output,
-    options.reporterOptions.format,
-    options.outputPath,
-    {
-      quiet: options.quiet,
-      ...(options.csvSingleFile
-        ? {
-            csvSingleFile: true,
-            csvBundleKey: CSV_SINGLE_FILE_COMPARE_KEY,
-          }
-        : {}),
-    },
-  );
-  flushWarnings();
-
-  return compareResult;
 }

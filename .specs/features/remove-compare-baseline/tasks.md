@@ -3,7 +3,7 @@
 **Design**: [design.md](./design.md)  
 **Spec**: [spec.md](./spec.md)  
 **Context**: [context.md](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -115,11 +115,11 @@ flowchart TD
 
 **Done when**:
 
-- [ ] `parseScanResult` and `ScanResultParseError` live under `src/scan-result/`
-- [ ] No `BaselineError` symbol/export remains (no alias)
-- [ ] Parse unit tests green under new path; valid `"3.0"` scan JSON still parses
-- [ ] Hint strings have no `baseline save` wording
-- [ ] Note: full-repo `pnpm build` may still fail until T2–T5 — acceptable per design if T1 gate green
+- [x] `parseScanResult` and `ScanResultParseError` live under `src/scan-result/`
+- [x] No `BaselineError` symbol/export remains (no alias)
+- [x] Parse unit tests green under new path; valid `"3.0"` scan JSON still parses
+- [x] Hint strings have no `baseline save` wording
+- [x] Note: full-repo `pnpm build` may still fail until T2–T5 — acceptable per design if T1 gate green
 
 **Tests**: unit (`src/scan-result/parse-scan-result.test.ts`)
 
@@ -146,12 +146,12 @@ flowchart TD
 
 **Done when**:
 
-- [ ] No `compare` / `baseline` subcommands in Commander tree
-- [ ] No `--baseline` / `--strict` on scan
-- [ ] Compare-only helpers absent from bin
-- [ ] Completions omit removed commands/flags
-- [ ] Scan `--explain` / `--fail-on-explain-miss` still wired
-- [ ] Bin/completion unit tests green for this slice
+- [x] No `compare` / `baseline` subcommands in Commander tree
+- [x] No `--baseline` / `--strict` on scan
+- [x] Compare-only helpers absent from bin
+- [x] Completions omit removed commands/flags
+- [x] Scan `--explain` / `--fail-on-explain-miss` still wired
+- [x] Bin/completion unit tests green for this slice
 
 **Tests**: unit (`bin/`)
 
@@ -178,12 +178,12 @@ flowchart TD
 
 **Done when**:
 
-- [ ] `src/compare/` directory gone
-- [ ] Compare* / RankChange types gone
-- [ ] `src/index.ts` exports match locked public API
-- [ ] `#compare` absent from `package.json`
-- [ ] No production imports of deleted compare modules remain outside report (report cleaned in T4)
-- [ ] Targeted typecheck/build for non-report packages as far as possible
+- [x] `src/compare/` directory gone
+- [x] Compare* / RankChange types gone
+- [x] `src/index.ts` exports match locked public API
+- [x] `#compare` absent from `package.json`
+- [x] No production imports of deleted compare modules remain outside report (report cleaned in T4)
+- [x] Targeted typecheck/build for non-report packages as far as possible
 
 **Tests**: unit cleanup (delete obsolete compare unit tests with the module); assert exports via existing index/smoke tests if present
 
@@ -210,10 +210,10 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Glob for `src/report/compare-*`, `explain-compare`, `slice-compare` → empty
-- [ ] Report index/summary/glossary have no compare-only paths
-- [ ] Report unit suite for remaining modules green
-- [ ] `pnpm build` expected green after this task (schema export may linger until T5)
+- [x] Glob for `src/report/compare-*`, `explain-compare`, `slice-compare` → empty
+- [x] Report index/summary/glossary have no compare-only paths
+- [x] Report unit suite for remaining modules green
+- [x] `pnpm build` expected green after this task (schema export may linger until T5)
 
 **Tests**: unit (`src/report`)
 
@@ -240,10 +240,10 @@ flowchart TD
 
 **Done when**:
 
-- [ ] `schemas/compare-result.json` absent
-- [ ] Package no longer exports compare schema
-- [ ] Contract tests pass for scan `"3.0"` only (no compare-result)
-- [ ] Scan schema version unchanged (`"3.0"`)
+- [x] `schemas/compare-result.json` absent
+- [x] Package no longer exports compare schema
+- [x] Contract tests pass for scan `"3.0"` only (no compare-result)
+- [x] Scan schema version unchanged (`"3.0"`)
 
 **Tests**: contract (`tests/contract/json-schema.test.ts`)
 
@@ -270,11 +270,11 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Compare report fixtures gone / unreferenced
-- [ ] No integration tests require compare path
-- [ ] Negative CLI tests assert exit `2` for removed commands/flags
-- [ ] Grep for `COMPARE_SINCE_MISMATCH` in `src/` / `bin/` / `tests/` → empty (docs deferred to T7)
-- [ ] `pnpm build` succeeds
+- [x] Compare report fixtures gone / unreferenced
+- [x] No integration tests require compare path
+- [x] Negative CLI tests assert exit `2` for removed commands/flags
+- [x] Grep for `COMPARE_SINCE_MISMATCH` in `src/` / `bin/` / `tests/` → empty (docs deferred to T7)
+- [x] `pnpm build` succeeds
 
 **Tests**: unit/integration (bin + touched suites)
 
@@ -301,12 +301,12 @@ flowchart TD
 
 **Done when**:
 
-- [ ] Living docs describe scan-only workflows
-- [ ] AGENTS exit table has no `--strict` / `COMPARE_SINCE_MISMATCH`
-- [ ] warning-codes has no `COMPARE_SINCE_MISMATCH` row
-- [ ] Skills/rules point at `src/scan-result/` not compare/baseline loaders
-- [ ] Historical sister specs left Done (no Status reopen / content rewrite)
-- [ ] Optional `rg` sanity for stale “scan --baseline” / `compareScanResults` in living docs (exclude `.specs/features/**` historical)
+- [x] Living docs describe scan-only workflows
+- [x] AGENTS exit table has no `--strict` / `COMPARE_SINCE_MISMATCH`
+- [x] warning-codes has no `COMPARE_SINCE_MISMATCH` row
+- [x] Skills/rules point at `src/scan-result/` not compare/baseline loaders
+- [x] Historical sister specs left Done (no Status reopen / content rewrite)
+- [x] Optional `rg` sanity for stale “scan --baseline” / `compareScanResults` in living docs (exclude `.specs/features/**` historical)
 
 **Tests**: none (docs)
 
@@ -333,9 +333,9 @@ flowchart TD
 
 **Done when**:
 
-- [ ] `pnpm build && pnpm test` exits 0
-- [ ] No silent test deletions to force green (investigate failures)
-- [ ] tasks.md ready to mark Complete by orchestrator after verify phases
+- [x] `pnpm build && pnpm test` exits 0
+- [x] No silent test deletions to force green (investigate failures)
+- [x] tasks.md ready to mark Complete by orchestrator after verify phases
 
 **Tests**: full suite with coverage
 

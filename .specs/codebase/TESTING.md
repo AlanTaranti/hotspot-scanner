@@ -15,7 +15,7 @@ Required before marking any task Complete. Agents: use `verifier-quality-gates` 
 Config: `vitest.config.ts` at repo root.
 
 - `pnpm test` runs `vitest run --coverage` (coverage is not optional)
-- Vitest resolves `#scan`, `#report`, `#diagnostics`, `#scoring`, and `#compare` aliases to **source** modules under `src/` during tests — run `pnpm build` before `pnpm test`
+- Vitest resolves `#scan`, `#report`, `#diagnostics`, and `#scoring` aliases to **source** modules under `src/` during tests — run `pnpm build` before `pnpm test`
 
 ## Coverage
 
@@ -123,11 +123,11 @@ See skill `vitals-cli-validation` for exit codes and flag matrix.
 
 **M28 diagnostics:** `meta.warnings` as `ScanWarning[]`; contract tests validate `$defs.ScanWarning`.
 
-**M53 compare interpretation:** `compare-triage.test.ts`, `explain-compare.test.ts`, bin tests for `--strict` and compare `--explain`.
+**M53 scan interpretation:** `triage.test.ts`, `explain.test.ts`, bin tests for scan `--explain` / `--fail-on-explain-miss`.
 
-**Baseline contract (M57):** `load-baseline.test.ts` rejects `2.0`, `cyclomaticComplexity`, `functions`; accepts `3.0` with `ncloc`.
+**Scan-result parse (M71):** `src/scan-result/parse-scan-result.test.ts` — accepts valid `3.0` scan JSON; rejects `2.0`, `cyclomaticComplexity`, `functions`.
 
-**Additive contract (M66):** `version` stays `"3.0"`; contract tests assert optional `scannerVersion` / root `$schema` on schemas and required `scoreDelta` / `nclocDelta` / `commitCountDelta` on `RankChangeHotspot`. `load-baseline.test.ts` accepts baselines without `scannerVersion` and with top-level `$schema` ignored. Fresh scan/compare JSON from `json.test.ts` / `compare-json.test.ts` asserts `$schema` URLs and `meta.scannerVersion`.
+**Additive contract (M66):** `version` stays `"3.0"`; contract tests assert optional `scannerVersion` / root `$schema` on scan schema. Fresh scan JSON from `json.test.ts` asserts `$schema` URL and `meta.scannerVersion`.
 
 ## Integrity rules
 

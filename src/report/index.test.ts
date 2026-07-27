@@ -2,8 +2,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { compareScanResults } from "../compare/compare.js";
-import type { CompareResult, ScanResult } from "../types/index.js";
+import type { ScanResult } from "../types/index.js";
 import { stripAnsi } from "./color.js";
 import { createReporter } from "./index.js";
 
@@ -11,23 +10,9 @@ const fixturePath = join(
   dirname(fileURLToPath(import.meta.url)),
   "../../tests/fixtures/report/sample-result.json",
 );
-const fixturesDir = join(
-  dirname(fileURLToPath(import.meta.url)),
-  "../../tests/fixtures/report",
-);
 
 function loadFixture(): ScanResult {
   return JSON.parse(readFileSync(fixturePath, "utf8")) as ScanResult;
-}
-
-function loadCompareResult(): CompareResult {
-  const baseline = JSON.parse(
-    readFileSync(join(fixturesDir, "compare-baseline-file.json"), "utf8"),
-  ) as ScanResult;
-  const current = JSON.parse(
-    readFileSync(join(fixturesDir, "compare-current-file.json"), "utf8"),
-  ) as ScanResult;
-  return compareScanResults(baseline, current);
 }
 
 describe("createReporter", () => {
@@ -45,18 +30,6 @@ describe("createReporter", () => {
     expect(hotspotsCsv).toContain("1,src/hot.ts,0.8500,42");
     expect(hotspotsCsv).toContain("2,src/medium.ts,0.3000,20");
     expect(hotspotsCsv).toContain("3,src/cold.ts,0.0200,3");
-  });
-
-  it("renders compare CSV bundle with hotspot sections when top is set", () => {
-    const output = createReporter().renderCompare(loadCompareResult(), {
-      format: "csv",
-      top: 1,
-    });
-
-    expect(typeof output).toBe("object");
-    expect(output).toHaveProperty("hotspots.new.csv");
-    expect(output).toHaveProperty("hotspots.rank-changed.csv");
-    expect(output).not.toHaveProperty("functions.new.csv");
   });
 
   it("renders JSON output with full arrays when top is set", () => {
@@ -101,35 +74,6 @@ describe("createReporter", () => {
     expect(output).toContain("## Top Hotspots");
     expect(output).toContain("Scan window: 6 months ago");
     expect(output).toContain("| NLOC |");
-  });
-
-  it("renders compare JSON output with full delta arrays when top is set", () => {
-    const compareResult = loadCompareResult();
-    const output = createReporter().renderCompare(compareResult, {
-      format: "json",
-      top: 1,
-    });
-    const parsed = JSON.parse(output as string);
-
-    expect(parsed.version).toBe("3.0");
-    expect(parsed.hotspots.new).toHaveLength(compareResult.hotspots.new.length);
-    expect(parsed.hotspots.removed).toHaveLength(
-      compareResult.hotspots.removed.length,
-    );
-    expect(parsed.hotspots.rankChanged).toHaveLength(
-      compareResult.hotspots.rankChanged.length,
-    );
-    expect(parsed).not.toHaveProperty("functions");
-  });
-
-  it("renders compare table output", () => {
-    const output = createReporter().renderCompare(loadCompareResult(), {
-      format: "table",
-      top: 2,
-    });
-
-    expect(output).toContain("Scan Compare Report");
-    expect(output).toContain("=== New Hotspots ===");
   });
 
   it("does not throw", () => {
@@ -233,38 +177,5 @@ describe("createReporter", () => {
 
     expect(stripAnsi(colored as string)).toBe(plain);
     expect(colored).not.toBe(plain);
-  });
-
-  it("emits triage on compare table by default", () => {
-    const output = createReporter().renderCompare(loadCompareResult(), {
-      format: "table",
-    });
-
-    expect(output).toContain("Triage hints");
-    expect(output).toContain("Glossary");
-    const triageIndex = (output as string).indexOf("Triage hints");
-    const glossaryIndex = (output as string).indexOf("Glossary");
-    expect(glossaryIndex).toBeGreaterThan(triageIndex);
-  });
-
-  it("suppresses triage when triageHints is false on compare table", () => {
-    const output = createReporter().renderCompare(loadCompareResult(), {
-      format: "table",
-      triageHints: false,
-    });
-
-    expect(output).not.toContain("Triage hints");
-    expect(output).toContain("Glossary");
-  });
-
-  it("filters compare JSON to hotspots only", () => {
-    const output = createReporter().renderCompare(loadCompareResult(), {
-      format: "json",
-      only: ["hotspots"],
-    });
-    const parsed = JSON.parse(output as string) as Record<string, unknown>;
-
-    expect(parsed).toHaveProperty("hotspots");
-    expect(parsed).not.toHaveProperty("functions");
   });
 });

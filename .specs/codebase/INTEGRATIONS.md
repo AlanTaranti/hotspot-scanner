@@ -74,6 +74,16 @@ External dependencies and adapter boundaries. No network integrations (zero-netw
 | **Location** | `bin/hotspot-scanner.ts` only                                     |
 | **Rule**     | No domain logic in bin — delegate to `runScan()` in `src/scan.ts` |
 
+## Scan result parse (`src/scan-result/`)
+
+| Aspect      | Detail                                                                                       |
+| ----------- | -------------------------------------------------------------------------------------------- |
+| **Role**    | Validate programmatic scan JSON (`version: "3.0"`) via `parseScanResult`                     |
+| **Adapter** | `parseScanResult` / `ScanResultParseError` in `src/scan-result/parse-scan-result.ts`         |
+| **Rule**    | No auto-migration of legacy shapes; reject unsupported fields (`coupling`, `functions`, etc.) |
+| **Failure** | `ScanResultParseError` with scan-oriented re-scan hint (no CLI loader — library-only)        |
+| **Tests**   | Co-located `parse-scan-result.test.ts`; contract tests validate schema separately            |
+
 ## picomatch
 
 | Aspect      | Detail                                                                              |

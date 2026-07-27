@@ -2,7 +2,7 @@
 
 ## Trust model
 
-**hotspot-scanner** is a local-only CLI and library. During a scan or compare:
+**hotspot-scanner** is a local-only CLI and library. During a scan:
 
 - **No outbound network calls** — the tool does not contact remote APIs, send telemetry, or upload source code.
 - **Local data only** — analysis reads your Git history (via the `git` binary) and source files on disk in the target repository.
@@ -38,7 +38,7 @@ We will acknowledge receipt and work on a fix. Coordinated disclosure is preferr
 In scope:
 
 - Arbitrary code execution, path traversal, or command injection via CLI flags, config files, or programmatic API inputs
-- Unintended network egress during scan/compare
+- Unintended network egress during scan
 - Information disclosure beyond the intended repository scope
 
 Out of scope:

@@ -1,6 +1,4 @@
 import type {
-  CompareResult,
-  HotspotCompareSection,
   ScanResult,
   ScanStageTimings,
   ScanWarning,
@@ -41,14 +39,6 @@ function formatShownVsTotal(
   return `${label}: showing ${shown} of ${total}`;
 }
 
-function countCompareDeltas(section: {
-  new: unknown[];
-  removed: unknown[];
-  rankChanged: unknown[];
-}): number {
-  return section.new.length + section.removed.length + section.rankChanged.length;
-}
-
 function formatTimingDuration(ms: number): string {
   if (ms >= 1000) {
     const text = (ms / 1000).toFixed(1);
@@ -66,19 +56,6 @@ export function formatTimingSummaryLine(timings: ScanStageTimings): string {
   return `Timing: total ${formatTimingDuration(timings.totalMs)} (${stages}${overlap})`;
 }
 
-function formatCompareDeltaLine(
-  label: string,
-  full: HotspotCompareSection,
-  displayed: HotspotCompareSection,
-): string {
-  const total = countCompareDeltas(full);
-  if (total === 0) {
-    return `${label}: No rank changes (no new, removed, or rank-changed hotspots)`;
-  }
-  const shown = countCompareDeltas(displayed);
-  return `${label}: showing ${shown} of ${total} (new ${full.new.length}, removed ${full.removed.length}, rank changed ${full.rankChanged.length})`;
-}
-
 export function buildScanExecutiveSummary(
   full: ScanResult,
   displayed: ScanResult,
@@ -94,22 +71,6 @@ export function buildScanExecutiveSummary(
   ];
   if (full.meta.timings !== undefined) {
     lines.push(formatTimingSummaryLine(full.meta.timings));
-  }
-  return lines;
-}
-
-export function buildCompareExecutiveSummary(
-  full: CompareResult,
-  displayed: CompareResult,
-): string[] {
-  const lines = [
-    `Baseline since: ${full.meta.baseline.since} (scanned ${full.meta.baseline.scannedAt})`,
-    `Current since: ${full.meta.current.since} (scanned ${full.meta.current.scannedAt})`,
-    formatCompareDeltaLine("Hotspot deltas", full.hotspots, displayed.hotspots),
-    formatWarningSummaryLine(full.meta.warnings ?? []),
-  ];
-  if (full.meta.current.timings !== undefined) {
-    lines.push(formatTimingSummaryLine(full.meta.current.timings));
   }
   return lines;
 }

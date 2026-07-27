@@ -22,18 +22,18 @@ pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --since "12 months ag
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format markdown --output /tmp/report.md
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format csv --output /tmp/report.csv
 # CSV bundle files: /tmp/report.meta.json, /tmp/report.hotspots.csv
-pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format json --output /tmp/baseline.json
-pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --baseline /tmp/baseline.json --format json
-pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --baseline /tmp/baseline.json --format csv --output /tmp/compare.csv
-# Compare CSV bundle: /tmp/compare.meta.json + hotspot delta CSVs under /tmp/compare.*
+pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format json --output /tmp/scan.json
 ```
 
 ## Exit codes
 
-| Code   | Meaning                                                |
-| ------ | ------------------------------------------------------ |
-| `0`    | Scan completed successfully                            |
-| `!= 0` | Invalid repo/path, git error, or invalid CLI arguments |
+| Code   | Meaning                                                                 |
+| ------ | ----------------------------------------------------------------------- |
+| `0`    | Scan completed successfully                                             |
+| `1`    | `--fail-on-explain-miss` with missing `--explain` target                |
+| `2`    | Invalid CLI args, config errors, or usage (including unknown removed `compare` / `baseline` / `--baseline` / `--strict`) |
+| `130`  | Cancelled by `SIGINT`                                                   |
+| `143`  | Cancelled by `SIGTERM`                                                  |
 
 See [AGENTS.md](../../../AGENTS.md) § Validation.
 
@@ -47,8 +47,9 @@ See [AGENTS.md](../../../AGENTS.md) § Validation.
 | `--format markdown`    | GFM report for PRs                                                                    | table                 |
 | `--format csv`         | Multi-file CSV bundle (requires `--output`); stem-derived paths + `meta.json` sidecar | table                 |
 | `--output <path>`      | Write report to file (required for `--format csv`)                                    | stdout                |
-| `--baseline <path>`    | Compare against saved baseline JSON                                                   | —                     |
 | `--top <N>`            | Limit table/markdown rows (ignored for json/csv)                                      | `20`                  |
+| `--explain <path>`     | File-path score breakdown on stderr after report                                      | —                     |
+| `--fail-on-explain-miss` | Exit `1` when explain target missing (requires `--explain`)                       | —                     |
 
 Test relevant flags when the feature scope touches CLI.
 
@@ -72,14 +73,18 @@ Test relevant flags when the feature scope touches CLI.
 - `hotspots` array sorted by score descending; each item includes `ncloc`
 - No top-level `functions`, `coupling`, or `granularity` keys
 - Required fields per domain types in `src/types/domain.ts`
+- `meta.scannerVersion` present on fresh scans
 
-## Compare output checks (`--baseline`)
+## Negative CLI checks (M71)
 
-- Top-level `version` field is `"3.0"`
-- `hotspots` has `new`, `removed`, `rankChanged` arrays
-- `meta.baseline` and `meta.current` contain `ScanMeta` objects
-- `meta.warnings` is an array (may be empty)
-- Baseline file must be valid `ScanResult` v3.0 JSON; rejects `1.0`/`2.0`, `coupling`, `cyclomaticComplexity`, or `functions`
+Removed surface must fail with exit `2`:
+
+```bash
+pnpm exec hotspot-scanner compare . --baseline ./x.json   # unknown command
+pnpm exec hotspot-scanner baseline save .                 # unknown command
+pnpm exec hotspot-scanner scan . --baseline ./x.json      # unknown option
+pnpm exec hotspot-scanner scan . --strict                 # unknown option
+```
 
 ## Related agents
 

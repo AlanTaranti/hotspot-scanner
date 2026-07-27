@@ -10,7 +10,7 @@ Before planning or implementing any change, read the relevant files under `.spec
 | Change type | Read |
 | ----- | ----- |
 | General code | `CONVENTIONS.md`, `STRUCTURE.md` |
-| Scanner modules (git, complexity, scoring, compare, config, report) | `ARCHITECTURE.md`, `CONCERNS.md`, `INTEGRATIONS.md` |
+| Scanner modules (git, complexity, scoring, scan-result, config, report) | `ARCHITECTURE.md`, `CONCERNS.md`, `INTEGRATIONS.md` |
 | Progress / milestones | `ROADMAP.md`, `STATE.md`, `.specs/features/` |
 | Tests | `TESTING.md` |
 | Architecture / stack | `ARCHITECTURE.md`, `STACK.md` |

@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M70 Done. M71 Open** (specs Planned). Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
+Status: **M7–M71 Done**. Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
 
 **M12** intentionally absent (CI fail-on-score removed — see STATE).
 
@@ -14,17 +14,15 @@ Status: **M7–M70 Done. M71 Open** (specs Planned). Deferred horizon in [STATE.
 | M37–M45 | README adoption, CLI polish, init/doctor/dry-run, workflows, interpretation UX, explain, monorepo remount, package exports enrich, adoption docs |
 | M46–M55 | Exclude tests by default, git pathspecs, scope extensions, ranking accuracy+, observability, doctor scope parity, perf controls, API trust docs, compare interpretation, CLI adoption extras |
 | M56–M65 | Remove coupling; NCLOC metric (retire McCabe/function mode); CLI `--warnings summary|full|json` stderr aggregation; ephemeral TTY scan progress; table path column UX; inline progress bar; feedback/copy UX; CLI surface parity; config/doctor DX; git error UX |
-| M66–M70 | DX batch: contract enrich, scope+, warnings bookend, write confirm, table Lines parity |
+| M66–M71 | DX batch: contract enrich, scope+, warnings bookend, write confirm, table Lines parity; **remove compare/baseline (scan-only)** |
 
 ### Open
 
-| Milestone | Slug | Specs |
-| --------- | ---- | ----- |
-| **M71** | `remove-compare-baseline` | [spec.md](../features/remove-compare-baseline/spec.md) · [context.md](../features/remove-compare-baseline/context.md) · [design.md](../features/remove-compare-baseline/design.md) · [tasks.md](../features/remove-compare-baseline/tasks.md) (**Status: Planned**) |
+_None — M71 Done._
 
 ### Done
 
-M7–M70 historical detail below. Deferred horizon in [STATE.md](STATE.md).
+M7–M71 historical detail below. Deferred horizon in [STATE.md](STATE.md).
 
 ## Milestone 1 — Scaffold
 
@@ -987,23 +985,23 @@ Add `Lines` (`linesChanged`) column to scan `table.ts` mirroring markdown; gloss
 
 ---
 
-## Milestone 71 — Remove compare & baseline — OPEN (Specs Planned)
+## Milestone 71 — Remove compare & baseline — DONE
 
 → [`.specs/features/remove-compare-baseline/spec.md`](../features/remove-compare-baseline/spec.md)  
-**Slug:** `remove-compare-baseline` | **Priority:** High | **Specs:** Planned  
+**Slug:** `remove-compare-baseline` | **Priority:** High | **Specs:** Done  
 **IDs:** HOTSPOT-1300–1329 (1316–1329 reserved) | **Depth:** Complex  
 **Precedent:** [remove-coupling-analysis](../features/remove-coupling-analysis/) (M56)  
 **Sisters (historical Done — superseded, not reopened):** scan-compare (M13), workflow-subcommands (M40), compare-interpretation (M53), csv-bundle (M18), json-contract (M20), contract-enrich-additive (M66)  
-**Artifacts:** [context.md](../features/remove-compare-baseline/context.md) · [spec.md](../features/remove-compare-baseline/spec.md) · [design.md](../features/remove-compare-baseline/design.md) · [tasks.md](../features/remove-compare-baseline/tasks.md) (Status: **Planned**)
+**Artifacts:** [context.md](../features/remove-compare-baseline/context.md) · [spec.md](../features/remove-compare-baseline/spec.md) · [design.md](../features/remove-compare-baseline/design.md) · [tasks.md](../features/remove-compare-baseline/tasks.md) (Status: **Done**)
 
-Hard cut to **scan-only**: delete `compare`, `baseline save`, `scan --baseline`, `--strict`, compare reporters, `schemas/compare-result.json`, public `compareScanResults` / `loadBaseline` / `Compare*` types, and `COMPARE_SINCE_MISMATCH`. Keep `parseScanResult` under `src/scan-result/` with renamed `ScanResultParseError`. Scan JSON stays `version: "3.0"`.
+Hard cut to **scan-only**: deleted `compare`, `baseline save`, `scan --baseline`, `--strict`, compare reporters, `schemas/compare-result.json`, public `compareScanResults` / `loadBaseline` / `Compare*` types, and `COMPARE_SINCE_MISMATCH`. Kept `parseScanResult` under `src/scan-result/` with renamed `ScanResultParseError`. Scan JSON stays `version: "3.0"`.
 
-- [ ] Relocate `parseScanResult` + `ScanResultParseError` (`src/scan-result/`)
-- [ ] Strip CLI / completions / scan-actions compare wiring
-- [ ] Delete compare domain + report modules + types + `#compare`
-- [ ] Delete compare schema + purge fixtures; negative CLI tests
-- [ ] Sync living docs / skills / AGENTS (exit table)
-- [ ] Final gate `pnpm build && pnpm test` (Execute session)
+- [x] Relocate `parseScanResult` + `ScanResultParseError` (`src/scan-result/`)
+- [x] Strip CLI / completions / scan-actions compare wiring
+- [x] Delete compare domain + report modules + types + `#compare`
+- [x] Delete compare schema + purge fixtures; negative CLI tests
+- [x] Sync living docs / skills / AGENTS (exit table)
+- [x] Final gate `pnpm build && pnpm test` (880 tests)
 
 **Out of scope:** Soft deprecation; npm/SARIF; fail-on-warning; Item C; score formula; rewriting historical Done sister specs.
 

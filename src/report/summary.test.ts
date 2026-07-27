@@ -2,12 +2,9 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { compareScanResults } from "../compare/compare.js";
-import type { CompareResult, ScanResult } from "../types/index.js";
-import { sliceCompareResult } from "./slice-compare.js";
+import type { ScanResult } from "../types/index.js";
 import { sliceScanResult } from "./slice.js";
 import {
-  buildCompareExecutiveSummary,
   buildScanExecutiveSummary,
   formatTimingSummaryLine,
   formatWarningSummaryLine,
@@ -25,12 +22,6 @@ function loadScanFixture(name: string): ScanResult {
   const { _comment: _ignored, ...fixture } = raw;
   void _ignored;
   return fixture;
-}
-
-function loadCompareFixture(): CompareResult {
-  const baseline = loadScanFixture("compare-baseline-file.json");
-  const current = loadScanFixture("compare-current-file.json");
-  return compareScanResults(baseline, current);
 }
 
 describe("buildScanExecutiveSummary", () => {
@@ -83,88 +74,6 @@ describe("buildScanExecutiveSummary", () => {
     expect(lines.at(-1)).toBe(
       "Timing: total 900ms (git 500ms, complexity 300ms)",
     );
-  });
-});
-
-describe("buildCompareExecutiveSummary", () => {
-  it("reports baseline/current windows and delta classification totals", () => {
-    const full = loadCompareFixture();
-    const lines = buildCompareExecutiveSummary(full, full);
-
-    expect(lines[0]).toBe(
-      "Baseline since: 6 months ago (scanned 2026-07-20T10:00:00.000Z)",
-    );
-    expect(lines[1]).toBe(
-      "Current since: 6 months ago (scanned 2026-07-22T11:00:00.000Z)",
-    );
-    expect(lines[2]).toBe(
-      "Hotspot deltas: showing 3 of 3 (new 1, removed 1, rank changed 1)",
-    );
-    expect(lines[3]).toBe("Warnings: 0");
-  });
-
-  it("reports shown vs total on sliced compare deltas", () => {
-    const full = loadCompareFixture();
-    const displayed = sliceCompareResult(full, 1);
-    const lines = buildCompareExecutiveSummary(full, displayed);
-
-    expect(lines[2]).toBe(
-      "Hotspot deltas: showing 3 of 3 (new 1, removed 1, rank changed 1)",
-    );
-    expect(lines[3]).toBe("Warnings: 0");
-  });
-
-  it("uses compare-level meta.warnings only, not nested scan warnings", () => {
-    const full = loadCompareFixture();
-    full.meta.warnings = [
-      { severity: "warning", message: "compare", code: "COMPARE_SINCE_MISMATCH" },
-    ];
-    full.meta.baseline.warnings = [
-      { severity: "warning", message: "baseline", code: "MEGA_COMMIT_SKIPPED" },
-    ];
-    full.meta.current.warnings = [
-      { severity: "warning", message: "current", code: "PARSE_FAILED" },
-    ];
-    const lines = buildCompareExecutiveSummary(full, full);
-
-    expect(lines.at(-1)).toBe(
-      "Warnings: 1 total (COMPARE_SINCE_MISMATCH: 1)",
-    );
-  });
-
-  it("uses clear empty-delta copy when hotspot deltas total zero", () => {
-    const baseline = loadScanFixture("compare-baseline-file.json");
-    const full = compareScanResults(baseline, {
-      ...baseline,
-      meta: { ...baseline.meta, scannedAt: "2026-07-22T11:00:00.000Z" },
-    });
-    const lines = buildCompareExecutiveSummary(full, full);
-
-    expect(lines[2]).toBe(
-      "Hotspot deltas: No rank changes (no new, removed, or rank-changed hotspots)",
-    );
-    expect(lines[2]).not.toContain("showing 0 of 0");
-  });
-
-  it("appends Timing from current scan meta when present", () => {
-    const full = loadCompareFixture();
-    full.meta.current.timings = {
-      gitMs: 800,
-      complexityMs: 900,
-      totalMs: 1200,
-    };
-    const lines = buildCompareExecutiveSummary(full, full);
-
-    expect(lines.at(-1)).toBe(
-      "Timing: total 1.2s (git 800ms, complexity 900ms; stages may run concurrently)",
-    );
-  });
-
-  it("omits Timing when current scan meta has no timings", () => {
-    const full = loadCompareFixture();
-    const lines = buildCompareExecutiveSummary(full, full);
-
-    expect(lines.some((line) => line.startsWith("Timing:"))).toBe(false);
   });
 });
 

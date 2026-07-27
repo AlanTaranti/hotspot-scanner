@@ -19,7 +19,7 @@ Canonical reference for AI agents working in this repository.
 git log (streaming) → NCLOC size analysis → scoring (hotspot) → report (table / JSON / markdown / CSV)
 ```
 
-Optional: `--baseline` → compare → delta report. Config: `.hotspot-scanner.json` (CLI > config > defaults). JSON contract `version: "3.0"`.
+Config: `.hotspot-scanner.json` (CLI > config > defaults). JSON contract `version: "3.0"`. Compare/baseline removed in M71 — `parseScanResult` retained for programmatic consumers.
 
 ## Quality gate
 
@@ -49,9 +49,9 @@ pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug> --since "12 months ag
 
 | Exit code | Meaning |
 | --------- | ------- |
-| `0` | Scan or compare completed successfully (`--explain` miss without `--fail-on-explain-miss` also exits `0`) |
-| `1` | `--strict` compare with `COMPARE_SINCE_MISMATCH`, or `--fail-on-explain-miss` with missing target |
-| `2` | Invalid CLI args, invalid/missing baseline, config validation errors |
+| `0` | Scan completed successfully (`--explain` miss without `--fail-on-explain-miss` also exits `0`) |
+| `1` | `--fail-on-explain-miss` with missing explain target |
+| `2` | Invalid CLI args, config validation errors, or usage errors (including unknown removed `compare` / `baseline` / `--baseline` / `--strict`) |
 | `130` | Cancelled by `SIGINT` (POSIX 128+2) |
 | `143` | Cancelled by `SIGTERM` (POSIX 128+15) |
 
@@ -64,7 +64,7 @@ After changing Cursor hooks under `.cursor/hooks/`, run `pnpm hooks:smoke` (does
 | Skill                     | Use for                                                            |
 | ------------------------- | ------------------------------------------------------------------ |
 | `vitals-spec-driven`      | Specify → Design → Tasks → Execute workflow                        |
-| `vitals-pipeline-domain`  | Domain context (git, NCLOC, scoring, compare, config, report) |
+| `vitals-pipeline-domain`  | Domain context (git, NCLOC, scoring, scan-result parse, config, report) |
 | `vitals-cli-validation`   | CLI flag and fixture validation                                    |
 | `task-implementer`        | Single `tasks.md` task RED→GREEN→VERIFY (used by `implementer`)    |
 | `coding-guidelines`       | Surgical diffs, simplicity, anti-overengineering                   |

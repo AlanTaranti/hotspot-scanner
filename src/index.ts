@@ -2,10 +2,9 @@
 export const PACKAGE_NAME = "@vitals/hotspot-scanner";
 
 export {
-  compareScanResults,
-  loadBaseline,
   parseScanResult,
-} from "./compare/index.js";
+  ScanResultParseError,
+} from "./scan-result/index.js";
 export { runDoctor } from "./doctor/index.js";
 export { previewScanScope } from "./scan-preview.js";
 export { runScan } from "./scan.js";
@@ -19,12 +18,8 @@ export type {
 } from "./doctor/index.js";
 export type { ScanScopePreview } from "./scan-preview.js";
 export type {
-  CompareMeta,
-  CompareResult,
   FileChangeStats,
-  HotspotCompareSection,
   HotspotScore,
-  RankChange,
   ScanMeta,
   ScanOptions,
   ScanResult,

@@ -25,21 +25,26 @@
 
 ## Scope
 
-**Shipped (v1 + post-v1 through M57):**
+**Shipped (v1 + post-v1 through M71):**
 
-- `hotspot-scanner` multi-command CLI: `init`, `doctor`, `scan`, `baseline save`, `compare`, `completion`
-- `scan` with `--since`, `--format`, `--top`, `--baseline`, `--output`, `--include` / `--exclude`, `--include-tests`, `--config`, `--concurrency`, `--sequential` / `--no-overlap`, `--only`, `--explain`, `--strict`, `--quiet` / `--no-progress` / `--verbose`, `--dry-run`
+- `hotspot-scanner` multi-command CLI: `init`, `config validate`, `config print`, `doctor`, `scan`, `completion`
+- `scan` with `--since`, `--format`, `--top`, `--output`, `--include` / `--exclude`, `--include-tests`, `--config`, `--concurrency`, `--sequential` / `--no-overlap`, `--only`, `--explain`, `--fail-on-explain-miss`, `--quiet` / `--no-progress` / `--verbose`, `--dry-run`, `--warnings`, `--csv-single-file`
 - Git Change Miner: streaming numstat pass for file churn
 - Size analyzer: NCLOC over eligible TS/JS sources (worker-thread pool optional)
 - Hotspot Scorer (file hotspots only)
-- CLI table, JSON (`version: "3.0"`), markdown, and CSV bundle output; interpretation UX; compare deltas for hotspots
+- CLI table, JSON (`version: "3.0"`), markdown, and CSV bundle output; interpretation UX
 - Path scoping, monorepo remount, config file, observability (`meta.warnings`, `meta.timings`, cancel, doctor JSON)
-- Package entry exports `runScan`, `previewScanScope`, `runDoctor`, compare helpers
-- Milestone checklist: [ROADMAP.md](ROADMAP.md) (M1–M57)
+- Package entry exports `runScan`, `previewScanScope`, `runDoctor`, `parseScanResult`, `ScanResultParseError`
+- Milestone checklist: [ROADMAP.md](ROADMAP.md) (M1–M71)
 
 **Removed (M57):**
 
 - McCabe cyclomatic complexity, `ts-morph`, function granularity (`--granularity`), function-churn patch mining, `functions` array in JSON, `cyclomaticComplexity` / `parseFailed` hotspot fields
+
+**Removed (M71):**
+
+- Compare/baseline CLI (`compare`, `baseline save`, `scan --baseline`, `--strict`), `compareScanResults` / `loadBaseline`, compare report modules, `schemas/compare-result.json`
+- `COMPARE_SINCE_MISMATCH` warning code
 
 **Excludes / Next:**
 

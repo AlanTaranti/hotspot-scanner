@@ -8,7 +8,6 @@ export default defineConfig({
       "#diagnostics": resolve(__dirname, "src/diagnostics/index.ts"),
       "#report": resolve(__dirname, "src/report/index.ts"),
       "#scoring": resolve(__dirname, "src/scoring/index.ts"),
-      "#compare": resolve(__dirname, "src/compare/index.ts"),
     },
   },
   test: {

@@ -50,17 +50,8 @@ export function renderTableGlossary(): string[] {
 }
 
 /** GFM `## How to read this` section with the same metric semantics as the table glossary. */
-export function renderMarkdownHowToRead(options?: {
-  compare?: boolean;
-}): string[] {
+export function renderMarkdownHowToRead(): string[] {
   const lines = ["## How to read this", ""];
-
-  if (options?.compare) {
-    lines.push(
-      "Compare reports use the same metrics on the **current** snapshot. Rank-change tables add baseline rank, current rank, and rank delta alongside the columns below.",
-      "",
-    );
-  }
 
   for (const { term, definition } of METRIC_GLOSSARY) {
     lines.push(`- **${term}** — ${definition}`);

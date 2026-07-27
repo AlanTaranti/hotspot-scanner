@@ -9,8 +9,6 @@ const LOCKED_COMMANDS = [
   "init",
   "doctor",
   "scan",
-  "baseline",
-  "compare",
   "completion",
 ] as const;
 
@@ -42,8 +40,6 @@ function expectWarningsJsonText(shell: string, script: string): void {
   expect(script).toContain(WARNINGS_JSON_TEXT);
 }
 
-const BASELINE_QUIET_TRIO = ["--quiet", "--verbose", "--no-progress"] as const;
-
 function expectCompletionScriptBasics(script: string): void {
   for (const command of LOCKED_COMMANDS) {
     expect(script).toContain(command);
@@ -53,7 +49,10 @@ function expectCompletionScriptBasics(script: string): void {
   }
   expect(script).not.toContain("--granularity");
   expect(script).not.toContain("functions");
-  expect(script).toContain("save");
+  expect(script).not.toContain("--baseline");
+  expect(script).not.toContain("--strict");
+  expect(script).not.toContain("baseline");
+  expect(script).not.toContain("compare");
 }
 
 describe("getCompletionScript", () => {
@@ -76,17 +75,6 @@ describe("getCompletionScript", () => {
         expect(script).toContain(flag);
       }
       expectWarningsJsonText(shell, script);
-    },
-  );
-
-  it.each(COMPLETION_SHELLS)(
-    "%s script includes baseline save quiet/verbose/no-progress flags",
-    (shell) => {
-      const script = getCompletionScript(shell);
-
-      for (const flag of BASELINE_QUIET_TRIO) {
-        expect(script).toContain(flag);
-      }
     },
   );
 
