@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M71 Done**. Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
+Status: **M7–M71 Done**. **M72 Planned** (complexity-trend). Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
 
 **M12** intentionally absent (CI fail-on-score removed — see STATE).
 
@@ -18,11 +18,13 @@ Status: **M7–M71 Done**. Deferred horizon in [STATE.md](STATE.md) (npm publish
 
 ### Open
 
-_None — M71 Done._
+| Milestone | Slug | Specs |
+| --------- | ---- | ----- |
+| **M72** | `complexity-trend` | [Planned](../features/complexity-trend/tasks.md) — indentation complexity vs size over Git history for one file; ASCII sparklines; CLI `trend` |
 
 ### Done
 
-M7–M71 historical detail below. Deferred horizon in [STATE.md](STATE.md).
+M7–M71 historical detail below. M72 Planned under Open. Deferred horizon in [STATE.md](STATE.md).
 
 ## Milestone 1 — Scaffold
 
@@ -1004,6 +1006,26 @@ Hard cut to **scan-only**: deleted `compare`, `baseline save`, `scan --baseline`
 - [x] Final gate `pnpm build && pnpm test` (880 tests)
 
 **Out of scope:** Soft deprecation; npm/SARIF; fail-on-warning; Item C; score formula; rewriting historical Done sister specs.
+
+---
+
+## Milestone 72 — Complexity trend — PLANNED
+
+→ [`.specs/features/complexity-trend/spec.md`](../features/complexity-trend/spec.md)  
+**Slug:** `complexity-trend` | **Priority:** High | **Specs:** Planned  
+**IDs:** HOTSPOT-1400–1499 (1470–1499 reserved; active 1400–1425) | **Depth:** Complex  
+**Sisters:** ncloc-metric (M57), explain-and-scan-feedback (M42), cli-surface-polish (M38), remove-compare-baseline (M71 — do not reopen compare)  
+**Artifacts:** [context.md](../features/complexity-trend/context.md) · [spec.md](../features/complexity-trend/spec.md) · [design.md](../features/complexity-trend/design.md) · [tasks.md](../features/complexity-trend/tasks.md) (`Status: Planned`)
+
+Dedicated `hotspot-scanner trend <file>` command: path-scoped Git history (`--follow` default), indentation complexity `{ n, total, mean, sd, max }` + `ncloc` per revision, uniform `--max-revisions` 100 (or `--all`), formats table/json/csv, ASCII sparklines for `mean`/`ncloc` in table+JSON meta. Separate JSON contract `version: "1.0"` / `kind: "complexity-trend"`. Library export `runComplexityTrend`. Does **not** change scan pipeline or scan JSON `3.0`.
+
+- [ ] Indentation analyzer + sparkline + uniform sample
+- [ ] Git file-history helpers + `runComplexityTrend` + schema
+- [ ] Reporters + CLI `trend` + completions
+- [ ] Fixture + living docs + public export
+- [ ] Final gate `pnpm build && pnpm test` (Execute session)
+
+**Out of scope:** `--classify`; `git cat-file --batch`; explain auto-hint; config inheritance; markdown/charts; McCabe; compare/baseline; scan contract changes.
 
 ---
 
