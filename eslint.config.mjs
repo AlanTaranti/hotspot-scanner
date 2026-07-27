@@ -28,4 +28,23 @@ export default tseslint.config(
       "@typescript-eslint/no-explicit-any": "off",
     },
   },
+  {
+    files: ["bin/**/*.ts"],
+    ignores: ["bin/**/*.test.ts"],
+    rules: {
+      "@typescript-eslint/no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["../src", "../src/*", "../src/**"],
+              allowTypeImports: false,
+              message:
+                "Bin must import src via # aliases (package.json imports), not ../src/ paths.",
+            },
+          ],
+        },
+      ],
+    },
+  },
 );

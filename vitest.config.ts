@@ -8,6 +8,7 @@ export default defineConfig({
       "#diagnostics": resolve(__dirname, "src/diagnostics/index.ts"),
       "#report": resolve(__dirname, "src/report/index.ts"),
       "#scoring": resolve(__dirname, "src/scoring/index.ts"),
+      "#types": resolve(__dirname, "src/types/index.ts"),
     },
   },
   test: {
@@ -16,6 +17,7 @@ export default defineConfig({
       "src/**/*.test.ts",
       "bin/**/*.test.ts",
       "tests/contract/**/*.test.ts",
+      "tests/compiled-cli.smoke.test.ts",
     ],
     exclude: ["tests/fixtures/**", "node_modules/**", "dist/**"],
     coverage: {

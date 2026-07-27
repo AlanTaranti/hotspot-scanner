@@ -2,6 +2,15 @@
 
 Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rules/fragile-areas.mdc`](../../.cursor/rules/fragile-areas.mdc) and edit hooks.
 
+## CLI bin (`bin/`)
+
+**Risk:** `../src/...` imports in production bin files compile to `dist/bin/` but resolve at runtime to non-existent `dist/src/...` (`ERR_MODULE_NOT_FOUND`). Vitest runs bin from source and does not catch this.
+
+| Concern | Mitigation |
+| ------- | ---------- |
+| Value imports from `../src/` in `bin/*.ts` | Use `#` aliases only (`#scan`, `#trend`, `#types`, …); ESLint `@typescript-eslint/no-restricted-imports` on `bin/**/*.ts` (excludes `*.test.ts`) |
+| Shipped CLI untested after compile | `tests/compiled-cli.smoke.test.ts` spawns `node dist/bin/hotspot-scanner.js` — requires `pnpm build` before `pnpm test` |
+
 ## Git Change Miner (`src/git/`)
 
 **Risk:** Incorrect parsing distorts churn for all downstream scores.

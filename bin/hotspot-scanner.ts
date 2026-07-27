@@ -30,7 +30,8 @@ import {
   previewScanScope,
 } from "#scan";
 import { runDoctor, formatDoctorJsonReport, type DoctorFinding } from "#doctor";
-import type { ScanResult } from "../src/types/index.js";
+import { TREND_CLI_METRICS_HELP } from "#trend";
+import type { ScanResult } from "#types";
 import {
   buildScanOptions,
   CliUsageError,
@@ -46,7 +47,6 @@ import {
   mapTrendError,
   parseTrendFormat,
 } from "./trend-actions.js";
-import { TREND_CLI_METRICS_HELP } from "../src/trend/metric-legend.js";
 
 export {
   CliUsageError,

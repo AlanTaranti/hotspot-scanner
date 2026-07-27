@@ -16,7 +16,8 @@
       "#config": ["src/config/index.ts"],
       "#doctor": ["src/doctor/index.ts"],
       "#git": ["src/git/index.ts"],
-      "#trend": ["src/trend/index.ts"]
+      "#trend": ["src/trend/index.ts"],
+      "#types": ["src/types/index.ts"]
     }
   },
   "references": [{ "path": "./tsconfig.json" }],

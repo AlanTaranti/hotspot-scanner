@@ -25,7 +25,8 @@
     "#config": "./dist/config/index.js",
     "#doctor": "./dist/doctor/index.js",
     "#git": "./dist/git/index.js",
-    "#trend": "./dist/trend/index.js"
+    "#trend": "./dist/trend/index.js",
+    "#types": "./dist/types/index.js"
   },
   "files": [
     "dist",

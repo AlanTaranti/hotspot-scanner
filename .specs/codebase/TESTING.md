@@ -6,7 +6,7 @@
 pnpm build && pnpm test
 ```
 
-Required before marking any task Complete. Agents: use `verifier-quality-gates` or run inline.
+Required before marking any task Complete. Agents: use `verifier-quality-gates` or run inline. Run `pnpm lint` when changing `bin/` or ESLint config.
 
 ## Test runner
 
@@ -15,7 +15,8 @@ Required before marking any task Complete. Agents: use `verifier-quality-gates` 
 Config: `vitest.config.ts` at repo root.
 
 - `pnpm test` runs `vitest run --coverage` (coverage is not optional)
-- Vitest resolves `#scan`, `#report`, `#diagnostics`, and `#scoring` aliases to **source** modules under `src/` during tests — run `pnpm build` before `pnpm test`
+- Vitest resolves `#scan`, `#report`, `#diagnostics`, `#scoring`, and `#types` aliases to **source** modules under `src/` during tests; other `#` aliases resolve via `package.json` `imports` to **dist/** (run `pnpm build` first)
+- **`tests/compiled-cli.smoke.test.ts`** exercises the **compiled** CLI at `dist/bin/hotspot-scanner.js` (`trend`/`scan`/`doctor --help`); run `pnpm build` before `pnpm test` (gate order: build then test)
 
 ## Coverage
 

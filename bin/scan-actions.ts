@@ -11,11 +11,7 @@ import {
 } from "#diagnostics";
 import type { CsvBundle, ReportSection } from "#report";
 import { runScan } from "#scan";
-import type {
-  ScanOptions,
-  ScanResult,
-  ScanStageTimings,
-} from "../src/types/index.js";
+import type { ScanOptions, ScanResult, ScanStageTimings } from "#types";
 
 export type { WarningsMode };
 
