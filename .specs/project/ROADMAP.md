@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M60 Done.** **M61 Planned** (inline progress bar). Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize, residual `*.test.mjs`/`*.spec.cjs`).
+Status: **M7–M60 Done.** **M61–M67 Specs Planned** (Execute not started). Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize). Residual `*.test.mjs`/`*.spec.cjs` + `.mts`/`.cts` → **M67**.
 
 **M12** intentionally absent (CI fail-on-score removed — see STATE).
 
@@ -14,10 +14,19 @@ Status: **M7–M60 Done.** **M61 Planned** (inline progress bar). Deferred horiz
 | M37–M45 | README adoption, CLI polish, init/doctor/dry-run, workflows, interpretation UX, explain, monorepo remount, package exports enrich, adoption docs |
 | M46–M55 | Exclude tests by default, git pathspecs, scope extensions, ranking accuracy+, observability, doctor scope parity, perf controls, API trust docs, compare interpretation, CLI adoption extras |
 | M56–M60 | Remove coupling; NCLOC metric (retire McCabe/function mode); CLI `--warnings summary|full` stderr aggregation; ephemeral TTY scan progress; table path column UX |
+| M61–M67 | Inline progress (M61); DX batch: feedback/copy, CLI parity, config/doctor, git hints, contract enrich, scope+ (Specs Planned) |
 
 ### Open
 
-- [ ] **M61** — Inline progress bar (complexity fill bar + `Finalizing…` + deferred flush) — Specs Planned — [`.specs/features/inline-progress-bar/`](../features/inline-progress-bar/)
+- [ ] **M61** — Inline progress bar — Specs Planned — [`.specs/features/inline-progress-bar/`](../features/inline-progress-bar/)
+- [ ] **M62** — Feedback and copy UX — Specs Planned — [`.specs/features/feedback-copy-ux/`](../features/feedback-copy-ux/)
+- [ ] **M63** — CLI surface parity — Specs Planned — [`.specs/features/cli-surface-parity/`](../features/cli-surface-parity/)
+- [ ] **M64** — Config and doctor DX — Specs Planned — [`.specs/features/config-doctor-dx/`](../features/config-doctor-dx/)
+- [ ] **M65** — Git error UX — Specs Planned — [`.specs/features/git-error-ux/`](../features/git-error-ux/)
+- [ ] **M66** — Contract enrich (additive 3.0) — Specs Planned — [`.specs/features/contract-enrich-additive/`](../features/contract-enrich-additive/)
+- [ ] **M67** — Scope extensions plus — Specs Planned — [`.specs/features/scope-extensions-plus/`](../features/scope-extensions-plus/)
+
+**Suggested Execute order:** M61 (optional parallel) → **M62 → M63 → M64 → M65 → M66 → M67**.
 
 ### Done
 
@@ -836,6 +845,100 @@ Homegrown complexity fill bar (TTY `█░` / non-TTY `#-`) with honest `filesPr
 
 ---
 
+## Post-M61 backlog — DX batch (M62–M67)
+
+Specs **Planned** (2026-07-26). Locked decisions in each feature `context.md`. Execute order: M62 → M63 → M64 → M65 → M66 → M67 (M61 may run in parallel; coordinate M62 `since=` progress prefix with M61 finalize if both open).
+
+### Milestone 62 — Feedback and copy UX — Planned
+
+→ [`.specs/features/feedback-copy-ux/spec.md`](../features/feedback-copy-ux/spec.md)  
+**Slug:** `feedback-copy-ux` | **Priority:** High | **Specs:** Planned  
+**IDs:** HOTSPOT-1030–1059 (1046–1059 reserved) | **Depth:** Large  
+**Sisters:** csv-bundle (M18), cli-surface-polish (M38), workflow-subcommands (M40), scan-observability (M51), compare-interpretation (M53), cli-warnings-mode (M58), tty-ephemeral-progress (M59), inline-progress-bar (M61)  
+**Artifacts:** [context.md](../features/feedback-copy-ux/context.md) · [spec.md](../features/feedback-copy-ux/spec.md) · [design.md](../features/feedback-copy-ux/design.md) · [tasks.md](../features/feedback-copy-ux/tasks.md) (Status: **Planned**)
+
+CSV write confirmation on stderr; timings in summary + stderr; help/README without milestone jargon; `since=` on first progress line; compare empty-state copy; `BaselineError` → exit 2; baseline hint mentions `baseline save`.
+
+- [ ] Report + diagnostics (CSV confirm, timings, since= prefix, empty compare copy)
+- [ ] Bin exit mapping + baseline hint + help de-jargon
+- [ ] README user-facing milestone ID cleanup
+- [ ] Final gate `pnpm build && pnpm test` (Execute session)
+
+### Milestone 63 — CLI surface parity — Planned
+
+→ [`.specs/features/cli-surface-parity/spec.md`](../features/cli-surface-parity/spec.md)  
+**Slug:** `cli-surface-parity` | **Priority:** High | **Specs:** Planned  
+**IDs:** HOTSPOT-1060–1099 (1096–1099 reserved) | **Depth:** Large  
+**Sisters:** csv-bundle (M18), cli-surface-polish (M38), workflow-subcommands (M40), explain-and-scan-feedback (M42), cli-adoption-extras (M54), cli-warnings-mode (M58)  
+**Artifacts:** [context.md](../features/cli-surface-parity/context.md) · [spec.md](../features/cli-surface-parity/spec.md) · [design.md](../features/cli-surface-parity/design.md) · [tasks.md](../features/cli-surface-parity/tasks.md) (Status: **Planned**)
+
+`baseline save` quiet/progress/verbose parity; zsh/fish completions ↔ bash; path-looking argv → `scan`; `--fail-on-explain-miss`; `--warnings=json`; `--csv-single-file` opt-in (default bundle intact).
+
+- [ ] Baseline save flag parity + path→scan rewrite
+- [ ] `--fail-on-explain-miss` + `--warnings=json` + `--csv-single-file`
+- [ ] Completions + docs
+- [ ] Final gate `pnpm build && pnpm test` (Execute session)
+
+### Milestone 64 — Config and doctor DX — Planned
+
+→ [`.specs/features/config-doctor-dx/spec.md`](../features/config-doctor-dx/spec.md)  
+**Slug:** `config-doctor-dx` | **Priority:** High | **Specs:** Planned  
+**IDs:** HOTSPOT-1100–1139 (1136–1139 reserved) | **Depth:** Large  
+**Sisters:** config-file (M21), path-config-dx (M30), cli-init-doctor-dry-run (M39), doctor-scope-parity (M52), api-trust-docs (M55)  
+**Artifacts:** [context.md](../features/config-doctor-dx/context.md) · [spec.md](../features/config-doctor-dx/spec.md) · [design.md](../features/config-doctor-dx/design.md) · [tasks.md](../features/config-doctor-dx/tasks.md) (Status: **Planned**)
+
+Richer init (`$schema`, `$comments`, realistic globs); `schemas/hotspot-scanner-config.json` + package `exports`; `config validate` / `config print`; dry-run prelude context; doctor `--since` preflight.
+
+- [ ] Config schema + reserved meta keys + rich exemplar
+- [ ] `config validate` / `config print` subcommands
+- [ ] Dry-run + doctor since preflight
+- [ ] Final gate `pnpm build && pnpm test` (Execute session)
+
+### Milestone 65 — Git error UX — Planned
+
+→ [`.specs/features/git-error-ux/spec.md`](../features/git-error-ux/spec.md)  
+**Slug:** `git-error-ux` | **Priority:** Medium | **Specs:** Planned  
+**IDs:** HOTSPOT-1140–1159 (1151–1159 reserved) | **Depth:** Medium  
+**Sisters:** cli-surface-polish (M38 hints), config-doctor-dx (M64 since preflight — do not duplicate)  
+**Artifacts:** [context.md](../features/git-error-ux/context.md) · [spec.md](../features/git-error-ux/spec.md) · [design.md](../features/git-error-ux/design.md) · [tasks.md](../features/git-error-ux/tasks.md) (Status: **Planned**)
+
+Runtime `GitLogError` / related hints for invalid `--since`, shallow clone, corrupt repo stderr patterns.
+
+- [ ] Hint helper + wire constructors
+- [ ] Living docs
+- [ ] Final gate `pnpm build && pnpm test` (Execute session)
+
+### Milestone 66 — Contract enrich (additive 3.0) — Planned
+
+→ [`.specs/features/contract-enrich-additive/spec.md`](../features/contract-enrich-additive/spec.md)  
+**Slug:** `contract-enrich-additive` | **Priority:** High | **Specs:** Planned  
+**IDs:** HOTSPOT-1160–1199 (1185–1199 reserved) | **Depth:** Large  
+**Sisters:** scan-compare (M13), json-contract (M20), compare-interpretation (M53), ncloc-metric (M57)  
+**Artifacts:** [context.md](../features/contract-enrich-additive/context.md) · [spec.md](../features/contract-enrich-additive/spec.md) · [design.md](../features/contract-enrich-additive/design.md) · [tasks.md](../features/contract-enrich-additive/tasks.md) (Status: **Planned**)
+
+Additive under `version: "3.0"` (no bump): `meta.scannerVersion`; JSON `$schema`; compare `rankChanged` deltas (`scoreDelta`, `nclocDelta`, `commitCountDelta`). Old baselines remain valid.
+
+- [ ] Types/schemas + emit scannerVersion / `$schema`
+- [ ] Compare deltas + reporters (table/md/json/csv) + explain
+- [ ] Contract tests + living docs
+- [ ] Final gate `pnpm build && pnpm test` (Execute session)
+
+### Milestone 67 — Scope extensions plus — Planned
+
+→ [`.specs/features/scope-extensions-plus/spec.md`](../features/scope-extensions-plus/spec.md)  
+**Slug:** `scope-extensions-plus` | **Priority:** Medium | **Specs:** Planned  
+**IDs:** HOTSPOT-1200–1229 (1213–1229 reserved) | **Depth:** Medium  
+**Sisters:** exclude-tests-by-default (M46), scope-extensions-excludes (M48)  
+**Artifacts:** [context.md](../features/scope-extensions-plus/context.md) · [spec.md](../features/scope-extensions-plus/spec.md) · [design.md](../features/scope-extensions-plus/design.md) · [tasks.md](../features/scope-extensions-plus/tasks.md) (Status: **Planned**)
+
+Close residual test-glob gap (`*.test/spec` × mjs/cjs/mts/cts); add `.mts` / `.cts` to `ELIGIBLE_EXTENSIONS`.
+
+- [ ] Test exclude patterns + eligible extensions
+- [ ] Living docs / clear CONCERNS residual
+- [ ] Final gate `pnpm build && pnpm test` (Execute session)
+
+---
+
 ## Further horizon
 
 Remains in [STATE.md](STATE.md) **Deferred**:
@@ -843,4 +946,4 @@ Remains in [STATE.md](STATE.md) **Deferred**:
 - npm / npx / `pnpm dlx` publish install path
 - CI recipes / fail-on stable deltas / SARIF
 - Historical AST post-rename (**do not prioritize**)
-- Residual co-located `*.test.mjs` / `*.spec.cjs` default-exclude follow-up (accepted gap today)
+- ~~Residual co-located `*.test.mjs` / `*.spec.cjs`~~ → **M67 Planned** (closes gap)
