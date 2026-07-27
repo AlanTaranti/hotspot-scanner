@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M70 Done.** Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
+Status: **M7–M70 Done. M71 Open** (specs Planned). Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
 
 **M12** intentionally absent (CI fail-on-score removed — see STATE).
 
@@ -18,7 +18,9 @@ Status: **M7–M70 Done.** Deferred horizon in [STATE.md](STATE.md) (npm publish
 
 ### Open
 
-_None — see Deferred horizon in [STATE.md](STATE.md)._
+| Milestone | Slug | Specs |
+| --------- | ---- | ----- |
+| **M71** | `remove-compare-baseline` | [spec.md](../features/remove-compare-baseline/spec.md) · [context.md](../features/remove-compare-baseline/context.md) · [design.md](../features/remove-compare-baseline/design.md) · [tasks.md](../features/remove-compare-baseline/tasks.md) (**Status: Planned**) |
 
 ### Done
 
@@ -982,6 +984,28 @@ Add `Lines` (`linesChanged`) column to scan `table.ts` mirroring markdown; gloss
 - [x] Final gate `pnpm build && pnpm test` (Execute session)
 
 **Out of scope:** Compare table layout expansion; git miner / `linesChanged` semantics; new flags.
+
+---
+
+## Milestone 71 — Remove compare & baseline — OPEN (Specs Planned)
+
+→ [`.specs/features/remove-compare-baseline/spec.md`](../features/remove-compare-baseline/spec.md)  
+**Slug:** `remove-compare-baseline` | **Priority:** High | **Specs:** Planned  
+**IDs:** HOTSPOT-1300–1329 (1316–1329 reserved) | **Depth:** Complex  
+**Precedent:** [remove-coupling-analysis](../features/remove-coupling-analysis/) (M56)  
+**Sisters (historical Done — superseded, not reopened):** scan-compare (M13), workflow-subcommands (M40), compare-interpretation (M53), csv-bundle (M18), json-contract (M20), contract-enrich-additive (M66)  
+**Artifacts:** [context.md](../features/remove-compare-baseline/context.md) · [spec.md](../features/remove-compare-baseline/spec.md) · [design.md](../features/remove-compare-baseline/design.md) · [tasks.md](../features/remove-compare-baseline/tasks.md) (Status: **Planned**)
+
+Hard cut to **scan-only**: delete `compare`, `baseline save`, `scan --baseline`, `--strict`, compare reporters, `schemas/compare-result.json`, public `compareScanResults` / `loadBaseline` / `Compare*` types, and `COMPARE_SINCE_MISMATCH`. Keep `parseScanResult` under `src/scan-result/` with renamed `ScanResultParseError`. Scan JSON stays `version: "3.0"`.
+
+- [ ] Relocate `parseScanResult` + `ScanResultParseError` (`src/scan-result/`)
+- [ ] Strip CLI / completions / scan-actions compare wiring
+- [ ] Delete compare domain + report modules + types + `#compare`
+- [ ] Delete compare schema + purge fixtures; negative CLI tests
+- [ ] Sync living docs / skills / AGENTS (exit table)
+- [ ] Final gate `pnpm build && pnpm test` (Execute session)
+
+**Out of scope:** Soft deprecation; npm/SARIF; fail-on-warning; Item C; score formula; rewriting historical Done sister specs.
 
 ---
 

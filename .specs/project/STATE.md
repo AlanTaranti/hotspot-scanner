@@ -130,6 +130,10 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-27 | **M68 warnings-bookend-dx Done** | Execute complete: `emitWarningTeaser()` pre-write rollup under `summary`; post-write `flushWarnings`; compare table/markdown body dedup; docs/ARCHITECTURE/AGENTS synced. Gate green (`pnpm build && pnpm test`, 1027 tests). Specs: `.specs/features/warnings-bookend-dx/` (Done). |
 | 2026-07-27 | **M69 write-confirm-ux Done** | Execute complete: stderr `Wrote <path>` after `--output` table/md/json and `--csv-single-file`; `--quiet` suppresses; bundle confirm unchanged. Gate green. Specs: `.specs/features/write-confirm-ux/` (Done). |
 | 2026-07-27 | **M70 table-lines-parity Done** | Execute complete: `Lines` column in scan table + glossary parity with markdown. Gate green. Specs: `.specs/features/table-lines-parity/` (Done). **M68–M70 batch complete.** |
+| 2026-07-27 | **M71 remove-compare-baseline Specs Planned (Complex)** | Hard cut to scan-only: remove `compare`, `baseline save`, `scan --baseline`, `--strict`, compare reporters/schema/types, `COMPARE_SINCE_MISMATCH`. Keep `parseScanResult` under **`src/scan-result/`**; rename `BaselineError` → **`ScanResultParseError`** (no alias). Scan JSON stays **`version: "3.0"`**. IDs HOTSPOT-1300+. Specs: `.specs/features/remove-compare-baseline/` (Status: Planned). Historical Done sisters (M13/M40/M53…) superseded, not reopened. |
+| 2026-07-27 | **M71 hard cut — no deprecation** | No shim flags, no empty compare stubs, no soft-deprecation window (M56 precedent). |
+| 2026-07-27 | **M71 public API — parse only** | Remove `compareScanResults`, `loadBaseline`, `Compare*`; keep `parseScanResult` + `ScanResultParseError`. Drop `#compare`. |
+| 2026-07-27 | **M71 scan contract unchanged** | Stay at JSON `"3.0"`; delete `schemas/compare-result.json` entirely (no compare contract migration). |
 
 ## Architecture decisions (ADRs)
 
@@ -166,7 +170,7 @@ _None._
 
 ## Active
 
-**M7–M70 Done.** No open milestones. Deferred horizon: npm publish; CI/SARIF; historical AST; item C (scan body full warnings); fail-on-warning.
+**M71 Open** — `remove-compare-baseline` specs **Planned** (`.specs/features/remove-compare-baseline/`). Promote tasks.md Status → Approved/Ready for Execute in a new session, then `orchestrator-implementer`. M7–M70 Done. Deferred horizon: npm publish; CI/SARIF; historical AST; item C (scan body full warnings); fail-on-warning.
 
 ## Deferred
 
