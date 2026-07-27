@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M67 Done.** Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
+Status: **M7–M67 Done.** **M68–M70 Specs Planned.** Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
 
 **M12** intentionally absent (CI fail-on-score removed — see STATE).
 
@@ -18,19 +18,15 @@ Status: **M7–M67 Done.** Deferred horizon in [STATE.md](STATE.md) (npm publish
 
 ### Open
 
-- [x] **M61** — Inline progress bar — DONE — [`.specs/features/inline-progress-bar/`](../features/inline-progress-bar/)
-- [x] **M62** — Feedback and copy UX — DONE — [`.specs/features/feedback-copy-ux/`](../features/feedback-copy-ux/)
-- [x] **M63** — CLI surface parity — DONE — [`.specs/features/cli-surface-parity/`](../features/cli-surface-parity/)
-- [x] **M64** — Config and doctor DX — DONE — [`.specs/features/config-doctor-dx/`](../features/config-doctor-dx/)
-- [x] **M65** — Git error UX — DONE — [`.specs/features/git-error-ux/`](../features/git-error-ux/)
-- [x] **M66** — Contract enrich (additive 3.0) — DONE — [`.specs/features/contract-enrich-additive/`](../features/contract-enrich-additive/)
-- [x] **M67** — Scope extensions plus — DONE — [`.specs/features/scope-extensions-plus/`](../features/scope-extensions-plus/)
+- [ ] **M68** — Warnings presentation DX — Specs Planned — [`.specs/features/warnings-bookend-dx/`](../features/warnings-bookend-dx/)
+- [ ] **M69** — Write confirmation UX — Specs Planned — [`.specs/features/write-confirm-ux/`](../features/write-confirm-ux/)
+- [ ] **M70** — Report table Lines parity — Specs Planned — [`.specs/features/table-lines-parity/`](../features/table-lines-parity/)
 
-**Suggested Execute order:** _none — M62–M67 batch complete._
+**Suggested Execute order:** M68 → M69 → M70.
 
 ### Done
 
-M7–M60 historical detail below. Deferred horizon in [STATE.md](STATE.md).
+M7–M67 historical detail below. Deferred horizon in [STATE.md](STATE.md).
 
 ## Milestone 1 — Scaffold
 
@@ -939,6 +935,60 @@ Close residual test-glob gap (`*.test/spec` × mjs/cjs/mts/cts); add `.mts` / `.
 
 ---
 
+## Post-M67 backlog — Warnings & report DX (M68–M70)
+
+Specs **Planned** (2026-07-27). Locked decisions B/K in [warnings-bookend-dx/context.md](../features/warnings-bookend-dx/context.md); D/J in M69/M70 specs. Execute order: **M68 → M69 → M70**. Out of batch: item C (full warning lines in scan body), fail-on-warning, npm/SARIF, timing on `baseline save`.
+
+### Milestone 68 — Warnings presentation DX — Specs Planned
+
+→ [`.specs/features/warnings-bookend-dx/spec.md`](../features/warnings-bookend-dx/spec.md)  
+**Slug:** `warnings-bookend-dx` | **Priority:** High | **Specs:** Planned  
+**IDs:** HOTSPOT-1230–1259 (1255–1259 reserved) | **Depth:** Large  
+**Sisters:** cli-warnings-mode (M58), tty-ephemeral-progress (M59), inline-progress-bar (M61), feedback-copy-ux (M62), cli-surface-parity (M63)  
+**Artifacts:** [context.md](../features/warnings-bookend-dx/context.md) · [spec.md](../features/warnings-bookend-dx/spec.md) · [design.md](../features/warnings-bookend-dx/design.md) · [tasks.md](../features/warnings-bookend-dx/tasks.md) (Status: **Planned**)
+
+Stderr bookend (B): short teaser before write + full flush after; keep `Finalizing…` until teaser; `json` one emission at end; `full` streams during scan (no teaser / no re-emit on flush). Compare dedup (K): remove body `formatScanWarning` loops; keep exec-summary rollup. Docs: warning-codes timing + `json` (A+G); ROADMAP M58 “before Hotspots” notes (L); AGENTS exit codes (E).
+
+- [ ] Diagnostics teaser API + mode matrix tests
+- [ ] Compare table/markdown warning-body removal
+- [ ] Bin lifecycle (scan / compare / baseline save) + order tests
+- [ ] Docs sync (warning-codes, M58 notes, AGENTS exits, living notes)
+- [ ] Final gate `pnpm build && pnpm test` (Execute session)
+
+**Out of scope:** Item C; fail-on-warning; npm/SARIF; timing on `baseline save`; new flags; schema bump; M69/M70.
+
+### Milestone 69 — Write confirmation UX — Specs Planned
+
+→ [`.specs/features/write-confirm-ux/spec.md`](../features/write-confirm-ux/spec.md)  
+**Slug:** `write-confirm-ux` | **Priority:** Medium | **Specs:** Planned  
+**IDs:** HOTSPOT-1260–1279 (1275–1279 reserved) | **Depth:** Medium  
+**Sisters:** feedback-copy-ux (M62 CSV confirm), csv-bundle (M18), cli-surface-parity (M63), warnings-bookend-dx (M68)  
+**Artifacts:** [spec.md](../features/write-confirm-ux/spec.md) · [tasks.md](../features/write-confirm-ux/tasks.md) (Status: **Planned**)
+
+Stderr confirm after successful `--output` (table/md/json) and `--csv-single-file` writes; `--quiet` suppresses; CSV bundle confirm unchanged; no new flags.
+
+- [ ] `writeRenderedOutput` confirm + quiet/stdout/bundle matrix tests
+- [ ] Final gate `pnpm build && pnpm test` (Execute session)
+
+**Out of scope:** New flags; stdout-only confirm; baseline-save timing; M68/M70 implementation.
+
+### Milestone 70 — Report table Lines parity — Specs Planned
+
+→ [`.specs/features/table-lines-parity/spec.md`](../features/table-lines-parity/spec.md)  
+**Slug:** `table-lines-parity` | **Priority:** Medium | **Specs:** Planned  
+**IDs:** HOTSPOT-1280–1299 (1295–1299 reserved) | **Depth:** Medium-light  
+**Sisters:** reporter-cli (M5), output-interpretation-ux (M41), table-path-column-ux (M60)  
+**Artifacts:** [spec.md](../features/table-lines-parity/spec.md) · [tasks.md](../features/table-lines-parity/tasks.md) (Status: **Planned**)
+
+Add `Lines` (`linesChanged`) column to scan `table.ts` mirroring markdown; glossary/how-to-read wording; table tests. No schema bump.
+
+- [ ] Table Lines column + glossary + unit tests
+- [ ] Final gate `pnpm build && pnpm test` (Execute session)
+
+**Out of scope:** Compare table layout expansion; git miner / `linesChanged` semantics; new flags.
+
+---
+
 ## Further horizon
 
 Remains in [STATE.md](STATE.md) **Deferred**:
@@ -947,3 +997,5 @@ Remains in [STATE.md](STATE.md) **Deferred**:
 - CI recipes / fail-on stable deltas / SARIF
 - Historical AST post-rename (**do not prioritize**)
 - ~~Residual co-located `*.test.mjs` / `*.spec.cjs`~~ → **M67 Done** (gap closed)
+- Item C (full warning lines in scan report body) — deferred past M68 bookend/dedup
+- Fail-on-warning CI gates — deferred

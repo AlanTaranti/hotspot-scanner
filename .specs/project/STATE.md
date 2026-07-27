@@ -122,6 +122,11 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-26 | **M67 scope-extensions-plus Specs Planned (Medium)** | Residual test globs (mjs/cjs/mts/cts) + `.mts`/`.cts` eligible. IDs HOTSPOT-1200–1229. Specs: `.specs/features/scope-extensions-plus/` (Status: Planned). |
 | 2026-07-26 | **Init exemplar = `$schema` + `$comments` (not JSONC)** | Best DX: editor schema + in-file hints without breaking strict JSON/`jq`. Reserved meta keys not merged / not UNKNOWN_CONFIG_KEY. |
 | 2026-07-26 | **Contract enrich = additive under `3.0`** | Best DX: no forced baseline re-scan for scannerVersion/`$schema`/compare deltas. |
+| 2026-07-27 | **Post-M67 DX batch M68–M70 Specs Planned** | Thematic milestones: M68 warnings-bookend-dx (Large); M69 write-confirm-ux (Medium); M70 table-lines-parity (Medium-light). Execute order **M68 → M69 → M70**. Out of batch: item C (scan body full warnings), fail-on-warning, npm/SARIF, timing on `baseline save`. IDs HOTSPOT-1230+. |
+| 2026-07-27 | **M68 lock B — stderr warning bookend** | Pre-write short teaser (`formatWarningSummaryLine`) under `--warnings=summary` + post-write full `flushWarnings`. Keep `Finalizing…` until immediately before teaser. `json`: one emission at end only (no teaser). `full`: stream during scan; omit teaser; flush must not re-emit. Compose M59 clear / M61 finalize / M62 timing→explain after flush. Specs: `.specs/features/warnings-bookend-dx/`. |
+| 2026-07-27 | **M68 lock K — compare warning dedup** | Align compare to scan: exec summary keeps rollup only; remove `formatScanWarning` body loops from compare table/markdown. Detail stays on stderr via `--warnings`. Eliminates triple surface. `meta.warnings` unchanged. |
+| 2026-07-27 | **M69 lock D — write confirm UX** | Stderr confirm after successful `--output` (table/md/json) and `--csv-single-file`; `--quiet` suppresses; CSV bundle confirm unchanged; no new flags. Specs: `.specs/features/write-confirm-ux/`. |
+| 2026-07-27 | **M70 lock J — table Lines parity** | Add `Lines` (`linesChanged`) to scan `table.ts` mirroring markdown; glossary/how-to-read if needed; table tests. No schema bump. Specs: `.specs/features/table-lines-parity/`. |
 
 ## Architecture decisions (ADRs)
 
@@ -158,16 +163,18 @@ _None._
 
 ## Active
 
-**M7–M67 Done.** **M62–M67 DX batch complete.** Deferred horizon below (npm/CI/SARIF/historical AST).
+**M7–M67 Done.** **M68–M70 Specs Planned** (planning session 2026-07-27). Ready for user review → promote Status → Execute in a **new** session via `orchestrator-implementer`.
 
-**Execute order:** _none — open milestones exhausted._
+**Execute order:** M68 (`warnings-bookend-dx`) → M69 (`write-confirm-ux`) → M70 (`table-lines-parity`).
 
-**Deferred horizon:** npm publish; CI/SARIF; historical AST.
+**Deferred horizon:** npm publish; CI/SARIF; historical AST; item C (scan body full warnings); fail-on-warning.
 
 ## Deferred
 
-- **npm publish / npx / `pnpm dlx` install path** — future backlog (explicitly out of M37/M38–M45 and M62–M67). Decide private registry vs public npm vs Git-only distribution later; until then official use path is GitHub clone + pnpm build.
+- **npm publish / npx / `pnpm dlx` install path** — future backlog (explicitly out of M37/M38–M45 and M62–M70). Decide private registry vs public npm vs Git-only distribution later; until then official use path is GitHub clone + pnpm build.
 - npm private registry vs Git install distribution (superseded wording retained as umbrella for publish decision)
-- **CI recipes / fail-on stable deltas / SARIF** (DX items 20–23) — not in M38–M45 / M62–M67
+- **CI recipes / fail-on stable deltas / SARIF** (DX items 20–23) — not in M38–M45 / M62–M70
+- **Item C — full warning lines in scan report body** — deferred past M68 bookend + compare dedup
+- **Fail-on-warning CI gates** — deferred (not M68)
 - **Historical AST post-rename** (item 28 / Post-M46 accuracy ask) — **do not prioritize**; M26 avisos only; no milestone number (CONCERNS unmitigated matrix). True fix = per-commit function ranges — effort A.
 - **Residual test globs after M48** — **M67 Done** (`.specs/features/scope-extensions-plus/`).
