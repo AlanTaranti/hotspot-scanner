@@ -9,8 +9,8 @@ import {
   runComplexityTrend,
   TrendNotTrackedError,
   TrendUsageError,
-} from "../src/trend/index.js";
-import type { ComplexityTrendResult } from "../src/trend/types.js";
+  type ComplexityTrendResult,
+} from "#trend";
 import {
   CliUsageError,
   runWithScanCancelSignals,

@@ -24,7 +24,8 @@
     "#scoring": "./dist/scoring/index.js",
     "#config": "./dist/config/index.js",
     "#doctor": "./dist/doctor/index.js",
-    "#git": "./dist/git/index.js"
+    "#git": "./dist/git/index.js",
+    "#trend": "./dist/trend/index.js"
   },
   "files": [
     "dist",

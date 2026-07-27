@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { executeTrend, mapTrendError, parseTrendFormat } from "./trend-actions.js";
 import { CliUsageError, ScanCancelExit } from "./scan-actions.js";
-import { TrendNotTrackedError, TrendUsageError } from "../src/trend/types.js";
+import { TrendNotTrackedError, TrendUsageError } from "#trend";
 
 const trendIndentFixture = join(
   fileURLToPath(new URL(".", import.meta.url)),

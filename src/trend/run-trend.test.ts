@@ -55,6 +55,21 @@ describe.sequential("runComplexityTrend", () => {
     ).rejects.toBeInstanceOf(TrendUsageError);
   });
 
+  it("rejects lone start without end", async () => {
+    await expect(
+      runComplexityTrend({
+        filePath: "src/a.ts",
+        start: "abc",
+      }),
+    ).rejects.toThrow("--start and --end must be provided together.");
+  });
+
+  it("rejects missing file paths", async () => {
+    await expect(
+      runComplexityTrend({ filePath: "/tmp/definitely-missing-hotspot-trend.ts" }),
+    ).rejects.toThrow("File not found:");
+  });
+
   it("rejects directory paths", async () => {
     const repoPath = await createTempRepo();
     await expect(
@@ -146,5 +161,69 @@ describe.sequential("runComplexityTrend", () => {
 
     showSpy.mockRestore();
     expect(result.meta.warnings.some((w) => w.code === "SHOW_FAILED")).toBe(true);
+  });
+
+  it("rejects file outside explicit repository root", async () => {
+    const repoPath = await createTempRepo();
+    await commitFile(repoPath, "src/a.ts", "a\n", "first");
+    const outsidePath = join(tmpdir(), `outside-${Date.now()}.ts`);
+    await writeFile(outsidePath, "outside\n", "utf8");
+
+    await expect(
+      runComplexityTrend({
+        filePath: outsidePath,
+        repoPath,
+        since: "10 years ago",
+      }),
+    ).rejects.toThrow("File is outside the git repository");
+  });
+
+  it("supports start..end range and --all without truncation", async () => {
+    const repoPath = await createTempRepo();
+    for (let i = 0; i < 5; i += 1) {
+      await commitFile(repoPath, "src/a.ts", `${"x".repeat(i + 1)}\n`, `c${i}`);
+    }
+    const log = await execFileAsync(
+      "git",
+      ["log", "--format=%H", "--reverse"],
+      { cwd: repoPath },
+    );
+    const [startRev, , , , endRev] = log.stdout.trim().split("\n");
+
+    const result = await runComplexityTrend({
+      filePath: join(repoPath, "src/a.ts"),
+      start: startRev,
+      end: endRev,
+      all: true,
+      includeScannerVersion: false,
+    });
+
+    expect(result.points.length).toBeGreaterThanOrEqual(2);
+    expect(result.meta.start).toBe(startRev);
+    expect(result.meta.end).toBe(endRev);
+    expect(result.meta.since).toBeUndefined();
+    expect(result.meta.truncated).toBe(false);
+    expect(result.meta.maxRevisions).toBeNull();
+    expect(formatTruncationNote(result)).toBeUndefined();
+  });
+
+  it("records non-Error show failures as warnings", async () => {
+    const repoPath = await createTempRepo();
+    await commitFile(repoPath, "src/a.ts", "a\n", "first");
+    const filePath = join(repoPath, "src/a.ts");
+    const fileHistory = await import("../git/file-history.js");
+    const showSpy = vi
+      .spyOn(fileHistory, "showFileAtRevision")
+      .mockRejectedValueOnce("plain-failure")
+      .mockImplementation(fileHistory.showFileAtRevision);
+
+    const result = await runComplexityTrend({
+      filePath,
+      since: "10 years ago",
+      includeScannerVersion: false,
+    });
+
+    showSpy.mockRestore();
+    expect(result.meta.warnings[0]?.message).toContain("plain-failure");
   });
 });
