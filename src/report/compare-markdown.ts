@@ -8,7 +8,6 @@ import { buildCompareTriageHints } from "./compare-triage.js";
 import { renderMarkdownHowToRead } from "./glossary.js";
 import { buildCompareExecutiveSummary } from "./summary.js";
 import { renderMarkdownTriageHints } from "./triage.js";
-import { formatScanWarning } from "./warning-format.js";
 
 const SCORE_DECIMALS = 4;
 
@@ -100,10 +99,6 @@ export function renderCompareMarkdown(
     ...renderMarkdownHowToRead({ compare: true }),
     "",
   ];
-
-  for (const warning of result.meta.warnings) {
-    lines.push(`> ${formatScanWarning(warning)}`, "");
-  }
 
   lines.push(...renderHotspotSections(result), "");
 

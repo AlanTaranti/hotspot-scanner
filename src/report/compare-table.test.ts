@@ -139,9 +139,12 @@ describe("renderCompareTable", () => {
     const output = renderCompareTable(result);
 
     expect(output).toContain(
+      "Warnings: 2 total (COMPARE_SINCE_MISMATCH: 1, (uncoded): 1)",
+    );
+    expect(output).not.toContain(
       "warning: [COMPARE_SINCE_MISMATCH] baseline window differs",
     );
-    expect(output).toContain("info: stale baseline");
+    expect(output).not.toContain("info: stale baseline");
   });
 
   it("renders empty sections without throwing", () => {

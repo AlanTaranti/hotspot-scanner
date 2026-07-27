@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M67 Done.** **M68–M70 Specs Planned.** Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
+Status: **M7–M70 Done.** Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
 
 **M12** intentionally absent (CI fail-on-score removed — see STATE).
 
@@ -14,19 +14,15 @@ Status: **M7–M67 Done.** **M68–M70 Specs Planned.** Deferred horizon in [STA
 | M37–M45 | README adoption, CLI polish, init/doctor/dry-run, workflows, interpretation UX, explain, monorepo remount, package exports enrich, adoption docs |
 | M46–M55 | Exclude tests by default, git pathspecs, scope extensions, ranking accuracy+, observability, doctor scope parity, perf controls, API trust docs, compare interpretation, CLI adoption extras |
 | M56–M65 | Remove coupling; NCLOC metric (retire McCabe/function mode); CLI `--warnings summary|full|json` stderr aggregation; ephemeral TTY scan progress; table path column UX; inline progress bar; feedback/copy UX; CLI surface parity; config/doctor DX; git error UX |
-| M66–M67 | DX batch: contract enrich (Done), scope+ (Done) |
+| M66–M70 | DX batch: contract enrich, scope+, warnings bookend, write confirm, table Lines parity |
 
 ### Open
 
-- [ ] **M68** — Warnings presentation DX — Specs Planned — [`.specs/features/warnings-bookend-dx/`](../features/warnings-bookend-dx/)
-- [ ] **M69** — Write confirmation UX — Specs Planned — [`.specs/features/write-confirm-ux/`](../features/write-confirm-ux/)
-- [ ] **M70** — Report table Lines parity — Specs Planned — [`.specs/features/table-lines-parity/`](../features/table-lines-parity/)
-
-**Suggested Execute order:** M68 → M69 → M70.
+_None — see Deferred horizon in [STATE.md](STATE.md)._
 
 ### Done
 
-M7–M67 historical detail below. Deferred horizon in [STATE.md](STATE.md).
+M7–M70 historical detail below. Deferred horizon in [STATE.md](STATE.md).
 
 ## Milestone 1 — Scaffold
 
@@ -769,7 +765,7 @@ Product hard cut: replace McCabe cyclomatic complexity with **NCLOC** as axis `c
 **Sisters:** cli-surface-polish (M38 quiet), scan-observability (M51 `--verbose` git-argv lock + exec warning summary), explain-and-scan-feedback (M42 next-step copy), rename-confidence (M26), adoption-docs (M45 warning-codes), cli-adoption-extras (M54 completion)  
 **Artifacts:** [context.md](../features/cli-warnings-mode/context.md) · [spec.md](../features/cli-warnings-mode/spec.md) · [design.md](../features/cli-warnings-mode/design.md) · [tasks.md](../features/cli-warnings-mode/tasks.md) (Status: **Done**)
 
-Intentional breaking **stderr** default: `--warnings summary|full` (default **`summary`**) collapses repeated same-code / rename sub-kind lines before the Hotspots report. **`meta.warnings` and programmatic `onWarning` stay full** (no JSON contract change). Do **not** overload `--verbose` (M51). CLI-only — no config key (M38 quiet parity). File-mode git miner SoT post-M57; do not revive function-mode claims.
+Intentional breaking **stderr** default: `--warnings summary|full` (default **`summary`**) collapses repeated same-code / rename sub-kind lines. **M68 bookend:** short rollup teaser immediately before report write, then full aggregated lines after write (see [warnings-bookend-dx](../features/warnings-bookend-dx/)). **`meta.warnings` and programmatic `onWarning` stay full** (no JSON contract change). Do **not** overload `--verbose` (M51). CLI-only — no config key (M38 quiet parity). File-mode git miner SoT post-M57; do not revive function-mode claims.
 
 - [x] `--warnings summary|full` on `scan` / `compare` / `baseline save`; default `summary`; invalid → `CliUsageError` exit 2
 - [x] CLI diagnostic sink aggregates stderr (`RENAME_HISTORY_INCOMPLETE` sub-kinds + other multi-code spam); `full` restores per-path/per-pair detail (unlinked may keep 5 + remainder)
@@ -935,55 +931,55 @@ Close residual test-glob gap (`*.test/spec` × mjs/cjs/mts/cts); add `.mts` / `.
 
 ---
 
-## Post-M67 backlog — Warnings & report DX (M68–M70)
+## Post-M67 backlog — Warnings & report DX (M68–M70) — DONE
 
-Specs **Planned** (2026-07-27). Locked decisions B/K in [warnings-bookend-dx/context.md](../features/warnings-bookend-dx/context.md); D/J in M69/M70 specs. Execute order: **M68 → M69 → M70**. Out of batch: item C (full warning lines in scan body), fail-on-warning, npm/SARIF, timing on `baseline save`.
+Execute complete (2026-07-27). Locked decisions B/K in [warnings-bookend-dx/context.md](../features/warnings-bookend-dx/context.md); D/J in M69/M70 specs. Execute order: **M68 → M69 → M70**.
 
-### Milestone 68 — Warnings presentation DX — Specs Planned
+### Milestone 68 — Warnings presentation DX — DONE
 
 → [`.specs/features/warnings-bookend-dx/spec.md`](../features/warnings-bookend-dx/spec.md)  
-**Slug:** `warnings-bookend-dx` | **Priority:** High | **Specs:** Planned  
+**Slug:** `warnings-bookend-dx` | **Priority:** High | **Specs:** Done  
 **IDs:** HOTSPOT-1230–1259 (1255–1259 reserved) | **Depth:** Large  
 **Sisters:** cli-warnings-mode (M58), tty-ephemeral-progress (M59), inline-progress-bar (M61), feedback-copy-ux (M62), cli-surface-parity (M63)  
-**Artifacts:** [context.md](../features/warnings-bookend-dx/context.md) · [spec.md](../features/warnings-bookend-dx/spec.md) · [design.md](../features/warnings-bookend-dx/design.md) · [tasks.md](../features/warnings-bookend-dx/tasks.md) (Status: **Planned**)
+**Artifacts:** [context.md](../features/warnings-bookend-dx/context.md) · [spec.md](../features/warnings-bookend-dx/spec.md) · [design.md](../features/warnings-bookend-dx/design.md) · [tasks.md](../features/warnings-bookend-dx/tasks.md) (Status: **Done**)
 
 Stderr bookend (B): short teaser before write + full flush after; keep `Finalizing…` until teaser; `json` one emission at end; `full` streams during scan (no teaser / no re-emit on flush). Compare dedup (K): remove body `formatScanWarning` loops; keep exec-summary rollup. Docs: warning-codes timing + `json` (A+G); ROADMAP M58 “before Hotspots” notes (L); AGENTS exit codes (E).
 
-- [ ] Diagnostics teaser API + mode matrix tests
-- [ ] Compare table/markdown warning-body removal
-- [ ] Bin lifecycle (scan / compare / baseline save) + order tests
-- [ ] Docs sync (warning-codes, M58 notes, AGENTS exits, living notes)
-- [ ] Final gate `pnpm build && pnpm test` (Execute session)
+- [x] Diagnostics teaser API + mode matrix tests
+- [x] Compare table/markdown warning-body removal
+- [x] Bin lifecycle (scan / compare / baseline save) + order tests
+- [x] Docs sync (warning-codes, M58 notes, AGENTS exits, living notes)
+- [x] Final gate `pnpm build && pnpm test` (Execute session)
 
 **Out of scope:** Item C; fail-on-warning; npm/SARIF; timing on `baseline save`; new flags; schema bump; M69/M70.
 
-### Milestone 69 — Write confirmation UX — Specs Planned
+### Milestone 69 — Write confirmation UX — DONE
 
 → [`.specs/features/write-confirm-ux/spec.md`](../features/write-confirm-ux/spec.md)  
-**Slug:** `write-confirm-ux` | **Priority:** Medium | **Specs:** Planned  
+**Slug:** `write-confirm-ux` | **Priority:** Medium | **Specs:** Done  
 **IDs:** HOTSPOT-1260–1279 (1275–1279 reserved) | **Depth:** Medium  
 **Sisters:** feedback-copy-ux (M62 CSV confirm), csv-bundle (M18), cli-surface-parity (M63), warnings-bookend-dx (M68)  
-**Artifacts:** [spec.md](../features/write-confirm-ux/spec.md) · [tasks.md](../features/write-confirm-ux/tasks.md) (Status: **Planned**)
+**Artifacts:** [spec.md](../features/write-confirm-ux/spec.md) · [tasks.md](../features/write-confirm-ux/tasks.md) (Status: **Done**)
 
 Stderr confirm after successful `--output` (table/md/json) and `--csv-single-file` writes; `--quiet` suppresses; CSV bundle confirm unchanged; no new flags.
 
-- [ ] `writeRenderedOutput` confirm + quiet/stdout/bundle matrix tests
-- [ ] Final gate `pnpm build && pnpm test` (Execute session)
+- [x] `writeRenderedOutput` confirm + quiet/stdout/bundle matrix tests
+- [x] Final gate `pnpm build && pnpm test` (Execute session)
 
 **Out of scope:** New flags; stdout-only confirm; baseline-save timing; M68/M70 implementation.
 
-### Milestone 70 — Report table Lines parity — Specs Planned
+### Milestone 70 — Report table Lines parity — DONE
 
 → [`.specs/features/table-lines-parity/spec.md`](../features/table-lines-parity/spec.md)  
-**Slug:** `table-lines-parity` | **Priority:** Medium | **Specs:** Planned  
+**Slug:** `table-lines-parity` | **Priority:** Medium | **Specs:** Done  
 **IDs:** HOTSPOT-1280–1299 (1295–1299 reserved) | **Depth:** Medium-light  
 **Sisters:** reporter-cli (M5), output-interpretation-ux (M41), table-path-column-ux (M60)  
-**Artifacts:** [spec.md](../features/table-lines-parity/spec.md) · [tasks.md](../features/table-lines-parity/tasks.md) (Status: **Planned**)
+**Artifacts:** [spec.md](../features/table-lines-parity/spec.md) · [tasks.md](../features/table-lines-parity/tasks.md) (Status: **Done**)
 
 Add `Lines` (`linesChanged`) column to scan `table.ts` mirroring markdown; glossary/how-to-read wording; table tests. No schema bump.
 
-- [ ] Table Lines column + glossary + unit tests
-- [ ] Final gate `pnpm build && pnpm test` (Execute session)
+- [x] Table Lines column + glossary + unit tests
+- [x] Final gate `pnpm build && pnpm test` (Execute session)
 
 **Out of scope:** Compare table layout expansion; git miner / `linesChanged` semantics; new flags.
 

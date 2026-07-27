@@ -1902,9 +1902,89 @@ describe("runCli", () => {
       ).rejects.toThrow();
       const stderr = stderrSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
       expect(stderr).not.toContain("Wrote CSV bundle:");
+      expect(stderr).toContain(`Wrote ${outputPath}`);
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
+  });
+
+  it("confirms successful --output writes on stderr", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-write-confirm-"));
+    const outputPath = join(tempDir, "report.json");
+    const stderrSpy = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    vi.spyOn(scan, "runScan").mockResolvedValue(mockScanResult());
+    const { chunks } = captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        ".",
+        "--format",
+        "json",
+        "--output",
+        outputPath,
+      ]);
+
+      const stderr = stderrSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
+      expect(stderr).toContain(`Wrote ${outputPath}`);
+      expect(chunks.join("")).toBe("");
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("suppresses single-file write confirm under --quiet", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-write-confirm-"));
+    const outputPath = join(tempDir, "report.md");
+    const stderrSpy = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    vi.spyOn(scan, "runScan").mockResolvedValue(mockScanResult());
+    captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        ".",
+        "--format",
+        "markdown",
+        "--output",
+        outputPath,
+        "--quiet",
+      ]);
+
+      const stderr = stderrSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
+      expect(stderr).not.toContain(`Wrote ${outputPath}`);
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("does not confirm stdout-only scan output", async () => {
+    const stderrSpy = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    vi.spyOn(scan, "runScan").mockResolvedValue(mockScanResult());
+    const { chunks } = captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      ".",
+      "--format",
+      "json",
+    ]);
+
+    const stderr = stderrSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
+    expect(stderr).not.toMatch(/^Wrote /m);
+    expect(chunks.join("")).toContain('"version": "3.0"');
   });
 
   it("throws CliUsageError when --csv-single-file is used without --format csv", async () => {
@@ -5519,6 +5599,7 @@ describe("stderr feedback copy", () => {
       .mockReturnValue({
         onWarning: vi.fn(),
         onProgress: vi.fn(),
+        emitWarningTeaser: vi.fn(),
         flushWarnings: vi.fn(),
         clearLiveProgress: vi.fn(),
       });
@@ -5547,17 +5628,19 @@ describe("deferred flushWarnings lifecycle", () => {
     vi.restoreAllMocks();
   });
 
-  it("executeScan returns flushWarnings without invoking it", async () => {
+  it("executeScan returns flushWarnings and emitWarningTeaser without invoking them", async () => {
     const flushWarnings = vi.fn();
+    const emitWarningTeaser = vi.fn();
     vi.spyOn(diagnostics, "createCliDiagnosticHandlers").mockReturnValue({
       onWarning: vi.fn(),
       onProgress: vi.fn(),
+      emitWarningTeaser,
       flushWarnings,
       clearLiveProgress: vi.fn(),
     });
     vi.spyOn(scan, "runScan").mockResolvedValue(mockScanResult());
 
-    const { result, flushWarnings: returnedFlush } =
+    const { result, flushWarnings: returnedFlush, emitWarningTeaser: returnedTeaser } =
       await scanActions.executeScan({
         repoPath: ".",
         cliOverrides: {},
@@ -5565,15 +5648,19 @@ describe("deferred flushWarnings lifecycle", () => {
 
     expect(result.version).toBe("3.0");
     expect(returnedFlush).toBe(flushWarnings);
+    expect(returnedTeaser).toBe(emitWarningTeaser);
     expect(flushWarnings).not.toHaveBeenCalled();
+    expect(emitWarningTeaser).not.toHaveBeenCalled();
   });
 
-  it("executeCompareAndRender flushes after writeRenderedOutput", async () => {
+  it("executeCompareAndRender teasers before write then flushes", async () => {
     const callOrder: string[] = [];
+    const emitWarningTeaser = vi.fn(() => callOrder.push("teaser"));
     const flushWarnings = vi.fn(() => callOrder.push("flush"));
     vi.spyOn(diagnostics, "createCliDiagnosticHandlers").mockReturnValue({
       onWarning: vi.fn(),
       onProgress: vi.fn(),
+      emitWarningTeaser,
       flushWarnings,
       clearLiveProgress: vi.fn(),
     });
@@ -5600,18 +5687,20 @@ describe("deferred flushWarnings lifecycle", () => {
         },
       });
 
-      expect(callOrder).toEqual(["write", "flush"]);
+      expect(callOrder).toEqual(["teaser", "write", "flush"]);
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
   });
 
-  it("baseline save flushes after writeBaselineJson", async () => {
+  it("baseline save teasers before write then flushes", async () => {
     const callOrder: string[] = [];
+    const emitWarningTeaser = vi.fn(() => callOrder.push("teaser"));
     const flushWarnings = vi.fn(() => callOrder.push("flush"));
     vi.spyOn(diagnostics, "createCliDiagnosticHandlers").mockReturnValue({
       onWarning: vi.fn(),
       onProgress: vi.fn(),
+      emitWarningTeaser,
       flushWarnings,
       clearLiveProgress: vi.fn(),
     });
@@ -5627,18 +5716,20 @@ describe("deferred flushWarnings lifecycle", () => {
       await runCli(["node", "hotspot-scanner", "baseline", "save", "."]);
 
       expect(writeBaselineSpy).toHaveBeenCalled();
-      expect(callOrder).toEqual(["write", "flush"]);
+      expect(callOrder).toEqual(["teaser", "write", "flush"]);
     } finally {
       writeBaselineSpy.mockRestore();
     }
   });
 
-  it("scan flushes after writeRenderedOutput", async () => {
+  it("scan teasers before write then flushes", async () => {
     const callOrder: string[] = [];
+    const emitWarningTeaser = vi.fn(() => callOrder.push("teaser"));
     const flushWarnings = vi.fn(() => callOrder.push("flush"));
     vi.spyOn(diagnostics, "createCliDiagnosticHandlers").mockReturnValue({
       onWarning: vi.fn(),
       onProgress: vi.fn(),
+      emitWarningTeaser,
       flushWarnings,
       clearLiveProgress: vi.fn(),
     });
@@ -5660,7 +5751,7 @@ describe("deferred flushWarnings lifecycle", () => {
     ]);
 
     expect(writeRenderedSpy).toHaveBeenCalled();
-    expect(callOrder).toEqual(["write", "flush"]);
+    expect(callOrder).toEqual(["teaser", "write", "flush"]);
     writeRenderedSpy.mockRestore();
   });
 
@@ -5672,6 +5763,7 @@ describe("deferred flushWarnings lifecycle", () => {
     vi.spyOn(diagnostics, "createCliDiagnosticHandlers").mockReturnValue({
       onWarning: vi.fn(),
       onProgress: vi.fn(),
+      emitWarningTeaser: vi.fn(),
       flushWarnings,
       clearLiveProgress: vi.fn(),
     });
@@ -5711,6 +5803,7 @@ describe("deferred flushWarnings lifecycle", () => {
     vi.spyOn(diagnostics, "createCliDiagnosticHandlers").mockReturnValue({
       onWarning: vi.fn(),
       onProgress: vi.fn(),
+      emitWarningTeaser: vi.fn(),
       flushWarnings,
       clearLiveProgress: vi.fn(),
     });

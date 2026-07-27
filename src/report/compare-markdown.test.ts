@@ -145,6 +145,9 @@ describe("renderCompareMarkdown", () => {
     const output = renderCompareMarkdown(result);
 
     expect(output).toContain(
+      "Warnings: 1 total (COMPARE_SINCE_MISMATCH: 1)",
+    );
+    expect(output).not.toContain(
       "> error: [COMPARE_SINCE_MISMATCH] baseline window differs",
     );
   });

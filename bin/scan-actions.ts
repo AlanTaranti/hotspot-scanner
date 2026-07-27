@@ -161,6 +161,12 @@ function writeReport(output: string, outputPath?: string): Promise<void> {
   return Promise.resolve();
 }
 
+function emitWriteConfirm(path: string, quiet?: boolean): void {
+  if (!quiet) {
+    process.stderr.write(`Wrote ${path}\n`);
+  }
+}
+
 export class ScanCancelExit extends Error {
   readonly exitCode: 130 | 143;
 
@@ -295,6 +301,7 @@ export async function writeBaselineJson(
 
 export type ExecuteScanResult = {
   result: ScanResult;
+  emitWarningTeaser: () => void;
   flushWarnings: () => void;
 };
 
@@ -305,7 +312,8 @@ export async function executeScan(options: {
   sequential?: boolean;
 } & ScanDiagnosticOptions): Promise<ExecuteScanResult> {
   const since = await resolveEffectiveSince(options);
-  const { onWarning, onProgress, flushWarnings } = createCliDiagnosticHandlers({
+  const { onWarning, onProgress, emitWarningTeaser, flushWarnings } =
+    createCliDiagnosticHandlers({
     quiet: options.quiet ?? false,
     noProgress: options.noProgress ?? false,
     warningsMode: options.warningsMode ?? "summary",
@@ -331,7 +339,7 @@ export async function executeScan(options: {
       options.sequential,
     ),
   );
-  return { result, flushWarnings };
+  return { result, emitWarningTeaser, flushWarnings };
 }
 
 export type ReporterRenderOptions = {
@@ -362,6 +370,7 @@ export async function writeRenderedOutput(
         ensureTrailingNewline(content),
         "utf8",
       );
+      emitWriteConfirm(outputPath!, options?.quiet);
       return;
     }
     await writeCsvBundle(deriveCsvStem(outputPath!), output as CsvBundle, {
@@ -374,6 +383,9 @@ export async function writeRenderedOutput(
     await validateOutputPath(outputPath);
   }
   await writeReport(output as string, outputPath);
+  if (outputPath) {
+    emitWriteConfirm(outputPath, options?.quiet);
+  }
 }
 
 export async function executeCompareAndRender(options: {
@@ -389,7 +401,8 @@ export async function executeCompareAndRender(options: {
   await validateBaselinePath(options.baselinePath);
 
   const since = await resolveEffectiveSince(options);
-  const { onWarning, onProgress, flushWarnings } = createCliDiagnosticHandlers({
+  const { onWarning, onProgress, emitWarningTeaser, flushWarnings } =
+    createCliDiagnosticHandlers({
     quiet: options.quiet ?? false,
     noProgress: options.noProgress ?? false,
     warningsMode: options.warningsMode ?? "summary",
@@ -428,6 +441,7 @@ export async function executeCompareAndRender(options: {
     options.reporterOptions,
   );
 
+  emitWarningTeaser();
   await writeRenderedOutput(
     output,
     options.reporterOptions.format,

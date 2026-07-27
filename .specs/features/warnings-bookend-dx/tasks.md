@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/warnings-bookend-dx/design.md`](./design.md)  
 **Spec**: [`.specs/features/warnings-bookend-dx/spec.md`](./spec.md)  
 **Context**: [`.specs/features/warnings-bookend-dx/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Large feature — diagnostics + bin + report + docs. STOP at Planned; Execute in a separate session via `orchestrator-implementer` after Status promotion. Do **not** implement M69/M70 here.
 
 ---
@@ -100,14 +100,14 @@ T1 `[P]` with T2 — disjoint `src/diagnostics/` vs `src/report/`. No other `[P]
 
 **Done when:**
 
-- [ ] Handler return includes teaser fn (name per design; e.g. `emitWarningTeaser`)
-- [ ] summary + N>0 → clear + one rollup line; summary + N=0 → clear only / no rollup line
-- [ ] full / json → teaser no-op (json still buffers for flush)
-- [ ] flush under full does not re-emit; summary/json flush behavior preserved
-- [ ] quiet still buffers/flushes warning+error per M58
-- [ ] Unit tests cover mode matrix
-- [ ] Gate check passes: `pnpm test -- src/diagnostics/`
-- [ ] Test count: no silent deletions
+- [x] Handler return includes teaser fn (name per design; e.g. `emitWarningTeaser`)
+- [x] summary + N>0 → clear + one rollup line; summary + N=0 → clear only / no rollup line
+- [x] full / json → teaser no-op (json still buffers for flush)
+- [x] flush under full does not re-emit; summary/json flush behavior preserved
+- [x] quiet still buffers/flushes warning+error per M58
+- [x] Unit tests cover mode matrix
+- [x] Gate check passes: `pnpm test -- src/diagnostics/`
+- [x] Test count: no silent deletions
 
 **Tests:** unit  
 **Gate:** `pnpm test -- src/diagnostics/`
@@ -132,11 +132,11 @@ T1 `[P]` with T2 — disjoint `src/diagnostics/` vs `src/report/`. No other `[P]
 
 **Done when:**
 
-- [ ] No body loops calling `formatScanWarning` in compare table/markdown
-- [ ] Unused imports removed
-- [ ] Tests assert rollup line still present and full warning message dumps absent from body
-- [ ] Gate check passes: `pnpm test -- src/report/compare-table.test.ts src/report/compare-markdown.test.ts`
-- [ ] Test count: no silent deletions
+- [x] No body loops calling `formatScanWarning` in compare table/markdown
+- [x] Unused imports removed
+- [x] Tests assert rollup line still present and full warning message dumps absent from body
+- [x] Gate check passes: `pnpm test -- src/report/compare-table.test.ts src/report/compare-markdown.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests:** unit  
 **Gate:** `pnpm test -- src/report/compare-table.test.ts src/report/compare-markdown.test.ts`
@@ -161,11 +161,11 @@ T1 `[P]` with T2 — disjoint `src/diagnostics/` vs `src/report/`. No other `[P]
 
 **Done when:**
 
-- [ ] Scan, compare, and baseline save success paths: teaser → write → flush
-- [ ] Timing/explain remain after flush
-- [ ] Order tests cover bookend + compose with timing/explain
-- [ ] Gate check passes: `pnpm test -- bin/hotspot-scanner.test.ts`
-- [ ] Test count: no silent deletions
+- [x] Scan, compare, and baseline save success paths: teaser → write → flush
+- [x] Timing/explain remain after flush
+- [x] Order tests cover bookend + compose with timing/explain
+- [x] Gate check passes: `pnpm test -- bin/hotspot-scanner.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests:** unit  
 **Gate:** `pnpm test -- bin/hotspot-scanner.test.ts`
@@ -192,11 +192,11 @@ T1 `[P]` with T2 — disjoint `src/diagnostics/` vs `src/report/`. No other `[P]
 
 **Done when:**
 
-- [ ] warning-codes.md no longer claims summary appears before Hotspots report; documents teaser + post-write flush + full/json
-- [ ] ROADMAP M58 Done prose corrected / annotated → M61+M68
-- [ ] AGENTS.md exit codes match README set
-- [ ] Stale living notes updated if found
-- [ ] No application code changes in this task
+- [x] warning-codes.md no longer claims summary appears before Hotspots report; documents teaser + post-write flush + full/json
+- [x] ROADMAP M58 Done prose corrected / annotated → M61+M68
+- [x] AGENTS.md exit codes match README set
+- [x] Stale living notes updated if found
+- [x] No application code changes in this task
 
 **Tests:** none  
 **Gate:** none (docs); verified by T5
@@ -221,8 +221,8 @@ T1 `[P]` with T2 — disjoint `src/diagnostics/` vs `src/report/`. No other `[P]
 
 **Done when:**
 
-- [ ] `pnpm build && pnpm test` exits 0
-- [ ] No coverage threshold regressions
+- [x] `pnpm build && pnpm test` exits 0
+- [x] No coverage threshold regressions
 
 **Tests:** full suite  
 **Gate:** `pnpm build && pnpm test`

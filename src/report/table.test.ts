@@ -41,9 +41,11 @@ describe("renderTable", () => {
     expect(output).toContain("Churn");
     expect(output).toContain("ChurnN");
     expect(output).toContain("Authors");
+    expect(output).toContain("Lines");
     expect(output).toContain("42");
     expect(output).toContain("15");
     expect(output).toContain("3");
+    expect(output).toContain("320");
     expect(output).not.toContain("Cpx");
     expect(output).not.toContain("Funcs");
   });

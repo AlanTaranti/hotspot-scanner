@@ -1,7 +1,7 @@
 # Milestone 69 — Write Confirmation UX Tasks
 
 **Spec**: [`.specs/features/write-confirm-ux/spec.md`](./spec.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Medium feature — bin write path only. STOP at Planned; Execute in a separate session via `orchestrator-implementer` after Status promotion. Prefer Execute after M68 (bookend compose). Do **not** implement M68/M70 here.
 
 ---
@@ -75,14 +75,14 @@ No `[P]` — single sequential owner.
 
 **Done when:**
 
-- [ ] `--output` table/md/json → stderr confirm with path
-- [ ] `--csv-single-file` → stderr confirm with path
-- [ ] `--quiet` suppresses single-file and (existing) bundle confirms
-- [ ] stdout-only → no confirm
-- [ ] CSV bundle multi-line confirm still present when not quiet
-- [ ] Unit tests cover the matrix
-- [ ] Gate check passes: `pnpm test -- bin/hotspot-scanner.test.ts`
-- [ ] Test count: no silent deletions
+- [x] `--output` table/md/json → stderr confirm with path
+- [x] `--csv-single-file` → stderr confirm with path
+- [x] `--quiet` suppresses single-file and (existing) bundle confirms
+- [x] stdout-only → no confirm
+- [x] CSV bundle multi-line confirm still present when not quiet
+- [x] Unit tests cover the matrix
+- [x] Gate check passes: `pnpm test -- bin/hotspot-scanner.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests:** unit  
 **Gate:** `pnpm test -- bin/hotspot-scanner.test.ts`
@@ -104,7 +104,7 @@ No `[P]` — single sequential owner.
 
 **Done when:**
 
-- [ ] `pnpm build && pnpm test` exits 0
+- [x] `pnpm build && pnpm test` exits 0
 
 **Tests:** full suite  
 **Gate:** `pnpm build && pnpm test`

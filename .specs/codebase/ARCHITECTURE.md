@@ -138,9 +138,9 @@ Module: `src/diagnostics/` (`logger.ts`, `warning-summary.ts`).
 `createCliDiagnosticHandlers({ quiet, noProgress, warningsMode, stderrIsTTY?, stderrColumns? })` is **presentation-only**:
 
 - Pipeline / miner still emit the full `ScanWarning[]` into `meta.warnings` and programmatic `onWarning`.
-- CLI `--warnings summary` (default) buffers warning/error, then `flushWarnings()` writes one aggregated stderr line per `(code, subKind)` group.
-- `--warnings full` logs each warning immediately (after clearing any live progress line); `flushWarnings()` still clears live progress on teardown.
-- `--warnings json` (M63) buffers warnings and `flushWarnings()` writes one JSON document to stderr: `{"warnings":ScanWarning[]}` (empty → `{"warnings":[]}`); no human summary/full lines. `--quiet` still suppresses info-level entries before buffering.
+- CLI `--warnings summary` (default) buffers warning/error during the scan. `emitWarningTeaser()` writes one short rollup line (`formatWarningSummaryLine`) immediately before report write; `flushWarnings()` after write emits one aggregated stderr line per `(code, subKind)` group.
+- `--warnings full` logs each warning immediately (after clearing any live progress line); `flushWarnings()` clears live progress only — does not re-emit streamed lines.
+- `--warnings json` (M63) buffers warnings; `flushWarnings()` after write writes one JSON document to stderr: `{"warnings":ScanWarning[]}` (empty → `{"warnings":[]}`); no teaser. `--quiet` still suppresses info-level entries before buffering.
 - Not a config key; does not change the JSON contract.
 
 ### Ephemeral TTY progress (M59 + M61)
@@ -156,17 +156,17 @@ When `stderrIsTTY` is true (default: `process.stderr.isTTY === true`, injectable
 - Non-TTY (piped/CI) keeps `\n`-terminated progress lines unchanged (ASCII bar on complexity when total known).
 - `--quiet` / `--no-progress` suppress progress entirely (TTY or not), including finalize. Git/complexity throttle intervals unchanged.
 
-### Deferred progress flush (M61)
+### Deferred progress flush (M61 + M68 bookend)
 
-`executeScan` / `executeCompareAndRender` return `flushWarnings` without calling it before render/write:
+`executeScan` returns `emitWarningTeaser` and `flushWarnings` without calling them before render/write:
 
-| Path | `flushWarnings()` timing |
-| ---- | ------------------------ |
-| `scan` | After `writeRenderedOutput` (before `--explain`) |
-| `compare` | After compare `writeRenderedOutput` |
-| `baseline save` | After `writeBaselineJson` |
+| Path | Order (success) |
+| ---- | ----------------- |
+| `scan` | `emitWarningTeaser()` → write → `flushWarnings()` → timing stderr → `--explain` |
+| `compare` / `scan --baseline` | same inside `executeCompareAndRender` |
+| `baseline save` | `emitWarningTeaser()` → `writeBaselineJson` → `flushWarnings()` |
 
-M58 clear-before-warning/error/info unchanged. Summary-mode warnings still flush on teardown.
+M58 clear-before-warning/error/info unchanged. `emitWarningTeaser()` clears live progress and writes the short rollup under `summary` only.
 
 ### Table File column (M60)
 

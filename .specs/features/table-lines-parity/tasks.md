@@ -1,7 +1,7 @@
 # Milestone 70 — Report Table Lines Parity Tasks
 
 **Spec**: [`.specs/features/table-lines-parity/spec.md`](./spec.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Medium-light feature — report table + glossary. STOP at Planned; Execute in a separate session via `orchestrator-implementer` after Status promotion. Prefer Execute after M68–M69. Do **not** implement M68/M69 here.
 
 ---
@@ -75,12 +75,12 @@ No `[P]`.
 
 **Done when:**
 
-- [ ] Table header includes `Lines` after `Authors`
-- [ ] Rows print `hotspot.linesChanged`
-- [ ] Glossary/how-to-read no longer claim markdown-only for Lines
-- [ ] Unit tests assert header + sample values
-- [ ] Gate check passes: `pnpm test -- src/report/table.test.ts src/report/glossary.test.ts`
-- [ ] Test count: no silent deletions
+- [x] Table header includes `Lines` after `Authors`
+- [x] Rows print `hotspot.linesChanged`
+- [x] Glossary/how-to-read no longer claim markdown-only for Lines
+- [x] Unit tests assert header + sample values
+- [x] Gate check passes: `pnpm test -- src/report/table.test.ts src/report/glossary.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests:** unit  
 **Gate:** `pnpm test -- src/report/table.test.ts src/report/glossary.test.ts`
@@ -102,7 +102,7 @@ No `[P]`.
 
 **Done when:**
 
-- [ ] `pnpm build && pnpm test` exits 0
+- [x] `pnpm build && pnpm test` exits 0
 
 **Tests:** full suite  
 **Gate:** `pnpm build && pnpm test`

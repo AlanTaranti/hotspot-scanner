@@ -47,10 +47,13 @@ pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug>
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug> --since "12 months ago" --format json
 ```
 
-| Exit code | Meaning                                                |
-| --------- | ------------------------------------------------------ |
-| `0`       | Scan completed successfully                            |
-| `!= 0`    | Invalid repo/path, git error, or invalid CLI arguments |
+| Exit code | Meaning |
+| --------- | ------- |
+| `0` | Scan or compare completed successfully (`--explain` miss without `--fail-on-explain-miss` also exits `0`) |
+| `1` | `--strict` compare with `COMPARE_SINCE_MISMATCH`, or `--fail-on-explain-miss` with missing target |
+| `2` | Invalid CLI args, invalid/missing baseline, config validation errors |
+| `130` | Cancelled by `SIGINT` (POSIX 128+2) |
+| `143` | Cancelled by `SIGTERM` (POSIX 128+15) |
 
 After changing Cursor hooks under `.cursor/hooks/`, run `pnpm hooks:smoke` (does not replace the project gate).
 

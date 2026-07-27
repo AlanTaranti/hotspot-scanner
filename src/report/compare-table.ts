@@ -15,7 +15,6 @@ import {
 import type { ReportSection } from "./only.js";
 import { buildCompareExecutiveSummary } from "./summary.js";
 import { renderTableTriageHints } from "./triage.js";
-import { formatScanWarning } from "./warning-format.js";
 
 export interface CompareRenderOptions {
   only?: readonly ReportSection[];
@@ -151,10 +150,6 @@ export function renderCompareTable(
     "Scan Compare Report",
     ...buildCompareExecutiveSummary(full, result),
   ];
-
-  for (const warning of result.meta.warnings) {
-    lines.push(formatScanWarning(warning));
-  }
 
   lines.push("", ...renderHotspotSections(result, colorEnabled, fileWidth), "");
 

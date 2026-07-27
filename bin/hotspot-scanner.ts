@@ -715,6 +715,7 @@ Examples:
 
         const reporter = createReporter();
         const output = reporter.render(result, reporterOptions);
+        scanOutcome.emitWarningTeaser();
         await writeRenderedOutput(output, format, outputPath, {
           quiet: options.quiet as boolean,
           ...(csvSingleFile ? { csvSingleFile: true } : {}),
@@ -815,7 +816,7 @@ Examples:
       const sequential = resolveSequentialCliOption(options);
       const warningsMode = parseWarningsMode(options.warnings as string);
 
-      const { result, flushWarnings } = await executeScan({
+      const { result, emitWarningTeaser, flushWarnings } = await executeScan({
         repoPath,
         cliOverrides,
         configPath,
@@ -827,6 +828,7 @@ Examples:
         sequential,
       });
 
+      emitWarningTeaser();
       await writeBaselineJson(result, outputPath);
       flushWarnings();
     });

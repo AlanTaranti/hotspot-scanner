@@ -48,8 +48,8 @@ function renderHotspotsSection(
   const fileDashes = formatFileColumnDashes(fileWidth);
   const lines = [
     "Top Hotspots",
-    `Rank  ${fileHeader}  Score     NLOC  NLOCN     Churn  ChurnN  Authors`,
-    `----  ${fileDashes}  --------  ----  --------  -----  ------  -------`,
+    `Rank  ${fileHeader}  Score     NLOC  NLOCN     Churn  ChurnN  Authors  Lines`,
+    `----  ${fileDashes}  --------  ----  --------  -----  ------  -------  -----`,
   ];
 
   if (result.hotspots.length === 0) {
@@ -68,6 +68,7 @@ function renderHotspotsSection(
         padStart(String(hotspot.commitCount), 5),
         padStart(formatPlainScore(hotspot.churnNormalized), 6),
         padStart(String(hotspot.authorCount), 7),
+        padStart(String(hotspot.linesChanged), 5),
       ].join("  "),
     );
   }

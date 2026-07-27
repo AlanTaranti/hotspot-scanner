@@ -35,7 +35,7 @@ const METRIC_GLOSSARY: readonly GlossaryEntry[] = [
   {
     term: "Lines",
     definition:
-      "Total lines changed in the scan window (markdown hotspot tables).",
+      "Total lines changed in the scan window (hotspot tables).",
   },
 ];
 

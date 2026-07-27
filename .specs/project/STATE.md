@@ -127,6 +127,9 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-27 | **M68 lock K — compare warning dedup** | Align compare to scan: exec summary keeps rollup only; remove `formatScanWarning` body loops from compare table/markdown. Detail stays on stderr via `--warnings`. Eliminates triple surface. `meta.warnings` unchanged. |
 | 2026-07-27 | **M69 lock D — write confirm UX** | Stderr confirm after successful `--output` (table/md/json) and `--csv-single-file`; `--quiet` suppresses; CSV bundle confirm unchanged; no new flags. Specs: `.specs/features/write-confirm-ux/`. |
 | 2026-07-27 | **M70 lock J — table Lines parity** | Add `Lines` (`linesChanged`) to scan `table.ts` mirroring markdown; glossary/how-to-read if needed; table tests. No schema bump. Specs: `.specs/features/table-lines-parity/`. |
+| 2026-07-27 | **M68 warnings-bookend-dx Done** | Execute complete: `emitWarningTeaser()` pre-write rollup under `summary`; post-write `flushWarnings`; compare table/markdown body dedup; docs/ARCHITECTURE/AGENTS synced. Gate green (`pnpm build && pnpm test`, 1027 tests). Specs: `.specs/features/warnings-bookend-dx/` (Done). |
+| 2026-07-27 | **M69 write-confirm-ux Done** | Execute complete: stderr `Wrote <path>` after `--output` table/md/json and `--csv-single-file`; `--quiet` suppresses; bundle confirm unchanged. Gate green. Specs: `.specs/features/write-confirm-ux/` (Done). |
+| 2026-07-27 | **M70 table-lines-parity Done** | Execute complete: `Lines` column in scan table + glossary parity with markdown. Gate green. Specs: `.specs/features/table-lines-parity/` (Done). **M68–M70 batch complete.** |
 
 ## Architecture decisions (ADRs)
 
@@ -163,11 +166,7 @@ _None._
 
 ## Active
 
-**M7–M67 Done.** **M68–M70 Specs Planned** (planning session 2026-07-27). Ready for user review → promote Status → Execute in a **new** session via `orchestrator-implementer`.
-
-**Execute order:** M68 (`warnings-bookend-dx`) → M69 (`write-confirm-ux`) → M70 (`table-lines-parity`).
-
-**Deferred horizon:** npm publish; CI/SARIF; historical AST; item C (scan body full warnings); fail-on-warning.
+**M7–M70 Done.** No open milestones. Deferred horizon: npm publish; CI/SARIF; historical AST; item C (scan body full warnings); fail-on-warning.
 
 ## Deferred
 
