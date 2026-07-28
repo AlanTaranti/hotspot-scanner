@@ -23,6 +23,7 @@ export default defineConfig({
       "bin/**/*.test.ts",
       "tests/contract/**/*.test.ts",
       "tests/compiled-cli.smoke.test.ts",
+      "tests/living-sot-docs.test.ts",
     ],
     exclude: ["tests/fixtures/**", "node_modules/**", "dist/**"],
     coverage: {

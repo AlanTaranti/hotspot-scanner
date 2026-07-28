@@ -39,7 +39,7 @@ Use **WHEN/THEN/SHALL** format - it's precise and testable:
 
 ---
 
-## Template: `.specs/[feature]/spec.md`
+## Template: `.specs/features/<slug>/spec.md`
 
 ```markdown
 # [Feature Name] Specification
@@ -123,11 +123,13 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 
 | Requirement ID | Story       | Phase  | Status  |
 | -------------- | ----------- | ------ | ------- |
-| [FEAT]-01      | P1: [Story] | Design | Pending |
-| [FEAT]-02      | P1: [Story] | Design | Pending |
-| [FEAT]-03      | P2: [Story] | -      | Pending |
+| HOTSPOT-NNN    | P1: [Story] | Design | Pending |
+| HOTSPOT-NNN+1  | P1: [Story] | Design | Pending |
+| HOTSPOT-NNN+2  | P2: [Story] | -      | Pending |
 
-**ID format:** `[CATEGORY]-[NUMBER]` (e.g., `AUTH-01`, `CART-03`, `NOTIF-02`)
+**ID format:** `HOTSPOT-<NUMBER>` — single prefix for this repository, numbered in one continuous
+sequence (e.g., `HOTSPOT-1010`, `HOTSPOT-1011`). Start after the highest existing ID in
+`.specs/features/`. SoT: `.cursor/rules/feature-planning.mdc`.
 
 **Status values:** Pending → In Design → In Tasks → Implementing → Verified
 
@@ -149,7 +151,7 @@ How we know the feature is successful:
 
 - **P1 = Vertical Slice** — A complete, demo-able feature, not just backend or frontend
 - **WHEN/THEN is code** — If you can't write it as a test, rewrite it
-- **Requirement IDs are mandatory** — Every story maps to trackable IDs
+- **Requirement IDs are mandatory** — Every story maps to trackable `HOTSPOT-*` IDs
 - **Edge cases matter** — What breaks? What's empty? What's huge?
 - **Out of Scope prevents creep** — If it's not here, it doesn't get built
 - **Confirm before Discuss** — User must approve spec before moving to discuss phase

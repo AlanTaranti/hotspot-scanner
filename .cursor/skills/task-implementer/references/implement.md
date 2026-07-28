@@ -1,7 +1,5 @@
 # Execute
 
-> **@vitals/hotspot-scanner:** Do not `git commit` unless the user explicitly asks (see [AGENTS.md](../../../../AGENTS.md)). After verification, propose a Conventional Commit message; commit only on request.
-
 **Goal**: Implement ONE task at a time. Surgical changes. Verify. Propose commit on request. Repeat.
 
 This is where code gets written. Every task follows the same cycle: plan → implement → verify → (commit when requested). Verification is built into every task, not a separate phase.
@@ -22,39 +20,19 @@ This is where code gets written. Every task follows the same cycle: plan → imp
 
 ## Process
 
-**Sub-agent context:** When this task is executed by a sub-agent, the sub-agent receives
-the task definition, coding principles, TESTING.md, and relevant spec/design context.
-All steps below apply identically whether running in the main context or a sub-agent.
-The only difference: sub-agents report results back to the orchestrator rather than
-continuing to the next task.
+The steps below apply identically in the main context and in an `implementer` sub-agent; the only difference is that a sub-agent reports back to the orchestrator instead of continuing to the next task ([orchestrated-implementer.md](orchestrated-implementer.md)).
 
-### 0. List Atomic Steps (MANDATORY when Tasks phase was skipped)
+### 0. No `tasks.md`? Stop here
 
-If there is no `tasks.md` for this feature, you MUST list atomic steps before writing any code. This is non-negotiable — it prevents the agent from losing focus and doing too many things at once.
-
-```
-## Execution Plan
-
-1. [Step] → files: [list] → verify: [how]
-2. [Step] → files: [list] → verify: [how]
-3. [Step] → files: [list] → verify: [how]
-```
-
-**Each step must be:**
-
-- ONE deliverable (one component, one function, one endpoint, one file change)
-- Independently verifiable (can prove it works before moving on)
-- Independently committable when the user requests a commit (one step = one commit; never batch)
-
-If listing steps reveals >5 steps or complex dependencies, STOP and create a formal `tasks.md` instead. The Tasks phase was wrongly skipped.
+This reference implements a planned task. Without a `tasks.md` task, ad-hoc scope belongs to planning: ≤3 files / one sentence → [quick-mode.md](../../vitals-spec-driven/references/quick-mode.md); anything larger → plan first via [vitals-spec-driven](../../vitals-spec-driven/SKILL.md).
 
 ### 1. Pick Task
 
-From tasks.md (if exists) or from the execution plan above. User specifies ("implement T3") or suggest next available.
+From `tasks.md` — the user names it ("implement T3") or you suggest the next available task.
 
 ### 2. Verify Dependencies
 
-If tasks.md exists, check dependencies. If using inline plan, follow the order listed.
+Check the task's `Depends on` field against completed tasks.
 
 ❌ If blocked: "T3 depends on T2 which isn't done. Should I do T2 first?"
 
@@ -89,42 +67,21 @@ If the task does NOT include tests (e.g., entity-only, config-only), skip to Ste
 
 Write the minimum implementation needed to satisfy the task's success criteria: pass all relevant tests (when present) and meet the defined verification/gate checks when there are no direct tests.
 
-**HARD CONSTRAINTS:**
+**Test integrity:** [coding-guidelines](../../coding-guidelines/SKILL.md) § 5 Test Integrity applies verbatim to the tests from Step 4 — no modifying, weakening, deleting, or skipping them; genuinely wrong test → STOP and ask the user.
 
-- Do NOT modify tests written in Step 4. The tests are the spec — implementation conforms to them.
-- Do NOT weaken assertions (making them less specific to pass more easily)
-- Do NOT delete or skip test cases
-- Do NOT use the test framework's skip/disable/pending mechanism to bypass failing tests
-- Minimum code to pass — save structural improvements for a refactor task
-
-If a test is genuinely wrong (tests the wrong behavior per spec), STOP and ask the user
-before modifying it. Never silently change a test.
-
-Follow [coding-guidelines/SKILL.md](../../coding-guidelines/SKILL.md):
-
-- Simplest code that works
-- Touch ONLY listed files
-- No scope creep
+Minimum code to pass; structural improvements belong to a refactor task. Touch only the listed files — no scope creep ([coding-guidelines](../../coding-guidelines/SKILL.md) §§ 2-3).
 
 ### 5. Gate Check (VERIFY)
 
-Run the gate check command from the task definition. This is MANDATORY — not "if applicable."
+Run the `Gate` command written in the task definition. This is MANDATORY — not "if applicable."
 
-1. Look up the command for the task's Gate level (quick/full/build) in TESTING.md's Gate Check Commands section, then run it
+1. Run the task's `Gate` command verbatim (usually a targeted `pnpm exec vitest run <path>`)
 2. Non-zero exit code = STOP. Fix the failure. Re-run. Do not proceed until green.
 3. Confirm the test count matches expectations (no tests were silently deleted or skipped)
 
-**Tiered gates (from TESTING.md Gate Check Commands):**
+There are **no** Quick / Full / Build gate levels — this project has one product gate, `pnpm build && pnpm test` ([quality-gates.mdc](../../../rules/quality-gates.mdc), [TESTING.md](../../../../.specs/codebase/TESTING.md) § Quality gate), which the feature's final task runs. Docs-only tasks are review-only. Add `pnpm lint` when the task changes `bin/` or the ESLint config.
 
-| Task includes                    | Gate level | What runs                |
-| -------------------------------- | ---------- | ------------------------ |
-| Unit tests only                  | Quick      | Unit test command        |
-| E2E or integration tests         | Full       | Unit + E2E commands      |
-| Last task in a phase             | Build      | Build + lint + all tests |
-| No tests (config, entities, etc) | Build      | Build + lint only        |
-
-The gate check is deterministic. The test runner decides if the code is correct,
-not the agent's self-assessment.
+The gate is deterministic: the test runner decides whether the code is correct, not the agent's self-assessment.
 
 ### 6. Post-Gate Review
 
@@ -144,7 +101,7 @@ After the gate check passes:
 
 ### 7. Git Commit (on request)
 
-Do not commit unless the user explicitly asks — [commit-policy.mdc](../../../rules/commit-policy.mdc) + [agent-hard-constraints.md](../../vitals-common/references/agent-hard-constraints.md). After verification passes, **propose** a Conventional Commit message. Commit only when requested.
+Do not commit unless the user explicitly asks — [commit-policy.mdc](../../../rules/commit-policy.mdc) + [agent-hard-constraints.md](../../../agents/references/agent-hard-constraints.md). After verification passes, **propose** a Conventional Commit message. Commit only when requested.
 
 When committing: one task = one commit. Never batch multiple tasks. Include only files listed in the task — no "while I'm here" changes. If tests are part of the task, include them in the same commit.
 
@@ -152,8 +109,8 @@ When committing: one task = one commit. Never batch multiple tasks. Include only
 
 During implementation, you will notice things that could be improved, refactored, or added. **Do not act on them.** Instead:
 
-- If it's a bug: note it in STATE.md as a blocker or use quick mode
-- If it's an improvement: note it in STATE.md under "Deferred Ideas" or "Lessons Learned"
+- If it's a bug: note it in STATE.md under `## Blockers` or use quick mode
+- If it's an improvement: note it in STATE.md under `## Deferred` (open items only) or `## Lessons`
 - If it's related to the current task: only include it if it's in the "Done when" criteria
 
 **The heuristic:** "Is this in my task definition?" If no, don't touch it.
@@ -164,56 +121,30 @@ Mark task complete in tasks.md. Update requirement traceability in spec.md if re
 
 ---
 
-## Execution Template
+## Report shape
 
 ```markdown
 ## Implementing T[X]: [Task Title]
 
-**Reading**: task definition from tasks.md
-**Dependencies**: [All done? ✅ | Blocked by: TY]
-**Tests**: [unit/e2e/integration/none]
-**Gate**: [quick/full/build]
+**Dependencies**: [All done | Blocked by TY] · **Tests**: [unit/integration/none] · **Gate**: [command from tasks.md]
 
-### Pre-Implementation (MANDATORY)
+- **Pre-implementation**: assumptions · files to touch · success criteria
+- **RED**: test file(s), test count, confirmed failing
+- **GREEN**: minimum code; tests modified/deleted: none
+- **VERIFY**: gate command, result, test count matches RED
+- **Post-gate**: SPEC_DEVIATION markers (or none), no extra changes
 
-- **Assumptions**: [state explicitly]
-- **Files to touch**: [list ONLY these]
-- **Success criteria**: [how to verify]
-
-### RED: Write Tests
-
-- Test file(s): [paths]
-- Test count: [N test cases]
-- Confirmed failing: [Yes — all N tests fail as expected]
-
-### GREEN: Implement
-
-[Write minimum code to pass tests]
-
-- Tests modified: None
-- Tests skipped/deleted: None
-
-### VERIFY: Gate Check
-
-- Command: [gate check command]
-- Result: [X passed, 0 failed]
-- Test count: [N — matches RED phase count]
-
-### Post-Gate
-
-- [x] No SPEC_DEVIATION (or markers added)
-- [x] No unnecessary changes made
-- [x] Matches existing patterns
-
-**Status**: ✅ Complete | ❌ Blocked | ⚠️ Partial
+**Status**: Complete | Blocked | Partial
 ```
+
+When delegated by the orchestrator, return the structured form in [orchestrated-implementer.md](orchestrated-implementer.md) § Structured return instead.
 
 ---
 
 ## Tips
 
 - **One task at a time** — Focus prevents errors
-- **Tools matter** — Wrong MCP = wrong approach
+- **Stay in your module** — One owner prefix per task ([implementer-routing.md](../../vitals-common/references/implementer-routing.md))
 - **Reuses save tokens** — Copy patterns, don't reinvent
 - **Propose commit after verify** — Commit only when user asked; one task = one commit when committing
 - **Stay surgical** — Touch only what's necessary

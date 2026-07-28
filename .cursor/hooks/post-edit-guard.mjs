@@ -7,6 +7,7 @@ import {
   FRAGILE_CONTEXT,
   isFragilePath,
   isFragileScoringPath,
+  PLANNER_BLOCKED_RE,
   SCORING_FORMULA_CONTEXT,
 } from "./lib/paths.mjs";
 import { LIVING_SOT_ENTRIES } from "./lib/living-sot-doc.mjs";
@@ -25,15 +26,27 @@ const workspaceRoot = getWorkspaceRoot(input);
 const relPath = extractEditPath(input.tool_input, workspaceRoot);
 
 if (relPath) {
+  const state = loadState(input);
+  /** @type {Partial<import('./lib/state.mjs').SessionState>} */
+  const patch = {};
+
   const isProductionFragile =
     isFragilePath(relPath) && !/\.test\.ts$/.test(relPath);
-  if (isProductionFragile) {
-    const state = loadState(input);
-    const fragileAckPaths = state.fragileAckPaths ?? [];
-    if (!fragileAckPaths.includes(relPath)) {
-      saveState(input, { fragileAckPaths: [...fragileAckPaths, relPath] });
-    }
+  const fragileAckPaths = state.fragileAckPaths ?? [];
+  if (isProductionFragile && !fragileAckPaths.includes(relPath)) {
+    patch.fragileAckPaths = [...fragileAckPaths, relPath];
   }
+
+  // The planning-boundary ask already ran (or did not apply) for this edit
+  if (
+    !state.activeSubagent &&
+    !state.planningBoundaryAcked &&
+    PLANNER_BLOCKED_RE.test(relPath)
+  ) {
+    patch.planningBoundaryAcked = true;
+  }
+
+  if (Object.keys(patch).length > 0) saveState(input, patch);
 }
 
 if (!relPath) {
@@ -54,9 +67,8 @@ if (isFragileScoringPath(relPath)) {
 if (workspaceRoot) {
   for (const entry of LIVING_SOT_ENTRIES) {
     if (!entry.isPath(relPath)) continue;
-    // docs/*: lint the edited file path; other entries use canonical relPath
-    const fileRel =
-      entry.id === "docs" ? relPath.replace(/\\/g, "/") : entry.relPath;
+    // Glob entries (docs/, skills, agent roles) lint the edited file itself
+    const fileRel = entry.perFile ? relPath.replace(/\\/g, "/") : entry.relPath;
     const abs = path.join(workspaceRoot, fileRel);
     try {
       const text = fs.readFileSync(abs, "utf8");

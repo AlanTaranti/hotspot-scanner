@@ -39,7 +39,7 @@ Follow [validate.md](../skills/vitals-execute/references/validate.md): task audi
 - **Never** run full project gate — that is `verifier-quality-gates` (Phase E).
 - **Never** mark READY without verifying P1/MVP criteria when they exist.
 - No interactive UI UAT.
-- Follow [agent-hard-constraints.md](../skills/vitals-common/references/agent-hard-constraints.md).
+- Follow [agent-hard-constraints.md](references/agent-hard-constraints.md).
 
 ## Verdicts
 

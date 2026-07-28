@@ -1,23 +1,20 @@
 # Tasks
 
-**Goal**: Break into GRANULAR, ATOMIC tasks. Clear dependencies. Right tools. Parallel execution plan.
+**Goal**: Break into GRANULAR, ATOMIC tasks. Clear dependencies. Module owners. Parallel execution plan.
 
-**Skip this phase when:** There are ≤3 obvious steps. In that case, tasks are implicit — go straight to Execute and list them inline in your implementation plan.
+**Skip this phase when:** the work is a ≤3-file, one-sentence change — run it through [quick-mode.md](quick-mode.md) instead of writing a `tasks.md`. Safety valve: if informal steps exceed 5 or gain complex dependencies, come back and write the tasks.
 
 ## Why Granular Tasks?
 
-| Vague Task (BAD) | Granular Tasks (GOOD)             |
-| ---------------- | --------------------------------- |
-| "Create form"    | T1: Create email input component  |
-|                  | T2: Add email validation function |
-|                  | T3: Create submit button          |
-|                  | T4: Add form state management     |
-|                  | T5: Connect form to API           |
-| "Implement auth" | T1: Create login form             |
-|                  | T2: Create register form          |
-|                  | T3: Add token storage utility     |
-|                  | T4: Create auth API service       |
-|                  | T5: Add route protection          |
+| Vague Task (BAD)          | Granular Tasks (GOOD)                                            |
+| ------------------------- | ---------------------------------------------------------------- |
+| "Add churn reporting"     | T1: Aggregate commit counts per file in `src/git/aggregate.ts`   |
+|                           | T2: Expose churn in `HotspotScorer` inputs (`src/scoring/`)      |
+|                           | T3: Add churn column to the table reporter (`src/report/`)       |
+|                           | T4: Wire the flag in `bin/scan-actions.ts`                       |
+| "Improve NCLOC analyzer"  | T1: Add indentation metric to `src/complexity/`                  |
+|                           | T2: Extend the analyzer result type in `src/types/`              |
+|                           | T3: Emit the new field in JSON report (`src/report/` + `schemas/`) |
 
 **Benefits of granular:**
 
@@ -28,9 +25,9 @@
 
 **Rule**: One task = ONE of these:
 
-- One component
-- One function
-- One API endpoint
+- One module change under a single owner prefix ([implementer-routing.md](../../vitals-common/references/implementer-routing.md))
+- One function or exported helper
+- One CLI flag + its wiring
 - One file change
 
 ---
@@ -39,38 +36,36 @@
 
 ### 1. Review Design
 
-Read `.specs/[feature]/design.md` before creating tasks.
+Read `.specs/features/<slug>/design.md` before creating tasks.
 
 ### 1.5. Load Test Coverage Matrix
 
-Read `.specs/codebase/TESTING.md` (if it exists) before creating tasks. The Test Coverage Matrix
-and Parallelism Assessment drive two critical decisions:
+Read [TESTING.md](../../../../.specs/codebase/TESTING.md) before creating tasks — its Test Coverage Matrix and Parallelism Assessment drive two decisions:
 
-**Co-located tests:** Every task that creates or modifies a code layer with a required test type
-MUST include writing/updating those tests in the same task. Tests are NOT separate tasks.
+**Co-located tests:** every task that creates or modifies a code layer with a required test type MUST include writing/updating those tests in the same task. Tests are NOT separate tasks. Canonical rules + validation table: [task-validation.md](task-validation.md) § Check 3.
 
-| Task creates...                           | Done When must include...                   |
-| ----------------------------------------- | ------------------------------------------- |
-| Code layer with "unit" requirement        | Unit test written + quick gate passes       |
-| Code layer with "e2e" requirement         | E2E test written + full gate passes         |
-| Code layer with "integration" requirement | Integration test written + full gate passes |
-| Code layer with "none" requirement        | Gate check at appropriate level             |
+**Parallelism flags:** keep `[P]` only when the task's required test type is parallel-safe per TESTING.md § Parallelism assessment; otherwise strip it. A task with no tests depends only on code dependencies. Full constraint list: § Parallelism below.
 
-**Parallelism flags:** Cross-reference the Parallelism Assessment when marking tasks `[P]`:
+### 1.6. Gate per task (no tiers)
 
-- If a task's required test type is marked "Parallel-Safe: No" → strip `[P]` flag
-- If a task's required test type is marked "Parallel-Safe: Yes" → `[P]` is allowed
-- If a task has no tests → `[P]` depends only on code dependencies
+This project has **one** product gate — `pnpm build && pnpm test`
+([quality-gates.mdc](../../../rules/quality-gates.mdc), [TESTING.md](../../../../.specs/codebase/TESTING.md) § Quality gate).
+There are **no** Quick / Full / Build tiers.
 
-If TESTING.md does not exist (greenfield project), ask the user what test types and commands
-the project will use before creating tasks.
+| Task position           | `Gate` field                                                              |
+| ----------------------- | ------------------------------------------------------------------------- |
+| Any implementation task | Targeted Vitest run, e.g. `pnpm exec vitest run src/git/aggregate.test.ts` |
+| Docs-only task          | `none beyond review (project gate in the final task)`                     |
+| Final task of a feature | `pnpm build && pnpm test`                                                 |
+
+Every feature ends with a task whose gate is the project gate — nothing is Done without it.
 
 ### 2. Break Into Atomic Tasks
 
 **Task = ONE deliverable**. Examples:
 
-- ✅ "Create UserService interface" (one file, one concept)
-- ❌ "Implement user management" (too vague, multiple files)
+- ✅ "Add `renameConfidence` to the git miner result type" (one file, one concept)
+- ❌ "Improve rename handling" (too vague, multiple modules)
 
 ### 3. Define Dependencies
 
@@ -84,24 +79,20 @@ Group tasks into phases. Identify what can run in parallel.
 
 Before showing tasks to the user, run **all** pre-approval checks in [task-validation.md](task-validation.md) (granularity, diagram cross-check, test co-location, path conflict). Output validation tables with the tasks. Any ❌ → restructure — do not present failing tasks for approval.
 
-### 6. ASK About MCPs and Skills
+### 6. Set Status and Hand Off
 
-**CRITICAL**: Before execution, ask the user:
-
-> "For each task, which tools should I use?"
->
-> **Available MCPs**: [list from project or user]
-> **Available Skills**: [list from project or user]
+Planning ends here: set `Status: Planned` and deliver the handoff message per [planning-session-boundary.md](planning-session-boundary.md). Do not start Execute in this session.
 
 ---
 
-## Template: `.specs/[feature]/tasks.md`
+## Template: `.specs/features/<slug>/tasks.md`
 
-```markdown
+````markdown
 # [Feature] Tasks
 
-**Design**: `.specs/[feature]/design.md`
-**Status**: Draft | Approved | In Progress | Done
+**Spec**: [`.specs/features/<slug>/spec.md`](./spec.md)
+**Design**: [`.specs/features/<slug>/design.md`](./design.md)
+**Status**: Draft | Planned | Approved | In Progress | Done
 
 ---
 
@@ -110,181 +101,169 @@ Before showing tasks to the user, run **all** pre-approval checks in [task-valid
 ### Phase 1: Foundation (Sequential)
 
 Tasks that must be done first, in order.
+
 ```
-
-T1 → T2 → T3
-
+T1 → T2
 ```
 
 ### Phase 2: Core Implementation (Parallel OK)
-After foundation, these can run in parallel.
+
+After foundation, these can run in parallel (disjoint module owners).
 
 ```
-
-     ┌→ T4 ─┐
-
-T3 ──┼→ T5 ─┼──→ T8
-└→ T6 ─┘
-T7 ──────→
-
+T2 ──┬→ T3 [P] ─┬──→ T5
+     └→ T4 [P] ─┘
 ```
 
-### Phase 3: Integration (Sequential)
-Bringing it all together.
+### Phase 3: Wiring + gate (Sequential)
 
 ```
+T5 → T6
+```
 
-T8 → T9
+```mermaid
+flowchart LR
+  T1[T1 Types] --> T2[T2 Git miner]
+  T2 --> T3[T3 Scoring]
+  T2 --> T4[T4 Reporter]
+  T3 --> T5[T5 CLI wiring]
+  T4 --> T5
+  T5 --> T6[T6 Project gate]
+```
 
 ---
 
 ## Task Breakdown
 
-### T1: [Create X Interface]
+### T1: Extend the analyzer result type
 
 **What**: [One sentence: exact deliverable]
-**Where**: `src/path/to/file.ts`
+**Where**: `src/types/domain.ts`
 **Depends on**: None
-**Reuses**: `src/existing/BaseInterface.ts`
-**Requirement**: [FEAT]-01
-
-**Tools**:
-
-- MCP: `filesystem` (or NONE)
-- Skill: NONE
+**Reuses**: Existing `FileChangeStats` / `ComplexityResult` shapes
+**Requirement**: HOTSPOT-NNN
 
 **Done when**:
 
-- [ ] Interface defined with all methods from design
-- [ ] Types exported correctly
-- [ ] No TypeScript errors
+- [ ] Field added and re-exported via `src/types/index.ts`
+- [ ] No JSON schema / contract change (or schema updated in the reporter task)
+- [ ] Consumers typecheck
 
-**Tests**: [unit/e2e/integration/none — from coverage matrix]
-**Gate**: [quick/full/build — from gate check commands]
+**Tests**: none (types layer — excluded from coverage)
+**Gate**: `pnpm exec tsc -p tsconfig.json --noEmit`
 
 ---
 
-### T2: [Implement Y Service] [P]
+### T2: Aggregate per-file commit counts in the git miner
 
 **What**: [Exact deliverable]
-**Where**: `src/services/YService.ts`
+**Where**: `src/git/aggregate.ts`, `src/git/aggregate.test.ts`
 **Depends on**: T1
-**Reuses**: `src/services/BaseService.ts` patterns
-
-**Tools**:
-
-- MCP: `filesystem`, `context7`
-- Skill: NONE
+**Reuses**: Existing streaming `git log` parser (`src/git/parse.ts`)
+**Requirement**: HOTSPOT-NNN
 
 **Done when**:
 
-- [ ] Implements interface from T1
-- [ ] Handles error cases from design
-- [ ] Gate check passes: `[quick gate command from TESTING.md]`
+- [ ] Counts match the fixture repo expectations
+- [ ] Rename chains attribute churn to the current path
+- [ ] Gate passes: `pnpm exec vitest run src/git/aggregate.test.ts`
 - [ ] Test count: [N] tests pass (no silent deletions)
 
 **Tests**: unit
-**Gate**: quick
+**Gate**: `pnpm exec vitest run src/git/aggregate.test.ts`
 
 ---
 
-### T3: [Create Z Component] [P]
+### T3: Feed churn into the hotspot score [P]
 
 **What**: [Exact deliverable]
-**Where**: `src/components/ZComponent.tsx`
-**Depends on**: T1
-**Reuses**: `src/components/BaseComponent.tsx`
-
-**Tools**:
-
-- MCP: `filesystem`
-- Skill: NONE
+**Where**: `src/scoring/hotspot-scorer.ts`, `src/scoring/hotspot-scorer.test.ts`
+**Depends on**: T2
+**Reuses**: Existing `HotspotScorer` normalization helpers
+**Requirement**: HOTSPOT-NNN
 
 **Done when**:
 
-- [ ] Component renders correctly
-- [ ] Handles props from interface
-- [ ] Follows existing component patterns
-- [ ] Gate check passes: `[quick gate command from TESTING.md]`
+- [ ] Ranking matches the design's worked example
+- [ ] Empty-churn input degrades gracefully
+- [ ] Gate passes: `pnpm exec vitest run src/scoring/hotspot-scorer.test.ts`
 - [ ] Test count: [N] tests pass (no silent deletions)
 
 **Tests**: unit
-**Gate**: quick
+**Gate**: `pnpm exec vitest run src/scoring/hotspot-scorer.test.ts`
 
 ---
 
-### T4: [Add A Feature to Y]
+### T4: Render the new column in the table reporter [P]
 
 **What**: [Exact deliverable]
-**Where**: `src/services/YService.ts` (modify)
-**Depends on**: T2, T3
-**Reuses**: Existing service patterns
-
-**Tools**:
-
-- MCP: `filesystem`, `github`
-- Skill: `api-design`
+**Where**: `src/report/table.ts`, `src/report/table.test.ts`
+**Depends on**: T2
+**Reuses**: Existing column-width helpers
+**Requirement**: HOTSPOT-NNN
 
 **Done when**:
 
-- [ ] Feature works per acceptance criteria
-- [ ] Gate check passes: `[full gate command from TESTING.md]`
+- [ ] Column renders with and without color (TTY / non-TTY)
+- [ ] Gate passes: `pnpm exec vitest run src/report/table.test.ts`
 - [ ] Test count: [N] tests pass (no silent deletions)
 
-**Tests**: integration
-**Gate**: full
+**Tests**: unit
+**Gate**: `pnpm exec vitest run src/report/table.test.ts`
+
+---
+
+### T5: Wire the flag in the CLI
+
+**What**: [Exact deliverable]
+**Where**: `bin/scan-actions.ts`, `bin/hotspot-scanner.test.ts`
+**Depends on**: T3, T4
+**Reuses**: Existing flag parsing + config merge (CLI > config > defaults)
+**Requirement**: HOTSPOT-NNN
+
+**Done when**:
+
+- [ ] Flag documented in `docs/cli-reference.md`
+- [ ] Exit codes unchanged
+- [ ] Gate passes: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
+- [ ] Test count: [N] tests pass (no silent deletions)
+
+**Tests**: unit (CLI validation via `vitals-cli-validation` before Done)
+**Gate**: `pnpm exec vitest run bin/hotspot-scanner.test.ts`
 
 **Commit**: `feat([scope]): [description]`
 
 ---
 
-## Parallel Execution Map
+### T6: Project gate
 
-Visual representation of what can run simultaneously:
+**What**: Run the project gate and record the result
+**Where**: none (verification)
+**Depends on**: T5
+**Requirement**: (verification)
 
-```
+**Done when**:
 
-Phase 1 (Sequential):
-  T1 ──→ T2 ──→ T3
+- [ ] `pnpm build && pnpm test` passes with coverage thresholds met
 
-Phase 2 (Parallel):
-  T3 complete, then:
-    ├── T4 [P]
-    ├── T5 [P]  } Can run simultaneously
-    └── T6 [P]
+**Tests**: none
+**Gate**: `pnpm build && pnpm test`
+````
 
-Phase 3 (Sequential):
-  T4, T5, T6 complete, then:
-    T7 ──→ T8
+---
 
-```
+## Parallelism
 
-**Parallelism constraint:** A task marked `[P]` must have ALL of these:
+A task marked `[P]` must have ALL of these:
 
 - No unfinished dependencies
-- Required test type is parallel-safe (per TESTING.md Parallelism Assessment)
+- Disjoint module owner prefixes ([implementer-routing.md](../../vitals-common/references/implementer-routing.md))
+- Required test type is parallel-safe (per TESTING.md § Parallelism assessment)
 - No shared mutable state with other `[P]` tasks in the same phase
 
-If a task's tests are NOT parallel-safe, it MUST run sequentially even if its
-implementation code has no dependencies. The test execution is the bottleneck.
+Never parallelize two tasks that both touch `src/scan.ts`, `bin/hotspot-scanner.ts`, or `schemas/`. If a task's tests are NOT parallel-safe it runs sequentially even when its implementation code has no dependencies — test execution is the bottleneck.
 
-**How parallel execution works:**
-
-Tasks marked `[P]` are executed via sub-agents — one sub-agent per task, launched concurrently.
-Each sub-agent receives only its task definition and relevant project context (see Sub-Agent
-Delegation in SKILL.md). The orchestrating agent waits for all sub-agents in a phase to complete
-before advancing to the next phase.
-
-Sequential tasks (no `[P]`) are also delegated to sub-agents, but one at a time. This keeps
-implementation artifacts (file reads, test output, gate check logs) out of the main context.
-
-**The orchestrating agent's role during Execute:**
-
-1. Pick the next task(s) to execute
-2. Provide each sub-agent with its task definition + context
-3. Monitor sub-agent completion
-4. Update tasks.md with results
-5. Decide whether to proceed, fix, or escalate
+How `[P]` tasks are dispatched is an Execute-session concern: [`vitals-execute`](../../vitals-execute/SKILL.md).
 
 ---
 
@@ -296,8 +275,9 @@ Canonical checks (granularity, diagram, test co-location, path conflict, Done wh
 
 - **[P] = Parallel OK** — Mark tasks that can run simultaneously
 - **Reuses = Token saver** — Always reference existing code
-- **Tools per task** — MCPs and Skills prevent wrong approaches
+- **One module owner per task** — [implementer-routing.md](../../vitals-common/references/implementer-routing.md)
 - **Dependencies are gates** — Clear what blocks what
 - **Done when = Testable** — If you can't verify it, rewrite it
 - **Requirement ID = Traceable** — Every task traces back to a spec requirement (`HOTSPOT-*`)
+- **One gate, one final task** — Targeted Vitest per task; `pnpm build && pnpm test` closes the feature
 - **One commit per task** — Plan the commit message format in advance

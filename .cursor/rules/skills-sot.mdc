@@ -1,0 +1,28 @@
+---
+description: Keep .cursor/skills/* as project-specific procedures — no generic web-app templates or invented tooling
+globs: .cursor/skills/**/*.md
+alwaysApply: false
+---
+
+# Skills Editorial SoT
+
+**Role:** present-tense procedures for this scanner + pointers to living docs and rules. **Not:** policy SoT, living-doc template library, or generic agent-framework tutorial.
+
+Ownership: [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). Inventory: [AGENTS.md](../../AGENTS.md). Lint: `lintSkillsDoc` in [`living-sot-doc.mjs`](../hooks/lib/living-sot-doc.mjs) (regex subset: foreign requirement IDs, gate tiers, nonexistent tooling, web-app examples) — prose rules below stay manual review.
+
+## Forbidden
+
+- Generic web-app examples — React / `.tsx`, auth flows, `Database` as a SoT. This package is a Node CLI (git churn + NCLOC + scoring)
+- Gate tiers (`quick` / `full` / `build`) — the single required gate is [quality-gates.mdc](quality-gates.mdc)
+- Requirement ID prefixes other than `HOTSPOT-*` — see [feature-planning.mdc](feature-planning.mdc)
+- Full living-doc templates — destinations live in DOC-OWNERSHIP, editorial rules in the matching `*-sot.mdc`
+- References to nonexistent tooling (Context7, mermaid-studio, …) — cite only commands and files that exist in this repo
+
+## Allowed
+
+- Present-tense procedures, phase steps, checklists, `Do NOT use for …` anti-triggers
+- Short pointers to living docs, `*-sot.mdc` rules, agents under `.cursor/agents/`, and `docs/cli-reference.md`
+
+## Sync
+
+Update when a procedure changes. Policy text stays in its own SoT; milestone-dependent prose → ROADMAP / STATE / feature specs.

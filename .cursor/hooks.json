@@ -44,34 +44,26 @@
       {
         "command": "node .cursor/hooks/commit-policy.mjs",
         "matcher": "git commit",
+        "failClosed": true,
         "timeout": 5
       },
       {
         "command": "node .cursor/hooks/gate-before-commit.mjs",
         "matcher": "git commit",
-        "timeout": 5
-      },
-      {
-        "command": "node .cursor/hooks/shell-guards.mjs",
-        "matcher": "hotspot-scanner",
+        "failClosed": true,
         "timeout": 5
       }
     ],
     "afterShellExecution": [
       {
         "command": "node .cursor/hooks/record-gate-pass.mjs",
-        "timeout": 120
-      },
-      {
-        "command": "node .cursor/hooks/shell-guards.mjs",
-        "matcher": "pnpm test",
+        "matcher": "pnpm (build|test)",
         "timeout": 10
       }
     ],
     "subagentStop": [
       {
         "command": "node .cursor/hooks/subagent-stop.mjs",
-        "matcher": "implementer|orchestrator-implementer",
         "timeout": 5
       }
     ],
@@ -79,12 +71,6 @@
       {
         "command": "node .cursor/hooks/stop-gate-reminder.mjs",
         "loop_limit": 1,
-        "timeout": 5
-      }
-    ],
-    "preCompact": [
-      {
-        "command": "node .cursor/hooks/pre-compact.mjs",
         "timeout": 5
       }
     ]

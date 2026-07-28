@@ -10,17 +10,17 @@ Also run **Check 5: Path Conflict** via [implementer-routing.md](../../vitals-co
 
 ## Check 1: Task Granularity
 
-| Task                            | Scope         | Status       |
-| ------------------------------- | ------------- | ------------ |
-| T1: Create email input          | 1 component   | ✅ Granular  |
-| T2: Add validation function     | 1 function    | ✅ Granular  |
-| T3: Create form with all fields | 5+ components | ❌ Split it! |
+| Task                                   | Scope                  | Status       |
+| -------------------------------------- | ---------------------- | ------------ |
+| T1: Add `--min-commits` flag + wiring  | 1 flag, 1 owner        | ✅ Granular  |
+| T2: Add indentation metric to analyzer | 1 function             | ✅ Granular  |
+| T3: Rework git miner + scoring + CSV   | 3 module owners        | ❌ Split it! |
 
 **Rules:**
 
-- ✅ 1 component / 1 function / 1 endpoint / 1 focused file change = Good
-- ⚠️ 2-3 related things in same file = OK if cohesive
-- ❌ Multiple components or files = MUST split
+- ✅ 1 module change / 1 function / 1 CLI flag / 1 focused file change = Good
+- ⚠️ 2-3 related things in the same module = OK if cohesive
+- ❌ Multiple module owner prefixes = MUST split
 
 For this CLI: prefer one module owner path prefix per task ([implementer-routing.md](../../vitals-common/references/implementer-routing.md)).
 
@@ -76,13 +76,15 @@ Every task MUST include:
 
 **Verify:** commands to prove functionality + expected outputs.
 
+**Gate:** a runnable command — targeted Vitest for implementation tasks, `pnpm build && pnpm test` for the feature's final task. No Quick/Full/Build tiers ([quality-gates.mdc](../../../rules/quality-gates.mdc), [TESTING.md](../../../../.specs/codebase/TESTING.md) § Quality gate).
+
 ```markdown
 ### T1: [Task name]
 
 **What:** [Deliverable]
 **Where:** [File path]
-**Tests**: [unit/e2e/integration/none]
-**Gate**: [quick/full/build]
+**Tests**: [unit/integration/none]
+**Gate**: `pnpm exec vitest run <path>` (final task: `pnpm build && pnpm test`)
 
 **Done when:**
 

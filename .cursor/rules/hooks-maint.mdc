@@ -1,0 +1,22 @@
+---
+description: Maintaining Cursor hooks — smoke run, failClosed on critical denies, README quick map
+globs: .cursor/hooks/**,.cursor/hooks.json
+alwaysApply: false
+---
+
+# Hooks Maintenance
+
+**Role:** enforcement layer for policies owned elsewhere. Map, behaviors, and known limitations: [hooks/README.md](../hooks/README.md).
+
+## After editing hooks
+
+- Run `pnpm hooks:smoke` — requires a writable `.cursor/hooks-state/` (gitignored). It does **not** replace the project gate in [quality-gates.mdc](quality-gates.mdc)
+- Update the Quick map row in [hooks/README.md](../hooks/README.md) when a script, event, matcher, or behavior changes
+
+## Rules
+
+- **Critical denies** — `commit-policy.mjs` and `gate-before-commit.mjs` keep `"failClosed": true` in `hooks.json`; a crashed guard must not silently allow `git commit`
+- Hooks enforce a **regex subset** of `*-sot.mdc` editorial prose — do not migrate editorial rules into hooks, or hook internals into rules
+- Shared path / lint helpers live in `.cursor/hooks/lib/`; register new living-doc checks in `LIVING_SOT_ENTRIES` (`lib/living-sot-doc.mjs`) rather than hand-rolling per-guard logic
+- Policy text stays in [commit-policy.mdc](commit-policy.mdc) and [quality-gates.mdc](quality-gates.mdc) — hooks reference it, never redefine it
+- Paths arriving from Cursor may be absolute — normalize against the workspace root before classifying (see `lib/track-path.mjs`)

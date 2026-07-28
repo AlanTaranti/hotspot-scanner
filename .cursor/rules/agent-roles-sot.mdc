@@ -1,0 +1,28 @@
+---
+description: Keep .cursor/agents/* as role + trigger definitions — policies stay in their SoTs
+globs: .cursor/agents/**/*.md
+alwaysApply: false
+---
+
+# Agent Roles SoT
+
+**Role:** per-agent identity, when to invoke, anti-triggers, short pointers. **Not:** gate policy, commit policy, YAGNI essay, or planning-boundary essay.
+
+Ownership: [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). Inventory: [AGENTS.md](../../AGENTS.md). Shared constraints: [`agent-hard-constraints.md`](../agents/references/agent-hard-constraints.md) (under `.cursor/agents/references/` — not an invocable agent). Lint: `lintAgentRolesDoc` in [`living-sot-doc.mjs`](../hooks/lib/living-sot-doc.mjs) (regex subset: `M##` changelog voice plus the `lintSkillsDoc` bans) — prose rules below stay manual review.
+
+## Forbidden
+
+- Restating the gate command policy → point to [quality-gates.mdc](quality-gates.mdc) + TESTING.md § Coverage
+- Commit keyword lists → point to [commit-policy.mdc](commit-policy.mdc)
+- YAGNI / surgical-diff essays → point to [coding-guidelines](../skills/coding-guidelines/SKILL.md)
+- Planning-boundary essays → point to [vitals-spec-driven](../skills/vitals-spec-driven/SKILL.md)
+- Re-typing shared hard constraints per agent → point to `agent-hard-constraints.md`
+
+## Allowed
+
+- Frontmatter `name` / `description`, role statement, When to invoke, anti-triggers, deliverable shape
+- Short pointers to skills, rules, living docs, and sibling agents (handoff order)
+
+## Sync
+
+Update when a role, trigger, or handoff changes — and keep the matching AGENTS.md inventory row in step.

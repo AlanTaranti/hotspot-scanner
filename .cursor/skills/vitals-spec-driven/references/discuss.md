@@ -21,7 +21,7 @@ The output — `context.md` — feeds directly into Design and Tasks:
 
 ### 1. Analyze the Feature
 
-Read `.specs/features/[feature]/spec.md` and identify the domain:
+Read `.specs/features/<slug>/spec.md` and identify the domain (this repo is a CLI — the **RUN** row is the common case):
 
 | Domain                         | Gray areas to explore                                         |
 | ------------------------------ | ------------------------------------------------------------- |
@@ -56,8 +56,8 @@ For each selected area:
 
 The feature boundary from spec.md is **fixed**. Discussion clarifies HOW to implement, never WHETHER to add new capabilities.
 
-**Allowed:** "How should posts be displayed?" (clarifying ambiguity)
-**Not allowed:** "Should we also add comments?" (new capability)
+**Allowed:** "Should the new column appear in `--format table` only, or in CSV too?" (clarifying ambiguity)
+**Not allowed:** "Should we also add a `--watch` mode?" (new capability)
 
 When user suggests scope creep: "That sounds like a separate feature. I'll note it in Deferred Ideas. Back to [current area]."
 
@@ -65,13 +65,13 @@ When user suggests scope creep: "That sounds like a separate feature. I'll note 
 
 ---
 
-## Template: `.specs/features/[feature]/context.md`
+## Template: `.specs/features/<slug>/context.md`
 
 ```markdown
 # [Feature] Context
 
 **Gathered:** [date]
-**Spec:** `.specs/features/[feature]/spec.md`
+**Spec:** [`.specs/features/<slug>/spec.md`](./spec.md)
 **Status:** Ready for design
 
 ---
@@ -122,7 +122,7 @@ When user suggests scope creep: "That sounds like a separate feature. I'll note 
 
 ## Tips
 
-- **Decisions, not vision** — "Card-based layout with subtle shadows" is a decision. "Should feel modern" is not.
+- **Decisions, not vision** — "Warn on stderr and exit 0 when the scope is empty" is a decision. "Should feel polished" is not.
 - **Scope is sacred** — Deferred Ideas captures scope creep without losing ideas
 - **User = visionary, Agent = builder** — Ask about how they imagine it, not about technical implementation
 - **Don't ask about:** Technical architecture, performance, implementation details — that's Design's job

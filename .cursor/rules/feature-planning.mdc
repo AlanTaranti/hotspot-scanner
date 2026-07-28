@@ -17,9 +17,14 @@ Medium/large features: **Specify → Design → Tasks → Execute**.
 
 Planning stops at Tasks with `tasks.md` **Status: `Planned`** — no Execute in the same session.
 
-This applies to **`planner-feature` and the main agent**: do not start `orchestrator-implementer`, implement `src/`/`bin/`/`tests` application code, or run Execute phases while Status is `Draft`/`Planned`. Promote Status in a **new** session, then Execute.
+| Actor | While Status is `Draft` / `Planned` | Hook |
+| ----- | ---------------------------------- | ---- |
+| `planner-feature` | Never edits `src/`, `bin/`, `tests/` | `deny` |
+| Main agent | Does not implement under `src/`, `bin/`, `tests/` without explicit user confirmation | `ask` |
 
-Details: [planning-session-boundary.md](../skills/vitals-spec-driven/references/planning-session-boundary.md).
+Neither starts `orchestrator-implementer` nor runs Execute phases while Status is `Draft`/`Planned` — promote Status in a **new** session, then Execute. After the user confirms, quick mode (**≤3 files**) stays the only in-session implementation escape hatch.
+
+Details: [planning-session-boundary.md](../skills/vitals-spec-driven/references/planning-session-boundary.md); quick mode: [quick-mode.md](../skills/vitals-spec-driven/references/quick-mode.md).
 
 ## Execute
 

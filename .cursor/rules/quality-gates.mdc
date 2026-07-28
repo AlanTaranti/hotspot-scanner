@@ -19,6 +19,8 @@ To run and report: agent `verifier-quality-gates` or inline after implementation
 
 ## Commit hook scope (gate-before-commit)
 
-Cursor hook tracking for “code changed → need recent gate” covers: `src/`, `bin/`, `scripts/`, `schemas/`, `vitest.config.ts`.
+The `gate-before-commit.mjs` hook may allow a `git commit` when no tracked code path changed (for example `tests/`-only edits). The project gate above is still required before marking work **Done**.
 
-Edits **only** under `tests/` do **not** require a recent gate for `git commit` via that hook. The project gate above is still required before marking work **Done**.
+Tracked-path SoT: `CODE_PATH_RE` in [`.cursor/hooks/lib/paths.mjs`](../hooks/lib/paths.mjs) — behavior map in [`.cursor/hooks/README.md`](../hooks/README.md). Do not restate the path list here.
+
+When the user may commit: [commit-policy.mdc](commit-policy.mdc).

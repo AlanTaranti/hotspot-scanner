@@ -31,7 +31,7 @@ Follow [vitals-cli-validation](../skills/vitals-cli-validation/SKILL.md) **§ Fi
 
 ## Hard constraints
 
-- Follow [agent-hard-constraints.md](../skills/vitals-common/references/agent-hard-constraints.md).
+- Follow [agent-hard-constraints.md](references/agent-hard-constraints.md).
 - Use `tests/fixtures/` (repos under `tests/fixtures/repos/<slug>`).
 
 ## Output format

@@ -11,25 +11,11 @@ Automated validation for `@vitals/hotspot-scanner` CLI. No interactive UI UAT.
 
 **SoTs:** Flag encyclopedia + exit codes → [docs/cli-reference.md](../../../docs/cli-reference.md). Pipeline design → [ARCHITECTURE.md](../../../.specs/codebase/ARCHITECTURE.md). Fixture methodology → [TESTING.md](../../../.specs/codebase/TESTING.md).
 
-## Base commands
+## Commands
 
-```bash
-pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo>
-pnpm exec hotspot-scanner trend tests/fixtures/repos/trend-indent/src/trend.ts --since "10 years ago"
-pnpm exec hotspot-scanner assess tests/fixtures/repos/small-ts --min-hotspot-score 0.5 --top 5
-```
+Base `scan` / `trend` / `assess` invocations against fixture repos: [TESTING.md](../../../.specs/codebase/TESTING.md) § CLI validation — do not restate them here. Flags and exit codes: [docs/cli-reference.md](../../../docs/cli-reference.md). Add `--format json|markdown|csv` (with `--output <path>`) to any of them when checking a renderer.
 
-Examples with formats:
-
-```bash
-pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format json --output /tmp/scan.json
-pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format markdown --output /tmp/report.md
-pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format csv --output /tmp/report.csv
-```
-
-## Exit codes
-
-Canonical table: [docs/cli-reference.md → Exit codes](../../../docs/cli-reference.md#exit-codes).
+This skill owns what to **assert** for each command, plus fixture authoring.
 
 ## When to validate
 
@@ -39,12 +25,7 @@ Canonical table: [docs/cli-reference.md → Exit codes](../../../docs/cli-refere
 
 ## Assess validation
 
-```bash
-pnpm exec hotspot-scanner assess tests/fixtures/repos/small-ts --min-hotspot-score 0.5 --top 5
-pnpm exec hotspot-scanner assess tests/fixtures/repos/small-ts --format json --min-hotspot-score 0.5 --top 5
-```
-
-Checks:
+Run `assess` with `--min-hotspot-score 0.5 --top 5`, once as table and once with `--format json`. Checks:
 
 - Exit `0` on success (including partial per-file trend failures)
 - Table shows summary pattern counts; detail only for `deteriorating`
@@ -53,12 +34,7 @@ Checks:
 
 ## Trend validation
 
-```bash
-pnpm exec hotspot-scanner trend tests/fixtures/repos/trend-indent/src/trend.ts --since "10 years ago"
-pnpm exec hotspot-scanner trend tests/fixtures/repos/trend-indent/src/trend.ts --format json --since "10 years ago"
-```
-
-Checks:
+Run `trend` on `trend-indent/src/trend.ts` with a wide `--since`, once as table and once with `--format json`. Checks:
 
 - Exit `0` on success
 - Table output contains `Pattern:` above sparklines
@@ -80,17 +56,9 @@ Used by `fixture-builder`. Methodology SoT: [TESTING.md](../../../.specs/codebas
 3. **Git log samples** — raw `git log --numstat` output in `tests/fixtures/git-log/` for unit tests.
 4. **Complexity samples** — TS/JS files with known NCLOC (and indentation when needed) in `tests/fixtures/complexity/`.
 5. **README.md** — in fixture folder: purpose, expected scan highlights, CLI command to validate.
-6. **Validate** — `pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug>` (exit 0 for repo fixtures).
+6. **Validate** — scan the fixture path and check: path exists, it is a valid git repository (integration scans), exit `0`, JSON matches the schema with `--format json`, and the output reports the `--since` window used.
 
 Fixture source is excluded from Vitest include — validation is via CLI or dedicated integration tests.
-
-## Fixture validation checklist
-
-1. Path exists (`tests/fixtures/repos/<slug>/`)
-2. Is a valid git repository (for integration scans)
-3. `pnpm exec hotspot-scanner scan <path>` exits `0` on success
-4. JSON output matches schema when `--format json`
-5. Output shows `--since` window used
 
 ## JSON output checks (scan)
 

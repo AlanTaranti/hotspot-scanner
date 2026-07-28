@@ -15,7 +15,9 @@ Orchestrate approved `tasks.md` (phases A→F). Companion skill for the `orchest
 | Need | Load |
 | ---- | ---- |
 | Orchestration A→F | [execute-orchestration-playbook.md](references/execute-orchestration-playbook.md) |
+| Phase C code review template | [review.md](references/review.md) (agent: `code-reviewer`) |
 | Phase D acceptance checklist | [validate.md](references/validate.md) (agent: `verifier-implementation`) |
+| Phase E gate report template | [quality-gates-report.md](references/quality-gates-report.md) (agent: `verifier-quality-gates`) |
 | Single-task RED→GREEN→VERIFY | skill [`task-implementer`](../task-implementer/SKILL.md) |
 | Project overlay / routing / ROADMAP sync | skill [`vitals-common`](../vitals-common/SKILL.md) |
 

@@ -35,7 +35,7 @@ Required before marking any task Complete. Agents: use `verifier-quality-gates` 
 
 `vitest.config.ts` enforces thresholds; this section documents that config.
 
-**Commit hook note:** Cursor `gate-before-commit` tracks code paths under `src/`, `bin/`, `scripts/`, `schemas/`, and `vitest.config.ts`. Edits only under `tests/` do not require a recent gate for commit via that hook; the project gate (`pnpm build && pnpm test`) is still required before Done — see [quality-gates.mdc](../../.cursor/rules/quality-gates.mdc).
+**Commit hook note:** the Cursor `gate-before-commit` hook can allow a commit for `tests/`-only edits, but the project gate (`pnpm build && pnpm test`) is still required before Done — see [quality-gates.mdc](../../.cursor/rules/quality-gates.mdc). Tracked code paths are defined by `CODE_PATH_RE` in `.cursor/hooks/lib/paths.mjs` — see [hooks/README.md](../../.cursor/hooks/README.md).
 
 ### Provider and output
 
@@ -188,7 +188,7 @@ pnpm exec hotspot-scanner trend tests/fixtures/repos/trend-indent/src/trend.ts -
 pnpm exec hotspot-scanner assess tests/fixtures/repos/small-ts --format json
 ```
 
-See skill `vitals-cli-validation` for exit codes and flag matrix. Canonical exit-code table: [AGENTS.md](../../AGENTS.md) § Validation (CLI).
+Run workflow and flag matrix: skill `vitals-cli-validation`. Canonical exit-code table: [docs/cli-reference.md § Exit codes](../../docs/cli-reference.md#exit-codes).
 
 ## Parallelism assessment
 
@@ -205,9 +205,9 @@ Vitest runs files in parallel by default. Do not share writable state across tes
 
 This project uses a **single** product gate (no Quick/Full tiers):
 
-| Gate Level | When to Use | Command |
-| ---------- | ----------- | ------- |
-| Build | Before marking any implementation task Complete | `pnpm build && pnpm test` |
+| Gate | When to Use | Command |
+| ---- | ----------- | ------- |
+| Product | Before marking any implementation task Complete | `pnpm build && pnpm test` |
 | Lint (supplemental) | When changing `bin/` or ESLint config | `pnpm lint` |
 | Hooks smoke (out-of-band) | After changing `.cursor/hooks/` | `pnpm hooks:smoke` |
 

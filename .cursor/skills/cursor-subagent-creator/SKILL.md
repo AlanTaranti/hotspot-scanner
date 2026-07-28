@@ -84,7 +84,7 @@ Report [type of expected result]:
 
 ## Hard constraints (hotspot-scanner)
 
-- Shared constraints: [agent-hard-constraints.md](../vitals-common/references/agent-hard-constraints.md)
+- Shared constraints: [agent-hard-constraints.md](../../agents/references/agent-hard-constraints.md)
 - Requirement IDs: `HOTSPOT-*`
 - Planning agents end at `tasks.md` Status `Planned` (no Execute in the same session)
 

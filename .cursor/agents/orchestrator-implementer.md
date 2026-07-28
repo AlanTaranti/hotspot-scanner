@@ -29,9 +29,10 @@ You do **not** plan specs (`planner-feature`). You do **not** implement applicat
 3. [`.cursor/skills/task-implementer/SKILL.md`](../skills/task-implementer/SKILL.md) — include in minimum prompt to `implementer`
 4. [orchestrated-implementer.md](../skills/task-implementer/references/orchestrated-implementer.md) — minimum prompt contract
 5. [implementer-routing.md](../skills/vitals-common/references/implementer-routing.md) — module routing
-6. [roadmap-sync.md](../skills/vitals-common/references/roadmap-sync.md) — sync ROADMAP on Done
-7. [TESTING.md](../../.specs/codebase/TESTING.md) — gate commands
-8. [AGENTS.md](../../AGENTS.md) + [vitals-project.md](../skills/vitals-common/references/vitals-project.md)
+6. [roadmap-sync.md](../skills/vitals-common/references/roadmap-sync.md) — sync ROADMAP on Done (§ Checklist drives Phase F)
+7. [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md) — where living-doc content belongs (Phase F)
+8. [TESTING.md](../../.specs/codebase/TESTING.md) — gate commands
+9. [AGENTS.md](../../AGENTS.md) + [vitals-project.md](../skills/vitals-common/references/vitals-project.md)
 
 ## Playbook
 
@@ -41,13 +42,9 @@ Follow [execute-orchestration-playbook.md](../skills/vitals-execute/references/e
 
 ## Hard constraints
 
-- Do not write implementation code directly except for unblocker fixes during Phase F remediation (max 1 round).
-- Follow [agent-hard-constraints.md](../skills/vitals-common/references/agent-hard-constraints.md).
-- Do not mark Done with failing Phase E gate, Phase D NOT_READY, or Phase C Changes needed.
-- Maximum **1 remediation round** after Phase C, D, or E failure.
+- Follow [agent-hard-constraints.md](references/agent-hard-constraints.md).
+- Follow [execute-orchestration-playbook.md](../skills/vitals-execute/references/execute-orchestration-playbook.md) § Hard constraints plus the per-phase blocking, remediation, wave-parallelism, and `tasks.md` ownership rules — do not restate them here.
 - Do not conduct AskQuestion / user discussion — return open items in the report.
-- **Default to wave parallelism** when path-disjoint and test-safe; `[P]` is a planner signal, not the only gate.
-- Orchestrator owns `tasks.md` checkbox updates after each wave.
 
 ## Main agent handoff
 

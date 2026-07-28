@@ -21,6 +21,8 @@ export const DOCS_CLI_REFERENCE_REL_PATH = "docs/cli-reference.md";
 export const DOCS_RECIPES_REL_PATH = "docs/recipes.md";
 export const DOCS_METHODOLOGY_REL_PATH = "docs/methodology.md";
 export const DOCS_WARNING_CODES_REL_PATH = "docs/warning-codes.md";
+export const SKILLS_DIR_REL_PATH = ".cursor/skills";
+export const AGENT_ROLES_DIR_REL_PATH = ".cursor/agents";
 
 /** Soft size warning for ARCHITECTURE (~context-limits warning band). Smoke does not fail on size. */
 export const LINE_WARN = 450;
@@ -378,6 +380,94 @@ export function lintReadmeDoc(text) {
   };
 }
 
+/** Requirement-ID prefixes allowed in procedure docs (feature-planning.mdc, ADR ids, encodings). */
+const ID_PREFIX_ALLOWLIST = ["HOTSPOT", "ADR", "UTF", "ISO", "SHA", "RFC"];
+
+const FOREIGN_ID_RE = new RegExp(
+  `\\b(?!(?:${ID_PREFIX_ALLOWLIST.join("|")})-)[A-Z][A-Z0-9]{2,}-\\d+\\b`,
+  "g",
+);
+
+const GATE_TIER_RE = /\bQuick\s*[/|]\s*Full\s*[/|]\s*Build\b/gi;
+const TIER_NEGATION_RE = /\b(?:no|not|never|single|one)\b/i;
+const TIER_NEGATION_WINDOW = 60;
+
+/**
+ * True when gate tiers are described as real, not denied ("there are no
+ * Quick / Full / Build tiers" stays allowed). Newlines are collapsed first so a
+ * negation on the previous line still counts.
+ * @param {string} source
+ * @returns {boolean}
+ */
+function assertsGateTiers(source) {
+  const flat = source.replace(/\s+/g, " ");
+  GATE_TIER_RE.lastIndex = 0;
+  let match;
+  while ((match = GATE_TIER_RE.exec(flat)) !== null) {
+    const before = flat.slice(
+      Math.max(0, match.index - TIER_NEGATION_WINDOW),
+      match.index,
+    );
+    if (!TIER_NEGATION_RE.test(before)) return true;
+  }
+  return false;
+}
+
+/** @type {{ re: RegExp, label: string }[]} */
+const PROCEDURE_DOC_PATTERNS = [
+  { re: /\bContext7\b/i, label: "Context7" },
+  { re: /\bmermaid-studio\b/i, label: "mermaid-studio" },
+  { re: /\.tsx\b/, label: ".tsx" },
+  { re: /\bReact\b/, label: "React" },
+];
+
+/**
+ * `.cursor/skills/**` procedures — ban foreign requirement-ID prefixes,
+ * gate tiers, and nonexistent tooling / web-app examples (skills-sot.mdc).
+ * M## is allowed (skills reference milestone bookkeeping steps).
+ * @param {string} text
+ * @returns {{ bannedMatches: string[] }}
+ */
+export function lintSkillsDoc(text) {
+  const source = typeof text === "string" ? text : "";
+  const banned = new Set();
+
+  FOREIGN_ID_RE.lastIndex = 0;
+  let match;
+  while ((match = FOREIGN_ID_RE.exec(source)) !== null) {
+    banned.add(match[0]);
+  }
+
+  if (assertsGateTiers(source)) {
+    banned.add("Quick/Full/Build tiers");
+  }
+
+  for (const { re, label } of PROCEDURE_DOC_PATTERNS) {
+    if (re.test(source)) banned.add(label);
+  }
+
+  return { bannedMatches: [...banned].sort() };
+}
+
+/**
+ * `.cursor/agents/**` role files — skills bans plus M## changelog voice
+ * (agent-roles-sot.mdc): roles are present-tense, milestones live in ROADMAP.
+ * @param {string} text
+ * @returns {{ bannedMatches: string[] }}
+ */
+export function lintAgentRolesDoc(text) {
+  const source = typeof text === "string" ? text : "";
+  const banned = new Set(lintSkillsDoc(source).bannedMatches);
+
+  MILESTONE_RE.lastIndex = 0;
+  let match;
+  while ((match = MILESTONE_RE.exec(source)) !== null) {
+    banned.add(match[0]);
+  }
+
+  return { bannedMatches: [...banned].sort() };
+}
+
 /**
  * @param {string | null | undefined} relPath
  * @param {string} fileName
@@ -519,6 +609,24 @@ export function isDocsUserDocPath(relPath) {
   return n === "docs" || n.startsWith("docs/");
 }
 
+/**
+ * @param {string | null | undefined} relPath
+ * @returns {boolean}
+ */
+export function isSkillDocPath(relPath) {
+  if (!relPath || typeof relPath !== "string") return false;
+  return /^\.cursor\/skills\/.+\.md$/.test(relPath.replace(/\\/g, "/"));
+}
+
+/**
+ * @param {string | null | undefined} relPath
+ * @returns {boolean}
+ */
+export function isAgentRoleDocPath(relPath) {
+  if (!relPath || typeof relPath !== "string") return false;
+  return /^\.cursor\/agents\/.+\.md$/.test(relPath.replace(/\\/g, "/"));
+}
+
 const OWN = "Ownership → .specs/codebase/DOC-OWNERSHIP.md";
 
 export const ARCHITECTURE_SOT_CONTEXT = `ARCHITECTURE.md Design SoT (.cursor/rules/architecture-sot.mdc). Forbidden: M##, HOTSPOT-*, changelog voice. ${OWN}`;
@@ -551,6 +659,10 @@ export const DOC_OWNERSHIP_SOT_CONTEXT = `DOC-OWNERSHIP.md is the ownership-matr
 
 export const DOCS_SOT_CONTEXT = `docs/* user docs (.cursor/rules/docs-sot.mdc). Forbidden: M## changelog voice. Roles: cli-reference encyclopedia + exit codes; recipes cookbooks; methodology; warning-codes. ${OWN}`;
 
+export const SKILLS_SOT_CONTEXT = `.cursor/skills/** project procedures (.cursor/rules/skills-sot.mdc). Forbidden: requirement IDs other than HOTSPOT-*, Quick/Full/Build gate tiers, nonexistent tooling (Context7, mermaid-studio), generic web-app examples (React/.tsx). ${OWN}`;
+
+export const AGENT_ROLES_SOT_CONTEXT = `.cursor/agents/** role files (.cursor/rules/agent-roles-sot.mdc). Forbidden: M## changelog voice, foreign requirement IDs, Quick/Full/Build gate tiers, nonexistent tooling. Keep role + triggers + pointers. ${OWN}`;
+
 /**
  * Shared registry for pre/post edit guards (table-driven SoT lint).
  * @typedef {{
@@ -561,6 +673,9 @@ export const DOCS_SOT_CONTEXT = `docs/* user docs (.cursor/rules/docs-sot.mdc). 
  *   sotContext: string,
  *   bannedLabel: string,
  *   preEditAsk: (matches: string[]) => string,
+ *   perFile?: boolean,
+ *   liveDir?: string,
+ *   liveRelPaths?: string[],
  *   lineWarn?: number,
  *   sizeHint?: string,
  * }} LivingSotEntry
@@ -734,5 +849,31 @@ export const LIVING_SOT_ENTRIES = [
     bannedLabel: "Forbidden tags still present",
     preEditAsk: (m) =>
       `docs/ edit introduces forbidden tags (${m.join(", ")}). Remove milestone changelog voice (docs-sot) or confirm intentional exception.`,
+    perFile: true,
+    liveRelPaths: [DOCS_CLI_REFERENCE_REL_PATH],
+  },
+  {
+    id: "skills",
+    isPath: isSkillDocPath,
+    relPath: SKILLS_DIR_REL_PATH,
+    lint: lintSkillsDoc,
+    sotContext: SKILLS_SOT_CONTEXT,
+    bannedLabel: "Forbidden procedure drift still present",
+    preEditAsk: (m) =>
+      `.cursor/skills edit introduces forbidden procedure drift (${m.join(", ")}). Use HOTSPOT-* IDs, the single project gate, and tooling that exists in this repo (skills-sot) or confirm intentional exception.`,
+    perFile: true,
+    liveDir: SKILLS_DIR_REL_PATH,
+  },
+  {
+    id: "agent-roles",
+    isPath: isAgentRoleDocPath,
+    relPath: AGENT_ROLES_DIR_REL_PATH,
+    lint: lintAgentRolesDoc,
+    sotContext: AGENT_ROLES_SOT_CONTEXT,
+    bannedLabel: "Forbidden role-file drift still present",
+    preEditAsk: (m) =>
+      `.cursor/agents edit introduces forbidden role-file drift (${m.join(", ")}). Keep role + triggers + pointers, no milestone voice (agent-roles-sot) or confirm intentional exception.`,
+    perFile: true,
+    liveDir: AGENT_ROLES_DIR_REL_PATH,
   },
 ];

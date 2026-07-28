@@ -15,13 +15,16 @@ It is **not** a Design SoT, milestone tracker, or flag encyclopedia.
 | Directory layout / public API map / where things live | **STRUCTURE.md** |
 | Runtime / deps / publish `files` / `engines` / exports | **STACK.md** |
 | Naming, ESM, dual-tsconfig, lint/format scripts | **CONVENTIONS.md** |
-| Fixture methodology, Vitest patterns, coverage, mock boundaries, gates | **TESTING.md** |
+| Fixture **infra, listing and methodology** (which fixture trees exist, bootstrap wiring, what each proves), Vitest patterns, coverage, mock boundaries, gates | **TESTING.md** |
 | Product vision / goals / constraints / capability scope | **PROJECT.md** |
 | Milestone status, Done summary, lean archive | **ROADMAP.md** / `.specs/features/` |
 | ROADMAP create + lean sync procedure | `.cursor/skills/vitals-common/references/roadmap-sync.md` |
 | Lasting locks, blockers, lessons, open deferred | **STATE.md** |
 | Agent index (skills/agents inventory) + pointers to policy SoTs | **AGENTS.md** (index only — not a policy SoT) |
-| Shared agent hard constraints | `.cursor/skills/vitals-common/references/agent-hard-constraints.md` |
+| Agent role definitions (`.cursor/agents/**`) — role, triggers, anti-triggers | `.cursor/rules/agent-roles-sot.mdc` (editorial) |
+| Shared agent hard constraints | `.cursor/agents/references/agent-hard-constraints.md` |
+| Skills editorial contract (`.cursor/skills/**`) | `.cursor/rules/skills-sot.mdc` |
+| Hooks maintenance (smoke run, failClosed denies, quick map) | `.cursor/rules/hooks-maint.mdc` + `.cursor/hooks/README.md` |
 | Operational project overlay (not identity index) | `.cursor/skills/vitals-common/references/vitals-project.md` |
 | Quality gate command | `.cursor/rules/quality-gates.mdc` + **TESTING.md** § Coverage |
 | Commit policy | `.cursor/rules/commit-policy.mdc` (enforce: hooks) |
@@ -33,7 +36,7 @@ It is **not** a Design SoT, milestone tracker, or flag encyclopedia.
 | Execute playbook A→F | `.cursor/skills/vitals-execute/references/execute-orchestration-playbook.md` |
 | Acceptance validate checklist (Phase D; not project gate) | `.cursor/skills/vitals-execute/references/validate.md` |
 | Single-task RED→GREEN→VERIFY | `.cursor/skills/task-implementer/SKILL.md` |
-| CLI validation + fixture authoring workflow (flags SoT = cli-reference) | `.cursor/skills/vitals-cli-validation/SKILL.md` |
+| Fixture **authoring workflow** (how to create/update a fixture tree) + CLI validation runs (listing SoT = TESTING, flags SoT = cli-reference) | `.cursor/skills/vitals-cli-validation/SKILL.md` + agent `fixture-builder` |
 | Exit codes (canonical table) | **`docs/cli-reference.md`** § Exit codes |
 | Human contribute guide (setup, gate, PR workflow) | **CONTRIBUTING.md** |
 | Adoption / first-run (essential flags, short API, short exit overview) | **README.md** |

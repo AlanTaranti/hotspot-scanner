@@ -26,8 +26,7 @@ export function defaultState() {
     touchedFragile: [],
     touchedFragileScoring: false,
     touchedPaths: [],
-    lastTestExitCode: null,
-    lastTestOutput: null,
+    planningBoundaryAcked: false,
   };
 }
 
@@ -44,8 +43,7 @@ export function defaultState() {
  * @property {string[]} touchedFragile
  * @property {boolean} touchedFragileScoring
  * @property {string[]} touchedPaths
- * @property {number | null} lastTestExitCode
- * @property {string | null} lastTestOutput
+ * @property {boolean} planningBoundaryAcked
  */
 
 /**

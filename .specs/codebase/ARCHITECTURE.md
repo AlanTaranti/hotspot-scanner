@@ -296,4 +296,4 @@ JSON `version` is **`"3.0"`**. Field name `complexityNormalized` retained for no
 
 ## Exit codes
 
-Canonical table: [AGENTS.md](../../AGENTS.md) § Validation (CLI) — `0` success, `1` explain-miss with `--fail-on-explain-miss`, `2` usage/config, `130`/`143` cancel.
+Canonical table: [docs/cli-reference.md](../../docs/cli-reference.md#exit-codes) — `0` success, `1` explain-miss with `--fail-on-explain-miss`, `2` usage/config, `130`/`143` cancel.

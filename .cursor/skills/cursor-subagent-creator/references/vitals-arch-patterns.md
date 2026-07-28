@@ -35,7 +35,7 @@ You are the **[Readable Name]** for @vitals/hotspot-scanner — [one line].
 
 ## Hard constraints
 
-- Follow [agent-hard-constraints.md](../../vitals-common/references/agent-hard-constraints.md) — do not restate gate/commit/YAGNI prose
+- Follow [agent-hard-constraints.md](../../../agents/references/agent-hard-constraints.md) — do not restate gate/commit/YAGNI prose
 - Requirement IDs: `HOTSPOT-*` ([feature-planning.mdc](../../../rules/feature-planning.mdc))
 ```
 

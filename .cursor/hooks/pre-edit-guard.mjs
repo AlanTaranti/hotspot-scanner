@@ -11,6 +11,7 @@ import {
   TSCONFIG_RE,
 } from "./lib/paths.mjs";
 import { LIVING_SOT_ENTRIES } from "./lib/living-sot-doc.mjs";
+import { findUnpromotedFeatures } from "./lib/feature-status.mjs";
 import { getWorkspaceRoot, loadState, readStdinJson } from "./lib/state.mjs";
 
 const input = await readStdinJson();
@@ -41,6 +42,21 @@ if (state.activeSubagent === "planner-feature" && PLANNER_BLOCKED_RE.test(relPat
     "Promote tasks.md Status and use orchestrator-implementer in a new session for implementation.",
   );
   process.exit(0);
+}
+
+if (
+  !state.activeSubagent &&
+  !state.planningBoundaryAcked &&
+  PLANNER_BLOCKED_RE.test(relPath)
+) {
+  const unpromoted = findUnpromotedFeatures(workspaceRoot);
+  if (unpromoted.length > 0) {
+    ask(
+      `Feature tasks.md still Draft/Planned (${unpromoted.join(", ")}) — implementation belongs to an Execute session with orchestrator-implementer. Confirm only for quick mode (≤3 files).`,
+      "Planning session boundary (planning-session-boundary.md): main agent may implement in-session only via quick-mode.md.",
+    );
+    process.exit(0);
+  }
 }
 
 if (TSCONFIG_RE.test(relPath)) {

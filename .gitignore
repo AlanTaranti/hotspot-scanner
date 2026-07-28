@@ -7,7 +7,6 @@ coverage
 src/version.ts
 .specs/quick
 .cursor/hooks-state/
-.specs/.hooks-checkpoint.json
 src/**/*.js
 src/**/*.js.map
 coverage-*

@@ -2,6 +2,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { allow, deny, emptyOk } from "./lib/respond.mjs";
+import {
+  DRAFT_OR_PLANNED_STATUS_RE,
+  tasksStatusMatches,
+} from "./lib/feature-status.mjs";
 import { getWorkspaceRoot, readStdinJson, saveState } from "./lib/state.mjs";
 
 /**
@@ -77,7 +81,7 @@ if (event === "subagentStart") {
     const tasksPath = resolveTasksPathFromPrompt(prompt, workspaceRoot);
     if (tasksPath) {
       const text = fs.readFileSync(tasksPath, "utf8");
-      if (/\*{0,2}Status\*{0,2}:\s*`?(?:Draft|Planned)`?/i.test(text)) {
+      if (tasksStatusMatches(text, DRAFT_OR_PLANNED_STATUS_RE)) {
         deny(
           "Execute blocked: tasks.md is Draft or Planned. Promote Status to Approved/Ready for Execute before starting the orchestrator (Phase A).",
           "Planning session boundary — promote Status before orchestrator-implementer.",

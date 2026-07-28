@@ -11,12 +11,6 @@ const exitCode =
     : typeof input.exitCode === "number"
       ? input.exitCode
       : 0;
-const output =
-  typeof input.output === "string"
-    ? input.output
-    : typeof input.stdout === "string"
-      ? input.stdout
-      : "";
 
 const isFullGate =
   /pnpm\s+build\s*&&\s*pnpm\s+test/.test(command) ||
@@ -33,8 +27,6 @@ if (event === "afterShellExecution") {
       gatePassedAt: now,
       buildPassedAt: now,
       testPassedAt: now,
-      lastTestExitCode: 0,
-      lastTestOutput: output.slice(-8000),
     });
     emptyOk();
     process.exit(0);
@@ -45,11 +37,7 @@ if (event === "afterShellExecution") {
   }
 
   if (isTestOnly) {
-    saveState(input, {
-      ...(exitCode === 0 ? { testPassedAt: now } : { testPassedAt: null }),
-      lastTestExitCode: exitCode,
-      lastTestOutput: output.slice(-8000),
-    });
+    saveState(input, { testPassedAt: exitCode === 0 ? now : null });
   }
 }
 

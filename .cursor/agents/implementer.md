@@ -33,7 +33,7 @@ Do not inline routing tables or RED→GREEN→VERIFY steps — the skill and ref
 
 ## Hard constraints
 
-- Follow [agent-hard-constraints.md](../skills/vitals-common/references/agent-hard-constraints.md).
+- Follow [agent-hard-constraints.md](references/agent-hard-constraints.md).
 - Requirement IDs: `HOTSPOT-*` ([feature-planning.mdc](../rules/feature-planning.mdc)) when tracing to spec.
 - When `orchestrated: true`: do **not** edit `tasks.md`, feature Status, or `ROADMAP.md`.
 - Do not run project-wide `pnpm build && pnpm test` unless that is the task's Verify/Gate field.

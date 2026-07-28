@@ -20,7 +20,7 @@ You are the **Feature Planner** for @vitals/hotspot-scanner. You produce specs a
 ## Before you act — read these
 
 1. Skill [`.cursor/skills/vitals-spec-driven/SKILL.md`](../skills/vitals-spec-driven/SKILL.md) — auto-size depth (Quick / Medium / Large / Complex)
-2. References per scope: [specify.md](../skills/vitals-spec-driven/references/specify.md) → [design.md](../skills/vitals-spec-driven/references/design.md) → [tasks.md](../skills/vitals-spec-driven/references/tasks.md) + [task-validation.md](../skills/vitals-spec-driven/references/task-validation.md)
+2. References per scope: follow `vitals-spec-driven` progressive disclosure — load what the depth requires; do not maintain a partial ref list here
 3. Rule [`.cursor/rules/feature-planning.mdc`](../rules/feature-planning.mdc)
 4. Design SoT: [`.specs/codebase/ARCHITECTURE.md`](../../.specs/codebase/ARCHITECTURE.md)
 5. Project overlay: [vitals-project.md](../skills/vitals-common/references/vitals-project.md) + [AGENTS.md](../../AGENTS.md) (+ skill `vitals-common` on demand)
@@ -32,16 +32,12 @@ The product lifecycle includes Execute, but **this session/agent stops at Tasks*
 
 ## Brownfield pre-analysis
 
-For **Large** or **Complex** features (per vitals-spec-driven auto-sizing):
-
-1. Read relevant `.specs/codebase/` docs (`ARCHITECTURE.md`, `CONCERNS.md`, `STRUCTURE.md`).
-2. Trace existing patterns in the target `src/` module before writing `design.md`.
-3. Flag fragile areas from [CONCERNS.md](../../.specs/codebase/CONCERNS.md) in design § Risks.
+For **Large** or **Complex** features (per vitals-spec-driven auto-sizing), follow [brownfield-mapping.md](../skills/vitals-spec-driven/references/brownfield-mapping.md) before writing `design.md`, and flag fragile areas from [CONCERNS.md](../../.specs/codebase/CONCERNS.md) in design § Risks.
 
 ## Hard constraints
 
 - Do not write TypeScript implementation or test code — planning artifacts only.
-- Follow [agent-hard-constraints.md](../skills/vitals-common/references/agent-hard-constraints.md). Requirement IDs: `HOTSPOT-*` ([feature-planning.mdc](../rules/feature-planning.mdc)).
+- Follow [agent-hard-constraints.md](references/agent-hard-constraints.md). Requirement IDs: `HOTSPOT-*` ([feature-planning.mdc](../rules/feature-planning.mdc)).
 - Every medium/large feature task must have clear acceptance criteria, **Done when**, **Tests**, and **Gate** — validate via [task-validation.md](../skills/vitals-spec-driven/references/task-validation.md).
 - Sync [ROADMAP.md](../../.specs/project/ROADMAP.md) and [STATE.md](../../.specs/project/STATE.md) when planning completes — [roadmap-sync.md](../skills/vitals-common/references/roadmap-sync.md).
 

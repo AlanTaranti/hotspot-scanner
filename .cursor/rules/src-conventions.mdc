@@ -1,0 +1,14 @@
+---
+description: Source coding conventions pointer — ESM, # subpath aliases, naming
+globs: src/**/*.ts
+alwaysApply: false
+---
+
+# Source Conventions
+
+**SoT:** [`.specs/codebase/CONVENTIONS.md`](../../.specs/codebase/CONVENTIONS.md) — language/module style (ESM), `#` subpath aliases, naming, dual-tsconfig build, lint/format.
+
+- Read CONVENTIONS.md before adding files or renaming exports. Do **not** mirror its tables here or into other docs
+- Layout and public API map: [STRUCTURE.md](../../.specs/codebase/STRUCTURE.md). Design: [ARCHITECTURE.md](../../.specs/codebase/ARCHITECTURE.md)
+- Adapter encapsulation: [integrations.mdc](integrations.mdc). Fragile pipeline areas: [fragile-areas.mdc](fragile-areas.mdc)
+- `bin/` build + alias-at-runtime rules: [bin-build.mdc](bin-build.mdc). Tests: [testing-patterns.mdc](testing-patterns.mdc)

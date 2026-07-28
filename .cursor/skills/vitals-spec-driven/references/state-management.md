@@ -1,97 +1,38 @@
 # State Management
 
-**Purpose:** Persistent memory across sessions — decisions, blockers, learnings, open deferred.
+**Purpose:** Persistent memory across sessions — lasting decisions, blockers, lessons, open deferred.
 
-**Editorial contract:** [.cursor/rules/state-sot.mdc](../../../rules/state-sot.mdc) — lasting locks only; never append Execute-complete / Specs Planned / gate-count changelog rows. Chronological dumps → [STATE-ARCHIVE.md](../../../../.specs/project/STATE-ARCHIVE.md).
-
-**Live shape (this repo):** header (`Last Updated` / `Current Work`) → Active → Blockers → Deferred → Decisions (table of lasting locks) → ADRs → Alternatives → Lessons. See [STATE.md](../../../../.specs/project/STATE.md).
+**Editorial contract (SoT):** [.cursor/rules/state-sot.mdc](../../../rules/state-sot.mdc) — lasting locks only; never append Execute-complete / Specs Planned / gate-count changelog rows. Chronological dumps → [STATE-ARCHIVE.md](../../../../.specs/project/STATE-ARCHIVE.md). Lint: `lintStateDoc`.
 
 ## Structure
 
-**Output:** `.specs/project/STATE.md`
+**Output:** [`.specs/project/STATE.md`](../../../../.specs/project/STATE.md) — follow the **live shape of that file**; do not introduce new top-level sections.
 
-```markdown
-# State
+| Order | Section                          | Content                                                                 |
+| ----- | -------------------------------- | ----------------------------------------------------------------------- |
+| 1     | Header                           | `Last Updated` (ISO date) + `Current Work` (or `None — see ROADMAP`)     |
+| 2     | `## Active`                      | 1–3 lines pointing at current work; milestone status lives in ROADMAP    |
+| 3     | `## Blockers`                     | Open blockers only, with impact + resolution path (`_None._` when empty) |
+| 4     | `## Deferred`                     | Open ideas only — remove the row once the work is Done                   |
+| 5     | `## Decisions`                    | Table of lasting product locks: Date · Decision · Rationale             |
+| 6     | `## Architecture decisions (ADRs)` | Durable architectural locks                                             |
+| 7     | `### Alternatives considered and rejected` | Closed options + why rejected                                  |
+| 8     | `## Lessons`                      | Actionable learnings that prevent repeat mistakes                       |
 
-**Last Updated:** [ISO timestamp]
-**Current Work:** [Feature name] - [Task identifier]
-
----
-
-## Recent Decisions (Last 60 days)
-
-### AD-[NNN]: [Decision title] ([date])
-
-**Decision:** [What was decided]
-**Reason:** [Why this choice]
-**Trade-off:** [What was sacrificed]
-**Impact:** [How this affects implementation]
-
-### AD-[NNN]: [Decision title] ([date])
-
-[Same structure]
-
----
-
-## Active Blockers
-
-### B-[NNN]: [Blocker description]
-
-**Discovered:** [Date]
-**Impact:** [Severity and scope]
-**Workaround:** [Temporary solution if available]
-**Resolution:** [Path to permanent fix]
-
----
-
-## Lessons Learned
-
-### L-[NNN]: [Learning description]
-
-**Context:** [Situation that occurred]
-**Problem:** [What went wrong]
-**Solution:** [How it was resolved]
-**Prevents:** [What this knowledge prevents in future]
-
----
-
-## Quick Tasks Completed
-
-| #   | Description              | Date   | Commit | Status  |
-| --- | ------------------------ | ------ | ------ | ------- |
-| 001 | [Quick task description] | [date] | [hash] | ✅ Done |
-
----
-
-## Deferred Ideas
-
-Ideas captured during work that belong in future features or phases. Prevents scope creep while preserving good ideas.
-
-- [ ] [Idea description] — Captured during: [feature/phase]
-- [ ] [Idea description] — Captured during: [feature/phase]
-
----
-
-## Todos
-
-Capture in-progress thoughts and action items that don't fit in active tasks.
-
-- [ ] [TODO: action item]
-- [ ] [TODO: action item]
-```
+Sections not in that list (quick-task logs, todo lists, preference flags, "recent decisions" windows) do **not** belong in STATE.md — see § Forbidden in [state-sot.mdc](../../../rules/state-sot.mdc).
 
 ## When to Update
 
-| Event                            | Action                                 |
-| -------------------------------- | -------------------------------------- |
-| Significant architectural choice | Add lasting Decision / ADR row (not `M## Execute complete`) |
-| Implementation blocked           | Add blocker                            |
-| Important discovery/learning     | Add Lesson                             |
-| Quick task completed             | Add row to Quick Tasks table (if used) |
-| Scope creep captured             | Add to Deferred (open items only)      |
-| In-progress thought              | Add to Todos (if used)                 |
-| Session end                      | Update "Last Updated" + "Current Work" / Active |
-| Milestone Done with no new lock  | **Do not** append STATUS rows — ROADMAP only |
+| Event                            | Action                                                          |
+| -------------------------------- | --------------------------------------------------------------- |
+| Significant architectural choice | Add lasting Decision / ADR row (not `M## Execute complete`)     |
+| Implementation blocked           | Add blocker with impact + resolution path                       |
+| Important discovery/learning     | Add Lesson                                                      |
+| Scope creep captured             | Add to Deferred (open items only)                               |
+| Deferred item shipped            | Remove the Deferred row (status belongs in ROADMAP)             |
+| Session end                      | Update `Last Updated` + `Current Work` / Active                 |
+| Milestone Done with no new lock  | **Do not** touch STATE — [ROADMAP.md](../../../../.specs/project/ROADMAP.md) only |
+| Quick task completed             | Nothing in STATE unless it produced a lasting lock/lesson — see [quick-mode.md](quick-mode.md) |
 
 ## Size Management (Hybrid Strategy)
 
@@ -104,33 +45,13 @@ Capture in-progress thoughts and action items that don't fit in active tasks.
 **Cleanup process:**
 
 - Move chronological execute/decision dumps to STATE-ARCHIVE.md
-- Keep only active blockers and open Deferred
-- Preserve recent learnings (<60 days)
+- Keep only open blockers and open Deferred
+- Preserve actionable lessons
 
 **Validation:**
 
 - Decisions have clear rationale?
 - Blockers include resolution path?
-- Learnings are actionable?
+- Lessons are actionable?
 - No execute-log voice (state-sot / `lintStateDoc`)?
-
----
-
-## Preferences
-
-Track user-facing behavioral state in STATE.md:
-
-```markdown
-## Preferences
-
-**Model Guidance Shown:** [ISO date or "never"]
-```
-
-**Update when:**
-
-| Event                       | Action                   |
-| --------------------------- | ------------------------ |
-| First model tip given       | Set date                 |
-| User acknowledges/dismisses | Keep date (don't repeat) |
-
-This prevents repetitive suggestions while maintaining natural, helpful behavior.
+- No sections beyond the live shape above?

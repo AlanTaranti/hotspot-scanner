@@ -27,7 +27,7 @@ pnpm build && pnpm test
 
 ## Requirement IDs / Commit / YAGNI
 
-Pointers: [feature-planning.mdc](../../../../.cursor/rules/feature-planning.mdc) (`HOTSPOT-*`), [commit-policy.mdc](../../../../.cursor/rules/commit-policy.mdc), [coding-guidelines](../../coding-guidelines/SKILL.md). Shared agent constraints: [agent-hard-constraints.md](agent-hard-constraints.md).
+Pointers: [feature-planning.mdc](../../../../.cursor/rules/feature-planning.mdc) (`HOTSPOT-*`), [commit-policy.mdc](../../../../.cursor/rules/commit-policy.mdc), [coding-guidelines](../../coding-guidelines/SKILL.md). Shared agent constraints: [agent-hard-constraints.md](../../../agents/references/agent-hard-constraints.md).
 
 ## Validation (CLI)
 

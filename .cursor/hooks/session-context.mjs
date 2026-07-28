@@ -3,6 +3,11 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { additionalContext } from "./lib/respond.mjs";
+import {
+  findFeaturesByStatus,
+  IN_PROGRESS_STATUS_RE,
+  PLANNED_STATUS_RE,
+} from "./lib/feature-status.mjs";
 import { getWorkspaceRoot, readStdinJson } from "./lib/state.mjs";
 
 const STATE_TTL_MS = 14 * 24 * 60 * 60 * 1000;
@@ -46,8 +51,8 @@ const parts = [
 const roadmapPath = path.join(root, ".specs/project/ROADMAP.md");
 if (fs.existsSync(roadmapPath)) {
   const roadmap = fs.readFileSync(roadmapPath, "utf8");
-  const inProgress = findFeaturesByStatus(root, /Status:\s*`?In Progress`?/i);
-  const planned = findFeaturesByStatus(root, /Status:\s*`?Planned`?/i);
+  const inProgress = findFeaturesByStatus(root, IN_PROGRESS_STATUS_RE);
+  const planned = findFeaturesByStatus(root, PLANNED_STATUS_RE);
   const milestone = extractCurrentMilestone(roadmap, inProgress);
   if (milestone) parts.push(`ROADMAP active milestone: ${milestone}`);
   if (inProgress.length > 0) {
@@ -100,26 +105,4 @@ function extractCurrentMilestone(roadmap, inProgress) {
   }
 
   return sections[0].title;
-}
-
-/**
- * @param {string} root
- * @param {RegExp} statusRe
- * @returns {string[]}
- */
-function findFeaturesByStatus(root, statusRe) {
-  const featuresDir = path.join(root, ".specs/features");
-  if (!fs.existsSync(featuresDir)) return [];
-
-  const slugs = [];
-  for (const entry of fs.readdirSync(featuresDir, { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue;
-    const tasksPath = path.join(featuresDir, entry.name, "tasks.md");
-    if (!fs.existsSync(tasksPath)) continue;
-    const text = fs.readFileSync(tasksPath, "utf8");
-    if (statusRe.test(text)) {
-      slugs.push(entry.name);
-    }
-  }
-  return slugs;
 }

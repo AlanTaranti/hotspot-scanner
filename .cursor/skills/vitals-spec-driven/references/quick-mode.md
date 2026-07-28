@@ -57,7 +57,7 @@ Do not commit unless the user explicitly asks. Propose a Conventional Commit mes
 
 ### 6. Track
 
-Update `.specs/project/STATE.md` with a quick task record (see [state-management.md](state-management.md)).
+Record the task in `.specs/quick/NNN-slug/TASK.md`. Touch [STATE.md](../../../../.specs/project/STATE.md) **only** if the task produced a lasting lock, blocker, lesson, or deferred item ([state-management.md](state-management.md) + [state-sot.mdc](../../../rules/state-sot.mdc)).
 
 ---
 

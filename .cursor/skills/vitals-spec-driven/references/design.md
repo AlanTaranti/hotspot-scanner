@@ -8,25 +8,25 @@
 
 ### 1. Load Context
 
-Read `.specs/features/[feature]/spec.md` before designing. If `.specs/features/[feature]/context.md` exists, load it too — it contains implementation decisions that constrain the design (layout choices, behavior preferences, interaction patterns). Decisions marked as "Agent's Discretion" are yours to decide.
+Read `.specs/features/<slug>/spec.md` before designing. If `.specs/features/<slug>/context.md` exists, load it too — it contains implementation decisions that constrain the design (layout choices, behavior preferences, interaction patterns). Decisions marked as "Agent's Discretion" are yours to decide.
 
 ### 1.5. Research (Optional but Recommended)
 
 If the feature involves unfamiliar technology, patterns, or integrations, research before designing. Document findings briefly in the design doc or as inline notes. This prevents incorrect assumptions from propagating into tasks.
 
-Follow the **Knowledge Verification Chain** (see SKILL.md) in strict order:
+Follow the **Knowledge Verification Chain** ([SKILL.md](../SKILL.md) § Knowledge verification) in strict order:
 
 ```
-Codebase → Project docs → Context7 MCP → Web search → Flag as uncertain
+Codebase → AGENTS / vitals-project / .specs/codebase → Official docs → Flag as uncertain
 ```
 
 **CRITICAL: NEVER assume or fabricate information.** If you cannot find an answer through the chain, explicitly say "I don't know" or "I couldn't find documentation for this". Inventing an API, a pattern, or a behavior that doesn't exist is far worse than admitting uncertainty. Wrong assumptions propagate through design → tasks → implementation and cause cascading failures.
 
-Good triggers for research: new libraries, unfamiliar APIs, performance-sensitive features, security-sensitive features, patterns you haven't used in this codebase before.
+Good triggers for research: new libraries, unfamiliar `git` / Node APIs, performance-sensitive pipeline stages, patterns you haven't used in this codebase before. Domain context: [`vitals-pipeline-domain`](../../vitals-pipeline-domain/SKILL.md).
 
 ### 2. Define Architecture
 
-Overview of how components interact. Use mermaid diagrams when helpful. Before creating any diagrams, check if the `mermaid-studio` skill is available (see Skill Integrations in SKILL.md).
+Overview of how components interact along the pipeline (`git log` → NCLOC → scoring → report). Use mermaid diagrams when helpful.
 
 ### 3. Identify Code Reuse
 
@@ -44,28 +44,29 @@ If the feature involves data, define models before implementation.
 
 ---
 
-## Template: `.specs/[feature]/design.md`
+## Template: `.specs/features/<slug>/design.md`
 
 ````markdown
 # [Feature] Design
 
-**Spec**: `.specs/[feature]/spec.md`
-**Status**: Draft | Approved
+**Spec**: [`.specs/features/<slug>/spec.md`](./spec.md)
+**Status**: Draft | Planned | Approved | Done
 
 ---
 
 ## Architecture Overview
 
-[Brief description of the architecture approach]
+[Brief description of the architecture approach — where the change sits in the pipeline]
 
 ```mermaid
-graph TD
-    A[User Action] --> B[Component A]
-    B --> C[Service Layer]
-    C --> D[Data Store]
-    B --> E[Component B]
+flowchart LR
+    CLI[bin/ CLI flags] --> Scan[src/scan.ts orchestration]
+    Scan --> Git[src/git/ change miner]
+    Scan --> Ncloc[src/complexity/ NCLOC]
+    Git --> Score[src/scoring/ HotspotScorer]
+    Ncloc --> Score
+    Score --> Report[src/report/ table · JSON · markdown · CSV]
 ```
-````
 
 ---
 
@@ -73,39 +74,41 @@ graph TD
 
 ### Existing Components to Leverage
 
-| Component            | Location            | How to Use                |
-| -------------------- | ------------------- | ------------------------- |
-| [Existing Component] | `src/path/to/file`  | [Extend/Import/Reference] |
-| [Existing Utility]   | `src/utils/file`    | [How it helps]            |
-| [Existing Pattern]   | `src/patterns/file` | [Apply same pattern]      |
+| Component          | Location                    | How to Use                |
+| ------------------ | --------------------------- | ------------------------- |
+| [Existing module]  | `src/git/aggregate.ts`      | [Extend/Import/Reference] |
+| [Existing helper]  | `src/report/table.ts`       | [How it helps]            |
+| [Existing pattern] | `src/config/load-config.ts` | [Apply same pattern]      |
 
 ### Integration Points
 
-| System         | Integration Method                      |
-| -------------- | --------------------------------------- |
-| [Existing API] | [How new feature connects]              |
-| [Database]     | [How data connects to existing schemas] |
+| System                            | Integration Method                                  |
+| --------------------------------- | --------------------------------------------------- |
+| `git log` (child process)         | [How the new feature consumes the stream]           |
+| `.hotspot-scanner.json` config    | [New keys; precedence CLI > config > defaults]      |
+| JSON contract (`schemas/`)        | [Additive field? contract `version` impact?]        |
+| CLI surface (`bin/`)              | [New flags, exit codes — docs/cli-reference.md]     |
 
 ---
 
 ## Components
 
-### [Component Name]
+### [Module Name]
 
-- **Purpose**: [What this component does - one sentence]
-- **Location**: `src/path/to/component/`
+- **Purpose**: [What this module does - one sentence]
+- **Location**: `src/<owner>/` (per implementer-routing.md)
 - **Interfaces**:
-  - `methodName(param: Type): ReturnType` - [description]
-  - `methodName(param: Type): ReturnType` - [description]
+  - `functionName(param: Type): ReturnType` - [description]
+  - `functionName(param: Type): ReturnType` - [description]
 - **Dependencies**: [What it needs to function]
 - **Reuses**: [Existing code this builds upon]
 
-### [Component Name]
+### [Module Name]
 
-- **Purpose**: [What this component does]
-- **Location**: `src/path/to/component/`
+- **Purpose**: [What this module does]
+- **Location**: `src/<owner>/`
 - **Interfaces**:
-  - `methodName(param: Type): ReturnType`
+  - `functionName(param: Type): ReturnType`
 - **Dependencies**: [Dependencies]
 - **Reuses**: [Existing code]
 
@@ -113,36 +116,28 @@ graph TD
 
 ## Data Models (if applicable)
 
-### [Model Name]
+Domain types live in `src/types/` — no runtime logic.
 
 ```typescript
-interface ModelName {
-  id: string;
-  field1: string;
-  field2: number;
-  createdAt: Date;
+/** [One-line purpose, matching the JSDoc style in src/types/domain.ts]. */
+export interface NewMetricResult {
+  filePath: string;
+  value: number;
 }
 ```
 
-**Relationships**: [How this relates to other models]
-
-### [Model Name]
-
-```typescript
-interface AnotherModel {
-  id: string;
-  // ...
-}
-```
+**Relationships**: [How this relates to `FileChangeStats` / `ComplexityResult` / `HotspotScore` and to the JSON contract fields]
 
 ---
 
 ## Error Handling Strategy
 
-| Error Scenario | Handling      | User Impact      |
-| -------------- | ------------- | ---------------- |
-| [Scenario 1]   | [How handled] | [What user sees] |
-| [Scenario 2]   | [How handled] | [What user sees] |
+| Error Scenario                  | Handling                        | User Impact (stderr / exit code)     |
+| ------------------------------- | ------------------------------- | ------------------------------------ |
+| [Not a git repository]          | [How handled]                   | [Message + exit code]                |
+| [Empty scan scope]              | [How handled]                   | [Warning + exit code]                |
+
+Exit codes SoT: `docs/cli-reference.md` § Exit codes.
 
 ---
 
@@ -151,6 +146,7 @@ interface AnotherModel {
 | Decision          | Choice          | Rationale     |
 | ----------------- | --------------- | ------------- |
 | [What we decided] | [What we chose] | [Why - brief] |
+````
 
 ---
 
@@ -160,7 +156,8 @@ interface AnotherModel {
 - **Research when uncertain** — 5 minutes of research prevents hours of rework
 - **Reuse is king** — Every component should reference existing patterns
 - **Interfaces first** — Define contracts before implementation
-- **Keep it visual** — Diagrams save 1000 words (check mermaid-studio skill in Skill Integrations)
-- **Small components** — If component does 3+ things, split it
+- **Keep it visual** — A mermaid flowchart of the affected pipeline stages saves 1000 words
+- **Small modules** — If a module does 3+ things, split it
+- **Respect module owners** — [implementer-routing.md](../../vitals-common/references/implementer-routing.md)
 - **Check CONCERNS.md** — If it exists, flag fragile areas the design must address
 - **Confirm before Tasks** — User approves design before breaking into tasks
