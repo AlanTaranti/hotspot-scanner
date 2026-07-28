@@ -1,51 +1,33 @@
 ---
-description: Guardrails for fragile scanner areas (Git Miner, NCLOC, scoring, scan-result parse, schemas)
+description: Guardrails for fragile scanner areas (Git Miner, NCLOC, scoring)
 globs: src/git/**,src/complexity/**,src/scoring/**,src/scan.ts,src/scan-result/**,schemas/**
 alwaysApply: false
 ---
 
 # Fragile Scanner Areas
 
-Risk and formula SoT: [`.specs/codebase/CONCERNS.md`](../../.specs/codebase/CONCERNS.md). Design: [`.specs/codebase/ARCHITECTURE.md`](../../.specs/codebase/ARCHITECTURE.md).
+**Risk / formula SoT:** [CONCERNS.md](../../.specs/codebase/CONCERNS.md). Design: [ARCHITECTURE.md](../../.specs/codebase/ARCHITECTURE.md). Contracts: `schemas/` + ARCHITECTURE / TESTING § contract.
 
-Changes to `src/scan.ts` that alter stage order or pipeline wiring require updated integration tests.
-
-Any change under the paths below **requires** a corresponding Vitest test updated or added before marking the task Complete.
+Any change under these globs **requires** a co-located Vitest update (or contract test for schemas) before Complete. Pipeline stage-order changes in `src/scan.ts` need integration coverage.
 
 ## Git Change Miner (`src/git/`)
 
-Streaming parse of `git log --numstat --name-only` — feeds per-file churn in a single pass.
+Streaming `git log --numstat` parse for file churn.
 
-**Forbidden:** loading the full log into memory; changing rename/merge/delete parsing without fixtures under `tests/fixtures/git-log/`.
-
-**Required:** tests for `FileChangeStats` derived from the stream.
+**Forbidden:** buffering the full log; changing rename/merge/delete parse without `tests/fixtures/git-log/` coverage.
 
 ## Size analyzer / NCLOC (`src/complexity/`)
 
-File-level NCLOC via state-machine scanner — definition in CONCERNS/ARCHITECTURE (RT-005).
+NCLOC state machine (RT-005 in CONCERNS).
 
-**Forbidden:** changing NCLOC counting rules (comment/string/blank handling) without fixtures in `ncloc.test.ts` or `tests/fixtures/complexity/`.
-
-**Required:** unreadable file → `READ_FAILED` warning + skip (do not abort the scan).
+**Forbidden:** changing count rules without `ncloc.test.ts` / `tests/fixtures/complexity/`. Unreadable file → `READ_FAILED` + skip (do not abort).
 
 ## Scoring (`src/scoring/`)
 
-SoT: CONCERNS.md — `hotspotScore = 2ch / (c + h)` with `c` from normalized NCLOC.
+`hotspotScore` formula SoT: CONCERNS.md.
 
-**Forbidden:** changing formulas or normalization strategy without tests using fixed inputs and expected ordering.
+**Forbidden:** formula/normalization changes without fixed-input ordering tests (include zero commits / single file).
 
-**Required:** edge cases (zero commits, single file).
+## Scan-result / schemas
 
-## Scan-result parse (`src/scan-result/`)
-
-`parseScanResult()` validates JSON `version: "3.0"` scan payloads for programmatic consumers. Rejects `1.0`, `2.0`, `coupling`, `functions`, `cyclomaticComplexity`.
-
-**Forbidden:** auto-migrating legacy JSON; fail with clear re-scan message via `ScanResultParseError`.
-
-## JSON schemas (`schemas/`)
-
-I/O contract SoT: `schemas/scan-result.json`, `schemas/hotspot-scanner-config.json` (`version: "3.0"`).
-
-**Required:** after editing schemas, update `tests/contract/json-schema.test.ts` and related JSON fixtures.
-
-**Superseded (M71):** `schemas/compare-result.json` deleted — do not reintroduce compare contract without a new feature spec.
+Contract and reject rules: CONCERNS + `schemas/` + ARCHITECTURE. Do not auto-migrate legacy JSON; update `tests/contract/json-schema.test.ts` after schema edits. Do not reintroduce compare/coupling contracts without a new feature spec.

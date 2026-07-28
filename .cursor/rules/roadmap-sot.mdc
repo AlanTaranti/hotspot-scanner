@@ -6,25 +6,19 @@ alwaysApply: false
 
 # Roadmap SoT
 
-[`.specs/project/ROADMAP.md`](../../.specs/project/ROADMAP.md) is the **milestone status SoT**: current status, done-summary index, compact historical archive with links to feature specs.
+**Role:** milestone status, done-summary, lean archive. **Not:** `tasks.md` mirror, feature dump, or deferred inventory. `M##` **allowed**.
 
-It is **not** a `tasks.md` mirror, feature dump, CLI encyclopedia, or deferred-backlog inventory.
+Ownership: [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). Sync procedure: [roadmap-sync.md](../skills/vitals-common/references/roadmap-sync.md). Lint: `lintRoadmapDoc`.
 
-**Ownership:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). Milestone tags (`M##`) **are allowed**.
+## Forbidden
 
-## Forbidden in ROADMAP.md
-
-- `Artifacts:`, `Sisters`, `IDs:` / `HOTSPOT-*`, `Depth:`, `Priority:` laundry in archive entries
-- `Out of scope:`, `Final gate` / repeated gate process noise, `Suggested execution order`
-- `Further horizon` Deferred lists (pointer to STATE only)
-- Task checkboxes mirroring `tasks.md`; `Post-* backlog` for already-Done work
+- `Artifacts:`, Sisters, `IDs:`/`HOTSPOT-*`, Depth/Priority laundry
+- Out of scope / Final gate noise / Suggested execution order
+- Further-horizon Deferred lists (→ STATE); task checkboxes; Post-* backlog for Done work
 
 ## Allowed
 
-- Current table; Done summary; Archive entries in the template below
-- One-line supersession notes (detail stays in the feature spec)
-
-## Entry template
+- Current table; Done summary; archive entries:
 
 ```markdown
 ## Milestone N — Name — DONE
@@ -36,11 +30,6 @@ One-line outcome.
 - Up to 3–5 capability bullets (not tasks)
 ```
 
-Sync rules: [roadmap-sync.md](../skills/vitals-common/references/roadmap-sync.md).
+## Sync
 
-## Sync rule
-
-1. Add or mark milestones with the template — do not paste Artifacts / HOTSPOT / Out of scope / gate / tasks.
-2. Self-check: *Is this already in `context.md`, `tasks.md`, or STATE?* If yes → do not put it in ROADMAP.
-
-Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintRoadmapDoc`.
+Do not paste Artifacts / HOTSPOT / Out of scope / gate / tasks. Content already in context/tasks/STATE → do not duplicate here.

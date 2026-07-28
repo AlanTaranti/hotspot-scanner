@@ -33,7 +33,7 @@ Do not inline routing tables or RED→GREEN→VERIFY steps — the skill and ref
 
 ## Hard constraints
 
-- YAGNI / commit: [coding-guidelines](../skills/coding-guidelines/SKILL.md), [commit-policy.mdc](../rules/commit-policy.mdc) (index: [AGENTS.md](../../AGENTS.md)).
+- Follow alwaysApply `commit-policy` / `quality-gates` / `coding-guidelines`; index [AGENTS.md](../../AGENTS.md).
 - Requirement IDs: `HOTSPOT-*` ([feature-planning.mdc](../rules/feature-planning.mdc)) when tracing to spec.
 - When `orchestrated: true`: do **not** edit `tasks.md`, feature Status, or `ROADMAP.md`.
-- Do not run project-wide `pnpm build && pnpm test` unless that is the task's Verify/Gate field ([quality-gates.mdc](../rules/quality-gates.mdc)).
+- Do not run project-wide `pnpm build && pnpm test` unless that is the task's Verify/Gate field.

@@ -6,28 +6,19 @@ alwaysApply: false
 
 # Architecture Design SoT
 
-[`.specs/codebase/ARCHITECTURE.md`](../../.specs/codebase/ARCHITECTURE.md) is the **Design SoT**: modules, pipelines, contracts, constraints, and ownership boundaries.
+**Role:** modules, pipelines, contracts, constraints. **Not:** changelog, UX cookbook, flag encyclopedia, milestone tracker.
 
-It is **not** a changelog, UX cookbook, flag encyclopedia, or milestone tracker.
+Ownership: [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). Lint: `lintArchitectureDoc`.
 
-**Ownership:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md).
+## Forbidden
 
-## Forbidden in ARCHITECTURE.md
-
-- Milestone tags: `\bM\d+\b` (e.g. `M71`, `M39–M78`)
-- Requirement IDs: `HOTSPOT-*`
-- Changelog voice: “Removed in M…”, “Sister: M…”, Execute ownership by milestone number
-- UX-only detail (glyphs, column ellipsis, flag laundry lists) that belongs in `docs/cli-reference.md` / recipes / README
+- `\bM\d+\b`, `HOTSPOT-*`, changelog/provenance voice
+- UX-only detail / flag laundry lists → `docs/cli-reference.md` / recipes / README
 
 ## Allowed
 
-- `ADR-*`, `RT-*`
-- Present-tense product surface (“no compare CLI”, not “removed in M71”)
-- Links to CONCERNS, INTEGRATIONS, AGENTS, `docs/warning-codes.md`
+- `ADR-*`, `RT-*`; present-tense product surface; links to CONCERNS, INTEGRATIONS, AGENTS, warning-codes
 
-## Sync rule
+## Sync
 
-1. Update or **slim** ARCHITECTURE — do not only append.
-2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → ROADMAP/STATE/feature specs.
-
-Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintArchitectureDoc`.
+Update or **slim** — do not only append. Milestone-needed prose → ROADMAP/STATE/feature specs.

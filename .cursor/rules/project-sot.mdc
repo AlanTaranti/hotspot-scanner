@@ -6,26 +6,18 @@ alwaysApply: false
 
 # Project Vision SoT
 
-[`.specs/project/PROJECT.md`](../../.specs/project/PROJECT.md) is the **product-vision SoT**: vision, goals, constraints, capability-level scope, high-level JSON contract versions.
+**Role:** vision, goals, constraints, capability scope, high-level JSON versions. **Not:** milestone tracker, flag encyclopedia, or deferred backlog.
 
-It is **not** a changelog, milestone tracker, CLI flag encyclopedia, or deferred-backlog inventory.
+Ownership: [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). Lint: `lintProjectDoc`.
 
-**Ownership:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md).
+## Forbidden
 
-## Forbidden in PROJECT.md
-
-- Milestone tags: `\bM\d+\b`
-- Requirement IDs: `HOTSPOT-*`
-- Changelog voice; exhaustive CLI flag laundry lists; deferred inventories (→ STATE)
+- `\bM\d+\b`, `HOTSPOT-*`, changelog voice; exhaustive CLI flags; deferred inventories → STATE
 
 ## Allowed
 
-- Present-tense product surface; high-level JSON version table
-- Short pointers to ROADMAP, STATE, STACK, ARCHITECTURE, recipes
+- Present-tense product surface; high-level JSON version table; pointers to ROADMAP / STATE / ARCHITECTURE
 
-## Sync rule
+## Sync
 
-1. Update only for **live** vision / boundaries / contract versions.
-2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → ROADMAP/STATE/feature specs.
-
-Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintProjectDoc`.
+Update only for live vision/boundaries/contract versions.

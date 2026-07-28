@@ -6,29 +6,18 @@ alwaysApply: false
 
 # Integrations Adapter SoT
 
-**Editorial** rule for the INTEGRATIONS.md document (not the behavioral [integrations.mdc](integrations.mdc) adapter encapsulation rule).
+**Editorial** (behavior in code → [integrations.mdc](integrations.mdc)). **Role:** spawn sites, runtime deps, fs ownership, mock boundaries. **Not:** changelog or schema-field encyclopedia.
 
-[`.specs/codebase/INTEGRATIONS.md`](../../.specs/codebase/INTEGRATIONS.md) is the **external-adapter SoT**: spawn sites, runtime deps, filesystem ownership, and mock boundaries.
+Ownership: [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). Lint: `lintIntegrationsDoc`.
 
-It is **not** a changelog, milestone tracker, or JSON-contract encyclopedia.
+## Forbidden
 
-**Ownership:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md).
-
-## Forbidden in INTEGRATIONS.md
-
-- Milestone tags: `\bM\d+\b`
-- Requirement IDs: `HOTSPOT-*`
-- Changelog voice: “Removed in M…”, “shipped in M…”
-- Full re-documentation of `parseScanResult` / schema field rules (→ ARCHITECTURE)
+- `\bM\d+\b`, `HOTSPOT-*`, changelog voice; full `parseScanResult` / schema field re-docs → ARCHITECTURE
 
 ## Allowed
 
-- Present-tense Role / Adapter / Invocation / Rule / Failure / Tests tables
-- Links to ARCHITECTURE, CONCERNS, TESTING, module paths
+- Present-tense Role/Adapter/Invocation/Rule/Failure/Tests tables; links to ARCHITECTURE, CONCERNS, TESTING
 
-## Sync rule
+## Sync
 
-1. Update only for **live** adapters and ownership — do not append provenance.
-2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → ROADMAP/STATE/feature specs.
-
-Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintIntegrationsDoc`.
+Update only for **live** adapters. Milestone-needed prose → ROADMAP/STATE/feature specs.

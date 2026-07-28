@@ -2,18 +2,30 @@
 
 Canonical module ownership for `tasks.md` path assignment and implementer delegation.
 
+**Full Path|Role SoT:** [STRUCTURE.md](../../../../.specs/codebase/STRUCTURE.md) — this file is the task-routing overlay only.
+
 ## Module map → task ownership
 
-| Path prefix       | Domain                                                  |
-| ----------------- | ------------------------------------------------------- |
-| `src/git/`        | Git Change Miner (streaming parse, rename handling)     |
-| `src/complexity/` | McCabe complexity via ts-morph                          |
-| `src/scoring/`    | HotspotScorer, FunctionHotspotScorer                    |
-| `src/report/`     | CLI table + JSON reporter                               |
-| `src/scan.ts`     | Pipeline orchestration                                  |
-| `src/types/`      | Domain type definitions                                 |
-| `bin/`            | CLI flags and entry (no domain logic)                   |
-| `tests/fixtures/` | Fixture repos and samples (`fixture-builder` preferred) |
+| Path prefix            | Domain                                                                 |
+| ---------------------- | ---------------------------------------------------------------------- |
+| `src/git/`             | Git Change Miner (streaming parse, rename, file-history for trend)     |
+| `src/complexity/`      | NCLOC size analyzer + indentation metrics (pool/worker optional)       |
+| `src/trend/`           | Complexity trend + growth pattern classify                             |
+| `src/assess/`          | Hotspot assess (scan → filter → sequential trends)                     |
+| `src/scoring/`         | HotspotScorer (file hotspots)                                          |
+| `src/diagnostics/`     | stderr warnings + progress                                             |
+| `src/doctor/`          | Pre-flight checks                                                      |
+| `src/scan-result/`     | `parseScanResult` / `ScanResultParseError`                             |
+| `src/report/`          | table / JSON / markdown / CSV (+ trend/assess reporters)               |
+| `src/config/`          | `.hotspot-scanner.json` load / merge / validate                        |
+| `src/paths/`           | PathScope globs + monorepo remount                                     |
+| `src/scan.ts`          | File-only pipeline orchestration                                       |
+| `src/scan-preview.ts`  | `--dry-run` scope preview                                              |
+| `src/package-meta.ts`  | `meta.scannerVersion`                                                  |
+| `src/types/`           | Domain type definitions (no runtime logic)                             |
+| `bin/`                 | CLI entry + `*-actions.ts` (flags/wiring only — no domain logic)       |
+| `schemas/`             | JSON Schema contracts                                                  |
+| `tests/fixtures/`      | Fixture repos and samples (`fixture-builder` preferred)                |
 
 ## Parallelism rules
 
@@ -32,16 +44,19 @@ When the orchestrator runs **batch mode** (multiple features), apply the same pa
 
 ## Mock boundaries
 
-- Mock **git** only at `GitMiner` boundary — not in scorers.
-- Mock **ts-morph** only at `ComplexityAnalyzer` boundary — not in scoring.
+SoT: [INTEGRATIONS.md](../../../../.specs/codebase/INTEGRATIONS.md) + [testing-patterns.mdc](../../../rules/testing-patterns.mdc).
+
+- Mock **git** only at `GitMiner` boundary — not in scorers or reporter.
+- Mock **`createWorkerPool`** at the ComplexityAnalyzer boundary — not in scoring.
+- No ts-morph / AST McCabe in this codebase (NCLOC state machine).
 
 ## Blocked conditions
 
-| Condition                                               | Action                                          |
-| ------------------------------------------------------- | ----------------------------------------------- |
-| Task depends on incomplete upstream module              | Blocked — complete dependency task first        |
-| Fragile area (git parse, McCabe, scoring) without tests | Block Complete until tests exist per TESTING.md |
-| Missing fixture for integration task                    | Delegate `fixture-builder` or Blocked           |
+| Condition                                                  | Action                                          |
+| ---------------------------------------------------------- | ----------------------------------------------- |
+| Task depends on incomplete upstream module                 | Blocked — complete dependency task first        |
+| Fragile area (git parse, NCLOC, scoring) without tests     | Block Complete until tests exist per TESTING.md |
+| Missing fixture for integration task                       | Delegate `fixture-builder` or Blocked           |
 
 ## CLI validation routing
 

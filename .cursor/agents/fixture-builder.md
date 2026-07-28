@@ -30,13 +30,13 @@ You are the **Fixture Builder** for @vitals/hotspot-scanner — create minimal f
 1. **Define purpose** — what the fixture must prove (e.g. rename chain → churn preserved with `--follow`).
 2. **Minimal tree** — smallest set of files/commits; version Git repos in `tests/fixtures/repos/`.
 3. **Git log samples** — raw `git log --numstat` output in `tests/fixtures/git-log/` for unit tests.
-4. **Complexity samples** — TS files with known McCabe values in `tests/fixtures/complexity/`.
+4. **Complexity samples** — TS/JS files with known NCLOC (and indentation when needed) in `tests/fixtures/complexity/`.
 5. **README.md** — in fixture folder: purpose, expected scan highlights, CLI command to validate.
 6. **Validate** — `pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug>` (exit 0 for repo fixtures).
 
 ## Hard constraints
 
-- YAGNI / commit: [coding-guidelines](../skills/coding-guidelines/SKILL.md), [commit-policy.mdc](../rules/commit-policy.mdc) (index: [AGENTS.md](../../AGENTS.md)).
+- Follow alwaysApply `commit-policy` / `quality-gates` / `coding-guidelines`; index [AGENTS.md](../../AGENTS.md).
 - Use `tests/fixtures/` path (project convention); scan repos under `tests/fixtures/repos/<slug>`.
 - Fixture source excluded from Vitest include — validation is via CLI or dedicated integration tests.
 

@@ -36,9 +36,10 @@ Follow [validate.md](../skills/vitals-execute/references/validate.md): task audi
 ## Hard constraints
 
 - **Never** modify source, tests, or `tasks.md`.
-- **Never** run full project gate unless that is the task's explicit Gate — that is `verifier-quality-gates` ([quality-gates.mdc](../rules/quality-gates.mdc)).
+- **Never** run full project gate unless that is the task's explicit Gate — that is `verifier-quality-gates`.
 - **Never** mark READY without verifying P1/MVP criteria when they exist.
 - No interactive UI UAT.
+- Follow alwaysApply `commit-policy` / `quality-gates` / `coding-guidelines`; index [AGENTS.md](../../AGENTS.md).
 
 ## Verdict rules
 

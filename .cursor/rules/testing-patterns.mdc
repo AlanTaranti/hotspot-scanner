@@ -14,8 +14,10 @@ Per-file thresholds enforced on every included `src/**` and `bin/**` file. See [
 
 ## Mock boundaries
 
-- Mock **git** only in `GitMiner` — not in scorers, reporter, or `scan.ts`
-- Mock **file I/O / NCLOC** only at the `ComplexityAnalyzer` boundary — not in scoring
+SoT: [INTEGRATIONS.md](../../.specs/codebase/INTEGRATIONS.md) + TESTING.md § Mock boundaries.
+
+- Mock **git** only at `GitMiner` — not in scorers, reporter, or `scan.ts`
+- Mock **`createWorkerPool`** / file I/O at the ComplexityAnalyzer boundary — not in scoring
 - Parse tests use fixtures under `tests/fixtures/git-log/` and `tests/fixtures/complexity/`
 
 ## CLI tests (`bin/*.test.ts`)

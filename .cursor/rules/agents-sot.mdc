@@ -6,30 +6,21 @@ alwaysApply: false
 
 # AGENTS Index
 
-[`AGENTS.md`](../../AGENTS.md) is the **agent index**: identity, skills/agents inventory, and **pointers** to policy SoTs.
+**Role:** identity + skills/agents inventory + pointers. **Not:** policy SoT, Design SoT, flag encyclopedia, or milestone tracker.
 
-It is **not** a policy SoT, Design SoT, module map, UX cookbook, flag encyclopedia, fragile-risk catalog, or milestone tracker.
+Ownership: [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). Lint: `lintAgentsDoc`.
 
-**Ownership:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md).
+## Forbidden
 
-## Forbidden in AGENTS.md
-
-- Milestone tags: `\bM\d+\b`
-- Changelog voice
-- Long CLI fixture example dumps (→ skill `vitals-cli-validation`)
-- Normative exit-code **tables** (→ `docs/cli-reference.md`)
-- Normative quality-gate / commit / YAGNI prose (→ `quality-gates.mdc`, `commit-policy.mdc`, `coding-guidelines`)
-- Design SoT detail, fragile-risk catalogs, UX/flag laundry lists
+- `\bM\d+\b`, changelog voice, long CLI fixture dumps
+- Normative exit-code tables → cli-reference; gate/commit/YAGNI prose → rules/skills
+- Design SoT detail / fragile catalogs / UX laundry lists
 
 ## Allowed
 
-- `HOTSPOT-*` mentioned only as a pointer to feature-planning naming
-- Skills/agents inventory tables
-- Short pointers to ARCHITECTURE, DOC-OWNERSHIP, TESTING, ROADMAP/STATE, cli-reference, hooks README, policy rules/skills
+- `HOTSPOT-*` only as pointer to feature-planning naming
+- Skills/agents tables; short pointers to ARCHITECTURE, DOC-OWNERSHIP, TESTING, ROADMAP/STATE, cli-reference, hooks
 
-## Sync rule
+## Sync
 
-1. Update AGENTS **only** when identity or skills/agents inventory changed — policy text lives in SoTs.
-2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → ROADMAP/STATE/feature specs.
-
-Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintAgentsDoc`.
+Update only when identity or inventory changes. Policy text lives in SoTs.

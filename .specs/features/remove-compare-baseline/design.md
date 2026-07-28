@@ -205,7 +205,7 @@ flowchart LR
 | ---- | ---------------------- |
 | Product | `README.md`, `docs/recipes.md`, `docs/warning-codes.md`, `AGENTS.md` (exit table), `.specs/project/PROJECT.md` |
 | Codebase SoT | `ARCHITECTURE.md`, `STRUCTURE.md`, `TESTING.md`, `CONCERNS.md`, `INTEGRATIONS.md` (baseline/compare mentions) |
-| Agents / skills / rules | `.cursor/skills/vitals-pipeline-domain/SKILL.md`, `.cursor/skills/vitals-cli-validation/SKILL.md`, `.cursor/skills/vitals-spec-driven/references/vitals-project.md`, `.cursor/rules/fragile-areas.mdc`, `.cursor/rules/integrations.mdc` |
+| Agents / skills / rules | `.cursor/skills/vitals-pipeline-domain/SKILL.md`, `.cursor/skills/vitals-cli-validation/SKILL.md`, `.cursor/skills/vitals-common/references/vitals-project.md`, `.cursor/rules/fragile-areas.mdc`, `.cursor/rules/integrations.mdc` |
 | Completions / help | `bin/completion-scripts.ts` (also T2), help examples in `bin/hotspot-scanner.ts` |
 | Supersession | ROADMAP/STATE already point at M71; do **not** rewrite Done sister feature specs |
 

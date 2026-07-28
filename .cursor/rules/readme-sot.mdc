@@ -6,28 +6,19 @@ alwaysApply: false
 
 # README Adoption SoT
 
-[`README.md`](../../README.md) is the **adoption / first-run SoT**: problem/solution, quick start, essential flags, short config, output formats + short exit overview, short API, documentation hub.
+**Role:** first-run adoption (quick start, essential flags, short config/API, docs hub). **Not:** flag encyclopedia or pipeline internals. Exit-code SoT → cli-reference.
 
-It is **not** a CLI flag encyclopedia, pipeline internals guide, or milestone tracker.
+Ownership: [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). Lint: `lintReadmeDoc`.
 
-**Ownership:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). Canonical exit-code table → `docs/cli-reference.md`.
+## Forbidden
 
-## Forbidden in README.md
-
-- `## Advanced`, `## Features` marketing dumps
-- Encyclopedia headings: Pipeline detail, Performance and diagnostics, Rename confidence, Command synopsis and flags
-- Full flag laundry lists; milestone tags `\bM\d+\b`; changelog voice
+- `## Advanced` / marketing `## Features` dumps; encyclopedia headings (pipeline detail, full flag laundry)
+- `\bM\d+\b`, changelog voice
 
 ## Allowed
 
-- Quick start, essential flags (~8), short config/API
-- Short exit-code overview linking to cli-reference as SoT
-- Documentation hub linking recipes, methodology, warning-codes, cli-reference
+- Quick start, ~8 essential flags, short config/API, short exit overview linking cli-reference, docs hub
 
-## Sync rule
+## Sync
 
-1. New **essential** user-facing flag → README Essential flags **and** full entry in `docs/cli-reference.md`.
-2. Power-user / internals → cli-reference only; workflows → recipes.
-3. Self-check: *Would a first-time adopter need this on the first screen?* If no → wrong file.
-
-Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintReadmeDoc`.
+Essential flag → README **and** cli-reference. Power-user/internals → cli-reference only; workflows → recipes.

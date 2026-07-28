@@ -6,27 +6,19 @@ alwaysApply: false
 
 # State SoT
 
-[`.specs/project/STATE.md`](../../.specs/project/STATE.md) is the **persistent session-memory SoT**: lasting product locks, blockers, lessons, open deferred, short Active pointer.
+**Role:** lasting locks, blockers, lessons, open deferred, short Active pointer. **Not:** Execute diary or `tasks.md` mirror. Chronological dumps → STATE-ARCHIVE. `M##` OK for lasting locks.
 
-It is **not** a milestone Done/Planned changelog, Execute diary, or `tasks.md` mirror.
+Ownership: [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). Lint: `lintStateDoc`.
 
-Chronological Execute dumps belong in [STATE-ARCHIVE.md](../../.specs/project/STATE-ARCHIVE.md) when archiving — not in live STATE.
+## Forbidden
 
-**Ownership:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). `M##` allowed when citing a lasting lock.
-
-## Forbidden in STATE.md
-
-- Execute-log rows: `Execute complete`, `Specs Planned`, `Gate green`, `Next: M##`, `Superseded by M## Done`
-- HOTSPOT-* laundry; Deferred bullets for work already Done; test-count / gate-pass noise
+- Execute-log rows (`Execute complete`, `Gate green`, `Next: M##`, …)
+- HOTSPOT laundry; Deferred for already-Done work; test-count / gate-pass noise
 
 ## Allowed
 
 - Active (1–3 lines); Blockers; Deferred (open only); Decisions; ADRs; Lessons
 
-## Sync rule
+## Sync
 
-1. Milestone status → ROADMAP — do **not** append Execute-complete rows to STATE.
-2. Touch STATE only if a lasting lock, blocker, lesson, or deferred item changed.
-3. Self-check: *Does a future agent need this to avoid reopening a choice?* If no → ROADMAP, feature spec, or STATE-ARCHIVE.
-
-Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintStateDoc`.
+Milestone status → ROADMAP. Touch STATE only for lasting lock/blocker/lesson/deferred. Else → ROADMAP, feature spec, or STATE-ARCHIVE.

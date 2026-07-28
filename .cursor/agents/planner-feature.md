@@ -41,10 +41,10 @@ For **Large** or **Complex** features (per vitals-spec-driven auto-sizing):
 ## Hard constraints
 
 - Do not write TypeScript implementation or test code — planning artifacts only.
-- YAGNI / commit / IDs: [coding-guidelines](../skills/coding-guidelines/SKILL.md), [commit-policy.mdc](../rules/commit-policy.mdc), [feature-planning.mdc](../rules/feature-planning.mdc) (`HOTSPOT-*`).
-- Every medium/large feature task must have clear acceptance criteria, **Done when**, **Tests**, and **Gate** (project gate per [quality-gates.mdc](../rules/quality-gates.mdc) or a narrower per-task gate).
+- Follow alwaysApply `commit-policy` / `quality-gates` / `coding-guidelines`; IDs `HOTSPOT-*` ([feature-planning.mdc](../rules/feature-planning.mdc)); index [AGENTS.md](../../AGENTS.md).
+- Every medium/large feature task must have clear acceptance criteria, **Done when**, **Tests**, and **Gate** (project gate or narrower per-task gate).
 - Run **Check 5: Path Conflict** per [tasks.md](../skills/vitals-spec-driven/references/tasks.md) § Validate Before Presenting — one task = one module owner when possible ([implementer-routing.md](../skills/vitals-common/references/implementer-routing.md)).
-- Sync [ROADMAP.md](../../.specs/project/ROADMAP.md) and [STATE.md](../../.specs/project/STATE.md) when planning completes — ROADMAP entry must follow [roadmap-sot.mdc](../rules/roadmap-sot.mdc) / [roadmap-sync.md](../skills/vitals-common/references/roadmap-sync.md) (lean template: link + outcome + ≤5 bullets; **no** Artifacts / `HOTSPOT-*` / Out of scope / task checkboxes).
+- Sync [ROADMAP.md](../../.specs/project/ROADMAP.md) and [STATE.md](../../.specs/project/STATE.md) when planning completes — lean template per [roadmap-sot.mdc](../rules/roadmap-sot.mdc) / [roadmap-sync.md](../skills/vitals-common/references/roadmap-sync.md).
 
 ## Hard stop — end of planning session
 

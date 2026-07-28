@@ -6,28 +6,18 @@ alwaysApply: false
 
 # Testing Infrastructure SoT
 
-[`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md) is the **testing infrastructure and patterns SoT**: runner, fixtures, coverage, mock boundaries, gates, parallelism.
+**Role:** runner, fixtures, coverage, mock boundaries, gates, parallelism. **Not:** schema encyclopedia, CONCERNS dump, or exit-code table.
 
-It is **not** a changelog, product-contract encyclopedia, fragile-risk catalog, or exit-code table.
+Ownership: [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). Lint: `lintTestingDoc`.
 
-**Ownership:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md).
+## Forbidden
 
-## Forbidden in TESTING.md
-
-- Milestone tags: `\bM\d+\b`
-- Requirement IDs: `HOTSPOT-*`
-- Changelog / provenance voice
-- Schema/field encyclopedias (→ ARCHITECTURE); fragile-risk catalogs (→ CONCERNS)
-- Canonical exit-code tables (→ `docs/cli-reference.md`)
+- `\bM\d+\b`, `HOTSPOT-*`, changelog voice; schemas → ARCHITECTURE; risks → CONCERNS; exit codes → cli-reference
 
 ## Allowed
 
-- Present-tense runner, fixtures, coverage thresholds, gates, mock boundaries
-- Short pointers to ARCHITECTURE, CONCERNS, quality-gates rule, skills
+- Present-tense runner/fixtures/coverage/gates/mocks; pointers to ARCHITECTURE, CONCERNS, quality-gates
 
-## Sync rule
+## Sync
 
-1. Update only for **live** test infra / patterns / fixtures / gates.
-2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → ROADMAP/STATE/feature specs.
-
-Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintTestingDoc`.
+Update only for live test infra. Milestone-needed prose → ROADMAP/STATE/feature specs.

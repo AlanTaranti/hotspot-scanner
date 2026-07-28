@@ -306,7 +306,7 @@ flowchart LR
 
 **Depends on**: T7
 
-**Reuses**: [roadmap-sync.md](../../../.cursor/skills/vitals-spec-driven/references/roadmap-sync.md)
+**Reuses**: [roadmap-sync.md](../../../.cursor/skills/vitals-common/references/roadmap-sync.md)
 
 **Requirement**: HOTSPOT-68
 

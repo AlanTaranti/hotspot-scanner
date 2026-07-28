@@ -378,7 +378,7 @@ flowchart TD
 
 **What**: Update product vision and SoT docs to NCLOC + churn (file-only); remove McCabe / function-granularity product claims; rewrite CONCERNS RT-005 toward NCLOC definition; update INTEGRATIONS (ts-morph removed or superseded); update `vitals-pipeline-domain` and `fragile-areas`; sync PROJECT/README/AGENTS/ARCHITECTURE/STRUCTURE/TESTING/recipes/warning-codes; revisit ADR-2026-019 + rejected-alternatives in STATE (NCLOC is product metric; McCabe retired). Note M57 supersession of historical function/McCabe milestones without reopening Done sister specs. Update `vitals-project.md` module map if it still lists McCabe/granularity.
 
-**Where**: `.specs/project/PROJECT.md`, `.specs/project/STATE.md` (ADR + rejected alternatives — planning already seeded; Execute confirms after ship), `.specs/codebase/{ARCHITECTURE,CONCERNS,STRUCTURE,TESTING,INTEGRATIONS}.md`, `README.md`, `AGENTS.md`, `CONTRIBUTING.md`, `docs/recipes.md`, `docs/warning-codes.md`, `.cursor/skills/vitals-pipeline-domain/SKILL.md`, `.cursor/rules/fragile-areas.mdc`, `.cursor/skills/vitals-spec-driven/references/vitals-project.md`, `package.json` description/keywords if needed
+**Where**: `.specs/project/PROJECT.md`, `.specs/project/STATE.md` (ADR + rejected alternatives — planning already seeded; Execute confirms after ship), `.specs/codebase/{ARCHITECTURE,CONCERNS,STRUCTURE,TESTING,INTEGRATIONS}.md`, `README.md`, `AGENTS.md`, `CONTRIBUTING.md`, `docs/recipes.md`, `docs/warning-codes.md`, `.cursor/skills/vitals-pipeline-domain/SKILL.md`, `.cursor/rules/fragile-areas.mdc`, `.cursor/skills/vitals-common/references/vitals-project.md`, `package.json` description/keywords if needed
 
 **Depends on**: T8
 

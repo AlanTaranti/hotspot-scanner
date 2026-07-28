@@ -325,7 +325,7 @@ flowchart TD
 
 **What**: Update product vision and SoT docs so hotspots = complexity + churn only; remove temporal-coupling product claims; scrub warning-codes / recipes; update `vitals-pipeline-domain` skill and `fragile-areas` rule; remove `temporal-coupling` from `package.json` keywords; revisit ADR-2026-020 in STATE (stream feeds churn only); note M56 supersession of historical coupling milestones without reopening Done sister specs.
 
-**Where**: `.specs/project/PROJECT.md`, `.specs/codebase/{ARCHITECTURE,CONCERNS,STRUCTURE,TESTING,INTEGRATIONS}.md`, `README.md`, `AGENTS.md`, `CONTRIBUTING.md`, `docs/recipes.md`, `docs/warning-codes.md`, `.cursor/skills/vitals-pipeline-domain/SKILL.md`, `.cursor/rules/fragile-areas.mdc`, `package.json`, `.specs/project/STATE.md` (ADR row), `.cursor/skills/vitals-spec-driven/references/vitals-project.md` if it still lists coupling flags
+**Where**: `.specs/project/PROJECT.md`, `.specs/codebase/{ARCHITECTURE,CONCERNS,STRUCTURE,TESTING,INTEGRATIONS}.md`, `README.md`, `AGENTS.md`, `CONTRIBUTING.md`, `docs/recipes.md`, `docs/warning-codes.md`, `.cursor/skills/vitals-pipeline-domain/SKILL.md`, `.cursor/rules/fragile-areas.mdc`, `package.json`, `.specs/project/STATE.md` (ADR row), `.cursor/skills/vitals-common/references/vitals-project.md` if it still lists coupling flags
 
 **Depends on**: T7
 

@@ -6,26 +6,18 @@ alwaysApply: false
 
 # Conventions Coding SoT
 
-[`.specs/codebase/CONVENTIONS.md`](../../.specs/codebase/CONVENTIONS.md) is the **coding-conventions SoT**: naming, ESM/import style, dual-tsconfig, lint/format scripts.
+**Role:** naming, ESM/imports, dual-tsconfig, lint/format. **Not:** publish inventory or UX cookbook.
 
-It is **not** a changelog, stack/publish inventory, or UX cookbook.
+Ownership: [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). Lint: `lintConventionsDoc`.
 
-**Ownership:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md).
+## Forbidden
 
-## Forbidden in CONVENTIONS.md
-
-- Milestone tags: `\bM\d+\b`
-- Changelog / provenance voice (“shipped in M…”, “STATE decision”)
-- Package publish facts (→ STACK); UX encyclopedias (→ cli-reference)
+- `\bM\d+\b`, changelog voice; publish facts → STACK; UX encyclopedias → cli-reference
 
 ## Allowed
 
-- `HOTSPOT-*` as a **naming convention** prefix pattern; `ADR-*`
-- Present-tense coding conventions; pointers to ARCHITECTURE / AGENTS / CONTRIBUTING / STACK / commit-policy
+- `HOTSPOT-*` as naming prefix; `ADR-*`; present-tense conventions; pointers to ARCHITECTURE / AGENTS / STACK / commit-policy
 
-## Sync rule
+## Sync
 
-1. Update only when coding conventions change — do not append feature provenance.
-2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → ROADMAP/STATE/feature specs.
-
-Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintConventionsDoc`.
+Update when conventions change. Milestone-needed prose → ROADMAP/STATE/feature specs.

@@ -52,54 +52,28 @@ Follow [execute-orchestration-playbook.md](../skills/vitals-execute/references/e
 
 ## Wave scheduling
 
-**Principle:** Always prefer parallel waves when safe. You do not implement code — you **delegate** and **await** each wave before starting the next.
+**Principle:** Prefer parallel waves when safe. Delegate and await each wave; do not implement application code here.
 
-Canonical algorithm: [execute-orchestration-playbook.md](../skills/vitals-execute/references/execute-orchestration-playbook.md) § Phase B — Execute by waves. Conflict rules: [implementer-routing.md](../skills/vitals-common/references/implementer-routing.md).
+Canonical algorithm: [execute-orchestration-playbook.md](../skills/vitals-execute/references/execute-orchestration-playbook.md) § Phase B. Conflicts: [implementer-routing.md](../skills/vitals-common/references/implementer-routing.md).
 
-**Operational summary:**
+**Operational bullets:**
 
-1. **Build graph** — per feature: `Depends on`, Execution Plan, `[P]`, `Where` paths; in batch: merge graphs respecting explicit cross-feature deps (ROADMAP, `design.md`, or `tasks.md` mentions).
-2. **Compute current wave** — tasks with all dependencies satisfied and not `deferred_project_gate`.
-3. **Filter conflicts** — two tasks in the same wave only when paths are disjoint (module map + `Path Conflict Check` in `tasks.md` when present), tests are parallel-safe per TESTING.md, and neither touches shared wiring (`src/scan.ts`, `bin/hotspot-scanner.ts`).
-4. **Delegate wave** — one `Task` call per task, **all in a single message** (true parallelism). Await structured returns before the next wave.
-5. **Update state** — mark `tasks.md` checkboxes after each wave (orchestrator-owned).
+1. Build the dependency graph (`Depends on`, `[P]`, `Where`, cross-feature deps).
+2. Wave = tasks with deps satisfied and not `deferred_project_gate`.
+3. Same wave only if paths are disjoint and tests are parallel-safe; serialize shared wiring (`src/scan.ts`, `bin/hotspot-scanner.ts`, schemas).
+4. One `Task` call per task in a **single message**; await structured returns before the next wave.
+5. Orchestrator owns `tasks.md` checkbox updates after each wave.
 
-**Subagent routing (prefer the right subagent):**
-
-| Work                           | Subagent                  | When                                                                                  |
-| ------------------------------ | ------------------------- | ------------------------------------------------------------------------------------- |
-| Implement task Tn              | `implementer`               | Default Phase B (`orchestrated: true`)                                                |
-| Create/update fixture          | `fixture-builder`           | Task `Where` is `tests/fixtures/` only, or implementer reports Blocked (missing fixture) |
-| Code review                    | `code-reviewer`             | Phase C (readonly)                                                                    |
-| Acceptance vs spec             | `verifier-implementation`   | Phase D (readonly)                                                                    |
-| Gate `pnpm build && pnpm test` | `verifier-quality-gates`    | Phase E only                                                                          |
-
-**Batch multi-spec example:**
-
-```
-Feature A: T1 [P] src/git/     (no deps)
-Feature B: T1 [P] src/report/  (no deps)
-→ Wave 1: delegate A-T1 + B-T1 in parallel (2× implementer)
-
-Feature A: T2 → src/scan.ts
-Feature B: T2 → src/scan.ts
-→ Wave 2: A-T2 then B-T2 sequential (same wiring owner)
-```
-
-**Anti-patterns:**
-
-- Do not parallelize tasks in the same wave that edit the same file.
-- Do not advance to wave N+1 while a task in wave N is `Blocked`/`Partial` without reporting it in Open items.
-- Do not use `generalPurpose` for implementation when `implementer` or `fixture-builder` applies.
+**Subagent routing:** `implementer` (Phase B) · `fixture-builder` (fixtures) · `code-reviewer` (C) · `verifier-implementation` (D) · `verifier-quality-gates` (E). Do not use `generalPurpose` for implementation when those apply.
 
 ## Hard constraints
 
 - Do not write implementation code directly except for unblocker fixes during Phase F remediation (max 1 round).
-- Commit / YAGNI: [commit-policy.mdc](../rules/commit-policy.mdc), [coding-guidelines](../skills/coding-guidelines/SKILL.md) (index: [AGENTS.md](../../AGENTS.md)).
+- Follow alwaysApply `commit-policy` / `quality-gates` / `coding-guidelines`; index [AGENTS.md](../../AGENTS.md).
 - Do not mark Done with failing Phase E gate, Phase D NOT_READY, or Phase C Changes needed.
 - Maximum **1 remediation round** after Phase C, D, or E failure.
 - Do not conduct AskQuestion / user discussion — return open items in the report.
-- **Default to wave parallelism** when path-disjoint and test-safe; `[P]` is a planner signal, not the only gate — infer safety via Path Conflict Check / module map when `[P]` is absent.
+- **Default to wave parallelism** when path-disjoint and test-safe; `[P]` is a planner signal, not the only gate.
 
 ## Main agent handoff
 

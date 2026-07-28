@@ -6,29 +6,19 @@ alwaysApply: false
 
 # CONTRIBUTING Contribute-Guide SoT
 
-[`CONTRIBUTING.md`](../../CONTRIBUTING.md) is the **human contribute-guide SoT**: prerequisites, setup, quality gate + DX, contribute workflow, commits/PRs, Issues/SECURITY, documentation map of links.
+**Role:** setup, gate + DX, contribute/PR workflow, docs map of **links**. **Not:** Design SoT, layout map, coverage/exit-code/adapter/fragile dumps.
 
-It is **not** a Design SoT, directory layout map, coverage SoT, exit-code SoT, adapter catalog, or fragile-risk catalog.
+Ownership: [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). Lint: `lintContributingDoc`.
 
-**Ownership:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md).
+## Forbidden
 
-## Forbidden in CONTRIBUTING.md
-
-- Milestone tags: `\bM\d+\b`
-- Directory trees — link STRUCTURE
-- Coverage threshold tables — link TESTING
-- Local exit-code tables or `!= 0` shorthand — link `docs/cli-reference.md` § Exit codes
-- `## Architecture boundaries` / `## Fragile areas` dumps — link INTEGRATIONS / CONCERNS
+- `\bM\d+\b`; directory trees → STRUCTURE; coverage tables → TESTING
+- Local exit-code tables → cli-reference; Architecture/Fragile dumps → INTEGRATIONS / CONCERNS
 
 ## Allowed
 
-- `HOTSPOT-*` as naming convention when describing feature specs
-- Gate `pnpm build && pnpm test`, recommended `typecheck` / `lint` / `format:check`
-- Documentation map of links only
+- `HOTSPOT-*` naming when describing specs; gate `pnpm build && pnpm test`; DX scripts; link-only documentation map
 
-## Sync rule
+## Sync
 
-1. Update only when gate, DX scripts, prerequisites, or contribute/PR workflow changed.
-2. Do not mirror STRUCTURE, TESTING, INTEGRATIONS, CONCERNS, or the exit-code table — link those SoTs.
-
-Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintContributingDoc`.
+Update when gate/DX/prerequisites/PR workflow change. Link SoTs — do not mirror them.

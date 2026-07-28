@@ -24,6 +24,12 @@ It is **not** a Design SoT, milestone tracker, or flag encyclopedia.
 | Commit policy | `.cursor/rules/commit-policy.mdc` (enforce: hooks) |
 | YAGNI / surgical diffs | `.cursor/skills/coding-guidelines/SKILL.md` |
 | Requirement ID prefix `HOTSPOT-*` | `.cursor/rules/feature-planning.mdc` |
+| Module task routing (overlay; layout SoT = STRUCTURE) | `.cursor/skills/vitals-common/references/implementer-routing.md` |
+| Planning Specify → Design → Tasks | `.cursor/skills/vitals-spec-driven/SKILL.md` |
+| Execute playbook A→F | `.cursor/skills/vitals-execute/references/execute-orchestration-playbook.md` |
+| Acceptance validate checklist | `.cursor/skills/vitals-execute/references/validate.md` |
+| Single-task RED→GREEN→VERIFY | `.cursor/skills/task-implementer/SKILL.md` |
+| CLI validation workflow (flags SoT = cli-reference) | `.cursor/skills/vitals-cli-validation/SKILL.md` |
 | Exit codes (canonical table) | **`docs/cli-reference.md`** § Exit codes |
 | Human contribute guide (setup, gate, PR workflow) | **CONTRIBUTING.md** |
 | Adoption / first-run (essential flags, short API, short exit overview) | **README.md** |

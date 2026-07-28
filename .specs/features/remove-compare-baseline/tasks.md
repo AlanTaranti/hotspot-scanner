@@ -286,7 +286,7 @@ flowchart TD
 
 **What**: Update product and SoT docs to scan-only pipeline; strip compare/baseline/`--strict`/`COMPARE_SINCE_MISMATCH` claims; update AGENTS exit-code table (exit `1` = explain-miss only); refresh ARCHITECTURE/STRUCTURE/TESTING/CONCERNS/INTEGRATIONS; update vitals-* skills and fragile-areas/integrations rules to `src/scan-result/` (no `src/compare/`); mark supersession in living docs. Do **not** rewrite historical Done sister feature specs.
 
-**Where**: `README.md`, `docs/recipes.md`, `docs/warning-codes.md`, `AGENTS.md`, `.specs/project/PROJECT.md`, `.specs/codebase/{ARCHITECTURE,STRUCTURE,TESTING,CONCERNS,INTEGRATIONS}.md`, `.cursor/skills/vitals-pipeline-domain/SKILL.md`, `.cursor/skills/vitals-cli-validation/SKILL.md`, `.cursor/skills/vitals-spec-driven/references/vitals-project.md`, `.cursor/rules/fragile-areas.mdc`, `.cursor/rules/integrations.mdc` (and any other living doc hits from grep)
+**Where**: `README.md`, `docs/recipes.md`, `docs/warning-codes.md`, `AGENTS.md`, `.specs/project/PROJECT.md`, `.specs/codebase/{ARCHITECTURE,STRUCTURE,TESTING,CONCERNS,INTEGRATIONS}.md`, `.cursor/skills/vitals-pipeline-domain/SKILL.md`, `.cursor/skills/vitals-cli-validation/SKILL.md`, `.cursor/skills/vitals-common/references/vitals-project.md`, `.cursor/rules/fragile-areas.mdc`, `.cursor/rules/integrations.mdc` (and any other living doc hits from grep)
 
 **Depends on**: T6
 

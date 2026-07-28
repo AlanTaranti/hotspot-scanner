@@ -6,27 +6,18 @@ alwaysApply: false
 
 # Concerns Fragile-Risk SoT
 
-[`.specs/codebase/CONCERNS.md`](../../.specs/codebase/CONCERNS.md) is the **fragile-risk SoT**: current risks, mitigations, and test expectations for scanner hotspots.
+**Role:** live risks, mitigations, test expectations. **Not:** changelog or feature history.
 
-It is **not** a changelog, milestone tracker, or feature history log.
+Ownership: [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). Lint: `lintConcernsDoc`.
 
-**Ownership:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md).
+## Forbidden
 
-## Forbidden in CONCERNS.md
-
-- Milestone tags: `\bM\d+\b`
-- Requirement IDs: `HOTSPOT-*`
-- Changelog voice: “Removed in M…”, “superseded M…”, “shipped in M…”
+- `\bM\d+\b`, `HOTSPOT-*`, changelog voice (“Removed in M…”, “shipped in M…”)
 
 ## Allowed
 
-- `RT-*`
-- Present-tense risk → mitigation → test expectation
-- Links to ARCHITECTURE, README, recipes, `docs/warning-codes.md`, fixtures, module paths
+- `RT-*`; present-tense risk → mitigation → test expectation; links to ARCHITECTURE / fixtures / warning-codes
 
-## Sync rule
+## Sync
 
-1. Update only for **live** risks or mitigations — do not append provenance.
-2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → ROADMAP/STATE/feature specs.
-
-Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintConcernsDoc`.
+Update only for **live** risks/mitigations. Milestone-needed prose → ROADMAP/STATE/feature specs.

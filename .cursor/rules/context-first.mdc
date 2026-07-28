@@ -1,33 +1,25 @@
 ---
-description: Read codebase specs before implementing and keep documentation current
+description: Read codebase specs before implementing — ownership matrix in DOC-OWNERSHIP
 alwaysApply: true
 ---
 
 # Context First
 
-Before planning or implementing any change, read the relevant files under `.specs/codebase/` and `.specs/project/`:
+Before planning or implementing, read the relevant living docs. **Full destination matrix:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). **Skills/agents inventory:** [AGENTS.md](../../AGENTS.md).
 
-| Change type | Read |
+| Change type | Start here |
 | ----- | ----- |
 | General code | `CONVENTIONS.md`, `STRUCTURE.md` |
-| Scanner modules (git, complexity, scoring, scan-result, config, report) | `ARCHITECTURE.md`, `CONCERNS.md`, `INTEGRATIONS.md` |
+| Scanner modules | `ARCHITECTURE.md`, `CONCERNS.md`, `INTEGRATIONS.md` |
 | Progress / milestones | `ROADMAP.md`, `.specs/features/` |
-| Decisions / deferred / blockers | `STATE.md` |
-| Tests | `TESTING.md` |
-| Architecture / stack | `ARCHITECTURE.md`, `STACK.md` |
-| External integrations | `INTEGRATIONS.md` |
-| Fragile areas | `CONCERNS.md` |
-| JSON contract | `schemas/`, `TESTING.md` § contract |
-| Doc ownership / where content goes | `DOC-OWNERSHIP.md` |
-| Agent index / policy pointers | `AGENTS.md` |
-| Exit codes | `docs/cli-reference.md` § Exit codes |
+| Decisions / deferred | `STATE.md` |
+| Tests / gates | `TESTING.md`, `quality-gates.mdc` |
+| Exit codes / flags | `docs/cli-reference.md` |
 
 ## Living documentation
 
-Every significant change (new scanner modules, domain types, CLI flags) must be reflected in the corresponding `.specs/codebase/` files. Feature complete → update [ROADMAP.md](../../.specs/project/ROADMAP.md) per [roadmap-sync.md](../skills/vitals-common/references/roadmap-sync.md).
-
-**Where content goes:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). When editing a living doc, follow its glob-scoped `*-sot.mdc` rule (and `docs-sot.mdc` for `docs/**`).
+Significant changes (modules, domain types, CLI flags) must land in the DOC-OWNERSHIP destination — do not mirror the same table into multiple SoTs. Feature complete → ROADMAP per [roadmap-sync.md](../skills/vitals-common/references/roadmap-sync.md). Editing a living doc → its glob-scoped `*-sot.mdc` (or `docs-sot.mdc`).
 
 ## YAGNI
 
-See [coding-guidelines](../skills/coding-guidelines/SKILL.md) (and [AGENTS.md](../../AGENTS.md) for the pointer index).
+[coding-guidelines](../skills/coding-guidelines/SKILL.md).

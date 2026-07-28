@@ -1,6 +1,6 @@
 # @vitals/hotspot-scanner — Project Context
 
-**Canonical project detail** for agents and skills. Index: [AGENTS.md](../../../../AGENTS.md). Ownership: [DOC-OWNERSHIP.md](../../../../.specs/codebase/DOC-OWNERSHIP.md).
+**Canonical project overlay** for agents and skills (not a layout SoT). Index: [AGENTS.md](../../../../AGENTS.md). Ownership: [DOC-OWNERSHIP.md](../../../../.specs/codebase/DOC-OWNERSHIP.md).
 
 ---
 
@@ -9,26 +9,28 @@
 - **Package:** `@vitals/hotspot-scanner` (npm)
 - **CLI bin:** `hotspot-scanner` (unscoped)
 - **Purpose:** Local CLI that ranks TS/JS maintenance hotspots from NCLOC and Git churn (file-level)
-- **Pipeline:** `git → NCLOC size analysis → hotspot scoring → report` (scan-only; no compare/baseline CLI)
-- **Design SoT:** [`.specs/codebase/ARCHITECTURE.md`](../../../../.specs/codebase/ARCHITECTURE.md)
-- **Module map SoT:** [`.specs/codebase/STRUCTURE.md`](../../../../.specs/codebase/STRUCTURE.md)
+- **Pipeline:** `git → NCLOC → hotspot scoring → report`; also `trend` / `assess` commands
+- **Design SoT:** [ARCHITECTURE.md](../../../../.specs/codebase/ARCHITECTURE.md)
+- **Module map SoT:** [STRUCTURE.md](../../../../.specs/codebase/STRUCTURE.md)
+- **Fragile / formulas:** [CONCERNS.md](../../../../.specs/codebase/CONCERNS.md)
 
-## Module map
+## Module map (overlay)
 
-| Path                     | Status      | Role                                                                                                                                                    |
-| ------------------------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `bin/hotspot-scanner.ts` | implemented | Commander CLI — `init`, `config validate`, `config print`, `doctor`, `scan [path]`, `completion` |
-| `src/git/`               | implemented | GitMiner — streaming `git log` numstat for file churn                                                                                                   |
-| `src/complexity/`        | implemented | Size analyzer — NCLOC (`ncloc.ts`, pool/worker optional)                                                                                                  |
-| `src/scoring/`           | implemented | HotspotScorer (file hotspots)                                                                                                                           |
-| `src/diagnostics/`       | implemented | stderr warnings + progress                                                                                                                              |
-| `src/report/`            | implemented | Reporter — table, JSON, markdown, CSV bundle                                                                                                            |
-| `src/scan-result/`       | implemented | `parseScanResult`, `ScanResultParseError` — programmatic scan JSON validation                                                                           |
-| `src/config/`            | implemented | `.hotspot-scanner.json` load + `mergeScanOptions` (CLI > config > defaults)                                                                             |
-| `src/scan.ts`            | implemented | `runScan()` — config + file-only pipeline orchestration                                                                                                 |
-| `src/types/`             | implemented | Domain types (no runtime logic)                                                                                                                         |
-| `src/index.ts`           | implemented | Public library API                                                                                                                                      |
-| `schemas/`               | implemented | JSON Schema for `ScanResult` + config (`version: "3.0"`)                                                                                                |
+Full Path|Role table: [STRUCTURE.md](../../../../.specs/codebase/STRUCTURE.md). Critical prefixes for task routing:
+
+| Path | Role |
+| ---- | ---- |
+| `bin/` | Commander + `*-actions.ts` (no domain logic) |
+| `src/git/` | GitMiner + file-history |
+| `src/complexity/` | NCLOC + indentation |
+| `src/trend/` / `src/assess/` | Trend + assess workflows |
+| `src/scoring/` | HotspotScorer |
+| `src/paths/` / `src/doctor/` / `src/diagnostics/` | Scoping, preflight, stderr |
+| `src/config/` / `src/scan-result/` / `src/report/` | Config, parse, report |
+| `src/scan.ts` | File-only pipeline |
+| `schemas/` | JSON contracts (`version: "3.0"` scan; assess `1.0`) |
+
+Task path ownership: [implementer-routing.md](implementer-routing.md).
 
 ## Gate check
 
@@ -40,31 +42,26 @@ pnpm build && pnpm test
 
 ## Domain concepts
 
-- **FileChangeStats** — per-file churn: `commitCount`, `linesChanged`, `authors`, `lastModified`
+- **FileChangeStats** — per-file churn from streaming `git log`
 - **ComplexityResult** — file-level `ncloc` (working tree)
 - **hotspotScore** — formula SoT: [CONCERNS.md](../../../../.specs/codebase/CONCERNS.md)
-- **parseScanResult** — validates `ScanResult` JSON for library consumers (`ScanResultParseError` on failure)
-- **Config** — `.hotspot-scanner.json` only; CLI-only: `format`, `output`
+- **parseScanResult** — library JSON validation (`ScanResultParseError`)
+- **Config** — `.hotspot-scanner.json`; CLI-only: `format`, `output`, assess `--min-hotspot-score`
 
 ## Requirement IDs / Commit / YAGNI
 
-Pointers (do not restate): [feature-planning.mdc](../../../../.cursor/rules/feature-planning.mdc) (`HOTSPOT-*`), [commit-policy.mdc](../../../../.cursor/rules/commit-policy.mdc), [coding-guidelines](../../../../.cursor/skills/coding-guidelines/SKILL.md). Index: [AGENTS.md](../../../../AGENTS.md).
+Pointers: [feature-planning.mdc](../../../../.cursor/rules/feature-planning.mdc) (`HOTSPOT-*`), [commit-policy.mdc](../../../../.cursor/rules/commit-policy.mdc), [coding-guidelines](../../coding-guidelines/SKILL.md). Index: [AGENTS.md](../../../../AGENTS.md).
 
 ## Validation (CLI)
 
-No interactive UI UAT. Canonical fixture path: `tests/fixtures/repos/<slug>`.
+No interactive UI UAT. Fixtures: `tests/fixtures/repos/<slug>`.
 
-1. `pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug>`
-2. Exit codes SoT: [docs/cli-reference.md](../../../../docs/cli-reference.md#exit-codes)
-3. Skill: `vitals-cli-validation`
-4. Co-located `*.test.ts` for unit coverage
-
-## Fragile areas
-
-See [CONCERNS.md](../../../../.specs/codebase/CONCERNS.md) and [fragile-areas.mdc](../../../../.cursor/rules/fragile-areas.mdc).
+1. Exit codes SoT: [docs/cli-reference.md](../../../../docs/cli-reference.md#exit-codes)
+2. Workflow: skill `vitals-cli-validation`
+3. Flag encyclopedia: `docs/cli-reference.md` (not this file)
 
 ## Knowledge sources
 
-1. `.specs/codebase/` (Design SoT) + DOC-OWNERSHIP + STATE + ROADMAP
-2. `vitals-pipeline-domain` skill for scan pipeline context
-3. `vitals-cli-validation` for CLI/fixture checks
+1. `.specs/codebase/` + DOC-OWNERSHIP + STATE + ROADMAP
+2. `vitals-pipeline-domain` — pipeline context (pointers)
+3. `vitals-cli-validation` — CLI/fixture checks

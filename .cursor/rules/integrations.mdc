@@ -20,7 +20,7 @@ Follow [INTEGRATIONS.md](../../.specs/codebase/INTEGRATIONS.md):
 
 - Encapsulate adapters (`GitMiner`, `ComplexityAnalyzer`) — do not spread git imports across the pipeline.
 - `src/config/` — only `.hotspot-scanner.json`; precedence CLI > config > defaults.
-- Tests mock at the adapter boundary (see TESTING.md § Mock boundaries).
+- Tests mock at the adapter boundary — SoT: [INTEGRATIONS.md](../../.specs/codebase/INTEGRATIONS.md) + [testing-patterns.mdc](testing-patterns.mdc) (git → `GitMiner`; worker pool → ComplexityAnalyzer). Do not restate mock lists here.
 - New runtime dependencies require an `INTEGRATIONS.md` entry and justification in the feature design.
 
 ## Observability

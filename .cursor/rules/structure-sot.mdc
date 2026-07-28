@@ -6,28 +6,18 @@ alwaysApply: false
 
 # Structure Layout SoT
 
-[`.specs/codebase/STRUCTURE.md`](../../.specs/codebase/STRUCTURE.md) is the **directory layout and public API map SoT**.
+**Role:** directory layout + public API map. **Not:** flag encyclopedia, testing guide, or pipeline design.
 
-It is **not** a changelog, CLI flag encyclopedia, testing methodology guide, or pipeline design doc.
+Ownership: [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). Lint: `lintStructureDoc`.
 
-**Ownership:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md).
+## Forbidden
 
-## Forbidden in STRUCTURE.md
-
-- Milestone tags: `\bM\d+\b`
-- Requirement IDs: `HOTSPOT-*`
-- Changelog / provenance voice
-- CLI flag laundry lists (→ `docs/cli-reference.md`)
-- Fixture methodology (→ TESTING); pipeline encyclopedias (→ ARCHITECTURE)
+- `\bM\d+\b`, `HOTSPOT-*`, changelog voice; CLI flags → cli-reference; fixtures → TESTING; pipelines → ARCHITECTURE
 
 ## Allowed
 
-- Present-tense trees, Path | Role tables, public exports aligned with `src/index.ts`
-- Short pointers to ARCHITECTURE, TESTING, STACK, DOC-OWNERSHIP
+- Trees, Path|Role tables, exports aligned with `src/index.ts`; pointers to ARCHITECTURE / TESTING / STACK
 
-## Sync rule
+## Sync
 
-1. Update only for **live** layout / module paths / public API.
-2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → ROADMAP/STATE/feature specs.
-
-Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintStructureDoc`.
+Update only for live layout / public API. Milestone-needed prose → ROADMAP/STATE/feature specs.

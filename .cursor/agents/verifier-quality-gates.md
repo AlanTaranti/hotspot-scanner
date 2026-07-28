@@ -36,7 +36,7 @@ Run both sequentially and report. Do **not** fix source code — return failures
 
 - **Never** mark Done with unresolved gate failures.
 - **Readonly:** report only; do not edit `src/`, `bin/`, tests, or schemas.
-- Do not run `git commit` / `git push` ([commit-policy.mdc](../rules/commit-policy.mdc)).
+- Follow alwaysApply `commit-policy` / `quality-gates`; do not run `git commit` / `git push`. Index [AGENTS.md](../../AGENTS.md).
 
 ## Output format
 

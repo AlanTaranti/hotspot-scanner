@@ -156,4 +156,4 @@ export function tsconfigAddsBinInclude(content) {
 
 export const FRAGILE_CONTEXT = `Fragile scanner area. Rules: .cursor/rules/fragile-areas.mdc and .specs/codebase/CONCERNS.md — update or add a co-located Vitest test before marking Complete.`;
 
-export const SCORING_FORMULA_CONTEXT = `Changes under src/scoring/ affect hotspotScore and couplingStrength — confirm tests with fixed inputs and expected ordering (fragile-areas.mdc).`;
+export const SCORING_FORMULA_CONTEXT = `Changes under src/scoring/ affect hotspotScore (formula SoT: CONCERNS.md) — confirm tests with fixed inputs and expected ordering (fragile-areas.mdc).`;

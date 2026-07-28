@@ -6,28 +6,18 @@ alwaysApply: false
 
 # Stack Inventory SoT
 
-[`.specs/codebase/STACK.md`](../../.specs/codebase/STACK.md) is the **technology-stack SoT**: runtime, dependency inventory, package publish surface, and build tooling at inventory level.
+**Role:** runtime, deps, publish surface, build inventory. **Not:** adapter encyclopedia or conventions guide.
 
-It is **not** a changelog, adapter encyclopedia, or coding-conventions guide.
+Ownership: [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). Lint: `lintStackDoc`.
 
-**Ownership:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md).
+## Forbidden
 
-## Forbidden in STACK.md
-
-- Milestone tags: `\bM\d+\b`
-- Requirement IDs: `HOTSPOT-*`
-- Changelog / provenance voice
-- Adapter encyclopedias (→ INTEGRATIONS)
-- Coverage thresholds / mock-boundary detail (→ TESTING)
+- `\bM\d+\b`, `HOTSPOT-*`, changelog voice; adapters → INTEGRATIONS; coverage/mocks → TESTING
 
 ## Allowed
 
-- Present-tense inventory tables and “not in stack” constraints
-- Short pointers to INTEGRATIONS, CONVENTIONS, ARCHITECTURE, CONTRIBUTING
+- Present-tense inventory; “not in stack” constraints; pointers to INTEGRATIONS / CONVENTIONS / ARCHITECTURE
 
-## Sync rule
+## Sync
 
-1. Update only for **live** runtime/deps/publish/build inventory.
-2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → ROADMAP/STATE/feature specs.
-
-Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintStackDoc`.
+Update only for live inventory. Milestone-needed prose → ROADMAP/STATE/feature specs.
