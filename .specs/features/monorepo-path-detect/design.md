@@ -42,15 +42,15 @@ flowchart TD
 
 ## Code Reuse Analysis
 
-| Component | Location | How to use |
-| --------- | -------- | ---------- |
-| `validateRepoPath` / `validateGitRepository` | `src/scan.ts` | Keep order: path → resolve → config → git-on-root |
-| `createPathScope` / `isPathInScope` | `src/paths/scope.ts` | Unchanged; consume auto-include via merged options |
-| `mergeScanOptions` / `loadHotspotScannerConfig` | `src/config/` | Unchanged API; inject include into CLI side before/at merge |
-| `pickCliOverrides` | `src/scan.ts` | Treat injected include as CLI when auto-applying |
-| Git spawn pattern | `src/git/spawn.ts` | Mirror small `execFile`/`spawn` helper for `rev-parse` — do **not** add `simple-git` |
-| Commander `isExplicitCliOption("include")` | `bin/` | Already distinguishes CLI include (bin stays thin) |
-| Fixtures | `tests/fixtures/repos/` | New nested monorepo fixture for integration |
+| Component                                       | Location                | How to use                                                                           |
+| ----------------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------ |
+| `validateRepoPath` / `validateGitRepository`    | `src/scan.ts`           | Keep order: path → resolve → config → git-on-root                                    |
+| `createPathScope` / `isPathInScope`             | `src/paths/scope.ts`    | Unchanged; consume auto-include via merged options                                   |
+| `mergeScanOptions` / `loadHotspotScannerConfig` | `src/config/`           | Unchanged API; inject include into CLI side before/at merge                          |
+| `pickCliOverrides`                              | `src/scan.ts`           | Treat injected include as CLI when auto-applying                                     |
+| Git spawn pattern                               | `src/git/spawn.ts`      | Mirror small `execFile`/`spawn` helper for `rev-parse` — do **not** add `simple-git` |
+| Commander `isExplicitCliOption("include")`      | `bin/`                  | Already distinguishes CLI include (bin stays thin)                                   |
+| Fixtures                                        | `tests/fixtures/repos/` | New nested monorepo fixture for integration                                          |
 
 ### Fragile / concern notes
 
@@ -90,7 +90,7 @@ export async function resolveMonorepoScanPath(
 ): Promise<ResolvedMonorepoScanPath>;
 
 export function buildAutoIncludePattern(packagePrefix: string): string;
-// → `${packagePrefix}/**` with posix separators, no leading ./ 
+// → `${packagePrefix}/**` with posix separators, no leading ./
 ```
 
 - **Algorithm**:
@@ -144,36 +144,36 @@ No JSON schema / `ScanResult` shape changes. Additive warning code only (existin
 
 ## Error Handling
 
-| Case | Behavior |
-| ---- | -------- |
-| Not a directory | Existing `validateRepoPath` error |
-| `rev-parse` fails | Map to “not a git repository” (include `requestPath`) |
-| Prefix escapes root | Throw clear error with both paths |
-| Explicit `--config` missing | Existing `ConfigError` |
+| Case                        | Behavior                                              |
+| --------------------------- | ----------------------------------------------------- |
+| Not a directory             | Existing `validateRepoPath` error                     |
+| `rev-parse` fails           | Map to “not a git repository” (include `requestPath`) |
+| Prefix escapes root         | Throw clear error with both paths                     |
+| Explicit `--config` missing | Existing `ConfigError`                                |
 
 ---
 
 ## Testing Strategy
 
-| Layer | What |
-| ----- | ---- |
-| Unit (`resolve-repo.test.ts`) | Root vs nested vs outside; auto-include string; injected `detectGitToplevel` |
-| Unit / scan | `runScan` with nested temp repo: remount, warning code, include suppression |
-| Integration | Fixture monorepo: nested path scopes rankings; git-root path unchanged |
-| CLI | Optional smoke: `hotspot-scanner scan <fixture>/packages/api` exit 0 |
-| Config | Nested path still loads ancestor `.hotspot-scanner.json`; `--config` still skips walk |
+| Layer                         | What                                                                                  |
+| ----------------------------- | ------------------------------------------------------------------------------------- |
+| Unit (`resolve-repo.test.ts`) | Root vs nested vs outside; auto-include string; injected `detectGitToplevel`          |
+| Unit / scan                   | `runScan` with nested temp repo: remount, warning code, include suppression           |
+| Integration                   | Fixture monorepo: nested path scopes rankings; git-root path unchanged                |
+| CLI                           | Optional smoke: `hotspot-scanner scan <fixture>/packages/api` exit 0                  |
+| Config                        | Nested path still loads ancestor `.hotspot-scanner.json`; `--config` still skips walk |
 
 ---
 
 ## Risks
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| Silent whole-repo scan after remount | Auto-include mandatory when remounted without CLI include |
-| Config load diverges bin vs runScan | Both keep `requestPath` for discovery |
-| Worktree / `.git` file | Prefer `rev-parse --show-toplevel` |
-| Extra git spawn cost | One `rev-parse` per scan — negligible vs `git log` |
-| Programmatic callers pass already-root path | Idempotent: no remount, no auto-include |
+| Risk                                        | Mitigation                                                |
+| ------------------------------------------- | --------------------------------------------------------- |
+| Silent whole-repo scan after remount        | Auto-include mandatory when remounted without CLI include |
+| Config load diverges bin vs runScan         | Both keep `requestPath` for discovery                     |
+| Worktree / `.git` file                      | Prefer `rev-parse --show-toplevel`                        |
+| Extra git spawn cost                        | One `rev-parse` per scan — negligible vs `git log`        |
+| Programmatic callers pass already-root path | Idempotent: no remount, no auto-include                   |
 
 ---
 

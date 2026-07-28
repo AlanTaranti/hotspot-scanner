@@ -60,36 +60,36 @@ flowchart TD
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| Config filename + load/walk/`--config` | `src/config/load-config.ts` | Doctor validity + dry-run merge |
-| `mergeScanOptions` / `MergedScanConfig` | `src/config/merge-options.ts` | Dry-run effective values |
-| `ConfigError` | `src/config/` | Doctor + dry-run invalid config → exit `2` |
-| `resolveScanConfig` / `validateGitRepository` / `validateRepoPath` | `src/scan.ts` | Dry-run + doctor git check (export already public for git validate) |
-| `createPathScope` | `src/paths/scope.ts` | Dry-run scope for discovery |
-| `discoverSourceFiles` + `ELIGIBLE_EXTENSIONS` | `src/complexity/discover.ts` | Eligible file count |
-| `DEFAULT_SINCE`, `DEFAULT_TOP`, `DEFAULT_MIN_COCHANGE` | scan / scoring | Exemplar values |
-| `DEFAULT_WORKER_CONCURRENCY` | `src/complexity/pool.ts` | Dry-run concurrency line |
-| CLI patterns | `bin/hotspot-scanner.ts` | Add commands; keep `CliUsageError` exit `2` |
-| Fixture `small-ts` | `tests/fixtures/repos/small-ts/` | Doctor + dry-run CLI tests |
+| Component                                                          | Location                         | How to Use                                                          |
+| ------------------------------------------------------------------ | -------------------------------- | ------------------------------------------------------------------- |
+| Config filename + load/walk/`--config`                             | `src/config/load-config.ts`      | Doctor validity + dry-run merge                                     |
+| `mergeScanOptions` / `MergedScanConfig`                            | `src/config/merge-options.ts`    | Dry-run effective values                                            |
+| `ConfigError`                                                      | `src/config/`                    | Doctor + dry-run invalid config → exit `2`                          |
+| `resolveScanConfig` / `validateGitRepository` / `validateRepoPath` | `src/scan.ts`                    | Dry-run + doctor git check (export already public for git validate) |
+| `createPathScope`                                                  | `src/paths/scope.ts`             | Dry-run scope for discovery                                         |
+| `discoverSourceFiles` + `ELIGIBLE_EXTENSIONS`                      | `src/complexity/discover.ts`     | Eligible file count                                                 |
+| `DEFAULT_SINCE`, `DEFAULT_TOP`, `DEFAULT_MIN_COCHANGE`             | scan / scoring                   | Exemplar values                                                     |
+| `DEFAULT_WORKER_CONCURRENCY`                                       | `src/complexity/pool.ts`         | Dry-run concurrency line                                            |
+| CLI patterns                                                       | `bin/hotspot-scanner.ts`         | Add commands; keep `CliUsageError` exit `2`                         |
+| Fixture `small-ts`                                                 | `tests/fixtures/repos/small-ts/` | Doctor + dry-run CLI tests                                          |
 
 ### Integration Points
 
-| System | Integration Method |
-| ------ | ------------------ |
-| Commander | New `init` / `doctor` commands; `--dry-run` boolean on `scan` |
-| Node `engines` | Read from package.json adjacent to CLI (same pattern as future M38 `--version`) or hardcode check against `process.version` with `semver` — **prefer no new dep**: parse `engines.node` string `>=22` with a tiny local comparator or `process.versions.node` major ≥ 22 matching package.json |
-| `git` on PATH | `spawnSync('git', ['--version'], …)` or `which`-style lookup via `spawnSync` — encapsulate in `src/doctor/` (not `src/git/` miner) |
-| tsconfig presence | `fs` walk upward from doctor target for `tsconfig.json` / `jsconfig.json` (informational only; do not reuse scoring `TsconfigPathMap`) |
+| System            | Integration Method                                                                                                                                                                                                                                                                             |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Commander         | New `init` / `doctor` commands; `--dry-run` boolean on `scan`                                                                                                                                                                                                                                  |
+| Node `engines`    | Read from package.json adjacent to CLI (same pattern as future M38 `--version`) or hardcode check against `process.version` with `semver` — **prefer no new dep**: parse `engines.node` string `>=22` with a tiny local comparator or `process.versions.node` major ≥ 22 matching package.json |
+| `git` on PATH     | `spawnSync('git', ['--version'], …)` or `which`-style lookup via `spawnSync` — encapsulate in `src/doctor/` (not `src/git/` miner)                                                                                                                                                             |
+| tsconfig presence | `fs` walk upward from doctor target for `tsconfig.json` / `jsconfig.json` (informational only; do not reuse scoring `TsconfigPathMap`)                                                                                                                                                         |
 
 ### Fragile areas (CONCERNS)
 
-| Concern | Mitigation |
-| ------- | ---------- |
+| Concern                       | Mitigation                                                                                                                    |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | `src/scan.ts` pipeline wiring | Prefer **new** `src/scan-preview.ts`; reuse `resolveScanConfig` + validators; do not insert dry-run branches inside `runScan` |
-| Git miner / AST | Dry-run tests assert those entry points are **not** called |
-| Config discovery semantics | Doctor/dry-run call existing loaders only — no parallel discovery rules |
-| Domain logic in bin | Init/doctor/preview logic live under `src/`; bin wires only |
+| Git miner / AST               | Dry-run tests assert those entry points are **not** called                                                                    |
+| Config discovery semantics    | Doctor/dry-run call existing loaders only — no parallel discovery rules                                                       |
+| Domain logic in bin           | Init/doctor/preview logic live under `src/`; bin wires only                                                                   |
 
 ---
 
@@ -146,12 +146,7 @@ flowchart TD
 
 ```typescript
 interface DoctorFinding {
-  id:
-    | "node-engines"
-    | "git-path"
-    | "git-repo"
-    | "config"
-    | "tsconfig";
+  id: "node-engines" | "git-path" | "git-repo" | "config" | "tsconfig";
   status: "pass" | "warn" | "fail";
   message: string;
 }
@@ -189,14 +184,14 @@ Exemplar shape (written file — no `concurrency` key):
 
 ## Error Handling
 
-| Case | Type | Exit |
-| ---- | ---- | ---- |
-| Init exists without `--force` | Usage-style error | `2` |
-| Init bad directory | `CliUsageError` | `2` |
-| Doctor hard env/repo | findings + `exitCode: 1` | `1` |
-| Doctor invalid / missing explicit config | `ConfigError` or finding fail + `2` | `2` |
-| Dry-run + `--baseline` | `CliUsageError` | `2` |
-| Dry-run invalid config / bad repo | Same as scan | `2` / `1` |
+| Case                                     | Type                                | Exit      |
+| ---------------------------------------- | ----------------------------------- | --------- |
+| Init exists without `--force`            | Usage-style error                   | `2`       |
+| Init bad directory                       | `CliUsageError`                     | `2`       |
+| Doctor hard env/repo                     | findings + `exitCode: 1`            | `1`       |
+| Doctor invalid / missing explicit config | `ConfigError` or finding fail + `2` | `2`       |
+| Dry-run + `--baseline`                   | `CliUsageError`                     | `2`       |
+| Dry-run invalid config / bad repo        | Same as scan                        | `2` / `1` |
 
 Doctor should prefer returning `DoctorResult` and letting bin `process.exit(result.exitCode)` after printing, except when `ConfigError` is thrown from the loader for explicit-path/invalid parse — either catch inside doctor and convert to finding+exitCode `2`, or let throw (bin already maps `ConfigError` → `2`). **Lock for implementer:** catch inside `runDoctor` so all findings print in one report (invalid config appears as a fail finding, exit `2`).
 
@@ -204,13 +199,13 @@ Doctor should prefer returning `DoctorResult` and letting bin `process.exit(resu
 
 ## Testing Strategy
 
-| Layer | What |
-| ----- | ---- |
-| Unit `src/config/*init*` | Exemplar contents; write/no-overwrite/`--force`; bad dir |
-| Unit `src/doctor/` | Node below engines → fail; git missing → fail; no `.git` → fail; missing config → warn exit 0; invalid config → exit 2; tsconfig present/absent |
-| Unit `src/scan-preview.ts` | Preview fields; spy that mine/analyze not used; zero files → count 0 |
-| CLI `bin/hotspot-scanner.test.ts` | Commands registered; init/doctor/dry-run exit codes; `--baseline`+`--dry-run` rejects; help mentions flags |
-| Integration (light) | Dry-run on isolated `small-ts` → count ≥ 1; doctor on `small-ts` healthy → exit 0 |
+| Layer                             | What                                                                                                                                            |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit `src/config/*init*`          | Exemplar contents; write/no-overwrite/`--force`; bad dir                                                                                        |
+| Unit `src/doctor/`                | Node below engines → fail; git missing → fail; no `.git` → fail; missing config → warn exit 0; invalid config → exit 2; tsconfig present/absent |
+| Unit `src/scan-preview.ts`        | Preview fields; spy that mine/analyze not used; zero files → count 0                                                                            |
+| CLI `bin/hotspot-scanner.test.ts` | Commands registered; init/doctor/dry-run exit codes; `--baseline`+`--dry-run` rejects; help mentions flags                                      |
+| Integration (light)               | Dry-run on isolated `small-ts` → count ≥ 1; doctor on `small-ts` healthy → exit 0                                                               |
 
 **Coverage:** New `src/**` and `bin/**` files fall under existing Vitest per-file thresholds — co-locate tests.
 
@@ -218,23 +213,23 @@ Doctor should prefer returning `DoctorResult` and letting bin `process.exit(resu
 
 ## Documentation Updates (Execute)
 
-| Doc | Change |
-| --- | ------ |
-| README | Short “Getting started”: `init` → `doctor` → `scan --dry-run` → `scan` |
-| ARCHITECTURE.md | CLI multi-command + dry-run preview stage note |
-| STRUCTURE.md | `src/doctor/`, `src/scan-preview.ts`, config exemplar helper |
-| STATE.md / ROADMAP M39 | Checkboxes on Execute Done (not this planning session) |
+| Doc                    | Change                                                                 |
+| ---------------------- | ---------------------------------------------------------------------- |
+| README                 | Short “Getting started”: `init` → `doctor` → `scan --dry-run` → `scan` |
+| ARCHITECTURE.md        | CLI multi-command + dry-run preview stage note                         |
+| STRUCTURE.md           | `src/doctor/`, `src/scan-preview.ts`, config exemplar helper           |
+| STATE.md / ROADMAP M39 | Checkboxes on Execute Done (not this planning session)                 |
 
 ---
 
 ## Risks
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| Doctor Node check drifts from `package.json` engines | Read engines from package.json at runtime (resolve relative to CLI install) |
-| `git ls-files` in dry-run confused with “mining” | Spec/docs: inventory only; tests do not spy ls-files as failure |
-| Bin grows domain logic | Module split enforced in tasks Path Conflict Check |
-| M38 later adds default path `.` | Doctor/init already default cwd; scan path still required until M38 — no dependency |
+| Risk                                                 | Mitigation                                                                          |
+| ---------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Doctor Node check drifts from `package.json` engines | Read engines from package.json at runtime (resolve relative to CLI install)         |
+| `git ls-files` in dry-run confused with “mining”     | Spec/docs: inventory only; tests do not spy ls-files as failure                     |
+| Bin grows domain logic                               | Module split enforced in tasks Path Conflict Check                                  |
+| M38 later adds default path `.`                      | Doctor/init already default cwd; scan path still required until M38 — no dependency |
 
 ---
 

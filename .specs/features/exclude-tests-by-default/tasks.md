@@ -24,8 +24,8 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (body) | Diagram shows | Status |
-| ---- | ----------------- | ------------- | ------ |
+| Task | Depends on (body) | Diagram shows | Status   |
+| ---- | ----------------- | ------------- | -------- |
 | T1   | None              | Root          | ✅ Match |
 | T2   | T1                | T1→T2         | ✅ Match |
 | T3   | T2                | T2→T3         | ✅ Match |
@@ -33,41 +33,41 @@ flowchart LR
 
 ### Path Conflict Check
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1   | `src/paths/` | `scope.ts`, `scope.test.ts`, `index.ts` | None |
+| Task | Module owner                                         | Paths                                                                                               | Conflict                                                                 |
+| ---- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| T1   | `src/paths/`                                         | `scope.ts`, `scope.test.ts`, `index.ts`                                                             | None                                                                     |
 | T2   | `src/types/` + `src/scan.ts` + `src/scan-preview.ts` | `domain.ts`, `scan.ts`, `scan-preview.ts`, `scan-preview.test.ts` (+ focused `scan` unit if needed) | After T1; sole owner of scan/preview wiring — do not parallelize with T3 |
-| T3   | `bin/` | `hotspot-scanner.ts`, `scan-actions.ts`, `hotspot-scanner.test.ts` | After T2; sole CLI owner |
-| T4   | docs / project | ARCHITECTURE.md, README.md, docs/recipes.md, STATE.md, ROADMAP checkbox on Done | After T3 |
+| T3   | `bin/`                                               | `hotspot-scanner.ts`, `scan-actions.ts`, `hotspot-scanner.test.ts`                                  | After T2; sole CLI owner                                                 |
+| T4   | docs / project                                       | ARCHITECTURE.md, README.md, docs/recipes.md, STATE.md, ROADMAP checkbox on Done                     | After T3                                                                 |
 
 ### Test Co-location Validation
 
-| Task | Code layer | Matrix / TESTING.md | Task Tests | Status |
-| ---- | ---------- | ------------------- | ---------- | ------ |
-| T1   | `src/paths/` | unit co-located | unit | ✅ OK |
-| T2   | `src/scan.ts` / `src/scan-preview.ts` / types | unit (preview + types wiring) | unit | ✅ OK |
-| T3   | CLI `bin/` | CLI Vitest | CLI unit | ✅ OK |
-| T4   | docs only | none | none + full gate | ✅ OK |
+| Task | Code layer                                    | Matrix / TESTING.md           | Task Tests       | Status |
+| ---- | --------------------------------------------- | ----------------------------- | ---------------- | ------ |
+| T1   | `src/paths/`                                  | unit co-located               | unit             | ✅ OK  |
+| T2   | `src/scan.ts` / `src/scan-preview.ts` / types | unit (preview + types wiring) | unit             | ✅ OK  |
+| T3   | CLI `bin/`                                    | CLI Vitest                    | CLI unit         | ✅ OK  |
+| T4   | docs only                                     | none                          | none + full gate | ✅ OK  |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | One module: constants + createPathScope + unit tests | ✅ Granular |
-| T2 | Cohesive ScanOptions + runScan/preview PathScope wiring + preview line | ✅ OK (same feature slice) |
-| T3 | CLI flag + scan-actions forward + CLI tests | ✅ Granular |
-| T4 | Docs + STATE + full project gate | ✅ Granular |
+| Task | Scope                                                                  | Status                     |
+| ---- | ---------------------------------------------------------------------- | -------------------------- |
+| T1   | One module: constants + createPathScope + unit tests                   | ✅ Granular                |
+| T2   | Cohesive ScanOptions + runScan/preview PathScope wiring + preview line | ✅ OK (same feature slice) |
+| T3   | CLI flag + scan-actions forward + CLI tests                            | ✅ Granular                |
+| T4   | Docs + STATE + full project gate                                       | ✅ Granular                |
 
 ---
 
 ## Requirement → Task Mapping
 
-| Requirement ID | Task |
-| -------------- | ---- |
-| HOTSPOT-640, HOTSPOT-641, HOTSPOT-642, HOTSPOT-643, HOTSPOT-644, HOTSPOT-645, HOTSPOT-655 | T1 |
-| HOTSPOT-646, HOTSPOT-650, HOTSPOT-651 | T2 |
-| HOTSPOT-647, HOTSPOT-648, HOTSPOT-649, HOTSPOT-656 | T3 |
-| HOTSPOT-652, HOTSPOT-653, HOTSPOT-654, HOTSPOT-657 | T4 |
+| Requirement ID                                                                            | Task |
+| ----------------------------------------------------------------------------------------- | ---- |
+| HOTSPOT-640, HOTSPOT-641, HOTSPOT-642, HOTSPOT-643, HOTSPOT-644, HOTSPOT-645, HOTSPOT-655 | T1   |
+| HOTSPOT-646, HOTSPOT-650, HOTSPOT-651                                                     | T2   |
+| HOTSPOT-647, HOTSPOT-648, HOTSPOT-649, HOTSPOT-656                                        | T3   |
+| HOTSPOT-652, HOTSPOT-653, HOTSPOT-654, HOTSPOT-657                                        | T4   |
 
 ---
 

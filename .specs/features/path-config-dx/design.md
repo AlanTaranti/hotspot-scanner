@@ -34,14 +34,14 @@ flowchart TD
 
 ## Code Reuse Analysis
 
-| Component | Location | How to use |
-| --------- | -------- | ---------- |
-| `DEFAULT_EXCLUDE_PATTERNS` / `createPathScope` | `src/paths/scope.ts` | Append locked patterns; tests in `scope.test.ts` |
-| `loadHotspotScannerConfig` / `parseHotspotScannerConfig` / `ConfigError` | `src/config/load-config.ts` | Extend signature; keep parse/validation |
-| `mergeScanOptions` | `src/config/merge-options.ts` | **No logic change** — re-verify with walked/explicit loads |
-| `resolveScanConfig` | `src/scan.ts` | Pass `configPath` into loader |
-| CLI override detection | `bin/hotspot-scanner.ts` (`isExplicitCliOption`, `buildCliConfigOverrides`) | Add `--config`; pass through to load + `runScan` |
-| M21 / M7 tests | `src/config/*.test.ts`, `src/paths/scope.test.ts`, `bin/hotspot-scanner.test.ts` | Extend; do not weaken |
+| Component                                                                | Location                                                                         | How to use                                                 |
+| ------------------------------------------------------------------------ | -------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `DEFAULT_EXCLUDE_PATTERNS` / `createPathScope`                           | `src/paths/scope.ts`                                                             | Append locked patterns; tests in `scope.test.ts`           |
+| `loadHotspotScannerConfig` / `parseHotspotScannerConfig` / `ConfigError` | `src/config/load-config.ts`                                                      | Extend signature; keep parse/validation                    |
+| `mergeScanOptions`                                                       | `src/config/merge-options.ts`                                                    | **No logic change** — re-verify with walked/explicit loads |
+| `resolveScanConfig`                                                      | `src/scan.ts`                                                                    | Pass `configPath` into loader                              |
+| CLI override detection                                                   | `bin/hotspot-scanner.ts` (`isExplicitCliOption`, `buildCliConfigOverrides`)      | Add `--config`; pass through to load + `runScan`           |
+| M21 / M7 tests                                                           | `src/config/*.test.ts`, `src/paths/scope.test.ts`, `bin/hotspot-scanner.test.ts` | Extend; do not weaken                                      |
 
 ### Fragile / concern notes
 
@@ -119,37 +119,37 @@ configPath?: string;
 
 ## Error Handling Strategy
 
-| Scenario | Handling | User impact |
-| -------- | -------- | ----------- |
-| Discovery: no file on walk | `null` | Defaults + CLI only |
-| Discovery: invalid JSON / types | `ConfigError` | Non-zero exit |
-| Explicit `--config`: ENOENT | `ConfigError` | Non-zero exit, message includes path |
-| Explicit `--config`: invalid JSON / types | `ConfigError` | Non-zero exit |
-| Unknown keys in file | Ignore (M21) | No failure |
+| Scenario                                  | Handling      | User impact                          |
+| ----------------------------------------- | ------------- | ------------------------------------ |
+| Discovery: no file on walk                | `null`        | Defaults + CLI only                  |
+| Discovery: invalid JSON / types           | `ConfigError` | Non-zero exit                        |
+| Explicit `--config`: ENOENT               | `ConfigError` | Non-zero exit, message includes path |
+| Explicit `--config`: invalid JSON / types | `ConfigError` | Non-zero exit                        |
+| Unknown keys in file                      | Ignore (M21)  | No failure                           |
 
 ---
 
 ## Tech Decisions
 
-| Decision | Choice | Rationale |
-| -------- | ------ | --------- |
-| Walk vs `--config` | Both | User/ROADMAP locked |
-| Nearest wins | First found ascending from `repoPath` | Predictable; repo-local overrides workspace |
-| Walk stop | Filesystem root | Simple; no git-root-only stop (would no-op when `.git` is at `repoPath`) |
-| New exclude globs | `**/name/**` | Nested monorepo artifacts |
-| M7 pattern rewrite | Out of scope | YAGNI / avoid surprise |
-| mergeScanOptions | Unchanged | Precedence already correct |
-| Alternate filenames | Forbidden on walk | M21 lock |
+| Decision            | Choice                                | Rationale                                                                |
+| ------------------- | ------------------------------------- | ------------------------------------------------------------------------ |
+| Walk vs `--config`  | Both                                  | User/ROADMAP locked                                                      |
+| Nearest wins        | First found ascending from `repoPath` | Predictable; repo-local overrides workspace                              |
+| Walk stop           | Filesystem root                       | Simple; no git-root-only stop (would no-op when `.git` is at `repoPath`) |
+| New exclude globs   | `**/name/**`                          | Nested monorepo artifacts                                                |
+| M7 pattern rewrite  | Out of scope                          | YAGNI / avoid surprise                                                   |
+| mergeScanOptions    | Unchanged                             | Precedence already correct                                               |
+| Alternate filenames | Forbidden on walk                     | M21 lock                                                                 |
 
 ---
 
 ## Testing strategy
 
-| Layer | What |
-| ----- | ---- |
-| Unit `src/paths/` | Pattern membership; nested paths out of scope; prune |
-| Unit `src/config/` | Walk chain; nearest wins; root miss → null; explicit path success/ENOENT; still only `.hotspot-scanner.json` on walk |
-| Unit/CLI `bin/` + `src/scan.ts` | `--config` wiring; CLI overrides config from walked/explicit file; help mentions `--config` |
-| Full gate | `pnpm build && pnpm test` on final task |
+| Layer                           | What                                                                                                                 |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Unit `src/paths/`               | Pattern membership; nested paths out of scope; prune                                                                 |
+| Unit `src/config/`              | Walk chain; nearest wins; root miss → null; explicit path success/ENOENT; still only `.hotspot-scanner.json` on walk |
+| Unit/CLI `bin/` + `src/scan.ts` | `--config` wiring; CLI overrides config from walked/explicit file; help mentions `--config`                          |
+| Full gate                       | `pnpm build && pnpm test` on final task                                                                              |
 
 No new runtime dependencies (INTEGRATIONS.md unchanged).

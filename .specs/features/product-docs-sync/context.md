@@ -84,12 +84,12 @@ Locked product decisions for Execute. Do not re-open without user ack.
 
 ## Audit snapshot (planning time)
 
-| Doc | Drift found |
-| --- | ----------- |
-| `PROJECT.md` | Shipped “through M18”; backlog “M20–M22 — planned” |
-| `README.md` | No PathAliasMap / `--follow` note; How it works = single numstat story; no M23 hunk overlap |
-| `ARCHITECTURE.md` Key constraints | Dual-stream present; **missing** rename / not-`--follow` bullet |
-| `function-ast-coverage/design.md` | `Status: Planned` |
-| `per-function-churn/design.md` | `Status: Planned` |
-| `package-dx/design.md` | `Status: Planned` |
-| ROADMAP header / STATE Active | Already aligned with M24 Done + M26-first backlog (verify at Execute) |
+| Doc                               | Drift found                                                                                 |
+| --------------------------------- | ------------------------------------------------------------------------------------------- |
+| `PROJECT.md`                      | Shipped “through M18”; backlog “M20–M22 — planned”                                          |
+| `README.md`                       | No PathAliasMap / `--follow` note; How it works = single numstat story; no M23 hunk overlap |
+| `ARCHITECTURE.md` Key constraints | Dual-stream present; **missing** rename / not-`--follow` bullet                             |
+| `function-ast-coverage/design.md` | `Status: Planned`                                                                           |
+| `per-function-churn/design.md`    | `Status: Planned`                                                                           |
+| `package-dx/design.md`            | `Status: Planned`                                                                           |
+| ROADMAP header / STATE Active     | Already aligned with M24 Done + M26-first backlog (verify at Execute)                       |

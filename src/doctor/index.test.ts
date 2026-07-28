@@ -5,9 +5,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  HOTSPOT_SCANNER_CONFIG_FILENAME,
-} from "../config/load-config.js";
+import { HOTSPOT_SCANNER_CONFIG_FILENAME } from "../config/load-config.js";
 import { previewScanScope } from "../scan-preview.js";
 
 const execFileAsync = promisify(execFile);
@@ -53,9 +51,7 @@ const monorepoNestedFixture = join(
   "../../tests/fixtures/repos/monorepo-nested",
 );
 
-async function withTempDir(
-  run: (dir: string) => Promise<void>,
-): Promise<void> {
+async function withTempDir(run: (dir: string) => Promise<void>): Promise<void> {
   const dir = await mkdtemp(join(tmpdir(), "hotspot-doctor-"));
   try {
     await run(dir);
@@ -369,7 +365,9 @@ describe("runDoctor", () => {
           expect.objectContaining({
             id: "config",
             status: "pass",
-            message: expect.stringMatching(/Config file is valid:.*custom-config\.json/),
+            message: expect.stringMatching(
+              /Config file is valid:.*custom-config\.json/,
+            ),
           }),
         );
       },
@@ -428,7 +426,9 @@ describe("runDoctor", () => {
         expect.objectContaining({
           id: "tsconfig",
           status: "warn",
-          message: expect.stringMatching(/No tsconfig\.json or jsconfig\.json/i),
+          message: expect.stringMatching(
+            /No tsconfig\.json or jsconfig\.json/i,
+          ),
         }),
       );
     });
@@ -457,9 +457,9 @@ describe("runDoctor", () => {
     const result = await runDoctor(healthyDoctorOptions(smallTsFixture));
 
     expect(result.exitCode).toBe(0);
-    expect(result.findings.filter((finding) => finding.status === "fail")).toEqual(
-      [],
-    );
+    expect(
+      result.findings.filter((finding) => finding.status === "fail"),
+    ).toEqual([]);
     expect(result.findings).toContainEqual(
       expect.objectContaining({
         id: "scope",
@@ -477,14 +477,18 @@ describe("runDoctor", () => {
     const preview = await previewScanScope(scanOptions);
     const result = await runDoctor(healthyDoctorOptions(smallTsFixture));
 
-    const scopeFinding = result.findings.find((finding) => finding.id === "scope");
+    const scopeFinding = result.findings.find(
+      (finding) => finding.id === "scope",
+    );
     expect(scopeFinding).toEqual(
       expect.objectContaining({
         id: "scope",
         status: "pass",
       }),
     );
-    expect(scopeFinding?.message).toContain(`eligible files: ${preview.eligibleFileCount}`);
+    expect(scopeFinding?.message).toContain(
+      `eligible files: ${preview.eligibleFileCount}`,
+    );
     expect(scopeFinding?.message).toContain(`repo: ${preview.repoPath}`);
   });
 
@@ -498,7 +502,9 @@ describe("runDoctor", () => {
         id: "git-repo",
         status: "pass",
         message: expect.stringMatching(
-          new RegExp(`Git repository: ${monorepoNestedFixture.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`),
+          new RegExp(
+            `Git repository: ${monorepoNestedFixture.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
+          ),
         ),
       }),
     );
@@ -516,7 +522,9 @@ describe("runDoctor", () => {
     const preview = await previewScanScope({ repoPath: packagePath });
     const result = await runDoctor(healthyDoctorOptions(packagePath));
 
-    const scopeFinding = result.findings.find((finding) => finding.id === "scope");
+    const scopeFinding = result.findings.find(
+      (finding) => finding.id === "scope",
+    );
     expect(scopeFinding?.message).toContain(
       `eligible files: ${preview.eligibleFileCount}`,
     );
@@ -528,7 +536,9 @@ describe("runDoctor", () => {
       const result = await runDoctor(healthyDoctorOptions(repoPath));
 
       expect(result.exitCode).toBe(1);
-      expect(result.findings.map((finding) => finding.id)).not.toContain("scope");
+      expect(result.findings.map((finding) => finding.id)).not.toContain(
+        "scope",
+      );
     });
   });
 
@@ -542,7 +552,9 @@ describe("runDoctor", () => {
       includeTests: true,
     });
 
-    const scopeFinding = result.findings.find((finding) => finding.id === "scope");
+    const scopeFinding = result.findings.find(
+      (finding) => finding.id === "scope",
+    );
     expect(scopeFinding?.message).toContain(
       `eligible files: ${preview.eligibleFileCount}`,
     );
@@ -576,7 +588,9 @@ describe("runDoctor", () => {
         expect.objectContaining({
           id: "since",
           status: "warn",
-          message: expect.stringMatching(/No commits found for effective since/i),
+          message: expect.stringMatching(
+            /No commits found for effective since/i,
+          ),
         }),
       );
       expect(result.findings).toContainEqual(
@@ -639,7 +653,9 @@ describe("runDoctor", () => {
       const result = await runDoctor(healthyDoctorOptions(repoPath));
 
       expect(result.exitCode).toBe(1);
-      expect(result.findings.map((finding) => finding.id)).not.toContain("since");
+      expect(result.findings.map((finding) => finding.id)).not.toContain(
+        "since",
+      );
       expect(probeSinceWindowMock).not.toHaveBeenCalled();
     });
   });
@@ -660,7 +676,9 @@ describe("runDoctor", () => {
           expect.objectContaining({
             id: "config",
             status: "warn",
-            message: expect.stringMatching(/unknown config key\(s\) ignored: typoKey/i),
+            message: expect.stringMatching(
+              /unknown config key\(s\) ignored: typoKey/i,
+            ),
           }),
         );
       },
@@ -709,7 +727,9 @@ describe("runDoctor", () => {
           (finding) => finding.id === "config",
         );
         expect(configFinding?.status).toBe("warn");
-        expect(configFinding?.message).toMatch(/unknown config key\(s\) ignored: typoKey/);
+        expect(configFinding?.message).toMatch(
+          /unknown config key\(s\) ignored: typoKey/,
+        );
         expect(configFinding?.message).not.toMatch(/\$schema/);
       },
     );

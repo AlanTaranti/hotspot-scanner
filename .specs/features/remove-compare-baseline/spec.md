@@ -25,15 +25,15 @@ Compare and baseline workflows (`compare`, `baseline save`, `scan --baseline`, `
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| npm publish / npx | Deferred |
-| CI recipes / SARIF | Deferred |
-| Fail-on-warning | Deferred |
-| Item C (scan body full warnings) | Deferred |
-| Score formula / NCLOC changes | Unrelated |
-| Soft deprecation / legacy flags / empty compare stubs | Hard cut locked |
-| Reopening historical Done compare specs | Stay historical; M71 supersedes |
+| Feature                                               | Reason                          |
+| ----------------------------------------------------- | ------------------------------- |
+| npm publish / npx                                     | Deferred                        |
+| CI recipes / SARIF                                    | Deferred                        |
+| Fail-on-warning                                       | Deferred                        |
+| Item C (scan body full warnings)                      | Deferred                        |
+| Score formula / NCLOC changes                         | Unrelated                       |
+| Soft deprecation / legacy flags / empty compare stubs | Hard cut locked                 |
+| Reopening historical Done compare specs               | Stay historical; M71 supersedes |
 
 ---
 
@@ -151,24 +151,24 @@ Compare and baseline workflows (`compare`, `baseline save`, `scan --baseline`, `
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-1300 | P1: CLI — delete subcommands | Tasks | Pending |
-| HOTSPOT-1301 | P1: CLI — delete `--baseline` / `--strict` | Tasks | Pending |
-| HOTSPOT-1302 | P1: CLI — unknown → exit 2 | Tasks | Pending |
-| HOTSPOT-1303 | P1: Relocate `parseScanResult` | Tasks | Pending |
-| HOTSPOT-1304 | P1: Rename `ScanResultParseError` | Tasks | Pending |
-| HOTSPOT-1305 | P1: Public API trim | Tasks | Pending |
-| HOTSPOT-1306 | P1: Delete compare schema | Tasks | Pending |
-| HOTSPOT-1307 | P1: Scan schema stays 3.0 + contract tests | Tasks | Pending |
-| HOTSPOT-1308 | P1: Delete compare domain + report modules | Tasks | Pending |
-| HOTSPOT-1309 | P1: Remove Compare* types | Tasks | Pending |
-| HOTSPOT-1310 | P1: Remove `COMPARE_SINCE_MISMATCH` | Tasks | Pending |
-| HOTSPOT-1311 | P1: Drop `#compare` alias | Tasks | Pending |
-| HOTSPOT-1312 | P1: Purge fixtures + negative CLI tests | Tasks | Pending |
-| HOTSPOT-1313 | P1: Living docs / skills / AGENTS | Tasks | Pending |
-| HOTSPOT-1314 | P1: Supersession; sisters stay Done | Tasks | Pending |
-| HOTSPOT-1315 | P1: Keep scan `--explain` / formats | Tasks | Pending |
+| Requirement ID | Story                                      | Phase | Status  |
+| -------------- | ------------------------------------------ | ----- | ------- |
+| HOTSPOT-1300   | P1: CLI — delete subcommands               | Tasks | Pending |
+| HOTSPOT-1301   | P1: CLI — delete `--baseline` / `--strict` | Tasks | Pending |
+| HOTSPOT-1302   | P1: CLI — unknown → exit 2                 | Tasks | Pending |
+| HOTSPOT-1303   | P1: Relocate `parseScanResult`             | Tasks | Pending |
+| HOTSPOT-1304   | P1: Rename `ScanResultParseError`          | Tasks | Pending |
+| HOTSPOT-1305   | P1: Public API trim                        | Tasks | Pending |
+| HOTSPOT-1306   | P1: Delete compare schema                  | Tasks | Pending |
+| HOTSPOT-1307   | P1: Scan schema stays 3.0 + contract tests | Tasks | Pending |
+| HOTSPOT-1308   | P1: Delete compare domain + report modules | Tasks | Pending |
+| HOTSPOT-1309   | P1: Remove Compare* types                  | Tasks | Pending |
+| HOTSPOT-1310   | P1: Remove `COMPARE_SINCE_MISMATCH`        | Tasks | Pending |
+| HOTSPOT-1311   | P1: Drop `#compare` alias                  | Tasks | Pending |
+| HOTSPOT-1312   | P1: Purge fixtures + negative CLI tests    | Tasks | Pending |
+| HOTSPOT-1313   | P1: Living docs / skills / AGENTS          | Tasks | Pending |
+| HOTSPOT-1314   | P1: Supersession; sisters stay Done        | Tasks | Pending |
+| HOTSPOT-1315   | P1: Keep scan `--explain` / formats        | Tasks | Pending |
 
 **Coverage:** 16 total, mapped in tasks.md. IDs 1316–1329 reserved for Execute gaps.
 

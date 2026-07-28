@@ -23,17 +23,17 @@ Adopters who already know `scan` / `init` / `doctor` still type long flag names 
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| `.hotspotignore` / gitignore-style ignore file loader | **Rejected** — see [context.md](./context.md); use `exclude` / `--exclude` |
-| Reading `.gitignore` as scan scope | Separate product decision; not M54 |
-| New completion libraries (`@bomb.sh/tab`, Carapace, …) | No new runtime deps for Low/Small |
-| PowerShell / nushell completion | Not in ROADMAP shell list |
-| Dynamic completions (remote branches, live glob expansion beyond basic path helpers) | YAGNI MVP |
-| Changing PathScope defaults, ranking, or JSON `version: "1.0"` | Unrelated |
-| New `.hotspot-scanner.json` keys | Completion is CLI-only |
-| npm publish / package install paths | Deferred (STATE.md) |
-| M48 default artifact excludes / `.mjs`/`.cjs` | Sister milestone |
+| Feature                                                                              | Reason                                                                     |
+| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
+| `.hotspotignore` / gitignore-style ignore file loader                                | **Rejected** — see [context.md](./context.md); use `exclude` / `--exclude` |
+| Reading `.gitignore` as scan scope                                                   | Separate product decision; not M54                                         |
+| New completion libraries (`@bomb.sh/tab`, Carapace, …)                               | No new runtime deps for Low/Small                                          |
+| PowerShell / nushell completion                                                      | Not in ROADMAP shell list                                                  |
+| Dynamic completions (remote branches, live glob expansion beyond basic path helpers) | YAGNI MVP                                                                  |
+| Changing PathScope defaults, ranking, or JSON `version: "1.0"`                       | Unrelated                                                                  |
+| New `.hotspot-scanner.json` keys                                                     | Completion is CLI-only                                                     |
+| npm publish / package install paths                                                  | Deferred (STATE.md)                                                        |
+| M48 default artifact excludes / `.mjs`/`.cjs`                                        | Sister milestone                                                           |
 
 ---
 
@@ -90,16 +90,16 @@ Adopters who already know `scan` / `init` / `doctor` still type long flag names 
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-840 | P1: `completion <shell>` stdout + exit 0 | Tasks | Pending |
-| HOTSPOT-841 | P1: bash / zsh / fish supported | Tasks | Pending |
-| HOTSPOT-842 | P1: invalid shell → exit 2 | Tasks | Pending |
-| HOTSPOT-843 | P1: commands + representative flags in scripts | Tasks | Pending |
-| HOTSPOT-844 | P1: help documents completion | Tasks | Pending |
-| HOTSPOT-845 | P1: docs reject `.hotspotignore`; point to exclude | Tasks | Pending |
-| HOTSPOT-846 | P1: README completion install + ARCHITECTURE sync | Tasks | Pending |
-| HOTSPOT-847–859 | Reserved | — | — |
+| Requirement ID  | Story                                              | Phase | Status  |
+| --------------- | -------------------------------------------------- | ----- | ------- |
+| HOTSPOT-840     | P1: `completion <shell>` stdout + exit 0           | Tasks | Pending |
+| HOTSPOT-841     | P1: bash / zsh / fish supported                    | Tasks | Pending |
+| HOTSPOT-842     | P1: invalid shell → exit 2                         | Tasks | Pending |
+| HOTSPOT-843     | P1: commands + representative flags in scripts     | Tasks | Pending |
+| HOTSPOT-844     | P1: help documents completion                      | Tasks | Pending |
+| HOTSPOT-845     | P1: docs reject `.hotspotignore`; point to exclude | Tasks | Pending |
+| HOTSPOT-846     | P1: README completion install + ARCHITECTURE sync  | Tasks | Pending |
+| HOTSPOT-847–859 | Reserved                                           | —     | —       |
 
 **Coverage:** 7 mapped, 13 reserved, 0 unmapped ⚠️
 

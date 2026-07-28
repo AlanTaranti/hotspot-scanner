@@ -265,14 +265,16 @@ describe("loadHotspotScannerConfig", () => {
       },
       async (repoPath) => {
         const nestedRepoPath = join(repoPath, "repo", "nested");
-        await expect(loadHotspotScannerConfig(nestedRepoPath)).resolves.toEqual({
-          config: {
-            since: "workspace default",
-            top: 20,
+        await expect(loadHotspotScannerConfig(nestedRepoPath)).resolves.toEqual(
+          {
+            config: {
+              since: "workspace default",
+              top: 20,
+            },
+            unknownKeys: [],
+            path: resolve(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
           },
-          unknownKeys: [],
-          path: resolve(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
-        });
+        );
       },
     );
   });
@@ -316,10 +318,16 @@ describe("loadHotspotScannerConfig", () => {
         }),
       },
       async (repoPath) => {
-        const explicitPath = join(repoPath, "explicit", ".hotspot-scanner.json");
+        const explicitPath = join(
+          repoPath,
+          "explicit",
+          ".hotspot-scanner.json",
+        );
         const nestedRepoPath = join(repoPath, "repo", "nested");
         await expect(
-          loadHotspotScannerConfig(nestedRepoPath, { configPath: explicitPath }),
+          loadHotspotScannerConfig(nestedRepoPath, {
+            configPath: explicitPath,
+          }),
         ).resolves.toEqual({
           config: {
             since: "explicit config",
@@ -359,14 +367,16 @@ describe("loadHotspotScannerConfig", () => {
       },
       async (repoPath) => {
         const nestedRepoPath = join(repoPath, "repo", "nested");
-        await expect(loadHotspotScannerConfig(nestedRepoPath)).resolves.toEqual({
-          config: {
-            since: "from-json",
-            top: 5,
+        await expect(loadHotspotScannerConfig(nestedRepoPath)).resolves.toEqual(
+          {
+            config: {
+              since: "from-json",
+              top: 5,
+            },
+            unknownKeys: [],
+            path: resolve(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
           },
-          unknownKeys: [],
-          path: resolve(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME),
-        });
+        );
       },
     );
   });

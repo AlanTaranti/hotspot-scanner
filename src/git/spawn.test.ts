@@ -224,7 +224,10 @@ describe("streamGitLog", () => {
   it("invokes onSpawnArgv with argv before spawn", async () => {
     createMockChild(["line1"], 0);
     const onSpawnArgv = vi.fn();
-    const expectedArgv = buildGitLogArgv({ repoPath: "/repo", since: "1 year ago" });
+    const expectedArgv = buildGitLogArgv({
+      repoPath: "/repo",
+      since: "1 year ago",
+    });
 
     for await (const _line of streamGitLog({
       repoPath: "/repo",

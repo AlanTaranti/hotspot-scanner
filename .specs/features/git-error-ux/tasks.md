@@ -39,49 +39,49 @@ flowchart LR
 
 | Task | Depends on (declared) | Diagram shows | Match |
 | ---- | --------------------- | ------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T2 | T2 → T3 | ✅ |
-| T4 | T3 | T3 → T4 | ✅ |
+| T1   | None                  | Root          | ✅    |
+| T2   | T1                    | T1 → T2       | ✅    |
+| T3   | T2                    | T2 → T3       | ✅    |
+| T4   | T3                    | T3 → T4       | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | git (helper) | `src/git/git-error-hint.ts`, `src/git/git-error-hint.test.ts` | Sole owner of new helper |
-| T2 | git (spawn + ls-files) | `src/git/spawn.ts`, `src/git/spawn.test.ts`, `src/git/ls-files.ts`, `src/git/ls-files.test.ts` | After T1; single owner for both constructors in one task (avoids split race on shared helper API) |
-| T3 | docs | `.specs/codebase/ARCHITECTURE.md`, `INTEGRATIONS.md`, optionally `STRUCTURE.md` / README | No src overlap |
-| T4 | gate | none (verify) | After T3 |
+| Task | Module owner           | Paths                                                                                          | Conflict                                                                                          |
+| ---- | ---------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| T1   | git (helper)           | `src/git/git-error-hint.ts`, `src/git/git-error-hint.test.ts`                                  | Sole owner of new helper                                                                          |
+| T2   | git (spawn + ls-files) | `src/git/spawn.ts`, `src/git/spawn.test.ts`, `src/git/ls-files.ts`, `src/git/ls-files.test.ts` | After T1; single owner for both constructors in one task (avoids split race on shared helper API) |
+| T3   | docs                   | `.specs/codebase/ARCHITECTURE.md`, `INTEGRATIONS.md`, optionally `STRUCTURE.md` / README       | No src overlap                                                                                    |
+| T4   | gate                   | none (verify)                                                                                  | After T3                                                                                          |
 
 No `[P]` tasks — sequential chain; T2 intentionally owns both error classes to keep one coherent message builder.
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task says | Match |
-| ---- | ---------- | ---------------------- | --------- | ----- |
-| T1 | `src/git/` helper | Unit; mock not required | unit in same task | ✅ |
-| T2 | `src/git/spawn.ts`, `ls-files.ts` | Unit; mock spawn at adapter | unit in same task | ✅ |
-| T3 | Docs | none | none | ✅ |
-| T4 | Full project | Gate | `pnpm build && pnpm test` | ✅ |
+| Task | Code layer                        | TESTING.md expectation      | Task says                 | Match |
+| ---- | --------------------------------- | --------------------------- | ------------------------- | ----- |
+| T1   | `src/git/` helper                 | Unit; mock not required     | unit in same task         | ✅    |
+| T2   | `src/git/spawn.ts`, `ls-files.ts` | Unit; mock spawn at adapter | unit in same task         | ✅    |
+| T3   | Docs                              | none                        | none                      | ✅    |
+| T4   | Full project                      | Gate                        | `pnpm build && pnpm test` | ✅    |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | One pure helper + tests | ✅ Atomic |
-| T2 | Wire two constructors + update existing tests (same domain) | ✅ Cohesive |
-| T3 | Living docs | ✅ Granular |
-| T4 | Project gate | ✅ Granular |
+| Task | Scope                                                       | Status      |
+| ---- | ----------------------------------------------------------- | ----------- |
+| T1   | One pure helper + tests                                     | ✅ Atomic   |
+| T2   | Wire two constructors + update existing tests (same domain) | ✅ Cohesive |
+| T3   | Living docs                                                 | ✅ Granular |
+| T4   | Project gate                                                | ✅ Granular |
 
 ### Requirement → Task Mapping
 
-| Requirement ID | Task |
-| -------------- | ---- |
-| HOTSPOT-1141, HOTSPOT-1142, HOTSPOT-1143, HOTSPOT-1144 | T1 |
-| HOTSPOT-1140, HOTSPOT-1145, HOTSPOT-1146, HOTSPOT-1147, HOTSPOT-1148, HOTSPOT-1149 | T2 |
-| HOTSPOT-1150 | T3 |
-| (gate) | T4 |
-| HOTSPOT-1151–1159 | Reserved — unused |
+| Requirement ID                                                                     | Task              |
+| ---------------------------------------------------------------------------------- | ----------------- |
+| HOTSPOT-1141, HOTSPOT-1142, HOTSPOT-1143, HOTSPOT-1144                             | T1                |
+| HOTSPOT-1140, HOTSPOT-1145, HOTSPOT-1146, HOTSPOT-1147, HOTSPOT-1148, HOTSPOT-1149 | T2                |
+| HOTSPOT-1150                                                                       | T3                |
+| (gate)                                                                             | T4                |
+| HOTSPOT-1151–1159                                                                  | Reserved — unused |
 
 ---
 

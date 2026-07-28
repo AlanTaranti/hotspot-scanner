@@ -83,7 +83,10 @@ export function buildGitShowFileArgv(
   return ["-C", options.repoPath, "show", object];
 }
 
-function parseFileLogOutput(output: string, fallbackPath: string): FileRevisionRef[] {
+function parseFileLogOutput(
+  output: string,
+  fallbackPath: string,
+): FileRevisionRef[] {
   const revisions: FileRevisionRef[] = [];
   let pending: { rev: string; date?: string } | undefined;
 

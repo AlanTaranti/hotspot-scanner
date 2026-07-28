@@ -20,15 +20,15 @@ File-mode scans default to M34 git∥complexity overlap for wall-clock wins, but
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Pathspec batching / mega-commit threshold (M47) | Separate milestone |
-| SIGINT / process-level AbortSignal (M51) | Separate milestone; M51 also excludes bench harness |
-| `.hotspot-scanner.json` `sequential` key | Locked CLI-only ([context.md](./context.md)) |
-| CI wall-clock / fail-on-slow gates | Existing performance policy |
-| Changing `--concurrency` / worker pool defaults | M28/M36; orthogonal to stage overlap |
-| Function-churn ∥ numstat | M34 boundary unchanged |
-| Ranking / JSON schema / warning code changes | Locked unchanged |
+| Feature                                         | Reason                                              |
+| ----------------------------------------------- | --------------------------------------------------- |
+| Pathspec batching / mega-commit threshold (M47) | Separate milestone                                  |
+| SIGINT / process-level AbortSignal (M51)        | Separate milestone; M51 also excludes bench harness |
+| `.hotspot-scanner.json` `sequential` key        | Locked CLI-only ([context.md](./context.md))        |
+| CI wall-clock / fail-on-slow gates              | Existing performance policy                         |
+| Changing `--concurrency` / worker pool defaults | M28/M36; orthogonal to stage overlap                |
+| Function-churn ∥ numstat                        | M34 boundary unchanged                              |
+| Ranking / JSON schema / warning code changes    | Locked unchanged                                    |
 
 ---
 
@@ -145,28 +145,28 @@ File-mode scans default to M34 git∥complexity overlap for wall-clock wins, but
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-710 | P1: Sequential file-mode opt-out | Tasks | In Tasks |
-| HOTSPOT-711 | P1: `--no-overlap` alias | Tasks | In Tasks |
-| HOTSPOT-712 | P1: Default overlap unchanged | Tasks | In Tasks |
-| HOTSPOT-713 | P1: `ScanOptions.sequential` CLI-only | Tasks | In Tasks |
-| HOTSPOT-714 | P1: Function mode accepts flag | Tasks | In Tasks |
-| HOTSPOT-715 | P1: Fail-closed under sequential | Tasks | In Tasks |
-| HOTSPOT-716 | P1: Rankings/JSON equivalence | Tasks | In Tasks |
-| HOTSPOT-717 | P1: Help documents primary + alias | Tasks | In Tasks |
-| HOTSPOT-718 | P2: Wired on scan/compare/baseline save | Tasks | In Tasks |
-| HOTSPOT-719 | P2: Unit structural non-overlap proof | Tasks | In Tasks |
-| HOTSPOT-720 | P2: Integration overlap vs sequential parity | Tasks | In Tasks |
-| HOTSPOT-721 | P1: `pnpm bench` script | Tasks | In Tasks |
-| HOTSPOT-722 | P1: Bench wall-clock | Tasks | In Tasks |
-| HOTSPOT-723 | P1: Bench counts | Tasks | In Tasks |
-| HOTSPOT-724 | P1: Bench A/B overlap vs sequential | Tasks | In Tasks |
-| HOTSPOT-725 | P1: Bench not in `pnpm test` / CI timing | Tasks | In Tasks |
-| HOTSPOT-726 | P1: Update `benchmark-scan.md` | Tasks | In Tasks |
-| HOTSPOT-727 | P2: ARCHITECTURE sequential note | Tasks | In Tasks |
-| HOTSPOT-728 | P2: CONCERNS / TESTING policy note | Tasks | In Tasks |
-| HOTSPOT-729 | P2: Full project gate | Tasks | In Tasks |
+| Requirement ID | Story                                        | Phase | Status   |
+| -------------- | -------------------------------------------- | ----- | -------- |
+| HOTSPOT-710    | P1: Sequential file-mode opt-out             | Tasks | In Tasks |
+| HOTSPOT-711    | P1: `--no-overlap` alias                     | Tasks | In Tasks |
+| HOTSPOT-712    | P1: Default overlap unchanged                | Tasks | In Tasks |
+| HOTSPOT-713    | P1: `ScanOptions.sequential` CLI-only        | Tasks | In Tasks |
+| HOTSPOT-714    | P1: Function mode accepts flag               | Tasks | In Tasks |
+| HOTSPOT-715    | P1: Fail-closed under sequential             | Tasks | In Tasks |
+| HOTSPOT-716    | P1: Rankings/JSON equivalence                | Tasks | In Tasks |
+| HOTSPOT-717    | P1: Help documents primary + alias           | Tasks | In Tasks |
+| HOTSPOT-718    | P2: Wired on scan/compare/baseline save      | Tasks | In Tasks |
+| HOTSPOT-719    | P2: Unit structural non-overlap proof        | Tasks | In Tasks |
+| HOTSPOT-720    | P2: Integration overlap vs sequential parity | Tasks | In Tasks |
+| HOTSPOT-721    | P1: `pnpm bench` script                      | Tasks | In Tasks |
+| HOTSPOT-722    | P1: Bench wall-clock                         | Tasks | In Tasks |
+| HOTSPOT-723    | P1: Bench counts                             | Tasks | In Tasks |
+| HOTSPOT-724    | P1: Bench A/B overlap vs sequential          | Tasks | In Tasks |
+| HOTSPOT-725    | P1: Bench not in `pnpm test` / CI timing     | Tasks | In Tasks |
+| HOTSPOT-726    | P1: Update `benchmark-scan.md`               | Tasks | In Tasks |
+| HOTSPOT-727    | P2: ARCHITECTURE sequential note             | Tasks | In Tasks |
+| HOTSPOT-728    | P2: CONCERNS / TESTING policy note           | Tasks | In Tasks |
+| HOTSPOT-729    | P2: Full project gate                        | Tasks | In Tasks |
 
 **ID range:** HOTSPOT-710 … HOTSPOT-729 (exclusive use for M49)  
 **Coverage:** 20 total, 20 mapped to tasks, 0 unmapped

@@ -26,20 +26,20 @@
 
 **Choice:** CLI boolean **`--include-tests`** (same category as `--quiet` / `--dry-run` — **CLI-only**, no config key).
 
-| Flag / API | Effect |
-| ---------- | ------ |
-| Default / omitted | Artifact defaults + **test defaults** + user/config `--exclude` |
+| Flag / API                                           | Effect                                                                   |
+| ---------------------------------------------------- | ------------------------------------------------------------------------ |
+| Default / omitted                                    | Artifact defaults + **test defaults** + user/config `--exclude`          |
 | `--include-tests` / `ScanOptions.includeTests: true` | Artifact defaults only + user/config `--exclude` (test built-ins lifted) |
 
 **Not cleared by `--include-tests`:** User/config `--exclude` remains **additive** and still applies.
 
 **Forbidden:**
 
-| Option | Why |
-| ------ | --- |
-| `--no-default-excludes` | M7 lock — reject again |
-| Config key `includeTests` | YAGNI — CLI/API only |
-| Config key that removes artifact defaults | Forbidden |
+| Option                                    | Why                    |
+| ----------------------------------------- | ---------------------- |
+| `--no-default-excludes`                   | M7 lock — reject again |
+| Config key `includeTests`                 | YAGNI — CLI/API only   |
+| Config key that removes artifact defaults | Forbidden              |
 
 **Status:** **Confirmed — user locked**
 
@@ -49,16 +49,16 @@
 
 **Choice — locked candidate set** (eligible extensions remain `.ts`/`.tsx`/`.js`/`.jsx` only — **no** `.mts`/`.cts`):
 
-| Pattern | Intent |
-| ------- | ------ |
-| `**/*.test.ts` | Vitest/Jest co-located tests |
-| `**/*.test.tsx` | React co-located tests |
-| `**/*.test.js` | JS co-located tests |
-| `**/*.test.jsx` | JSX co-located tests |
-| `**/*.spec.ts` | Spec suffix (Jest/Cypress-style) |
-| `**/*.spec.tsx` | Spec suffix TSX |
-| `**/*.spec.js` | Spec suffix JS |
-| `**/*.spec.jsx` | Spec suffix JSX |
+| Pattern           | Intent                                              |
+| ----------------- | --------------------------------------------------- |
+| `**/*.test.ts`    | Vitest/Jest co-located tests                        |
+| `**/*.test.tsx`   | React co-located tests                              |
+| `**/*.test.js`    | JS co-located tests                                 |
+| `**/*.test.jsx`   | JSX co-located tests                                |
+| `**/*.spec.ts`    | Spec suffix (Jest/Cypress-style)                    |
+| `**/*.spec.tsx`   | Spec suffix TSX                                     |
+| `**/*.spec.js`    | Spec suffix JS                                      |
+| `**/*.spec.jsx`   | Spec suffix JSX                                     |
 | `**/__tests__/**` | Jest/Vitest `__tests__` directories (files + prune) |
 
 **Design refinement allowed:** Adjust only if unit tests show `shouldPruneDirectory("__tests__")` needs an extra pattern form (e.g. explicit `**/__tests__` sibling) — do **not** expand suffixes or add unrelated globs without reopening with user.
@@ -96,13 +96,13 @@
 
 ## Decision: Out of scope / YAGNI (LOCKED)
 
-| Item | Reason |
-| ---- | ------ |
-| New fixture repo | Unit tests on `scope.test.ts` (+ CLI/preview) suffice |
-| Config `includeTests` | CLI/API only |
-| `--no-default-excludes` | M7 forbidden |
-| `.mts` / `.cts` test suffixes | Eligible extensions unchanged |
-| Changing JSON Schema / ranking formulas | Scope/filter only |
+| Item                                    | Reason                                                |
+| --------------------------------------- | ----------------------------------------------------- |
+| New fixture repo                        | Unit tests on `scope.test.ts` (+ CLI/preview) suffice |
+| Config `includeTests`                   | CLI/API only                                          |
+| `--no-default-excludes`                 | M7 forbidden                                          |
+| `.mts` / `.cts` test suffixes           | Eligible extensions unchanged                         |
+| Changing JSON Schema / ranking formulas | Scope/filter only                                     |
 
 **Status:** **Confirmed**
 

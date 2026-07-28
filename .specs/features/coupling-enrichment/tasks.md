@@ -56,58 +56,58 @@ flowchart TD
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (declared) | Diagram shows                         | Match |
-| ---- | --------------------- | ------------------------------------- | ----- |
-| T1   | None                  | Root                                  | ✅    |
-| T2   | None                  | Root                                  | ✅    |
-| T3   | T1, T2                | T1→T3, T2→T3                          | ✅    |
-| T4   | T3                    | T3→T4                                 | ✅    |
-| T5   | T3                    | T3→T5                                 | ✅    |
-| T6   | T4, T5                | T4→T6, T5→T6                          | ✅    |
-| T7   | T6                    | T6→T7                                 | ✅    |
+| Task | Depends on (declared) | Diagram shows | Match |
+| ---- | --------------------- | ------------- | ----- |
+| T1   | None                  | Root          | ✅    |
+| T2   | None                  | Root          | ✅    |
+| T3   | T1, T2                | T1→T3, T2→T3  | ✅    |
+| T4   | T3                    | T3→T4         | ✅    |
+| T5   | T3                    | T3→T5         | ✅    |
+| T6   | T4, T5                | T4→T6, T5→T6  | ✅    |
+| T7   | T6                    | T6→T7         | ✅    |
 
 ### Path Conflict Check
 
-| Task | Module owner        | Paths                                                                                         | Conflict with parallel peers        |
-| ---- | ------------------- | --------------------------------------------------------------------------------------------- | ----------------------------------- |
-| T1   | `src/types/`        | `domain.ts` (+ export if needed)                                                              | Disjoint from T2                    |
-| T2   | `src/scoring/`      | `tsconfig-path-map.ts`, `tsconfig-path-map.test.ts`, optional `scoring/index.ts` export       | Disjoint from T1; **do not** edit enricher yet |
-| T3   | `src/scoring/`      | `enrich-coupling-static.ts`, `enrich-coupling-static.test.ts`                                 | After T2 — sole enricher owner      |
-| T4   | `schemas/` + compare| `schemas/scan-result.json`, `src/compare/load-baseline.ts`, contract/baseline tests           | Disjoint from T5                    |
-| T5   | `src/report/`       | table/markdown/csv/compare-* + report fixtures/tests                                          | Disjoint from T4 — **[P] OK**       |
-| T6   | fixtures + scan     | `tests/fixtures/**` as needed, scan/integration tests                                         | After T4+T5                         |
-| T7   | docs                | ARCHITECTURE, CONCERNS, README/STRUCTURE as needed                                            | After T6                            |
+| Task | Module owner         | Paths                                                                                   | Conflict with parallel peers                   |
+| ---- | -------------------- | --------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| T1   | `src/types/`         | `domain.ts` (+ export if needed)                                                        | Disjoint from T2                               |
+| T2   | `src/scoring/`       | `tsconfig-path-map.ts`, `tsconfig-path-map.test.ts`, optional `scoring/index.ts` export | Disjoint from T1; **do not** edit enricher yet |
+| T3   | `src/scoring/`       | `enrich-coupling-static.ts`, `enrich-coupling-static.test.ts`                           | After T2 — sole enricher owner                 |
+| T4   | `schemas/` + compare | `schemas/scan-result.json`, `src/compare/load-baseline.ts`, contract/baseline tests     | Disjoint from T5                               |
+| T5   | `src/report/`        | table/markdown/csv/compare-* + report fixtures/tests                                    | Disjoint from T4 — **[P] OK**                  |
+| T6   | fixtures + scan      | `tests/fixtures/**` as needed, scan/integration tests                                   | After T4+T5                                    |
+| T7   | docs                 | ARCHITECTURE, CONCERNS, README/STRUCTURE as needed                                      | After T6                                       |
 
 > **[P]**: T1∥T2 (phase 1); T4∥T5 (phase 3). T3 owns all enricher edits alone.
 
 ### Test Co-location Validation
 
-| Task | Code layer created/modified              | Matrix / TESTING.md expectation      | Task Tests field                                      | Match |
-| ---- | ---------------------------------------- | ------------------------------------ | ----------------------------------------------------- | ----- |
-| T1   | `src/types/`                             | none (excluded from coverage)        | none                                                  | ✅    |
-| T2   | `src/scoring/tsconfig-path-map.ts`       | unit required                        | unit — `tsconfig-path-map.test.ts`                    | ✅    |
-| T3   | `src/scoring/enrich-coupling-static.ts`  | unit required                        | unit — `enrich-coupling-static.test.ts`               | ✅    |
-| T4   | `schemas/` + `src/compare/`              | unit + contract                      | unit + contract — load-baseline + json-schema tests   | ✅    |
-| T5   | `src/report/`                            | unit required                        | unit — affected `src/report/*.test.ts`                | ✅    |
-| T6   | scan / fixtures                          | integration                          | integration — scan/enrich fixture asserts             | ✅    |
-| T7   | docs                                     | full gate                            | gate — `pnpm build && pnpm test`                      | ✅    |
+| Task | Code layer created/modified             | Matrix / TESTING.md expectation | Task Tests field                                    | Match |
+| ---- | --------------------------------------- | ------------------------------- | --------------------------------------------------- | ----- |
+| T1   | `src/types/`                            | none (excluded from coverage)   | none                                                | ✅    |
+| T2   | `src/scoring/tsconfig-path-map.ts`      | unit required                   | unit — `tsconfig-path-map.test.ts`                  | ✅    |
+| T3   | `src/scoring/enrich-coupling-static.ts` | unit required                   | unit — `enrich-coupling-static.test.ts`             | ✅    |
+| T4   | `schemas/` + `src/compare/`             | unit + contract                 | unit + contract — load-baseline + json-schema tests | ✅    |
+| T5   | `src/report/`                           | unit required                   | unit — affected `src/report/*.test.ts`              | ✅    |
+| T6   | scan / fixtures                         | integration                     | integration — scan/enrich fixture asserts           | ✅    |
+| T7   | docs                                    | full gate                       | gate — `pnpm build && pnpm test`                    | ✅    |
 
 ### Requirement → Task Mapping
 
-| Requirement ID | Task(s)   |
-| -------------- | --------- |
-| HOTSPOT-231    | T1, T3    |
-| HOTSPOT-232    | T1, T3    |
-| HOTSPOT-233    | T2, T3    |
-| HOTSPOT-234    | T3        |
-| HOTSPOT-235    | T3        |
-| HOTSPOT-236    | T3        |
-| HOTSPOT-237    | T2, T3    |
-| HOTSPOT-238    | T4        |
-| HOTSPOT-239    | T4        |
-| HOTSPOT-240    | T5        |
-| HOTSPOT-241    | T3, T6, T7|
-| HOTSPOT-242    | T7        |
+| Requirement ID | Task(s)    |
+| -------------- | ---------- |
+| HOTSPOT-231    | T1, T3     |
+| HOTSPOT-232    | T1, T3     |
+| HOTSPOT-233    | T2, T3     |
+| HOTSPOT-234    | T3         |
+| HOTSPOT-235    | T3         |
+| HOTSPOT-236    | T3         |
+| HOTSPOT-237    | T2, T3     |
+| HOTSPOT-238    | T4         |
+| HOTSPOT-239    | T4         |
+| HOTSPOT-240    | T5         |
+| HOTSPOT-241    | T3, T6, T7 |
+| HOTSPOT-242    | T7         |
 
 **Coverage:** 12 total, 12 mapped, 0 unmapped
 
@@ -358,27 +358,27 @@ Phase 4 (Sequential):
 
 ## Task Granularity Check
 
-| Task | Scope                                      | Status      |
-| ---- | ------------------------------------------ | ----------- |
-| T1   | Domain type fields                         | ✅ Granular |
-| T2   | One path-map module + tests                | ✅ Granular |
-| T3   | Enricher behavior + tests (cohesive file)  | ✅ OK       |
-| T4   | Schema + baseline contract                 | ✅ Granular |
-| T5   | Reporter surfaces                          | ✅ Granular |
-| T6   | Integration wiring/fixtures                | ✅ Granular |
-| T7   | Docs + full gate                           | ✅ Granular |
+| Task | Scope                                     | Status      |
+| ---- | ----------------------------------------- | ----------- |
+| T1   | Domain type fields                        | ✅ Granular |
+| T2   | One path-map module + tests               | ✅ Granular |
+| T3   | Enricher behavior + tests (cohesive file) | ✅ OK       |
+| T4   | Schema + baseline contract                | ✅ Granular |
+| T5   | Reporter surfaces                         | ✅ Granular |
+| T6   | Integration wiring/fixtures               | ✅ Granular |
+| T7   | Docs + full gate                          | ✅ Granular |
 
 ---
 
 ## Validate Before Presenting (planning checks)
 
-| Check                         | Result |
-| ----------------------------- | ------ |
-| 1. Task granularity           | ✅     |
-| 2. Diagram ↔ Depends on       | ✅     |
-| 3. Test co-location           | ✅     |
-| 4. Path conflict              | ✅     |
-| 5. Status                     | **Planned** |
+| Check                   | Result      |
+| ----------------------- | ----------- |
+| 1. Task granularity     | ✅          |
+| 2. Diagram ↔ Depends on | ✅          |
+| 3. Test co-location     | ✅          |
+| 4. Path conflict        | ✅          |
+| 5. Status               | **Planned** |
 
 ---
 

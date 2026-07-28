@@ -21,37 +21,37 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (body) | Diagram | Status |
-| ---- | ----------------- | ------- | ------ |
-| T1 | None | Root | ✅ Match |
-| T2 | T1 | T1 → T2 | ✅ Match |
-| T3 | T2 | T2 → T3 | ✅ Match |
+| Task | Depends on (body) | Diagram | Status   |
+| ---- | ----------------- | ------- | -------- |
+| T1   | None              | Root    | ✅ Match |
+| T2   | T1                | T1 → T2 | ✅ Match |
+| T3   | T2                | T2 → T3 | ✅ Match |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | `src/complexity/` | `analyze-file.ts`, `analyze-file.test.ts` | Sole owner — sequential |
-| T2 | `tests/fixtures/complexity/` + complexity tests | New fixtures; may touch `analyze-file.test.ts` | After T1 — same domain, sequential (no `[P]`) |
-| T3 | docs (`.specs/codebase/`) | `ARCHITECTURE.md`, `CONCERNS.md`; ROADMAP sync deferred to parent | After T2 — no src overlap with unfinished T1/T2 |
+| Task | Module owner                                    | Paths                                                             | Conflict                                        |
+| ---- | ----------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------- |
+| T1   | `src/complexity/`                               | `analyze-file.ts`, `analyze-file.test.ts`                         | Sole owner — sequential                         |
+| T2   | `tests/fixtures/complexity/` + complexity tests | New fixtures; may touch `analyze-file.test.ts`                    | After T1 — same domain, sequential (no `[P]`)   |
+| T3   | docs (`.specs/codebase/`)                       | `ARCHITECTURE.md`, `CONCERNS.md`; ROADMAP sync deferred to parent | After T2 — no src overlap with unfinished T1/T2 |
 
 **Verdict:** No parallel path conflicts. All tasks sequential under `src/complexity/` + fixtures + docs.
 
 ### Test Co-location Validation
 
-| Task | Code layer | Matrix / project practice | Task `Tests` | Status |
-| ---- | ---------- | ------------------------- | ------------ | ------ |
-| T1 | complexity `analyze-file` | unit + complexity fixtures (TESTING.md) | unit (same task) | ✅ OK |
-| T2 | complexity fixtures | Known McCabe values | unit / fixture tests (same task) | ✅ OK |
-| T3 | docs only | none required for docs | none + full gate | ✅ OK |
+| Task | Code layer                | Matrix / project practice               | Task `Tests`                     | Status |
+| ---- | ------------------------- | --------------------------------------- | -------------------------------- | ------ |
+| T1   | complexity `analyze-file` | unit + complexity fixtures (TESTING.md) | unit (same task)                 | ✅ OK  |
+| T2   | complexity fixtures       | Known McCabe values                     | unit / fixture tests (same task) | ✅ OK  |
+| T3   | docs only                 | none required for docs                  | none + full gate                 | ✅ OK  |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | One module (`analyze-file` + co-located tests) | ✅ Cohesive |
-| T2 | Fixture family + assertions | ✅ Cohesive |
-| T3 | Docs + gate | ✅ Cohesive |
+| Task | Scope                                          | Status      |
+| ---- | ---------------------------------------------- | ----------- |
+| T1   | One module (`analyze-file` + co-located tests) | ✅ Cohesive |
+| T2   | Fixture family + assertions                    | ✅ Cohesive |
+| T3   | Docs + gate                                    | ✅ Cohesive |
 
 ---
 
@@ -183,15 +183,15 @@ No `[P]` tasks — all share `src/complexity/` / fixture test files.
 
 | Requirement ID | Task(s) |
 | -------------- | ------- |
-| HOTSPOT-281 | T1 |
-| HOTSPOT-282 | T1 |
-| HOTSPOT-283 | T1 |
-| HOTSPOT-284 | T1 |
-| HOTSPOT-285 | T1, T3 |
-| HOTSPOT-286 | T2 |
-| HOTSPOT-287 | T1, T2 |
-| HOTSPOT-288 | T3 |
-| HOTSPOT-289 | T3 |
-| HOTSPOT-290 | T2 |
+| HOTSPOT-281    | T1      |
+| HOTSPOT-282    | T1      |
+| HOTSPOT-283    | T1      |
+| HOTSPOT-284    | T1      |
+| HOTSPOT-285    | T1, T3  |
+| HOTSPOT-286    | T2      |
+| HOTSPOT-287    | T1, T2  |
+| HOTSPOT-288    | T3      |
+| HOTSPOT-289    | T3      |
+| HOTSPOT-290    | T2      |
 
 **Unmapped P1:** none

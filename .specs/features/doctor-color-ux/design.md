@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/doctor-color-ux/spec.md`](./spec.md)  
 **Context**: [`.specs/features/doctor-color-ux/context.md`](./context.md)  
-**Status**: Specs Planned  
+**Status**: Specs Planned
 
 ---
 
@@ -32,21 +32,21 @@ JSON path unchanged: `formatDoctorJsonReport(result)` — never receives color.
 
 ## Code Reuse Analysis
 
-| Component | Location | How to use |
-| --------- | -------- | ---------- |
-| ANSI + `stripAnsi` | `src/report/color.ts` | Add `paintDoctorStatus(status, enabled)`; reuse `RESET` / red / yellow; add green if needed |
-| Table color gate | `bin/hotspot-scanner.ts` `resolveTableColor` | Mirror as `resolveDoctorColor` with `format === "text"` allowlist; no `outputPath` |
-| JSON formatter | `src/doctor/format.ts` | Keep; add text formatter alongside |
-| Bin `formatDoctorFindings` | `bin/hotspot-scanner.ts` | Replace call sites with `formatDoctorTextReport`; delete local helper |
-| Doctor CLI tests | `bin/hotspot-scanner.test.ts` | Extend `runCli doctor` cases; use `stripAnsi` where needed |
+| Component                  | Location                                     | How to use                                                                                  |
+| -------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| ANSI + `stripAnsi`         | `src/report/color.ts`                        | Add `paintDoctorStatus(status, enabled)`; reuse `RESET` / red / yellow; add green if needed |
+| Table color gate           | `bin/hotspot-scanner.ts` `resolveTableColor` | Mirror as `resolveDoctorColor` with `format === "text"` allowlist; no `outputPath`          |
+| JSON formatter             | `src/doctor/format.ts`                       | Keep; add text formatter alongside                                                          |
+| Bin `formatDoctorFindings` | `bin/hotspot-scanner.ts`                     | Replace call sites with `formatDoctorTextReport`; delete local helper                       |
+| Doctor CLI tests           | `bin/hotspot-scanner.test.ts`                | Extend `runCli doctor` cases; use `stripAnsi` where needed                                  |
 
 ### Fragile / concerns
 
-| Concern | Mitigation |
-| ------- | ---------- |
+| Concern                                                           | Mitigation                                                                                                                              |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | Existing CLI regex `/pass:.*Node/` may break if ANSI splits oddly | Prefer `stripAnsi(stdout)` then assert; or assert `/pass:/` still matches (ANSI before word usually ok — still stripAnsi for stability) |
-| Coupling doctor → report color module | Acceptable — same as table; no new dep. Do **not** put ANSI strings in `src/doctor/index.ts` |
-| Scan `--no-color` vs doctor `--no-color` | Separate commander options on each command; document both |
+| Coupling doctor → report color module                             | Acceptable — same as table; no new dep. Do **not** put ANSI strings in `src/doctor/index.ts`                                            |
+| Scan `--no-color` vs doctor `--no-color`                          | Separate commander options on each command; document both                                                                               |
 
 ---
 
@@ -121,12 +121,12 @@ export function resolveDoctorColor(opts: {
 
 ## Test Plan
 
-| Layer | Coverage |
-| ----- | -------- |
-| Unit `src/report/color.test.ts` (or extend existing) | `paintDoctorStatus` on/off for pass/warn/fail |
-| Unit `src/doctor/format.test.ts` | `formatDoctorTextReport` color true/false; `stripAnsi` equality; JSON unchanged |
-| Unit bin | `resolveDoctorColor` matrix (text/json, TTY, noColor, NO_COLOR) |
-| CLI `bin/hotspot-scanner.test.ts` | doctor `--no-color`; JSON no ANSI; help lists flag |
+| Layer                                                | Coverage                                                                        |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Unit `src/report/color.test.ts` (or extend existing) | `paintDoctorStatus` on/off for pass/warn/fail                                   |
+| Unit `src/doctor/format.test.ts`                     | `formatDoctorTextReport` color true/false; `stripAnsi` equality; JSON unchanged |
+| Unit bin                                             | `resolveDoctorColor` matrix (text/json, TTY, noColor, NO_COLOR)                 |
+| CLI `bin/hotspot-scanner.test.ts`                    | doctor `--no-color`; JSON no ANSI; help lists flag                              |
 
 Gate: `pnpm build && pnpm test`
 

@@ -27,16 +27,16 @@ JSON `version: "3.0"` baselines and compare reports are valid but lean for tooli
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| JSON version bump (`3.1` / `4.0`) | Locked additive under `3.0` |
-| Auto-migrate / rewrite old baselines | Fail-or-accept only; no migration |
+| Feature                                             | Reason                             |
+| --------------------------------------------------- | ---------------------------------- |
+| JSON version bump (`3.1` / `4.0`)                   | Locked additive under `3.0`        |
+| Auto-migrate / rewrite old baselines                | Fail-or-accept only; no migration  |
 | Dual nested baseline/current entities on RankChange | YAGNI — deltas + baseline `entity` |
-| Delta fields on `new` / `removed` | No paired metrics |
-| New CLI flags or config keys | Serialization/compare only |
-| Ranking / scoring / NCLOC formula changes | Unrelated |
-| Retarget M53 triage to current score | Deferred |
-| Executive-summary `scannerVersion` line | JSON/CSV meta enough |
+| Delta fields on `new` / `removed`                   | No paired metrics                  |
+| New CLI flags or config keys                        | Serialization/compare only         |
+| Ranking / scoring / NCLOC formula changes           | Unrelated                          |
+| Retarget M53 triage to current score                | Deferred                           |
+| Executive-summary `scannerVersion` line             | JSON/CSV meta enough               |
 
 ---
 
@@ -156,32 +156,32 @@ JSON `version: "3.0"` baselines and compare reports are valid but lean for tooli
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-1160 | P1: scannerVersion on ScanMeta emit | Tasks | Pending |
-| HOTSPOT-1161 | P1: scannerVersion on CompareMeta emit | Tasks | Pending |
-| HOTSPOT-1162 | P1: Schema declare scannerVersion (optional) | Tasks | Pending |
-| HOTSPOT-1163 | P1: loadBaseline accept without scannerVersion | Tasks | Pending |
-| HOTSPOT-1164 | P1: loadBaseline preserve string scannerVersion | Tasks | Pending |
-| HOTSPOT-1165 | P1: Stay on version `"3.0"` | Tasks | Pending |
-| HOTSPOT-1166 | P1: renderJson `$schema` URL | Tasks | Pending |
-| HOTSPOT-1167 | P1: renderCompareJson `$schema` URL | Tasks | Pending |
-| HOTSPOT-1168 | P1: Schema declare optional `$schema` | Tasks | Pending |
-| HOTSPOT-1169 | P1: Baseline with `$schema` still loads | Tasks | Pending |
-| HOTSPOT-1170 | P1: RankChange delta fields shape | Tasks | Pending |
-| HOTSPOT-1171 | P1: Compute current − baseline at compare time | Tasks | Pending |
-| HOTSPOT-1172 | P1: entity remains baseline HotspotScore | Tasks | Pending |
-| HOTSPOT-1173 | P1: No deltas on new/removed | Tasks | Pending |
-| HOTSPOT-1174 | P1: Schema RankChangeHotspot deltas | Tasks | Pending |
-| HOTSPOT-1175 | P1: JSON includes deltas | Tasks | Pending |
-| HOTSPOT-1176 | P1: CSV rank-changed columns | Tasks | Pending |
-| HOTSPOT-1177 | P1: Table delta columns | Tasks | Pending |
-| HOTSPOT-1178 | P1: Markdown delta columns | Tasks | Pending |
-| HOTSPOT-1179 | P1: entity.* columns unchanged (baseline) | Tasks | Pending |
-| HOTSPOT-1180 | P1: Explain includes deltas | Tasks | Pending |
-| HOTSPOT-1183 | P2: ARCHITECTURE / README additive contract | Tasks | Pending |
-| HOTSPOT-1184 | P2: STRUCTURE if helper module added | Tasks | Pending |
-| HOTSPOT-1185–1199 | — | — | Reserved |
+| Requirement ID    | Story                                           | Phase | Status   |
+| ----------------- | ----------------------------------------------- | ----- | -------- |
+| HOTSPOT-1160      | P1: scannerVersion on ScanMeta emit             | Tasks | Pending  |
+| HOTSPOT-1161      | P1: scannerVersion on CompareMeta emit          | Tasks | Pending  |
+| HOTSPOT-1162      | P1: Schema declare scannerVersion (optional)    | Tasks | Pending  |
+| HOTSPOT-1163      | P1: loadBaseline accept without scannerVersion  | Tasks | Pending  |
+| HOTSPOT-1164      | P1: loadBaseline preserve string scannerVersion | Tasks | Pending  |
+| HOTSPOT-1165      | P1: Stay on version `"3.0"`                     | Tasks | Pending  |
+| HOTSPOT-1166      | P1: renderJson `$schema` URL                    | Tasks | Pending  |
+| HOTSPOT-1167      | P1: renderCompareJson `$schema` URL             | Tasks | Pending  |
+| HOTSPOT-1168      | P1: Schema declare optional `$schema`           | Tasks | Pending  |
+| HOTSPOT-1169      | P1: Baseline with `$schema` still loads         | Tasks | Pending  |
+| HOTSPOT-1170      | P1: RankChange delta fields shape               | Tasks | Pending  |
+| HOTSPOT-1171      | P1: Compute current − baseline at compare time  | Tasks | Pending  |
+| HOTSPOT-1172      | P1: entity remains baseline HotspotScore        | Tasks | Pending  |
+| HOTSPOT-1173      | P1: No deltas on new/removed                    | Tasks | Pending  |
+| HOTSPOT-1174      | P1: Schema RankChangeHotspot deltas             | Tasks | Pending  |
+| HOTSPOT-1175      | P1: JSON includes deltas                        | Tasks | Pending  |
+| HOTSPOT-1176      | P1: CSV rank-changed columns                    | Tasks | Pending  |
+| HOTSPOT-1177      | P1: Table delta columns                         | Tasks | Pending  |
+| HOTSPOT-1178      | P1: Markdown delta columns                      | Tasks | Pending  |
+| HOTSPOT-1179      | P1: entity.* columns unchanged (baseline)       | Tasks | Pending  |
+| HOTSPOT-1180      | P1: Explain includes deltas                     | Tasks | Pending  |
+| HOTSPOT-1183      | P2: ARCHITECTURE / README additive contract     | Tasks | Pending  |
+| HOTSPOT-1184      | P2: STRUCTURE if helper module added            | Tasks | Pending  |
+| HOTSPOT-1185–1199 | —                                               | —     | Reserved |
 
 **Coverage:** 25 assigned (1160–1184 with 1181–1182 unused stretch), 15 reserved (1185–1199).
 

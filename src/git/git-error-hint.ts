@@ -1,4 +1,8 @@
-const SINCE_DATE_CUES = ["invalid date", "not a valid date", "bad date"] as const;
+const SINCE_DATE_CUES = [
+  "invalid date",
+  "not a valid date",
+  "bad date",
+] as const;
 
 const CORRUPT_CUES = ["corrupt", "bad object", "loose object"] as const;
 

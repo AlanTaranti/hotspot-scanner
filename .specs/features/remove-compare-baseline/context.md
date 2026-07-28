@@ -24,12 +24,12 @@ Hard cut — no deprecation window, no shim flags, no empty compare stubs (prece
 
 ## Decision: Milestone / slug / depth / IDs (LOCKED)
 
-| Field | Value |
-| ----- | ----- |
-| Milestone | **M71** |
-| Slug | `remove-compare-baseline` |
-| Depth | **Complex** |
-| IDs | **HOTSPOT-1300+** (reserve gaps; next free band after M68–M70 HOTSPOT-1230+) |
+| Field     | Value                                                                        |
+| --------- | ---------------------------------------------------------------------------- |
+| Milestone | **M71**                                                                      |
+| Slug      | `remove-compare-baseline`                                                    |
+| Depth     | **Complex**                                                                  |
+| IDs       | **HOTSPOT-1300+** (reserve gaps; next free band after M68–M70 HOTSPOT-1230+) |
 
 **Status:** **Confirmed** — do not re-open
 
@@ -55,11 +55,11 @@ Hard cut — no deprecation window, no shim flags, no empty compare stubs (prece
 
 **Choice:**
 
-| Remove | Keep |
-| ------ | ---- |
-| `compareScanResults` | `parseScanResult` |
-| `loadBaseline` | — |
-| `CompareResult`, `CompareMeta`, `HotspotCompareSection`, `RankChange` | — |
+| Remove                                                                | Keep              |
+| --------------------------------------------------------------------- | ----------------- |
+| `compareScanResults`                                                  | `parseScanResult` |
+| `loadBaseline`                                                        | —                 |
+| `CompareResult`, `CompareMeta`, `HotspotCompareSection`, `RankChange` | —                 |
 
 **Status:** **Confirmed** — do not re-open
 
@@ -87,11 +87,11 @@ Hint copy for invalid payloads must drop `baseline save` language; prefer re-sca
 
 **Choice:** **`src/scan-result/`**
 
-| Item | Path |
-| ---- | ---- |
-| Module | `src/scan-result/parse-scan-result.ts` |
-| Barrel | `src/scan-result/index.ts` |
-| Unit tests | `src/scan-result/parse-scan-result.test.ts` |
+| Item          | Path                                                                        |
+| ------------- | --------------------------------------------------------------------------- |
+| Module        | `src/scan-result/parse-scan-result.ts`                                      |
+| Barrel        | `src/scan-result/index.ts`                                                  |
+| Unit tests    | `src/scan-result/parse-scan-result.test.ts`                                 |
 | Package alias | **No** new `#scan-result` — drop `#compare`; export via `src/index.ts` only |
 
 **Rejected:** `src/contract/` (easy to confuse with `schemas/`); leaving under a hollow `src/compare/`.
@@ -118,21 +118,21 @@ Hint copy for invalid payloads must drop `baseline save` language; prefer re-sca
 
 **Remove:**
 
-| Surface | Items |
-| ------- | ----- |
-| Subcommands | `compare`, `baseline save` (and `baseline` parent) |
-| Scan flags | `--baseline`, `--strict` (compare-only) |
-| Wiring | `writeCompareExplainBlock`, `enforceStrictCompare`, `executeCompareAndRender`, `writeBaselineJson` |
-| Warning | `COMPARE_SINCE_MISMATCH` (emitters + docs) |
+| Surface     | Items                                                                                              |
+| ----------- | -------------------------------------------------------------------------------------------------- |
+| Subcommands | `compare`, `baseline save` (and `baseline` parent)                                                 |
+| Scan flags  | `--baseline`, `--strict` (compare-only)                                                            |
+| Wiring      | `writeCompareExplainBlock`, `enforceStrictCompare`, `executeCompareAndRender`, `writeBaselineJson` |
+| Warning     | `COMPARE_SINCE_MISMATCH` (emitters + docs)                                                         |
 
 **Keep:**
 
-| Surface | Notes |
-| ------- | ----- |
-| Scan `--explain` | Unchanged (scan-mode explain) |
-| `--fail-on-explain-miss` | Unchanged |
-| Formats / `--output` / CSV / table / markdown / JSON | Scan path only |
-| Exit `1` | Only `--fail-on-explain-miss` miss (no `--strict`) |
+| Surface                                              | Notes                                              |
+| ---------------------------------------------------- | -------------------------------------------------- |
+| Scan `--explain`                                     | Unchanged (scan-mode explain)                      |
+| `--fail-on-explain-miss`                             | Unchanged                                          |
+| Formats / `--output` / CSV / table / markdown / JSON | Scan path only                                     |
+| Exit `1`                                             | Only `--fail-on-explain-miss` miss (no `--strict`) |
 
 **Status:** **Confirmed** — do not re-open
 
@@ -152,26 +152,26 @@ Hint copy for invalid payloads must drop `baseline save` language; prefer re-sca
 
 ## Out of scope (LOCKED)
 
-| Item | Reason |
-| ---- | ------ |
-| npm publish / npx | Deferred |
-| CI recipes / SARIF | Deferred |
-| Fail-on-warning | Deferred |
-| Item C (full warning lines in scan body) | Deferred |
-| Score formula / NCLOC | Unrelated |
-| Soft deprecation / legacy flags | Hard cut locked |
-| Reopening historical Done compare specs | Stay historical; M71 supersedes |
+| Item                                     | Reason                          |
+| ---------------------------------------- | ------------------------------- |
+| npm publish / npx                        | Deferred                        |
+| CI recipes / SARIF                       | Deferred                        |
+| Fail-on-warning                          | Deferred                        |
+| Item C (full warning lines in scan body) | Deferred                        |
+| Score formula / NCLOC                    | Unrelated                       |
+| Soft deprecation / legacy flags          | Hard cut locked                 |
+| Reopening historical Done compare specs  | Stay historical; M71 supersedes |
 
 ---
 
 ## Related closed decisions (prior milestones — superseded product behavior)
 
-| Decision | Prior value | M71 effect |
-| -------- | ----------- | ---------- |
-| Scan compare / baseline (M13) | `scan --baseline` + delta report | Removed |
-| Workflow subcommands (M40) | `baseline save`, `compare` | Removed |
-| Compare interpretation (M53) | triage, compare `--explain`, `--strict` | Removed |
-| Compare CSV / meta enrich (M18/M66) | Compare CSV trio + compare `$schema` | Removed |
-| `BaselineError` name (M20+) | Baseline-oriented parse errors | → `ScanResultParseError` |
-| Exit `1` for `--strict` + `COMPARE_SINCE_MISMATCH` | AGENTS exit table | Exit `1` only for explain-miss |
-| Config `baseline` key | Already rejected (M21) | Still absent — no config work |
+| Decision                                           | Prior value                             | M71 effect                     |
+| -------------------------------------------------- | --------------------------------------- | ------------------------------ |
+| Scan compare / baseline (M13)                      | `scan --baseline` + delta report        | Removed                        |
+| Workflow subcommands (M40)                         | `baseline save`, `compare`              | Removed                        |
+| Compare interpretation (M53)                       | triage, compare `--explain`, `--strict` | Removed                        |
+| Compare CSV / meta enrich (M18/M66)                | Compare CSV trio + compare `$schema`    | Removed                        |
+| `BaselineError` name (M20+)                        | Baseline-oriented parse errors          | → `ScanResultParseError`       |
+| Exit `1` for `--strict` + `COMPARE_SINCE_MISMATCH` | AGENTS exit table                       | Exit `1` only for explain-miss |
+| Config `baseline` key                              | Already rejected (M21)                  | Still absent — no config work  |

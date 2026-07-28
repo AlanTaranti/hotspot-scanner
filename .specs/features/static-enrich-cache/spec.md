@@ -23,17 +23,17 @@
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| `package.json` `exports` / `imports` resolution | Explicitly deferred (CONCERNS / ROADMAP) |
-| Changing ranking by static edge or `--min-cochange` | Enrich remains post-score labeling only |
-| New CLI flags / config for cache | Always on; YAGNI |
-| Persistent / cross-scan disk cache | In-memory per enrich call only |
-| Full-repo import graph metrics (fan-in, cycles) | Pair labeling only |
-| PathAliasMap / rename graph (M26) | Hard boundary |
-| ts-morph AST for imports | Regex + existing resolution only |
-| Reporter / schema / baseline contract changes | Fields unchanged |
-| Parallelizing enrich across workers | Separate from this cache milestone |
+| Feature                                             | Reason                                   |
+| --------------------------------------------------- | ---------------------------------------- |
+| `package.json` `exports` / `imports` resolution     | Explicitly deferred (CONCERNS / ROADMAP) |
+| Changing ranking by static edge or `--min-cochange` | Enrich remains post-score labeling only  |
+| New CLI flags / config for cache                    | Always on; YAGNI                         |
+| Persistent / cross-scan disk cache                  | In-memory per enrich call only           |
+| Full-repo import graph metrics (fan-in, cycles)     | Pair labeling only                       |
+| PathAliasMap / rename graph (M26)                   | Hard boundary                            |
+| ts-morph AST for imports                            | Regex + existing resolution only         |
+| Reporter / schema / baseline contract changes       | Fields unchanged                         |
+| Parallelizing enrich across workers                 | Separate from this cache milestone       |
 
 ---
 
@@ -128,18 +128,18 @@
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-340 | P1: One read/parse per file | Tasks | Done |
-| HOTSPOT-341 | P1: Cached edges + O(1) lookup | Tasks | Done |
-| HOTSPOT-342 | P1: Cached edges + O(1) lookup | Tasks | Done |
-| HOTSPOT-343 | P1: Behavioral equivalence | Tasks | Done |
-| HOTSPOT-344 | P1: Behavioral equivalence | Tasks | Done |
-| HOTSPOT-345 | P1: Behavioral equivalence | Tasks | Done |
-| HOTSPOT-346 | P1: Behavioral equivalence | Tasks | Done |
-| HOTSPOT-347 | P1: Behavioral equivalence | Tasks | Done |
-| HOTSPOT-348 | P1: One read/parse per file | Tasks | Done |
-| HOTSPOT-351 | P2: Document cache behavior | Tasks | Done |
+| Requirement ID | Story                          | Phase | Status |
+| -------------- | ------------------------------ | ----- | ------ |
+| HOTSPOT-340    | P1: One read/parse per file    | Tasks | Done   |
+| HOTSPOT-341    | P1: Cached edges + O(1) lookup | Tasks | Done   |
+| HOTSPOT-342    | P1: Cached edges + O(1) lookup | Tasks | Done   |
+| HOTSPOT-343    | P1: Behavioral equivalence     | Tasks | Done   |
+| HOTSPOT-344    | P1: Behavioral equivalence     | Tasks | Done   |
+| HOTSPOT-345    | P1: Behavioral equivalence     | Tasks | Done   |
+| HOTSPOT-346    | P1: Behavioral equivalence     | Tasks | Done   |
+| HOTSPOT-347    | P1: Behavioral equivalence     | Tasks | Done   |
+| HOTSPOT-348    | P1: One read/parse per file    | Tasks | Done   |
+| HOTSPOT-351    | P2: Document cache behavior    | Tasks | Done   |
 
 **ID format:** `HOTSPOT-NNN`  
 **Reserved unused in range:** HOTSPOT-349, HOTSPOT-350, HOTSPOT-352–359 (available for Execute splits if needed)  

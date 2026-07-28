@@ -38,26 +38,26 @@ flowchart TD
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| Orchestrator `AbortController` | `src/scan.ts` | Link external `ScanOptions.signal`; keep sibling-failure abort |
-| Numstat abort kill | `src/git/spawn.ts` | Already listens to `signal` — reuse |
-| Complexity pool abort | `src/complexity/pool.ts` | Already accepts `signal` — reuse |
-| Patch spawn | `src/git/function-churn/spawn.ts` | **Add** abort wiring (gap); type already extends `GitLogSpawnOptions` |
-| CLI diagnostic handlers | `src/diagnostics/logger.ts` | Extend for verbose gate + quiet precedence |
-| Executive summary | `src/report/summary.ts` | Add warning rollup helper |
-| Doctor result | `src/doctor/index.ts` | Serialize existing `DoctorResult`; add thin JSON formatter |
-| ScanMeta / schemas | `src/types/domain.ts`, `schemas/scan-result.json` | Additive `timings` |
-| Warning format | `src/report/warning-format.ts` | Unchanged full lines; summary is separate |
+| Component                      | Location                                          | How to Use                                                            |
+| ------------------------------ | ------------------------------------------------- | --------------------------------------------------------------------- |
+| Orchestrator `AbortController` | `src/scan.ts`                                     | Link external `ScanOptions.signal`; keep sibling-failure abort        |
+| Numstat abort kill             | `src/git/spawn.ts`                                | Already listens to `signal` — reuse                                   |
+| Complexity pool abort          | `src/complexity/pool.ts`                          | Already accepts `signal` — reuse                                      |
+| Patch spawn                    | `src/git/function-churn/spawn.ts`                 | **Add** abort wiring (gap); type already extends `GitLogSpawnOptions` |
+| CLI diagnostic handlers        | `src/diagnostics/logger.ts`                       | Extend for verbose gate + quiet precedence                            |
+| Executive summary              | `src/report/summary.ts`                           | Add warning rollup helper                                             |
+| Doctor result                  | `src/doctor/index.ts`                             | Serialize existing `DoctorResult`; add thin JSON formatter            |
+| ScanMeta / schemas             | `src/types/domain.ts`, `schemas/scan-result.json` | Additive `timings`                                                    |
+| Warning format                 | `src/report/warning-format.ts`                    | Unchanged full lines; summary is separate                             |
 
 ### Integration Points
 
-| System | Integration |
-| ------ | ----------- |
+| System                   | Integration                                                                  |
+| ------------------------ | ---------------------------------------------------------------------------- |
 | `bin/hotspot-scanner.ts` | Signal listeners around scan/compare actions; `--verbose`; doctor `--format` |
-| `bin/scan-actions.ts` | Pass `signal` / verbose into `runScan` if shared helpers used |
-| Contract tests | `tests/contract/json-schema.test.ts` for `timings` |
-| `loadBaseline` | Accept metas with/without `timings` (additionalProperties / non-required) |
+| `bin/scan-actions.ts`    | Pass `signal` / verbose into `runScan` if shared helpers used                |
+| Contract tests           | `tests/contract/json-schema.test.ts` for `timings`                           |
+| `loadBaseline`           | Accept metas with/without `timings` (additionalProperties / non-required)    |
 
 ---
 
@@ -146,50 +146,50 @@ interface DoctorJsonReport {
 
 ## Error Handling
 
-| Scenario | Behavior | User sees |
-| -------- | -------- | --------- |
-| SIGINT | Abort stages; exit 130 | `warning: scan cancelled`; no report |
-| SIGTERM | Abort stages; exit 143 | Same cancel line |
-| Stage failure mid-overlap | Existing M34 sibling abort + rethrow | Existing error / non-zero |
-| Invalid doctor format | `CliUsageError` | Exit 2 |
-| Verbose + quiet | Quiet wins | No verbose lines |
+| Scenario                  | Behavior                             | User sees                            |
+| ------------------------- | ------------------------------------ | ------------------------------------ |
+| SIGINT                    | Abort stages; exit 130               | `warning: scan cancelled`; no report |
+| SIGTERM                   | Abort stages; exit 143               | Same cancel line                     |
+| Stage failure mid-overlap | Existing M34 sibling abort + rethrow | Existing error / non-zero            |
+| Invalid doctor format     | `CliUsageError`                      | Exit 2                               |
+| Verbose + quiet           | Quiet wins                           | No verbose lines                     |
 
 ---
 
 ## Design Decisions (summary)
 
-| ID | Decision | Rationale |
-| -- | -------- | --------- |
-| D1 | Exit 130/143 | POSIX; distinct from usage errors |
-| D2 | Additive timings under 1.0 | `additionalProperties`; baseline compat |
-| D3 | No separate `scoringMs` | YAGNI; folded into `totalMs` |
-| D4 | Warning rollup in exec summary only | Reuses M41 placement |
-| D5 | Doctor JSON wraps `DoctorResult` | Exit policy unchanged |
-| D6 | Verbose = argv hook only | STATE / M38 narrow reopen |
+| ID  | Decision                            | Rationale                               |
+| --- | ----------------------------------- | --------------------------------------- |
+| D1  | Exit 130/143                        | POSIX; distinct from usage errors       |
+| D2  | Additive timings under 1.0          | `additionalProperties`; baseline compat |
+| D3  | No separate `scoringMs`             | YAGNI; folded into `totalMs`            |
+| D4  | Warning rollup in exec summary only | Reuses M41 placement                    |
+| D5  | Doctor JSON wraps `DoctorResult`    | Exit policy unchanged                   |
+| D6  | Verbose = argv hook only            | STATE / M38 narrow reopen               |
 
 ---
 
 ## Risks (CONCERNS)
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| Orphan git/workers on cancel | Function-churn abort gap closed; `allSettled` after abort |
-| Partial rankings on interrupt | Never call reporter on cancel path |
-| Baseline reject on new meta field | `timings` not required for load; additive schema |
-| Verbose spam | Single line per spawn; quiet suppresses |
-| Path conflict on `src/scan.ts` | Single task owns scan wiring (timings + signal + churn signal) |
+| Risk                              | Mitigation                                                     |
+| --------------------------------- | -------------------------------------------------------------- |
+| Orphan git/workers on cancel      | Function-churn abort gap closed; `allSettled` after abort      |
+| Partial rankings on interrupt     | Never call reporter on cancel path                             |
+| Baseline reject on new meta field | `timings` not required for load; additive schema               |
+| Verbose spam                      | Single line per spawn; quiet suppresses                        |
+| Path conflict on `src/scan.ts`    | Single task owns scan wiring (timings + signal + churn signal) |
 
 ---
 
 ## Testing Strategy
 
-| Layer | Coverage |
-| ----- | -------- |
-| Unit | function-churn abort; timings shape; warning summary formatter; doctor JSON format; spawn `onSpawnArgv` |
-| Scan unit | External signal abort; timings present; functionChurnMs omit in file mode |
-| Contract | `meta.timings` in scan-result schema |
-| CLI | doctor format json/text/invalid; `--verbose` / `--quiet`; cancel exit mapping where practical |
-| Gate | `pnpm build && pnpm test` |
+| Layer     | Coverage                                                                                                |
+| --------- | ------------------------------------------------------------------------------------------------------- |
+| Unit      | function-churn abort; timings shape; warning summary formatter; doctor JSON format; spawn `onSpawnArgv` |
+| Scan unit | External signal abort; timings present; functionChurnMs omit in file mode                               |
+| Contract  | `meta.timings` in scan-result schema                                                                    |
+| CLI       | doctor format json/text/invalid; `--verbose` / `--quiet`; cancel exit mapping where practical           |
+| Gate      | `pnpm build && pnpm test`                                                                               |
 
 ---
 

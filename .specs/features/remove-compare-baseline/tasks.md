@@ -55,42 +55,42 @@ flowchart TD
 
 | Task | Depends on (declared) | Diagram shows | Match |
 | ---- | --------------------- | ------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1→T2 | ✅ |
-| T3 | T2 | T2→T3 | ✅ |
-| T4 | T3 | T3→T4 | ✅ |
-| T5 | T4 | T4→T5 | ✅ |
-| T6 | T5 | T5→T6 | ✅ |
-| T7 | T6 | T6→T7 | ✅ |
-| T8 | T7 | T7→T8 | ✅ |
+| T1   | None                  | Root          | ✅    |
+| T2   | T1                    | T1→T2         | ✅    |
+| T3   | T2                    | T2→T3         | ✅    |
+| T4   | T3                    | T3→T4         | ✅    |
+| T5   | T4                    | T4→T5         | ✅    |
+| T6   | T5                    | T5→T6         | ✅    |
+| T7   | T6                    | T6→T7         | ✅    |
+| T8   | T7                    | T7→T8         | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths (primary) | Conflict with parallel peers |
-| ---- | ------------ | --------------- | ---------------------------- |
-| T1 | `src/scan-result/` (+ temporary `src/compare/load-baseline.ts` trim) | New module; move parse from load-baseline; update re-exports so tree compiles | Sole — sequential |
-| T2 | `bin/` | `bin/hotspot-scanner.ts`, `scan-actions.ts`, `completion-scripts.ts` (+tests) | After T1 |
-| T3 | compare delete + types + index + `#compare` | Delete `src/compare/**`; `src/types/domain.ts`; `src/index.ts`; `package.json` imports `#compare` | After T2; no report deletes yet |
-| T4 | `src/report/` | Delete compare-* / explain-compare / slice-compare; scrub index/summary/glossary | After T3 |
-| T5 | schemas + contract | Delete `schemas/compare-result.json`; package schema export; `tests/contract/**` | After T4 |
-| T6 | fixtures + CLI negative | `tests/fixtures/report/compare-*.json`; remaining integration/CLI tests | After T5 |
-| T7 | docs / skills | `.specs/codebase/*`, README, AGENTS, recipes, warning-codes, vitals-* skills, fragile-areas, integrations rule, PROJECT | After T6 |
-| T8 | gate | none (run only) | After T7 |
+| Task | Module owner                                                         | Paths (primary)                                                                                                         | Conflict with parallel peers    |
+| ---- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| T1   | `src/scan-result/` (+ temporary `src/compare/load-baseline.ts` trim) | New module; move parse from load-baseline; update re-exports so tree compiles                                           | Sole — sequential               |
+| T2   | `bin/`                                                               | `bin/hotspot-scanner.ts`, `scan-actions.ts`, `completion-scripts.ts` (+tests)                                           | After T1                        |
+| T3   | compare delete + types + index + `#compare`                          | Delete `src/compare/**`; `src/types/domain.ts`; `src/index.ts`; `package.json` imports `#compare`                       | After T2; no report deletes yet |
+| T4   | `src/report/`                                                        | Delete compare-* / explain-compare / slice-compare; scrub index/summary/glossary                                        | After T3                        |
+| T5   | schemas + contract                                                   | Delete `schemas/compare-result.json`; package schema export; `tests/contract/**`                                        | After T4                        |
+| T6   | fixtures + CLI negative                                              | `tests/fixtures/report/compare-*.json`; remaining integration/CLI tests                                                 | After T5                        |
+| T7   | docs / skills                                                        | `.specs/codebase/*`, README, AGENTS, recipes, warning-codes, vitals-* skills, fragile-areas, integrations rule, PROJECT | After T6                        |
+| T8   | gate                                                                 | none (run only)                                                                                                         | After T7                        |
 
 > **[P]**: None. Overlapping type/compile surface makes parallel unsafe for this hard cut.
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Tests in same task | Match |
-| ---- | ---------- | ---------------------- | ------------------ | ----- |
-| T1 | parse / scan-result | Unit | `src/scan-result/parse-scan-result.test.ts` | ✅ |
-| T2 | bin / CLI | Unit (+ CLI) | `bin/*.test.ts`, completion asserts | ✅ |
-| T3 | types + public API + delete compare | Unit cleanup | Fix/remove compare unit tests as deleted; export asserts | ✅ |
-| T4 | report | Unit | Remove/update co-located report tests with deletes | ✅ |
-| T5 | schemas / contract | Contract | `tests/contract/json-schema.test.ts` | ✅ |
-| T6 | fixtures + CLI negative | Unit/integration | Negative CLI + fixture purge; fix broken refs | ✅ |
-| T7 | docs | none (docs) | Grep/manual checklist in Done when | ✅ |
-| T8 | full tree | Full gate | `pnpm build && pnpm test` | ✅ |
+| Task | Code layer                          | TESTING.md expectation | Tests in same task                                       | Match |
+| ---- | ----------------------------------- | ---------------------- | -------------------------------------------------------- | ----- |
+| T1   | parse / scan-result                 | Unit                   | `src/scan-result/parse-scan-result.test.ts`              | ✅    |
+| T2   | bin / CLI                           | Unit (+ CLI)           | `bin/*.test.ts`, completion asserts                      | ✅    |
+| T3   | types + public API + delete compare | Unit cleanup           | Fix/remove compare unit tests as deleted; export asserts | ✅    |
+| T4   | report                              | Unit                   | Remove/update co-located report tests with deletes       | ✅    |
+| T5   | schemas / contract                  | Contract               | `tests/contract/json-schema.test.ts`                     | ✅    |
+| T6   | fixtures + CLI negative             | Unit/integration       | Negative CLI + fixture purge; fix broken refs            | ✅    |
+| T7   | docs                                | none (docs)            | Grep/manual checklist in Done when                       | ✅    |
+| T8   | full tree                           | Full gate              | `pnpm build && pnpm test`                                | ✅    |
 
 ---
 
@@ -347,24 +347,24 @@ flowchart TD
 
 ## Requirement → Task Mapping
 
-| Requirement | Task(s) |
-| ----------- | ------- |
-| HOTSPOT-1300 | T2 |
-| HOTSPOT-1301 | T2 |
+| Requirement  | Task(s)                           |
+| ------------ | --------------------------------- |
+| HOTSPOT-1300 | T2                                |
+| HOTSPOT-1301 | T2                                |
 | HOTSPOT-1302 | T6 (primary); T2 prepares surface |
-| HOTSPOT-1303 | T1 |
-| HOTSPOT-1304 | T1 |
-| HOTSPOT-1305 | T3 |
-| HOTSPOT-1306 | T5 |
-| HOTSPOT-1307 | T5 |
-| HOTSPOT-1308 | T3, T4 |
-| HOTSPOT-1309 | T3 |
-| HOTSPOT-1310 | T4, T6, T7 |
-| HOTSPOT-1311 | T3 |
-| HOTSPOT-1312 | T6 |
-| HOTSPOT-1313 | T7 |
-| HOTSPOT-1314 | T7 |
-| HOTSPOT-1315 | T2 |
+| HOTSPOT-1303 | T1                                |
+| HOTSPOT-1304 | T1                                |
+| HOTSPOT-1305 | T3                                |
+| HOTSPOT-1306 | T5                                |
+| HOTSPOT-1307 | T5                                |
+| HOTSPOT-1308 | T3, T4                            |
+| HOTSPOT-1309 | T3                                |
+| HOTSPOT-1310 | T4, T6, T7                        |
+| HOTSPOT-1311 | T3                                |
+| HOTSPOT-1312 | T6                                |
+| HOTSPOT-1313 | T7                                |
+| HOTSPOT-1314 | T7                                |
+| HOTSPOT-1315 | T2                                |
 
 **Coverage:** 16/16 mapped. No unmapped P1. IDs 1316–1329 reserved.
 

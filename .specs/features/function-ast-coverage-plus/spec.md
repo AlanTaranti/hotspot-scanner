@@ -22,15 +22,15 @@ After M22, `analyze-file.ts` still under-counts idiomatic TS/JS callables: **Cla
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Changing McCabe decision nodes | Explicit non-goal / RT-005 |
-| Constructors as a “new” construct | Already M11 |
-| Re-implementing M22 constructs | Already shipped |
-| IIFEs / call-argument callbacks / bare unassigned arrows | YAGNI |
-| Changing VariableDeclaration naming (`const fn = function named()` → keep `fn`) | Consistency with M11 |
-| Per-function git churn / scoring formula changes | Unrelated milestones |
-| Namespace/module collector changes | Already collected via recursion |
+| Feature                                                                         | Reason                          |
+| ------------------------------------------------------------------------------- | ------------------------------- |
+| Changing McCabe decision nodes                                                  | Explicit non-goal / RT-005      |
+| Constructors as a “new” construct                                               | Already M11                     |
+| Re-implementing M22 constructs                                                  | Already shipped                 |
+| IIFEs / call-argument callbacks / bare unassigned arrows                        | YAGNI                           |
+| Changing VariableDeclaration naming (`const fn = function named()` → keep `fn`) | Consistency with M11            |
+| Per-function git churn / scoring formula changes                                | Unrelated milestones            |
+| Namespace/module collector changes                                              | Already collected via recursion |
 
 ---
 
@@ -160,18 +160,18 @@ After M22, `analyze-file.ts` still under-counts idiomatic TS/JS callables: **Cla
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-281 | P1: ClassExpression members | Tasks T1 | Done |
-| HOTSPOT-282 | P1: Object-literal accessors | Tasks T1 | Done |
-| HOTSPOT-283 | P1: Assignment RHS callables | Tasks T1 | Done |
-| HOTSPOT-284 | P1: Overload stub skip | Tasks T1 | Done |
-| HOTSPOT-285 | P1: Naming extensions | Tasks T1, T3 | Done |
-| HOTSPOT-286 | P1: Fixtures per construct | Tasks T2 | Done |
-| HOTSPOT-287 | P1: McCabe / collection regression | Tasks T1, T2 | Done |
-| HOTSPOT-288 | P1: ARCHITECTURE/CONCERNS docs | Tasks T3 | Done |
-| HOTSPOT-289 | P1: Full gate | Tasks T3 | Done |
-| HOTSPOT-290 | P2: Namespace/module fixture | Tasks T2 | Done |
+| Requirement ID | Story                              | Phase        | Status |
+| -------------- | ---------------------------------- | ------------ | ------ |
+| HOTSPOT-281    | P1: ClassExpression members        | Tasks T1     | Done   |
+| HOTSPOT-282    | P1: Object-literal accessors       | Tasks T1     | Done   |
+| HOTSPOT-283    | P1: Assignment RHS callables       | Tasks T1     | Done   |
+| HOTSPOT-284    | P1: Overload stub skip             | Tasks T1     | Done   |
+| HOTSPOT-285    | P1: Naming extensions              | Tasks T1, T3 | Done   |
+| HOTSPOT-286    | P1: Fixtures per construct         | Tasks T2     | Done   |
+| HOTSPOT-287    | P1: McCabe / collection regression | Tasks T1, T2 | Done   |
+| HOTSPOT-288    | P1: ARCHITECTURE/CONCERNS docs     | Tasks T3     | Done   |
+| HOTSPOT-289    | P1: Full gate                      | Tasks T3     | Done   |
+| HOTSPOT-290    | P2: Namespace/module fixture       | Tasks T2     | Done   |
 
 **Coverage:** 10 total (HOTSPOT-281–290), 10 mapped to tasks, 0 unmapped. Unused range HOTSPOT-291–295 reserved / unused (gaps OK).
 

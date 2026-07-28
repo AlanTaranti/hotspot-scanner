@@ -35,59 +35,59 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (body) | Diagram shows | Status |
-| ---- | ----------------- | ------------- | ------ |
-| T1 | None | Root | ✅ Match |
-| T2 | None | Root | ✅ Match |
-| T3 | None | Root | ✅ Match |
-| T4 | None | Root | ✅ Match |
-| T5 | T1, T2, T3 | T1/T2/T3→T5 | ✅ Match |
-| T6 | T5 | T5→T6 | ✅ Match |
-| T7 | T4, T5 | T4→T7, T5→T7 | ✅ Match |
-| T8 | T5, T6, T7 | T5/T6/T7→T8 | ✅ Match |
-| T9 | T8 | T8→T9 | ✅ Match |
+| Task | Depends on (body) | Diagram shows | Status   |
+| ---- | ----------------- | ------------- | -------- |
+| T1   | None              | Root          | ✅ Match |
+| T2   | None              | Root          | ✅ Match |
+| T3   | None              | Root          | ✅ Match |
+| T4   | None              | Root          | ✅ Match |
+| T5   | T1, T2, T3        | T1/T2/T3→T5   | ✅ Match |
+| T6   | T5                | T5→T6         | ✅ Match |
+| T7   | T4, T5            | T4→T7, T5→T7  | ✅ Match |
+| T8   | T5, T6, T7        | T5/T6/T7→T8   | ✅ Match |
+| T9   | T8                | T8→T9         | ✅ Match |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | `src/config/` | `load-config.ts`, `load-config.test.ts`, `index.ts` | None vs T2/T3/T4 — `[P]` OK (T2 touches `exemplar.ts` only) |
-| T2 | `src/config/` | `exemplar.ts`, `exemplar.test.ts` | Disjoint files vs T1 — `[P]` OK |
-| T3 | `schemas/` + `package.json` + contract | `schemas/hotspot-scanner-config.json`, `package.json`, `tests/contract/json-schema.test.ts` | None vs T1/T2/T4 — `[P]` OK |
-| T4 | `src/git/` | `probe-since.ts` (or equiv), tests, `index.ts` export | None vs config — `[P]` OK |
-| T5 | `src/config/` | new print/validate helpers + `merge-options` provenance + tests + barrel | After T1–T3; sole config owner in phase |
-| T6 | `src/scan-preview.ts` + thin `src/scan.ts` prelude thread | preview + `ScanPipelineContext` configPath | After T5; do not edit doctor/bin |
-| T7 | `src/doctor/` | `index.ts`, tests, format if id union frozen | After T4+T5; do not edit preview/bin |
-| T8 | `bin/` | `hotspot-scanner.ts`, `hotspot-scanner.test.ts` | After T5–T7; sole bin owner |
-| T9 | docs | README, ARCHITECTURE, STRUCTURE, INTEGRATIONS | After T8 |
+| Task | Module owner                                              | Paths                                                                                       | Conflict                                                    |
+| ---- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| T1   | `src/config/`                                             | `load-config.ts`, `load-config.test.ts`, `index.ts`                                         | None vs T2/T3/T4 — `[P]` OK (T2 touches `exemplar.ts` only) |
+| T2   | `src/config/`                                             | `exemplar.ts`, `exemplar.test.ts`                                                           | Disjoint files vs T1 — `[P]` OK                             |
+| T3   | `schemas/` + `package.json` + contract                    | `schemas/hotspot-scanner-config.json`, `package.json`, `tests/contract/json-schema.test.ts` | None vs T1/T2/T4 — `[P]` OK                                 |
+| T4   | `src/git/`                                                | `probe-since.ts` (or equiv), tests, `index.ts` export                                       | None vs config — `[P]` OK                                   |
+| T5   | `src/config/`                                             | new print/validate helpers + `merge-options` provenance + tests + barrel                    | After T1–T3; sole config owner in phase                     |
+| T6   | `src/scan-preview.ts` + thin `src/scan.ts` prelude thread | preview + `ScanPipelineContext` configPath                                                  | After T5; do not edit doctor/bin                            |
+| T7   | `src/doctor/`                                             | `index.ts`, tests, format if id union frozen                                                | After T4+T5; do not edit preview/bin                        |
+| T8   | `bin/`                                                    | `hotspot-scanner.ts`, `hotspot-scanner.test.ts`                                             | After T5–T7; sole bin owner                                 |
+| T9   | docs                                                      | README, ARCHITECTURE, STRUCTURE, INTEGRATIONS                                               | After T8                                                    |
 
 ### Test Co-location Validation
 
-| Task | Code layer | Matrix / TESTING.md | Task Tests | Status |
-| ---- | ---------- | ------------------- | ---------- | ------ |
-| T1 | `src/config/` | unit co-located | unit | ✅ OK |
-| T2 | `src/config/` | unit co-located | unit | ✅ OK |
-| T3 | `schemas/` + contract | contract | contract | ✅ OK |
-| T4 | `src/git/` | unit co-located; mock spawn | unit | ✅ OK |
-| T5 | `src/config/` | unit co-located | unit | ✅ OK |
-| T6 | `src/scan-preview.ts`, `src/scan.ts` | unit co-located | unit | ✅ OK |
-| T7 | `src/doctor/` | unit co-located | unit | ✅ OK |
-| T8 | `bin/` | CLI Vitest | CLI | ✅ OK |
-| T9 | docs | none | none + full gate | ✅ OK |
+| Task | Code layer                           | Matrix / TESTING.md         | Task Tests       | Status |
+| ---- | ------------------------------------ | --------------------------- | ---------------- | ------ |
+| T1   | `src/config/`                        | unit co-located             | unit             | ✅ OK  |
+| T2   | `src/config/`                        | unit co-located             | unit             | ✅ OK  |
+| T3   | `schemas/` + contract                | contract                    | contract         | ✅ OK  |
+| T4   | `src/git/`                           | unit co-located; mock spawn | unit             | ✅ OK  |
+| T5   | `src/config/`                        | unit co-located             | unit             | ✅ OK  |
+| T6   | `src/scan-preview.ts`, `src/scan.ts` | unit co-located             | unit             | ✅ OK  |
+| T7   | `src/doctor/`                        | unit co-located             | unit             | ✅ OK  |
+| T8   | `bin/`                               | CLI Vitest                  | CLI              | ✅ OK  |
+| T9   | docs                                 | none                        | none + full gate | ✅ OK  |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Reserved meta + load `path` | ✅ Granular |
-| T2 | Exemplar content only | ✅ Granular |
-| T3 | Schema file + exports + contract | ✅ Cohesive schema slice |
-| T4 | Since probe helper | ✅ Granular |
-| T5 | Validate/print/provenance APIs | ✅ Cohesive config DX API |
-| T6 | Dry-run enrichment | ✅ Granular |
-| T7 | Doctor since + unknown keys | ✅ Cohesive doctor slice |
-| T8 | CLI wiring for all new commands + dry-run/doctor flags already present | ✅ Cohesive CLI slice |
-| T9 | Living docs + full gate | ✅ Granular |
+| Task | Scope                                                                  | Status                    |
+| ---- | ---------------------------------------------------------------------- | ------------------------- |
+| T1   | Reserved meta + load `path`                                            | ✅ Granular               |
+| T2   | Exemplar content only                                                  | ✅ Granular               |
+| T3   | Schema file + exports + contract                                       | ✅ Cohesive schema slice  |
+| T4   | Since probe helper                                                     | ✅ Granular               |
+| T5   | Validate/print/provenance APIs                                         | ✅ Cohesive config DX API |
+| T6   | Dry-run enrichment                                                     | ✅ Granular               |
+| T7   | Doctor since + unknown keys                                            | ✅ Cohesive doctor slice  |
+| T8   | CLI wiring for all new commands + dry-run/doctor flags already present | ✅ Cohesive CLI slice     |
+| T9   | Living docs + full gate                                                | ✅ Granular               |
 
 ---
 
@@ -427,18 +427,18 @@ pnpm build && pnpm test
 
 ## Requirement → Task Mapping
 
-| Requirement IDs | Task |
-| --------------- | ---- |
-| HOTSPOT-1100, HOTSPOT-1101 | T1 |
-| HOTSPOT-1102, HOTSPOT-1103, HOTSPOT-1104, HOTSPOT-1105, HOTSPOT-1106 | T2 |
-| HOTSPOT-1107, HOTSPOT-1108, HOTSPOT-1109, HOTSPOT-1110 | T3 |
-| HOTSPOT-1129 (helper) | T4 |
-| HOTSPOT-1111–1114, HOTSPOT-1116–1120, HOTSPOT-1122 | T5 |
-| HOTSPOT-1123–1128 | T6 |
-| HOTSPOT-1129–1134 | T7 |
-| HOTSPOT-1115, HOTSPOT-1121 (+ CLI glue) | T8 |
-| HOTSPOT-1135 | T9 |
-| HOTSPOT-1136–1139 | Reserved — unused |
+| Requirement IDs                                                      | Task              |
+| -------------------------------------------------------------------- | ----------------- |
+| HOTSPOT-1100, HOTSPOT-1101                                           | T1                |
+| HOTSPOT-1102, HOTSPOT-1103, HOTSPOT-1104, HOTSPOT-1105, HOTSPOT-1106 | T2                |
+| HOTSPOT-1107, HOTSPOT-1108, HOTSPOT-1109, HOTSPOT-1110               | T3                |
+| HOTSPOT-1129 (helper)                                                | T4                |
+| HOTSPOT-1111–1114, HOTSPOT-1116–1120, HOTSPOT-1122                   | T5                |
+| HOTSPOT-1123–1128                                                    | T6                |
+| HOTSPOT-1129–1134                                                    | T7                |
+| HOTSPOT-1115, HOTSPOT-1121 (+ CLI glue)                              | T8                |
+| HOTSPOT-1135                                                         | T9                |
+| HOTSPOT-1136–1139                                                    | Reserved — unused |
 
 ---
 

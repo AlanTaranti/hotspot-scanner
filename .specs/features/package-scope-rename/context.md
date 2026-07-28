@@ -17,13 +17,13 @@ Align npm package identity with author/repo ownership (`taranti`): rename `@vita
 
 ## Decision: Milestone / slug / depth / IDs (LOCKED)
 
-| Field | Value |
-| ----- | ----- |
-| Milestone | **M79** |
-| Slug | `package-scope-rename` |
-| Depth | **Large** |
-| IDs | **HOTSPOT-1700–1719** (next free band after M78 HOTSPOT-1680–1699) |
-| Priority | **High** (ownership consistency) |
+| Field     | Value                                                              |
+| --------- | ------------------------------------------------------------------ |
+| Milestone | **M79**                                                            |
+| Slug      | `package-scope-rename`                                             |
+| Depth     | **Large**                                                          |
+| IDs       | **HOTSPOT-1700–1719** (next free band after M78 HOTSPOT-1680–1699) |
+| Priority  | **High** (ownership consistency)                                   |
 
 **Status:** **Confirmed** — do not re-open
 
@@ -31,10 +31,10 @@ Align npm package identity with author/repo ownership (`taranti`): rename `@vita
 
 ## Decision: Package identity (LOCKED)
 
-| Field | Value |
-| ----- | ----- |
-| From | `@vitals/hotspot-scanner` |
-| To | `@taranti/hotspot-scanner` |
+| Field | Value                                                          |
+| ----- | -------------------------------------------------------------- |
+| From  | `@vitals/hotspot-scanner`                                      |
+| To    | `@taranti/hotspot-scanner`                                     |
 | Scope | Exact string replace of the package name everywhere it appears |
 
 **Status:** **Confirmed** — do not re-open
@@ -43,12 +43,12 @@ Align npm package identity with author/repo ownership (`taranti`): rename `@vita
 
 ## Decision: Bin / config / skills (LOCKED)
 
-| Field | Value | Source |
-| ----- | ----- | ------ |
-| CLI bin | **Unchanged** `hotspot-scanner` | ADR-2026-021 |
-| Config file | **Unchanged** `.hotspot-scanner.json` | Existing STATE lock |
-| Skill / agent folder names | **Unchanged** `vitals-*` | STATE Decision 2026-07-21 |
-| `#` import aliases | **Unchanged** | Not package identity |
+| Field                      | Value                                 | Source                    |
+| -------------------------- | ------------------------------------- | ------------------------- |
+| CLI bin                    | **Unchanged** `hotspot-scanner`       | ADR-2026-021              |
+| Config file                | **Unchanged** `.hotspot-scanner.json` | Existing STATE lock       |
+| Skill / agent folder names | **Unchanged** `vitals-*`              | STATE Decision 2026-07-21 |
+| `#` import aliases         | **Unchanged**                         | Not package identity      |
 
 **Status:** **Confirmed** — do not re-open
 
@@ -56,10 +56,10 @@ Align npm package identity with author/repo ownership (`taranti`): rename `@vita
 
 ## Decision: Publish (LOCKED)
 
-| Field | Value |
-| ----- | ----- |
+| Field                         | Value                                     |
+| ----------------------------- | ----------------------------------------- |
 | npm publish / `publishConfig` | **Out of scope** — remains STATE Deferred |
-| Scope of this milestone | Identity string + docs/prose only |
+| Scope of this milestone       | Identity string + docs/prose only         |
 
 **Status:** **Confirmed** — do not re-open
 
@@ -67,13 +67,13 @@ Align npm package identity with author/repo ownership (`taranti`): rename `@vita
 
 ## Decision: Sweep scope (LOCKED)
 
-| Include | Exclude |
-| ------- | ------- |
-| `package.json` `"name"`, `PACKAGE_NAME`, unit test | Pipeline logic, schemas JSON body, scan/trend/assess contracts |
-| Adoption docs (README, CONTRIBUTING, recipes) | Renaming skill directories under `.cursor/skills/` |
-| Living docs identity headers / package citations | Changing bin name or config filename |
-| Done feature specs that cite the exact package string | Inventing publish/install stories |
-| `.cursor/` agents, skills **prose**, `session-context.mjs` | Changing `#` subpath import map keys |
+| Include                                                    | Exclude                                                        |
+| ---------------------------------------------------------- | -------------------------------------------------------------- |
+| `package.json` `"name"`, `PACKAGE_NAME`, unit test         | Pipeline logic, schemas JSON body, scan/trend/assess contracts |
+| Adoption docs (README, CONTRIBUTING, recipes)              | Renaming skill directories under `.cursor/skills/`             |
+| Living docs identity headers / package citations           | Changing bin name or config filename                           |
+| Done feature specs that cite the exact package string      | Inventing publish/install stories                              |
+| `.cursor/` agents, skills **prose**, `session-context.mjs` | Changing `#` subpath import map keys                           |
 
 **Verification:** `rg '@vitals/hotspot-scanner'` SHALL return **zero** matches after Execute.
 
@@ -83,11 +83,11 @@ Align npm package identity with author/repo ownership (`taranti`): rename `@vita
 
 ## Decision: API / contracts (LOCKED)
 
-| Field | Value |
-| ----- | ----- |
-| Scan / trend / assess JSON `version` | **Unchanged** |
-| `schemas/` content | **No package-name fields** today — do not add |
-| `getPackageVersion()` | Reads `version` only — no change required beyond incidental string absence |
+| Field                                | Value                                                                      |
+| ------------------------------------ | -------------------------------------------------------------------------- |
+| Scan / trend / assess JSON `version` | **Unchanged**                                                              |
+| `schemas/` content                   | **No package-name fields** today — do not add                              |
+| `getPackageVersion()`                | Reads `version` only — no change required beyond incidental string absence |
 
 **Status:** **Confirmed** — do not re-open
 

@@ -39,16 +39,16 @@ flowchart LR
 
 ## Code Reuse Analysis
 
-| Pattern | Location | How to use |
-| ------- | -------- | ---------- |
-| Trend orchestration | `src/trend/run-trend.ts` | Attach `growthPattern` when building meta |
-| Trend types | `src/trend/types.ts` | Add `GrowthPattern` + bump `version: "3.0"` |
-| Table reporter | `src/report/trend-table.ts` | Pattern line above sparklines |
-| CSV reporter | `src/report/trend-csv.ts` | Leave row schema unchanged |
-| Explain | `src/report/explain.ts` | Add `formatTrendNextStep(filePath)` or append in formatter |
-| CLI explain write | `bin/hotspot-scanner.ts` `writeExplainBlock` | Emit next-step after hit |
-| Contract tests | `tests/contract/` | Bump complexity-trend fixtures to `3.0` |
-| Quiet / explain compose | bin scan action path | Suppress next-step with explain under `--quiet` |
+| Pattern                 | Location                                     | How to use                                                 |
+| ----------------------- | -------------------------------------------- | ---------------------------------------------------------- |
+| Trend orchestration     | `src/trend/run-trend.ts`                     | Attach `growthPattern` when building meta                  |
+| Trend types             | `src/trend/types.ts`                         | Add `GrowthPattern` + bump `version: "3.0"`                |
+| Table reporter          | `src/report/trend-table.ts`                  | Pattern line above sparklines                              |
+| CSV reporter            | `src/report/trend-csv.ts`                    | Leave row schema unchanged                                 |
+| Explain                 | `src/report/explain.ts`                      | Add `formatTrendNextStep(filePath)` or append in formatter |
+| CLI explain write       | `bin/hotspot-scanner.ts` `writeExplainBlock` | Emit next-step after hit                                   |
+| Contract tests          | `tests/contract/`                            | Bump complexity-trend fixtures to `3.0`                    |
+| Quiet / explain compose | bin scan action path                         | Suppress next-step with explain under `--quiet`            |
 
 ---
 
@@ -62,10 +62,7 @@ flowchart LR
 
 ```ts
 export type GrowthPatternKind =
-  | "deteriorating"
-  | "refactored"
-  | "stable"
-  | "inconclusive";
+  "deteriorating" | "refactored" | "stable" | "inconclusive";
 
 export type GrowthPattern = {
   kind: GrowthPatternKind;
@@ -81,10 +78,12 @@ export const MIN_POINTS = 5;
 export const STABLE_REL_RANGE = 0.08;
 export const STABLE_FLOOR = 0.01;
 export const REFACTOR_DROP = 0.18;
-export const DETERIORATE_RISE = 0.10;
+export const DETERIORATE_RISE = 0.1;
 
 export function classifyGrowthPattern(
-  points: ReadonlyArray<Pick<ComplexityTrendPoint, "rev" | "indentMean" | "ncloc">>,
+  points: ReadonlyArray<
+    Pick<ComplexityTrendPoint, "rev" | "indentMean" | "ncloc">
+  >,
 ): GrowthPattern;
 ```
 
@@ -162,36 +161,36 @@ Breaking for trend JSON consumers on `version` const (expected minor/major bump 
 
 ## Error / edge handling
 
-| Case | Behavior |
-| ---- | -------- |
-| Empty history | `growthPattern.kind = inconclusive`; trend still exit `0` |
-| Truncated sample | Classify sample; optional summary suffix |
-| Formatter cliff | Document only |
-| Explain miss | No next-step |
-| Quiet | No explain, no next-step |
+| Case             | Behavior                                                  |
+| ---------------- | --------------------------------------------------------- |
+| Empty history    | `growthPattern.kind = inconclusive`; trend still exit `0` |
+| Truncated sample | Classify sample; optional summary suffix                  |
+| Formatter cliff  | Document only                                             |
+| Explain miss     | No next-step                                              |
+| Quiet            | No explain, no next-step                                  |
 
 ---
 
 ## Risks
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| Heuristic false positives | `inconclusive` band; docs; no fail-on |
-| ID / milestone collision with M73 top-only | This feature is **M75**; IDs 1540+ |
-| Trend JSON breaking `2.0` | Document bump in README/recipes; update contract tests |
-| Quiet/explain compose regressions | Extend existing CLI explain tests |
+| Risk                                       | Mitigation                                             |
+| ------------------------------------------ | ------------------------------------------------------ |
+| Heuristic false positives                  | `inconclusive` band; docs; no fail-on                  |
+| ID / milestone collision with M73 top-only | This feature is **M75**; IDs 1540+                     |
+| Trend JSON breaking `2.0`                  | Document bump in README/recipes; update contract tests |
+| Quiet/explain compose regressions          | Extend existing CLI explain tests                      |
 
 ---
 
 ## Testing Strategy
 
-| Layer | What |
-| ----- | ---- |
-| Unit | `classify.test.ts` — short, flat, rising, peak-drop, mixed |
-| Unit | `trend-table` Pattern line; explain `formatTrendNextStep` |
-| Contract | Ajv `complexity-trend.json` `3.0` |
+| Layer           | What                                                                          |
+| --------------- | ----------------------------------------------------------------------------- |
+| Unit            | `classify.test.ts` — short, flat, rising, peak-drop, mixed                    |
+| Unit            | `trend-table` Pattern line; explain `formatTrendNextStep`                     |
+| Contract        | Ajv `complexity-trend.json` `3.0`                                             |
 | Integration/CLI | `trend` fixture asserts `meta.growthPattern`; scan `--explain` stderr `next:` |
-| Regression | CSV header unchanged; explain miss without `next:`; scan schema still `3.0` |
+| Regression      | CSV header unchanged; explain miss without `next:`; scan schema still `3.0`   |
 
 ---
 

@@ -39,51 +39,51 @@ flowchart TD
 
 | Task | Depends on (declared) | Diagram shows | Match |
 | ---- | --------------------- | ------------- | ----- |
-| T1 | None | Root `[P]` | yes |
-| T2 | None | Root `[P]` | yes |
-| T3 | None | Root `[P]` | yes |
-| T4 | T1, T2, T3 | T1/T2/T3→T4 | yes |
+| T1   | None                  | Root `[P]`    | yes   |
+| T2   | None                  | Root `[P]`    | yes   |
+| T3   | None                  | Root `[P]`    | yes   |
+| T4   | T1, T2, T3            | T1/T2/T3→T4   | yes   |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths (primary) | Conflict with parallel peers |
-| ---- | ------------ | --------------- | ---------------------------- |
-| T1 [P] | package root | `package.json` | None vs T2/T3 |
-| T2 [P] | docs / README | `README.md` | None vs T1/T3 |
-| T3 [P] | docs / contribute + security | `CONTRIBUTING.md`, `SECURITY.md` | None vs T1/T2 |
-| T4 | gate | none (verify only) | After T1–T3 |
+| Task   | Module owner                 | Paths (primary)                  | Conflict with parallel peers |
+| ------ | ---------------------------- | -------------------------------- | ---------------------------- |
+| T1 [P] | package root                 | `package.json`                   | None vs T2/T3                |
+| T2 [P] | docs / README                | `README.md`                      | None vs T1/T3                |
+| T3 [P] | docs / contribute + security | `CONTRIBUTING.md`, `SECURITY.md` | None vs T1/T2                |
+| T4     | gate                         | none (verify only)               | After T1–T3                  |
 
 > **`[P]`:** T1, T2, T3 — path-disjoint.
 
 ### Test Co-location Validation
 
-| Task | Code layer | Required tests (TESTING.md) | Co-located in task |
-| ---- | ---------- | --------------------------- | ------------------ |
-| T1 | package metadata | none | n/a |
-| T2 | docs | none | n/a |
-| T3 | docs | none | n/a |
-| T4 | gate | full | `pnpm build && pnpm test` + `rg` |
+| Task | Code layer       | Required tests (TESTING.md) | Co-located in task               |
+| ---- | ---------------- | --------------------------- | -------------------------------- |
+| T1   | package metadata | none                        | n/a                              |
+| T2   | docs             | none                        | n/a                              |
+| T3   | docs             | none                        | n/a                              |
+| T4   | gate             | full                        | `pnpm build && pnpm test` + `rg` |
 
 ### Granularity Check (Check 1)
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | package.json repository + homepage + bugs | ✅ Granular |
-| T2 | README badge + clone | ✅ Granular |
-| T3 | CONTRIBUTING + SECURITY URLs (one GitHub-identity docs concern) | ✅ OK cohesive |
-| T4 | verify-only | ✅ Granular |
+| Task | Scope                                                           | Status         |
+| ---- | --------------------------------------------------------------- | -------------- |
+| T1   | package.json repository + homepage + bugs                       | ✅ Granular    |
+| T2   | README badge + clone                                            | ✅ Granular    |
+| T3   | CONTRIBUTING + SECURITY URLs (one GitHub-identity docs concern) | ✅ OK cohesive |
+| T4   | verify-only                                                     | ✅ Granular    |
 
 ---
 
 ## Requirement → Task Mapping
 
-| IDs | Task |
-| --- | ---- |
-| HOTSPOT-1720, HOTSPOT-1721 | T1 |
-| HOTSPOT-1722 | T2 |
-| HOTSPOT-1723, HOTSPOT-1724 | T3 |
-| HOTSPOT-1725 | T4 |
-| HOTSPOT-1726–1729 | Reserved unused |
+| IDs                        | Task            |
+| -------------------------- | --------------- |
+| HOTSPOT-1720, HOTSPOT-1721 | T1              |
+| HOTSPOT-1722               | T2              |
+| HOTSPOT-1723, HOTSPOT-1724 | T3              |
+| HOTSPOT-1725               | T4              |
+| HOTSPOT-1726–1729          | Reserved unused |
 
 ---
 
@@ -171,5 +171,5 @@ pnpm build && pnpm test
 
 ## Suggested execution order
 
-1. T1 ∥ T2 ∥ T3  
+1. T1 ∥ T2 ∥ T3
 2. T4 (verify + gate)

@@ -27,48 +27,48 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on | Diagram | Match |
-| ---- | ---------- | ------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | None | Root | ✅ |
-| T3 | T1, T2 | T1/T2 → T3 | ✅ |
-| T4 | T3 | T3 → T4 | ✅ |
-| T5 | T4 | T4 → T5 | ✅ |
-| T6 | T5 | T5 → T6 | ✅ |
-| T7 | T6 | T6 → T7 | ✅ |
+| Task | Depends on | Diagram    | Match |
+| ---- | ---------- | ---------- | ----- |
+| T1   | None       | Root       | ✅    |
+| T2   | None       | Root       | ✅    |
+| T3   | T1, T2     | T1/T2 → T3 | ✅    |
+| T4   | T3         | T3 → T4    | ✅    |
+| T5   | T4         | T4 → T5    | ✅    |
+| T6   | T5         | T5 → T6    | ✅    |
+| T7   | T6         | T6 → T7    | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | docs-assets | `docs/assets/*` (new) | None — `[P]` with T2 |
-| T2 | docs | `README.md` (fence + Installation URL only), `CONTRIBUTING.md` (clone URL only) | Sequential before T3 README rewrite |
-| T3 | docs | `README.md` (cover→sample→asset→TOC→privacy→positioning) | After T1+T2 |
-| T4 | docs | `README.md` (How it works slim, Advanced shell, workflows, essential flags) | After T3 |
-| T5 | docs | `README.md` (jargon, v1, API placement, Limitations) | After T4 |
-| T6 | docs + package | `CONTRIBUTING.md` (dedupe pointer), `package.json` (`keywords` only) | After T5 (CONTRIBUTING already touched in T2 for URL — T6 is pointer/dedupe only) |
-| T7 | docs | verify greps + ROADMAP/STATE Execute notes + gate | After T6 |
+| Task | Module owner   | Paths                                                                           | Conflict                                                                          |
+| ---- | -------------- | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| T1   | docs-assets    | `docs/assets/*` (new)                                                           | None — `[P]` with T2                                                              |
+| T2   | docs           | `README.md` (fence + Installation URL only), `CONTRIBUTING.md` (clone URL only) | Sequential before T3 README rewrite                                               |
+| T3   | docs           | `README.md` (cover→sample→asset→TOC→privacy→positioning)                        | After T1+T2                                                                       |
+| T4   | docs           | `README.md` (How it works slim, Advanced shell, workflows, essential flags)     | After T3                                                                          |
+| T5   | docs           | `README.md` (jargon, v1, API placement, Limitations)                            | After T4                                                                          |
+| T6   | docs + package | `CONTRIBUTING.md` (dedupe pointer), `package.json` (`keywords` only)            | After T5 (CONTRIBUTING already touched in T2 for URL — T6 is pointer/dedupe only) |
+| T7   | docs           | verify greps + ROADMAP/STATE Execute notes + gate                               | After T6                                                                          |
 
 T3–T5 all own `README.md` — **not** `[P]`. T1 ‖ T2 only.
 
 ### Test Co-location Validation
 
-| Task | Code layer | Matrix requires | Task says | Match |
-| ---- | ---------- | --------------- | --------- | ----- |
-| T1–T6 | Docs / keywords | none | none (grep / manual preview / `ls`) | ✅ |
-| T7 | Docs only | none | none + Gate `pnpm build && pnpm test` | ✅ |
+| Task  | Code layer      | Matrix requires | Task says                             | Match |
+| ----- | --------------- | --------------- | ------------------------------------- | ----- |
+| T1–T6 | Docs / keywords | none            | none (grep / manual preview / `ls`)   | ✅    |
+| T7    | Docs only       | none            | none + Gate `pnpm build && pnpm test` | ✅    |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Asset folder + one capture | ✅ Granular |
-| T2 | Fence + clone URL sync | ✅ Cohesive |
-| T3 | Opening adoption block | ✅ Cohesive |
-| T4 | Structure / workflows / flags | ✅ Cohesive |
-| T5 | Voice + Limitations + API place | ✅ Cohesive |
-| T6 | CONTRIBUTING pointer + keywords | ✅ Cohesive |
-| T7 | Verify + project gate | ✅ Granular |
+| Task | Scope                           | Status      |
+| ---- | ------------------------------- | ----------- |
+| T1   | Asset folder + one capture      | ✅ Granular |
+| T2   | Fence + clone URL sync          | ✅ Cohesive |
+| T3   | Opening adoption block          | ✅ Cohesive |
+| T4   | Structure / workflows / flags   | ✅ Cohesive |
+| T5   | Voice + Limitations + API place | ✅ Cohesive |
+| T6   | CONTRIBUTING pointer + keywords | ✅ Cohesive |
+| T7   | Verify + project gate           | ✅ Granular |
 
 ---
 
@@ -342,27 +342,27 @@ Phase 3:
 
 | Requirement | Task(s) |
 | ----------- | ------- |
-| HOTSPOT-420 | T2 |
-| HOTSPOT-421 | T3 |
-| HOTSPOT-422 | T3 |
-| HOTSPOT-423 | T4 |
-| HOTSPOT-424 | T5 |
-| HOTSPOT-425 | T3 |
-| HOTSPOT-426 | T3 |
-| HOTSPOT-427 | T3 |
-| HOTSPOT-428 | T4 |
-| HOTSPOT-429 | T3 |
-| HOTSPOT-430 | T4 |
-| HOTSPOT-431 | T3 |
-| HOTSPOT-432 | T1, T3 |
-| HOTSPOT-433 | T5 |
-| HOTSPOT-434 | T6 |
-| HOTSPOT-435 | T5 |
-| HOTSPOT-436 | T4 |
-| HOTSPOT-437 | T6 |
-| HOTSPOT-439 | T2 |
-| HOTSPOT-438 | T5 |
-| HOTSPOT-440 | T7 |
+| HOTSPOT-420 | T2      |
+| HOTSPOT-421 | T3      |
+| HOTSPOT-422 | T3      |
+| HOTSPOT-423 | T4      |
+| HOTSPOT-424 | T5      |
+| HOTSPOT-425 | T3      |
+| HOTSPOT-426 | T3      |
+| HOTSPOT-427 | T3      |
+| HOTSPOT-428 | T4      |
+| HOTSPOT-429 | T3      |
+| HOTSPOT-430 | T4      |
+| HOTSPOT-431 | T3      |
+| HOTSPOT-432 | T1, T3  |
+| HOTSPOT-433 | T5      |
+| HOTSPOT-434 | T6      |
+| HOTSPOT-435 | T5      |
+| HOTSPOT-436 | T4      |
+| HOTSPOT-437 | T6      |
+| HOTSPOT-439 | T2      |
+| HOTSPOT-438 | T5      |
+| HOTSPOT-440 | T7      |
 
 ---
 

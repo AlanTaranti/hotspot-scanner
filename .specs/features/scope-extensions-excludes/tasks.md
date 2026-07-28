@@ -33,35 +33,35 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (body) | Diagram shows | Status |
-| ---- | ----------------- | ------------- | ------ |
-| T1 | None | Root | ✅ Match |
-| T2 | None | Root | ✅ Match |
-| T3 | T1, T2 | T1→T3, T2→T3 | ✅ Match |
+| Task | Depends on (body) | Diagram shows | Status   |
+| ---- | ----------------- | ------------- | -------- |
+| T1   | None              | Root          | ✅ Match |
+| T2   | None              | Root          | ✅ Match |
+| T3   | T1, T2            | T1→T3, T2→T3  | ✅ Match |
 
 ### Path Conflict Check
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | `src/complexity/` (+ enrich SoT) | `discover.ts`, `discover`/`index` tests; `enrich-coupling-static.ts` (+ test); optional `scan.test.ts` allowlist fixture strings | Disjoint from T2 `src/paths/` |
-| T2 | `src/paths/` | `scope.ts`, `scope.test.ts` (± `paths/index.ts` re-exports if needed) | Do **not** edit test-exclude constants; disjoint from T1 |
-| T3 | docs | ARCHITECTURE, README, CONCERNS (residual note), ROADMAP/STATE on Done | After T1+T2 |
+| Task | Module owner                     | Paths                                                                                                                            | Conflict                                                 |
+| ---- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| T1   | `src/complexity/` (+ enrich SoT) | `discover.ts`, `discover`/`index` tests; `enrich-coupling-static.ts` (+ test); optional `scan.test.ts` allowlist fixture strings | Disjoint from T2 `src/paths/`                            |
+| T2   | `src/paths/`                     | `scope.ts`, `scope.test.ts` (± `paths/index.ts` re-exports if needed)                                                            | Do **not** edit test-exclude constants; disjoint from T1 |
+| T3   | docs                             | ARCHITECTURE, README, CONCERNS (residual note), ROADMAP/STATE on Done                                                            | After T1+T2                                              |
 
 ### Test Co-location Validation
 
-| Task | Code layer | Matrix / TESTING.md | Task Tests | Status |
-| ---- | ---------- | ------------------- | ---------- | ------ |
-| T1 | complexity discover + scoring enrich | unit | unit | ✅ OK |
-| T2 | paths scope | unit | unit | ✅ OK |
-| T3 | docs only | none | none | ✅ OK |
+| Task | Code layer                           | Matrix / TESTING.md | Task Tests | Status |
+| ---- | ------------------------------------ | ------------------- | ---------- | ------ |
+| T1   | complexity discover + scoring enrich | unit                | unit       | ✅ OK  |
+| T2   | paths scope                          | unit                | unit       | ✅ OK  |
+| T3   | docs only                            | none                | none       | ✅ OK  |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | One constant + consumers that must stay in sync | ✅ Cohesive |
-| T2 | One artifact exclude append + unit tests | ✅ Granular |
-| T3 | Docs + full gate | ✅ Granular |
+| Task | Scope                                           | Status      |
+| ---- | ----------------------------------------------- | ----------- |
+| T1   | One constant + consumers that must stay in sync | ✅ Cohesive |
+| T2   | One artifact exclude append + unit tests        | ✅ Granular |
+| T3   | Docs + full gate                                | ✅ Granular |
 
 ---
 

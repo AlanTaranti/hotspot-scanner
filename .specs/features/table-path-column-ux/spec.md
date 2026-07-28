@@ -25,13 +25,13 @@ Scan and compare **table** formats hard-code the File column to 24 characters an
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Markdown / JSON / CSV path changes | Already full paths |
-| `--full-paths` / config key | Locked — no new surface |
-| End-ellipsis or basename-only | Locked — middle-ellipsis only |
-| Triage / explain / glossary redesign | Sister milestones; YAGNI |
-| JSON schema / contract bump | Presentation-only |
+| Feature                              | Reason                        |
+| ------------------------------------ | ----------------------------- |
+| Markdown / JSON / CSV path changes   | Already full paths            |
+| `--full-paths` / config key          | Locked — no new surface       |
+| End-ellipsis or basename-only        | Locked — middle-ellipsis only |
+| Triage / explain / glossary redesign | Sister milestones; YAGNI      |
+| JSON schema / contract bump          | Presentation-only             |
 
 ---
 
@@ -156,20 +156,20 @@ Scan and compare **table** formats hard-code the File column to 24 characters an
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-990 | P1: Middle-ellipsis scan | Tasks | Pending |
-| HOTSPOT-991 | P1: Dynamic width + injectable | Tasks | Pending |
-| HOTSPOT-992 | P1: Fallback 24 | Tasks | Pending |
-| HOTSPOT-993 | P1: Min/max + ~80-col cap | Tasks | Pending |
-| HOTSPOT-994 | P1: Compare parity | Tasks | Pending |
-| HOTSPOT-995 | P1: Shared helper | Tasks | Pending |
-| HOTSPOT-996 | P1: Headers match width | Tasks | Pending |
-| HOTSPOT-997 | P2: Ellipsis edge cases | Tasks | Pending |
-| HOTSPOT-998 | P1: Unicode `…` | Tasks | Pending |
-| HOTSPOT-999 | P1: No flags/config/schema | Tasks | Pending |
-| HOTSPOT-1000 | P2: Living docs | Tasks | Pending |
-| HOTSPOT-1001–1009 | Reserved | — | Unused |
+| Requirement ID    | Story                          | Phase | Status  |
+| ----------------- | ------------------------------ | ----- | ------- |
+| HOTSPOT-990       | P1: Middle-ellipsis scan       | Tasks | Pending |
+| HOTSPOT-991       | P1: Dynamic width + injectable | Tasks | Pending |
+| HOTSPOT-992       | P1: Fallback 24                | Tasks | Pending |
+| HOTSPOT-993       | P1: Min/max + ~80-col cap      | Tasks | Pending |
+| HOTSPOT-994       | P1: Compare parity             | Tasks | Pending |
+| HOTSPOT-995       | P1: Shared helper              | Tasks | Pending |
+| HOTSPOT-996       | P1: Headers match width        | Tasks | Pending |
+| HOTSPOT-997       | P2: Ellipsis edge cases        | Tasks | Pending |
+| HOTSPOT-998       | P1: Unicode `…`                | Tasks | Pending |
+| HOTSPOT-999       | P1: No flags/config/schema     | Tasks | Pending |
+| HOTSPOT-1000      | P2: Living docs                | Tasks | Pending |
+| HOTSPOT-1001–1009 | Reserved                       | —     | Unused  |
 
 **Coverage:** 11 mapped requirements + reserved band; all non-reserved IDs map to tasks.
 

@@ -64,50 +64,50 @@ flowchart TD
 
 | Task | Depends on (task body) | Diagram shows | Match |
 | ---- | ---------------------- | ------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | None | Root | ✅ |
-| T3 | None | Root | ✅ |
-| T4 | None | Root | ✅ |
-| T5 | None | Root | ✅ |
-| T6 | T1, T2, T3, T4, T5 | T1–T5→T6 | ✅ |
-| T7 | T1, T2, T3, T4 | T1–T4→T7 | ✅ |
-| T8 | T1 | T1→T8 | ✅ |
-| T9 | T1, T2, T3, T5 | T1–T3,T5→T9 | ✅ |
-| T10 | T6, T7, T8, T9 | T6–T9→T10 | ✅ |
-| T11 | T10 | T10→T11 | ✅ |
-| T12 | T11 | T11→T12 | ✅ |
-| T13 | T12 | T12→T13 | ✅ |
+| T1   | None                   | Root          | ✅    |
+| T2   | None                   | Root          | ✅    |
+| T3   | None                   | Root          | ✅    |
+| T4   | None                   | Root          | ✅    |
+| T5   | None                   | Root          | ✅    |
+| T6   | T1, T2, T3, T4, T5     | T1–T5→T6      | ✅    |
+| T7   | T1, T2, T3, T4         | T1–T4→T7      | ✅    |
+| T8   | T1                     | T1→T8         | ✅    |
+| T9   | T1, T2, T3, T5         | T1–T3,T5→T9   | ✅    |
+| T10  | T6, T7, T8, T9         | T6–T9→T10     | ✅    |
+| T11  | T10                    | T10→T11       | ✅    |
+| T12  | T11                    | T11→T12       | ✅    |
+| T13  | T12                    | T12→T13       | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | `src/report/` | `src/report/only.ts`, `only.test.ts` | Sole |
-| T2 | `src/report/` | `src/report/summary.ts`, `summary.test.ts` | Sole |
-| T3 | `src/report/` | `src/report/glossary.ts`, `glossary.test.ts` | Sole |
-| T4 | `src/report/` | `src/report/triage.ts`, `triage.test.ts` | Sole |
-| T5 | `src/report/` | `src/report/color.ts`, `color.test.ts` | Sole |
-| T6 | `src/report/` | `src/report/table.ts`, `table.test.ts` | Sole (not parallel with other table edits) |
-| T7 | `src/report/` | `src/report/markdown.ts`, `markdown.test.ts` | Sole |
-| T8 | `src/report/` | `src/report/json.ts`, `csv.ts`, `csv-bundle.ts` (if needed), `*.test.ts` | Sole — sequential within task |
-| T9 | `src/report/` | `src/report/compare-table.ts`, `compare-markdown.ts`, `compare-json.ts`, `compare-csv.ts`, tests | Sole — one owner for compare renderers |
-| T10 | `src/report/` | `src/report/index.ts`, `index.test.ts` | After T6–T9 |
-| T11 | `bin/` | `bin/hotspot-scanner.ts`, `bin/hotspot-scanner.test.ts` | Sole |
-| T12 | docs | `ARCHITECTURE.md`, `README.md`, optionally `STRUCTURE.md` | Docs only |
-| T13 | gate | none (verify) | N/A |
+| Task | Module owner  | Paths                                                                                            | Conflict                                   |
+| ---- | ------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------ |
+| T1   | `src/report/` | `src/report/only.ts`, `only.test.ts`                                                             | Sole                                       |
+| T2   | `src/report/` | `src/report/summary.ts`, `summary.test.ts`                                                       | Sole                                       |
+| T3   | `src/report/` | `src/report/glossary.ts`, `glossary.test.ts`                                                     | Sole                                       |
+| T4   | `src/report/` | `src/report/triage.ts`, `triage.test.ts`                                                         | Sole                                       |
+| T5   | `src/report/` | `src/report/color.ts`, `color.test.ts`                                                           | Sole                                       |
+| T6   | `src/report/` | `src/report/table.ts`, `table.test.ts`                                                           | Sole (not parallel with other table edits) |
+| T7   | `src/report/` | `src/report/markdown.ts`, `markdown.test.ts`                                                     | Sole                                       |
+| T8   | `src/report/` | `src/report/json.ts`, `csv.ts`, `csv-bundle.ts` (if needed), `*.test.ts`                         | Sole — sequential within task              |
+| T9   | `src/report/` | `src/report/compare-table.ts`, `compare-markdown.ts`, `compare-json.ts`, `compare-csv.ts`, tests | Sole — one owner for compare renderers     |
+| T10  | `src/report/` | `src/report/index.ts`, `index.test.ts`                                                           | After T6–T9                                |
+| T11  | `bin/`        | `bin/hotspot-scanner.ts`, `bin/hotspot-scanner.test.ts`                                          | Sole                                       |
+| T12  | docs          | `ARCHITECTURE.md`, `README.md`, optionally `STRUCTURE.md`                                        | Docs only                                  |
+| T13  | gate          | none (verify)                                                                                    | N/A                                        |
 
 **Parallelism:** T1–T5 `[P]` (disjoint new files). T6–T9 `[P]` (disjoint renderer files). Do **not** parallelize any two tasks that both edit `index.ts` or `bin/`.
 
 ### Test Co-location Validation
 
-| Task | Code layer | Matrix / TESTING.md | Task Tests | Status |
-| ---- | ---------- | ------------------- | ---------- | ------ |
-| T1–T5 | `src/report/` helpers | Unit co-located | unit | ✅ |
-| T6–T9 | `src/report/` renderers | Unit co-located | unit | ✅ |
-| T10 | `src/report/index.ts` | Unit | unit | ✅ |
-| T11 | `bin/` | CLI Vitest | unit/CLI | ✅ |
-| T12 | docs | none | none | ✅ |
-| T13 | gate | full gate | deferred_project_gate | ✅ |
+| Task  | Code layer              | Matrix / TESTING.md | Task Tests            | Status |
+| ----- | ----------------------- | ------------------- | --------------------- | ------ |
+| T1–T5 | `src/report/` helpers   | Unit co-located     | unit                  | ✅     |
+| T6–T9 | `src/report/` renderers | Unit co-located     | unit                  | ✅     |
+| T10   | `src/report/index.ts`   | Unit                | unit                  | ✅     |
+| T11   | `bin/`                  | CLI Vitest          | unit/CLI              | ✅     |
+| T12   | docs                    | none                | none                  | ✅     |
+| T13   | gate                    | full gate           | deferred_project_gate | ✅     |
 
 ---
 
@@ -380,38 +380,38 @@ flowchart TD
 
 ## Requirement → Task Mapping
 
-| Requirement | Tasks |
-| ----------- | ----- |
-| HOTSPOT-510 | T3, T6 |
-| HOTSPOT-511 | T3 |
-| HOTSPOT-512 | T6 |
-| HOTSPOT-513 | T3, T7 |
-| HOTSPOT-514 | T3, T7 |
-| HOTSPOT-515 | T2, T6 |
-| HOTSPOT-516 | T7 |
-| HOTSPOT-517 | T2 |
-| HOTSPOT-518 | T2, T10 |
-| HOTSPOT-519 | T2, T9 |
-| HOTSPOT-520 | T4 |
+| Requirement | Tasks      |
+| ----------- | ---------- |
+| HOTSPOT-510 | T3, T6     |
+| HOTSPOT-511 | T3         |
+| HOTSPOT-512 | T6         |
+| HOTSPOT-513 | T3, T7     |
+| HOTSPOT-514 | T3, T7     |
+| HOTSPOT-515 | T2, T6     |
+| HOTSPOT-516 | T7         |
+| HOTSPOT-517 | T2         |
+| HOTSPOT-518 | T2, T10    |
+| HOTSPOT-519 | T2, T9     |
+| HOTSPOT-520 | T4         |
 | HOTSPOT-521 | T4, T6, T7 |
-| HOTSPOT-522 | T6, T11 |
-| HOTSPOT-523 | T4, T10 |
-| HOTSPOT-524 | T4, T9 |
-| HOTSPOT-525 | T1, T11 |
-| HOTSPOT-526 | T1, T11 |
-| HOTSPOT-527 | T6, T7 |
-| HOTSPOT-528 | T8 |
-| HOTSPOT-529 | T8 |
-| HOTSPOT-530 | T1, T8 |
-| HOTSPOT-531 | T9, T10 |
+| HOTSPOT-522 | T6, T11    |
+| HOTSPOT-523 | T4, T10    |
+| HOTSPOT-524 | T4, T9     |
+| HOTSPOT-525 | T1, T11    |
+| HOTSPOT-526 | T1, T11    |
+| HOTSPOT-527 | T6, T7     |
+| HOTSPOT-528 | T8         |
+| HOTSPOT-529 | T8         |
+| HOTSPOT-530 | T1, T8     |
+| HOTSPOT-531 | T9, T10    |
 | HOTSPOT-532 | T5, T6, T9 |
-| HOTSPOT-533 | T11 |
-| HOTSPOT-534 | T11 |
-| HOTSPOT-535 | T11 |
-| HOTSPOT-536 | T11 |
-| HOTSPOT-537 | T5 |
-| HOTSPOT-538 | T5 |
-| HOTSPOT-539 | T11, T12 |
+| HOTSPOT-533 | T11        |
+| HOTSPOT-534 | T11        |
+| HOTSPOT-535 | T11        |
+| HOTSPOT-536 | T11        |
+| HOTSPOT-537 | T5         |
+| HOTSPOT-538 | T5         |
+| HOTSPOT-539 | T11, T12   |
 
 **Unmapped:** 0
 

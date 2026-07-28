@@ -27,33 +27,33 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (body) | Diagram shows | Status |
-| ---- | ----------------- | ------------- | ------ |
-| T1 | None | Root | ✅ Match |
-| T2 | T1 | T1→T2 | ✅ Match |
+| Task | Depends on (body) | Diagram shows | Status   |
+| ---- | ----------------- | ------------- | -------- |
+| T1   | None              | Root          | ✅ Match |
+| T2   | T1                | T1→T2         | ✅ Match |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | report | `src/report/table.ts`, `table.test.ts`, `glossary.ts`, `glossary.test.ts` (if copy changes); do **not** edit compare-table unless a shared header helper is strictly required (YAGNI — leave compare alone) | Sole report owner for scan table |
-| T2 | gate | none | After T1 |
+| Task | Module owner | Paths                                                                                                                                                                                                       | Conflict                         |
+| ---- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| T1   | report       | `src/report/table.ts`, `table.test.ts`, `glossary.ts`, `glossary.test.ts` (if copy changes); do **not** edit compare-table unless a shared header helper is strictly required (YAGNI — leave compare alone) | Sole report owner for scan table |
+| T2   | gate         | none                                                                                                                                                                                                        | After T1                         |
 
 No `[P]`.
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task Tests | Status |
-| ---- | ---------- | ---------------------- | ---------- | ------ |
-| T1 | `src/report/` | unit | unit | ✅ OK |
-| T2 | full project | gate | `pnpm build && pnpm test` | ✅ OK |
+| Task | Code layer    | TESTING.md expectation | Task Tests                | Status |
+| ---- | ------------- | ---------------------- | ------------------------- | ------ |
+| T1   | `src/report/` | unit                   | unit                      | ✅ OK  |
+| T2   | full project  | gate                   | `pnpm build && pnpm test` | ✅ OK  |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Table column + glossary wording + tests | ✅ Cohesive report |
-| T2 | Project gate | ✅ Granular |
+| Task | Scope                                   | Status             |
+| ---- | --------------------------------------- | ------------------ |
+| T1   | Table column + glossary wording + tests | ✅ Cohesive report |
+| T2   | Project gate                            | ✅ Granular        |
 
 ---
 
@@ -113,7 +113,7 @@ No `[P]`.
 
 | Requirement ID | Task |
 | -------------- | ---- |
-| HOTSPOT-1280 | T1 |
-| HOTSPOT-1281 | T1 |
-| HOTSPOT-1282 | T1 |
-| HOTSPOT-1283 | T1 |
+| HOTSPOT-1280   | T1   |
+| HOTSPOT-1281   | T1   |
+| HOTSPOT-1282   | T1   |
+| HOTSPOT-1283   | T1   |

@@ -24,18 +24,18 @@
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
+| Feature                                       | Reason                     |
+| --------------------------------------------- | -------------------------- |
 | Auto-classify deteriorating/refactored/stable | YAGNI (`--classify` later) |
-| `git cat-file --batch` | Perf phase 2 |
-| `--explain` next-step hint to `trend` | Deferred |
-| Changing scan / `hotspotScore` / NCLOC rules | Orthogonal |
-| Compare / baseline | M71 stands |
-| McCabe / ts-morph / historical AST | M57 + deferred |
-| Markdown format / chart libraries | YAGNI |
-| Reading `.hotspot-scanner.json` | CLI-only locked |
-| Repo-wide trend inside `scan` | Cost / contract |
-| `--file` flag alias | YAGNI |
+| `git cat-file --batch`                        | Perf phase 2               |
+| `--explain` next-step hint to `trend`         | Deferred                   |
+| Changing scan / `hotspotScore` / NCLOC rules  | Orthogonal                 |
+| Compare / baseline                            | M71 stands                 |
+| McCabe / ts-morph / historical AST            | M57 + deferred             |
+| Markdown format / chart libraries             | YAGNI                      |
+| Reading `.hotspot-scanner.json`               | CLI-only locked            |
+| Repo-wide trend inside `scan`                 | Cost / contract            |
+| `--file` flag alias                           | YAGNI                      |
 
 ---
 
@@ -203,36 +203,36 @@
 
 ## Requirement Traceability
 
-| ID | Story | Priority | Status |
-| -- | ----- | -------- | ------ |
-| HOTSPOT-1400 | Indent: return shape `{ n, total, mean, sd, max }` | P1 | Pending |
-| HOTSPOT-1401 | Indent: 4 spaces / tab rules; ignore blanks | P1 | Pending |
-| HOTSPOT-1402 | Indent: no AST; `n===0` → mean/sd 0 | P1 | Pending |
-| HOTSPOT-1403 | Sparkline glyphs + min–max | P1 | Pending |
-| HOTSPOT-1404 | Sparkline empty/constant; series mean+ncloc | P1 | Pending |
-| HOTSPOT-1405 | Resolve repo/file; directory → usage error | P1 | Pending |
-| HOTSPOT-1406 | `git log` + `--follow` default / `--no-follow` | P1 | Pending |
-| HOTSPOT-1407 | `--since` default / `--start`+`--end` exclusive | P1 | Pending |
-| HOTSPOT-1408 | Uniform `--max-revisions` 100; `--all`; truncated meta+stderr | P1 | Pending |
-| HOTSPOT-1409 | `git show` + indent + ncloc; path-at-rev | P1 | Pending |
-| HOTSPOT-1410 | Skip failed show + warning; empty window warn exit 0 | P1 | Pending |
-| HOTSPOT-1411 | Ascending order; git only in `src/git/`; scan miner unchanged | P1 | Pending |
-| HOTSPOT-1412 | JSON `version`/`kind` + point fields | P1 | Pending |
-| HOTSPOT-1413 | Schema + contract tests; scan 3.0 untouched | P1 | Pending |
-| HOTSPOT-1414 | No config file load for trend | P1 | Pending |
-| HOTSPOT-1415 | Table + sparklines | P1 | Pending |
-| HOTSPOT-1416 | JSON includes sparklines; CSV no sparkline cols | P1 | Pending |
-| HOTSPOT-1417 | Pure reporters; bin `-o` | P1 | Pending |
-| HOTSPOT-1418 | CLI `trend` wiring | P1 | Pending |
-| HOTSPOT-1419 | Flags + cancel exits | P1 | Pending |
-| HOTSPOT-1420 | Exit 2 for usage / never-in-range | P1 | Pending |
-| HOTSPOT-1421 | Completions + path-first non-theft | P1 | Pending |
-| HOTSPOT-1422 | Public `runComplexityTrend` export | P2 | Pending |
-| HOTSPOT-1423 | README/recipes workflow + Prettier note | P2 | Pending |
-| HOTSPOT-1424 | Living codebase docs / skills / AGENTS | P2 | Pending |
-| HOTSPOT-1425 | Multi-commit fixture + integration/CLI smoke | P2 | Pending |
-| HOTSPOT-1426–1469 | — | — | Unassigned (buffer) |
-| HOTSPOT-1470–1499 | — | — | Reserved |
+| ID                | Story                                                         | Priority | Status              |
+| ----------------- | ------------------------------------------------------------- | -------- | ------------------- |
+| HOTSPOT-1400      | Indent: return shape `{ n, total, mean, sd, max }`            | P1       | Pending             |
+| HOTSPOT-1401      | Indent: 4 spaces / tab rules; ignore blanks                   | P1       | Pending             |
+| HOTSPOT-1402      | Indent: no AST; `n===0` → mean/sd 0                           | P1       | Pending             |
+| HOTSPOT-1403      | Sparkline glyphs + min–max                                    | P1       | Pending             |
+| HOTSPOT-1404      | Sparkline empty/constant; series mean+ncloc                   | P1       | Pending             |
+| HOTSPOT-1405      | Resolve repo/file; directory → usage error                    | P1       | Pending             |
+| HOTSPOT-1406      | `git log` + `--follow` default / `--no-follow`                | P1       | Pending             |
+| HOTSPOT-1407      | `--since` default / `--start`+`--end` exclusive               | P1       | Pending             |
+| HOTSPOT-1408      | Uniform `--max-revisions` 100; `--all`; truncated meta+stderr | P1       | Pending             |
+| HOTSPOT-1409      | `git show` + indent + ncloc; path-at-rev                      | P1       | Pending             |
+| HOTSPOT-1410      | Skip failed show + warning; empty window warn exit 0          | P1       | Pending             |
+| HOTSPOT-1411      | Ascending order; git only in `src/git/`; scan miner unchanged | P1       | Pending             |
+| HOTSPOT-1412      | JSON `version`/`kind` + point fields                          | P1       | Pending             |
+| HOTSPOT-1413      | Schema + contract tests; scan 3.0 untouched                   | P1       | Pending             |
+| HOTSPOT-1414      | No config file load for trend                                 | P1       | Pending             |
+| HOTSPOT-1415      | Table + sparklines                                            | P1       | Pending             |
+| HOTSPOT-1416      | JSON includes sparklines; CSV no sparkline cols               | P1       | Pending             |
+| HOTSPOT-1417      | Pure reporters; bin `-o`                                      | P1       | Pending             |
+| HOTSPOT-1418      | CLI `trend` wiring                                            | P1       | Pending             |
+| HOTSPOT-1419      | Flags + cancel exits                                          | P1       | Pending             |
+| HOTSPOT-1420      | Exit 2 for usage / never-in-range                             | P1       | Pending             |
+| HOTSPOT-1421      | Completions + path-first non-theft                            | P1       | Pending             |
+| HOTSPOT-1422      | Public `runComplexityTrend` export                            | P2       | Pending             |
+| HOTSPOT-1423      | README/recipes workflow + Prettier note                       | P2       | Pending             |
+| HOTSPOT-1424      | Living codebase docs / skills / AGENTS                        | P2       | Pending             |
+| HOTSPOT-1425      | Multi-commit fixture + integration/CLI smoke                  | P2       | Pending             |
+| HOTSPOT-1426–1469 | —                                                             | —        | Unassigned (buffer) |
+| HOTSPOT-1470–1499 | —                                                             | —        | Reserved            |
 
 ---
 

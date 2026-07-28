@@ -140,9 +140,7 @@ describe("createComplexityAnalyzer", () => {
   });
 
   it("uses injected createWorkerPool when provided", async () => {
-    const runBatches = vi.fn(async () => [
-      { results: [], warnings: [] },
-    ]);
+    const runBatches = vi.fn(async () => [{ results: [], warnings: [] }]);
     const createWorkerPool = vi.fn(() => ({ runBatches }));
 
     const analyzer = createComplexityAnalyzer({
@@ -181,7 +179,8 @@ describe("createComplexityAnalyzer", () => {
     for (let index = 0; index < DEFAULT_BATCH_SIZE + 2; index += 1) {
       const fileName = `file-${String(index).padStart(3, "0")}.ts`;
       if (index % 7 === 0) {
-        files[fileName] = `export function fn${index}(x: boolean) { return x ? 1 : 0; }`;
+        files[fileName] =
+          `export function fn${index}(x: boolean) { return x ? 1 : 0; }`;
       } else {
         files[fileName] = `export const value${index} = ${index};`;
       }
@@ -208,7 +207,10 @@ describe("createComplexityAnalyzer", () => {
     }
 
     const repoPath = await createTempRepo(files);
-    for (const fileName of ["file-010.ts", `file-${String(DEFAULT_BATCH_SIZE).padStart(3, "0")}.ts`]) {
+    for (const fileName of [
+      "file-010.ts",
+      `file-${String(DEFAULT_BATCH_SIZE).padStart(3, "0")}.ts`,
+    ]) {
       const absolutePath = join(repoPath, fileName);
       unreadablePaths.push(absolutePath);
       await chmod(absolutePath, 0o000);
@@ -307,7 +309,9 @@ describe("createComplexityAnalyzer", () => {
   });
 
   it("rejects repoPath that is not a directory", async () => {
-    const filePath = await createTempRepo({ "only-file.ts": "export const x = 1;" });
+    const filePath = await createTempRepo({
+      "only-file.ts": "export const x = 1;",
+    });
     const analyzer = createComplexityAnalyzer();
     await expect(
       analyzer.analyze({ repoPath: join(filePath, "only-file.ts") }),
@@ -351,11 +355,7 @@ describe("createComplexityAnalyzer", () => {
       },
     ]);
     const createWorkerPool = vi.fn(() => ({ runBatches }));
-    const discoverSourceFiles = vi.fn(async () => [
-      "a.ts",
-      "b.ts",
-      "c.ts",
-    ]);
+    const discoverSourceFiles = vi.fn(async () => ["a.ts", "b.ts", "c.ts"]);
 
     const analyzer = createComplexityAnalyzer({
       discoverSourceFiles,
@@ -368,7 +368,12 @@ describe("createComplexityAnalyzer", () => {
     });
 
     expect(discoverSourceFiles).toHaveBeenCalledTimes(1);
-    expect(runBatches).toHaveBeenCalledWith(fixtureDir, [["b.ts"]], undefined, undefined);
+    expect(runBatches).toHaveBeenCalledWith(
+      fixtureDir,
+      [["b.ts"]],
+      undefined,
+      undefined,
+    );
     expect(result.results.map((entry) => entry.filePath)).toEqual(["b.ts"]);
   });
 
@@ -447,9 +452,7 @@ describe("createComplexityAnalyzer", () => {
 
   it("forwards signal to worker pool runBatches", async () => {
     const controller = new AbortController();
-    const runBatches = vi.fn(async () => [
-      { results: [], warnings: [] },
-    ]);
+    const runBatches = vi.fn(async () => [{ results: [], warnings: [] }]);
     const createWorkerPool = vi.fn(() => ({ runBatches }));
     const discoverSourceFiles = vi.fn(async () => ["a.ts", "b.ts"]);
 
@@ -474,9 +477,7 @@ describe("createComplexityAnalyzer", () => {
 
   it("forwards onProgress to worker pool runBatches", async () => {
     const onProgress = vi.fn();
-    const runBatches = vi.fn(async () => [
-      { results: [], warnings: [] },
-    ]);
+    const runBatches = vi.fn(async () => [{ results: [], warnings: [] }]);
     const createWorkerPool = vi.fn(() => ({ runBatches }));
     const discoverSourceFiles = vi.fn(async () => ["a.ts", "b.ts"]);
 

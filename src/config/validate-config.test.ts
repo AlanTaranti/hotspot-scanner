@@ -29,12 +29,10 @@ import {
 } from "./load-config.js";
 import { validateHotspotScannerConfigFile } from "./validate-config.js";
 
-const actualFs = await vi.importActual<typeof import("node:fs/promises")>(
-  "node:fs/promises",
-);
-const actualLoadConfig = await vi.importActual<typeof import("./load-config.js")>(
-  "./load-config.js",
-);
+const actualFs =
+  await vi.importActual<typeof import("node:fs/promises")>("node:fs/promises");
+const actualLoadConfig =
+  await vi.importActual<typeof import("./load-config.js")>("./load-config.js");
 
 async function withTempRepo(
   files: Record<string, string>,
@@ -80,7 +78,9 @@ describe("validateHotspotScannerConfigFile", () => {
   it("discovers config when given a directory", async () => {
     await withTempRepo(
       {
-        [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({ since: "1 year ago" }),
+        [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({
+          since: "1 year ago",
+        }),
       },
       async (repoPath) => {
         const result = await validateHotspotScannerConfigFile(repoPath);
@@ -94,7 +94,9 @@ describe("validateHotspotScannerConfigFile", () => {
   it("discovers config in a parent directory when given a nested dir", async () => {
     await withTempRepo(
       {
-        [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({ since: "1 year ago" }),
+        [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({
+          since: "1 year ago",
+        }),
         "packages/app/package.json": "{}",
       },
       async (repoPath) => {
@@ -114,9 +116,9 @@ describe("validateHotspotScannerConfigFile", () => {
       },
       async (repoPath) => {
         const configPath = join(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME);
-        await expect(validateHotspotScannerConfigFile(configPath)).rejects.toThrow(
-          ConfigError,
-        );
+        await expect(
+          validateHotspotScannerConfigFile(configPath),
+        ).rejects.toThrow(ConfigError);
       },
     );
   });
@@ -124,13 +126,15 @@ describe("validateHotspotScannerConfigFile", () => {
   it("throws ConfigError for invalid known-key types", async () => {
     await withTempRepo(
       {
-        [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({ top: "not-a-number" }),
+        [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({
+          top: "not-a-number",
+        }),
       },
       async (repoPath) => {
         const configPath = join(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME);
-        await expect(validateHotspotScannerConfigFile(configPath)).rejects.toThrow(
-          ConfigError,
-        );
+        await expect(
+          validateHotspotScannerConfigFile(configPath),
+        ).rejects.toThrow(ConfigError);
       },
     );
   });
@@ -138,9 +142,9 @@ describe("validateHotspotScannerConfigFile", () => {
   it("throws ConfigError when explicit file is missing", async () => {
     await withTempRepo({}, async (repoPath) => {
       const missingPath = join(repoPath, "missing.json");
-      await expect(validateHotspotScannerConfigFile(missingPath)).rejects.toThrow(
-        ConfigError,
-      );
+      await expect(
+        validateHotspotScannerConfigFile(missingPath),
+      ).rejects.toThrow(ConfigError);
       await expect(
         validateHotspotScannerConfigFile(missingPath),
       ).rejects.toThrow(/not found/i);
@@ -163,9 +167,9 @@ describe("validateHotspotScannerConfigFile", () => {
       Object.assign(new Error("permission denied"), { code: "EACCES" }),
     );
 
-    await expect(validateHotspotScannerConfigFile("/some/path")).rejects.toThrow(
-      "permission denied",
-    );
+    await expect(
+      validateHotspotScannerConfigFile("/some/path"),
+    ).rejects.toThrow("permission denied");
   });
 
   it("throws ConfigError when path is neither a file nor a directory", async () => {
@@ -209,7 +213,9 @@ describe("validateHotspotScannerConfigFile", () => {
   it("throws ConfigError when explicit file path resolves to missing load", async () => {
     await withTempRepo(
       {
-        [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({ since: "1 year ago" }),
+        [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({
+          since: "1 year ago",
+        }),
       },
       async (repoPath) => {
         const configPath = join(repoPath, HOTSPOT_SCANNER_CONFIG_FILENAME);
@@ -217,9 +223,9 @@ describe("validateHotspotScannerConfigFile", () => {
         await symlink(configPath, danglingPath);
         await rm(configPath);
 
-        await expect(validateHotspotScannerConfigFile(danglingPath)).rejects.toThrow(
-          ConfigError,
-        );
+        await expect(
+          validateHotspotScannerConfigFile(danglingPath),
+        ).rejects.toThrow(ConfigError);
       },
     );
   });

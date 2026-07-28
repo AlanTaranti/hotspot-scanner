@@ -160,7 +160,9 @@ describe("mergeScanOptionsWithSources", () => {
   });
 
   it("tags config-provided fields as config", () => {
-    expect(mergeScanOptionsWithSources({ config }, "/repo/.hotspot-scanner.json")).toEqual({
+    expect(
+      mergeScanOptionsWithSources({ config }, "/repo/.hotspot-scanner.json"),
+    ).toEqual({
       values: {
         since: "6 months ago",
         include: ["src/**"],

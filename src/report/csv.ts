@@ -5,7 +5,7 @@ import { formatCsvRow } from "./csv-utils.js";
 const SCORE_DECIMALS = 4;
 
 export interface RenderCsvOptions {
-  only?: readonly ("hotspots")[];
+  only?: readonly "hotspots"[];
 }
 
 function formatScore(value: number): string {

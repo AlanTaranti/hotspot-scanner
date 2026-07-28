@@ -29,17 +29,17 @@
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Color file paths / Pattern summaries / meta lines | YAGNI — signal tokens only |
-| stderr `warning:` prefix color | Separate diagnostics surface |
-| `FORCE_COLOR` | M41/M74/M76 YAGNI lock |
-| Color in JSON or markdown | Machine / doc formats stay plain |
-| New color libraries (chalk, etc.) | M41 — raw ANSI only |
-| Changing `runAssess` / schema / selection | Presentation only |
-| Scan / doctor / trend color behavior changes | Sister milestones only |
-| Hoisting `--no-color` to program-global | YAGNI — assess subcommand flag only |
-| `--fail-on-deteriorating` / SARIF | Deferred assess CI |
+| Feature                                           | Reason                              |
+| ------------------------------------------------- | ----------------------------------- |
+| Color file paths / Pattern summaries / meta lines | YAGNI — signal tokens only          |
+| stderr `warning:` prefix color                    | Separate diagnostics surface        |
+| `FORCE_COLOR`                                     | M41/M74/M76 YAGNI lock              |
+| Color in JSON or markdown                         | Machine / doc formats stay plain    |
+| New color libraries (chalk, etc.)                 | M41 — raw ANSI only                 |
+| Changing `runAssess` / schema / selection         | Presentation only                   |
+| Scan / doctor / trend color behavior changes      | Sister milestones only              |
+| Hoisting `--no-color` to program-global           | YAGNI — assess subcommand flag only |
+| `--fail-on-deteriorating` / SARIF                 | Deferred assess CI                  |
 
 ---
 
@@ -132,24 +132,24 @@
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-1680 | P1: Bold title + section header | Tasks | Pending |
-| HOTSPOT-1681 | P1: Color summary Pattern-count kinds | Tasks | Pending |
-| HOTSPOT-1682 | P1: Color detail Pattern kind | Tasks | Pending |
-| HOTSPOT-1683 | P1: Color detail score via `paintScore` | Tasks | Pending |
-| HOTSPOT-1684 | P1: `stripAnsi` equals plain table | Tasks | Pending |
-| HOTSPOT-1685 | P1: Non-TTY → plain | Tasks | Pending |
-| HOTSPOT-1686 | P1: `--no-color` → plain | Tasks | Pending |
-| HOTSPOT-1687 | P1: Non-empty `NO_COLOR` → plain | Tasks | Pending |
-| HOTSPOT-1688 | P1: `--output` → plain | Tasks | Pending |
-| HOTSPOT-1689 | P1: JSON/markdown never colored | Tasks | Pending |
-| HOTSPOT-1690 | P1: Color not a config key | Tasks | Pending |
-| HOTSPOT-1691 | P1: Assess `--no-color` flag | Tasks | Pending |
-| HOTSPOT-1692 | P2: README assess color note | Tasks | Pending |
-| HOTSPOT-1693 | P2: ARCHITECTURE color note | Tasks | Pending |
-| HOTSPOT-1694 | — | — | Buffer |
-| HOTSPOT-1695–1699 | — | — | Reserved |
+| Requirement ID    | Story                                   | Phase | Status   |
+| ----------------- | --------------------------------------- | ----- | -------- |
+| HOTSPOT-1680      | P1: Bold title + section header         | Tasks | Pending  |
+| HOTSPOT-1681      | P1: Color summary Pattern-count kinds   | Tasks | Pending  |
+| HOTSPOT-1682      | P1: Color detail Pattern kind           | Tasks | Pending  |
+| HOTSPOT-1683      | P1: Color detail score via `paintScore` | Tasks | Pending  |
+| HOTSPOT-1684      | P1: `stripAnsi` equals plain table      | Tasks | Pending  |
+| HOTSPOT-1685      | P1: Non-TTY → plain                     | Tasks | Pending  |
+| HOTSPOT-1686      | P1: `--no-color` → plain                | Tasks | Pending  |
+| HOTSPOT-1687      | P1: Non-empty `NO_COLOR` → plain        | Tasks | Pending  |
+| HOTSPOT-1688      | P1: `--output` → plain                  | Tasks | Pending  |
+| HOTSPOT-1689      | P1: JSON/markdown never colored         | Tasks | Pending  |
+| HOTSPOT-1690      | P1: Color not a config key              | Tasks | Pending  |
+| HOTSPOT-1691      | P1: Assess `--no-color` flag            | Tasks | Pending  |
+| HOTSPOT-1692      | P2: README assess color note            | Tasks | Pending  |
+| HOTSPOT-1693      | P2: ARCHITECTURE color note             | Tasks | Pending  |
+| HOTSPOT-1694      | —                                       | —     | Buffer   |
+| HOTSPOT-1695–1699 | —                                       | —     | Reserved |
 
 ---
 

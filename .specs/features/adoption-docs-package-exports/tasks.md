@@ -28,46 +28,46 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on | Diagram | Match |
-| ---- | ---------- | ------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | None | Root | ✅ |
-| T3 | None | Root | ✅ |
-| T4 | T1, T2, T3 | T1/T2/T3 → T4 | ✅ |
-| T5 | T4 | T4 → T5 | ✅ |
-| T6 | T5 | T5 → T6 | ✅ |
+| Task | Depends on | Diagram       | Match |
+| ---- | ---------- | ------------- | ----- |
+| T1   | None       | Root          | ✅    |
+| T2   | None       | Root          | ✅    |
+| T3   | None       | Root          | ✅    |
+| T4   | T1, T2, T3 | T1/T2/T3 → T4 | ✅    |
+| T5   | T4         | T4 → T5       | ✅    |
+| T6   | T5         | T5 → T6       | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | docs | `docs/recipes.md` (new) | None — `[P]` with T2/T3 |
-| T2 | docs | `docs/warning-codes.md` (new) | None — `[P]` with T1/T3 |
-| T3 | docs | `README.md` (table sample fences only), `docs/assets/cli-table-small-ts.png` (if refresh) | Sequential before T4 README link edits |
-| T4 | docs | `README.md` (TOC / Use this when / Advanced warnings / optional API one-liner) | After T1–T3; owns remaining README link edits |
-| T5 | package | `package.json` (`exports` only; keep main/types/bin) | After T4 |
-| T6 | docs + package | verify greps + ROADMAP/STATE Execute notes + gate | After T5 |
+| Task | Module owner   | Paths                                                                                     | Conflict                                      |
+| ---- | -------------- | ----------------------------------------------------------------------------------------- | --------------------------------------------- |
+| T1   | docs           | `docs/recipes.md` (new)                                                                   | None — `[P]` with T2/T3                       |
+| T2   | docs           | `docs/warning-codes.md` (new)                                                             | None — `[P]` with T1/T3                       |
+| T3   | docs           | `README.md` (table sample fences only), `docs/assets/cli-table-small-ts.png` (if refresh) | Sequential before T4 README link edits        |
+| T4   | docs           | `README.md` (TOC / Use this when / Advanced warnings / optional API one-liner)            | After T1–T3; owns remaining README link edits |
+| T5   | package        | `package.json` (`exports` only; keep main/types/bin)                                      | After T4                                      |
+| T6   | docs + package | verify greps + ROADMAP/STATE Execute notes + gate                                         | After T5                                      |
 
 T3 and T4 both touch `README.md` — **not** `[P]` with each other. T1 ‖ T2 ‖ T3 only (T3’s README edits are sample fences; T4 adds links afterward).
 
 ### Test Co-location Validation
 
-| Task | Code layer | Matrix requires | Task says | Match |
-| ---- | ---------- | --------------- | --------- | ----- |
-| T1–T4 | Docs | none | none (grep / preview / fixture CLI for samples) | ✅ |
-| T5 | package.json metadata | none | none + build path check | ✅ |
-| T6 | Docs + metadata | none | none + Gate `pnpm build && pnpm test` | ✅ |
+| Task  | Code layer            | Matrix requires | Task says                                       | Match |
+| ----- | --------------------- | --------------- | ----------------------------------------------- | ----- |
+| T1–T4 | Docs                  | none            | none (grep / preview / fixture CLI for samples) | ✅    |
+| T5    | package.json metadata | none            | none + build path check                         | ✅    |
+| T6    | Docs + metadata       | none            | none + Gate `pnpm build && pnpm test`           | ✅    |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | One recipes file | ✅ Granular |
-| T2 | One cheatsheet file | ✅ Granular |
-| T3 | Sample sync (+ optional asset) | ✅ Cohesive |
-| T4 | README discovery links | ✅ Granular |
-| T5 | package.json exports map | ✅ Granular |
-| T6 | Verify + project gate | ✅ Granular |
+| Task | Scope                          | Status      |
+| ---- | ------------------------------ | ----------- |
+| T1   | One recipes file               | ✅ Granular |
+| T2   | One cheatsheet file            | ✅ Granular |
+| T3   | Sample sync (+ optional asset) | ✅ Cohesive |
+| T4   | README discovery links         | ✅ Granular |
+| T5   | package.json exports map       | ✅ Granular |
+| T6   | Verify + project gate          | ✅ Granular |
 
 ---
 

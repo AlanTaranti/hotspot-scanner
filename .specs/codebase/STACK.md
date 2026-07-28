@@ -23,17 +23,17 @@ Git log invocation uses `child_process.spawn` in `src/git/` (no `simple-git`).
 
 ## Dev dependencies
 
-| Library                                     | Role                                                              |
-| ------------------------------------------- | ----------------------------------------------------------------- |
-| `@tsconfig/node22`                          | Shared TypeScript base config for Node 22                         |
-| `vitest`                                    | Unit and integration tests                                        |
-| `@vitest/coverage-v8`                       | Coverage reporting                                                |
-| `@types/node`                               | Node type definitions                                             |
-| `@types/picomatch`                          | Type definitions for `picomatch`                                  |
-| `eslint`, `typescript-eslint`, `@eslint/js` | Lint (`pnpm lint`)                                                |
-| `prettier`, `eslint-config-prettier`        | Format (`pnpm format`, `pnpm format:check`)                       |
-| `globals`                                   | ESLint Node globals for flat config                               |
-| `ajv`                                       | JSON Schema contract tests only (not runtime CLI validation)      |
+| Library                                     | Role                                                         |
+| ------------------------------------------- | ------------------------------------------------------------ |
+| `@tsconfig/node22`                          | Shared TypeScript base config for Node 22                    |
+| `vitest`                                    | Unit and integration tests                                   |
+| `@vitest/coverage-v8`                       | Coverage reporting                                           |
+| `@types/node`                               | Node type definitions                                        |
+| `@types/picomatch`                          | Type definitions for `picomatch`                             |
+| `eslint`, `typescript-eslint`, `@eslint/js` | Lint (`pnpm lint`)                                           |
+| `prettier`, `eslint-config-prettier`        | Format (`pnpm format`, `pnpm format:check`)                  |
+| `globals`                                   | ESLint Node globals for flat config                          |
+| `ajv`                                       | JSON Schema contract tests only (not runtime CLI validation) |
 
 ## Package publish
 

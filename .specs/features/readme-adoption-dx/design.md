@@ -32,14 +32,14 @@ flowchart TB
   PKG --> KW
 ```
 
-| Concern | Owner | Action |
-| ------- | ----- | ------ |
-| Broken fence | `README.md` | Remove duplicate closer; verify following sections |
-| Adoption top | `README.md` | Problem→solution, TOC, sample, asset, privacy, workflows, essential flags |
-| Advanced depth | `README.md` | Workers / mega-commit / rename detail + full flag ref + API |
-| Visual proof | `docs/assets/` | Real PNG or GIF of table output |
-| Install story | README + CONTRIBUTING | Real GitHub URL; clone+pnpm path only |
-| Discovery prep | `package.json` | Expand `keywords` only |
+| Concern        | Owner                 | Action                                                                    |
+| -------------- | --------------------- | ------------------------------------------------------------------------- |
+| Broken fence   | `README.md`           | Remove duplicate closer; verify following sections                        |
+| Adoption top   | `README.md`           | Problem→solution, TOC, sample, asset, privacy, workflows, essential flags |
+| Advanced depth | `README.md`           | Workers / mega-commit / rename detail + full flag ref + API               |
+| Visual proof   | `docs/assets/`        | Real PNG or GIF of table output                                           |
+| Install story  | README + CONTRIBUTING | Real GitHub URL; clone+pnpm path only                                     |
+| Discovery prep | `package.json`        | Expand `keywords` only                                                    |
 
 ---
 
@@ -69,13 +69,13 @@ Suggested heading order (Execute may rename slightly; TOC must match):
 
 ## `docs/assets/`
 
-| Item | Decision |
-| ---- | -------- |
-| Folder | Create `docs/assets/` (new) |
-| Content | Real capture of CLI **table** output from `tests/fixtures/repos/small-ts` |
-| Format | PNG preferred; short GIF acceptable if terminal recording is easier |
-| Naming | e.g. `docs/assets/cli-table-small-ts.png` (Execute chooses exact name; keep stable) |
-| README | Early Markdown image referencing the versioned path |
+| Item    | Decision                                                                            |
+| ------- | ----------------------------------------------------------------------------------- |
+| Folder  | Create `docs/assets/` (new)                                                         |
+| Content | Real capture of CLI **table** output from `tests/fixtures/repos/small-ts`           |
+| Format  | PNG preferred; short GIF acceptable if terminal recording is easier                 |
+| Naming  | e.g. `docs/assets/cli-table-small-ts.png` (Execute chooses exact name; keep stable) |
+| README  | Early Markdown image referencing the versioned path                                 |
 
 Capture method (Execute): build if needed, run  
 `pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts`  
@@ -85,13 +85,13 @@ and screenshot the table (or redirect + render — visual must look like termina
 
 ## Allowed badges
 
-| Badge | Allowed |
-| ----- | ------- |
-| License (MIT) | Yes |
-| Node.js `>=22` | Yes |
-| Repository / GitHub | Yes |
-| npm version / downloads | **No** (publish deferred) |
-| Coverage / build CI | Optional; not required for M37 |
+| Badge                   | Allowed                        |
+| ----------------------- | ------------------------------ |
+| License (MIT)           | Yes                            |
+| Node.js `>=22`          | Yes                            |
+| Repository / GitHub     | Yes                            |
+| npm version / downloads | **No** (publish deferred)      |
+| Coverage / build CI     | Optional; not required for M37 |
 
 ---
 
@@ -108,13 +108,13 @@ No publish config changes.
 
 ## Components / file ownership
 
-| Task focus | Paths |
-| ---------- | ----- |
-| Asset | `docs/assets/*` (new) |
-| README adoption | `README.md` |
-| Contribute URL / pointer | `CONTRIBUTING.md` |
-| Keywords | `package.json` (`keywords` only) |
-| Milestone prose | `.specs/project/ROADMAP.md`, `.specs/project/STATE.md` (planning already; Execute marks Done) |
+| Task focus               | Paths                                                                                         |
+| ------------------------ | --------------------------------------------------------------------------------------------- |
+| Asset                    | `docs/assets/*` (new)                                                                         |
+| README adoption          | `README.md`                                                                                   |
+| Contribute URL / pointer | `CONTRIBUTING.md`                                                                             |
+| Keywords                 | `package.json` (`keywords` only)                                                              |
+| Milestone prose          | `.specs/project/ROADMAP.md`, `.specs/project/STATE.md` (planning already; Execute marks Done) |
 
 **Forbidden for behavior edits:** `src/**`, `bin/**`, `tests/**` (running fixture for capture is OK; do not change fixture logic).
 
@@ -122,26 +122,26 @@ No publish config changes.
 
 ## Verification approach
 
-| Check | Method |
-| ----- | ------ |
-| Fence fixed | Preview + no double-close around JSON sample |
-| No `<repo-url>` | `rg '<repo-url>' README.md CONTRIBUTING.md` |
-| No jargon | `rg 'M26\|M28\|M32\|RT-003' README.md` |
-| No npm version badge | `rg -i 'npm.*version\|badge/npm' README.md` |
-| Asset present | `ls docs/assets/` + README image link |
-| Keywords | Diff `package.json` |
-| Project gate | `pnpm build && pnpm test` |
+| Check                | Method                                       |
+| -------------------- | -------------------------------------------- |
+| Fence fixed          | Preview + no double-close around JSON sample |
+| No `<repo-url>`      | `rg '<repo-url>' README.md CONTRIBUTING.md`  |
+| No jargon            | `rg 'M26\|M28\|M32\|RT-003' README.md`       |
+| No npm version badge | `rg -i 'npm.*version\|badge/npm' README.md`  |
+| Asset present        | `ls docs/assets/` + README image link        |
+| Keywords             | Diff `package.json`                          |
+| Project gate         | `pnpm build && pnpm test`                    |
 
 ---
 
 ## Risks
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| Full README rewrite loses accurate technical content | Move, don’t delete: Advanced keeps workers/mega-commit/rename/`code`s |
-| Screenshot stale vs CLI columns | Capture after current build; prefer fixture for stability |
-| Accidental npx docs creep | Out of scope #1/#13; STATE records npm publish as future backlog |
-| CONTRIBUTING vs README install drift | Same clone URL; README minimal user path; CONTRIBUTING SoT for contribute |
+| Risk                                                 | Mitigation                                                                |
+| ---------------------------------------------------- | ------------------------------------------------------------------------- |
+| Full README rewrite loses accurate technical content | Move, don’t delete: Advanced keeps workers/mega-commit/rename/`code`s     |
+| Screenshot stale vs CLI columns                      | Capture after current build; prefer fixture for stability                 |
+| Accidental npx docs creep                            | Out of scope #1/#13; STATE records npm publish as future backlog          |
+| CONTRIBUTING vs README install drift                 | Same clone URL; README minimal user path; CONTRIBUTING SoT for contribute |
 
 ---
 

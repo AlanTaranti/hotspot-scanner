@@ -22,16 +22,16 @@ Real monorepos accumulate framework build dirs (`.next`, Storybook static, `vend
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| `.hotspotrc` / dual filename lookup | **M21 locked — forbidden** |
-| `--no-default-excludes` | M7 locked; defaults always on |
-| Extra exclude names beyond locked set | YAGNI — see context.md cuts |
-| Rewriting M7 patterns to `**/…/**` | Separate behavior change |
-| Relaxing `repoPath/.git` validation / scan-from-package without `.git` | Not in ROADMAP M30 |
-| New config keys (`format`, `output`, `baseline`, hooks) | M21 CLI-only lock |
-| YAML/TOML config | JSON only |
-| `.gitignore` / `.hotspotignore` | Future |
+| Feature                                                                | Reason                        |
+| ---------------------------------------------------------------------- | ----------------------------- |
+| `.hotspotrc` / dual filename lookup                                    | **M21 locked — forbidden**    |
+| `--no-default-excludes`                                                | M7 locked; defaults always on |
+| Extra exclude names beyond locked set                                  | YAGNI — see context.md cuts   |
+| Rewriting M7 patterns to `**/…/**`                                     | Separate behavior change      |
+| Relaxing `repoPath/.git` validation / scan-from-package without `.git` | Not in ROADMAP M30            |
+| New config keys (`format`, `output`, `baseline`, hooks)                | M21 CLI-only lock             |
+| YAML/TOML config                                                       | JSON only                     |
+| `.gitignore` / `.hotspotignore`                                        | Future                        |
 
 ---
 
@@ -148,20 +148,20 @@ Real monorepos accumulate framework build dirs (`.next`, Storybook static, `vend
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-266 | P1: Extra default excludes (patterns) | Tasks | Pending |
-| HOTSPOT-267 | P1: Excludes apply via PathScope | Tasks | Pending |
-| HOTSPOT-268 | P1: Parent walk discovery | Tasks | Pending |
-| HOTSPOT-269 | P1: Nearest-wins + root stop | Tasks | Pending |
-| HOTSPOT-270 | P1: Walk miss → null | Tasks | Pending |
-| HOTSPOT-271 | P1: `--config` CLI | Tasks | Pending |
-| HOTSPOT-272 | P1: Explicit missing → error | Tasks | Pending |
-| HOTSPOT-273 | P1: Precedence preserved | Tasks | Pending |
-| HOTSPOT-274 | P1: Discovery filename only `.hotspot-scanner.json` | Tasks | Pending |
-| HOTSPOT-275 | P1: `ScanOptions.configPath` + wiring | Tasks | Pending |
-| HOTSPOT-276 | P1: README / ARCHITECTURE | Tasks | Pending |
-| HOTSPOT-277 | P1: Help text for `--config` | Tasks | Pending |
+| Requirement ID | Story                                               | Phase | Status  |
+| -------------- | --------------------------------------------------- | ----- | ------- |
+| HOTSPOT-266    | P1: Extra default excludes (patterns)               | Tasks | Pending |
+| HOTSPOT-267    | P1: Excludes apply via PathScope                    | Tasks | Pending |
+| HOTSPOT-268    | P1: Parent walk discovery                           | Tasks | Pending |
+| HOTSPOT-269    | P1: Nearest-wins + root stop                        | Tasks | Pending |
+| HOTSPOT-270    | P1: Walk miss → null                                | Tasks | Pending |
+| HOTSPOT-271    | P1: `--config` CLI                                  | Tasks | Pending |
+| HOTSPOT-272    | P1: Explicit missing → error                        | Tasks | Pending |
+| HOTSPOT-273    | P1: Precedence preserved                            | Tasks | Pending |
+| HOTSPOT-274    | P1: Discovery filename only `.hotspot-scanner.json` | Tasks | Pending |
+| HOTSPOT-275    | P1: `ScanOptions.configPath` + wiring               | Tasks | Pending |
+| HOTSPOT-276    | P1: README / ARCHITECTURE                           | Tasks | Pending |
+| HOTSPOT-277    | P1: Help text for `--config`                        | Tasks | Pending |
 
 **Unused band:** HOTSPOT-278 … HOTSPOT-280 (reserved; gaps OK)  
 **Coverage:** 12 total, mapped in tasks.md

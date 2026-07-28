@@ -21,15 +21,15 @@ The README is accurate enough for maintainers but weak for first-time adoption: 
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Critical #1 — npm / npx / publish install path | Future backlog — depends on publish decision |
-| Medium #13 — Quick start via `npx` / `pnpm dlx` | Depends on publish; deferred with #1 |
-| Inventing an npm registry install story | Locked: clone URL only until publish phase |
-| Rewriting CONTRIBUTING as the user README | CONTRIBUTING remains contribute SoT; README points |
-| Splitting primary UX into many `docs/*.md` files | Default: single README restructure (see design) |
-| Changing CLI / pipeline / warning `code` values | Docs + keywords only; stable codes stay |
-| Implementing scanner features | Separate milestones |
+| Feature                                          | Reason                                             |
+| ------------------------------------------------ | -------------------------------------------------- |
+| Critical #1 — npm / npx / publish install path   | Future backlog — depends on publish decision       |
+| Medium #13 — Quick start via `npx` / `pnpm dlx`  | Depends on publish; deferred with #1               |
+| Inventing an npm registry install story          | Locked: clone URL only until publish phase         |
+| Rewriting CONTRIBUTING as the user README        | CONTRIBUTING remains contribute SoT; README points |
+| Splitting primary UX into many `docs/*.md` files | Default: single README restructure (see design)    |
+| Changing CLI / pipeline / warning `code` values  | Docs + keywords only; stable codes stay            |
+| Implementing scanner features                    | Separate milestones                                |
 
 ---
 
@@ -47,7 +47,7 @@ The README is accurate enough for maintainers but weak for first-time adoption: 
 2. WHEN sections after the JSON example are opened THEN they SHALL render as normal Markdown (headings, tables, code blocks)
 3. WHEN searching README for consecutive fence-only lines that close a block twice THEN zero such defects SHALL remain in edited regions
 
-**Independent Test**: Open README preview; grep for ````\n```` adjacent closers around the large JSON sample.
+**Independent Test**: Open README preview; grep for `\n` adjacent closers around the large JSON sample.
 
 **Requirements**: HOTSPOT-420
 
@@ -395,29 +395,29 @@ The README is accurate enough for maintainers but weak for first-time adoption: 
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-420 | P1: Fix broken Markdown fence | Tasks | In Tasks |
-| HOTSPOT-421 | P1: Opening — problem → solution | Tasks | In Tasks |
-| HOTSPOT-422 | P1: Sample CLI output early | Tasks | In Tasks |
-| HOTSPOT-423 | P1: Short top + Advanced detail | Tasks | In Tasks |
-| HOTSPOT-424 | P1: Remove internal jargon | Tasks | In Tasks |
-| HOTSPOT-425 | P1: Package vs bin name | Tasks | In Tasks |
-| HOTSPOT-426 | P1: Positioning vs SaaS | Tasks | In Tasks |
-| HOTSPOT-427 | P2: Badges (no npm version) | Tasks | In Tasks |
-| HOTSPOT-428 | P2: Workflows | Tasks | In Tasks |
-| HOTSPOT-429 | P2: Privacy callout | Tasks | In Tasks |
-| HOTSPOT-430 | P1: Slim How it works | Tasks | In Tasks |
-| HOTSPOT-431 | P1: TOC at top | Tasks | In Tasks |
-| HOTSPOT-432 | P1: Screenshot asset | Tasks | In Tasks |
-| HOTSPOT-433 | P2: Programmatic API placement | Tasks | In Tasks |
-| HOTSPOT-434 | P3: Dedupe setup CONTRIBUTING | Tasks | In Tasks |
-| HOTSPOT-435 | P3: Remove “v1” wording | Tasks | In Tasks |
-| HOTSPOT-436 | P2: Essential flags early | Tasks | In Tasks |
-| HOTSPOT-437 | P3: Expand keywords | Tasks | In Tasks |
-| HOTSPOT-438 | P3: Limitations section | Tasks | In Tasks |
-| HOTSPOT-439 | P1: Real GitHub clone URL | Tasks | In Tasks |
-| HOTSPOT-440 | P1: Docs-only + project gate | Tasks | In Tasks |
+| Requirement ID | Story                            | Phase | Status   |
+| -------------- | -------------------------------- | ----- | -------- |
+| HOTSPOT-420    | P1: Fix broken Markdown fence    | Tasks | In Tasks |
+| HOTSPOT-421    | P1: Opening — problem → solution | Tasks | In Tasks |
+| HOTSPOT-422    | P1: Sample CLI output early      | Tasks | In Tasks |
+| HOTSPOT-423    | P1: Short top + Advanced detail  | Tasks | In Tasks |
+| HOTSPOT-424    | P1: Remove internal jargon       | Tasks | In Tasks |
+| HOTSPOT-425    | P1: Package vs bin name          | Tasks | In Tasks |
+| HOTSPOT-426    | P1: Positioning vs SaaS          | Tasks | In Tasks |
+| HOTSPOT-427    | P2: Badges (no npm version)      | Tasks | In Tasks |
+| HOTSPOT-428    | P2: Workflows                    | Tasks | In Tasks |
+| HOTSPOT-429    | P2: Privacy callout              | Tasks | In Tasks |
+| HOTSPOT-430    | P1: Slim How it works            | Tasks | In Tasks |
+| HOTSPOT-431    | P1: TOC at top                   | Tasks | In Tasks |
+| HOTSPOT-432    | P1: Screenshot asset             | Tasks | In Tasks |
+| HOTSPOT-433    | P2: Programmatic API placement   | Tasks | In Tasks |
+| HOTSPOT-434    | P3: Dedupe setup CONTRIBUTING    | Tasks | In Tasks |
+| HOTSPOT-435    | P3: Remove “v1” wording          | Tasks | In Tasks |
+| HOTSPOT-436    | P2: Essential flags early        | Tasks | In Tasks |
+| HOTSPOT-437    | P3: Expand keywords              | Tasks | In Tasks |
+| HOTSPOT-438    | P3: Limitations section          | Tasks | In Tasks |
+| HOTSPOT-439    | P1: Real GitHub clone URL        | Tasks | In Tasks |
+| HOTSPOT-440    | P1: Docs-only + project gate     | Tasks | In Tasks |
 
 **ID range used:** HOTSPOT-420–HOTSPOT-440 (HOTSPOT-414–419 remain unused from M36 gap)
 

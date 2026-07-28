@@ -24,10 +24,10 @@ Function mode already sequences numstat → complexity (M35 `pathAllowlist`); th
 
 ## Decision: Primary flag + alias (LOCKED)
 
-| Role | Flag |
-| ---- | ---- |
+| Role        | Flag           |
+| ----------- | -------------- |
 | **Primary** | `--sequential` |
-| **Alias** | `--no-overlap` |
+| **Alias**   | `--no-overlap` |
 
 **Semantics:** Either flag alone sets `ScanOptions.sequential = true`. Both together = same effect (not an error).
 
@@ -61,10 +61,10 @@ Precedence irrelevant beyond CLI presence. Programmatic API callers may set `Sca
 
 ## Decision: What “sequential” changes in `runScan` (LOCKED)
 
-| Mode | With `sequential: true` | Default (`sequential` falsy) |
-| ---- | ----------------------- | ---------------------------- |
-| **file** | `await mine` then `await analyze` (pre-M34 order); no concurrent in-flight mine∥analyze | M34 `Promise.all` overlap + sibling abort on first failure |
-| **function** | Accept flag; git→complexity already sequenced for allowlist — **no timing change required**; must not error | Current M35-aware wiring |
+| Mode         | With `sequential: true`                                                                                     | Default (`sequential` falsy)                               |
+| ------------ | ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| **file**     | `await mine` then `await analyze` (pre-M34 order); no concurrent in-flight mine∥analyze                     | M34 `Promise.all` overlap + sibling abort on first failure |
+| **function** | Accept flag; git→complexity already sequenced for allowlist — **no timing change required**; must not error | Current M35-aware wiring                                   |
 
 Scoring / coupling / function-churn barriers, rankings, and JSON `version: "1.0"` stay unchanged.
 
@@ -90,15 +90,15 @@ Forward into `runScan` via `ScanOptions.sequential`. Dry-run / doctor: **no** (n
 
 ## Decision: Benchmark harness (LOCKED)
 
-| Topic | Choice |
-| ----- | ------ |
-| Entry | `package.json` script **`pnpm bench`** |
-| Implementation | Script under `scripts/` (e.g. `scripts/bench-scan.mjs` or `.ts` runnable via `tsx`/node) — prefer zero new runtime dependency |
-| Metrics | **Wall-clock** (ms or seconds) + **counts** (at least: commits processed and/or eligible source files; document fields in `scripts/benchmark-scan.md`) |
-| Modes | Support comparing **default overlap** vs **`--sequential`** (A/B) on the same repo path |
-| Repo | Accept path arg and/or generate/use a documented disposable synthetic repo (evolve Option B from current `benchmark-scan.md`) |
-| Gate policy | **NOT** part of `pnpm test`; **no** CI duration thresholds; **no** fail-on-slow exit for timing |
-| Docs | Update `scripts/benchmark-scan.md` to point operators at `pnpm bench` while keeping qualitative notes for M15/M31/M36 |
+| Topic          | Choice                                                                                                                                                 |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Entry          | `package.json` script **`pnpm bench`**                                                                                                                 |
+| Implementation | Script under `scripts/` (e.g. `scripts/bench-scan.mjs` or `.ts` runnable via `tsx`/node) — prefer zero new runtime dependency                          |
+| Metrics        | **Wall-clock** (ms or seconds) + **counts** (at least: commits processed and/or eligible source files; document fields in `scripts/benchmark-scan.md`) |
+| Modes          | Support comparing **default overlap** vs **`--sequential`** (A/B) on the same repo path                                                                |
+| Repo           | Accept path arg and/or generate/use a documented disposable synthetic repo (evolve Option B from current `benchmark-scan.md`)                          |
+| Gate policy    | **NOT** part of `pnpm test`; **no** CI duration thresholds; **no** fail-on-slow exit for timing                                                        |
+| Docs           | Update `scripts/benchmark-scan.md` to point operators at `pnpm bench` while keeping qualitative notes for M15/M31/M36                                  |
 
 **Applies to:** HOTSPOT-721–726.
 

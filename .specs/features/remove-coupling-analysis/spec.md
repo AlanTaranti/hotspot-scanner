@@ -24,15 +24,15 @@ Temporal coupling (co-change pairs, coupling strength, static enrich) adds subst
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| McCabe decision-node changes | Unrelated |
-| Harmonic hotspot score formula | Unrelated |
-| Function churn / hunk overlap | Unrelated |
-| npm publish / npx | Deferred |
-| CI recipes / SARIF | Deferred |
-| Soft deprecation / legacy flag / empty `coupling: []` | Hard cut locked |
-| Reopening historical Done coupling specs | Stay historical; M56 supersedes |
+| Feature                                               | Reason                          |
+| ----------------------------------------------------- | ------------------------------- |
+| McCabe decision-node changes                          | Unrelated                       |
+| Harmonic hotspot score formula                        | Unrelated                       |
+| Function churn / hunk overlap                         | Unrelated                       |
+| npm publish / npx                                     | Deferred                        |
+| CI recipes / SARIF                                    | Deferred                        |
+| Soft deprecation / legacy flag / empty `coupling: []` | Hard cut locked                 |
+| Reopening historical Done coupling specs              | Stay historical; M56 supersedes |
 
 ---
 
@@ -170,31 +170,31 @@ Temporal coupling (co-change pairs, coupling strength, static enrich) adds subst
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-890 | P1: JSON 2.0 scan | Tasks | Pending |
-| HOTSPOT-891 | P1: JSON 2.0 compare | Tasks | Pending |
-| HOTSPOT-892 | P1: Schemas | Tasks | Pending |
-| HOTSPOT-893 | P1: Domain types | Tasks | Pending |
-| HOTSPOT-894 | P1: Reject version 1.0 | Tasks | Pending |
-| HOTSPOT-895 | P1: Reject coupling key | Tasks | Pending |
-| HOTSPOT-896 | P1: Contract tests | Tasks | Pending |
-| HOTSPOT-897 | P1: runScan no coupling | Tasks | Pending |
-| HOTSPOT-898 | P1: compare no coupling | Tasks | Pending |
-| HOTSPOT-899 | P1: Reporters omit | Tasks | Pending |
-| HOTSPOT-900 | P1: CSV omit coupling files | Tasks | Pending |
-| HOTSPOT-901 | P1: `--only` without coupling | Tasks | Pending |
-| HOTSPOT-902 | P1: Remove CLI flags | Tasks | Pending |
-| HOTSPOT-903 | P1: Remove config keys | Tasks | Pending |
-| HOTSPOT-904 | P1: Git miner cleanup | Tasks | Pending |
-| HOTSPOT-905 | P1: Delete modules | Tasks | Pending |
-| HOTSPOT-906 | P1: Delete fixtures | Tasks | Pending |
-| HOTSPOT-907 | P1: Public exports | Tasks | Pending |
-| HOTSPOT-908 | P1: Living docs | Tasks | Pending |
-| HOTSPOT-909 | P1: Skills/rules/keywords | Tasks | Pending |
-| HOTSPOT-910 | P1: Supersession + ADR revisit | Tasks | Pending |
-| HOTSPOT-911 | P1: filter-git pairCounts | Tasks | Pending |
-| HOTSPOT-912 | P1: Completion scripts | Tasks | Pending |
+| Requirement ID | Story                          | Phase | Status  |
+| -------------- | ------------------------------ | ----- | ------- |
+| HOTSPOT-890    | P1: JSON 2.0 scan              | Tasks | Pending |
+| HOTSPOT-891    | P1: JSON 2.0 compare           | Tasks | Pending |
+| HOTSPOT-892    | P1: Schemas                    | Tasks | Pending |
+| HOTSPOT-893    | P1: Domain types               | Tasks | Pending |
+| HOTSPOT-894    | P1: Reject version 1.0         | Tasks | Pending |
+| HOTSPOT-895    | P1: Reject coupling key        | Tasks | Pending |
+| HOTSPOT-896    | P1: Contract tests             | Tasks | Pending |
+| HOTSPOT-897    | P1: runScan no coupling        | Tasks | Pending |
+| HOTSPOT-898    | P1: compare no coupling        | Tasks | Pending |
+| HOTSPOT-899    | P1: Reporters omit             | Tasks | Pending |
+| HOTSPOT-900    | P1: CSV omit coupling files    | Tasks | Pending |
+| HOTSPOT-901    | P1: `--only` without coupling  | Tasks | Pending |
+| HOTSPOT-902    | P1: Remove CLI flags           | Tasks | Pending |
+| HOTSPOT-903    | P1: Remove config keys         | Tasks | Pending |
+| HOTSPOT-904    | P1: Git miner cleanup          | Tasks | Pending |
+| HOTSPOT-905    | P1: Delete modules             | Tasks | Pending |
+| HOTSPOT-906    | P1: Delete fixtures            | Tasks | Pending |
+| HOTSPOT-907    | P1: Public exports             | Tasks | Pending |
+| HOTSPOT-908    | P1: Living docs                | Tasks | Pending |
+| HOTSPOT-909    | P1: Skills/rules/keywords      | Tasks | Pending |
+| HOTSPOT-910    | P1: Supersession + ADR revisit | Tasks | Pending |
+| HOTSPOT-911    | P1: filter-git pairCounts      | Tasks | Pending |
+| HOTSPOT-912    | P1: Completion scripts         | Tasks | Pending |
 
 **Coverage:** 23 total, mapped in tasks.md. IDs 913–919 reserved for Execute gaps.
 

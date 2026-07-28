@@ -51,72 +51,72 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (body) | Diagram shows | Status |
-| ---- | ----------------- | ------------- | ------ |
-| T1 | None | Root | ✅ Match |
-| T2 | T1 | T1→T2 | ✅ Match |
-| T3 | None | Root | ✅ Match |
-| T4 | T3 | T3→T4 | ✅ Match |
-| T5 | T1 | T1→T5 | ✅ Match |
-| T6 | T2, T4 | T2→T6, T4→T6 | ✅ Match |
-| T7 | T6 | T6→T7 | ✅ Match |
-| T8 | T5, T7 | T5→T8, T7→T8 | ✅ Match |
+| Task | Depends on (body) | Diagram shows | Status   |
+| ---- | ----------------- | ------------- | -------- |
+| T1   | None              | Root          | ✅ Match |
+| T2   | T1                | T1→T2         | ✅ Match |
+| T3   | None              | Root          | ✅ Match |
+| T4   | T3                | T3→T4         | ✅ Match |
+| T5   | T1                | T1→T5         | ✅ Match |
+| T6   | T2, T4            | T2→T6, T4→T6  | ✅ Match |
+| T7   | T6                | T6→T7         | ✅ Match |
+| T8   | T5, T7            | T5→T8, T7→T8  | ✅ Match |
 
 ### Path Conflict Check
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | `src/git/function-churn/` | `spawn.ts`, `spawn.test.ts` (± tiny `pathspec-batch` helper in same folder) | None vs T3 |
-| T2 | `src/git/function-churn/` | `index.ts`, `index.test.ts` | After T1; sole miner owner |
-| T3 | `src/git/` (numstat aggregate) | `aggregate.ts`, `aggregate.test.ts`, `mega-commit-warnings.ts`, `mega-commit-warnings.test.ts` | Disjoint from function-churn; do **not** edit `function-churn/*` |
-| T4 | `src/config/` + `src/types/` | `load-config.ts`, `merge-options.ts`, `exemplar.ts`, tests, `domain.ts` | After T3; no `bin/` yet |
-| T5 | `src/scan-preview.ts` | `scan-preview.ts`, `scan-preview.test.ts` | After T1 (imports threshold); do not edit `scan.ts` wiring |
-| T6 | `src/scan.ts` + `src/git/index.ts` | `scan.ts`, `scan.test.ts`, `git/index.ts`, `git/index.test.ts` | After T2+T4; sole scan owner — not ∥ T7 |
-| T7 | `bin/` | `hotspot-scanner.ts`, `scan-actions.ts`, `hotspot-scanner.test.ts` | After T6 |
-| T8 | docs + integration | ARCHITECTURE, CONCERNS, TESTING, README, `scan.integration.test.ts`, ROADMAP/STATE on Done | After T5+T7 |
+| Task | Module owner                       | Paths                                                                                          | Conflict                                                         |
+| ---- | ---------------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| T1   | `src/git/function-churn/`          | `spawn.ts`, `spawn.test.ts` (± tiny `pathspec-batch` helper in same folder)                    | None vs T3                                                       |
+| T2   | `src/git/function-churn/`          | `index.ts`, `index.test.ts`                                                                    | After T1; sole miner owner                                       |
+| T3   | `src/git/` (numstat aggregate)     | `aggregate.ts`, `aggregate.test.ts`, `mega-commit-warnings.ts`, `mega-commit-warnings.test.ts` | Disjoint from function-churn; do **not** edit `function-churn/*` |
+| T4   | `src/config/` + `src/types/`       | `load-config.ts`, `merge-options.ts`, `exemplar.ts`, tests, `domain.ts`                        | After T3; no `bin/` yet                                          |
+| T5   | `src/scan-preview.ts`              | `scan-preview.ts`, `scan-preview.test.ts`                                                      | After T1 (imports threshold); do not edit `scan.ts` wiring       |
+| T6   | `src/scan.ts` + `src/git/index.ts` | `scan.ts`, `scan.test.ts`, `git/index.ts`, `git/index.test.ts`                                 | After T2+T4; sole scan owner — not ∥ T7                          |
+| T7   | `bin/`                             | `hotspot-scanner.ts`, `scan-actions.ts`, `hotspot-scanner.test.ts`                             | After T6                                                         |
+| T8   | docs + integration                 | ARCHITECTURE, CONCERNS, TESTING, README, `scan.integration.test.ts`, ROADMAP/STATE on Done     | After T5+T7                                                      |
 
 ### Test Co-location Validation
 
-| Task | Code layer | Matrix / TESTING.md | Task Tests | Status |
-| ---- | ---------- | ------------------- | ---------- | ------ |
-| T1 | function-churn spawn | unit | unit | ✅ OK |
-| T2 | function-churn miner | unit | unit | ✅ OK |
-| T3 | git aggregate / warnings | unit | unit | ✅ OK |
-| T4 | config + types | unit | unit | ✅ OK |
-| T5 | scan-preview | unit | unit | ✅ OK |
-| T6 | scan + git miner wiring | unit (+ focused miner) | unit | ✅ OK |
-| T7 | CLI bin | CLI Vitest | CLI unit | ✅ OK |
-| T8 | integration + docs | integration + full gate | integration + none (docs) | ✅ OK |
+| Task | Code layer               | Matrix / TESTING.md     | Task Tests                | Status |
+| ---- | ------------------------ | ----------------------- | ------------------------- | ------ |
+| T1   | function-churn spawn     | unit                    | unit                      | ✅ OK  |
+| T2   | function-churn miner     | unit                    | unit                      | ✅ OK  |
+| T3   | git aggregate / warnings | unit                    | unit                      | ✅ OK  |
+| T4   | config + types           | unit                    | unit                      | ✅ OK  |
+| T5   | scan-preview             | unit                    | unit                      | ✅ OK  |
+| T6   | scan + git miner wiring  | unit (+ focused miner)  | unit                      | ✅ OK  |
+| T7   | CLI bin                  | CLI Vitest              | CLI unit                  | ✅ OK  |
+| T8   | integration + docs       | integration + full gate | integration + none (docs) | ✅ OK  |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Partition helper + argv behavior + unit tests | ✅ Granular |
-| T2 | Miner sequential batches + merge + emergency + unit tests | ✅ Granular |
-| T3 | Aggregate threshold option + warning strings + unit tests | ✅ Granular |
-| T4 | Config key + merge + ScanOptions + exemplar + unit tests | ✅ OK (cohesive config slice) |
-| T5 | Preview warning + unit tests | ✅ Granular |
-| T6 | Wire threshold + pathspec miner already batched via T2 | ✅ Granular |
-| T7 | CLI flag forward + validation tests | ✅ Granular |
-| T8 | Docs + integration regressions + full gate | ✅ Granular |
+| Task | Scope                                                     | Status                        |
+| ---- | --------------------------------------------------------- | ----------------------------- |
+| T1   | Partition helper + argv behavior + unit tests             | ✅ Granular                   |
+| T2   | Miner sequential batches + merge + emergency + unit tests | ✅ Granular                   |
+| T3   | Aggregate threshold option + warning strings + unit tests | ✅ Granular                   |
+| T4   | Config key + merge + ScanOptions + exemplar + unit tests  | ✅ OK (cohesive config slice) |
+| T5   | Preview warning + unit tests                              | ✅ Granular                   |
+| T6   | Wire threshold + pathspec miner already batched via T2    | ✅ Granular                   |
+| T7   | CLI flag forward + validation tests                       | ✅ Granular                   |
+| T8   | Docs + integration regressions + full gate                | ✅ Granular                   |
 
 ---
 
 ## Requirement → Task Mapping
 
-| Requirement ID | Task |
-| -------------- | ---- |
-| HOTSPOT-660, HOTSPOT-661, HOTSPOT-664, HOTSPOT-666 | T1 |
-| HOTSPOT-662, HOTSPOT-663, HOTSPOT-665, HOTSPOT-667, HOTSPOT-669 | T2 |
-| HOTSPOT-668 | T8 (file-mode regression) + T2 must not change file-mode |
-| HOTSPOT-670, HOTSPOT-671, HOTSPOT-672, HOTSPOT-673, HOTSPOT-674 | T3 |
-| HOTSPOT-675, HOTSPOT-676, HOTSPOT-678, HOTSPOT-679 | T4 |
-| HOTSPOT-677, HOTSPOT-679 (CLI) | T7 |
-| HOTSPOT-680, HOTSPOT-681, HOTSPOT-682, HOTSPOT-683 | T5 |
-| HOTSPOT-678 (scan wiring), HOTSPOT-670 (default through pipeline) | T6 |
-| HOTSPOT-684, HOTSPOT-685, HOTSPOT-686 | T8 |
-| HOTSPOT-687–689 | Reserved — no task |
+| Requirement ID                                                    | Task                                                     |
+| ----------------------------------------------------------------- | -------------------------------------------------------- |
+| HOTSPOT-660, HOTSPOT-661, HOTSPOT-664, HOTSPOT-666                | T1                                                       |
+| HOTSPOT-662, HOTSPOT-663, HOTSPOT-665, HOTSPOT-667, HOTSPOT-669   | T2                                                       |
+| HOTSPOT-668                                                       | T8 (file-mode regression) + T2 must not change file-mode |
+| HOTSPOT-670, HOTSPOT-671, HOTSPOT-672, HOTSPOT-673, HOTSPOT-674   | T3                                                       |
+| HOTSPOT-675, HOTSPOT-676, HOTSPOT-678, HOTSPOT-679                | T4                                                       |
+| HOTSPOT-677, HOTSPOT-679 (CLI)                                    | T7                                                       |
+| HOTSPOT-680, HOTSPOT-681, HOTSPOT-682, HOTSPOT-683                | T5                                                       |
+| HOTSPOT-678 (scan wiring), HOTSPOT-670 (default through pipeline) | T6                                                       |
+| HOTSPOT-684, HOTSPOT-685, HOTSPOT-686                             | T8                                                       |
+| HOTSPOT-687–689                                                   | Reserved — no task                                       |
 
 ---
 

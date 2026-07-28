@@ -1,10 +1,7 @@
 import type { ScanResult } from "../types/index.js";
 import { renderMarkdownHowToRead } from "./glossary.js";
 import { buildScanExecutiveSummary } from "./summary.js";
-import {
-  buildTriageHints,
-  renderMarkdownTriageHints,
-} from "./triage.js";
+import { buildTriageHints, renderMarkdownTriageHints } from "./triage.js";
 
 const SCORE_DECIMALS = 4;
 

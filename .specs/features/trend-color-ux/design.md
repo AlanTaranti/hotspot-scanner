@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/trend-color-ux/spec.md`](./spec.md)  
 **Context**: [`.specs/features/trend-color-ux/context.md`](./context.md)  
-**Status**: Specs Done  
+**Status**: Specs Done
 
 ---
 
@@ -32,22 +32,22 @@ JSON/CSV paths unchanged: `renderTrendJson` / `renderTrendCsv` — never receive
 
 ## Code Reuse Analysis
 
-| Component | Location | How to use |
-| --------- | -------- | ---------- |
-| ANSI + `stripAnsi` | `src/report/color.ts` | Add `paintGrowthPattern(kind, enabled)`; reuse `RESET` / red / yellow / green |
-| Table color gate | `bin/hotspot-scanner.ts` `resolveTableColor` | Mirror as `resolveTrendColor` with `format === "table"` + `outputPath` gate (same as scan) |
-| Trend table | `src/report/trend-table.ts` | Add optional `{ color?: boolean }`; wrap kind only |
-| Trend actions | `bin/trend-actions.ts` | Accept `color` in `executeTrend` / `renderTrendOutput`; pass to table only |
-| Trend CLI tests | `bin/hotspot-scanner.test.ts` | Extend trend cases; use `stripAnsi` where needed |
+| Component          | Location                                     | How to use                                                                                 |
+| ------------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| ANSI + `stripAnsi` | `src/report/color.ts`                        | Add `paintGrowthPattern(kind, enabled)`; reuse `RESET` / red / yellow / green              |
+| Table color gate   | `bin/hotspot-scanner.ts` `resolveTableColor` | Mirror as `resolveTrendColor` with `format === "table"` + `outputPath` gate (same as scan) |
+| Trend table        | `src/report/trend-table.ts`                  | Add optional `{ color?: boolean }`; wrap kind only                                         |
+| Trend actions      | `bin/trend-actions.ts`                       | Accept `color` in `executeTrend` / `renderTrendOutput`; pass to table only                 |
+| Trend CLI tests    | `bin/hotspot-scanner.test.ts`                | Extend trend cases; use `stripAnsi` where needed                                           |
 
 ### Fragile / concerns
 
-| Concern | Mitigation |
-| ------- | ---------- |
-| Existing Pattern-line assertions may break with ANSI | Prefer `stripAnsi(stdout)` then assert; update fixtures/tests accordingly |
-| Padding / column layout | Kind is mid-line text, not a padded cell — ANSI wrap does not affect column widths |
-| Scan `--no-color` vs doctor vs trend | Separate commander options on each command; document all three |
-| Importing `GrowthPatternKind` into report | Prefer inline string union matching kinds to avoid cycles; type-only import OK if clean |
+| Concern                                              | Mitigation                                                                              |
+| ---------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Existing Pattern-line assertions may break with ANSI | Prefer `stripAnsi(stdout)` then assert; update fixtures/tests accordingly               |
+| Padding / column layout                              | Kind is mid-line text, not a padded cell — ANSI wrap does not affect column widths      |
+| Scan `--no-color` vs doctor vs trend                 | Separate commander options on each command; document all three                          |
+| Importing `GrowthPatternKind` into report            | Prefer inline string union matching kinds to avoid cycles; type-only import OK if clean |
 
 ---
 
@@ -127,12 +127,12 @@ Commander maps `--no-color` to `options.color === false` — match scan/doctor w
 
 ## Test Plan
 
-| Layer | Coverage |
-| ----- | -------- |
-| Unit `src/report/color.test.ts` | `paintGrowthPattern` on/off for all four kinds; stable never ANSI |
-| Unit `src/report/trend-format.test.ts` (or trend-table tests) | `renderTrendTable` color true/false; `stripAnsi` equality; Pattern line shape |
-| Unit bin | `resolveTrendColor` matrix (table/json/csv, TTY, noColor, NO_COLOR, outputPath) |
-| CLI `bin/hotspot-scanner.test.ts` | trend `--no-color`; json/csv no ANSI; help lists flag; TTY → ANSI when injectable |
+| Layer                                                         | Coverage                                                                          |
+| ------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Unit `src/report/color.test.ts`                               | `paintGrowthPattern` on/off for all four kinds; stable never ANSI                 |
+| Unit `src/report/trend-format.test.ts` (or trend-table tests) | `renderTrendTable` color true/false; `stripAnsi` equality; Pattern line shape     |
+| Unit bin                                                      | `resolveTrendColor` matrix (table/json/csv, TTY, noColor, NO_COLOR, outputPath)   |
+| CLI `bin/hotspot-scanner.test.ts`                             | trend `--no-color`; json/csv no ANSI; help lists flag; TTY → ANSI when injectable |
 
 Gate: `pnpm build && pnpm test`
 

@@ -250,8 +250,7 @@ export function createWorkerPool(options: WorkerPoolOptions): WorkerPool {
               return;
             }
             const batchIndex = slot.inFlightBatchIndex;
-            const batch =
-              batchIndex !== null ? batches[batchIndex]! : ["?"];
+            const batch = batchIndex !== null ? batches[batchIndex]! : ["?"];
             rejectWithBatch(
               `Worker error for batch in ${repoPath}: [${batch.join(", ")}]: ${error.message}`,
               batch,
@@ -263,8 +262,7 @@ export function createWorkerPool(options: WorkerPoolOptions): WorkerPool {
               return;
             }
             const batchIndex = slot.inFlightBatchIndex;
-            const batch =
-              batchIndex !== null ? batches[batchIndex]! : ["?"];
+            const batch = batchIndex !== null ? batches[batchIndex]! : ["?"];
             rejectWithBatch(
               `Worker exited with code ${code} for batch in ${repoPath}: [${batch.join(", ")}]`,
               batch,

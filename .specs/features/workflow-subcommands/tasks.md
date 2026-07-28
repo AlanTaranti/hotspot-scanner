@@ -46,26 +46,26 @@ flowchart LR
 
 | Task | Depends on (declared) | Appears in diagram after deps | Match |
 | ---- | --------------------- | ----------------------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T2 | T2 → T3 | ✅ |
-| T4 | T3 | T3 → T4 | ✅ |
-| T5 | T4 | T4 → T5 | ✅ |
+| T1   | None                  | Root                          | ✅    |
+| T2   | T1                    | T1 → T2                       | ✅    |
+| T3   | T2                    | T2 → T3                       | ✅    |
+| T4   | T3                    | T3 → T4                       | ✅    |
+| T5   | T4                    | T4 → T5                       | ✅    |
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Tests in same task | Match |
-| ---- | ---------- | ---------------------- | ------------------ | ----- |
-| T1 | `bin/` helpers + scan refactor | CLI unit | Update `bin/hotspot-scanner.test.ts` regression for `scan` / `--baseline` | ✅ |
-| T2 | `bin/` `baseline save` | CLI unit | Tests for default path, `--output`, invalid output | ✅ |
-| T3 | `bin/` `compare` | CLI unit | Tests for required `--baseline`, format/output wiring | ✅ |
-| T4 | `bin/` integration | Integration | Round-trip save→compare; parity with `scan --baseline` | ✅ |
-| T5 | Docs only | Gate | Full `pnpm build && pnpm test` | ✅ |
+| Task | Code layer                     | TESTING.md expectation | Tests in same task                                                        | Match |
+| ---- | ------------------------------ | ---------------------- | ------------------------------------------------------------------------- | ----- |
+| T1   | `bin/` helpers + scan refactor | CLI unit               | Update `bin/hotspot-scanner.test.ts` regression for `scan` / `--baseline` | ✅    |
+| T2   | `bin/` `baseline save`         | CLI unit               | Tests for default path, `--output`, invalid output                        | ✅    |
+| T3   | `bin/` `compare`               | CLI unit               | Tests for required `--baseline`, format/output wiring                     | ✅    |
+| T4   | `bin/` integration             | Integration            | Round-trip save→compare; parity with `scan --baseline`                    | ✅    |
+| T5   | Docs only                      | Gate                   | Full `pnpm build && pnpm test`                                            | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict with parallel? |
-| ---- | ------------ | ----- | ----------------------- |
+| Task  | Module owner          | Paths                                                        | Conflict with parallel?      |
+| ----- | --------------------- | ------------------------------------------------------------ | ---------------------------- |
 | T1–T5 | `bin/` (+ docs in T5) | Primarily `bin/hotspot-scanner.ts` (± `bin/scan-actions.ts`) | No `[P]` — all sequential ✅ |
 
 ---
@@ -250,23 +250,23 @@ Phase 4: T5             (full gate)
 
 ## Requirement → Task Mapping
 
-| Requirement ID | Task(s) |
-| -------------- | ------- |
-| HOTSPOT-490 | T2 |
-| HOTSPOT-491 | T2 |
-| HOTSPOT-492 | T2 |
-| HOTSPOT-493 | T2 |
-| HOTSPOT-494 | T2 |
-| HOTSPOT-495 | T2 |
-| HOTSPOT-496 | T3 |
-| HOTSPOT-497 | T3, T4 |
-| HOTSPOT-498 | T3 |
-| HOTSPOT-499 | T1, T3, T4 |
-| HOTSPOT-500 | T1, T2, T3 |
-| HOTSPOT-501 | T2, T3 |
-| HOTSPOT-502 | T2, T3, T4 |
-| HOTSPOT-503 | T4 |
-| HOTSPOT-504 | T5 |
+| Requirement ID  | Task(s)         |
+| --------------- | --------------- |
+| HOTSPOT-490     | T2              |
+| HOTSPOT-491     | T2              |
+| HOTSPOT-492     | T2              |
+| HOTSPOT-493     | T2              |
+| HOTSPOT-494     | T2              |
+| HOTSPOT-495     | T2              |
+| HOTSPOT-496     | T3              |
+| HOTSPOT-497     | T3, T4          |
+| HOTSPOT-498     | T3              |
+| HOTSPOT-499     | T1, T3, T4      |
+| HOTSPOT-500     | T1, T2, T3      |
+| HOTSPOT-501     | T2, T3          |
+| HOTSPOT-502     | T2, T3, T4      |
+| HOTSPOT-503     | T4              |
+| HOTSPOT-504     | T5              |
 | HOTSPOT-505–509 | Reserved unused |
 
 **Coverage:** 15/15 P1 mapped, 0 unmapped

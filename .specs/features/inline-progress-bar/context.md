@@ -40,11 +40,11 @@ Extend M59’s single live stderr progress line with an **honest complexity fill
 
 **Choice:**
 
-| Stream | Behavior |
-| ------ | -------- |
-| **TTY** | Inline fill bar using block glyphs (`█` filled / `░` empty) + honest `filesProcessed/totalFiles` (and batch `n/N` when known). Example: `complexity [████████░░] 800/1,050 files · batch 16/21`. |
-| **Non-TTY** | Same semantics with ASCII fill (`#` / `-`) on `\n`-terminated lines (CI-safe). |
-| **Total unknown** | Omit the bar brackets; keep file/batch counters when present. |
+| Stream            | Behavior                                                                                                                                                                                         |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **TTY**           | Inline fill bar using block glyphs (`█` filled / `░` empty) + honest `filesProcessed/totalFiles` (and batch `n/N` when known). Example: `complexity [████████░░] 800/1,050 files · batch 16/21`. |
+| **Non-TTY**       | Same semantics with ASCII fill (`#` / `-`) on `\n`-terminated lines (CI-safe).                                                                                                                   |
+| **Total unknown** | Omit the bar brackets; keep file/batch counters when present.                                                                                                                                    |
 
 Do **not** invent an overall scan percentage. Do **not** cap/freeze file progress at 99%.
 
@@ -92,13 +92,13 @@ Do **not** invent an overall scan percentage. Do **not** cap/freeze file progres
 
 **Choice:**
 
-| Path | Target lifecycle |
-| ---- | ---------------- |
-| Scan | Keep live line through finalize → score → render → `writeRenderedOutput`; call `flushWarnings` **after** write. |
-| Compare | Same: flush **after** `writeRenderedOutput` (not before render). |
-| Baseline save | Flush **after** `writeBaselineJson`. |
-| Explain | Clear live line before explain stderr writes (M59 clear-before-info). Typically flush already ran after write; if explain runs while a line is open, clear first. |
-| M58 | Still clear before warning/error/info writes; summary flush still clears at `flushWarnings()`. |
+| Path          | Target lifecycle                                                                                                                                                  |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Scan          | Keep live line through finalize → score → render → `writeRenderedOutput`; call `flushWarnings` **after** write.                                                   |
+| Compare       | Same: flush **after** `writeRenderedOutput` (not before render).                                                                                                  |
+| Baseline save | Flush **after** `writeBaselineJson`.                                                                                                                              |
+| Explain       | Clear live line before explain stderr writes (M59 clear-before-info). Typically flush already ran after write; if explain runs while a line is open, clear first. |
+| M58           | Still clear before warning/error/info writes; summary flush still clears at `flushWarnings()`.                                                                    |
 
 `executeScan` / compare wiring must **return or expose** `flushWarnings` so the bin (or compare helper) clears after write.
 

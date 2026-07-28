@@ -44,11 +44,11 @@ Enrich JSON/compare DX **additively under `version: "3.0"`** — no contract ver
 
 **Choice:**
 
-| Surface | Field | Emission |
-| ------- | ----- | -------- |
-| `ScanResult.meta` | `scannerVersion: string` | Always on successful new scans (`runScan`) |
-| `CompareResult.meta` | `scannerVersion: string` | Always on new compares (`compareScanResults` / compare meta assembly) |
-| Nested `CompareMeta.baseline` / `.current` | May carry `scannerVersion` when present on those ScanMetas | Copied with nested meta; **absent** on old baselines is OK |
+| Surface                                    | Field                                                      | Emission                                                              |
+| ------------------------------------------ | ---------------------------------------------------------- | --------------------------------------------------------------------- |
+| `ScanResult.meta`                          | `scannerVersion: string`                                   | Always on successful new scans (`runScan`)                            |
+| `CompareResult.meta`                       | `scannerVersion: string`                                   | Always on new compares (`compareScanResults` / compare meta assembly) |
+| Nested `CompareMeta.baseline` / `.current` | May carry `scannerVersion` when present on those ScanMetas | Copied with nested meta; **absent** on old baselines is OK            |
 
 **Source:** `package.json` `"version"` (e.g. `"1.0.0"` today). Shared cached reader (doctor already reads package.json for engines — prefer a small reusable helper, not duplicate ad-hoc paths).
 
@@ -68,9 +68,9 @@ Enrich JSON/compare DX **additively under `version: "3.0"`** — no contract ver
 
 **Choice:** Emit top-level `$schema` in **`renderJson`** / **`renderCompareJson`** only (serialization concern — **not** a required field on in-memory `ScanResult` / `CompareResult` domain types).
 
-| Format | URL (exact) |
-| ------ | ----------- |
-| Scan JSON | `https://vitals.dev/hotspot-scanner/schemas/scan-result.json` |
+| Format       | URL (exact)                                                      |
+| ------------ | ---------------------------------------------------------------- |
+| Scan JSON    | `https://vitals.dev/hotspot-scanner/schemas/scan-result.json`    |
 | Compare JSON | `https://vitals.dev/hotspot-scanner/schemas/compare-result.json` |
 
 These match existing schema `$id` values in `schemas/scan-result.json` and `schemas/compare-result.json`.
@@ -93,12 +93,12 @@ These match existing schema `$id` values in `schemas/scan-result.json` and `sche
 
 ```ts
 interface RankChange<T> {
-  entity: T;              // UNCHANGED required field — see entity semantics below
+  entity: T; // UNCHANGED required field — see entity semantics below
   baselineRank: number;
   currentRank: number;
-  rankDelta: number;      // currentRank - baselineRank (existing)
-  scoreDelta: number;     // current.hotspotScore - baseline.hotspotScore
-  nclocDelta: number;     // current.ncloc - baseline.ncloc
+  rankDelta: number; // currentRank - baselineRank (existing)
+  scoreDelta: number; // current.hotspotScore - baseline.hotspotScore
+  nclocDelta: number; // current.ncloc - baseline.ncloc
   commitCountDelta: number; // current.commitCount - baseline.commitCount
 }
 ```
@@ -115,13 +115,13 @@ interface RankChange<T> {
 
 **Formats:**
 
-| Format | Behavior |
-| ------ | -------- |
-| JSON | Additive fields on each `rankChanged` item |
-| CSV | Additive columns on `hotspots.rank-changed.csv`: `scoreDelta`, `nclocDelta`, `commitCountDelta` (after `rankDelta` recommended) |
-| Table | Additive columns for rank-changed section (e.g. `ScoreΔ` / `NLOCΔ` / `CommitsΔ` — stable abbreviations OK); existing Score/NLOC/Churn columns continue to render `entity.*` (baseline) |
-| Markdown | Same delta columns in the rank-changed table |
-| Explain (compare) | Rank-changed explain blocks include the three deltas |
+| Format            | Behavior                                                                                                                                                                               |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| JSON              | Additive fields on each `rankChanged` item                                                                                                                                             |
+| CSV               | Additive columns on `hotspots.rank-changed.csv`: `scoreDelta`, `nclocDelta`, `commitCountDelta` (after `rankDelta` recommended)                                                        |
+| Table             | Additive columns for rank-changed section (e.g. `ScoreΔ` / `NLOCΔ` / `CommitsΔ` — stable abbreviations OK); existing Score/NLOC/Churn columns continue to render `entity.*` (baseline) |
+| Markdown          | Same delta columns in the rank-changed table                                                                                                                                           |
+| Explain (compare) | Rank-changed explain blocks include the three deltas                                                                                                                                   |
 
 **Triage (M53):** Unchanged rules; still use `entity.hotspotScore` (baseline). Do **not** retarget triage to `entity + scoreDelta` in M66 (YAGNI / separate if needed later).
 
@@ -139,12 +139,12 @@ interface RankChange<T> {
 
 ## Deferred / Rejected
 
-| Idea | Disposition |
-| ---- | ----------- |
-| Bump to `3.1` / `4.0` | Rejected — additive under `3.0` |
-| `currentEntity` + `baselineEntity` dual nest | Rejected — YAGNI; deltas + baseline `entity` suffice |
-| Deltas on `new` / `removed` | Rejected — no pair |
-| Force re-scan for scannerVersion | Rejected — optional on load |
-| Executive-summary scannerVersion line | Deferred — JSON meta enough |
-| Retarget M53 triage to current score | Deferred |
-| Changing which side `entity` embeds | Rejected — would break additive semantics under `3.0` |
+| Idea                                         | Disposition                                           |
+| -------------------------------------------- | ----------------------------------------------------- |
+| Bump to `3.1` / `4.0`                        | Rejected — additive under `3.0`                       |
+| `currentEntity` + `baselineEntity` dual nest | Rejected — YAGNI; deltas + baseline `entity` suffice  |
+| Deltas on `new` / `removed`                  | Rejected — no pair                                    |
+| Force re-scan for scannerVersion             | Rejected — optional on load                           |
+| Executive-summary scannerVersion line        | Deferred — JSON meta enough                           |
+| Retarget M53 triage to current score         | Deferred                                              |
+| Changing which side `entity` embeds          | Rejected — would break additive semantics under `3.0` |

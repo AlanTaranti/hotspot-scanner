@@ -40,54 +40,54 @@ flowchart LR
 
 | Task | Depends on (declared) | Diagram shows | Match |
 | ---- | --------------------- | ------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T2 | T2 → T3 | ✅ |
-| T4 | T3 | T3 → T4 | ✅ |
-| T5 | T4 | T4 → T5 | ✅ |
+| T1   | None                  | Root          | ✅    |
+| T2   | T1                    | T1 → T2       | ✅    |
+| T3   | T2                    | T2 → T3       | ✅    |
+| T4   | T3                    | T3 → T4       | ✅    |
+| T5   | T4                    | T4 → T5       | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | diagnostics | `src/diagnostics/logger.ts` (+ optional `warning-summary.ts`), `src/diagnostics/logger.test.ts` (+ optional new test), `src/diagnostics/index.ts` exports | Sole diagnostics owner |
-| T2 | bin | `bin/hotspot-scanner.ts`, `bin/scan-actions.ts`, `bin/hotspot-scanner.test.ts` | After T1; only T2 may touch scan-actions handlers |
-| T3 | bin (completion) | `bin/completion-scripts.ts`, `bin/completion-scripts.test.ts` and/or `bin/hotspot-scanner.test.ts` | After T2; sequential on bin |
-| T4 | docs | `README.md`, `docs/warning-codes.md`, `docs/recipes.md`, `.specs/codebase/ARCHITECTURE.md`; Execute may tick ROADMAP/STATE Done | After T3 |
-| T5 | gate | none (verify) | After T4 |
+| Task | Module owner     | Paths                                                                                                                                                     | Conflict                                          |
+| ---- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| T1   | diagnostics      | `src/diagnostics/logger.ts` (+ optional `warning-summary.ts`), `src/diagnostics/logger.test.ts` (+ optional new test), `src/diagnostics/index.ts` exports | Sole diagnostics owner                            |
+| T2   | bin              | `bin/hotspot-scanner.ts`, `bin/scan-actions.ts`, `bin/hotspot-scanner.test.ts`                                                                            | After T1; only T2 may touch scan-actions handlers |
+| T3   | bin (completion) | `bin/completion-scripts.ts`, `bin/completion-scripts.test.ts` and/or `bin/hotspot-scanner.test.ts`                                                        | After T2; sequential on bin                       |
+| T4   | docs             | `README.md`, `docs/warning-codes.md`, `docs/recipes.md`, `.specs/codebase/ARCHITECTURE.md`; Execute may tick ROADMAP/STATE Done                           | After T3                                          |
+| T5   | gate             | none (verify)                                                                                                                                             | After T4                                          |
 
 No `[P]` — T3 shares `bin/` with T2; keep sequential.
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task says | Match |
-| ---- | ---------- | ---------------------- | --------- | ----- |
-| T1 | `src/diagnostics/` | Unit | unit in same task | ✅ |
-| T2 | `bin/` | Unit | unit in same task | ✅ |
-| T3 | `bin/` | Unit | unit in same task | ✅ |
-| T4 | Docs | none | none | ✅ |
-| T5 | Full project | Gate | `pnpm build && pnpm test` | ✅ |
+| Task | Code layer         | TESTING.md expectation | Task says                 | Match |
+| ---- | ------------------ | ---------------------- | ------------------------- | ----- |
+| T1   | `src/diagnostics/` | Unit                   | unit in same task         | ✅    |
+| T2   | `bin/`             | Unit                   | unit in same task         | ✅    |
+| T3   | `bin/`             | Unit                   | unit in same task         | ✅    |
+| T4   | Docs               | none                   | none                      | ✅    |
+| T5   | Full project       | Gate                   | `pnpm build && pnpm test` | ✅    |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Aggregation + flush API + unit tests | ✅ Cohesive module |
-| T2 | Flag parse + wire + flush + CLI tests | ✅ Cohesive bin |
-| T3 | Completion `--warnings` | ✅ Granular |
-| T4 | Living docs | ✅ Granular |
-| T5 | Project gate | ✅ Granular |
+| Task | Scope                                 | Status             |
+| ---- | ------------------------------------- | ------------------ |
+| T1   | Aggregation + flush API + unit tests  | ✅ Cohesive module |
+| T2   | Flag parse + wire + flush + CLI tests | ✅ Cohesive bin    |
+| T3   | Completion `--warnings`               | ✅ Granular        |
+| T4   | Living docs                           | ✅ Granular        |
+| T5   | Project gate                          | ✅ Granular        |
 
 ### Requirement → Task Mapping
 
-| Requirement ID | Task |
-| -------------- | ---- |
-| HOTSPOT-955, HOTSPOT-956, HOTSPOT-957, HOTSPOT-958 | T1 |
-| HOTSPOT-950, HOTSPOT-951, HOTSPOT-952, HOTSPOT-953, HOTSPOT-954, HOTSPOT-959, HOTSPOT-962 | T2 |
-| HOTSPOT-961 | T3 |
-| HOTSPOT-960 | T4 |
-| (gate) | T5 |
-| HOTSPOT-963–969 | Reserved — unused |
+| Requirement ID                                                                            | Task              |
+| ----------------------------------------------------------------------------------------- | ----------------- |
+| HOTSPOT-955, HOTSPOT-956, HOTSPOT-957, HOTSPOT-958                                        | T1                |
+| HOTSPOT-950, HOTSPOT-951, HOTSPOT-952, HOTSPOT-953, HOTSPOT-954, HOTSPOT-959, HOTSPOT-962 | T2                |
+| HOTSPOT-961                                                                               | T3                |
+| HOTSPOT-960                                                                               | T4                |
+| (gate)                                                                                    | T5                |
+| HOTSPOT-963–969                                                                           | Reserved — unused |
 
 ---
 

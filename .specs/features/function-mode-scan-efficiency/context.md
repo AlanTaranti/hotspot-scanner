@@ -68,13 +68,13 @@
 
 ## Non-goals (do not reopen)
 
-| Topic | Reason |
-| ----- | ------ |
-| Historical AST / blame | User locked; CONCERNS deferred |
-| Parallelize function-churn with numstat | M34 boundary, not M35 |
-| Change scoring formulas / JSON version | Out of scope |
-| Persistent AST workers | M31 |
-| Discovery via `git ls-files` | M36 |
+| Topic                                   | Reason                         |
+| --------------------------------------- | ------------------------------ |
+| Historical AST / blame                  | User locked; CONCERNS deferred |
+| Parallelize function-churn with numstat | M34 boundary, not M35          |
+| Change scoring formulas / JSON version  | Out of scope                   |
+| Persistent AST workers                  | M31                            |
+| Discovery via `git ls-files`            | M36                            |
 
 ---
 

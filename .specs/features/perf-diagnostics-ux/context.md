@@ -50,10 +50,10 @@
 
 **Choice:** Extend `onProgress` payload with a required `phase` field:
 
-| `phase`            | Emitter                         | Counter meaning                          |
-| ------------------ | ------------------------------- | ---------------------------------------- |
-| `"git"`            | `GitMiner` (numstat)            | commits processed in numstat stream      |
-| `"function-churn"` | `FunctionChurnMiner` (patch)    | commits processed in patch/hunk stream   |
+| `phase`            | Emitter                      | Counter meaning                        |
+| ------------------ | ---------------------------- | -------------------------------------- |
+| `"git"`            | `GitMiner` (numstat)         | commits processed in numstat stream    |
+| `"function-churn"` | `FunctionChurnMiner` (patch) | commits processed in patch/hunk stream |
 
 **Stderr format (throttled, interval unchanged = 1000):**  
 `Processing <phase> commit <N>...` (e.g. `Processing function-churn commit 1,000...`).
@@ -101,12 +101,12 @@ interface ScanWarning {
 
 **Stable codes for existing sites (no new M26 messages):**
 
-| Code                         | Typical source                         |
-| ---------------------------- | -------------------------------------- |
-| `EMPTY_SINCE_WINDOW`         | git / function-churn empty `--since`   |
-| `RENAME_HISTORY_INCOMPLETE`  | existing rename incomplete strings     |
-| `PARSE_FAILED`               | complexity parse skip                  |
-| `COMPARE_SINCE_MISMATCH`     | compare baseline vs current `since`    |
+| Code                        | Typical source                       |
+| --------------------------- | ------------------------------------ |
+| `EMPTY_SINCE_WINDOW`        | git / function-churn empty `--since` |
+| `RENAME_HISTORY_INCOMPLETE` | existing rename incomplete strings   |
+| `PARSE_FAILED`              | complexity parse skip                |
+| `COMPARE_SINCE_MISMATCH`    | compare baseline vs current `since`  |
 
 **Boundary:** Do **not** invent RT-003 / rename-confidence / pós-rename overlap warnings (M26). Only reclassify/route **existing** generic warning strings into `ScanWarning` + docs.
 

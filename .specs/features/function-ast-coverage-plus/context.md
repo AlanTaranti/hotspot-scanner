@@ -11,22 +11,22 @@
 
 **Choice:** Extend collection / collection policy for **exactly** these four items. Do **not** treat constructors as new (M11). Do **not** re-ship M22 getters/setters/class-field-arrows/object methods.
 
-| # | Construct | Current behavior (verified) | M29 action |
-| - | --------- | --------------------------- | ---------- |
-| 1 | **ClassExpression members** (`const C = class { … }`) | **Not collected** (VariableStatement early-return + `collectCallableInitializer` ignores `ClassExpression`) | Collect members with the **same** policy as `ClassDeclaration` (methods, constructors, get/set, field callables) |
-| 2 | **Object-literal get/set** (`{ get foo(){}, set foo(v){} }`) | Only `MethodDeclaration` / callable `PropertyAssignment` collected; accessors **missed** | Collect `GetAccessorDeclaration` / `SetAccessorDeclaration` inside `ObjectLiteralExpression` |
-| 3 | **AssignmentExpression RHS callables** (`handler = function named(){}`, `obj.fn = () => {}`) | **Not collected** (only `VariableDeclaration` / property initializers) | Collect ArrowFunction / FunctionExpression on `=` RHS when LHS is Identifier or PropertyAccessExpression (ElementAccess → anonymous policy) |
-| 4 | **Overload signature noise** (body-less `function` / method stubs) | Top-level `function` overloads emit **one entry per signature** (complexity 1 stubs + implementation); class `getMembers()` often surfaces implementation only | **Skip** body-less, non-abstract `FunctionDeclaration` / `MethodDeclaration` (overload / ambient stubs). Keep implementations and M22 abstract accessors |
+| #   | Construct                                                                                    | Current behavior (verified)                                                                                                                                    | M29 action                                                                                                                                               |
+| --- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **ClassExpression members** (`const C = class { … }`)                                        | **Not collected** (VariableStatement early-return + `collectCallableInitializer` ignores `ClassExpression`)                                                    | Collect members with the **same** policy as `ClassDeclaration` (methods, constructors, get/set, field callables)                                         |
+| 2   | **Object-literal get/set** (`{ get foo(){}, set foo(v){} }`)                                 | Only `MethodDeclaration` / callable `PropertyAssignment` collected; accessors **missed**                                                                       | Collect `GetAccessorDeclaration` / `SetAccessorDeclaration` inside `ObjectLiteralExpression`                                                             |
+| 3   | **AssignmentExpression RHS callables** (`handler = function named(){}`, `obj.fn = () => {}`) | **Not collected** (only `VariableDeclaration` / property initializers)                                                                                         | Collect ArrowFunction / FunctionExpression on `=` RHS when LHS is Identifier or PropertyAccessExpression (ElementAccess → anonymous policy)              |
+| 4   | **Overload signature noise** (body-less `function` / method stubs)                           | Top-level `function` overloads emit **one entry per signature** (complexity 1 stubs + implementation); class `getMembers()` often surfaces implementation only | **Skip** body-less, non-abstract `FunctionDeclaration` / `MethodDeclaration` (overload / ambient stubs). Keep implementations and M22 abstract accessors |
 
 **Explicitly NOT new constructs (already covered or out of scope):**
 
-| Candidate | Status |
-| --------- | ------ |
-| `constructor()` | Already M11 — do not list as new |
-| `get`/`set` on **classes**, class field arrows, object-literal **methods** | Already M22 |
-| `const fn = function named() {}` (VariableDeclaration) | Already collected; name = binding (`fn`), not inner name |
-| `namespace` / `module` bodies | **Already collected** via recursive `forEachChild` — regression fixture only (P2), not a collection change |
-| IIFEs / call-argument callbacks / bare unassigned arrows | Out of scope (YAGNI) |
+| Candidate                                                                  | Status                                                                                                     |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `constructor()`                                                            | Already M11 — do not list as new                                                                           |
+| `get`/`set` on **classes**, class field arrows, object-literal **methods** | Already M22                                                                                                |
+| `const fn = function named() {}` (VariableDeclaration)                     | Already collected; name = binding (`fn`), not inner name                                                   |
+| `namespace` / `module` bodies                                              | **Already collected** via recursive `forEachChild` — regression fixture only (P2), not a collection change |
+| IIFEs / call-argument callbacks / bare unassigned arrows                   | Out of scope (YAGNI)                                                                                       |
 
 **Status:** **Confirmed**
 
@@ -36,14 +36,14 @@
 
 **Choice:** Extend naming only for new constructs. Do **not** change existing M11/M22 rows.
 
-| Construct | `functionName` |
-| --------- | -------------- |
-| ClassExpression method / get / set / field arrow | Same rules as ClassDeclaration (method/accessor/property name; ctor → `constructor`) |
-| Object-literal `get foo()` / `set foo()` | Bare `foo` (same as class accessors; distinguish by `line`) |
-| `handler = function named() { }` | LHS Identifier name → `handler` (inner FunctionExpression name ignored — consistent with `const fn = function named()`) |
-| `obj.fn = () => {}` / `exports.foo = function(){}` | PropertyAccess **rightmost name** → `fn` / `foo` |
-| `obj[expr] = () => {}` (ElementAccess) | `<anonymous>:L{line}` |
-| Assignment RHS anonymous function/arrow with non-nameable LHS | `<anonymous>:L{line}` |
+| Construct                                                     | `functionName`                                                                                                          |
+| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| ClassExpression method / get / set / field arrow              | Same rules as ClassDeclaration (method/accessor/property name; ctor → `constructor`)                                    |
+| Object-literal `get foo()` / `set foo()`                      | Bare `foo` (same as class accessors; distinguish by `line`)                                                             |
+| `handler = function named() { }`                              | LHS Identifier name → `handler` (inner FunctionExpression name ignored — consistent with `const fn = function named()`) |
+| `obj.fn = () => {}` / `exports.foo = function(){}`            | PropertyAccess **rightmost name** → `fn` / `foo`                                                                        |
+| `obj[expr] = () => {}` (ElementAccess)                        | `<anonymous>:L{line}`                                                                                                   |
+| Assignment RHS anonymous function/arrow with non-nameable LHS | `<anonymous>:L{line}`                                                                                                   |
 
 `line` = `getStartLineNumber()` of the **function node** (arrow / function expression / method / accessor), not the statement.
 

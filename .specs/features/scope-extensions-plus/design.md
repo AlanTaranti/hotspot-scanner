@@ -26,24 +26,24 @@ flowchart LR
 
 ## Code Reuse Analysis
 
-| Component | Location | How to use |
-| --------- | -------- | ---------- |
-| `DEFAULT_TEST_EXCLUDE_PATTERNS` | `src/paths/scope.ts` | Append locked eight patterns; leave artifact list alone |
-| `createPathScope` / `includeTests` | `src/paths/scope.ts` | Unchanged merge semantics — new test entries auto-lift with `--include-tests` |
-| `ELIGIBLE_EXTENSIONS` | `src/complexity/discover.ts` | Append `.mts`, `.cts`; keep export |
-| `hasEligibleExtension` / discover filters | `src/complexity/discover.ts` | Inherit via constant |
-| Complexity analyze | `src/complexity/` | No extension fork — analyzes discovered paths |
-| HotspotScorer | `src/scoring/hotspot-scorer.ts` | Already joins complexity rows ∩ `fileStats` |
-| Rename eligible Set | `src/git/rename-warnings.ts` | Sync with SoT (prefer `ELIGIBLE_EXTENSIONS` import over duplicate Set) |
+| Component                                 | Location                        | How to use                                                                    |
+| ----------------------------------------- | ------------------------------- | ----------------------------------------------------------------------------- |
+| `DEFAULT_TEST_EXCLUDE_PATTERNS`           | `src/paths/scope.ts`            | Append locked eight patterns; leave artifact list alone                       |
+| `createPathScope` / `includeTests`        | `src/paths/scope.ts`            | Unchanged merge semantics — new test entries auto-lift with `--include-tests` |
+| `ELIGIBLE_EXTENSIONS`                     | `src/complexity/discover.ts`    | Append `.mts`, `.cts`; keep export                                            |
+| `hasEligibleExtension` / discover filters | `src/complexity/discover.ts`    | Inherit via constant                                                          |
+| Complexity analyze                        | `src/complexity/`               | No extension fork — analyzes discovered paths                                 |
+| HotspotScorer                             | `src/scoring/hotspot-scorer.ts` | Already joins complexity rows ∩ `fileStats`                                   |
+| Rename eligible Set                       | `src/git/rename-warnings.ts`    | Sync with SoT (prefer `ELIGIBLE_EXTENSIONS` import over duplicate Set)        |
 
 ### Integration points
 
-| System | Method |
-| ------ | ------ |
-| PathScope defaults | Test-pattern append only |
-| Discovery (ls-files + walk) | `hasEligibleExtension` via constant |
-| Dry-run / doctor eligible count | Inherit via `discoverSourceFiles` + shared PathScope |
-| Docs | ARCHITECTURE § Path scoping; README Limitations; CONCERNS residual clear |
+| System                          | Method                                                                   |
+| ------------------------------- | ------------------------------------------------------------------------ |
+| PathScope defaults              | Test-pattern append only                                                 |
+| Discovery (ls-files + walk)     | `hasEligibleExtension` via constant                                      |
+| Dry-run / doctor eligible count | Inherit via `discoverSourceFiles` + shared PathScope                     |
+| Docs                            | ARCHITECTURE § Path scoping; README Limitations; CONCERNS residual clear |
 
 ---
 
@@ -74,33 +74,33 @@ None. No type or JSON schema changes.
 
 ## Error Handling Strategy
 
-| Scenario | Handling | User impact |
-| -------- | -------- | ----------- |
+| Scenario                                 | Handling                                                           | User impact           |
+| ---------------------------------------- | ------------------------------------------------------------------ | --------------------- |
 | Legitimate source named like a test glob | Same as M46 — excluded by default; use `--include-tests` or rename | Opt-in to audit tests |
-| Over-exclude under artifact dirs | Unchanged | N/A this milestone |
+| Over-exclude under artifact dirs         | Unchanged                                                          | N/A this milestone    |
 
 ---
 
 ## Tech Decisions
 
-| Decision | Choice | Rationale |
-| -------- | ------ | --------- |
-| Test glob set | ESM/CJS + mts/cts quartets | Mission floor + prevent new residual |
-| Extension set | `.mts` + `.cts` only | Sister of M48; no `.d.ts` |
-| Rename Set | Sync in same task as constant | Dual-list drift risk (M48 enrich lesson) |
-| Fixtures | No new repo | Unit coverage enough |
-| ROADMAP/STATE | Execute Done only | Planning mission: do not edit |
+| Decision      | Choice                        | Rationale                                |
+| ------------- | ----------------------------- | ---------------------------------------- |
+| Test glob set | ESM/CJS + mts/cts quartets    | Mission floor + prevent new residual     |
+| Extension set | `.mts` + `.cts` only          | Sister of M48; no `.d.ts`                |
+| Rename Set    | Sync in same task as constant | Dual-list drift risk (M48 enrich lesson) |
+| Fixtures      | No new repo                   | Unit coverage enough                     |
+| ROADMAP/STATE | Execute Done only             | Planning mission: do not edit            |
 
 ---
 
 ## Risks / CONCERNS
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| Dual `ELIGIBLE_EXTENSIONS` in discover vs rename-warnings | Same task updates both; prefer shared import |
-| Path conflict paths vs complexity | Parallel tasks with disjoint owners (`src/paths/` vs `src/complexity/` + `src/git/rename-warnings.ts`) |
-| Docs leave residual language | T3 checklist explicitly clears README Limitations + CONCERNS row |
-| `endsWith` false positives | Existing matcher is suffix-based; `.mts` does not match `.ts` via `endsWith(".ts")` — covered by discover tests |
+| Risk                                                      | Mitigation                                                                                                      |
+| --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Dual `ELIGIBLE_EXTENSIONS` in discover vs rename-warnings | Same task updates both; prefer shared import                                                                    |
+| Path conflict paths vs complexity                         | Parallel tasks with disjoint owners (`src/paths/` vs `src/complexity/` + `src/git/rename-warnings.ts`)          |
+| Docs leave residual language                              | T3 checklist explicitly clears README Limitations + CONCERNS row                                                |
+| `endsWith` false positives                                | Existing matcher is suffix-based; `.mts` does not match `.ts` via `endsWith(".ts")` — covered by discover tests |
 
 ---
 

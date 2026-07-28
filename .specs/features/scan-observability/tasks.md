@@ -29,51 +29,51 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (body) | Diagram shows | Status |
-| ---- | ----------------- | ------------- | ------ |
-| T1 | None | Root | ✅ Match |
-| T2 | None | Root | ✅ Match |
-| T3 | None | Root | ✅ Match |
-| T4 | None | Root | ✅ Match |
-| T5 | T1, T2 | T1/T2→T5 | ✅ Match |
-| T6 | T3, T4, T5 | T3/T4/T5→T6 | ✅ Match |
-| T7 | T6 | T6→T7 | ✅ Match |
+| Task | Depends on (body) | Diagram shows | Status   |
+| ---- | ----------------- | ------------- | -------- |
+| T1   | None              | Root          | ✅ Match |
+| T2   | None              | Root          | ✅ Match |
+| T3   | None              | Root          | ✅ Match |
+| T4   | None              | Root          | ✅ Match |
+| T5   | T1, T2            | T1/T2→T5      | ✅ Match |
+| T6   | T3, T4, T5        | T3/T4/T5→T6   | ✅ Match |
+| T7   | T6                | T6→T7         | ✅ Match |
 
 ### Path Conflict Check
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | `src/git/` | `spawn.ts`, `function-churn/spawn.ts`, `function-churn/index.ts`, co-located tests | None vs T2–T4 — `[P]` OK |
-| T2 | `src/types/` + `schemas/` | `domain.ts`, `scan-result.json`, `tests/contract/json-schema.test.ts`, baseline fixture note | None vs T1/T3/T4 — `[P]` OK |
-| T3 | `src/report/` | `summary.ts`, `summary.test.ts` only | None — do not edit table/markdown files unless snapshot requires (prefer assert via summary) |
-| T4 | `src/doctor/` | format helper + `index` export + tests | None — `[P]` OK |
-| T5 | `src/scan.ts` | `scan.ts`, `scan.test.ts` (+ integration if needed) | Sole scan owner — after T1/T2 |
-| T6 | `bin/` | `hotspot-scanner.ts`, `scan-actions.ts` if needed, CLI tests | Sole bin owner — after T3–T5 |
-| T7 | docs | README, ARCHITECTURE, CONCERNS, STRUCTURE, ROADMAP/STATE notes | After T6 |
+| Task | Module owner              | Paths                                                                                        | Conflict                                                                                     |
+| ---- | ------------------------- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| T1   | `src/git/`                | `spawn.ts`, `function-churn/spawn.ts`, `function-churn/index.ts`, co-located tests           | None vs T2–T4 — `[P]` OK                                                                     |
+| T2   | `src/types/` + `schemas/` | `domain.ts`, `scan-result.json`, `tests/contract/json-schema.test.ts`, baseline fixture note | None vs T1/T3/T4 — `[P]` OK                                                                  |
+| T3   | `src/report/`             | `summary.ts`, `summary.test.ts` only                                                         | None — do not edit table/markdown files unless snapshot requires (prefer assert via summary) |
+| T4   | `src/doctor/`             | format helper + `index` export + tests                                                       | None — `[P]` OK                                                                              |
+| T5   | `src/scan.ts`             | `scan.ts`, `scan.test.ts` (+ integration if needed)                                          | Sole scan owner — after T1/T2                                                                |
+| T6   | `bin/`                    | `hotspot-scanner.ts`, `scan-actions.ts` if needed, CLI tests                                 | Sole bin owner — after T3–T5                                                                 |
+| T7   | docs                      | README, ARCHITECTURE, CONCERNS, STRUCTURE, ROADMAP/STATE notes                               | After T6                                                                                     |
 
 ### Test Co-location Validation
 
-| Task | Code layer | Matrix / TESTING.md | Task Tests | Status |
-| ---- | ---------- | ------------------- | ---------- | ------ |
-| T1 | `src/git/` | unit co-located | unit (abort + argv hook) | ✅ OK |
-| T2 | types/schemas | contract + type compile | contract tests | ✅ OK |
-| T3 | `src/report/` | unit co-located | unit summary | ✅ OK |
-| T4 | `src/doctor/` | unit co-located | unit JSON format | ✅ OK |
-| T5 | `src/scan.ts` | unit (+ integration as needed) | unit abort/timings | ✅ OK |
-| T6 | `bin/` | CLI Vitest | CLI verbose/doctor/cancel mapping | ✅ OK |
-| T7 | docs | none | full gate `pnpm build && pnpm test` | ✅ OK |
+| Task | Code layer    | Matrix / TESTING.md            | Task Tests                          | Status |
+| ---- | ------------- | ------------------------------ | ----------------------------------- | ------ |
+| T1   | `src/git/`    | unit co-located                | unit (abort + argv hook)            | ✅ OK  |
+| T2   | types/schemas | contract + type compile        | contract tests                      | ✅ OK  |
+| T3   | `src/report/` | unit co-located                | unit summary                        | ✅ OK  |
+| T4   | `src/doctor/` | unit co-located                | unit JSON format                    | ✅ OK  |
+| T5   | `src/scan.ts` | unit (+ integration as needed) | unit abort/timings                  | ✅ OK  |
+| T6   | `bin/`        | CLI Vitest                     | CLI verbose/doctor/cancel mapping   | ✅ OK  |
+| T7   | docs          | none                           | full gate `pnpm build && pnpm test` | ✅ OK  |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Function-churn abort + shared spawn argv callback | ✅ Granular |
-| T2 | Timings types + schema + contract | ✅ Granular |
-| T3 | Warning summary line in executive summaries | ✅ Granular |
-| T4 | Doctor JSON envelope formatter | ✅ Granular |
-| T5 | runScan signal link + timings + FC signal + argv forward | ✅ Cohesive scan slice |
-| T6 | CLI signals, `--verbose`, doctor `--format` | ✅ Cohesive CLI slice |
-| T7 | Living docs + full gate | ✅ Granular |
+| Task | Scope                                                    | Status                 |
+| ---- | -------------------------------------------------------- | ---------------------- |
+| T1   | Function-churn abort + shared spawn argv callback        | ✅ Granular            |
+| T2   | Timings types + schema + contract                        | ✅ Granular            |
+| T3   | Warning summary line in executive summaries              | ✅ Granular            |
+| T4   | Doctor JSON envelope formatter                           | ✅ Granular            |
+| T5   | runScan signal link + timings + FC signal + argv forward | ✅ Cohesive scan slice |
+| T6   | CLI signals, `--verbose`, doctor `--format`              | ✅ Cohesive CLI slice  |
+| T7   | Living docs + full gate                                  | ✅ Granular            |
 
 ---
 

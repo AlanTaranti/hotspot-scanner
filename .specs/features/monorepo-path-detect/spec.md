@@ -22,14 +22,14 @@ Developers often run the CLI from a monorepo package directory (`cd packages/api
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Scanning without git | Explicitly out of scope |
-| Changing `DEFAULT_EXCLUDE_PATTERNS` | M30 owns that set |
-| Breaking / rewriting CLI > config > defaults | Precedence unchanged |
-| Parsing `pnpm-workspace.yaml` / nx / turborepo | YAGNI — path-only heuristic |
-| `--no-remount` disable flag | YAGNI — scan from git root or pass `--include` |
-| Changing PathScope match semantics | Reuse M7 `createPathScope` |
+| Feature                                        | Reason                                         |
+| ---------------------------------------------- | ---------------------------------------------- |
+| Scanning without git                           | Explicitly out of scope                        |
+| Changing `DEFAULT_EXCLUDE_PATTERNS`            | M30 owns that set                              |
+| Breaking / rewriting CLI > config > defaults   | Precedence unchanged                           |
+| Parsing `pnpm-workspace.yaml` / nx / turborepo | YAGNI — path-only heuristic                    |
+| `--no-remount` disable flag                    | YAGNI — scan from git root or pass `--include` |
+| Changing PathScope match semantics             | Reuse M7 `createPathScope`                     |
 
 ---
 
@@ -142,28 +142,28 @@ Developers often run the CLI from a monorepo package directory (`cd packages/api
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-570 | P1: Remount | Tasks | In Tasks |
-| HOTSPOT-571 | P1: Remount (git root unchanged) | Tasks | In Tasks |
-| HOTSPOT-572 | P1: Remount (not a git work tree) | Tasks | In Tasks |
-| HOTSPOT-573 | P1: Remount (explicit nested path) | Tasks | In Tasks |
-| HOTSPOT-574 | P1: Auto-include pattern | Tasks | In Tasks |
-| HOTSPOT-575 | P1: Auto-include suppressed by CLI include | Tasks | In Tasks |
-| HOTSPOT-576 | P1: Auto-include beats config include | Tasks | In Tasks |
-| HOTSPOT-577 | P1: Scope applied to git + complexity | Tasks | In Tasks |
-| HOTSPOT-578 | P1: Config from requestPath | Tasks | In Tasks |
-| HOTSPOT-579 | P1: `--config` unchanged | Tasks | In Tasks |
-| HOTSPOT-580 | P1: Precedence preserved | Tasks | In Tasks |
-| HOTSPOT-581 | P1: `MONOREPO_PATH_REMOUNT` warning | Tasks | In Tasks |
-| HOTSPOT-582 | P1: No warning on git-root path | Tasks | In Tasks |
-| HOTSPOT-583 | P2: README / recipe docs | Tasks | In Tasks |
-| HOTSPOT-584 | P2: ARCHITECTURE docs | Tasks | In Tasks |
-| HOTSPOT-585 | (reserved) Fixture monorepo package tree | Tasks | In Tasks |
-| HOTSPOT-586 | (reserved) CLI nested-cwd smoke | Tasks | In Tasks |
-| HOTSPOT-587 | (reserved) Library API parity | Tasks | In Tasks |
-| HOTSPOT-588 | (reserved) STRUCTURE / INTEGRATIONS note if git spawn added | Tasks | In Tasks |
-| HOTSPOT-589 | (reserved) Full gate | Tasks | In Tasks |
+| Requirement ID | Story                                                       | Phase | Status   |
+| -------------- | ----------------------------------------------------------- | ----- | -------- |
+| HOTSPOT-570    | P1: Remount                                                 | Tasks | In Tasks |
+| HOTSPOT-571    | P1: Remount (git root unchanged)                            | Tasks | In Tasks |
+| HOTSPOT-572    | P1: Remount (not a git work tree)                           | Tasks | In Tasks |
+| HOTSPOT-573    | P1: Remount (explicit nested path)                          | Tasks | In Tasks |
+| HOTSPOT-574    | P1: Auto-include pattern                                    | Tasks | In Tasks |
+| HOTSPOT-575    | P1: Auto-include suppressed by CLI include                  | Tasks | In Tasks |
+| HOTSPOT-576    | P1: Auto-include beats config include                       | Tasks | In Tasks |
+| HOTSPOT-577    | P1: Scope applied to git + complexity                       | Tasks | In Tasks |
+| HOTSPOT-578    | P1: Config from requestPath                                 | Tasks | In Tasks |
+| HOTSPOT-579    | P1: `--config` unchanged                                    | Tasks | In Tasks |
+| HOTSPOT-580    | P1: Precedence preserved                                    | Tasks | In Tasks |
+| HOTSPOT-581    | P1: `MONOREPO_PATH_REMOUNT` warning                         | Tasks | In Tasks |
+| HOTSPOT-582    | P1: No warning on git-root path                             | Tasks | In Tasks |
+| HOTSPOT-583    | P2: README / recipe docs                                    | Tasks | In Tasks |
+| HOTSPOT-584    | P2: ARCHITECTURE docs                                       | Tasks | In Tasks |
+| HOTSPOT-585    | (reserved) Fixture monorepo package tree                    | Tasks | In Tasks |
+| HOTSPOT-586    | (reserved) CLI nested-cwd smoke                             | Tasks | In Tasks |
+| HOTSPOT-587    | (reserved) Library API parity                               | Tasks | In Tasks |
+| HOTSPOT-588    | (reserved) STRUCTURE / INTEGRATIONS note if git spawn added | Tasks | In Tasks |
+| HOTSPOT-589    | (reserved) Full gate                                        | Tasks | In Tasks |
 
 **Coverage:** 20 IDs in range; P1 mapped to HOTSPOT-570–582; P2 to 583–584; fixture/CLI/docs/gate 585–589.
 

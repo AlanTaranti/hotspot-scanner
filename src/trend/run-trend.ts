@@ -3,10 +3,7 @@ import { dirname, relative, resolve } from "node:path";
 import { classifyGrowthPattern } from "./classify.js";
 import { analyzeIndentation } from "../complexity/indentation.js";
 import { countNcloc } from "../complexity/ncloc.js";
-import {
-  listFileRevisions,
-  showFileAtRevision,
-} from "../git/file-history.js";
+import { listFileRevisions, showFileAtRevision } from "../git/file-history.js";
 import { getPackageVersion } from "../package-meta.js";
 import { resolveMonorepoScanPath } from "../paths/resolve-repo.js";
 import { DEFAULT_SINCE } from "../scan.js";
@@ -36,9 +33,7 @@ function validateRangeOptions(options: ComplexityTrendOptions): void {
   }
 
   if (hasStart !== hasEnd) {
-    throw new TrendUsageError(
-      "--start and --end must be provided together.",
-    );
+    throw new TrendUsageError("--start and --end must be provided together.");
   }
 }
 
@@ -52,7 +47,9 @@ async function assertFilePath(filePath: string): Promise<string> {
   }
 
   if (fileStat.isDirectory()) {
-    throw new TrendUsageError(`Expected a file path, got directory: ${filePath}`);
+    throw new TrendUsageError(
+      `Expected a file path, got directory: ${filePath}`,
+    );
   }
 
   return absolutePath;
@@ -124,7 +121,9 @@ export async function runComplexityTrend(
       timeOptions,
       revisionCount: 0,
       truncated: false,
-      maxRevisions: options.all ? null : (options.maxRevisions ?? DEFAULT_MAX_REVISIONS),
+      maxRevisions: options.all
+        ? null
+        : (options.maxRevisions ?? DEFAULT_MAX_REVISIONS),
       includeScannerVersion: options.includeScannerVersion,
     });
   }
@@ -226,15 +225,15 @@ function buildResult(input: {
       metricLegend: TREND_METRIC_LEGEND,
       growthPattern,
       scannerVersion:
-        input.includeScannerVersion === false
-          ? undefined
-          : getPackageVersion(),
+        input.includeScannerVersion === false ? undefined : getPackageVersion(),
       warnings: input.warnings,
     },
   };
 }
 
-export function formatTruncationNote(result: ComplexityTrendResult): string | undefined {
+export function formatTruncationNote(
+  result: ComplexityTrendResult,
+): string | undefined {
   if (!result.meta.truncated || result.meta.maxRevisions === null) {
     return undefined;
   }

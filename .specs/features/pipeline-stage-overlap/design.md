@@ -48,24 +48,24 @@ flowchart TD
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `runScan` orchestration | `src/scan.ts` | Replace sequential `await mine` → `await analyze` with overlapping start + barrier |
-| `createGitMiner` / `streamGitLog` | `src/git/` | Add optional `signal`; kill child on abort |
-| `createComplexityAnalyzer` / `createWorkerPool` | `src/complexity/` | Add optional `signal`; terminate workers / stop scheduling |
-| `createFunctionChurnMiner` | `src/git/function-churn/` | **Unchanged** — still after complexity only |
-| Progress / warnings | M28 `ScanProgress`, `ScanWarning` | Forward as today; phases unchanged |
-| PathScope / config merge | `src/paths/`, `src/config/` | Unchanged pre-stage setup |
-| Fixture `small-ts` | `tests/fixtures/repos/small-ts/` | Equivalence / integration |
+| Component                                       | Location                          | How to Use                                                                         |
+| ----------------------------------------------- | --------------------------------- | ---------------------------------------------------------------------------------- |
+| `runScan` orchestration                         | `src/scan.ts`                     | Replace sequential `await mine` → `await analyze` with overlapping start + barrier |
+| `createGitMiner` / `streamGitLog`               | `src/git/`                        | Add optional `signal`; kill child on abort                                         |
+| `createComplexityAnalyzer` / `createWorkerPool` | `src/complexity/`                 | Add optional `signal`; terminate workers / stop scheduling                         |
+| `createFunctionChurnMiner`                      | `src/git/function-churn/`         | **Unchanged** — still after complexity only                                        |
+| Progress / warnings                             | M28 `ScanProgress`, `ScanWarning` | Forward as today; phases unchanged                                                 |
+| PathScope / config merge                        | `src/paths/`, `src/config/`       | Unchanged pre-stage setup                                                          |
+| Fixture `small-ts`                              | `tests/fixtures/repos/small-ts/`  | Equivalence / integration                                                          |
 
 ### Integration Points
 
-| System | Integration Method |
-| ------ | ------------------ |
-| Git spawn (`child_process`) | Listen `AbortSignal`; `child.kill()`; end readline; reject or abort-complete without unhandled rejection |
-| Complexity pool (`worker_threads`) | On abort: `worker.terminate()` for in-flight; reject pending batch promises consistently |
-| CLI / reporters | No flag changes; errors still throw → non-zero exit |
-| JSON schemas | **No change** |
+| System                             | Integration Method                                                                                       |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Git spawn (`child_process`)        | Listen `AbortSignal`; `child.kill()`; end readline; reject or abort-complete without unhandled rejection |
+| Complexity pool (`worker_threads`) | On abort: `worker.terminate()` for in-flight; reject pending batch promises consistently                 |
+| CLI / reporters                    | No flag changes; errors still throw → non-zero exit                                                      |
+| JSON schemas                       | **No change**                                                                                            |
 
 ---
 
@@ -153,40 +153,40 @@ signal?: AbortSignal;
 
 ## Error Handling Strategy
 
-| Error Scenario | Handling | User Impact |
-| -------------- | -------- | ----------- |
-| Git fails mid-overlap | Abort complexity; await settle; throw `GitLogError` (or existing) | Non-zero exit; no rankings |
-| Complexity fails mid-overlap | Abort git; await settle; throw analyzer error | Non-zero exit; no rankings |
-| Abort races natural completion | Discard sibling success if peer failed | No partial `ScanResult` |
-| Pre-stage validation fails | Unchanged — no overlap started | Same as today |
-| Function-churn fails (post-barrier) | Unchanged sequential throw; git/complexity already done | Non-zero exit |
+| Error Scenario                      | Handling                                                          | User Impact                |
+| ----------------------------------- | ----------------------------------------------------------------- | -------------------------- |
+| Git fails mid-overlap               | Abort complexity; await settle; throw `GitLogError` (or existing) | Non-zero exit; no rankings |
+| Complexity fails mid-overlap        | Abort git; await settle; throw analyzer error                     | Non-zero exit; no rankings |
+| Abort races natural completion      | Discard sibling success if peer failed                            | No partial `ScanResult`    |
+| Pre-stage validation fails          | Unchanged — no overlap started                                    | Same as today              |
+| Function-churn fails (post-barrier) | Unchanged sequential throw; git/complexity already done           | Non-zero exit              |
 
 ---
 
 ## Tech Decisions
 
-| # | Decision | Choice | Rationale |
-| - | -------- | ------ | --------- |
-| D1 | Overlap pair | numstat ∥ complexity only | User/ROADMAP locked |
-| D2 | Function-churn | After complexity; never ∥ numstat | Ranges + rename complexity |
-| D3 | Cancel mechanism | Orchestrator `AbortController` + optional `signal` | Coherent cancel without CLI cancel API |
-| D4 | Progress | Phases unchanged | M28 contract; ROADMAP allowed unchanged |
-| D5 | Warning order | Git then complexity after both OK | Preserve sequential observability for tests |
-| D6 | Equivalence proof | Fixture semantics + structural unit overlap | Avoid flaky timing CI |
-| D7 | Module surface | Prefer in-`scan.ts` helper; abort in adapters | YAGNI; Path Conflict: git vs complexity vs scan owners |
-| D8 | Rankings/JSON | Unchanged | Locked |
+| #   | Decision          | Choice                                             | Rationale                                              |
+| --- | ----------------- | -------------------------------------------------- | ------------------------------------------------------ |
+| D1  | Overlap pair      | numstat ∥ complexity only                          | User/ROADMAP locked                                    |
+| D2  | Function-churn    | After complexity; never ∥ numstat                  | Ranges + rename complexity                             |
+| D3  | Cancel mechanism  | Orchestrator `AbortController` + optional `signal` | Coherent cancel without CLI cancel API                 |
+| D4  | Progress          | Phases unchanged                                   | M28 contract; ROADMAP allowed unchanged                |
+| D5  | Warning order     | Git then complexity after both OK                  | Preserve sequential observability for tests            |
+| D6  | Equivalence proof | Fixture semantics + structural unit overlap        | Avoid flaky timing CI                                  |
+| D7  | Module surface    | Prefer in-`scan.ts` helper; abort in adapters      | YAGNI; Path Conflict: git vs complexity vs scan owners |
+| D8  | Rankings/JSON     | Unchanged                                          | Locked                                                 |
 
 ---
 
 ## Risks (from CONCERNS)
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| Peak memory (RT-001) | Document; keep streaming; abort sibling on failure |
-| Orphan workers / git child | Abort plumbing + `allSettled` after abort |
-| Ranking drift | Equivalence tests; no scoring changes |
-| Fragile `scan.ts` order | Integration + unit ordering tests before Complete |
-| Accidental function-churn ∥ numstat | Explicit barrier + test asserting call order |
+| Risk                                | Mitigation                                         |
+| ----------------------------------- | -------------------------------------------------- |
+| Peak memory (RT-001)                | Document; keep streaming; abort sibling on failure |
+| Orphan workers / git child          | Abort plumbing + `allSettled` after abort          |
+| Ranking drift                       | Equivalence tests; no scoring changes              |
+| Fragile `scan.ts` order             | Integration + unit ordering tests before Complete  |
+| Accidental function-churn ∥ numstat | Explicit barrier + test asserting call order       |
 
 ---
 

@@ -27,19 +27,19 @@ Markdown hotspot tables already expose a **Lines** column (`linesChanged`). The 
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Compare table Lines columns for delta sections | Not item J; YAGNI unless already present — do not expand compare layouts |
-| Changing `linesChanged` aggregation / git miner | Metric already exists |
-| Schema bump | Field already in contract |
-| New CLI flags | YAGNI |
+| Feature                                         | Reason                                                                   |
+| ----------------------------------------------- | ------------------------------------------------------------------------ |
+| Compare table Lines columns for delta sections  | Not item J; YAGNI unless already present — do not expand compare layouts |
+| Changing `linesChanged` aggregation / git miner | Metric already exists                                                    |
+| Schema bump                                     | Field already in contract                                                |
+| New CLI flags                                   | YAGNI                                                                    |
 
 ---
 
 ## Locked decision (item J)
 
-| Item | Lock |
-| ---- | ---- |
+| Item  | Lock                                                                                                                     |
+| ----- | ------------------------------------------------------------------------------------------------------------------------ |
 | **J** | Add `Lines` (`linesChanged`) to scan `table.ts`, mirroring markdown; update glossary/how-to-read if needed; table tests. |
 
 ---
@@ -74,14 +74,14 @@ Markdown hotspot tables already expose a **Lines** column (`linesChanged`). The 
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-1280 | P1: Header includes Lines | Tasks | Pending |
-| HOTSPOT-1281 | P1: Cell = linesChanged | Tasks | Pending |
-| HOTSPOT-1282 | P1: Glossary/how-to-read parity wording | Tasks | Pending |
-| HOTSPOT-1283 | P1: Table unit tests | Tasks | Pending |
-| HOTSPOT-1284–1294 | — | — | Buffer |
-| HOTSPOT-1295–1299 | — | — | Reserved |
+| Requirement ID    | Story                                   | Phase | Status   |
+| ----------------- | --------------------------------------- | ----- | -------- |
+| HOTSPOT-1280      | P1: Header includes Lines               | Tasks | Pending  |
+| HOTSPOT-1281      | P1: Cell = linesChanged                 | Tasks | Pending  |
+| HOTSPOT-1282      | P1: Glossary/how-to-read parity wording | Tasks | Pending  |
+| HOTSPOT-1283      | P1: Table unit tests                    | Tasks | Pending  |
+| HOTSPOT-1284–1294 | —                                       | —     | Buffer   |
+| HOTSPOT-1295–1299 | —                                       | —     | Reserved |
 
 ---
 

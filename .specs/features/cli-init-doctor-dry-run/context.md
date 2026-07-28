@@ -20,18 +20,18 @@ Ship three adoption DX entry points: `init` (exemplar config), `doctor` (environ
 
 **Choice:** **Hard failures exit non-zero; soft issues warn and exit 0.** Invalid config is a hard failure (same class as scan).
 
-| Check | Severity | Exit when failing alone |
-| ----- | -------- | ----------------------- |
-| Node runtime does not satisfy `package.json` `engines.node` (`>=22`) | **Hard** | Non-zero (`1`) |
-| `git` executable not found on `PATH` | **Hard** | Non-zero (`1`) |
-| Target path missing / not a directory | **Hard** | Non-zero (`1`) |
-| Target path is not a git repository (`<path>/.git` absent) | **Hard** | Non-zero (`1`) |
-| Config file found but invalid JSON / invalid key types (M21/M30 rules) | **Hard** | Non-zero (`2`, `ConfigError` class) |
-| Explicit `--config` path missing/unreadable | **Hard** | Non-zero (`2`, `ConfigError`) |
-| No `.hotspot-scanner.json` on discovery walk | **Soft** | Exit `0` + warning/info line |
-| No `tsconfig.json` / `jsconfig.json` under target (nearest walk informational) | **Soft** | Exit `0` + informational line |
-| Config found and valid | Pass | — |
-| tsconfig/jsconfig found | Pass (info: path printed) | — |
+| Check                                                                          | Severity                  | Exit when failing alone             |
+| ------------------------------------------------------------------------------ | ------------------------- | ----------------------------------- |
+| Node runtime does not satisfy `package.json` `engines.node` (`>=22`)           | **Hard**                  | Non-zero (`1`)                      |
+| `git` executable not found on `PATH`                                           | **Hard**                  | Non-zero (`1`)                      |
+| Target path missing / not a directory                                          | **Hard**                  | Non-zero (`1`)                      |
+| Target path is not a git repository (`<path>/.git` absent)                     | **Hard**                  | Non-zero (`1`)                      |
+| Config file found but invalid JSON / invalid key types (M21/M30 rules)         | **Hard**                  | Non-zero (`2`, `ConfigError` class) |
+| Explicit `--config` path missing/unreadable                                    | **Hard**                  | Non-zero (`2`, `ConfigError`)       |
+| No `.hotspot-scanner.json` on discovery walk                                   | **Soft**                  | Exit `0` + warning/info line        |
+| No `tsconfig.json` / `jsconfig.json` under target (nearest walk informational) | **Soft**                  | Exit `0` + informational line       |
+| Config found and valid                                                         | Pass                      | —                                   |
+| tsconfig/jsconfig found                                                        | Pass (info: path printed) | —                                   |
 
 **Aggregate exit:** If any hard check fails → non-zero (prefer `2` when the only hard failure is config-class; otherwise `1`). Soft issues never flip a green run to non-zero. Multiple hard failures: still non-zero; print all findings before exit.
 
@@ -49,11 +49,11 @@ Ship three adoption DX entry points: `init` (exemplar config), `doctor` (environ
 
 **Choice:**
 
-| Invocation | Write target |
-| ---------- | ------------ |
-| `hotspot-scanner init` | `<cwd>/.hotspot-scanner.json` |
-| `hotspot-scanner init <dir>` | `<dir>/.hotspot-scanner.json` (`<dir>` must exist and be a directory) |
-| `hotspot-scanner init --force` / `init <dir> --force` | Same targets; overwrite allowed |
+| Invocation                                            | Write target                                                          |
+| ----------------------------------------------------- | --------------------------------------------------------------------- |
+| `hotspot-scanner init`                                | `<cwd>/.hotspot-scanner.json`                                         |
+| `hotspot-scanner init <dir>`                          | `<dir>/.hotspot-scanner.json` (`<dir>` must exist and be a directory) |
+| `hotspot-scanner init --force` / `init <dir> --force` | Same targets; overwrite allowed                                       |
 
 **Rules:**
 
@@ -75,14 +75,14 @@ Ship three adoption DX entry points: `init` (exemplar config), `doctor` (environ
 
 **Choice:** Valid JSON object with **all** supported config keys (M21 + M28 `concurrency`), using documented defaults / empty arrays as examples. No `_comment` keys. Unknown keys not included.
 
-| Key | Exemplar value | Notes |
-| --- | -------------- | ----- |
-| `since` | `"12 months ago"` | Matches `DEFAULT_SINCE` |
-| `include` | `[]` | Empty = no include narrow |
-| `exclude` | `[]` | Additive user excludes (defaults always on) |
-| `granularity` | `"file"` | |
-| `minCochange` | `3` | Matches `DEFAULT_MIN_COCHANGE` |
-| `top` | `20` | Matches `DEFAULT_TOP` |
+| Key           | Exemplar value                                                                                                          | Notes                                                                                                                                                   |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `since`       | `"12 months ago"`                                                                                                       | Matches `DEFAULT_SINCE`                                                                                                                                 |
+| `include`     | `[]`                                                                                                                    | Empty = no include narrow                                                                                                                               |
+| `exclude`     | `[]`                                                                                                                    | Additive user excludes (defaults always on)                                                                                                             |
+| `granularity` | `"file"`                                                                                                                |                                                                                                                                                         |
+| `minCochange` | `3`                                                                                                                     | Matches `DEFAULT_MIN_COCHANGE`                                                                                                                          |
+| `top`         | `20`                                                                                                                    | Matches `DEFAULT_TOP`                                                                                                                                   |
 | `concurrency` | omit **or** document as optional — **include** with a positive integer comment-free value equal to a stable placeholder | Prefer **omit `concurrency`** from exemplar so hosts keep `DEFAULT_WORKER_CONCURRENCY` (`min(availableParallelism(), 8)`); operators add it when needed |
 
 **Locked refinement:** Exemplar includes the six keys that are always meaningful as static defaults (`since`, `include`, `exclude`, `granularity`, `minCochange`, `top`). **Omit `concurrency`** from the written exemplar (still a supported config key; README notes how to add it). Pretty-print with 2-space indent.
@@ -97,10 +97,10 @@ Ship three adoption DX entry points: `init` (exemplar config), `doctor` (environ
 
 **Question:** How does `doctor` choose the target path and config?
 
-| Invocation | Target |
-| ---------- | ------ |
-| `hotspot-scanner doctor` | `process.cwd()` |
-| `hotspot-scanner doctor <path>` | `<path>` |
+| Invocation                      | Target          |
+| ------------------------------- | --------------- |
+| `hotspot-scanner doctor`        | `process.cwd()` |
+| `hotspot-scanner doctor <path>` | `<path>`        |
 
 Optional `--config <file>`: same semantics as M30 scan — explicit load, skip walk; missing → `ConfigError`. Without `--config`, parent-walk discovery from the doctor target path (nearest `.hotspot-scanner.json` wins).
 
@@ -129,11 +129,11 @@ Optional `--config <file>`: same semantics as M30 scan — explicit load, skip w
 
 **Flag interactions:**
 
-| Flag with `--dry-run` | Behavior |
-| --------------------- | -------- |
-| `--baseline` | **Reject** — `CliUsageError` (meaningless with dry-run) |
-| `--format` / `--output` | **Ignored** for preview (no error); preview stays plain text on stdout |
-| Scope/config flags (`--since`, `--include`, `--exclude`, `--config`, `--concurrency`, …) | Applied to merge/preview as in a normal scan |
+| Flag with `--dry-run`                                                                    | Behavior                                                               |
+| ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `--baseline`                                                                             | **Reject** — `CliUsageError` (meaningless with dry-run)                |
+| `--format` / `--output`                                                                  | **Ignored** for preview (no error); preview stays plain text on stdout |
+| Scope/config flags (`--since`, `--include`, `--exclude`, `--config`, `--concurrency`, …) | Applied to merge/preview as in a normal scan                           |
 
 **Exit:** `0` on successful preview; config/path/git failures use the same exit classes as scan (`ConfigError` → `2`, other → `1`).
 
@@ -147,12 +147,12 @@ Optional `--config <file>`: same semantics as M30 scan — explicit load, skip w
 
 **Choice:** Keep domain logic out of `bin/`:
 
-| Concern | Module |
-| ------- | ------ |
-| Exemplar + write | `src/config/` (e.g. `exemplar.ts` / `write-init.ts`) |
-| Doctor checks | New `src/doctor/` |
-| Scope preview | New `src/scan-preview.ts` (or small export beside `resolveScanConfig`) — **prefer separate file** to avoid growing fragile `runScan` wiring |
-| Commander wiring | `bin/hotspot-scanner.ts` only |
+| Concern          | Module                                                                                                                                      |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Exemplar + write | `src/config/` (e.g. `exemplar.ts` / `write-init.ts`)                                                                                        |
+| Doctor checks    | New `src/doctor/`                                                                                                                           |
+| Scope preview    | New `src/scan-preview.ts` (or small export beside `resolveScanConfig`) — **prefer separate file** to avoid growing fragile `runScan` wiring |
+| Commander wiring | `bin/hotspot-scanner.ts` only                                                                                                               |
 
 **Status:** **Confirmed — planner locked**
 
@@ -160,15 +160,15 @@ Optional `--config <file>`: same semantics as M30 scan — explicit load, skip w
 
 ## Related closed decisions (do not reopen)
 
-| Source | Decision |
-| ------ | -------- |
-| M21 | Filename only `.hotspot-scanner.json`; CLI > config > defaults |
-| M30 | Parent walk + `--config`; invalid → `ConfigError` |
-| M7 | Default excludes always on; exclude additive; include narrows |
-| M36 | `discoverSourceFiles` prefers `git ls-files` + walk fallback |
-| M38 | Polish flags/aliases — **do not depend**; M39 works without them |
-| M40 | Workflow subcommands — out of scope |
-| AGENTS.md | Gate `pnpm build && pnpm test`; no npm publish |
+| Source    | Decision                                                         |
+| --------- | ---------------------------------------------------------------- |
+| M21       | Filename only `.hotspot-scanner.json`; CLI > config > defaults   |
+| M30       | Parent walk + `--config`; invalid → `ConfigError`                |
+| M7        | Default excludes always on; exclude additive; include narrows    |
+| M36       | `discoverSourceFiles` prefers `git ls-files` + walk fallback     |
+| M38       | Polish flags/aliases — **do not depend**; M39 works without them |
+| M40       | Workflow subcommands — out of scope                              |
+| AGENTS.md | Gate `pnpm build && pnpm test`; no npm publish                   |
 
 ---
 

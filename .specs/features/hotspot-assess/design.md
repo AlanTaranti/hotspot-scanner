@@ -41,17 +41,17 @@ flowchart TD
 
 ## Code Reuse Analysis
 
-| Pattern | Location | How to use |
-| ------- | -------- | ---------- |
-| Scan orchestration | `src/scan.ts` `runScan` | First stage; pass scan options + cancel signal |
-| Config merge | `src/config/` via `runScan` | since/include/exclude/top/concurrency as today |
-| Trend + classify | `src/trend/run-trend.ts` | Per candidate; `meta.growthPattern` already attached (M75) |
-| GrowthPattern type | `src/trend/classify.ts` / `types.ts` | Reuse type in assess candidate rows |
-| Cancel / quiet / warnings | `bin/scan-actions.ts` | `runWithScanCancelSignals`, diagnostic handlers patterns |
-| Trend CLI actions | `bin/trend-actions.ts` | Mirror structure as `bin/assess-actions.ts` |
-| Report purity | `src/report/` | Pure renderers; file I/O in bin only |
-| Contract tests | `tests/contract/json-schema.test.ts` | Add hotspot-assess fixtures |
-| Package exports | `package.json` `exports` / `imports` | Add schema + `#assess` |
+| Pattern                   | Location                             | How to use                                                 |
+| ------------------------- | ------------------------------------ | ---------------------------------------------------------- |
+| Scan orchestration        | `src/scan.ts` `runScan`              | First stage; pass scan options + cancel signal             |
+| Config merge              | `src/config/` via `runScan`          | since/include/exclude/top/concurrency as today             |
+| Trend + classify          | `src/trend/run-trend.ts`             | Per candidate; `meta.growthPattern` already attached (M75) |
+| GrowthPattern type        | `src/trend/classify.ts` / `types.ts` | Reuse type in assess candidate rows                        |
+| Cancel / quiet / warnings | `bin/scan-actions.ts`                | `runWithScanCancelSignals`, diagnostic handlers patterns   |
+| Trend CLI actions         | `bin/trend-actions.ts`               | Mirror structure as `bin/assess-actions.ts`                |
+| Report purity             | `src/report/`                        | Pure renderers; file I/O in bin only                       |
+| Contract tests            | `tests/contract/json-schema.test.ts` | Add hotspot-assess fixtures                                |
+| Package exports           | `package.json` `exports` / `imports` | Add schema + `#assess`                                     |
 
 ---
 
@@ -61,13 +61,13 @@ flowchart TD
 
 Suggested layout:
 
-| File | Role |
-| ---- | ---- |
-| `types.ts` | `AssessOptions`, `AssessResult`, `AssessCandidate`, constants |
-| `select-candidates.ts` | Pure filter ≥ minScore → sort → slice top |
-| `run-assess.ts` | Orchestration |
-| `index.ts` | Public re-exports |
-| `*.test.ts` | Co-located unit tests |
+| File                   | Role                                                          |
+| ---------------------- | ------------------------------------------------------------- |
+| `types.ts`             | `AssessOptions`, `AssessResult`, `AssessCandidate`, constants |
+| `select-candidates.ts` | Pure filter ≥ minScore → sort → slice top                     |
+| `run-assess.ts`        | Orchestration                                                 |
+| `index.ts`             | Public re-exports                                             |
+| `*.test.ts`            | Co-located unit tests                                         |
 
 #### Types (sketch)
 
@@ -163,11 +163,11 @@ Algorithm:
 
 ### 2. Report renderers (`src/report/`)
 
-| Function | File |
-| -------- | ---- |
-| `renderAssessTable` | `assess-table.ts` |
+| Function               | File                 |
+| ---------------------- | -------------------- |
+| `renderAssessTable`    | `assess-table.ts`    |
 | `renderAssessMarkdown` | `assess-markdown.ts` |
-| `renderAssessJson` | `assess-json.ts` |
+| `renderAssessJson`     | `assess-json.ts`     |
 
 **Table / markdown structure:**
 
@@ -194,11 +194,11 @@ Re-export from `src/report/index.ts`.
 
 ### 3. CLI (`bin/`)
 
-| Piece | Location |
-| ----- | -------- |
-| Command registration | `bin/hotspot-scanner.ts` — `.command("assess")` |
-| Action wiring | `bin/assess-actions.ts` — `executeAssess`, `parseAssessFormat`, `mapAssessError` |
-| Completion | Extend `bin/completion-scripts.ts` with `assess` + flags if static scripts list subcommands |
+| Piece                | Location                                                                                    |
+| -------------------- | ------------------------------------------------------------------------------------------- |
+| Command registration | `bin/hotspot-scanner.ts` — `.command("assess")`                                             |
+| Action wiring        | `bin/assess-actions.ts` — `executeAssess`, `parseAssessFormat`, `mapAssessError`            |
+| Completion           | Extend `bin/completion-scripts.ts` with `assess` + flags if static scripts list subcommands |
 
 Flags:
 
@@ -240,52 +240,52 @@ AssessCandidate[] + meta tallies → AssessResult
 
 ## Error Handling Strategy
 
-| Scenario | Handling | User impact |
-| -------- | -------- | ----------- |
-| Invalid min score / top | `CliUsageError` / assess usage error | Exit 2 |
-| Scan failure (non-git, etc.) | Propagate as today | Non-zero / message |
-| Per-file trend failure | Soft continue; row status error/skipped | Summary counts; exit 0 |
-| Cancel | AbortController through scan + trend | 130 / 143 |
-| Empty after filter | Empty candidates; summary zeros | Exit 0 |
+| Scenario                     | Handling                                | User impact            |
+| ---------------------------- | --------------------------------------- | ---------------------- |
+| Invalid min score / top      | `CliUsageError` / assess usage error    | Exit 2                 |
+| Scan failure (non-git, etc.) | Propagate as today                      | Non-zero / message     |
+| Per-file trend failure       | Soft continue; row status error/skipped | Summary counts; exit 0 |
+| Cancel                       | AbortController through scan + trend    | 130 / 143              |
+| Empty after filter           | Empty candidates; summary zeros         | Exit 0                 |
 
 ---
 
 ## Tech Decisions
 
-| Decision | Choice | Rationale |
-| -------- | ------ | --------- |
-| Module home | `src/assess/` | Sibling to `src/trend/`; keeps scan.ts free of batch loop |
-| Trend concurrency | Sequential | Bounds git show load; simpler cancel; progress honest |
-| `--top` semantics | Cap candidates for **all** formats | Assess is a triage set, not a display truncate |
-| Config | Scan params merge; `--min-hotspot-score` CLI-only | Match trend CLI-only precedent for command-specific knobs |
-| Detail section | Deteriorating only | Reduces noise; other kinds in counts |
-| Color | Skip MVP | Do not block on M76 |
+| Decision          | Choice                                            | Rationale                                                 |
+| ----------------- | ------------------------------------------------- | --------------------------------------------------------- |
+| Module home       | `src/assess/`                                     | Sibling to `src/trend/`; keeps scan.ts free of batch loop |
+| Trend concurrency | Sequential                                        | Bounds git show load; simpler cancel; progress honest     |
+| `--top` semantics | Cap candidates for **all** formats                | Assess is a triage set, not a display truncate            |
+| Config            | Scan params merge; `--min-hotspot-score` CLI-only | Match trend CLI-only precedent for command-specific knobs |
+| Detail section    | Deteriorating only                                | Reduces noise; other kinds in counts                      |
+| Color             | Skip MVP                                          | Do not block on M76                                       |
 
 ---
 
 ## Risks (from CONCERNS.md)
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| Prettier / mass-indent cliffs → false deteriorating | Document in CONCERNS + recipes; no fail-on gate |
-| Cost of N× `git log --follow` + `git show` | Default top 20 + sequential; `--top` / min score reduce N; stderr progress |
-| Confusion with scan JSON / trend JSON | Separate `kind`/`version`/schema; contract tests assert scan untouched |
-| Path conflict with M76 on `trend-table` | Assess uses **new** report files; no edit of trend-table required |
-| Soft-continue swallowing real bugs | Unit tests force mid-batch failure; meta.errorCount visible |
+| Risk                                                | Mitigation                                                                 |
+| --------------------------------------------------- | -------------------------------------------------------------------------- |
+| Prettier / mass-indent cliffs → false deteriorating | Document in CONCERNS + recipes; no fail-on gate                            |
+| Cost of N× `git log --follow` + `git show`          | Default top 20 + sequential; `--top` / min score reduce N; stderr progress |
+| Confusion with scan JSON / trend JSON               | Separate `kind`/`version`/schema; contract tests assert scan untouched     |
+| Path conflict with M76 on `trend-table`             | Assess uses **new** report files; no edit of trend-table required          |
+| Soft-continue swallowing real bugs                  | Unit tests force mid-batch failure; meta.errorCount visible                |
 
 ---
 
 ## Testing Strategy
 
-| Layer | What |
-| ----- | ---- |
-| Unit | `select-candidates.test.ts` — filter, sort, top, empty |
-| Unit | `run-assess.test.ts` — mock `runScan` / `runComplexityTrend`; soft-continue; sequential order |
-| Unit | assess table/markdown/json renderers |
-| Contract | Ajv `hotspot-assess.json` `1.0`; regression scan + complexity-trend still validate |
-| CLI | `bin/hotspot-scanner.test.ts` — help flag name, defaults, format json shape, exit 2 on bad score |
-| Integration | Optional fixture assess on `small-ts` with low min score (smoke) |
-| Compiled smoke | Extend `tests/compiled-cli.smoke.test.ts` with `assess --help` |
+| Layer          | What                                                                                             |
+| -------------- | ------------------------------------------------------------------------------------------------ |
+| Unit           | `select-candidates.test.ts` — filter, sort, top, empty                                           |
+| Unit           | `run-assess.test.ts` — mock `runScan` / `runComplexityTrend`; soft-continue; sequential order    |
+| Unit           | assess table/markdown/json renderers                                                             |
+| Contract       | Ajv `hotspot-assess.json` `1.0`; regression scan + complexity-trend still validate               |
+| CLI            | `bin/hotspot-scanner.test.ts` — help flag name, defaults, format json shape, exit 2 on bad score |
+| Integration    | Optional fixture assess on `small-ts` with low min score (smoke)                                 |
+| Compiled smoke | Extend `tests/compiled-cli.smoke.test.ts` with `assess --help`                                   |
 
 ---
 

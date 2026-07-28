@@ -40,13 +40,13 @@ Polish operator-facing **feedback and copy**: confirm CSV bundle writes, surface
 
 **Choice:**
 
-| Rule | Behavior |
-| ---- | -------- |
-| Prefix | First **emitted** progress line (after throttle) is prefixed with `since=<effectiveSince> · ` (or equivalent separator) before the existing body |
-| Later lines | Subsequent progress writes (TTY `\r` overwrite **and** non-TTY `\n` lines) do **not** repeat the `since=` prefix |
-| Source | Effective window = CLI > config > `DEFAULT_SINCE` — pass resolved string into `CliDiagnosticOptions.since` |
-| Quiet / no-progress | No progress → no prefix |
-| Missing since option | If handlers omit `since`, behave as today (no prefix) — CLI wiring always passes resolved since for scan/compare/baseline-save paths |
+| Rule                 | Behavior                                                                                                                                         |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Prefix               | First **emitted** progress line (after throttle) is prefixed with `since=<effectiveSince> · ` (or equivalent separator) before the existing body |
+| Later lines          | Subsequent progress writes (TTY `\r` overwrite **and** non-TTY `\n` lines) do **not** repeat the `since=` prefix                                 |
+| Source               | Effective window = CLI > config > `DEFAULT_SINCE` — pass resolved string into `CliDiagnosticOptions.since`                                       |
+| Quiet / no-progress  | No progress → no prefix                                                                                                                          |
+| Missing since option | If handlers omit `since`, behave as today (no prefix) — CLI wiring always passes resolved since for scan/compare/baseline-save paths             |
 
 **Compose with M59:** Live overwrite still replaces the whole line; only the **first** write includes `since=`. Later overwrites use the body without re-prefixing.
 
@@ -64,11 +64,11 @@ Polish operator-facing **feedback and copy**: confirm CSV bundle writes, surface
 
 **Choice:**
 
-| Surface | When | Wording (lock intent; exact ms/s formatting implementer discretion within tests) |
-| ------- | ---- | -------------------------------------------------------------------------------- |
-| **Table / markdown executive summary** | Successful scan (and compare using **current** scan timings when present) | One summary line with **total** + stage breakdown, e.g. `Timing: total 1.2s (git 800ms, complexity 900ms)`. May note that under overlap stage sums can exceed total (user-facing wording — **no** “M34”). Omit line when `meta.timings` absent (legacy baseline-only edge). |
-| **stderr** | After successful scan/compare pipeline that produced timings; **not** under `--quiet` | **Brief** one-liner, shorter than the summary line — e.g. `timing: total 1234ms` (optional short stage gist). Must not dump a multi-line block. |
-| **JSON / CSV** | Unchanged payloads | Timings already in `meta` / `meta.json`; no new stdout fields for this milestone |
+| Surface                                | When                                                                                  | Wording (lock intent; exact ms/s formatting implementer discretion within tests)                                                                                                                                                                                            |
+| -------------------------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Table / markdown executive summary** | Successful scan (and compare using **current** scan timings when present)             | One summary line with **total** + stage breakdown, e.g. `Timing: total 1.2s (git 800ms, complexity 900ms)`. May note that under overlap stage sums can exceed total (user-facing wording — **no** “M34”). Omit line when `meta.timings` absent (legacy baseline-only edge). |
+| **stderr**                             | After successful scan/compare pipeline that produced timings; **not** under `--quiet` | **Brief** one-liner, shorter than the summary line — e.g. `timing: total 1234ms` (optional short stage gist). Must not dump a multi-line block.                                                                                                                             |
+| **JSON / CSV**                         | Unchanged payloads                                                                    | Timings already in `meta` / `meta.json`; no new stdout fields for this milestone                                                                                                                                                                                            |
 
 Do **not** invent new timing fields. Do **not** print stderr timings for doctor/init/completion.
 
@@ -124,11 +124,11 @@ Targets today: `BASELINE_JSON_HINT` in `bin/scan-actions.ts` (`validateBaselineP
 
 **Choice:**
 
-| Surface | Rule |
-| ------- | ---- |
-| `bin/hotspot-scanner.ts` help strings | Replace milestone jargon (e.g. “disables M34 stage overlap”) with user-facing wording (e.g. concurrent git + NCLOC / lower peak memory) |
-| User-facing **README** sections | Strip milestone IDs (`M30`, `M34`, `M40`, `M41`, `M51`, `M53`, `M57`, …) from prose and flag tables; describe behavior without ROADMAP numbers |
-| `.specs/` | Keep milestone IDs (historical SoT) |
+| Surface                               | Rule                                                                                                                                           |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `bin/hotspot-scanner.ts` help strings | Replace milestone jargon (e.g. “disables M34 stage overlap”) with user-facing wording (e.g. concurrent git + NCLOC / lower peak memory)        |
+| User-facing **README** sections       | Strip milestone IDs (`M30`, `M34`, `M40`, `M41`, `M51`, `M53`, `M57`, …) from prose and flag tables; describe behavior without ROADMAP numbers |
+| `.specs/`                             | Keep milestone IDs (historical SoT)                                                                                                            |
 
 **Status:** **Confirmed — planner locked**
 

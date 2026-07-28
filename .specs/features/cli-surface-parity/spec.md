@@ -27,15 +27,15 @@ CLI surface has drifted across commands and shells: `baseline save` lacks quiet/
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| JSON schema / `version` bump | Presentation + CLI only |
-| Config keys for new flags | CLI-only session UX (M38/M58 pattern) |
-| M17 multi-block / section-marker CSV | Rejected — simpler hotspots-only single file |
-| Fail-on-warning / SARIF / score thresholds | Deferred horizon |
-| Changing bare-invocation help+exit 2 | Explicit lock |
-| PowerShell / nushell completion | M54 shell list |
-| Ranking, NCLOC, git miner changes | YAGNI |
+| Feature                                    | Reason                                       |
+| ------------------------------------------ | -------------------------------------------- |
+| JSON schema / `version` bump               | Presentation + CLI only                      |
+| Config keys for new flags                  | CLI-only session UX (M38/M58 pattern)        |
+| M17 multi-block / section-marker CSV       | Rejected — simpler hotspots-only single file |
+| Fail-on-warning / SARIF / score thresholds | Deferred horizon                             |
+| Changing bare-invocation help+exit 2       | Explicit lock                                |
+| PowerShell / nushell completion            | M54 shell list                               |
+| Ranking, NCLOC, git miner changes          | YAGNI                                        |
 
 ---
 
@@ -188,45 +188,45 @@ CLI surface has drifted across commands and shells: `baseline save` lacks quiet/
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-1060 | P1: baseline `--quiet` | Tasks | Pending |
-| HOTSPOT-1061 | P1: baseline `--no-progress` | Tasks | Pending |
-| HOTSPOT-1062 | P1: baseline `--verbose` | Tasks | Pending |
-| HOTSPOT-1063 | P1: baseline help lists flags | Tasks | Pending |
-| HOTSPOT-1064 | — | — | Reserved (unused) |
-| HOTSPOT-1065 | P1: path rewrite rules | Tasks | Pending |
-| HOTSPOT-1066 | P1: bare CLI unchanged | Tasks | Pending |
-| HOTSPOT-1067 | P1: no rewrite for subcommands | Tasks | Pending |
-| HOTSPOT-1068 | P1: no rewrite for flags | Tasks | Pending |
-| HOTSPOT-1069 | — | — | Reserved (unused) |
-| HOTSPOT-1070 | P1: default explain miss exit 0 | Tasks | Pending |
-| HOTSPOT-1071 | P1: fail-on miss exit 1 | Tasks | Pending |
-| HOTSPOT-1072 | P1: found + flag still 0 | Tasks | Pending |
-| HOTSPOT-1073 | P1: flag without explain → 2 | Tasks | Pending |
-| HOTSPOT-1074 | P1: scan + compare surface | Tasks | Pending |
-| HOTSPOT-1075 | P1: warnings default summary | Tasks | Pending |
-| HOTSPOT-1076 | P1: json stderr payload | Tasks | Pending |
-| HOTSPOT-1077 | P1: no human lines in json mode | Tasks | Pending |
-| HOTSPOT-1078 | P1: meta.warnings full | Tasks | Pending |
-| HOTSPOT-1079 | P1: invalid warnings values | Tasks | Pending |
-| HOTSPOT-1080 | P1: quiet + json | Tasks | Pending |
-| HOTSPOT-1081 | P1: empty warnings JSON | Tasks | Pending |
-| HOTSPOT-1082 | P1: default CSV bundle | Tasks | Pending |
-| HOTSPOT-1083 | P1: scan single-file write | Tasks | Pending |
-| HOTSPOT-1084 | P1: compare single-file write | Tasks | Pending |
-| HOTSPOT-1085 | P1: csv requires output | Tasks | Pending |
-| HOTSPOT-1086 | P1: flag requires csv format | Tasks | Pending |
-| HOTSPOT-1087 | P1: only/hotspots guard | Tasks | Pending |
-| HOTSPOT-1088 | P1: zsh/fish ↔ bash flags | Tasks | Pending |
-| HOTSPOT-1089 | P1: new flags in completions | Tasks | Pending |
-| HOTSPOT-1090 | P1: baseline completion quiet trio | Tasks | Pending |
-| HOTSPOT-1091 | P1: completion tests | Tasks | Pending |
-| HOTSPOT-1092 | — | — | Reserved (unused) |
-| HOTSPOT-1093 | P2: README | Tasks | Pending |
-| HOTSPOT-1094 | P2: ARCHITECTURE | Tasks | Pending |
-| HOTSPOT-1095 | P2: help text for new flags | Tasks | Pending |
-| HOTSPOT-1096–1099 | — | — | Reserved |
+| Requirement ID    | Story                              | Phase | Status            |
+| ----------------- | ---------------------------------- | ----- | ----------------- |
+| HOTSPOT-1060      | P1: baseline `--quiet`             | Tasks | Pending           |
+| HOTSPOT-1061      | P1: baseline `--no-progress`       | Tasks | Pending           |
+| HOTSPOT-1062      | P1: baseline `--verbose`           | Tasks | Pending           |
+| HOTSPOT-1063      | P1: baseline help lists flags      | Tasks | Pending           |
+| HOTSPOT-1064      | —                                  | —     | Reserved (unused) |
+| HOTSPOT-1065      | P1: path rewrite rules             | Tasks | Pending           |
+| HOTSPOT-1066      | P1: bare CLI unchanged             | Tasks | Pending           |
+| HOTSPOT-1067      | P1: no rewrite for subcommands     | Tasks | Pending           |
+| HOTSPOT-1068      | P1: no rewrite for flags           | Tasks | Pending           |
+| HOTSPOT-1069      | —                                  | —     | Reserved (unused) |
+| HOTSPOT-1070      | P1: default explain miss exit 0    | Tasks | Pending           |
+| HOTSPOT-1071      | P1: fail-on miss exit 1            | Tasks | Pending           |
+| HOTSPOT-1072      | P1: found + flag still 0           | Tasks | Pending           |
+| HOTSPOT-1073      | P1: flag without explain → 2       | Tasks | Pending           |
+| HOTSPOT-1074      | P1: scan + compare surface         | Tasks | Pending           |
+| HOTSPOT-1075      | P1: warnings default summary       | Tasks | Pending           |
+| HOTSPOT-1076      | P1: json stderr payload            | Tasks | Pending           |
+| HOTSPOT-1077      | P1: no human lines in json mode    | Tasks | Pending           |
+| HOTSPOT-1078      | P1: meta.warnings full             | Tasks | Pending           |
+| HOTSPOT-1079      | P1: invalid warnings values        | Tasks | Pending           |
+| HOTSPOT-1080      | P1: quiet + json                   | Tasks | Pending           |
+| HOTSPOT-1081      | P1: empty warnings JSON            | Tasks | Pending           |
+| HOTSPOT-1082      | P1: default CSV bundle             | Tasks | Pending           |
+| HOTSPOT-1083      | P1: scan single-file write         | Tasks | Pending           |
+| HOTSPOT-1084      | P1: compare single-file write      | Tasks | Pending           |
+| HOTSPOT-1085      | P1: csv requires output            | Tasks | Pending           |
+| HOTSPOT-1086      | P1: flag requires csv format       | Tasks | Pending           |
+| HOTSPOT-1087      | P1: only/hotspots guard            | Tasks | Pending           |
+| HOTSPOT-1088      | P1: zsh/fish ↔ bash flags          | Tasks | Pending           |
+| HOTSPOT-1089      | P1: new flags in completions       | Tasks | Pending           |
+| HOTSPOT-1090      | P1: baseline completion quiet trio | Tasks | Pending           |
+| HOTSPOT-1091      | P1: completion tests               | Tasks | Pending           |
+| HOTSPOT-1092      | —                                  | —     | Reserved (unused) |
+| HOTSPOT-1093      | P2: README                         | Tasks | Pending           |
+| HOTSPOT-1094      | P2: ARCHITECTURE                   | Tasks | Pending           |
+| HOTSPOT-1095      | P2: help text for new flags        | Tasks | Pending           |
+| HOTSPOT-1096–1099 | —                                  | —     | Reserved          |
 
 **Coverage:** 36 active IDs mapped to tasks; 4 + gaps reserved unused (1064, 1069, 1092, 1096–1099).
 

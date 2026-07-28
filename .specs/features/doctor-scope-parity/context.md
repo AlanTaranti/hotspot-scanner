@@ -20,11 +20,11 @@ M52 makes doctor use the same prelude chain so remount, config merge, PathScope,
 
 **Question:** What is the single prelude chain?
 
-| Step | Owner | Used by |
-| ---- | ----- | ------- |
-| `resolveScanPipelineContext(options)` | `src/scan.ts` (existing) | `runScan`, `previewScanScope`, **`runDoctor`** |
-| Shared PathScope build from `merged` + optional `includeTests` | thin helper (design) | `runScan`, `previewScanScope` (doctor via preview) |
-| Eligible count via `discoverSourceFiles(pipelineRepoPath, scope)` | existing | `previewScanScope`; doctor **scope** finding |
+| Step                                                              | Owner                    | Used by                                            |
+| ----------------------------------------------------------------- | ------------------------ | -------------------------------------------------- |
+| `resolveScanPipelineContext(options)`                             | `src/scan.ts` (existing) | `runScan`, `previewScanScope`, **`runDoctor`**     |
+| Shared PathScope build from `merged` + optional `includeTests`    | thin helper (design)     | `runScan`, `previewScanScope` (doctor via preview) |
+| Eligible count via `discoverSourceFiles(pipelineRepoPath, scope)` | existing                 | `previewScanScope`; doctor **scope** finding       |
 
 **Rules:**
 
@@ -40,12 +40,12 @@ M52 makes doctor use the same prelude chain so remount, config merge, PathScope,
 
 **Question:** How does the `git-repo` finding change vs M39?
 
-| Case | Behavior |
-| ---- | -------- |
-| Request path is git root | Pass; message names that path (unchanged intent) |
+| Case                                          | Behavior                                                                      |
+| --------------------------------------------- | ----------------------------------------------------------------------------- |
+| Request path is git root                      | Pass; message names that path (unchanged intent)                              |
 | Nested package under parent git (M43 remount) | Pass; message names **pipeline git root**; may mention remount / auto-include |
-| Not in any git work tree | Fail hard exit `1` (unchanged class) |
-| Target missing / not a directory | Fail hard exit `1` (unchanged) |
+| Not in any git work tree                      | Fail hard exit `1` (unchanged class)                                          |
+| Target missing / not a directory              | Fail hard exit `1` (unchanged)                                                |
 
 **Supersedes M39 wording** that implied “`<path>/.git` must exist on the doctor target.” Post-M52, “is a git repository” means “`resolveScanPipelineContext` / remount succeeds,” same as scan.
 
@@ -59,11 +59,11 @@ Node engines + `git` on PATH checks remain unchanged and run **before** prelude.
 
 Config soft-warn / fail semantics from M39 stay:
 
-| Case | Finding | Exit |
-| ---- | ------- | ---- |
-| Valid discovered or `--config` | `config` pass | — |
-| No config on walk | `config` warn | Soft (`0` if no hard fails) |
-| Invalid / missing explicit `--config` | `config` fail | `2` |
+| Case                                  | Finding       | Exit                        |
+| ------------------------------------- | ------------- | --------------------------- |
+| Valid discovered or `--config`        | `config` pass | —                           |
+| No config on walk                     | `config` warn | Soft (`0` if no hard fails) |
+| Invalid / missing explicit `--config` | `config` fail | `2`                         |
 
 Discovery root remains the **original request path** (M30/M43). Prelude merge uses the same root. Implementer may keep `checkConfig` on request path **or** derive pass/warn/fail from the same load the prelude uses — messages must stay operator-clear; do not drop the “no config” soft warn.
 
@@ -75,11 +75,11 @@ Discovery root remains the **original request path** (M30/M43). Prelude merge us
 
 Add `DoctorFindingId` value **`scope`**:
 
-| Status | When |
-| ------ | ---- |
-| `pass` | Prelude + PathScope + discovery succeeded (eligible count may be `0`) |
-| skipped | Not emitted when path/git/config prelude already failed hard enough that inventory is meaningless (no git root / invalid path); do not invent a second fail for the same root cause |
-| never `fail` for zero files | Count `0` is informational pass (align dry-run) |
+| Status                      | When                                                                                                                                                                                |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pass`                      | Prelude + PathScope + discovery succeeded (eligible count may be `0`)                                                                                                               |
+| skipped                     | Not emitted when path/git/config prelude already failed hard enough that inventory is meaningless (no git root / invalid path); do not invent a second fail for the same root cause |
+| never `fail` for zero files | Count `0` is informational pass (align dry-run)                                                                                                                                     |
 
 **Message content (stable enough for tests):** pipeline `repoPath`, effective include/exclude summary (or pointer to same fields dry-run prints), `eligible files: N`, and remount note when `remountWarning` present. Exact phrasing is implementer discretion; must allow asserting count parity with `previewScanScope` on the same options.
 
@@ -91,12 +91,12 @@ Add `DoctorFindingId` value **`scope`**:
 
 ## Decision: M46 / `includeTests` forward-compat (LOCKED)
 
-| Fact | Rule |
-| ---- | ---- |
-| M46 owns PathScope test-exclude defaults and `--include-tests` | M52 MUST NOT change default exclude sets |
-| Suggested Execute order: M46 before M52 | When M46 is Done, doctor/dry-run/`runScan` MUST share `includeTests` → `createPathScope` |
-| If Execute order slips | Optional `includeTests?: boolean` on `RunDoctorOptions` / shared helper; omit or `false` → current PathScope API (pre-M46 ignores unknown; post-M46 excludes tests) |
-| Doctor CLI | When M46 is Done, add `--include-tests` on `doctor` forwarding into `RunDoctorOptions` / `previewScanScope`. If M46 not yet Done at Execute time, ship API field + helper wiring only; CLI flag can land in same task once M46 flag exists on scan |
+| Fact                                                           | Rule                                                                                                                                                                                                                                               |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| M46 owns PathScope test-exclude defaults and `--include-tests` | M52 MUST NOT change default exclude sets                                                                                                                                                                                                           |
+| Suggested Execute order: M46 before M52                        | When M46 is Done, doctor/dry-run/`runScan` MUST share `includeTests` → `createPathScope`                                                                                                                                                           |
+| If Execute order slips                                         | Optional `includeTests?: boolean` on `RunDoctorOptions` / shared helper; omit or `false` → current PathScope API (pre-M46 ignores unknown; post-M46 excludes tests)                                                                                |
+| Doctor CLI                                                     | When M46 is Done, add `--include-tests` on `doctor` forwarding into `RunDoctorOptions` / `previewScanScope`. If M46 not yet Done at Execute time, ship API field + helper wiring only; CLI flag can land in same task once M46 flag exists on scan |
 
 **Doctor without flags** uses config + defaults + remount auto-include only (no new `--include`/`--exclude` on doctor — YAGNI).
 
@@ -127,20 +127,20 @@ If M51 lands first: text formatter and any future JSON serializer must treat fin
 
 ## Fixtures / validation
 
-| Asset | Use |
-| ----- | --- |
-| `tests/fixtures/repos/monorepo-nested` | Doctor from nested package path → exit `0`; scope eligible count matches dry-run |
-| `tests/fixtures/repos/small-ts` | Regression healthy doctor + git-root path |
-| Unit `src/doctor/` | Remount mock / temp nested tree; scope finding present; exit policy |
-| `src/scan-preview.test.ts` / scan tests | Shared PathScope helper + `includeTests` pass-through |
+| Asset                                   | Use                                                                              |
+| --------------------------------------- | -------------------------------------------------------------------------------- |
+| `tests/fixtures/repos/monorepo-nested`  | Doctor from nested package path → exit `0`; scope eligible count matches dry-run |
+| `tests/fixtures/repos/small-ts`         | Regression healthy doctor + git-root path                                        |
+| Unit `src/doctor/`                      | Remount mock / temp nested tree; scope finding present; exit policy              |
+| `src/scan-preview.test.ts` / scan tests | Shared PathScope helper + `includeTests` pass-through                            |
 
 ---
 
 ## Sisters
 
-| Milestone | Slug | Relationship |
-| --------- | ---- | ------------ |
-| M39 | `cli-init-doctor-dry-run` | Doctor exit policy + findings model; dry-run inventory |
-| M43 | `monorepo-path-detect` | Remount + auto-include + config-from-request |
-| M46 | `exclude-tests-by-default` | Test excludes + `includeTests` (forward-compat) |
-| M51 | `scan-observability` | `doctor --format json` — additive findings only |
+| Milestone | Slug                       | Relationship                                           |
+| --------- | -------------------------- | ------------------------------------------------------ |
+| M39       | `cli-init-doctor-dry-run`  | Doctor exit policy + findings model; dry-run inventory |
+| M43       | `monorepo-path-detect`     | Remount + auto-include + config-from-request           |
+| M46       | `exclude-tests-by-default` | Test excludes + `includeTests` (forward-compat)        |
+| M51       | `scan-observability`       | `doctor --format json` — additive findings only        |

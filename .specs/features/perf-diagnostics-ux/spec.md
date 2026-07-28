@@ -21,16 +21,16 @@ M28 adds operator concurrency control, phase-aware progress for function-mode mi
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| RT-003 / rename-confidence / pós-rename overlap avisos | M26 boundary — do not duplicate |
-| `--batch-size` / changing `DEFAULT_BATCH_SIZE` | M15 YAGNI; not in M28 ROADMAP |
-| Changing default concurrency formula | Document only; keep `min(availableParallelism(), 4)` |
-| Complexity / batch progress phases | YAGNI — ROADMAP targets function-mode patch-stream |
-| Parallel git mining or overlapping pipeline stages | ADR / integration context — stages stay sequential |
-| CI wall-clock performance gates | Manual benchmark only (existing policy) |
-| Historical AST / McCabe decision-node changes | Unrelated; CONCERNS RT-005 |
-| Coupling enrichment / path-config DX | M27 / M30 |
+| Feature                                                | Reason                                               |
+| ------------------------------------------------------ | ---------------------------------------------------- |
+| RT-003 / rename-confidence / pós-rename overlap avisos | M26 boundary — do not duplicate                      |
+| `--batch-size` / changing `DEFAULT_BATCH_SIZE`         | M15 YAGNI; not in M28 ROADMAP                        |
+| Changing default concurrency formula                   | Document only; keep `min(availableParallelism(), 4)` |
+| Complexity / batch progress phases                     | YAGNI — ROADMAP targets function-mode patch-stream   |
+| Parallel git mining or overlapping pipeline stages     | ADR / integration context — stages stay sequential   |
+| CI wall-clock performance gates                        | Manual benchmark only (existing policy)              |
+| Historical AST / McCabe decision-node changes          | Unrelated; CONCERNS RT-005                           |
+| Coupling enrichment / path-config DX                   | M27 / M30                                            |
 
 ---
 
@@ -152,23 +152,23 @@ M28 adds operator concurrency control, phase-aware progress for function-mode mi
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-251 | P1: CLI `--concurrency` | Tasks | Done |
-| HOTSPOT-252 | P1: Config `concurrency` + merge | Tasks | Done |
-| HOTSPOT-253 | P1: Wire concurrency into analyzer via scan | Tasks | Done |
-| HOTSPOT-254 | P1: Document default concurrency | Tasks | Done |
-| HOTSPOT-255 | P1: Progress `phase` on miners | Tasks | Done |
-| HOTSPOT-256 | P1: Phase-labeled stderr progress | Tasks | Done |
-| HOTSPOT-257 | P1: Per-phase throttle | Tasks | Done |
-| HOTSPOT-258 | P1: `ScanWarning` type + severity | Tasks | Done |
-| HOTSPOT-259 | P1: `ScanResult.meta.warnings` | Tasks | Done |
-| HOTSPOT-260 | P1: Severity-aware stderr | Tasks | Done |
-| HOTSPOT-261 | P1: Compare `meta.warnings` as `ScanWarning[]` | Tasks | Done |
-| HOTSPOT-262 | P1: Interpretation docs | Tasks | Done |
-| HOTSPOT-263 | P1: Map existing sites to codes | Tasks | Done |
-| HOTSPOT-264 | P1: Living docs (ARCHITECTURE/CONCERNS/…) | Tasks | Done |
-| HOTSPOT-265 | P2: Integration + full gate | Tasks | Done |
+| Requirement ID | Story                                          | Phase | Status |
+| -------------- | ---------------------------------------------- | ----- | ------ |
+| HOTSPOT-251    | P1: CLI `--concurrency`                        | Tasks | Done   |
+| HOTSPOT-252    | P1: Config `concurrency` + merge               | Tasks | Done   |
+| HOTSPOT-253    | P1: Wire concurrency into analyzer via scan    | Tasks | Done   |
+| HOTSPOT-254    | P1: Document default concurrency               | Tasks | Done   |
+| HOTSPOT-255    | P1: Progress `phase` on miners                 | Tasks | Done   |
+| HOTSPOT-256    | P1: Phase-labeled stderr progress              | Tasks | Done   |
+| HOTSPOT-257    | P1: Per-phase throttle                         | Tasks | Done   |
+| HOTSPOT-258    | P1: `ScanWarning` type + severity              | Tasks | Done   |
+| HOTSPOT-259    | P1: `ScanResult.meta.warnings`                 | Tasks | Done   |
+| HOTSPOT-260    | P1: Severity-aware stderr                      | Tasks | Done   |
+| HOTSPOT-261    | P1: Compare `meta.warnings` as `ScanWarning[]` | Tasks | Done   |
+| HOTSPOT-262    | P1: Interpretation docs                        | Tasks | Done   |
+| HOTSPOT-263    | P1: Map existing sites to codes                | Tasks | Done   |
+| HOTSPOT-264    | P1: Living docs (ARCHITECTURE/CONCERNS/…)      | Tasks | Done   |
+| HOTSPOT-265    | P2: Integration + full gate                    | Tasks | Done   |
 
 **ID format:** `HOTSPOT-NNN`  
 **Coverage:** 15 total — all mapped in Tasks phase

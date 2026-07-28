@@ -21,14 +21,14 @@ The published-facing package identity is still `@vitals/hotspot-scanner` while t
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Rename skills / folders `vitals-*` | Existing STATE decision (2026-07-21); separate churn |
-| Rename CLI bin `hotspot-scanner` | ADR-2026-021; not npm package identity |
-| Rename config `.hotspot-scanner.json` | Not npm package identity |
-| npm publish / `publishConfig` / npx / `pnpm dlx` | Deferred STATE |
-| Scan / trend / assess API, schemas, JSON contract `version` | Only the package name string changes |
-| Rename `#` subpath import keys | Not package identity |
+| Feature                                                     | Reason                                               |
+| ----------------------------------------------------------- | ---------------------------------------------------- |
+| Rename skills / folders `vitals-*`                          | Existing STATE decision (2026-07-21); separate churn |
+| Rename CLI bin `hotspot-scanner`                            | ADR-2026-021; not npm package identity               |
+| Rename config `.hotspot-scanner.json`                       | Not npm package identity                             |
+| npm publish / `publishConfig` / npx / `pnpm dlx`            | Deferred STATE                                       |
+| Scan / trend / assess API, schemas, JSON contract `version` | Only the package name string changes                 |
+| Rename `#` subpath import keys                              | Not package identity                                 |
 
 ---
 
@@ -137,20 +137,20 @@ The published-facing package identity is still `@vitals/hotspot-scanner` while t
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-1700 | P1: Code — `package.json` name | Tasks | Pending |
-| HOTSPOT-1701 | P1: Code — `PACKAGE_NAME` export | Tasks | Pending |
-| HOTSPOT-1702 | P1: Code — unit test assertion | Tasks | Pending |
-| HOTSPOT-1703 | P1: Adoption docs package vs bin | Tasks | Pending |
-| HOTSPOT-1704 | P1: PROJECT / STACK / AGENTS identity | Tasks | Pending |
-| HOTSPOT-1705 | P1: Living `.specs/codebase` + project titles | Tasks | Pending |
-| HOTSPOT-1706 | P1: Done feature specs / archive prose | Tasks | Pending |
-| HOTSPOT-1707 | P1: Cursor agents / skills prose / session-context | Tasks | Pending |
-| HOTSPOT-1708 | P1: Repo-wide zero leftovers | Tasks | Pending |
-| HOTSPOT-1709 | P1: Schemas / API / contracts untouched | Tasks | Pending |
-| HOTSPOT-1710 | P1: Bin unchanged + skills folders unchanged + gate | Tasks | Pending |
-| HOTSPOT-1711–1719 | — | — | Reserved |
+| Requirement ID    | Story                                               | Phase | Status   |
+| ----------------- | --------------------------------------------------- | ----- | -------- |
+| HOTSPOT-1700      | P1: Code — `package.json` name                      | Tasks | Pending  |
+| HOTSPOT-1701      | P1: Code — `PACKAGE_NAME` export                    | Tasks | Pending  |
+| HOTSPOT-1702      | P1: Code — unit test assertion                      | Tasks | Pending  |
+| HOTSPOT-1703      | P1: Adoption docs package vs bin                    | Tasks | Pending  |
+| HOTSPOT-1704      | P1: PROJECT / STACK / AGENTS identity               | Tasks | Pending  |
+| HOTSPOT-1705      | P1: Living `.specs/codebase` + project titles       | Tasks | Pending  |
+| HOTSPOT-1706      | P1: Done feature specs / archive prose              | Tasks | Pending  |
+| HOTSPOT-1707      | P1: Cursor agents / skills prose / session-context  | Tasks | Pending  |
+| HOTSPOT-1708      | P1: Repo-wide zero leftovers                        | Tasks | Pending  |
+| HOTSPOT-1709      | P1: Schemas / API / contracts untouched             | Tasks | Pending  |
+| HOTSPOT-1710      | P1: Bin unchanged + skills folders unchanged + gate | Tasks | Pending  |
+| HOTSPOT-1711–1719 | —                                                   | —     | Reserved |
 
 **Coverage:** 11 requirements mapped to tasks (T1–T5); 1711–1719 reserved unused.
 

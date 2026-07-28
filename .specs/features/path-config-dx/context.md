@@ -13,13 +13,13 @@
 
 **Choice — include all five from ROADMAP (no cuts inside the list):**
 
-| Directory             | Pattern form             | Rationale                                      |
-| --------------------- | ------------------------ | ---------------------------------------------- |
-| `.next`               | `**/.next/**`            | Next.js build output (often under `apps/*`)    |
-| `out`                 | `**/out/**`              | Static export / generic build out dirs         |
-| `vendor`              | `**/vendor/**`           | Composer/Go-style dependency trees in monorepos|
-| `storybook-static`    | `**/storybook-static/**` | Storybook static build output                  |
-| `__snapshots__`       | `**/__snapshots__/**`    | Jest/Vitest snapshot dirs (almost always nested)|
+| Directory          | Pattern form             | Rationale                                        |
+| ------------------ | ------------------------ | ------------------------------------------------ |
+| `.next`            | `**/.next/**`            | Next.js build output (often under `apps/*`)      |
+| `out`              | `**/out/**`              | Static export / generic build out dirs           |
+| `vendor`           | `**/vendor/**`           | Composer/Go-style dependency trees in monorepos  |
+| `storybook-static` | `**/storybook-static/**` | Storybook static build output                    |
+| `__snapshots__`    | `**/__snapshots__/**`    | Jest/Vitest snapshot dirs (almost always nested) |
 
 **Pattern form:** New entries use `**/<name>/**` so nested package artifacts match. Existing M7 patterns (`node_modules/**`, `.git/**`, `dist/**`, `coverage/**`, `build/**`) stay unchanged in this milestone (no surprise rewrite).
 
@@ -27,12 +27,12 @@
 
 ### YAGNI cuts (explicitly NOT added)
 
-| Candidate                         | Why cut                                      |
-| --------------------------------- | -------------------------------------------- |
-| `.turbo`, `.vercel`, `.cache`, `.nuxt`, `.output`, `.parcel-cache`, `tmp` | Not in ROADMAP M30 list                      |
-| File globs (`*.min.js`, `*.snap`) | M7 defaults are directory-oriented           |
-| Rewriting M7 patterns to `**/…/**` | Separate behavior change; out of M30 scope   |
-| `.hotspotignore` / `.gitignore`   | Future; globs + defaults suffice             |
+| Candidate                                                                 | Why cut                                    |
+| ------------------------------------------------------------------------- | ------------------------------------------ |
+| `.turbo`, `.vercel`, `.cache`, `.nuxt`, `.output`, `.parcel-cache`, `tmp` | Not in ROADMAP M30 list                    |
+| File globs (`*.min.js`, `*.snap`)                                         | M7 defaults are directory-oriented         |
+| Rewriting M7 patterns to `**/…/**`                                        | Separate behavior change; out of M30 scope |
+| `.hotspotignore` / `.gitignore`                                           | Future; globs + defaults suffice           |
 
 **Status:** **Confirmed — planner locked**
 
@@ -44,15 +44,15 @@
 
 **Choice:** **Both.**
 
-| Mode | Behavior |
-| ---- | -------- |
-| Default discovery | From `repoPath`, walk **upward** looking for **only** `.hotspot-scanner.json`; **nearest wins** (first found) |
-| `--config <path>` / `ScanOptions.configPath` | Load that exact file; **skip** parent walk |
+| Mode                                         | Behavior                                                                                                      |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Default discovery                            | From `repoPath`, walk **upward** looking for **only** `.hotspot-scanner.json`; **nearest wins** (first found) |
+| `--config <path>` / `ScanOptions.configPath` | Load that exact file; **skip** parent walk                                                                    |
 
 **Walk stop conditions:**
 
-1. File found → return parsed config  
-2. Else move to `dirname(candidate)`; stop when candidate is filesystem root (no parent) or `dirname` equals candidate  
+1. File found → return parsed config
+2. Else move to `dirname(candidate)`; stop when candidate is filesystem root (no parent) or `dirname` equals candidate
 3. No file anywhere on the chain → `null` (not an error) — same as M21 missing file
 
 **Do not:** stop specially at `$HOME`; do not load alternate filenames during walk; do not change git validation (`repoPath/.git` still required — YAGNI).
@@ -77,8 +77,8 @@
 
 **Choice:** **CLI flags > config file > built-in defaults**
 
-- `--config` / `configPath` only selects **which file** is loaded (discovery precedence), not option-value precedence.  
-- Once loaded, keys merge exactly as M21 (`mergeScanOptions`).  
+- `--config` / `configPath` only selects **which file** is loaded (discovery precedence), not option-value precedence.
+- Once loaded, keys merge exactly as M21 (`mergeScanOptions`).
 - `format`, `output`, `baseline` remain CLI-only (not config keys).
 
 **Status:** **Confirmed**
@@ -103,10 +103,10 @@
 
 ## Related closed decisions (do not reopen)
 
-| Source   | Decision                                      |
-| -------- | --------------------------------------------- |
-| M7       | Default excludes always on; exclude additive  |
-| M7       | Include narrows; exclude wins                 |
-| M21      | Six config keys only; unknown keys ignored    |
-| M21      | Invalid JSON / bad types → `ConfigError`      |
-| AGENTS.md| Gate `pnpm build && pnpm test`                |
+| Source    | Decision                                     |
+| --------- | -------------------------------------------- |
+| M7        | Default excludes always on; exclude additive |
+| M7        | Include narrows; exclude wins                |
+| M21       | Six config keys only; unknown keys ignored   |
+| M21       | Invalid JSON / bad types → `ConfigError`     |
+| AGENTS.md | Gate `pnpm build && pnpm test`               |

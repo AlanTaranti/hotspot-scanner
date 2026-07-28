@@ -23,12 +23,12 @@ Revisit **ADR-2026-019** (McCabe over LOC) — NCLOC is now the product metric.
 
 ## Decision: Milestone / slug / depth / IDs (LOCKED)
 
-| Field | Value |
-| ----- | ----- |
-| Milestone | **M57** |
-| Slug | `ncloc-metric` |
-| Depth | **Complex** |
-| IDs | **HOTSPOT-920+** (913–919 reserved from M56; do not reuse) |
+| Field     | Value                                                      |
+| --------- | ---------------------------------------------------------- |
+| Milestone | **M57**                                                    |
+| Slug      | `ncloc-metric`                                             |
+| Depth     | **Complex**                                                |
+| IDs       | **HOTSPOT-920+** (913–919 reserved from M56; do not reuse) |
 
 **Status:** **Confirmed** — do not re-open
 
@@ -54,12 +54,12 @@ Revisit **ADR-2026-019** (McCabe over LOC) — NCLOC is now the product metric.
 
 **Definition:** Count **source lines that are neither blank nor comment-only**.
 
-| Rule | Behavior |
-| ---- | -------- |
-| Blank lines | **Exclude** |
-| Comment-only lines (`//…`, `/* … */`, JSDoc) | **Exclude** |
-| Lines that contain code | **Include** (including lines whose code string literals contain `//`) |
-| Scope | **File-level only** (no per-function NCLOC) |
+| Rule                                         | Behavior                                                              |
+| -------------------------------------------- | --------------------------------------------------------------------- |
+| Blank lines                                  | **Exclude**                                                           |
+| Comment-only lines (`//…`, `/* … */`, JSDoc) | **Exclude**                                                           |
+| Lines that contain code                      | **Include** (including lines whose code string literals contain `//`) |
+| Scope                                        | **File-level only** (no per-function NCLOC)                           |
 
 **Status:** **Confirmed** — do not re-open
 
@@ -73,18 +73,18 @@ Revisit **ADR-2026-019** (McCabe over LOC) — NCLOC is now the product metric.
 
 **Remove:**
 
-| Surface | Items |
-| ------- | ----- |
-| CLI / config | `--granularity` / config `granularity`; `-g` alias |
-| Ranking | Function ranking; `scoreFunctionHotspots` / `FunctionHotspotScorer` |
-| Git | Per-function churn miner `src/git/function-churn/` |
-| CSV | `{stem}.functions.csv`; compare `functions.*.csv` trio |
-| Compare | Function delta sections (`new` / `removed` / `rankChanged` for functions) |
-| `--only` | Value `functions` (see also `--only` decision below) |
-| Explain | Grammar `path:function`; function-section lookup |
+| Surface         | Items                                                                                      |
+| --------------- | ------------------------------------------------------------------------------------------ |
+| CLI / config    | `--granularity` / config `granularity`; `-g` alias                                         |
+| Ranking         | Function ranking; `scoreFunctionHotspots` / `FunctionHotspotScorer`                        |
+| Git             | Per-function churn miner `src/git/function-churn/`                                         |
+| CSV             | `{stem}.functions.csv`; compare `functions.*.csv` trio                                     |
+| Compare         | Function delta sections (`new` / `removed` / `rankChanged` for functions)                  |
+| `--only`        | Value `functions` (see also `--only` decision below)                                       |
+| Explain         | Grammar `path:function`; function-section lookup                                           |
 | Types / schemas | `FunctionHotspotScore`, `FunctionComplexityResult`, `FunctionChangeStats`, related `$defs` |
-| Progress | Phase `function-churn` and progress tied only to function-churn |
-| Options | `ScanGranularity`, `meta.granularity` on scan/compare |
+| Progress        | Phase `function-churn` and progress tied only to function-churn                            |
+| Options         | `ScanGranularity`, `meta.granularity` on scan/compare                                      |
 
 **Status:** **Confirmed** — do not re-open
 
@@ -111,12 +111,12 @@ Revisit **ADR-2026-019** (McCabe over LOC) — NCLOC is now the product metric.
 
 **Parity with M56:**
 
-| Condition | Behavior |
-| --------- | -------- |
-| Baseline `version === "2.0"` (or `"1.0"`) | Reject via `BaselineError` + **re-scan** hint |
+| Condition                                                         | Behavior                                                   |
+| ----------------------------------------------------------------- | ---------------------------------------------------------- |
+| Baseline `version === "2.0"` (or `"1.0"`)                         | Reject via `BaselineError` + **re-scan** hint              |
 | Baseline has legacy field `cyclomaticComplexity` on hotspot items | Reject + re-scan hint (even if version spoofed to `"3.0"`) |
-| Baseline has top-level `functions` | Reject + re-scan hint |
-| Valid `"3.0"` with `ncloc`, no `functions` | Accept |
+| Baseline has top-level `functions`                                | Reject + re-scan hint                                      |
+| Valid `"3.0"` with `ncloc`, no `functions`                        | Accept                                                     |
 
 **Status:** **Confirmed** — do not re-open
 
@@ -152,14 +152,14 @@ Revisit **ADR-2026-019** (McCabe over LOC) — NCLOC is now the product metric.
 
 **Choice (design SoT):** **Lighter stateful line/token scanner** for file NCLOC — **not** ts-morph McCabe.
 
-| Factor | Outcome |
-| ------ | ------- |
-| Scoring need | NCLOC is line-oriented; AST decision nodes unused |
-| Function mode | Removed → no AST ranges for hunk overlap |
-| Accuracy | State machine must respect `//`, `/* */` / JSDoc, and string/template literals so `//` inside strings still counts as code |
-| Dependency | Prefer **remove `ts-morph` runtime dependency** when no other module needs it |
-| Workers | Retarget or simplify: no Project reuse; optional bounded parallel file reads; may drop worker pool if sync/async main-thread is enough (YAGNI — keep concurrency hook if cheap) |
-| Parse failures | Syntactic `PARSE_FAILED` stubs retired; unreadable I/O → warn + skip file (omit from hotspots) |
+| Factor         | Outcome                                                                                                                                                                         |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Scoring need   | NCLOC is line-oriented; AST decision nodes unused                                                                                                                               |
+| Function mode  | Removed → no AST ranges for hunk overlap                                                                                                                                        |
+| Accuracy       | State machine must respect `//`, `/* */` / JSDoc, and string/template literals so `//` inside strings still counts as code                                                      |
+| Dependency     | Prefer **remove `ts-morph` runtime dependency** when no other module needs it                                                                                                   |
+| Workers        | Retarget or simplify: no Project reuse; optional bounded parallel file reads; may drop worker pool if sync/async main-thread is enough (YAGNI — keep concurrency hook if cheap) |
+| Parse failures | Syntactic `PARSE_FAILED` stubs retired; unreadable I/O → warn + skip file (omit from hotspots)                                                                                  |
 
 **Status:** **Confirmed** for planning (implementer follows design.md)
 
@@ -167,42 +167,42 @@ Revisit **ADR-2026-019** (McCabe over LOC) — NCLOC is now the product metric.
 
 ## What stays (LOCKED)
 
-| Keep | Notes |
-| ---- | ----- |
-| Harmonic combiner `2ch/(c+h)` | Unchanged |
-| log1p + min-max normalization | Unchanged; `c` fed from NCLOC |
-| Git churn / `FileChangeStats` | Unchanged (numstat); PathAliasMap unchanged |
-| File-mode scan pipeline | git ∥ size analysis → score → report |
-| Compare for **hotspots** only | Function compare gone |
-| Path scope / discovery / eligible extensions | Keep `.ts`/`.tsx`/`.js`/`.jsx`/`.mjs`/`.cjs` |
-| `--concurrency` | Retain as parallel file-read/analysis knob unless Execute proves useless — do not invent new flags |
+| Keep                                         | Notes                                                                                              |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Harmonic combiner `2ch/(c+h)`                | Unchanged                                                                                          |
+| log1p + min-max normalization                | Unchanged; `c` fed from NCLOC                                                                      |
+| Git churn / `FileChangeStats`                | Unchanged (numstat); PathAliasMap unchanged                                                        |
+| File-mode scan pipeline                      | git ∥ size analysis → score → report                                                               |
+| Compare for **hotspots** only                | Function compare gone                                                                              |
+| Path scope / discovery / eligible extensions | Keep `.ts`/`.tsx`/`.js`/`.jsx`/`.mjs`/`.cjs`                                                       |
+| `--concurrency`                              | Retain as parallel file-read/analysis knob unless Execute proves useless — do not invent new flags |
 
 ---
 
 ## Out of scope (LOCKED)
 
-| Item | Reason |
-| ---- | ------ |
-| npm publish / npx | Deferred |
-| CI recipes / SARIF | Deferred |
-| Historical AST | Do-not-prioritize |
-| Reintroducing temporal coupling | M56 hard cut stands |
-| Alternative metrics beyond NCLOC (Halstead, cognitive, raw LOC, etc.) | YAGNI |
-| Soft deprecation / dual McCabe+NCLOC | Hard cut |
-| Per-function NCLOC | File-level only |
-| Reopening historical Done function/McCabe specs | Stay historical; M57 supersedes product behavior |
+| Item                                                                  | Reason                                           |
+| --------------------------------------------------------------------- | ------------------------------------------------ |
+| npm publish / npx                                                     | Deferred                                         |
+| CI recipes / SARIF                                                    | Deferred                                         |
+| Historical AST                                                        | Do-not-prioritize                                |
+| Reintroducing temporal coupling                                       | M56 hard cut stands                              |
+| Alternative metrics beyond NCLOC (Halstead, cognitive, raw LOC, etc.) | YAGNI                                            |
+| Soft deprecation / dual McCabe+NCLOC                                  | Hard cut                                         |
+| Per-function NCLOC                                                    | File-level only                                  |
+| Reopening historical Done function/McCabe specs                       | Stay historical; M57 supersedes product behavior |
 
 ---
 
 ## Related closed decisions (prior milestones — superseded product behavior)
 
-| Decision | Prior value | M57 effect |
-| -------- | ----------- | ---------- |
-| ADR-2026-019 McCabe over LOC | STATE | Superseded — NCLOC is product metric |
-| McCabe via ts-morph (M3+) | ComplexityAnalyzer | Replaced by NCLOC scanner; prefer drop ts-morph |
-| Function granularity (M11) | `--granularity function` | Removed |
-| Per-function hunk churn (M23) | `src/git/function-churn/` | Deleted |
-| Function AST coverage (M22/M29/M50) | Collection extensions | Retired with function mode |
-| JSON `version: "2.0"` + `cyclomaticComplexity` | M56 | → `"3.0"` + `ncloc` |
-| `PARSE_FAILED` stub hotspots (M50) | Syntax stubs | Retired with AST; I/O warn-skip instead |
-| Progress phase `function-churn` (M28) | Phased progress | Removed |
+| Decision                                       | Prior value               | M57 effect                                      |
+| ---------------------------------------------- | ------------------------- | ----------------------------------------------- |
+| ADR-2026-019 McCabe over LOC                   | STATE                     | Superseded — NCLOC is product metric            |
+| McCabe via ts-morph (M3+)                      | ComplexityAnalyzer        | Replaced by NCLOC scanner; prefer drop ts-morph |
+| Function granularity (M11)                     | `--granularity function`  | Removed                                         |
+| Per-function hunk churn (M23)                  | `src/git/function-churn/` | Deleted                                         |
+| Function AST coverage (M22/M29/M50)            | Collection extensions     | Retired with function mode                      |
+| JSON `version: "2.0"` + `cyclomaticComplexity` | M56                       | → `"3.0"` + `ncloc`                             |
+| `PARSE_FAILED` stub hotspots (M50)             | Syntax stubs              | Retired with AST; I/O warn-skip instead         |
+| Progress phase `function-churn` (M28)          | Phased progress           | Removed                                         |

@@ -21,15 +21,15 @@ Hotspot rankings still under-count or mis-attribute signal in five known gaps: u
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Historical AST / per-commit function ranges | Deferred (CONCERNS); M26 avisos remain for pós-rename overlap |
-| `node_modules` / publish-map resolve | Explicit out of scope |
-| M46 exclude-tests / path-scope test changes | Separate milestone |
-| Changing harmonic mean formula | Locked |
-| New ScanWarning `code` values | Prefer M28 catalog (`RENAME_HISTORY_INCOMPLETE`, `PARSE_FAILED`, …) |
-| Global `git log --follow` | CONCERNS / ARCHITECTURE forbid |
-| Changing M35 patch pathspec efficiency (churn allowlist for git `-p`) | Keep; only AST allowlist revisit |
+| Feature                                                               | Reason                                                              |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Historical AST / per-commit function ranges                           | Deferred (CONCERNS); M26 avisos remain for pós-rename overlap       |
+| `node_modules` / publish-map resolve                                  | Explicit out of scope                                               |
+| M46 exclude-tests / path-scope test changes                           | Separate milestone                                                  |
+| Changing harmonic mean formula                                        | Locked                                                              |
+| New ScanWarning `code` values                                         | Prefer M28 catalog (`RENAME_HISTORY_INCOMPLETE`, `PARSE_FAILED`, …) |
+| Global `git log --follow`                                             | CONCERNS / ARCHITECTURE forbid                                      |
+| Changing M35 patch pathspec efficiency (churn allowlist for git `-p`) | Keep; only AST allowlist revisit                                    |
 
 ---
 
@@ -137,48 +137,48 @@ Hotspot rankings still under-count or mis-attribute signal in five known gaps: u
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-730 | P1: Unlinked rename — heuristic `link()` | Tasks | Pending |
-| HOTSPOT-731 | P1: Unlinked rename — strengthened relatedness | Tasks | Pending |
-| HOTSPOT-732 | P1: Unlinked rename — stable `RENAME_HISTORY_INCOMPLETE` | Tasks | Pending |
-| HOTSPOT-733 | P1: Unlinked rename — cap + no double-link with `-M` | Tasks | Pending |
-| HOTSPOT-734 | P1: Unlinked rename — fixtures/unit coverage | Tasks | Pending |
-| HOTSPOT-735 | P1: Unlinked rename — no `--follow` / no historical AST | Tasks | Pending |
-| HOTSPOT-736 | P1: Unlinked rename — deterministic multi-match pairing | Tasks | Pending |
-| HOTSPOT-737 | P1: Unlinked rename — docs CONCERNS/ARCHITECTURE | Tasks | Pending |
-| HOTSPOT-738 | P1: Enrich — accept PathAliasMap / canonicalize | Tasks | Pending |
-| HOTSPOT-739 | P1: Enrich — peer graph uses canonical paths | Tasks | Pending |
-| HOTSPOT-740 | P1: Enrich — scan wires alias map from miner | Tasks | Pending |
-| HOTSPOT-741 | P1: Enrich — ranking fields unchanged | Tasks | Pending |
-| HOTSPOT-742 | P1: Enrich — regression without alias map | Tasks | Pending |
-| HOTSPOT-743 | P1: Enrich — unit tests rename-aware edge | Tasks | Pending |
-| HOTSPOT-744 | P1: Enrich — M27 invariants preserved | Tasks | Pending |
-| HOTSPOT-745 | P1: Enrich — docs reopen M27 boundary | Tasks | Pending |
-| HOTSPOT-746 | P1: PARSE_FAILED — stub ComplexityResult | Tasks | Pending |
-| HOTSPOT-747 | P1: PARSE_FAILED — `parseFailed` on HotspotScore | Tasks | Pending |
-| HOTSPOT-748 | P1: PARSE_FAILED — score 0 + excluded from norm universe | Tasks | Pending |
-| HOTSPOT-749 | P1: PARSE_FAILED — warning code unchanged | Tasks | Pending |
-| HOTSPOT-750 | P1: PARSE_FAILED — schema + baseline reject | Tasks | Pending |
-| HOTSPOT-751 | P1: PARSE_FAILED — reporters (table/md/csv/json) | Tasks | Pending |
-| HOTSPOT-752 | P1: PARSE_FAILED — successful-file order parity | Tasks | Pending |
-| HOTSPOT-753 | P1: PARSE_FAILED — no function rows for failed files | Tasks | Pending |
-| HOTSPOT-754 | P1: AST — collect call-argument callables | Tasks | Pending |
-| HOTSPOT-755 | P1: AST — collect IIFEs | Tasks | Pending |
-| HOTSPOT-756 | P1: AST — naming `<anonymous>:L{line}` default | Tasks | Pending |
-| HOTSPOT-757 | P1: AST — no McCabe decision-node drift | Tasks | Pending |
-| HOTSPOT-758 | P1: AST — file sum includes new nodes | Tasks | Pending |
-| HOTSPOT-759 | P1: AST — fixtures + unit tests | Tasks | Pending |
-| HOTSPOT-760 | P1: AST — no double-collect | Tasks | Pending |
-| HOTSPOT-761 | P1: Zero-churn — omit function-mode pathAllowlist | Tasks | Pending |
-| HOTSPOT-762 | P1: Zero-churn — functions appear with zero churn | Tasks | Pending |
-| HOTSPOT-763 | P1: Zero-churn — keep patch pathspec allowlist | Tasks | Pending |
-| HOTSPOT-764 | P1: Zero-churn — file-mode zero patch spawn | Tasks | Pending |
-| HOTSPOT-765 | P1: Zero-churn — invert M35 omission tests + docs | Tasks | Pending |
-| HOTSPOT-766 | Integration: rename + enrich smoke on fixture | Tasks | Pending |
-| HOTSPOT-767 | Integration: PARSE_FAILED ranking smoke | Tasks | Pending |
-| HOTSPOT-768 | Integration: function AST + zero-churn smoke | Tasks | Pending |
-| HOTSPOT-769 | Docs sync ARCHITECTURE / CONCERNS / TESTING + full gate | Tasks | Pending |
+| Requirement ID | Story                                                    | Phase | Status  |
+| -------------- | -------------------------------------------------------- | ----- | ------- |
+| HOTSPOT-730    | P1: Unlinked rename — heuristic `link()`                 | Tasks | Pending |
+| HOTSPOT-731    | P1: Unlinked rename — strengthened relatedness           | Tasks | Pending |
+| HOTSPOT-732    | P1: Unlinked rename — stable `RENAME_HISTORY_INCOMPLETE` | Tasks | Pending |
+| HOTSPOT-733    | P1: Unlinked rename — cap + no double-link with `-M`     | Tasks | Pending |
+| HOTSPOT-734    | P1: Unlinked rename — fixtures/unit coverage             | Tasks | Pending |
+| HOTSPOT-735    | P1: Unlinked rename — no `--follow` / no historical AST  | Tasks | Pending |
+| HOTSPOT-736    | P1: Unlinked rename — deterministic multi-match pairing  | Tasks | Pending |
+| HOTSPOT-737    | P1: Unlinked rename — docs CONCERNS/ARCHITECTURE         | Tasks | Pending |
+| HOTSPOT-738    | P1: Enrich — accept PathAliasMap / canonicalize          | Tasks | Pending |
+| HOTSPOT-739    | P1: Enrich — peer graph uses canonical paths             | Tasks | Pending |
+| HOTSPOT-740    | P1: Enrich — scan wires alias map from miner             | Tasks | Pending |
+| HOTSPOT-741    | P1: Enrich — ranking fields unchanged                    | Tasks | Pending |
+| HOTSPOT-742    | P1: Enrich — regression without alias map                | Tasks | Pending |
+| HOTSPOT-743    | P1: Enrich — unit tests rename-aware edge                | Tasks | Pending |
+| HOTSPOT-744    | P1: Enrich — M27 invariants preserved                    | Tasks | Pending |
+| HOTSPOT-745    | P1: Enrich — docs reopen M27 boundary                    | Tasks | Pending |
+| HOTSPOT-746    | P1: PARSE_FAILED — stub ComplexityResult                 | Tasks | Pending |
+| HOTSPOT-747    | P1: PARSE_FAILED — `parseFailed` on HotspotScore         | Tasks | Pending |
+| HOTSPOT-748    | P1: PARSE_FAILED — score 0 + excluded from norm universe | Tasks | Pending |
+| HOTSPOT-749    | P1: PARSE_FAILED — warning code unchanged                | Tasks | Pending |
+| HOTSPOT-750    | P1: PARSE_FAILED — schema + baseline reject              | Tasks | Pending |
+| HOTSPOT-751    | P1: PARSE_FAILED — reporters (table/md/csv/json)         | Tasks | Pending |
+| HOTSPOT-752    | P1: PARSE_FAILED — successful-file order parity          | Tasks | Pending |
+| HOTSPOT-753    | P1: PARSE_FAILED — no function rows for failed files     | Tasks | Pending |
+| HOTSPOT-754    | P1: AST — collect call-argument callables                | Tasks | Pending |
+| HOTSPOT-755    | P1: AST — collect IIFEs                                  | Tasks | Pending |
+| HOTSPOT-756    | P1: AST — naming `<anonymous>:L{line}` default           | Tasks | Pending |
+| HOTSPOT-757    | P1: AST — no McCabe decision-node drift                  | Tasks | Pending |
+| HOTSPOT-758    | P1: AST — file sum includes new nodes                    | Tasks | Pending |
+| HOTSPOT-759    | P1: AST — fixtures + unit tests                          | Tasks | Pending |
+| HOTSPOT-760    | P1: AST — no double-collect                              | Tasks | Pending |
+| HOTSPOT-761    | P1: Zero-churn — omit function-mode pathAllowlist        | Tasks | Pending |
+| HOTSPOT-762    | P1: Zero-churn — functions appear with zero churn        | Tasks | Pending |
+| HOTSPOT-763    | P1: Zero-churn — keep patch pathspec allowlist           | Tasks | Pending |
+| HOTSPOT-764    | P1: Zero-churn — file-mode zero patch spawn              | Tasks | Pending |
+| HOTSPOT-765    | P1: Zero-churn — invert M35 omission tests + docs        | Tasks | Pending |
+| HOTSPOT-766    | Integration: rename + enrich smoke on fixture            | Tasks | Pending |
+| HOTSPOT-767    | Integration: PARSE_FAILED ranking smoke                  | Tasks | Pending |
+| HOTSPOT-768    | Integration: function AST + zero-churn smoke             | Tasks | Pending |
+| HOTSPOT-769    | Docs sync ARCHITECTURE / CONCERNS / TESTING + full gate  | Tasks | Pending |
 
 **Coverage:** 40 requirements (HOTSPOT-730–769), all mapped to tasks in [tasks.md](./tasks.md).
 

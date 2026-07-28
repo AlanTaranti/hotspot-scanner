@@ -25,16 +25,16 @@ When `git log` (or related git spawn) fails at scan time, operators see raw stde
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Doctor `since` probe / finding / CLI | M64 config-doctor-dx sister — do not duplicate |
-| Re-implement not-a-git Hint | Already on `resolve-repo` / M38 |
-| Soft warnings for empty-but-valid `--since` windows | Existing rename/empty-window warnings; not hard fail |
-| New CLI flags, config keys, JSON schema / ranking changes | YAGNI |
-| Changing exit-code scheme (`GitLogError` → still 1) | Preserve pipeline-failure semantics |
-| Bin-side git stderr parsers | Domain stays in `src/git/` |
-| Proactive `.git/shallow` file checks without stderr | Detect from stderr only when cheap |
-| Exhaustive git error encyclopedia | Three locked families + unmatched passthrough |
+| Feature                                                   | Reason                                               |
+| --------------------------------------------------------- | ---------------------------------------------------- |
+| Doctor `since` probe / finding / CLI                      | M64 config-doctor-dx sister — do not duplicate       |
+| Re-implement not-a-git Hint                               | Already on `resolve-repo` / M38                      |
+| Soft warnings for empty-but-valid `--since` windows       | Existing rename/empty-window warnings; not hard fail |
+| New CLI flags, config keys, JSON schema / ranking changes | YAGNI                                                |
+| Changing exit-code scheme (`GitLogError` → still 1)       | Preserve pipeline-failure semantics                  |
+| Bin-side git stderr parsers                               | Domain stays in `src/git/`                           |
+| Proactive `.git/shallow` file checks without stderr       | Detect from stderr only when cheap                   |
+| Exhaustive git error encyclopedia                         | Three locked families + unmatched passthrough        |
 
 ---
 
@@ -160,20 +160,20 @@ When `git log` (or related git spawn) fails at scan time, operators see raw stde
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-1140 | P1: Domain ownership | Tasks | Pending |
-| HOTSPOT-1141 | P1: Invalid since / date | Tasks | Pending |
-| HOTSPOT-1142 | P1: Shallow clone | Tasks | Pending |
-| HOTSPOT-1143 | P1: Corrupt / bad-object | Tasks | Pending |
-| HOTSPOT-1144 | P1: Unmatched passthrough | Tasks | Pending |
-| HOTSPOT-1145 | P1: Domain / CLI print | Tasks | Pending |
-| HOTSPOT-1146 | P1: Exit code 1 | Tasks | Pending |
-| HOTSPOT-1147 | P1: Shared helper + GitLsFilesError | Tasks | Pending |
-| HOTSPOT-1148 | P1: No not-a-git duplicate | Tasks | Pending |
-| HOTSPOT-1149 | P1: No doctor since duplicate | Tasks | Pending |
-| HOTSPOT-1150 | P2: Living docs | Tasks | Pending |
-| HOTSPOT-1151–1159 | — | — | Reserved |
+| Requirement ID    | Story                               | Phase | Status   |
+| ----------------- | ----------------------------------- | ----- | -------- |
+| HOTSPOT-1140      | P1: Domain ownership                | Tasks | Pending  |
+| HOTSPOT-1141      | P1: Invalid since / date            | Tasks | Pending  |
+| HOTSPOT-1142      | P1: Shallow clone                   | Tasks | Pending  |
+| HOTSPOT-1143      | P1: Corrupt / bad-object            | Tasks | Pending  |
+| HOTSPOT-1144      | P1: Unmatched passthrough           | Tasks | Pending  |
+| HOTSPOT-1145      | P1: Domain / CLI print              | Tasks | Pending  |
+| HOTSPOT-1146      | P1: Exit code 1                     | Tasks | Pending  |
+| HOTSPOT-1147      | P1: Shared helper + GitLsFilesError | Tasks | Pending  |
+| HOTSPOT-1148      | P1: No not-a-git duplicate          | Tasks | Pending  |
+| HOTSPOT-1149      | P1: No doctor since duplicate       | Tasks | Pending  |
+| HOTSPOT-1150      | P2: Living docs                     | Tasks | Pending  |
+| HOTSPOT-1151–1159 | —                                   | —     | Reserved |
 
 **Coverage:** 11 mapped + 9 reserved; all P1/P2 mapped to tasks.
 

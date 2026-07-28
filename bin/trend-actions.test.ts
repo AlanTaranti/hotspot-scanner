@@ -1,7 +1,11 @@
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { executeTrend, mapTrendError, parseTrendFormat } from "./trend-actions.js";
+import {
+  executeTrend,
+  mapTrendError,
+  parseTrendFormat,
+} from "./trend-actions.js";
 import { CliUsageError, ScanCancelExit } from "./scan-actions.js";
 import { TrendNotTrackedError, TrendUsageError } from "#trend";
 
@@ -24,7 +28,9 @@ describe("parseTrendFormat", () => {
 
 describe("mapTrendError", () => {
   it("maps trend usage errors to CliUsageError", () => {
-    expect(() => mapTrendError(new TrendUsageError("bad"))).toThrow(CliUsageError);
+    expect(() => mapTrendError(new TrendUsageError("bad"))).toThrow(
+      CliUsageError,
+    );
   });
 
   it("maps not-tracked errors to CliUsageError", () => {
@@ -37,7 +43,9 @@ describe("mapTrendError", () => {
     const stderr = vi
       .spyOn(process.stderr, "write")
       .mockImplementation(() => true);
-    expect(() => mapTrendError(new ScanCancelExit(130))).toThrow(ScanCancelExit);
+    expect(() => mapTrendError(new ScanCancelExit(130))).toThrow(
+      ScanCancelExit,
+    );
     expect(stderr.mock.calls.join("")).toContain("trend cancelled");
     stderr.mockRestore();
   });

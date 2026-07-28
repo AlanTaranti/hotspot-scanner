@@ -23,16 +23,16 @@ Maintainers can rank current hotspots (`scan`) and inspect one file’s growth p
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| `--fail-on-deteriorating` / SARIF / exit 1 for deteriorating | Deferred CI; formatter cliffs |
-| CSV | YAGNI |
-| Assess-specific config keys | CLI-only for assess-only flags |
-| McCabe / historical AST | M57/M72 |
-| Compare / baseline | M71 |
-| `scan --trend-top` / assess inside scan JSON | Isolation + cost |
-| Assess color / M76 dependency | Do not block |
-| Parallel trend pool | Sequential MVP |
+| Feature                                                      | Reason                         |
+| ------------------------------------------------------------ | ------------------------------ |
+| `--fail-on-deteriorating` / SARIF / exit 1 for deteriorating | Deferred CI; formatter cliffs  |
+| CSV                                                          | YAGNI                          |
+| Assess-specific config keys                                  | CLI-only for assess-only flags |
+| McCabe / historical AST                                      | M57/M72                        |
+| Compare / baseline                                           | M71                            |
+| `scan --trend-top` / assess inside scan JSON                 | Isolation + cost               |
+| Assess color / M76 dependency                                | Do not block                   |
+| Parallel trend pool                                          | Sequential MVP                 |
 
 ---
 
@@ -168,29 +168,29 @@ Maintainers can rank current hotspots (`scan`) and inspect one file’s growth p
 
 ## Requirement Traceability
 
-| ID | Story | Priority | Status |
-| -- | ----- | -------- | ------ |
-| HOTSPOT-1620 | CLI assess + pipeline wiring | P1 | Pending |
-| HOTSPOT-1621 | `--min-hotspot-score` default 0.7 + help naming | P1 | Pending |
-| HOTSPOT-1622 | `--top` default 20 after filter; all formats | P1 | Pending |
-| HOTSPOT-1623 | `--since`/include/exclude scan semantics + config merge | P1 | Pending |
-| HOTSPOT-1624 | `runAssess` API + AssessResult shape | P1 | Pending |
-| HOTSPOT-1625 | Schema `hotspot-assess` `1.0` | P1 | Pending |
-| HOTSPOT-1626 | No points dump; scan/trend contracts untouched | P1 | Pending |
-| HOTSPOT-1627 | Public export + `#assess` | P1 | Pending |
-| HOTSPOT-1628 | Soft-continue per-file trend errors | P1 | Pending |
-| HOTSPOT-1629 | Sequential trends + progress | P1 | Pending |
-| HOTSPOT-1630 | Cancel exit 130/143; success exit 0 with partial errors | P1 | Pending |
-| HOTSPOT-1631 | Table/markdown summary counts | P1 | Pending |
-| HOTSPOT-1632 | Detail only deteriorating | P1 | Pending |
-| HOTSPOT-1633 | Empty deteriorating messaging | P1 | Pending |
-| HOTSPOT-1634 | JSON format assess contract | P1 | Pending |
-| HOTSPOT-1635 | JSON same candidate set as table; no points | P1 | Pending |
-| HOTSPOT-1636 | Recipes/README assess | P1 | Pending |
-| HOTSPOT-1637 | Living ARCHITECTURE/STRUCTURE/CONCERNS | P1 | Pending |
-| HOTSPOT-1638 | Skills mention if applicable | P1 | Pending |
-| HOTSPOT-1639–1659 | Buffer unused | — | — |
-| HOTSPOT-1660–1679 | Reserved | — | — |
+| ID                | Story                                                   | Priority | Status  |
+| ----------------- | ------------------------------------------------------- | -------- | ------- |
+| HOTSPOT-1620      | CLI assess + pipeline wiring                            | P1       | Pending |
+| HOTSPOT-1621      | `--min-hotspot-score` default 0.7 + help naming         | P1       | Pending |
+| HOTSPOT-1622      | `--top` default 20 after filter; all formats            | P1       | Pending |
+| HOTSPOT-1623      | `--since`/include/exclude scan semantics + config merge | P1       | Pending |
+| HOTSPOT-1624      | `runAssess` API + AssessResult shape                    | P1       | Pending |
+| HOTSPOT-1625      | Schema `hotspot-assess` `1.0`                           | P1       | Pending |
+| HOTSPOT-1626      | No points dump; scan/trend contracts untouched          | P1       | Pending |
+| HOTSPOT-1627      | Public export + `#assess`                               | P1       | Pending |
+| HOTSPOT-1628      | Soft-continue per-file trend errors                     | P1       | Pending |
+| HOTSPOT-1629      | Sequential trends + progress                            | P1       | Pending |
+| HOTSPOT-1630      | Cancel exit 130/143; success exit 0 with partial errors | P1       | Pending |
+| HOTSPOT-1631      | Table/markdown summary counts                           | P1       | Pending |
+| HOTSPOT-1632      | Detail only deteriorating                               | P1       | Pending |
+| HOTSPOT-1633      | Empty deteriorating messaging                           | P1       | Pending |
+| HOTSPOT-1634      | JSON format assess contract                             | P1       | Pending |
+| HOTSPOT-1635      | JSON same candidate set as table; no points             | P1       | Pending |
+| HOTSPOT-1636      | Recipes/README assess                                   | P1       | Pending |
+| HOTSPOT-1637      | Living ARCHITECTURE/STRUCTURE/CONCERNS                  | P1       | Pending |
+| HOTSPOT-1638      | Skills mention if applicable                            | P1       | Pending |
+| HOTSPOT-1639–1659 | Buffer unused                                           | —        | —       |
+| HOTSPOT-1660–1679 | Reserved                                                | —        | —       |
 
 ---
 

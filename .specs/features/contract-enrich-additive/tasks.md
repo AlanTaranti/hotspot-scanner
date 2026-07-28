@@ -58,76 +58,76 @@ flowchart LR
 
 | Task | Depends on (declared) | Diagram shows | Match |
 | ---- | --------------------- | ------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1→T2 | ✅ |
-| T3 | T1 | T1→T3 | ✅ |
-| T4 | T1 | T1→T4 | ✅ |
-| T5 | T2, T3 | T2→T5, T3→T5 | ✅ |
-| T6 | T3 | T3→T6 | ✅ |
-| T7 | T3 | T3→T7 | ✅ |
-| T8 | T4, T5, T6, T7 | all → T8 | ✅ |
-| T9 | T8 | T8→T9 | ✅ |
+| T1   | None                  | Root          | ✅    |
+| T2   | T1                    | T1→T2         | ✅    |
+| T3   | T1                    | T1→T3         | ✅    |
+| T4   | T1                    | T1→T4         | ✅    |
+| T5   | T2, T3                | T2→T5, T3→T5  | ✅    |
+| T6   | T3                    | T3→T6         | ✅    |
+| T7   | T3                    | T3→T7         | ✅    |
+| T8   | T4, T5, T6, T7        | all → T8      | ✅    |
+| T9   | T8                    | T8→T9         | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | types + schemas | `src/types/domain.ts`, `schemas/scan-result.json`, `schemas/compare-result.json`, `tests/contract/json-schema.test.ts` (schema declare / compile asserts) | Sole contract owner |
-| T2 | scan (+ package-meta) | `src/package-meta.ts` (new), `src/scan.ts`, `src/scan.test.ts`; export from `src/index.ts` only if public API needs it (prefer internal) | Sole scan owner; creates helper |
-| T3 | compare | `src/compare/compare.ts`, `src/compare/compare.test.ts`; fixtures under `tests/fixtures/report/` if RankChange shape breaks fixture parse in compare tests | Sole compare-logic owner |
-| T4 | compare loader | `src/compare/load-baseline.ts`, `src/compare/load-baseline.test.ts` | Disjoint from T3 (`compare.ts` vs `load-baseline.ts`) — `[P]` OK |
-| T5 | report JSON | `src/report/json.ts`, `src/report/json.test.ts`, `src/report/compare-json.ts`, `src/report/compare-json.test.ts`; optional `src/report/schema-urls.ts` | Sole JSON-render owner |
-| T6 | report human/CSV | `src/report/compare-table.ts`, `compare-table.test.ts`, `compare-markdown.ts`, `compare-markdown.test.ts`, `compare-csv.ts`, `compare-csv.test.ts`; update `tests/fixtures/report/*` as needed for CSV/table fixtures | Sole human/CSV owner; **after** T3; not parallel with T5 on overlapping fixtures — T5/T6/T7 sequential or non-overlapping files: T5 only `*json*`, T6 table/md/csv, T7 explain — `[P]` T5∥T6∥T7 OK if no shared fixture file edits; if fixture shared, serialize T6 before T7 |
-| T7 | report explain | `src/report/explain-compare.ts`, `explain-compare.test.ts` | Disjoint from T5/T6 file set |
-| T8 | docs | `README.md`, `.specs/codebase/ARCHITECTURE.md`, `.specs/codebase/STRUCTURE.md` if helper added; optional TESTING.md | After code |
-| T9 | gate | none (verify) | After T8 |
+| Task | Module owner          | Paths                                                                                                                                                                                                                 | Conflict                                                                                                                                                                                                                                                                      |
+| ---- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| T1   | types + schemas       | `src/types/domain.ts`, `schemas/scan-result.json`, `schemas/compare-result.json`, `tests/contract/json-schema.test.ts` (schema declare / compile asserts)                                                             | Sole contract owner                                                                                                                                                                                                                                                           |
+| T2   | scan (+ package-meta) | `src/package-meta.ts` (new), `src/scan.ts`, `src/scan.test.ts`; export from `src/index.ts` only if public API needs it (prefer internal)                                                                              | Sole scan owner; creates helper                                                                                                                                                                                                                                               |
+| T3   | compare               | `src/compare/compare.ts`, `src/compare/compare.test.ts`; fixtures under `tests/fixtures/report/` if RankChange shape breaks fixture parse in compare tests                                                            | Sole compare-logic owner                                                                                                                                                                                                                                                      |
+| T4   | compare loader        | `src/compare/load-baseline.ts`, `src/compare/load-baseline.test.ts`                                                                                                                                                   | Disjoint from T3 (`compare.ts` vs `load-baseline.ts`) — `[P]` OK                                                                                                                                                                                                              |
+| T5   | report JSON           | `src/report/json.ts`, `src/report/json.test.ts`, `src/report/compare-json.ts`, `src/report/compare-json.test.ts`; optional `src/report/schema-urls.ts`                                                                | Sole JSON-render owner                                                                                                                                                                                                                                                        |
+| T6   | report human/CSV      | `src/report/compare-table.ts`, `compare-table.test.ts`, `compare-markdown.ts`, `compare-markdown.test.ts`, `compare-csv.ts`, `compare-csv.test.ts`; update `tests/fixtures/report/*` as needed for CSV/table fixtures | Sole human/CSV owner; **after** T3; not parallel with T5 on overlapping fixtures — T5/T6/T7 sequential or non-overlapping files: T5 only `*json*`, T6 table/md/csv, T7 explain — `[P]` T5∥T6∥T7 OK if no shared fixture file edits; if fixture shared, serialize T6 before T7 |
+| T7   | report explain        | `src/report/explain-compare.ts`, `explain-compare.test.ts`                                                                                                                                                            | Disjoint from T5/T6 file set                                                                                                                                                                                                                                                  |
+| T8   | docs                  | `README.md`, `.specs/codebase/ARCHITECTURE.md`, `.specs/codebase/STRUCTURE.md` if helper added; optional TESTING.md                                                                                                   | After code                                                                                                                                                                                                                                                                    |
+| T9   | gate                  | none (verify)                                                                                                                                                                                                         | After T8                                                                                                                                                                                                                                                                      |
 
 T2 `[P]` with T3 `[P]` with T4 `[P]` — disjoint modules after T1.  
 T5 `[P]` with T6 `[P]` with T7 `[P]` — disjoint report files after T2/T3 (T5 waits T2+T3; T6/T7 wait T3 only).
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task says | Match |
-| ---- | ---------- | ---------------------- | --------- | ----- |
-| T1 | types + schemas + contract | Contract | contract tests in same task | ✅ |
-| T2 | `src/scan/` + helper | Unit | unit in same task | ✅ |
-| T3 | `src/compare/` | Unit | unit in same task | ✅ |
-| T4 | `src/compare/` load | Unit | unit in same task | ✅ |
-| T5 | `src/report/` | Unit | unit in same task | ✅ |
-| T6 | `src/report/` | Unit | unit in same task | ✅ |
-| T7 | `src/report/` | Unit | unit in same task | ✅ |
-| T8 | Docs | none | none | ✅ |
-| T9 | Full project | Gate | `pnpm build && pnpm test` | ✅ |
+| Task | Code layer                 | TESTING.md expectation | Task says                   | Match |
+| ---- | -------------------------- | ---------------------- | --------------------------- | ----- |
+| T1   | types + schemas + contract | Contract               | contract tests in same task | ✅    |
+| T2   | `src/scan/` + helper       | Unit                   | unit in same task           | ✅    |
+| T3   | `src/compare/`             | Unit                   | unit in same task           | ✅    |
+| T4   | `src/compare/` load        | Unit                   | unit in same task           | ✅    |
+| T5   | `src/report/`              | Unit                   | unit in same task           | ✅    |
+| T6   | `src/report/`              | Unit                   | unit in same task           | ✅    |
+| T7   | `src/report/`              | Unit                   | unit in same task           | ✅    |
+| T8   | Docs                       | none                   | none                        | ✅    |
+| T9   | Full project               | Gate                   | `pnpm build && pnpm test`   | ✅    |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Types + schema declarations + contract compile/property asserts | ✅ Cohesive contract |
-| T2 | Package version helper + scan emit | ✅ Cohesive scan meta |
-| T3 | RankChange deltas + CompareMeta.scannerVersion | ✅ Cohesive compare |
-| T4 | Baseline parse tolerance | ✅ Cohesive loader |
-| T5 | JSON `$schema` emission | ✅ Cohesive JSON render |
-| T6 | Table + markdown + CSV delta columns | ✅ Cohesive human/CSV compare report |
-| T7 | Explain rank-changed deltas | ✅ Cohesive explain |
-| T8 | Living docs | ✅ Granular |
-| T9 | Project gate | ✅ Granular |
+| Task | Scope                                                           | Status                               |
+| ---- | --------------------------------------------------------------- | ------------------------------------ |
+| T1   | Types + schema declarations + contract compile/property asserts | ✅ Cohesive contract                 |
+| T2   | Package version helper + scan emit                              | ✅ Cohesive scan meta                |
+| T3   | RankChange deltas + CompareMeta.scannerVersion                  | ✅ Cohesive compare                  |
+| T4   | Baseline parse tolerance                                        | ✅ Cohesive loader                   |
+| T5   | JSON `$schema` emission                                         | ✅ Cohesive JSON render              |
+| T6   | Table + markdown + CSV delta columns                            | ✅ Cohesive human/CSV compare report |
+| T7   | Explain rank-changed deltas                                     | ✅ Cohesive explain                  |
+| T8   | Living docs                                                     | ✅ Granular                          |
+| T9   | Project gate                                                    | ✅ Granular                          |
 
 ### Requirement → Task Mapping
 
-| Requirement ID | Task |
-| -------------- | ---- |
-| HOTSPOT-1162, HOTSPOT-1165, HOTSPOT-1168, HOTSPOT-1170, HOTSPOT-1174 | T1 |
-| HOTSPOT-1160 | T2 |
-| HOTSPOT-1161, HOTSPOT-1171, HOTSPOT-1172, HOTSPOT-1173 | T3 |
-| HOTSPOT-1163, HOTSPOT-1164, HOTSPOT-1169 | T4 |
-| HOTSPOT-1166, HOTSPOT-1167, HOTSPOT-1175 | T5 |
-| HOTSPOT-1176, HOTSPOT-1177, HOTSPOT-1178, HOTSPOT-1179 | T6 |
-| HOTSPOT-1180 | T7 |
-| HOTSPOT-1183, HOTSPOT-1184 | T8 |
-| (gate) | T9 |
-| HOTSPOT-1181–1182 | Unused stretch (available) |
-| HOTSPOT-1185–1199 | Reserved — unused |
+| Requirement ID                                                       | Task                       |
+| -------------------------------------------------------------------- | -------------------------- |
+| HOTSPOT-1162, HOTSPOT-1165, HOTSPOT-1168, HOTSPOT-1170, HOTSPOT-1174 | T1                         |
+| HOTSPOT-1160                                                         | T2                         |
+| HOTSPOT-1161, HOTSPOT-1171, HOTSPOT-1172, HOTSPOT-1173               | T3                         |
+| HOTSPOT-1163, HOTSPOT-1164, HOTSPOT-1169                             | T4                         |
+| HOTSPOT-1166, HOTSPOT-1167, HOTSPOT-1175                             | T5                         |
+| HOTSPOT-1176, HOTSPOT-1177, HOTSPOT-1178, HOTSPOT-1179               | T6                         |
+| HOTSPOT-1180                                                         | T7                         |
+| HOTSPOT-1183, HOTSPOT-1184                                           | T8                         |
+| (gate)                                                               | T9                         |
+| HOTSPOT-1181–1182                                                    | Unused stretch (available) |
+| HOTSPOT-1185–1199                                                    | Reserved — unused          |
 
 ---
 
@@ -379,12 +379,12 @@ T5 `[P]` with T6 `[P]` with T7 `[P]` — disjoint report files after T2/T3 (T5 w
 
 ## Parallelism Summary
 
-| Wave | Tasks | Notes |
-| ---- | ----- | ----- |
-| 1 | T1 | Foundation |
-| 2 | T2, T3, T4 | `[P]` after T1 |
-| 3 | T5, T6, T7 | `[P]` after deps (T5 needs T2+T3; T6/T7 need T3) |
-| 4 | T8 → T9 | Sequential |
+| Wave | Tasks      | Notes                                            |
+| ---- | ---------- | ------------------------------------------------ |
+| 1    | T1         | Foundation                                       |
+| 2    | T2, T3, T4 | `[P]` after T1                                   |
+| 3    | T5, T6, T7 | `[P]` after deps (T5 needs T2+T3; T6/T7 need T3) |
+| 4    | T8 → T9    | Sequential                                       |
 
 ---
 

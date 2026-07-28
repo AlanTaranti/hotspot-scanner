@@ -1,10 +1,7 @@
 import type { ComplexityTrendPoint } from "./types.js";
 
 export type GrowthPatternKind =
-  | "deteriorating"
-  | "refactored"
-  | "stable"
-  | "inconclusive";
+  "deteriorating" | "refactored" | "stable" | "inconclusive";
 
 export type GrowthPattern = {
   kind: GrowthPatternKind;

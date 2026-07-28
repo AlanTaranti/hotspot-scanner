@@ -24,19 +24,19 @@ M31 keeps the public `--concurrency` contract and replaces per-batch worker/Proj
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Historical AST / blame | ARCHITECTURE constraint; locked |
-| Change McCabe decision-node kinds | CONCERNS RT-005 |
-| Change rankings, formulas, or JSON `version` `"1.0"` | Locked product contract |
-| Change `--concurrency` CLI/config precedence or validation | M28 SoT; only pool internals change |
-| Change `DEFAULT_BATCH_SIZE` (50) or default concurrency formula | Memory/CPU caps stay; YAGNI |
-| CI wall-clock performance gates | Manual timing only (`scripts/benchmark-scan.md`) |
-| Pipeline stage overlap (git ∥ complexity) | M34 |
-| Parallel git mining | ADR / different milestone |
-| File-level parallelism within a batch | Batch remains unit of work |
-| New CLI flags (`--batch-size`, `--workers`) | YAGNI |
-| ROADMAP.md / STATE.md edits in this planning session | Parent agent syncs later |
+| Feature                                                         | Reason                                           |
+| --------------------------------------------------------------- | ------------------------------------------------ |
+| Historical AST / blame                                          | ARCHITECTURE constraint; locked                  |
+| Change McCabe decision-node kinds                               | CONCERNS RT-005                                  |
+| Change rankings, formulas, or JSON `version` `"1.0"`            | Locked product contract                          |
+| Change `--concurrency` CLI/config precedence or validation      | M28 SoT; only pool internals change              |
+| Change `DEFAULT_BATCH_SIZE` (50) or default concurrency formula | Memory/CPU caps stay; YAGNI                      |
+| CI wall-clock performance gates                                 | Manual timing only (`scripts/benchmark-scan.md`) |
+| Pipeline stage overlap (git ∥ complexity)                       | M34                                              |
+| Parallel git mining                                             | ADR / different milestone                        |
+| File-level parallelism within a batch                           | Batch remains unit of work                       |
+| New CLI flags (`--batch-size`, `--workers`)                     | YAGNI                                            |
+| ROADMAP.md / STATE.md edits in this planning session            | Parent agent syncs later                         |
 
 ---
 
@@ -188,22 +188,22 @@ M31 keeps the public `--concurrency` contract and replaces per-batch worker/Proj
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-300 | P1: Persistent worker pool | Design / Tasks | Pending |
-| HOTSPOT-301 | P1: Persistent worker pool (queue dispatch) | Design / Tasks | Pending |
-| HOTSPOT-302 | P1: Persistent worker pool (terminate / no leak) | Design / Tasks | Pending |
-| HOTSPOT-303 | P1: Project reuse across batches | Design / Tasks | Pending |
-| HOTSPOT-304 | P1: Project reuse (batch-bounded heap) | Design / Tasks | Pending |
-| HOTSPOT-305 | P1: Syntactic diagnostics path | Design / Tasks | Pending |
-| HOTSPOT-306 | P1: McCabe / RT-005 unchanged | Design / Tasks | Pending |
-| HOTSPOT-307 | P1: Inline fallback preserved | Design / Tasks | Pending |
-| HOTSPOT-308 | P1: `--concurrency` semantics unchanged | Design / Tasks | Pending |
-| HOTSPOT-309 | P1: Output equivalence | Design / Tasks | Pending |
-| HOTSPOT-310 | P1: Parse failures unchanged | Design / Tasks | Pending |
-| HOTSPOT-311 | P1: Injectable pool / testability | Design / Tasks | Pending |
-| HOTSPOT-312 | P2: Manual benchmark documentation | Design / Tasks | Pending |
-| HOTSPOT-313 | P2: ARCHITECTURE / CONCERNS sync | Design / Tasks | Pending |
+| Requirement ID | Story                                            | Phase          | Status  |
+| -------------- | ------------------------------------------------ | -------------- | ------- |
+| HOTSPOT-300    | P1: Persistent worker pool                       | Design / Tasks | Pending |
+| HOTSPOT-301    | P1: Persistent worker pool (queue dispatch)      | Design / Tasks | Pending |
+| HOTSPOT-302    | P1: Persistent worker pool (terminate / no leak) | Design / Tasks | Pending |
+| HOTSPOT-303    | P1: Project reuse across batches                 | Design / Tasks | Pending |
+| HOTSPOT-304    | P1: Project reuse (batch-bounded heap)           | Design / Tasks | Pending |
+| HOTSPOT-305    | P1: Syntactic diagnostics path                   | Design / Tasks | Pending |
+| HOTSPOT-306    | P1: McCabe / RT-005 unchanged                    | Design / Tasks | Pending |
+| HOTSPOT-307    | P1: Inline fallback preserved                    | Design / Tasks | Pending |
+| HOTSPOT-308    | P1: `--concurrency` semantics unchanged          | Design / Tasks | Pending |
+| HOTSPOT-309    | P1: Output equivalence                           | Design / Tasks | Pending |
+| HOTSPOT-310    | P1: Parse failures unchanged                     | Design / Tasks | Pending |
+| HOTSPOT-311    | P1: Injectable pool / testability                | Design / Tasks | Pending |
+| HOTSPOT-312    | P2: Manual benchmark documentation               | Design / Tasks | Pending |
+| HOTSPOT-313    | P2: ARCHITECTURE / CONCERNS sync                 | Design / Tasks | Pending |
 
 **ID range reserved:** HOTSPOT-300 … HOTSPOT-319 (unused: 314–319)  
 **Coverage:** 14 total, 0 unmapped at Tasks completion (see tasks.md mapping)

@@ -23,8 +23,7 @@ function formatPatternCountsLine(
     "inconclusive",
   ];
   const parts = kinds.map(
-    (kind) =>
-      `${paintGrowthPattern(kind, color)}=${patternCounts[kind]}`,
+    (kind) => `${paintGrowthPattern(kind, color)}=${patternCounts[kind]}`,
   );
   return `Pattern counts: ${parts.join("  ")}`;
 }

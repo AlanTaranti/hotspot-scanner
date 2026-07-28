@@ -26,20 +26,20 @@ Today only the multi-file CSV **bundle** path prints a stderr confirmation after
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| New CLI flags | YAGNI — reuse `--quiet` |
-| Confirm when writing to stdout only (no `--output`) | Nothing to confirm on disk |
-| Changing M68 teaser/flush bookend | Sister — compose only (confirm stays inside/after successful write, before flush) |
-| Timing on `baseline save` | Explicitly out of batch |
-| Schema / ranking changes | Unrelated |
+| Feature                                             | Reason                                                                            |
+| --------------------------------------------------- | --------------------------------------------------------------------------------- |
+| New CLI flags                                       | YAGNI — reuse `--quiet`                                                           |
+| Confirm when writing to stdout only (no `--output`) | Nothing to confirm on disk                                                        |
+| Changing M68 teaser/flush bookend                   | Sister — compose only (confirm stays inside/after successful write, before flush) |
+| Timing on `baseline save`                           | Explicitly out of batch                                                           |
+| Schema / ranking changes                            | Unrelated                                                                         |
 
 ---
 
 ## Locked decision (item D)
 
-| Item | Lock |
-| ---- | ---- |
+| Item  | Lock                                                                                                                                                                       |
+| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **D** | After successful write: stderr confirm for `--output` (table/md/json) and `--csv-single-file`. Suppress under `--quiet`. No new flags. CSV bundle confirm (M62) unchanged. |
 
 **Suggested copy (agent discretion):** one line `Wrote <path>\n` on stderr using the path passed to `--output` (same tone as `Wrote config to …` / CSV bundle header). Do not dump file contents.
@@ -95,15 +95,15 @@ Today only the multi-file CSV **bundle** path prints a stderr confirmation after
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-1260 | P1: `--output` table/md/json confirm | Tasks | Pending |
-| HOTSPOT-1261 | P1: `--csv-single-file` confirm | Tasks | Pending |
-| HOTSPOT-1262 | P1: `--quiet` suppresses | Tasks | Pending |
-| HOTSPOT-1263 | P1: no confirm for stdout-only | Tasks | Pending |
-| HOTSPOT-1264 | P1: CSV bundle confirm unchanged | Tasks | Pending |
-| HOTSPOT-1265–1274 | — | — | Buffer |
-| HOTSPOT-1275–1279 | — | — | Reserved |
+| Requirement ID    | Story                                | Phase | Status   |
+| ----------------- | ------------------------------------ | ----- | -------- |
+| HOTSPOT-1260      | P1: `--output` table/md/json confirm | Tasks | Pending  |
+| HOTSPOT-1261      | P1: `--csv-single-file` confirm      | Tasks | Pending  |
+| HOTSPOT-1262      | P1: `--quiet` suppresses             | Tasks | Pending  |
+| HOTSPOT-1263      | P1: no confirm for stdout-only       | Tasks | Pending  |
+| HOTSPOT-1264      | P1: CSV bundle confirm unchanged     | Tasks | Pending  |
+| HOTSPOT-1265–1274 | —                                    | —     | Buffer   |
+| HOTSPOT-1275–1279 | —                                    | —     | Reserved |
 
 ---
 

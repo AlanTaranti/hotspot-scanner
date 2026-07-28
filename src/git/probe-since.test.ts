@@ -1,10 +1,7 @@
 import { EventEmitter } from "node:events";
 import { PassThrough } from "node:stream";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import {
-  buildGitProbeSinceArgv,
-  probeSinceWindow,
-} from "./probe-since.js";
+import { buildGitProbeSinceArgv, probeSinceWindow } from "./probe-since.js";
 
 vi.mock("node:child_process", () => ({
   spawn: vi.fn(),
@@ -92,11 +89,7 @@ describe("probeSinceWindow", () => {
   });
 
   it("returns invalid when git rejects the since string", async () => {
-    createMockChild(
-      "",
-      128,
-      "fatal: invalid --since format: not-a-date",
-    );
+    createMockChild("", 128, "fatal: invalid --since format: not-a-date");
 
     const result = await probeSinceWindow({
       repoPath: "/repo",

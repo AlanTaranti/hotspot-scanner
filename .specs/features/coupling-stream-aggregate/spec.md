@@ -22,16 +22,16 @@ Additionally, a single mega-commit touching hundreds of unique files expands to 
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Historical AST / per-commit function ranges | Explicitly deferred (STATE / CONCERNS) |
-| Changing `couplingStrength` or hotspot formulas | Locked — rankings unchanged except mega-skip |
-| Changing published `ScanResult` / compare JSON fields (except additive mega-commit warnings in `meta.warnings`) | Locked |
-| CLI flag or config for mega-commit threshold | YAGNI — named constant only |
-| Cap / truncate file list inside mega-commits (partial pair counting) | Locked decision: **skip**, not cap |
-| Persistent AST workers / static enrich cache / pipeline overlap | M31 / M33 / M34 |
-| Function-mode patch-stream changes | M35; file numstat path only |
-| New rename-confidence warning families (RT-003) | M26/M28 boundary |
+| Feature                                                                                                         | Reason                                       |
+| --------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| Historical AST / per-commit function ranges                                                                     | Explicitly deferred (STATE / CONCERNS)       |
+| Changing `couplingStrength` or hotspot formulas                                                                 | Locked — rankings unchanged except mega-skip |
+| Changing published `ScanResult` / compare JSON fields (except additive mega-commit warnings in `meta.warnings`) | Locked                                       |
+| CLI flag or config for mega-commit threshold                                                                    | YAGNI — named constant only                  |
+| Cap / truncate file list inside mega-commits (partial pair counting)                                            | Locked decision: **skip**, not cap           |
+| Persistent AST workers / static enrich cache / pipeline overlap                                                 | M31 / M33 / M34                              |
+| Function-mode patch-stream changes                                                                              | M35; file numstat path only                  |
+| New rename-confidence warning families (RT-003)                                                                 | M26/M28 boundary                             |
 
 ---
 
@@ -166,23 +166,23 @@ Additionally, a single mega-commit touching hundreds of unique files expands to 
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-320 | P1: Stream-time pair aggregation | Tasks | Done |
-| HOTSPOT-321 | P1: Stream-time pair aggregation (`GitMinerResult` shape) | Tasks | Done |
-| HOTSPOT-322 | P1: Stream-time pair aggregation (finalize canonicalize pairs) | Tasks | Done |
-| HOTSPOT-323 | P1: Preserved ranking below mega-guard | Tasks | Done |
-| HOTSPOT-324 | P1: Formula / min-cochange unchanged | Tasks | Done |
-| HOTSPOT-325 | P1: Mega-commit skip rule (threshold 100) | Tasks | Done |
-| HOTSPOT-326 | P1: Churn still aggregated on mega-commit | Tasks | Done |
-| HOTSPOT-327 | P1: `MEGA_COMMIT_SKIPPED` warnings + cap | Tasks | Done |
-| HOTSPOT-328 | P1: Scope predicate into aggregation | Tasks | Done |
-| HOTSPOT-329 | P1: In-scope mega-guard semantics | Tasks | Done |
-| HOTSPOT-330 | P1: `filterGitMinerResult` pair-count defense | Tasks | Done |
-| HOTSPOT-331 | P1: `scoreCoupling` accepts pair counts | Tasks | Done |
-| HOTSPOT-332 | P1: `runScan` / scorer wiring | Tasks | Done |
-| HOTSPOT-333 | P2: CONCERNS / Performance docs | Tasks | Done |
-| HOTSPOT-334 | P2: Warning catalog + ARCHITECTURE | Tasks | Done |
+| Requirement ID | Story                                                          | Phase | Status |
+| -------------- | -------------------------------------------------------------- | ----- | ------ |
+| HOTSPOT-320    | P1: Stream-time pair aggregation                               | Tasks | Done   |
+| HOTSPOT-321    | P1: Stream-time pair aggregation (`GitMinerResult` shape)      | Tasks | Done   |
+| HOTSPOT-322    | P1: Stream-time pair aggregation (finalize canonicalize pairs) | Tasks | Done   |
+| HOTSPOT-323    | P1: Preserved ranking below mega-guard                         | Tasks | Done   |
+| HOTSPOT-324    | P1: Formula / min-cochange unchanged                           | Tasks | Done   |
+| HOTSPOT-325    | P1: Mega-commit skip rule (threshold 100)                      | Tasks | Done   |
+| HOTSPOT-326    | P1: Churn still aggregated on mega-commit                      | Tasks | Done   |
+| HOTSPOT-327    | P1: `MEGA_COMMIT_SKIPPED` warnings + cap                       | Tasks | Done   |
+| HOTSPOT-328    | P1: Scope predicate into aggregation                           | Tasks | Done   |
+| HOTSPOT-329    | P1: In-scope mega-guard semantics                              | Tasks | Done   |
+| HOTSPOT-330    | P1: `filterGitMinerResult` pair-count defense                  | Tasks | Done   |
+| HOTSPOT-331    | P1: `scoreCoupling` accepts pair counts                        | Tasks | Done   |
+| HOTSPOT-332    | P1: `runScan` / scorer wiring                                  | Tasks | Done   |
+| HOTSPOT-333    | P2: CONCERNS / Performance docs                                | Tasks | Done   |
+| HOTSPOT-334    | P2: Warning catalog + ARCHITECTURE                             | Tasks | Done   |
 
 **ID range used:** HOTSPOT-320 … HOTSPOT-334 (HOTSPOT-335–339 reserved unused)  
 **Coverage:** 15 total, mapped in tasks.md

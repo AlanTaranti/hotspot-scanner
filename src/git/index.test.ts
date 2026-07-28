@@ -10,7 +10,11 @@ import {
   formatSinceTruncationWarning,
   formatUnlinkedRenameWarnings,
 } from "./rename-warnings.js";
-import { createGitMiner, aggregateCommits, parseGitLogStream } from "./index.js";
+import {
+  createGitMiner,
+  aggregateCommits,
+  parseGitLogStream,
+} from "./index.js";
 
 const fixturesDir = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -44,9 +48,7 @@ function makeMegaCommitLines(
   fileCount: number,
   prefix = "src/file",
 ): string[] {
-  const lines = [
-    `COMMIT|${hash}|Mon Jan 1 00:00:00 2024 +0000|Alice`,
-  ];
+  const lines = [`COMMIT|${hash}|Mon Jan 1 00:00:00 2024 +0000|Alice`];
   for (let index = 0; index < fileCount; index += 1) {
     lines.push(`1\t1\t${prefix}${index}.ts`);
   }
@@ -291,9 +293,7 @@ describe("createGitMiner", () => {
 
     expect(result.fileStats.size).toBe(101);
     expect(
-      result.warnings.some(
-        (warning) => warning.code === "MEGA_COMMIT_SKIPPED",
-      ),
+      result.warnings.some((warning) => warning.code === "MEGA_COMMIT_SKIPPED"),
     ).toBe(false);
   });
 
@@ -314,16 +314,17 @@ describe("createGitMiner", () => {
   });
 
   it("applies isPathInScope when aggregating fileStats", async () => {
-    const inScopeFiles = Array.from({ length: 3 }, (_, index) => `in/file${index}.ts`);
+    const inScopeFiles = Array.from(
+      { length: 3 },
+      (_, index) => `in/file${index}.ts`,
+    );
     const outOfScopeFiles = Array.from(
       { length: 150 },
       (_, index) => `out/file${index}.ts`,
     );
     const lines = [
       "COMMIT|dddddddddddddddddddddddddddddddddddddddd|Mon Jan 1 00:00:00 2024 +0000|Alice",
-      ...[...outOfScopeFiles, ...inScopeFiles].map(
-        (path) => `1\t1\t${path}`,
-      ),
+      ...[...outOfScopeFiles, ...inScopeFiles].map((path) => `1\t1\t${path}`),
     ];
     const miner = createGitMiner({
       streamGitLog: () => streamFromLines(lines)(),
@@ -336,9 +337,7 @@ describe("createGitMiner", () => {
 
     expect(result.fileStats.size).toBe(3);
     expect(
-      result.warnings.some(
-        (warning) => warning.code === "MEGA_COMMIT_SKIPPED",
-      ),
+      result.warnings.some((warning) => warning.code === "MEGA_COMMIT_SKIPPED"),
     ).toBe(false);
   });
 

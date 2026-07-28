@@ -39,31 +39,31 @@ flowchart LR
 
 | Task | Depends on (declared) | Diagram shows | Match |
 | ---- | --------------------- | ------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T2 | T2 → T3 | ✅ |
-| T4 | T3 | T3 → T4 | ✅ |
-| T5 | T4 | T4 → T5 | ✅ |
+| T1   | None                  | Root          | ✅    |
+| T2   | T1                    | T1 → T2       | ✅    |
+| T3   | T2                    | T2 → T3       | ✅    |
+| T4   | T3                    | T3 → T4       | ✅    |
+| T5   | T4                    | T4 → T5       | ✅    |
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task Tests field | Match |
-| ---- | ---------- | ---------------------- | ---------------- | ----- |
-| T1 | `src/scoring/` enrich/graph | Unit | unit | ✅ |
-| T2 | `src/scoring/enrich-coupling-static.ts` | Unit | unit | ✅ |
-| T3 | `src/scoring/*.test.ts` | Unit | unit | ✅ |
-| T4 | `.specs/codebase/` docs | none | none | ✅ |
-| T5 | project gate | full gate | full (`pnpm build && pnpm test`) | ✅ |
+| Task | Code layer                              | TESTING.md expectation | Task Tests field                 | Match |
+| ---- | --------------------------------------- | ---------------------- | -------------------------------- | ----- |
+| T1   | `src/scoring/` enrich/graph             | Unit                   | unit                             | ✅    |
+| T2   | `src/scoring/enrich-coupling-static.ts` | Unit                   | unit                             | ✅    |
+| T3   | `src/scoring/*.test.ts`                 | Unit                   | unit                             | ✅    |
+| T4   | `.specs/codebase/` docs                 | none                   | none                             | ✅    |
+| T5   | project gate                            | full gate              | full (`pnpm build && pnpm test`) | ✅    |
 
 ### Path Conflict Check
 
-| Task | Primary paths | Conflict with parallel peers | Notes |
-| ---- | ------------- | ---------------------------- | ----- |
-| T1 | `enrich-coupling-static.ts` (+ optional `static-edge-graph.ts`) | — | Sole Phase 1 owner |
-| T2 | same scoring files | sequential after T1 | Same module — no `[P]` |
-| T3 | `enrich-coupling-static.test.ts` | sequential after T2 | May extend T1/T2 tests |
-| T4 | ARCHITECTURE.md, CONCERNS.md | after T3 | Docs only |
-| T5 | — | after T4 | Gate only |
+| Task | Primary paths                                                   | Conflict with parallel peers | Notes                  |
+| ---- | --------------------------------------------------------------- | ---------------------------- | ---------------------- |
+| T1   | `enrich-coupling-static.ts` (+ optional `static-edge-graph.ts`) | —                            | Sole Phase 1 owner     |
+| T2   | same scoring files                                              | sequential after T1          | Same module — no `[P]` |
+| T3   | `enrich-coupling-static.test.ts`                                | sequential after T2          | May extend T1/T2 tests |
+| T4   | ARCHITECTURE.md, CONCERNS.md                                    | after T3                     | Docs only              |
+| T5   | —                                                               | after T4                     | Gate only              |
 
 **Parallelism:** No `[P]` tasks — all touch the same scoring enrich module or depend on prior verification.
 
@@ -71,16 +71,16 @@ flowchart LR
 
 | Requirement ID | Task(s) |
 | -------------- | ------- |
-| HOTSPOT-340 | T1, T3 |
-| HOTSPOT-341 | T1, T2 |
-| HOTSPOT-342 | T2 |
-| HOTSPOT-343 | T2, T3 |
-| HOTSPOT-344 | T2, T3 |
-| HOTSPOT-345 | T2, T4 |
-| HOTSPOT-346 | T2 |
-| HOTSPOT-347 | T2, T3 |
-| HOTSPOT-348 | T2, T3 |
-| HOTSPOT-351 | T4 |
+| HOTSPOT-340    | T1, T3  |
+| HOTSPOT-341    | T1, T2  |
+| HOTSPOT-342    | T2      |
+| HOTSPOT-343    | T2, T3  |
+| HOTSPOT-344    | T2, T3  |
+| HOTSPOT-345    | T2, T4  |
+| HOTSPOT-346    | T2      |
+| HOTSPOT-347    | T2, T3  |
+| HOTSPOT-348    | T2, T3  |
+| HOTSPOT-351    | T4      |
 
 ---
 
@@ -282,13 +282,13 @@ No parallel `[P]` tasks — single module owner (`src/scoring/` enrich path) to 
 
 ## Task Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Graph builder + unit tests | ✅ Granular |
-| T2 | Wire public enrich API | ✅ Granular |
-| T3 | Read-once / equivalence tests | ✅ Granular |
-| T4 | Docs SoT sync | ✅ Granular |
-| T5 | Full gate | ✅ Granular |
+| Task | Scope                         | Status      |
+| ---- | ----------------------------- | ----------- |
+| T1   | Graph builder + unit tests    | ✅ Granular |
+| T2   | Wire public enrich API        | ✅ Granular |
+| T3   | Read-once / equivalence tests | ✅ Granular |
+| T4   | Docs SoT sync                 | ✅ Granular |
+| T5   | Full gate                     | ✅ Granular |
 
 ---
 

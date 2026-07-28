@@ -30,11 +30,7 @@ export function resolveFileColumnWidth(stdoutColumns?: number): number {
   }
 
   const budgeted = Math.floor(cols) - SCAN_TABLE_NON_FILE_WIDTH;
-  return clamp(
-    budgeted,
-    MIN_FILE_COLUMN_WIDTH,
-    MAX_FILE_COLUMN_WIDTH,
-  );
+  return clamp(budgeted, MIN_FILE_COLUMN_WIDTH, MAX_FILE_COLUMN_WIDTH);
 }
 
 function middleEllipsizePath(filePath: string, width: number): string {

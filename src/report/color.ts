@@ -36,10 +36,7 @@ export function paintBold(text: string, enabled: boolean): string {
 }
 
 export type GrowthPatternKind =
-  | "deteriorating"
-  | "refactored"
-  | "stable"
-  | "inconclusive";
+  "deteriorating" | "refactored" | "stable" | "inconclusive";
 
 /** Color growth-pattern kind token (deteriorating red, refactored green, inconclusive yellow, stable plain). */
 export function paintGrowthPattern(

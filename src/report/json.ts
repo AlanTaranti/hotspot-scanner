@@ -2,7 +2,7 @@ import type { ScanResult } from "../types/index.js";
 import { SCAN_RESULT_SCHEMA_URL } from "./schema-urls.js";
 
 export interface RenderJsonOptions {
-  only?: readonly ("hotspots")[];
+  only?: readonly "hotspots"[];
 }
 
 export function renderJson(

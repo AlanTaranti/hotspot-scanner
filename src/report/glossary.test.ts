@@ -49,7 +49,8 @@ describe("glossary", () => {
   it("table and markdown share the same term count", () => {
     expect(renderTableGlossary().length - 1).toBe(REQUIRED_TERMS.length);
     expect(
-      renderMarkdownHowToRead().filter((line) => line.startsWith("- **")).length,
+      renderMarkdownHowToRead().filter((line) => line.startsWith("- **"))
+        .length,
     ).toBe(REQUIRED_TERMS.length);
   });
 });

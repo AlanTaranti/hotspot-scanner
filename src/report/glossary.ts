@@ -16,8 +16,7 @@ const METRIC_GLOSSARY: readonly GlossaryEntry[] = [
   },
   {
     term: "NLOCN",
-    definition:
-      "NCLOC normalized with log1p + min-max across the scan (0–1).",
+    definition: "NCLOC normalized with log1p + min-max across the scan (0–1).",
   },
   {
     term: "Churn",
@@ -29,13 +28,11 @@ const METRIC_GLOSSARY: readonly GlossaryEntry[] = [
   },
   {
     term: "Authors",
-    definition:
-      "Distinct authors who changed the file in the scan window.",
+    definition: "Distinct authors who changed the file in the scan window.",
   },
   {
     term: "Lines",
-    definition:
-      "Total lines changed in the scan window (hotspot tables).",
+    definition: "Total lines changed in the scan window (hotspot tables).",
   },
 ];
 

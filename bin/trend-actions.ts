@@ -1,9 +1,5 @@
 import { writeFile } from "node:fs/promises";
-import {
-  renderTrendCsv,
-  renderTrendJson,
-  renderTrendTable,
-} from "#report";
+import { renderTrendCsv, renderTrendJson, renderTrendTable } from "#report";
 import {
   formatTruncationNote,
   runComplexityTrend,
@@ -79,7 +75,11 @@ export async function executeTrend(options: {
     process.stderr.write(`warning: ${warning.message}\n`);
   }
 
-  const body = renderTrendOutput(result, options.format, options.color ?? false);
+  const body = renderTrendOutput(
+    result,
+    options.format,
+    options.color ?? false,
+  );
   if (options.outputPath !== undefined) {
     await validateOutputPath(options.outputPath);
     await writeFile(options.outputPath, body, "utf8");
@@ -90,7 +90,10 @@ export async function executeTrend(options: {
 }
 
 export function mapTrendError(error: unknown): never {
-  if (error instanceof TrendUsageError || error instanceof TrendNotTrackedError) {
+  if (
+    error instanceof TrendUsageError ||
+    error instanceof TrendNotTrackedError
+  ) {
     throw new CliUsageError(error.message);
   }
   if (error instanceof ScanCancelExit) {

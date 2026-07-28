@@ -25,8 +25,8 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (body) | Diagram shows | Status |
-| ---- | ----------------- | ------------- | ------ |
+| Task | Depends on (body) | Diagram shows | Status   |
+| ---- | ----------------- | ------------- | -------- |
 | T1   | None              | Root          | ✅ Match |
 | T2   | None              | Root          | ✅ Match |
 | T3   | None              | Root          | ✅ Match |
@@ -35,33 +35,33 @@ flowchart LR
 
 ### Path Conflict Check
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1   | `src/config/` | `exemplar.ts` / `write-init.ts`, tests, `index.ts` exports | None vs T2/T3 — `[P]` OK |
-| T2   | `src/doctor/` | new module + tests | None vs T1/T3 — `[P]` OK |
-| T3   | `src/scan-preview.ts` (+ thin re-export from `src/scan.ts` if needed) | preview + tests | Avoid editing `runScan` body; re-export only — `[P]` OK vs T1/T2 |
-| T4   | `bin/` | `hotspot-scanner.ts`, CLI tests | After T1–T3; sole bin owner |
-| T5   | docs | README, ARCHITECTURE, STRUCTURE, ROADMAP/STATE notes | After T4 |
+| Task | Module owner                                                          | Paths                                                      | Conflict                                                         |
+| ---- | --------------------------------------------------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------- |
+| T1   | `src/config/`                                                         | `exemplar.ts` / `write-init.ts`, tests, `index.ts` exports | None vs T2/T3 — `[P]` OK                                         |
+| T2   | `src/doctor/`                                                         | new module + tests                                         | None vs T1/T3 — `[P]` OK                                         |
+| T3   | `src/scan-preview.ts` (+ thin re-export from `src/scan.ts` if needed) | preview + tests                                            | Avoid editing `runScan` body; re-export only — `[P]` OK vs T1/T2 |
+| T4   | `bin/`                                                                | `hotspot-scanner.ts`, CLI tests                            | After T1–T3; sole bin owner                                      |
+| T5   | docs                                                                  | README, ARCHITECTURE, STRUCTURE, ROADMAP/STATE notes       | After T4                                                         |
 
 ### Test Co-location Validation
 
-| Task | Code layer | Matrix / TESTING.md | Task Tests | Status |
-| ---- | ---------- | ------------------- | ---------- | ------ |
-| T1   | `src/config/` | unit co-located | unit | ✅ OK |
-| T2   | `src/doctor/` | unit co-located | unit | ✅ OK |
-| T3   | `src/scan-preview.ts` | unit co-located | unit | ✅ OK |
-| T4   | `bin/` | CLI Vitest | CLI | ✅ OK |
-| T5   | docs | none | none + full gate | ✅ OK |
+| Task | Code layer            | Matrix / TESTING.md | Task Tests       | Status |
+| ---- | --------------------- | ------------------- | ---------------- | ------ |
+| T1   | `src/config/`         | unit co-located     | unit             | ✅ OK  |
+| T2   | `src/doctor/`         | unit co-located     | unit             | ✅ OK  |
+| T3   | `src/scan-preview.ts` | unit co-located     | unit             | ✅ OK  |
+| T4   | `bin/`                | CLI Vitest          | CLI              | ✅ OK  |
+| T5   | docs                  | none                | none + full gate | ✅ OK  |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Exemplar + writeInitConfig + unit tests | ✅ Granular |
-| T2 | runDoctor + findings/exit policy + unit tests | ✅ Granular |
-| T3 | previewScanScope + format + unit tests (no mine/AST) | ✅ Granular |
-| T4 | Commander wiring for init/doctor/--dry-run + CLI tests | ✅ Cohesive CLI slice |
-| T5 | Living docs + `pnpm build && pnpm test` | ✅ Granular |
+| Task | Scope                                                  | Status                |
+| ---- | ------------------------------------------------------ | --------------------- |
+| T1   | Exemplar + writeInitConfig + unit tests                | ✅ Granular           |
+| T2   | runDoctor + findings/exit policy + unit tests          | ✅ Granular           |
+| T3   | previewScanScope + format + unit tests (no mine/AST)   | ✅ Granular           |
+| T4   | Commander wiring for init/doctor/--dry-run + CLI tests | ✅ Cohesive CLI slice |
+| T5   | Living docs + `pnpm build && pnpm test`                | ✅ Granular           |
 
 ---
 
@@ -262,26 +262,26 @@ pnpm build && pnpm test
 
 | Requirement ID | Task(s) |
 | -------------- | ------- |
-| HOTSPOT-470 | T1, T4 |
-| HOTSPOT-471 | T1, T4 |
-| HOTSPOT-472 | T1, T4 |
-| HOTSPOT-473 | T1, T4 |
-| HOTSPOT-474 | T1 |
-| HOTSPOT-475 | T4 |
-| HOTSPOT-476 | T1, T4 |
-| HOTSPOT-477 | T2, T4 |
-| HOTSPOT-478 | T2, T4 |
-| HOTSPOT-479 | T2, T4 |
-| HOTSPOT-480 | T2, T4 |
-| HOTSPOT-481 | T2, T4 |
-| HOTSPOT-482 | T2, T4 |
-| HOTSPOT-483 | T2, T4 |
-| HOTSPOT-484 | T2, T4 |
-| HOTSPOT-485 | T3, T4 |
-| HOTSPOT-486 | T3, T4 |
-| HOTSPOT-487 | T3, T4 |
-| HOTSPOT-488 | T3, T4 |
-| HOTSPOT-489 | T4 |
+| HOTSPOT-470    | T1, T4  |
+| HOTSPOT-471    | T1, T4  |
+| HOTSPOT-472    | T1, T4  |
+| HOTSPOT-473    | T1, T4  |
+| HOTSPOT-474    | T1      |
+| HOTSPOT-475    | T4      |
+| HOTSPOT-476    | T1, T4  |
+| HOTSPOT-477    | T2, T4  |
+| HOTSPOT-478    | T2, T4  |
+| HOTSPOT-479    | T2, T4  |
+| HOTSPOT-480    | T2, T4  |
+| HOTSPOT-481    | T2, T4  |
+| HOTSPOT-482    | T2, T4  |
+| HOTSPOT-483    | T2, T4  |
+| HOTSPOT-484    | T2, T4  |
+| HOTSPOT-485    | T3, T4  |
+| HOTSPOT-486    | T3, T4  |
+| HOTSPOT-487    | T3, T4  |
+| HOTSPOT-488    | T3, T4  |
+| HOTSPOT-489    | T4      |
 
 **Coverage:** 20/20 mapped. Unmapped: 0.
 
@@ -289,11 +289,11 @@ pnpm build && pnpm test
 
 ## Parallelism summary
 
-| Phase | Tasks | Notes |
-| ----- | ----- | ----- |
-| 1 | T1, T2, T3 `[P]` | Disjoint module owners |
-| 2 | T4 | Sequential — sole `bin/` owner |
-| 3 | T5 | Docs + `deferred_project_gate` / full gate |
+| Phase | Tasks            | Notes                                      |
+| ----- | ---------------- | ------------------------------------------ |
+| 1     | T1, T2, T3 `[P]` | Disjoint module owners                     |
+| 2     | T4               | Sequential — sole `bin/` owner             |
+| 3     | T5               | Docs + `deferred_project_gate` / full gate |
 
 ---
 

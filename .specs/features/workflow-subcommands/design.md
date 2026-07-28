@@ -46,23 +46,23 @@ flowchart TD
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `runScan()` | `src/scan.ts` | Current scan for save and compare |
-| `loadBaseline` / `compareScanResults` | `src/compare/` | Unchanged compare path |
-| `createReporter().render` / `renderCompare` | `src/report/` | Compare output only; save writes ScanResult JSON directly (or via `render(..., { format: "json" })`) |
-| `buildCliConfigOverrides`, `buildScanOptions`, `validateOutputPath`, `validateBaselinePath`, `writeReport`, CSV helpers | `bin/hotspot-scanner.ts` | Share across scan / save / compare |
-| `mergeScanOptions` / config load | `src/config/` | Same as scan |
-| Fixture `tests/fixtures/repos/small-ts/` | tests | Integration round-trip |
+| Component                                                                                                               | Location                 | How to Use                                                                                           |
+| ----------------------------------------------------------------------------------------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------- |
+| `runScan()`                                                                                                             | `src/scan.ts`            | Current scan for save and compare                                                                    |
+| `loadBaseline` / `compareScanResults`                                                                                   | `src/compare/`           | Unchanged compare path                                                                               |
+| `createReporter().render` / `renderCompare`                                                                             | `src/report/`            | Compare output only; save writes ScanResult JSON directly (or via `render(..., { format: "json" })`) |
+| `buildCliConfigOverrides`, `buildScanOptions`, `validateOutputPath`, `validateBaselinePath`, `writeReport`, CSV helpers | `bin/hotspot-scanner.ts` | Share across scan / save / compare                                                                   |
+| `mergeScanOptions` / config load                                                                                        | `src/config/`            | Same as scan                                                                                         |
+| Fixture `tests/fixtures/repos/small-ts/`                                                                                | tests                    | Integration round-trip                                                                               |
 
 ### Integration Points
 
-| Consumer | Impact |
-| -------- | ------ |
-| `bin/hotspot-scanner.ts` | Register `baseline`→`save`, `compare`; refactor shared helpers |
-| Optional `bin/scan-actions.ts` | Extracted helpers if `hotspot-scanner.ts` exceeds maintainability — allowed by `tsconfig.bin.json` `include: ["bin/**/*"]` |
-| `src/scan.ts`, `src/compare/**`, `src/report/**`, `schemas/` | **None** (reuse only) |
-| `src/index.ts` | No new public API required |
+| Consumer                                                     | Impact                                                                                                                     |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `bin/hotspot-scanner.ts`                                     | Register `baseline`→`save`, `compare`; refactor shared helpers                                                             |
+| Optional `bin/scan-actions.ts`                               | Extracted helpers if `hotspot-scanner.ts` exceeds maintainability — allowed by `tsconfig.bin.json` `include: ["bin/**/*"]` |
+| `src/scan.ts`, `src/compare/**`, `src/report/**`, `schemas/` | **None** (reuse only)                                                                                                      |
+| `src/index.ts`                                               | No new public API required                                                                                                 |
 
 ---
 
@@ -140,11 +140,11 @@ hotspot-scanner compare <path> --baseline <file>
 
 ## Data / contracts
 
-| Artifact | Schema | Notes |
-| -------- | ------ | ----- |
-| Baseline file from `baseline save` | `ScanResult` / `schemas/scan-result.json` | Same as `scan --format json --output` |
-| Compare output | `CompareResult` / `schemas/compare-result.json` | Unchanged |
-| New persistence | None | JSON files only |
+| Artifact                           | Schema                                          | Notes                                 |
+| ---------------------------------- | ----------------------------------------------- | ------------------------------------- |
+| Baseline file from `baseline save` | `ScanResult` / `schemas/scan-result.json`       | Same as `scan --format json --output` |
+| Compare output                     | `CompareResult` / `schemas/compare-result.json` | Unchanged                             |
+| New persistence                    | None                                            | JSON files only                       |
 
 No type changes under `src/types/`.
 
@@ -152,12 +152,12 @@ No type changes under `src/types/`.
 
 ## Risks (CONCERNS)
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| Drift between `compare` and `scan --baseline` | Shared helper; parity test in T4 |
-| Baseline JSON not loadable | Prefer reporter JSON or stringify of full `ScanResult`; round-trip test via `loadBaseline` |
-| Fragile compare/baseline parsers | Do not edit `src/compare/load-baseline.ts` in M40 |
-| Bin file growth / path conflict | One module owner (`bin/`); sequential T1→T3; optional extract file still under `bin/` |
+| Risk                                          | Mitigation                                                                                 |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Drift between `compare` and `scan --baseline` | Shared helper; parity test in T4                                                           |
+| Baseline JSON not loadable                    | Prefer reporter JSON or stringify of full `ScanResult`; round-trip test via `loadBaseline` |
+| Fragile compare/baseline parsers              | Do not edit `src/compare/load-baseline.ts` in M40                                          |
+| Bin file growth / path conflict               | One module owner (`bin/`); sequential T1→T3; optional extract file still under `bin/`      |
 
 ---
 
@@ -174,7 +174,9 @@ baseline
   .argument("<path>", "Repository path")
   .option("--output <path>", "Baseline file path", DEFAULT_BASELINE_OUTPUT)
   // …scan options mirrored from scan (no --format / --baseline)
-  .action(async (repoPath, options) => { /* helpers */ });
+  .action(async (repoPath, options) => {
+    /* helpers */
+  });
 
 program
   .command("compare")
@@ -182,18 +184,20 @@ program
   .argument("<path>", "Repository path")
   .requiredOption("--baseline <path>", "Baseline ScanResult JSON")
   // …same format/output/top/scan options as scan
-  .action(async (repoPath, options) => { /* executeCompareAndRender */ });
+  .action(async (repoPath, options) => {
+    /* executeCompareAndRender */
+  });
 ```
 
 ---
 
 ## Testing strategy
 
-| Layer | What |
-| ----- | ---- |
-| Unit (`bin/hotspot-scanner.test.ts`) | Command registration; default output; missing `--baseline`; invalid output; mock `#scan` for save/compare wiring |
-| Integration (`bin/hotspot-scanner.integration.test.ts` or existing) | `baseline save` on isolated `small-ts` → `compare --format json` exit 0; `scan --baseline` regression |
-| Domain | No new `src/compare` tests required unless helpers incorrectly pull domain into bin |
+| Layer                                                               | What                                                                                                             |
+| ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Unit (`bin/hotspot-scanner.test.ts`)                                | Command registration; default output; missing `--baseline`; invalid output; mock `#scan` for save/compare wiring |
+| Integration (`bin/hotspot-scanner.integration.test.ts` or existing) | `baseline save` on isolated `small-ts` → `compare --format json` exit 0; `scan --baseline` regression            |
+| Domain                                                              | No new `src/compare` tests required unless helpers incorrectly pull domain into bin                              |
 
 **Gate:** per-task Vitest paths; final `pnpm build && pnpm test`.
 

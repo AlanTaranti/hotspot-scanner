@@ -50,57 +50,57 @@ flowchart TD
 
 | Task | Depends on (task body) | Diagram shows | Match |
 | ---- | ---------------------- | ------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1→T2 | ✅ |
-| T3 | None | Root | ✅ |
-| T4 | None | Root | ✅ |
-| T5 | T1 | T1→T5 | ✅ |
-| T6 | T5 | T5→T6 | ✅ |
-| T7 | T2, T4, T6 | T2/T4/T6→T7 | ✅ |
-| T8 | T3, T7 | T3/T7→T8 | ✅ |
-| T9 | T8 | T8→T9 | ✅ |
+| T1   | None                   | Root          | ✅    |
+| T2   | T1                     | T1→T2         | ✅    |
+| T3   | None                   | Root          | ✅    |
+| T4   | None                   | Root          | ✅    |
+| T5   | T1                     | T1→T5         | ✅    |
+| T6   | T5                     | T5→T6         | ✅    |
+| T7   | T2, T4, T6             | T2/T4/T6→T7   | ✅    |
+| T8   | T3, T7                 | T3/T7→T8      | ✅    |
+| T9   | T8                     | T8→T9         | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | `src/types/` | `src/types/domain.ts` (+ barrel if needed) | Sole owner |
-| T2 | `src/diagnostics/` | `logger.ts`, `index.ts`, `*.test.ts` | Sole; `[P]` vs T3/T4/T5 after T1 |
-| T3 | `src/git/` | `rename-warnings.ts`, `rename-warnings.test.ts`; message asserts in `src/git/index.test.ts`, `function-churn/*.test.ts` as needed | Sole git message owner; **not** `[P]` with other git editors |
-| T4 | `src/report/` | `explain.ts`, `explain.test.ts`, `index.ts` export if needed | Sole; `[P]` vs T1/T2/T3/T5 |
-| T5 | `src/complexity/` | `pool.ts`, `index.ts`, related `*.test.ts` | Sole complexity owner |
-| T6 | `src/scan.ts` | `scan.ts`, `scan.test.ts`, `scan.integration.test.ts` as needed | Sole scan owner — **no `[P]`** with other scan editors |
-| T7 | `bin/` | `hotspot-scanner.ts`, `hotspot-scanner.test.ts` | Sole bin owner |
-| T8 | docs | README + `.specs/codebase/*` listed in task | Docs only |
-| T9 | verification | no module ownership edits | After T8 |
+| Task | Module owner       | Paths                                                                                                                             | Conflict                                                     |
+| ---- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| T1   | `src/types/`       | `src/types/domain.ts` (+ barrel if needed)                                                                                        | Sole owner                                                   |
+| T2   | `src/diagnostics/` | `logger.ts`, `index.ts`, `*.test.ts`                                                                                              | Sole; `[P]` vs T3/T4/T5 after T1                             |
+| T3   | `src/git/`         | `rename-warnings.ts`, `rename-warnings.test.ts`; message asserts in `src/git/index.test.ts`, `function-churn/*.test.ts` as needed | Sole git message owner; **not** `[P]` with other git editors |
+| T4   | `src/report/`      | `explain.ts`, `explain.test.ts`, `index.ts` export if needed                                                                      | Sole; `[P]` vs T1/T2/T3/T5                                   |
+| T5   | `src/complexity/`  | `pool.ts`, `index.ts`, related `*.test.ts`                                                                                        | Sole complexity owner                                        |
+| T6   | `src/scan.ts`      | `scan.ts`, `scan.test.ts`, `scan.integration.test.ts` as needed                                                                   | Sole scan owner — **no `[P]`** with other scan editors       |
+| T7   | `bin/`             | `hotspot-scanner.ts`, `hotspot-scanner.test.ts`                                                                                   | Sole bin owner                                               |
+| T8   | docs               | README + `.specs/codebase/*` listed in task                                                                                       | Docs only                                                    |
+| T9   | verification       | no module ownership edits                                                                                                         | After T8                                                     |
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task `Tests` | Match |
-| ---- | ---------- | ---------------------- | ------------ | ----- |
-| T1 | `src/types/` | none (excluded from coverage) | none — compile via consumers | ✅ |
-| T2 | diagnostics | unit | unit | ✅ |
-| T3 | git rename-warnings | unit | unit | ✅ |
-| T4 | report | unit | unit | ✅ |
-| T5 | complexity | unit | unit | ✅ |
-| T6 | scan orchestration | unit + integration as needed | unit (+ integration spy) | ✅ |
-| T7 | bin CLI | CLI / unit | unit (CLI) | ✅ |
-| T8 | docs | none | N/A — doc review | ✅ |
-| T9 | full gate | `pnpm build && pnpm test` | full gate | ✅ |
+| Task | Code layer          | TESTING.md expectation        | Task `Tests`                 | Match |
+| ---- | ------------------- | ----------------------------- | ---------------------------- | ----- |
+| T1   | `src/types/`        | none (excluded from coverage) | none — compile via consumers | ✅    |
+| T2   | diagnostics         | unit                          | unit                         | ✅    |
+| T3   | git rename-warnings | unit                          | unit                         | ✅    |
+| T4   | report              | unit                          | unit                         | ✅    |
+| T5   | complexity          | unit                          | unit                         | ✅    |
+| T6   | scan orchestration  | unit + integration as needed  | unit (+ integration spy)     | ✅    |
+| T7   | bin CLI             | CLI / unit                    | unit (CLI)                   | ✅    |
+| T8   | docs                | none                          | N/A — doc review             | ✅    |
+| T9   | full gate           | `pnpm build && pnpm test`     | full gate                    | ✅    |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Domain progress type extension | ✅ Granular |
-| T2 | Diagnostics complexity progress lines | ✅ Granular |
-| T3 | Rename message next-steps | ✅ Granular |
-| T4 | Explain parse + format | ✅ Granular |
-| T5 | Complexity/pool progress emit | ✅ OK cohesive (same module) |
-| T6 | Scan forward onProgress | ✅ Granular |
-| T7 | CLI `--explain` + progress logger args | ✅ Granular |
-| T8 | Living docs | ✅ Granular |
-| T9 | Full gate | ✅ Granular |
+| Task | Scope                                  | Status                       |
+| ---- | -------------------------------------- | ---------------------------- |
+| T1   | Domain progress type extension         | ✅ Granular                  |
+| T2   | Diagnostics complexity progress lines  | ✅ Granular                  |
+| T3   | Rename message next-steps              | ✅ Granular                  |
+| T4   | Explain parse + format                 | ✅ Granular                  |
+| T5   | Complexity/pool progress emit          | ✅ OK cohesive (same module) |
+| T6   | Scan forward onProgress                | ✅ Granular                  |
+| T7   | CLI `--explain` + progress logger args | ✅ Granular                  |
+| T8   | Living docs                            | ✅ Granular                  |
+| T9   | Full gate                              | ✅ Granular                  |
 
 ---
 
@@ -352,38 +352,38 @@ Phase 3 (Sequential):
 
 ## Requirement → Task Mapping
 
-| Requirement ID | Task(s) |
-| -------------- | ------- |
-| HOTSPOT-540 | T7 |
-| HOTSPOT-541 | T4 |
-| HOTSPOT-542 | T4 |
-| HOTSPOT-543 | T4 |
-| HOTSPOT-544 | T7 |
-| HOTSPOT-545 | T7 |
-| HOTSPOT-546 | T4 |
-| HOTSPOT-547 | T7 |
-| HOTSPOT-548 | T4, T7 |
-| HOTSPOT-549 | T4 |
-| HOTSPOT-550 | T3 |
-| HOTSPOT-551 | T3 |
-| HOTSPOT-552 | T3 |
-| HOTSPOT-553 | T3 |
-| HOTSPOT-554 | T3 |
-| HOTSPOT-555 | T3 |
-| HOTSPOT-556 | T1 |
-| HOTSPOT-557 | T1 |
-| HOTSPOT-558 | T5 |
-| HOTSPOT-559 | T6 |
-| HOTSPOT-560 | T2 |
-| HOTSPOT-561 | T5 |
-| HOTSPOT-562 | T5 |
-| HOTSPOT-563 | T6 |
-| HOTSPOT-564 | T8 |
-| HOTSPOT-565 | T8 |
-| HOTSPOT-566 | T8 |
-| HOTSPOT-567 | Reserved |
-| HOTSPOT-568 | Reserved |
-| HOTSPOT-569 | T9 |
+| Requirement ID | Task(s)  |
+| -------------- | -------- |
+| HOTSPOT-540    | T7       |
+| HOTSPOT-541    | T4       |
+| HOTSPOT-542    | T4       |
+| HOTSPOT-543    | T4       |
+| HOTSPOT-544    | T7       |
+| HOTSPOT-545    | T7       |
+| HOTSPOT-546    | T4       |
+| HOTSPOT-547    | T7       |
+| HOTSPOT-548    | T4, T7   |
+| HOTSPOT-549    | T4       |
+| HOTSPOT-550    | T3       |
+| HOTSPOT-551    | T3       |
+| HOTSPOT-552    | T3       |
+| HOTSPOT-553    | T3       |
+| HOTSPOT-554    | T3       |
+| HOTSPOT-555    | T3       |
+| HOTSPOT-556    | T1       |
+| HOTSPOT-557    | T1       |
+| HOTSPOT-558    | T5       |
+| HOTSPOT-559    | T6       |
+| HOTSPOT-560    | T2       |
+| HOTSPOT-561    | T5       |
+| HOTSPOT-562    | T5       |
+| HOTSPOT-563    | T6       |
+| HOTSPOT-564    | T8       |
+| HOTSPOT-565    | T8       |
+| HOTSPOT-566    | T8       |
+| HOTSPOT-567    | Reserved |
+| HOTSPOT-568    | Reserved |
+| HOTSPOT-569    | T9       |
 
 ---
 

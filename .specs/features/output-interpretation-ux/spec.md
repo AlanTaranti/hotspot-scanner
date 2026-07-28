@@ -22,17 +22,17 @@ Operators can run a scan and get ranked tables, but column names (`Score`, `CpxN
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| `--explain <file>` | M42 |
-| SARIF / fail-on thresholds | Deferred DX backlog |
-| Harmonic / normalization formula changes | Closed (M8 / scoring) |
-| Colorizing markdown, JSON, or CSV | User lock |
-| ML or non-deterministic hints | User lock |
+| Feature                                        | Reason                |
+| ---------------------------------------------- | --------------------- |
+| `--explain <file>`                             | M42                   |
+| SARIF / fail-on thresholds                     | Deferred DX backlog   |
+| Harmonic / normalization formula changes       | Closed (M8 / scoring) |
+| Colorizing markdown, JSON, or CSV              | User lock             |
+| ML or non-deterministic hints                  | User lock             |
 | Config-file keys for `--only` / triage / color | CLI-only (context D7) |
-| `FORCE_COLOR` | YAGNI (context D6) |
-| Triage hints on compare reports | Context D4 |
-| New runtime color dependency | Context D6 |
+| `FORCE_COLOR`                                  | YAGNI (context D6)    |
+| Triage hints on compare reports                | Context D4            |
+| New runtime color dependency                   | Context D6            |
 
 ---
 
@@ -191,38 +191,38 @@ Operators can run a scan and get ranked tables, but column names (`Score`, `CpxN
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-510 | P1: Table legend | Tasks | Done |
-| HOTSPOT-511 | P1: Table legend | Tasks | Done |
-| HOTSPOT-512 | P1: Table legend | Tasks | Done |
-| HOTSPOT-513 | P1: Markdown how-to-read | Tasks | Done |
-| HOTSPOT-514 | P1: Markdown how-to-read | Tasks | Done |
-| HOTSPOT-515 | P1: Executive summary | Tasks | Done |
-| HOTSPOT-516 | P1: Executive summary | Tasks | Done |
-| HOTSPOT-517 | P1: Executive summary | Tasks | Done |
-| HOTSPOT-518 | P1: Executive summary | Tasks | Done |
-| HOTSPOT-519 | P1: Executive summary | Tasks | Done |
-| HOTSPOT-520 | P1: Triage hints | Tasks | Done |
-| HOTSPOT-521 | P1: Triage hints | Tasks | Done |
-| HOTSPOT-522 | P1: Triage hints | Tasks | Done |
-| HOTSPOT-523 | P1: Triage hints | Tasks | Done |
-| HOTSPOT-524 | P1: Triage hints | Tasks | Done |
-| HOTSPOT-525 | P1: `--only` | Tasks | Done |
-| HOTSPOT-526 | P1: `--only` | Tasks | Done |
-| HOTSPOT-527 | P1: `--only` | Tasks | Done |
-| HOTSPOT-528 | P1: `--only` | Tasks | Done |
-| HOTSPOT-529 | P1: `--only` | Tasks | Done |
-| HOTSPOT-530 | P1: `--only` | Tasks | Done |
-| HOTSPOT-531 | P1: `--only` | Tasks | Done |
-| HOTSPOT-532 | P1: Colors | Tasks | Done |
-| HOTSPOT-533 | P1: Colors | Tasks | Done |
-| HOTSPOT-534 | P1: Colors | Tasks | Done |
-| HOTSPOT-535 | P1: Colors | Tasks | Done |
-| HOTSPOT-536 | P1: Colors | Tasks | Done |
-| HOTSPOT-537 | P1: Colors | Tasks | Done |
-| HOTSPOT-538 | P1: Colors | Tasks | Done |
-| HOTSPOT-539 | P2: Docs | Tasks | Done |
+| Requirement ID | Story                    | Phase | Status |
+| -------------- | ------------------------ | ----- | ------ |
+| HOTSPOT-510    | P1: Table legend         | Tasks | Done   |
+| HOTSPOT-511    | P1: Table legend         | Tasks | Done   |
+| HOTSPOT-512    | P1: Table legend         | Tasks | Done   |
+| HOTSPOT-513    | P1: Markdown how-to-read | Tasks | Done   |
+| HOTSPOT-514    | P1: Markdown how-to-read | Tasks | Done   |
+| HOTSPOT-515    | P1: Executive summary    | Tasks | Done   |
+| HOTSPOT-516    | P1: Executive summary    | Tasks | Done   |
+| HOTSPOT-517    | P1: Executive summary    | Tasks | Done   |
+| HOTSPOT-518    | P1: Executive summary    | Tasks | Done   |
+| HOTSPOT-519    | P1: Executive summary    | Tasks | Done   |
+| HOTSPOT-520    | P1: Triage hints         | Tasks | Done   |
+| HOTSPOT-521    | P1: Triage hints         | Tasks | Done   |
+| HOTSPOT-522    | P1: Triage hints         | Tasks | Done   |
+| HOTSPOT-523    | P1: Triage hints         | Tasks | Done   |
+| HOTSPOT-524    | P1: Triage hints         | Tasks | Done   |
+| HOTSPOT-525    | P1: `--only`             | Tasks | Done   |
+| HOTSPOT-526    | P1: `--only`             | Tasks | Done   |
+| HOTSPOT-527    | P1: `--only`             | Tasks | Done   |
+| HOTSPOT-528    | P1: `--only`             | Tasks | Done   |
+| HOTSPOT-529    | P1: `--only`             | Tasks | Done   |
+| HOTSPOT-530    | P1: `--only`             | Tasks | Done   |
+| HOTSPOT-531    | P1: `--only`             | Tasks | Done   |
+| HOTSPOT-532    | P1: Colors               | Tasks | Done   |
+| HOTSPOT-533    | P1: Colors               | Tasks | Done   |
+| HOTSPOT-534    | P1: Colors               | Tasks | Done   |
+| HOTSPOT-535    | P1: Colors               | Tasks | Done   |
+| HOTSPOT-536    | P1: Colors               | Tasks | Done   |
+| HOTSPOT-537    | P1: Colors               | Tasks | Done   |
+| HOTSPOT-538    | P1: Colors               | Tasks | Done   |
+| HOTSPOT-539    | P2: Docs                 | Tasks | Done   |
 
 **Coverage:** 30 total (HOTSPOT-510–539), mapped in tasks.md.
 

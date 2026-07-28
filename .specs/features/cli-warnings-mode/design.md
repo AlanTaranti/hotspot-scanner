@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/cli-warnings-mode/spec.md`](./spec.md)  
 **Context**: [`.specs/features/cli-warnings-mode/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Planned
 
 ---
 
@@ -31,25 +31,25 @@ flowchart TD
 
 ## Code Reuse Analysis
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| CLI diagnostic handlers | `src/diagnostics/logger.ts` | Extend options + return `flushWarnings` |
-| Rename formatters / next-step strings | `src/git/rename-warnings.ts` | Prefix classification for sub-kinds; reuse next-step constants (export if needed for summary templates) |
-| Enum parse + `CliUsageError` | `bin/hotspot-scanner.ts` | Mirror `parseFormat` → `parseWarningsMode` |
-| Scan/compare wiring | `bin/scan-actions.ts` | Pass `warningsMode`; call `flushWarnings` |
-| Quiet/progress | existing `CliDiagnosticOptions` | Keep; compose with `warningsMode` |
-| Verbose git argv | `createVerboseSpawnArgvHandler` | Untouched (M51) |
-| Exec summary | `src/report/summary.ts` | Leave as-is |
-| Completion flag list | `bin/completion-scripts.ts` | Add `--warnings` |
+| Component                             | Location                        | How to Use                                                                                              |
+| ------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| CLI diagnostic handlers               | `src/diagnostics/logger.ts`     | Extend options + return `flushWarnings`                                                                 |
+| Rename formatters / next-step strings | `src/git/rename-warnings.ts`    | Prefix classification for sub-kinds; reuse next-step constants (export if needed for summary templates) |
+| Enum parse + `CliUsageError`          | `bin/hotspot-scanner.ts`        | Mirror `parseFormat` → `parseWarningsMode`                                                              |
+| Scan/compare wiring                   | `bin/scan-actions.ts`           | Pass `warningsMode`; call `flushWarnings`                                                               |
+| Quiet/progress                        | existing `CliDiagnosticOptions` | Keep; compose with `warningsMode`                                                                       |
+| Verbose git argv                      | `createVerboseSpawnArgvHandler` | Untouched (M51)                                                                                         |
+| Exec summary                          | `src/report/summary.ts`         | Leave as-is                                                                                             |
+| Completion flag list                  | `bin/completion-scripts.ts`     | Add `--warnings`                                                                                        |
 
 ### Fragile / concerns
 
-| Concern | Mitigation |
-| ------- | ---------- |
-| Warning code stability ([CONCERNS.md](../../codebase/CONCERNS.md)) | No new codes; no message-prefix churn without tests |
-| Dual emit (onWarning + meta) | Aggregation only in CLI sink; never filter `collectedWarnings` |
-| Compare late warnings | Flush **after** compare `meta.warnings` loop |
-| Function-churn leftovers | Explicitly out of wiring; file miner SoT |
+| Concern                                                            | Mitigation                                                     |
+| ------------------------------------------------------------------ | -------------------------------------------------------------- |
+| Warning code stability ([CONCERNS.md](../../codebase/CONCERNS.md)) | No new codes; no message-prefix churn without tests            |
+| Dual emit (onWarning + meta)                                       | Aggregation only in CLI sink; never filter `collectedWarnings` |
+| Compare late warnings                                              | Flush **after** compare `meta.warnings` loop                   |
+| Function-churn leftovers                                           | Explicitly out of wiring; file miner SoT                       |
 
 ---
 
@@ -92,21 +92,20 @@ export function createCliDiagnosticHandlers(options?: CliDiagnosticOptions): {
 
 **Behavior:**
 
-| Mode | `onWarning` | `flushWarnings` |
-| ---- | ----------- | --------------- |
-| `full` | Existing quiet-aware `logWarning` immediately | no-op |
+| Mode      | `onWarning`                                                                                                                                               | `flushWarnings`                                        |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `full`    | Existing quiet-aware `logWarning` immediately                                                                                                             | no-op                                                  |
 | `summary` | Buffer `warning`/`error` (skip `info` when quiet; when not quiet, buffer or pass-through info — prefer buffer+aggregate info by code too for consistency) | Group buffer → write one stderr line per group → clear |
 
 **Classification helper** (same file or `src/diagnostics/warning-summary.ts`):
 
 ```ts
-type WarningSubKind =
-  | "ambiguous"
-  | "unlinked"
-  | "since-truncation"
-  | "default";
+type WarningSubKind = "ambiguous" | "unlinked" | "since-truncation" | "default";
 
-function classifyWarning(w: ScanWarning): { code: string; subKind: WarningSubKind };
+function classifyWarning(w: ScanWarning): {
+  code: string;
+  subKind: WarningSubKind;
+};
 ```
 
 For `RENAME_HISTORY_INCOMPLETE`, match message prefixes from `formatAmbiguousRenameWarnings` / `formatUnlinkedRenameWarnings` / `formatSinceTruncationWarning`. Treat `... and N more suspected unlinked` as `unlinked`. Other codes → `subKind: "default"`.
@@ -170,12 +169,12 @@ Under `summary`, operators see aggregated stderr **after** the scan work complet
 
 ## Test Plan
 
-| Layer | Focus |
-| ----- | ----- |
-| Unit `src/diagnostics/` | classify + summary lines; full vs summary; quiet+full; flush idempotency; empty buffer |
-| Unit `bin/` | `parseWarningsMode`; invalid → CliUsageError; flag forwarded; quiet+warnings composition; JSON meta.warnings length unchanged across modes (mocked runScan returning many rename warnings) |
-| Unit rename (optional) | No change required if miner untouched; regression that formatters still produce per-path messages for meta |
-| Integration (optional light) | Fixture with renames: default stderr line count ≪ full |
+| Layer                        | Focus                                                                                                                                                                                      |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Unit `src/diagnostics/`      | classify + summary lines; full vs summary; quiet+full; flush idempotency; empty buffer                                                                                                     |
+| Unit `bin/`                  | `parseWarningsMode`; invalid → CliUsageError; flag forwarded; quiet+warnings composition; JSON meta.warnings length unchanged across modes (mocked runScan returning many rename warnings) |
+| Unit rename (optional)       | No change required if miner untouched; regression that formatters still produce per-path messages for meta                                                                                 |
+| Integration (optional light) | Fixture with renames: default stderr line count ≪ full                                                                                                                                     |
 
 **Gate:** per-task vitest paths; final `pnpm build && pnpm test`.
 
@@ -183,12 +182,12 @@ Under `summary`, operators see aggregated stderr **after** the scan work complet
 
 ## Risks
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| Message-prefix classification brittle | Co-locate tests with exact prefixes from formatters; export shared prefix constants if needed |
-| Double flush / missing flush | Single ownership in scan-actions; tests assert one summary block |
-| Users surprised by delayed stderr under summary | Docs note; full mode restores immediate lines |
-| Accidental meta thinning | Explicit regression tests on `meta.warnings` |
+| Risk                                            | Mitigation                                                                                    |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Message-prefix classification brittle           | Co-locate tests with exact prefixes from formatters; export shared prefix constants if needed |
+| Double flush / missing flush                    | Single ownership in scan-actions; tests assert one summary block                              |
+| Users surprised by delayed stderr under summary | Docs note; full mode restores immediate lines                                                 |
+| Accidental meta thinning                        | Explicit regression tests on `meta.warnings`                                                  |
 
 ---
 

@@ -50,10 +50,10 @@ Default **table** output hard-codes the File column to **24** characters and lef
 
 **Choice:**
 
-| Input | Behavior |
-| ----- | -------- |
-| `options.stdoutColumns` (injectable) | Prefer this over `process.stdout.columns` for tests |
-| `process.stdout.columns` | Default when injectable omitted |
+| Input                                        | Behavior                                                |
+| -------------------------------------------- | ------------------------------------------------------- |
+| `options.stdoutColumns` (injectable)         | Prefer this over `process.stdout.columns` for tests     |
+| `process.stdout.columns`                     | Default when injectable omitted                         |
 | Missing / non-finite / ≤ 0 (pipes, CI, dumb) | **Fallback File width = 24** (current hard-coded width) |
 
 Derive File width from terminal columns with **min / max** clamps and a **cap** so the scan hotspot row (Rank + File + numeric columns + separators) still fits on **~80-col** terminals when possible. Compare tables **reuse the same File width** for parity (rank-changed header may still exceed 80 — accepted; do not invent a second width).
@@ -90,12 +90,12 @@ Derive File width from terminal columns with **min / max** clamps and a **cap** 
 
 ## Agent's Discretion (non-blocking)
 
-| Topic | Guidance |
-| ----- | -------- |
-| Exact `MIN_FILE_WIDTH` / `MAX_FILE_WIDTH` constants | Design locks recommended values; tweak only if tests prove awkward |
-| Whether `formatFileCell` pads in the helper vs callers | Prefer helper returns display string of exact width (ellipsis + padEnd) |
-| STRUCTURE.md one-line listing of new file | Update if STRUCTURE enumerates report modules |
-| Screenshot / README sample refresh | Only if samples assert a truncated deep path; short fixture paths need no PNG refresh |
+| Topic                                                  | Guidance                                                                              |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| Exact `MIN_FILE_WIDTH` / `MAX_FILE_WIDTH` constants    | Design locks recommended values; tweak only if tests prove awkward                    |
+| Whether `formatFileCell` pads in the helper vs callers | Prefer helper returns display string of exact width (ellipsis + padEnd)               |
+| STRUCTURE.md one-line listing of new file              | Update if STRUCTURE enumerates report modules                                         |
+| Screenshot / README sample refresh                     | Only if samples assert a truncated deep path; short fixture paths need no PNG refresh |
 
 ---
 

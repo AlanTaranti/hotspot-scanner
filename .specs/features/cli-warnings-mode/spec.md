@@ -23,15 +23,15 @@ Rename-confidence and other multi-path diagnostics print **one stderr line per p
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Config key `warnings` | CLI-only (M38 quiet parity) — [context.md](./context.md) |
-| Overload `--verbose` for warning detail | M51 lock — git argv only |
-| Schema / JSON version bump | Aggregation is presentation-only |
-| Expand unlinked pairs in `meta.warnings` beyond today’s 5+remainder | YAGNI; stderr summary owns count |
-| Executive summary redesign | Already aggregates by code (M51) |
-| Function-mode / function-churn product revival | M57 retired; file miner SoT |
-| Fail-on-warning CI gates | Deferred horizon |
+| Feature                                                             | Reason                                                   |
+| ------------------------------------------------------------------- | -------------------------------------------------------- |
+| Config key `warnings`                                               | CLI-only (M38 quiet parity) — [context.md](./context.md) |
+| Overload `--verbose` for warning detail                             | M51 lock — git argv only                                 |
+| Schema / JSON version bump                                          | Aggregation is presentation-only                         |
+| Expand unlinked pairs in `meta.warnings` beyond today’s 5+remainder | YAGNI; stderr summary owns count                         |
+| Executive summary redesign                                          | Already aggregates by code (M51)                         |
+| Function-mode / function-churn product revival                      | M57 retired; file miner SoT                              |
+| Fail-on-warning CI gates                                            | Deferred horizon                                         |
 
 ---
 
@@ -165,22 +165,22 @@ Rename-confidence and other multi-path diagnostics print **one stderr line per p
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-950 | P1: Flag + default | Tasks | Pending |
-| HOTSPOT-951 | P1: Invalid value exit 2 | Tasks | Pending |
-| HOTSPOT-952 | P1: meta.warnings full | Tasks | Pending |
-| HOTSPOT-953 | P1: Programmatic onWarning full | Tasks | Pending |
-| HOTSPOT-954 | P1: Quiet / verbose interaction | Tasks | Pending |
-| HOTSPOT-955 | P1: Rename ambiguous summary | Tasks | Pending |
-| HOTSPOT-956 | P1: Rename unlinked summary | Tasks | Pending |
-| HOTSPOT-957 | P1: Other multi-code collapse + full mode | Tasks | Pending |
-| HOTSPOT-958 | P1: Diagnostic sink API | Tasks | Pending |
-| HOTSPOT-959 | P1: Bin flush wiring | Tasks | Pending |
-| HOTSPOT-960 | P1: Living docs | Tasks | Pending |
-| HOTSPOT-961 | P1: Completion scripts | Tasks | Pending |
-| HOTSPOT-962 | P1: Help text | Tasks | Pending |
-| HOTSPOT-963–969 | Reserved | — | Unused |
+| Requirement ID  | Story                                     | Phase | Status  |
+| --------------- | ----------------------------------------- | ----- | ------- |
+| HOTSPOT-950     | P1: Flag + default                        | Tasks | Pending |
+| HOTSPOT-951     | P1: Invalid value exit 2                  | Tasks | Pending |
+| HOTSPOT-952     | P1: meta.warnings full                    | Tasks | Pending |
+| HOTSPOT-953     | P1: Programmatic onWarning full           | Tasks | Pending |
+| HOTSPOT-954     | P1: Quiet / verbose interaction           | Tasks | Pending |
+| HOTSPOT-955     | P1: Rename ambiguous summary              | Tasks | Pending |
+| HOTSPOT-956     | P1: Rename unlinked summary               | Tasks | Pending |
+| HOTSPOT-957     | P1: Other multi-code collapse + full mode | Tasks | Pending |
+| HOTSPOT-958     | P1: Diagnostic sink API                   | Tasks | Pending |
+| HOTSPOT-959     | P1: Bin flush wiring                      | Tasks | Pending |
+| HOTSPOT-960     | P1: Living docs                           | Tasks | Pending |
+| HOTSPOT-961     | P1: Completion scripts                    | Tasks | Pending |
+| HOTSPOT-962     | P1: Help text                             | Tasks | Pending |
+| HOTSPOT-963–969 | Reserved                                  | —     | Unused  |
 
 **Coverage:** 13 mapped IDs (950–962); 7 reserved.
 

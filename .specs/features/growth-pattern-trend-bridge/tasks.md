@@ -57,55 +57,55 @@ flowchart TD
 
 | Task | Depends on (declared) | Diagram shows | Match |
 | ---- | --------------------- | ------------- | ----- |
-| T1 | None | Root | yes |
-| T2 | None | Root | yes |
-| T3 | T1 | T1→T3 | yes |
-| T4 | T3 | T3→T4 | yes |
-| T5 | T2 | T2→T5 | yes |
-| T6 | T4, T5 | T4/T5→T6 | yes |
-| T7 | T6 | T6→T7 | yes |
+| T1   | None                  | Root          | yes   |
+| T2   | None                  | Root          | yes   |
+| T3   | T1                    | T1→T3         | yes   |
+| T4   | T3                    | T3→T4         | yes   |
+| T5   | T2                    | T2→T5         | yes   |
+| T6   | T4, T5                | T4/T5→T6      | yes   |
+| T7   | T6                    | T6→T7         | yes   |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths (primary) | Conflict with parallel peers |
-| ---- | ------------ | --------------- | ---------------------------- |
-| T1 | `src/trend/` | `classify.ts` + test | None vs T2 |
-| T2 | `src/report/` | `explain.ts` + test (next-step helper only) | None vs T1 |
-| T3 | `src/trend/` + `schemas/` | `types.ts`, `run-trend.ts`, `index.ts`, `complexity-trend.json`, contract tests | After T1 |
-| T4 | `src/report/` | `trend-table.ts` (+ csv regression test) | After T3; not parallel with T5 if both touch explain — T4 does not touch explain |
-| T5 | `bin/` + `src/report/` | `hotspot-scanner.ts` wiring; explain tests / CLI tests | After T2; may touch `explain.ts` only if T2 left stub — prefer T2 complete before T5 |
-| T6 | docs | README, recipes, ARCHITECTURE, CONCERNS, STRUCTURE, skills | After T4+T5 |
-| T7 | gate | none (run only) | After T6 |
+| Task | Module owner              | Paths (primary)                                                                 | Conflict with parallel peers                                                         |
+| ---- | ------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| T1   | `src/trend/`              | `classify.ts` + test                                                            | None vs T2                                                                           |
+| T2   | `src/report/`             | `explain.ts` + test (next-step helper only)                                     | None vs T1                                                                           |
+| T3   | `src/trend/` + `schemas/` | `types.ts`, `run-trend.ts`, `index.ts`, `complexity-trend.json`, contract tests | After T1                                                                             |
+| T4   | `src/report/`             | `trend-table.ts` (+ csv regression test)                                        | After T3; not parallel with T5 if both touch explain — T4 does not touch explain     |
+| T5   | `bin/` + `src/report/`    | `hotspot-scanner.ts` wiring; explain tests / CLI tests                          | After T2; may touch `explain.ts` only if T2 left stub — prefer T2 complete before T5 |
+| T6   | docs                      | README, recipes, ARCHITECTURE, CONCERNS, STRUCTURE, skills                      | After T4+T5                                                                          |
+| T7   | gate                      | none (run only)                                                                 | After T6                                                                             |
 
 > **[P]**: T1 and T2 only.
 
 ### Test Co-location Validation
 
-| Task | Code layer | Required tests (TESTING.md) | Co-located in task |
-| ---- | ---------- | --------------------------- | ------------------ |
-| T1 | `src/trend/classify.ts` | unit | yes — `classify.test.ts` |
-| T2 | `src/report/explain.ts` | unit | yes — extend `explain.test.ts` |
-| T3 | trend run + schema | unit + contract | yes — run-trend tests + contract |
-| T4 | trend-table | unit | yes — table tests |
-| T5 | bin CLI | CLI / integration | yes — hotspot-scanner.test explain/trend |
-| T6 | docs | none | n/a |
-| T7 | gate | full | `pnpm build && pnpm test` |
+| Task | Code layer              | Required tests (TESTING.md) | Co-located in task                       |
+| ---- | ----------------------- | --------------------------- | ---------------------------------------- |
+| T1   | `src/trend/classify.ts` | unit                        | yes — `classify.test.ts`                 |
+| T2   | `src/report/explain.ts` | unit                        | yes — extend `explain.test.ts`           |
+| T3   | trend run + schema      | unit + contract             | yes — run-trend tests + contract         |
+| T4   | trend-table             | unit                        | yes — table tests                        |
+| T5   | bin CLI                 | CLI / integration           | yes — hotspot-scanner.test explain/trend |
+| T6   | docs                    | none                        | n/a                                      |
+| T7   | gate                    | full                        | `pnpm build && pnpm test`                |
 
 ---
 
 ## Requirement → Task Mapping
 
-| IDs | Task |
-| --- | ---- |
-| HOTSPOT-1540, HOTSPOT-1541, HOTSPOT-1542, HOTSPOT-1543 | T1 |
-| HOTSPOT-1549 (helper string shape) | T2 |
-| HOTSPOT-1544, HOTSPOT-1545, HOTSPOT-1546 | T3 |
-| HOTSPOT-1547, HOTSPOT-1548 | T4 |
-| HOTSPOT-1549, HOTSPOT-1550, HOTSPOT-1551 | T5 |
-| HOTSPOT-1552, HOTSPOT-1553, HOTSPOT-1554 | T6 |
-| all HOTSPOT-1540–1554 | T7 verification |
-| HOTSPOT-1555–1569 | Buffer unused |
-| HOTSPOT-1570–1599 | Reserved |
+| IDs                                                    | Task            |
+| ------------------------------------------------------ | --------------- |
+| HOTSPOT-1540, HOTSPOT-1541, HOTSPOT-1542, HOTSPOT-1543 | T1              |
+| HOTSPOT-1549 (helper string shape)                     | T2              |
+| HOTSPOT-1544, HOTSPOT-1545, HOTSPOT-1546               | T3              |
+| HOTSPOT-1547, HOTSPOT-1548                             | T4              |
+| HOTSPOT-1549, HOTSPOT-1550, HOTSPOT-1551               | T5              |
+| HOTSPOT-1552, HOTSPOT-1553, HOTSPOT-1554               | T6              |
+| all HOTSPOT-1540–1554                                  | T7 verification |
+| HOTSPOT-1555–1569                                      | Buffer unused   |
+| HOTSPOT-1570–1599                                      | Reserved        |
 
 ---
 

@@ -60,53 +60,53 @@ flowchart TB
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `createWorkerPool` / `WorkerPool` | `src/complexity/pool.ts` | Replace spawn-per-batch with persistent pool; keep public options shape |
-| `analyzeBatch` | `src/complexity/analyze-batch.ts` | Accept optional shared `TsMorphProjectAdapter`; keep warn-skip contract |
-| `createTsMorphProject` | `src/complexity/project.ts` | Hold one `Project` for adapter lifetime; clear files between `loadBatch` |
-| Syntactic diagnostics | `project.ts` (already `getSyntacticDiagnostics`) | **Lock** — do not regress to pre-emit/semantic |
-| `worker.ts` | `src/complexity/worker.ts` | Replace one-shot `workerData` script with message loop |
-| `createComplexityAnalyzer` | `src/complexity/index.ts` | Prefer **no API change**; still `poolFactory({ concurrency })` + `runBatches` |
-| Injectable deps | `ComplexityAnalyzerDependencies` | Preserve `createWorkerPool` + `concurrency` seams |
-| McCabe fixtures | `tests/fixtures/complexity/` | Regression gate — expected values unchanged |
-| Pool / index tests | `pool.test.ts`, `index.test.ts` | Update for persistent protocol; add reuse + equivalence cases |
-| M28 concurrency wiring | `bin/`, `src/config/`, `src/scan.ts` | **Do not modify** unless a regression forces a one-line fix |
+| Component                         | Location                                         | How to Use                                                                    |
+| --------------------------------- | ------------------------------------------------ | ----------------------------------------------------------------------------- |
+| `createWorkerPool` / `WorkerPool` | `src/complexity/pool.ts`                         | Replace spawn-per-batch with persistent pool; keep public options shape       |
+| `analyzeBatch`                    | `src/complexity/analyze-batch.ts`                | Accept optional shared `TsMorphProjectAdapter`; keep warn-skip contract       |
+| `createTsMorphProject`            | `src/complexity/project.ts`                      | Hold one `Project` for adapter lifetime; clear files between `loadBatch`      |
+| Syntactic diagnostics             | `project.ts` (already `getSyntacticDiagnostics`) | **Lock** — do not regress to pre-emit/semantic                                |
+| `worker.ts`                       | `src/complexity/worker.ts`                       | Replace one-shot `workerData` script with message loop                        |
+| `createComplexityAnalyzer`        | `src/complexity/index.ts`                        | Prefer **no API change**; still `poolFactory({ concurrency })` + `runBatches` |
+| Injectable deps                   | `ComplexityAnalyzerDependencies`                 | Preserve `createWorkerPool` + `concurrency` seams                             |
+| McCabe fixtures                   | `tests/fixtures/complexity/`                     | Regression gate — expected values unchanged                                   |
+| Pool / index tests                | `pool.test.ts`, `index.test.ts`                  | Update for persistent protocol; add reuse + equivalence cases                 |
+| M28 concurrency wiring            | `bin/`, `src/config/`, `src/scan.ts`             | **Do not modify** unless a regression forces a one-line fix                   |
 
 ### Integration Points
 
-| System | Integration Method |
-| ------ | ------------------ |
-| `src/scan.ts` | Unchanged — still passes merged `concurrency` into analyzer |
-| CLI `--concurrency` | Unchanged — M28 |
-| `ts-morph` | Still only inside `src/complexity/` ([INTEGRATIONS.md](../../codebase/INTEGRATIONS.md)) |
-| `worker_threads` | Same module boundary; protocol changes from `workerData`-once to `parentPort` messages |
-| Coverage | Keep `src/complexity/worker.ts` in `coverage.exclude` ([TESTING.md](../../codebase/TESTING.md)) |
+| System              | Integration Method                                                                              |
+| ------------------- | ----------------------------------------------------------------------------------------------- |
+| `src/scan.ts`       | Unchanged — still passes merged `concurrency` into analyzer                                     |
+| CLI `--concurrency` | Unchanged — M28                                                                                 |
+| `ts-morph`          | Still only inside `src/complexity/` ([INTEGRATIONS.md](../../codebase/INTEGRATIONS.md))         |
+| `worker_threads`    | Same module boundary; protocol changes from `workerData`-once to `parentPort` messages          |
+| Coverage            | Keep `src/complexity/worker.ts` in `coverage.exclude` ([TESTING.md](../../codebase/TESTING.md)) |
 
 ### Fragile areas (CONCERNS)
 
-| Concern | Design mitigation |
-| ------- | ----------------- |
+| Concern                           | Design mitigation                                                                                           |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | RT-001 memory (N workers × batch) | Cap concurrency unchanged; **remove** prior `SourceFile`s between batches so reuse does not accumulate heap |
-| RT-005 McCabe drift | Do not edit `mccabe.ts`; fixtures must pass; diagnostics change is syntactic-only gating |
-| RT-002 parse skip | Same `PARSE_FAILED` warning construction in `analyze-batch.ts` |
-| Worker ESM path | Reuse `defaultWorkerScript()` resolution from M15 |
+| RT-005 McCabe drift               | Do not edit `mccabe.ts`; fixtures must pass; diagnostics change is syntactic-only gating                    |
+| RT-002 parse skip                 | Same `PARSE_FAILED` warning construction in `analyze-batch.ts`                                              |
+| Worker ESM path                   | Reuse `defaultWorkerScript()` resolution from M15                                                           |
 
 ---
 
 ## Design Decisions
 
-| # | Decision | Rationale |
-| - | -------- | --------- |
-| D1 | Persistent pool: spawn `min(concurrency, batches.length)` workers once per `runBatches` | Avoids per-batch cold start; never more workers than work |
-| D2 | Message protocol over `workerData`-only | Enables multiple batches per worker lifetime |
-| D3 | One `Project` per adapter; clear source files between `loadBatch` | Cold-start win without unbounded heap (preserves M3 batch memory intent) |
-| D4 | `analyzeBatch(input, project?)` optional shared adapter | Worker + inline reuse; unit call sites stay simple |
-| D5 | Keep syntactic diagnostics only | Already present; lock against semantic/pre-emit regression (ROADMAP / RT-005) |
-| D6 | Inline when `concurrency === 1` (no `Worker`) | Preserve M15 D6 + deterministic tests |
-| D7 | Terminate all workers at end of `runBatches` (success or failure) | No leaked threads across scans |
-| D8 | No `index.ts` public contract change | YAGNI; orchestration already correct |
-| D9 | If a worker receives a different `repoPath`, recreate adapter | Defensive; production scan always one repo |
+| #   | Decision                                                                                | Rationale                                                                     |
+| --- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| D1  | Persistent pool: spawn `min(concurrency, batches.length)` workers once per `runBatches` | Avoids per-batch cold start; never more workers than work                     |
+| D2  | Message protocol over `workerData`-only                                                 | Enables multiple batches per worker lifetime                                  |
+| D3  | One `Project` per adapter; clear source files between `loadBatch`                       | Cold-start win without unbounded heap (preserves M3 batch memory intent)      |
+| D4  | `analyzeBatch(input, project?)` optional shared adapter                                 | Worker + inline reuse; unit call sites stay simple                            |
+| D5  | Keep syntactic diagnostics only                                                         | Already present; lock against semantic/pre-emit regression (ROADMAP / RT-005) |
+| D6  | Inline when `concurrency === 1` (no `Worker`)                                           | Preserve M15 D6 + deterministic tests                                         |
+| D7  | Terminate all workers at end of `runBatches` (success or failure)                       | No leaked threads across scans                                                |
+| D8  | No `index.ts` public contract change                                                    | YAGNI; orchestration already correct                                          |
+| D9  | If a worker receives a different `repoPath`, recreate adapter                           | Defensive; production scan always one repo                                    |
 
 ---
 
@@ -216,26 +216,26 @@ No domain JSON / `ScanResult` schema changes. Internal message types only (see w
 
 ## Error Handling Strategy
 
-| Error scenario | Handling | User impact |
-| -------------- | -------- | ----------- |
-| Worker analyze throws | Post `{ ok: false, error }`; pool rejects `runBatches` | Scan fails non-zero (same as M15) |
-| Worker unexpected exit | Treat as failure; terminate siblings; reject with context | Same |
-| Parse failure in file | Warn-skip inside batch; worker stays alive | Partial results + `PARSE_FAILED` |
-| Inline path throw | Propagate from `analyzeBatch` | Same as today |
-| Pool reject mid-flight | Terminate remaining workers before reject | No leak |
+| Error scenario         | Handling                                                  | User impact                       |
+| ---------------------- | --------------------------------------------------------- | --------------------------------- |
+| Worker analyze throws  | Post `{ ok: false, error }`; pool rejects `runBatches`    | Scan fails non-zero (same as M15) |
+| Worker unexpected exit | Treat as failure; terminate siblings; reject with context | Same                              |
+| Parse failure in file  | Warn-skip inside batch; worker stays alive                | Partial results + `PARSE_FAILED`  |
+| Inline path throw      | Propagate from `analyzeBatch`                             | Same as today                     |
+| Pool reject mid-flight | Terminate remaining workers before reject                 | No leak                           |
 
 ---
 
 ## Testing Strategy
 
-| Layer | Approach |
-| ----- | -------- |
-| Project unit | Reuse across two `loadBatch` calls; files from batch1 not retained; syntactic path locked (spy optional); invalid syntax still fails |
-| Pool unit | `concurrency === 1` no spawn; multi-batch with real workers — worker construct count ≤ concurrency; result order; error enrichment; post-run no live workers (best-effort) |
-| Analyzer equivalence | Multi-batch temp repo: `concurrency: 1` vs `>1` deep-equal |
-| McCabe | Existing fixtures — zero expected-value changes |
-| Integration | `small-ts` / existing scan integration — rankings unchanged |
-| Mock boundary | Injected `createWorkerPool` still works for `index` tests |
+| Layer                | Approach                                                                                                                                                                   |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Project unit         | Reuse across two `loadBatch` calls; files from batch1 not retained; syntactic path locked (spy optional); invalid syntax still fails                                       |
+| Pool unit            | `concurrency === 1` no spawn; multi-batch with real workers — worker construct count ≤ concurrency; result order; error enrichment; post-run no live workers (best-effort) |
+| Analyzer equivalence | Multi-batch temp repo: `concurrency: 1` vs `>1` deep-equal                                                                                                                 |
+| McCabe               | Existing fixtures — zero expected-value changes                                                                                                                            |
+| Integration          | `small-ts` / existing scan integration — rankings unchanged                                                                                                                |
+| Mock boundary        | Injected `createWorkerPool` still works for `index` tests                                                                                                                  |
 
 **Gate commands:** per-task Vitest path gates; final `pnpm build && pnpm test`.
 
@@ -243,25 +243,25 @@ No domain JSON / `ScanResult` schema changes. Internal message types only (see w
 
 ## Risks
 
-| Risk | Likelihood | Impact | Mitigation |
-| ---- | ---------- | ------ | ---------- |
-| Project reuse retains SourceFiles → OOM | Medium | High | Explicit remove between batches; keep batch size 50 |
-| Message-id races / wrong result slot | Medium | High | Monotonic `id` + results\[batchIndex\]; unit tests |
-| Worker terminate races on reject | Medium | Medium | `rejected` flag + terminate-all; ignore late messages |
-| Syntactic-only misses some “parse” cases vs old path | Low | Medium | Current code already syntactic; fixtures + parse-failure tests |
-| Flaky real-worker tests | Medium | Low | Prefer deterministic asserts (order, counts); no wall-clock |
-| Accidental `mccabe.ts` edit | Low | High | Spec forbids; tasks call out RT-005 |
+| Risk                                                 | Likelihood | Impact | Mitigation                                                     |
+| ---------------------------------------------------- | ---------- | ------ | -------------------------------------------------------------- |
+| Project reuse retains SourceFiles → OOM              | Medium     | High   | Explicit remove between batches; keep batch size 50            |
+| Message-id races / wrong result slot                 | Medium     | High   | Monotonic `id` + results\[batchIndex\]; unit tests             |
+| Worker terminate races on reject                     | Medium     | Medium | `rejected` flag + terminate-all; ignore late messages          |
+| Syntactic-only misses some “parse” cases vs old path | Low        | Medium | Current code already syntactic; fixtures + parse-failure tests |
+| Flaky real-worker tests                              | Medium     | Low    | Prefer deterministic asserts (order, counts); no wall-clock    |
+| Accidental `mccabe.ts` edit                          | Low        | High   | Spec forbids; tasks call out RT-005                            |
 
 ---
 
 ## Documentation Sync Targets (Execute docs task)
 
-| File | Update |
-| ---- | ------ |
-| [scripts/benchmark-scan.md](../../../scripts/benchmark-scan.md) | M31 section: persistent pool + Project reuse; compare wall time; note `--concurrency` |
-| [ARCHITECTURE.md](../../codebase/ARCHITECTURE.md) | § Complexity stage parallelism — persistent workers, Project reuse, syntactic diagnostics |
-| [CONCERNS.md](../../codebase/CONCERNS.md) | § Performance RT-001 — replace “fresh Project per batch” wording |
-| [ROADMAP.md](../../project/ROADMAP.md) / [STATE.md](../../project/STATE.md) | **Deferred to parent agent** (do not edit in planning or unless parent assigns) |
+| File                                                                        | Update                                                                                    |
+| --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [scripts/benchmark-scan.md](../../../scripts/benchmark-scan.md)             | M31 section: persistent pool + Project reuse; compare wall time; note `--concurrency`     |
+| [ARCHITECTURE.md](../../codebase/ARCHITECTURE.md)                           | § Complexity stage parallelism — persistent workers, Project reuse, syntactic diagnostics |
+| [CONCERNS.md](../../codebase/CONCERNS.md)                                   | § Performance RT-001 — replace “fresh Project per batch” wording                          |
+| [ROADMAP.md](../../project/ROADMAP.md) / [STATE.md](../../project/STATE.md) | **Deferred to parent agent** (do not edit in planning or unless parent assigns)           |
 
 ---
 

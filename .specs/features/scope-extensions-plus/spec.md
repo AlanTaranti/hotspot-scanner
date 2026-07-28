@@ -21,16 +21,16 @@ After M48, `.mjs`/`.cjs` sources enter rankings, but M46’s built-in test exclu
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| `.hotspotignore` | Mission lock — deferred ignore-file work |
-| Workspace yaml parsers | Mission lock |
-| Changing artifact exclude dirs | Mission lock — test globs / eligible ext only |
-| New CLI flags or config keys | `--include-tests` already sufficient |
-| New fixture repo under `tests/fixtures/repos/` | Unit tests suffice |
-| Scoring / NCLOC formula changes | Eligibility / filter only |
-| JSON Schema / `version` bump | Shape unchanged |
-| Editing ROADMAP/STATE in planning session | Mission lock — Execute Done owns sync |
+| Feature                                        | Reason                                        |
+| ---------------------------------------------- | --------------------------------------------- |
+| `.hotspotignore`                               | Mission lock — deferred ignore-file work      |
+| Workspace yaml parsers                         | Mission lock                                  |
+| Changing artifact exclude dirs                 | Mission lock — test globs / eligible ext only |
+| New CLI flags or config keys                   | `--include-tests` already sufficient          |
+| New fixture repo under `tests/fixtures/repos/` | Unit tests suffice                            |
+| Scoring / NCLOC formula changes                | Eligibility / filter only                     |
+| JSON Schema / `version` bump                   | Shape unchanged                               |
+| Editing ROADMAP/STATE in planning session      | Mission lock — Execute Done owns sync         |
 
 ---
 
@@ -106,23 +106,23 @@ After M48, `.mjs`/`.cjs` sources enter rankings, but M46’s built-in test exclu
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-1200 | P1: Test excludes — ESM/CJS quartet | Tasks | Pending |
-| HOTSPOT-1201 | P1: Test excludes — mts/cts quartet | Tasks | Pending |
-| HOTSPOT-1202 | P1: Test excludes — isPathInScope default | Tasks | Pending |
-| HOTSPOT-1203 | P1: Test excludes — includeTests lifts | Tasks | Pending |
-| HOTSPOT-1204 | P1: Test excludes — artifacts untouched | Tasks | Pending |
-| HOTSPOT-1205 | P1: Eligible — constant | Tasks | Pending |
-| HOTSPOT-1206 | P1: Eligible — discovery | Tasks | Pending |
-| HOTSPOT-1207 | P1: Eligible — NCLOC via discover | Tasks | Pending |
-| HOTSPOT-1208 | P1: Eligible — scoring ∩ git | Tasks | Pending |
-| HOTSPOT-1209 | P1: Eligible — rename-warnings sync | Tasks | Pending |
-| HOTSPOT-1210 | P1: Docs — ARCHITECTURE | Tasks | Pending |
-| HOTSPOT-1211 | P1: Docs — README | Tasks | Pending |
-| HOTSPOT-1212 | P1: Docs — CONCERNS residual clear | Tasks | Pending |
-| HOTSPOT-1213–1215 | Stretch / Execute ROADMAP-STATE note if needed | — | Reserved |
-| HOTSPOT-1216–1229 | Reserved | — | — |
+| Requirement ID    | Story                                          | Phase | Status   |
+| ----------------- | ---------------------------------------------- | ----- | -------- |
+| HOTSPOT-1200      | P1: Test excludes — ESM/CJS quartet            | Tasks | Pending  |
+| HOTSPOT-1201      | P1: Test excludes — mts/cts quartet            | Tasks | Pending  |
+| HOTSPOT-1202      | P1: Test excludes — isPathInScope default      | Tasks | Pending  |
+| HOTSPOT-1203      | P1: Test excludes — includeTests lifts         | Tasks | Pending  |
+| HOTSPOT-1204      | P1: Test excludes — artifacts untouched        | Tasks | Pending  |
+| HOTSPOT-1205      | P1: Eligible — constant                        | Tasks | Pending  |
+| HOTSPOT-1206      | P1: Eligible — discovery                       | Tasks | Pending  |
+| HOTSPOT-1207      | P1: Eligible — NCLOC via discover              | Tasks | Pending  |
+| HOTSPOT-1208      | P1: Eligible — scoring ∩ git                   | Tasks | Pending  |
+| HOTSPOT-1209      | P1: Eligible — rename-warnings sync            | Tasks | Pending  |
+| HOTSPOT-1210      | P1: Docs — ARCHITECTURE                        | Tasks | Pending  |
+| HOTSPOT-1211      | P1: Docs — README                              | Tasks | Pending  |
+| HOTSPOT-1212      | P1: Docs — CONCERNS residual clear             | Tasks | Pending  |
+| HOTSPOT-1213–1215 | Stretch / Execute ROADMAP-STATE note if needed | —     | Reserved |
+| HOTSPOT-1216–1229 | Reserved                                       | —     | —        |
 
 **Coverage:** 13 mapped, 0 unmapped; 1213–1229 reserved.
 

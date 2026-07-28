@@ -19,15 +19,15 @@ Large repos hit two scale cliffs: (1) function-mode path allowlists over `PATCH_
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| `--sequential` / benchmark harness | M49 |
-| Historical AST / blame | CONCERNS deferred |
-| Ranking formula / JSON `version` / public score fields | Unchanged |
-| Numstat pathspecs | Context lock — coupling needs full stream |
-| M46 exclude-tests-by-default | Separate milestone |
-| Parallel patch batch spawns | Peak RSS; sequential only |
-| Sampling / partial mega-commit coupling | Keep skip semantics |
+| Feature                                                | Reason                                    |
+| ------------------------------------------------------ | ----------------------------------------- |
+| `--sequential` / benchmark harness                     | M49                                       |
+| Historical AST / blame                                 | CONCERNS deferred                         |
+| Ranking formula / JSON `version` / public score fields | Unchanged                                 |
+| Numstat pathspecs                                      | Context lock — coupling needs full stream |
+| M46 exclude-tests-by-default                           | Separate milestone                        |
+| Parallel patch batch spawns                            | Peak RSS; sequential only                 |
+| Sampling / partial mega-commit coupling                | Keep skip semantics                       |
 
 ---
 
@@ -132,38 +132,38 @@ Large repos hit two scale cliffs: (1) function-mode path allowlists over `PATCH_
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-660 | P1: Partition paths into ≤ threshold chunks | Tasks | Pending |
-| HOTSPOT-661 | P1: Each chunk uses pathspec argv | Tasks | Pending |
-| HOTSPOT-662 | P1: Sequential batch streams | Tasks | Pending |
-| HOTSPOT-663 | P1: Merge equivalence / no double-count | Tasks | Pending |
-| HOTSPOT-664 | P1: Stable sort before chunk | Tasks | Pending |
-| HOTSPOT-665 | P1: Empty paths → no spawn | Tasks | Pending |
-| HOTSPOT-666 | P1: Under/equal threshold single spawn | Tasks | Pending |
-| HOTSPOT-667 | P1: ARG_MAX emergency unrestricted + warning | Tasks | Pending |
-| HOTSPOT-668 | P1: File mode zero patch spawn | Tasks | Pending |
-| HOTSPOT-669 | P1: function-churn progress across batches | Tasks | Pending |
-| HOTSPOT-670 | P1: Default mega threshold 100 | Tasks | Pending |
-| HOTSPOT-671 | P1: Injected threshold in aggregate | Tasks | Pending |
-| HOTSPOT-672 | P1: Skip coupling over threshold | Tasks | Pending |
-| HOTSPOT-673 | P1: Churn still counted | Tasks | Pending |
-| HOTSPOT-674 | P1: Warnings use effective threshold | Tasks | Pending |
-| HOTSPOT-675 | P1: `ScanOptions.megaCommitThreshold` | Tasks | Pending |
-| HOTSPOT-676 | P1: Config `megaCommitThreshold` | Tasks | Pending |
-| HOTSPOT-677 | P1: CLI `--mega-commit-threshold` | Tasks | Pending |
-| HOTSPOT-678 | P1: Precedence CLI > config > default | Tasks | Pending |
-| HOTSPOT-679 | P1: Invalid threshold rejected | Tasks | Pending |
-| HOTSPOT-680 | P1: Dry-run warns when eligible > threshold | Tasks | Pending |
-| HOTSPOT-681 | P1: Warning does not fail dry-run | Tasks | Pending |
-| HOTSPOT-682 | P1: Preview text includes warning line | Tasks | Pending |
-| HOTSPOT-683 | P1: Dry-run still no mine/AST | Tasks | Pending |
-| HOTSPOT-684 | P2: ARCHITECTURE / CONCERNS update | Tasks | Pending |
-| HOTSPOT-685 | P2: README + exemplar config | Tasks | Pending |
-| HOTSPOT-686 | P2: TESTING.md + full gate | Tasks | Pending |
-| HOTSPOT-687 | — | — | Reserved |
-| HOTSPOT-688 | — | — | Reserved |
-| HOTSPOT-689 | — | — | Reserved |
+| Requirement ID | Story                                        | Phase | Status   |
+| -------------- | -------------------------------------------- | ----- | -------- |
+| HOTSPOT-660    | P1: Partition paths into ≤ threshold chunks  | Tasks | Pending  |
+| HOTSPOT-661    | P1: Each chunk uses pathspec argv            | Tasks | Pending  |
+| HOTSPOT-662    | P1: Sequential batch streams                 | Tasks | Pending  |
+| HOTSPOT-663    | P1: Merge equivalence / no double-count      | Tasks | Pending  |
+| HOTSPOT-664    | P1: Stable sort before chunk                 | Tasks | Pending  |
+| HOTSPOT-665    | P1: Empty paths → no spawn                   | Tasks | Pending  |
+| HOTSPOT-666    | P1: Under/equal threshold single spawn       | Tasks | Pending  |
+| HOTSPOT-667    | P1: ARG_MAX emergency unrestricted + warning | Tasks | Pending  |
+| HOTSPOT-668    | P1: File mode zero patch spawn               | Tasks | Pending  |
+| HOTSPOT-669    | P1: function-churn progress across batches   | Tasks | Pending  |
+| HOTSPOT-670    | P1: Default mega threshold 100               | Tasks | Pending  |
+| HOTSPOT-671    | P1: Injected threshold in aggregate          | Tasks | Pending  |
+| HOTSPOT-672    | P1: Skip coupling over threshold             | Tasks | Pending  |
+| HOTSPOT-673    | P1: Churn still counted                      | Tasks | Pending  |
+| HOTSPOT-674    | P1: Warnings use effective threshold         | Tasks | Pending  |
+| HOTSPOT-675    | P1: `ScanOptions.megaCommitThreshold`        | Tasks | Pending  |
+| HOTSPOT-676    | P1: Config `megaCommitThreshold`             | Tasks | Pending  |
+| HOTSPOT-677    | P1: CLI `--mega-commit-threshold`            | Tasks | Pending  |
+| HOTSPOT-678    | P1: Precedence CLI > config > default        | Tasks | Pending  |
+| HOTSPOT-679    | P1: Invalid threshold rejected               | Tasks | Pending  |
+| HOTSPOT-680    | P1: Dry-run warns when eligible > threshold  | Tasks | Pending  |
+| HOTSPOT-681    | P1: Warning does not fail dry-run            | Tasks | Pending  |
+| HOTSPOT-682    | P1: Preview text includes warning line       | Tasks | Pending  |
+| HOTSPOT-683    | P1: Dry-run still no mine/AST                | Tasks | Pending  |
+| HOTSPOT-684    | P2: ARCHITECTURE / CONCERNS update           | Tasks | Pending  |
+| HOTSPOT-685    | P2: README + exemplar config                 | Tasks | Pending  |
+| HOTSPOT-686    | P2: TESTING.md + full gate                   | Tasks | Pending  |
+| HOTSPOT-687    | —                                            | —     | Reserved |
+| HOTSPOT-688    | —                                            | —     | Reserved |
+| HOTSPOT-689    | —                                            | —     | Reserved |
 
 **Coverage:** 27 requirements mapped to tasks (660–686); 3 reserved (687–689).
 

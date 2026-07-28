@@ -14,13 +14,13 @@ Remove duplicated human rollups for Warnings and Timing so they appear **only** 
 
 **In scope:**
 
-| Item | Scope |
-| ---- | ----- |
-| Drop M68 pre-write teaser | Stop calling / remove `emitWarningTeaser` from scan write lifecycle |
-| Drop M62 brief stderr timing | Remove `emitBriefTimingStderr` (and call sites) |
-| Keep exec summary | `formatWarningSummaryLine` + `formatTimingSummaryLine` in `buildScanExecutiveSummary` |
-| Keep detail flush | `flushWarnings()` after write (summary/full/json semantics unchanged except teaser gone) |
-| Docs | `docs/warning-codes.md`, README, ARCHITECTURE diagnostics notes |
+| Item                         | Scope                                                                                    |
+| ---------------------------- | ---------------------------------------------------------------------------------------- |
+| Drop M68 pre-write teaser    | Stop calling / remove `emitWarningTeaser` from scan write lifecycle                      |
+| Drop M62 brief stderr timing | Remove `emitBriefTimingStderr` (and call sites)                                          |
+| Keep exec summary            | `formatWarningSummaryLine` + `formatTimingSummaryLine` in `buildScanExecutiveSummary`    |
+| Keep detail flush            | `flushWarnings()` after write (summary/full/json semantics unchanged except teaser gone) |
+| Docs                         | `docs/warning-codes.md`, README, ARCHITECTURE diagnostics notes                          |
 
 **Out of scope:** New flags; schema; bottom-only; item C (body warning dumps); compare/baseline; changing `full`/`json` emission semantics beyond teaser absence.
 
@@ -34,23 +34,23 @@ Remove duplicated human rollups for Warnings and Timing so they appear **only** 
 
 **Choice:** **Top only** — executive summary in the report body.
 
-| Surface | Keep? | Notes |
-| ------- | ----- | ----- |
-| Exec summary `Warnings: N total (…)` | **Yes** | Self-contained for `--output` / pipes |
-| Exec summary `Timing: total … (git…, complexity…)` | **Yes** | Stage breakdown lives here |
-| Pre-write stderr teaser (`formatWarningSummaryLine`) | **No** | M68 bookend half — supersede for presentation |
-| Brief stderr `timing: total Nms` | **No** | M62 dual surface — supersede |
-| Post-write aggregated `warning:` lines | **Yes** | Actionable detail, not a rollup duplicate |
-| `--warnings=full` during-scan stream | **Yes** | Unchanged |
-| `--warnings=json` post-write document | **Yes** | Unchanged; still no teaser |
+| Surface                                              | Keep?   | Notes                                         |
+| ---------------------------------------------------- | ------- | --------------------------------------------- |
+| Exec summary `Warnings: N total (…)`                 | **Yes** | Self-contained for `--output` / pipes         |
+| Exec summary `Timing: total … (git…, complexity…)`   | **Yes** | Stage breakdown lives here                    |
+| Pre-write stderr teaser (`formatWarningSummaryLine`) | **No**  | M68 bookend half — supersede for presentation |
+| Brief stderr `timing: total Nms`                     | **No**  | M62 dual surface — supersede                  |
+| Post-write aggregated `warning:` lines               | **Yes** | Actionable detail, not a rollup duplicate     |
+| `--warnings=full` during-scan stream                 | **Yes** | Unchanged                                     |
+| `--warnings=json` post-write document                | **Yes** | Unchanged; still no teaser                    |
 
 **Rejected alternatives:**
 
-| Alternative | Why rejected |
-| ----------- | ------------ |
-| Bottom-only (strip exec-summary Warnings/Timing) | Saved reports and stdout pipes lose context |
-| Drop detail flush under summary | Loses next-step guidance; rollup alone is insufficient |
-| New flag to toggle bookend | YAGNI — default should be clean |
+| Alternative                                      | Why rejected                                           |
+| ------------------------------------------------ | ------------------------------------------------------ |
+| Bottom-only (strip exec-summary Warnings/Timing) | Saved reports and stdout pipes lose context            |
+| Drop detail flush under summary                  | Loses next-step guidance; rollup alone is insufficient |
+| New flag to toggle bookend                       | YAGNI — default should be clean                        |
 
 **Status:** **Confirmed — planner locked**
 
@@ -70,13 +70,13 @@ Remove duplicated human rollups for Warnings and Timing so they appear **only** 
 
 ## Composition locks (carry forward)
 
-| Sister | Constraint after M73 |
-| ------ | -------------------- |
-| M59 | Clear live before diagnostic stderr / at `flushWarnings` |
-| M61 | `Finalizing…` through write; `flushWarnings` **after** write (no teaser inserted before write) |
-| M62 | Explain **after** flush; **omit** brief timing stderr |
-| M69 | Write confirm still after successful `--output` write, before flush |
-| M58/M63 | `meta.warnings` / `onWarning` full; `--warnings` CLI-only; no schema bump |
+| Sister  | Constraint after M73                                                                           |
+| ------- | ---------------------------------------------------------------------------------------------- |
+| M59     | Clear live before diagnostic stderr / at `flushWarnings`                                       |
+| M61     | `Finalizing…` through write; `flushWarnings` **after** write (no teaser inserted before write) |
+| M62     | Explain **after** flush; **omit** brief timing stderr                                          |
+| M69     | Write confirm still after successful `--output` write, before flush                            |
+| M58/M63 | `meta.warnings` / `onWarning` full; `--warnings` CLI-only; no schema bump                      |
 
 **New scan order:**
 

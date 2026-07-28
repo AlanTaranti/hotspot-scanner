@@ -28,13 +28,13 @@ flowchart TD
 
 ## Code Reuse
 
-| Component | Location | Use |
-| --------- | -------- | --- |
-| `createCliProgram` / `runCli` / `CliUsageError` | `bin/hotspot-scanner.ts` | Register `completion`; reuse usage-error path |
-| CLI unit tests | `bin/hotspot-scanner.test.ts` | Co-located assertions |
-| Recipes | `docs/recipes.md` | Exclude cookbook + `.hotspotignore` rejection callout |
-| ARCHITECTURE CLI section | `.specs/codebase/ARCHITECTURE.md` | Document `completion`; remove/replace M30 “future ignore file” wording if still present |
-| INTEGRATIONS.md | `.specs/codebase/INTEGRATIONS.md` | Confirm **no** new dep entry (explicit non-add) |
+| Component                                       | Location                          | Use                                                                                     |
+| ----------------------------------------------- | --------------------------------- | --------------------------------------------------------------------------------------- |
+| `createCliProgram` / `runCli` / `CliUsageError` | `bin/hotspot-scanner.ts`          | Register `completion`; reuse usage-error path                                           |
+| CLI unit tests                                  | `bin/hotspot-scanner.test.ts`     | Co-located assertions                                                                   |
+| Recipes                                         | `docs/recipes.md`                 | Exclude cookbook + `.hotspotignore` rejection callout                                   |
+| ARCHITECTURE CLI section                        | `.specs/codebase/ARCHITECTURE.md` | Document `completion`; remove/replace M30 “future ignore file” wording if still present |
+| INTEGRATIONS.md                                 | `.specs/codebase/INTEGRATIONS.md` | Confirm **no** new dep entry (explicit non-add)                                         |
 
 ---
 
@@ -56,15 +56,15 @@ hotspot-scanner completion <shell>
 Prefer a small `bin/completion-scripts.ts` (or similar) exporting:
 
 ```ts
-export function getCompletionScript(shell: "bash" | "zsh" | "fish"): string
-export const COMPLETION_SHELLS = ["bash", "zsh", "fish"] as const
+export function getCompletionScript(shell: "bash" | "zsh" | "fish"): string;
+export const COMPLETION_SHELLS = ["bash", "zsh", "fish"] as const;
 ```
 
 Keep scripts **static**. Include:
 
-| Layer | Content |
-| ----- | ------- |
-| Commands | `init`, `doctor`, `scan`, `baseline`, `compare`, `completion` (+ `save` under `baseline` if still present) |
+| Layer      | Content                                                                                                                          |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Commands   | `init`, `doctor`, `scan`, `baseline`, `compare`, `completion` (+ `save` under `baseline` if still present)                       |
 | Scan flags | At least `--format`, `--output`, `--exclude`, `--include`, `--config`, `--since` (add more from current `scan` options if cheap) |
 
 Shell idioms:
@@ -77,12 +77,12 @@ Exact script style is implementer discretion provided Tab-completable commands/f
 
 ### 3. Docs
 
-| Doc | Change |
-| --- | ------ |
-| README | Short “Shell completion” subsection with three install one-liners |
-| `docs/recipes.md` | Explicit **no `.hotspotignore`**; point to `exclude` / `--exclude` (reuse examples) |
-| ARCHITECTURE | CLI commands list includes `completion`; path-scoping notes do not promise `.hotspotignore` |
-| INTEGRATIONS | No new dependency |
+| Doc               | Change                                                                                      |
+| ----------------- | ------------------------------------------------------------------------------------------- |
+| README            | Short “Shell completion” subsection with three install one-liners                           |
+| `docs/recipes.md` | Explicit **no `.hotspotignore`**; point to `exclude` / `--exclude` (reuse examples)         |
+| ARCHITECTURE      | CLI commands list includes `completion`; path-scoping notes do not promise `.hotspotignore` |
+| INTEGRATIONS      | No new dependency                                                                           |
 
 ### 4. Explicit non-goals in code
 
@@ -96,11 +96,11 @@ Do **not** add:
 
 ## Test Strategy
 
-| Layer | Focus |
-| ----- | ----- |
+| Layer                                                                            | Focus                                                                                                                                 |
+| -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | Unit `bin/hotspot-scanner.test.ts` (+ optional `bin/completion-scripts.test.ts`) | Each shell → exit 0, non-empty stdout, contains locked commands/flags; invalid shell → `CliUsageError` / exit 2; help mentions shells |
-| Integration | Optional smoke: `pnpm exec hotspot-scanner completion bash` exits 0 — not required if unit covers `runCli`/`parseAsync` |
-| Docs | Manual Done-when checklist in tasks |
+| Integration                                                                      | Optional smoke: `pnpm exec hotspot-scanner completion bash` exits 0 — not required if unit covers `runCli`/`parseAsync`               |
+| Docs                                                                             | Manual Done-when checklist in tasks                                                                                                   |
 
 No schema/contract tests. No fixture repo changes. No ranking tests.
 
@@ -110,13 +110,13 @@ Coverage: new `bin/completion-scripts.ts` (if split) is under `coverage.include`
 
 ## Risks
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| Script drift vs real flags | Substring tests + ARCHITECTURE note to update scripts with new public flags |
-| Over-engineered dynamic completion | Locked static approach in context.md |
-| Accidental `.hotspotignore` creep | Spec Out of Scope + Rejected decision; docs task only |
-| Path conflict on `bin/` | Sequential tasks; single module owner for completion code |
-| New dependency temptation | Design + INTEGRATIONS: explicitly none |
+| Risk                               | Mitigation                                                                  |
+| ---------------------------------- | --------------------------------------------------------------------------- |
+| Script drift vs real flags         | Substring tests + ARCHITECTURE note to update scripts with new public flags |
+| Over-engineered dynamic completion | Locked static approach in context.md                                        |
+| Accidental `.hotspotignore` creep  | Spec Out of Scope + Rejected decision; docs task only                       |
+| Path conflict on `bin/`            | Sequential tasks; single module owner for completion code                   |
+| New dependency temptation          | Design + INTEGRATIONS: explicitly none                                      |
 
 ---
 

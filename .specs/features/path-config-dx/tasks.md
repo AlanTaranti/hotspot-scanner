@@ -24,8 +24,8 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (body) | Diagram shows | Status |
-| ---- | ----------------- | ------------- | ------ |
+| Task | Depends on (body) | Diagram shows | Status   |
+| ---- | ----------------- | ------------- | -------- |
 | T1   | None              | Root          | ✅ Match |
 | T2   | None              | Root          | ✅ Match |
 | T3   | T1, T2            | T1→T3, T2→T3  | ✅ Match |
@@ -33,30 +33,30 @@ flowchart LR
 
 ### Path Conflict Check
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1   | `src/paths/` | `scope.ts`, `scope.test.ts` | None vs T2 — `[P]` OK |
-| T2   | `src/config/` | `load-config.ts`, `load-config.test.ts`, `index.ts` if needed | None vs T1 — `[P]` OK |
-| T3   | `src/scan.ts` + `src/types/` + `bin/` | wiring + CLI tests | After T1+T2; owns scan/bin — sequential |
-| T4   | docs | README, ARCHITECTURE, STRUCTURE | After T3 |
+| Task | Module owner                          | Paths                                                         | Conflict                                |
+| ---- | ------------------------------------- | ------------------------------------------------------------- | --------------------------------------- |
+| T1   | `src/paths/`                          | `scope.ts`, `scope.test.ts`                                   | None vs T2 — `[P]` OK                   |
+| T2   | `src/config/`                         | `load-config.ts`, `load-config.test.ts`, `index.ts` if needed | None vs T1 — `[P]` OK                   |
+| T3   | `src/scan.ts` + `src/types/` + `bin/` | wiring + CLI tests                                            | After T1+T2; owns scan/bin — sequential |
+| T4   | docs                                  | README, ARCHITECTURE, STRUCTURE                               | After T3                                |
 
 ### Test Co-location Validation
 
-| Task | Code layer | Matrix / TESTING.md | Task Tests | Status |
-| ---- | ---------- | ------------------- | ---------- | ------ |
-| T1   | `src/paths/` | unit co-located | unit | ✅ OK |
-| T2   | `src/config/` | unit co-located | unit | ✅ OK |
-| T3   | `src/scan.ts`, `bin/` | unit + CLI | unit + CLI | ✅ OK |
-| T4   | docs only | none | none + full gate | ✅ OK |
+| Task | Code layer            | Matrix / TESTING.md | Task Tests       | Status |
+| ---- | --------------------- | ------------------- | ---------------- | ------ |
+| T1   | `src/paths/`          | unit co-located     | unit             | ✅ OK  |
+| T2   | `src/config/`         | unit co-located     | unit             | ✅ OK  |
+| T3   | `src/scan.ts`, `bin/` | unit + CLI          | unit + CLI       | ✅ OK  |
+| T4   | docs only             | none                | none + full gate | ✅ OK  |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | One concern: default exclude patterns + path tests | ✅ Granular |
-| T2 | One concern: load discovery API + config unit tests | ✅ Granular |
-| T3 | Cohesive wiring: types + resolveScanConfig + CLI `--config` + tests | ✅ OK (same feature slice) |
-| T4 | Docs + full gate | ✅ Granular |
+| Task | Scope                                                               | Status                     |
+| ---- | ------------------------------------------------------------------- | -------------------------- |
+| T1   | One concern: default exclude patterns + path tests                  | ✅ Granular                |
+| T2   | One concern: load discovery API + config unit tests                 | ✅ Granular                |
+| T3   | Cohesive wiring: types + resolveScanConfig + CLI `--config` + tests | ✅ OK (same feature slice) |
+| T4   | Docs + full gate                                                    | ✅ Granular                |
 
 ---
 
@@ -227,20 +227,20 @@ Phase 2 (Sequential):
 
 ## Requirement → Task map
 
-| Requirement ID | Task |
-| -------------- | ---- |
-| HOTSPOT-266 | T1 |
-| HOTSPOT-267 | T1 |
-| HOTSPOT-268 | T2 |
-| HOTSPOT-269 | T2 |
-| HOTSPOT-270 | T2 |
-| HOTSPOT-271 | T3 |
-| HOTSPOT-272 | T2, T3 |
-| HOTSPOT-273 | T3 |
-| HOTSPOT-274 | T2 |
-| HOTSPOT-275 | T3 |
-| HOTSPOT-276 | T4 |
-| HOTSPOT-277 | T3, T4 |
+| Requirement ID | Task   |
+| -------------- | ------ |
+| HOTSPOT-266    | T1     |
+| HOTSPOT-267    | T1     |
+| HOTSPOT-268    | T2     |
+| HOTSPOT-269    | T2     |
+| HOTSPOT-270    | T2     |
+| HOTSPOT-271    | T3     |
+| HOTSPOT-272    | T2, T3 |
+| HOTSPOT-273    | T3     |
+| HOTSPOT-274    | T2     |
+| HOTSPOT-275    | T3     |
+| HOTSPOT-276    | T4     |
+| HOTSPOT-277    | T3, T4 |
 
 **Coverage:** 12 requirements, 0 unmapped
 

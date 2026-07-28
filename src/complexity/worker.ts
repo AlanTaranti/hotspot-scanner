@@ -1,8 +1,5 @@
 import { parentPort } from "node:worker_threads";
-import {
-  analyzeBatch,
-  type BatchAnalysisOutput,
-} from "./analyze-batch.js";
+import { analyzeBatch, type BatchAnalysisOutput } from "./analyze-batch.js";
 
 type WorkerInbound =
   | { type: "analyze"; id: number; repoPath: string; batch: string[] }

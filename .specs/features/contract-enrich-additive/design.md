@@ -36,25 +36,25 @@ flowchart LR
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `ScanMeta.timings` additive pattern | `src/types/domain.ts`, `schemas/scan-result.json`, M51 | Same optional-declare / always-emit pattern for `scannerVersion` |
-| `compareRankedSections` | `src/compare/compare.ts` | When pushing `rankChanged`, also read current entity metrics for deltas |
-| `renderJson` / `renderCompareJson` | `src/report/json.ts`, `compare-json.ts` | Inject `$schema` into payload object before stringify |
-| `parseScanResult` optional timings | `src/compare/load-baseline.ts` | Mirror for optional `scannerVersion`; ignore `$schema` |
-| Schema `$id` URLs | `schemas/*.json` | Constants for render-layer `$schema` values |
-| Doctor package.json read | `src/doctor/index.ts` | Extract/share pattern — prefer new small helper, do not couple compare to doctor |
-| Report formatters | `compare-table.ts`, `compare-markdown.ts`, `compare-csv.ts` | Extend headers/rows only for rank-changed |
-| Explain compare | `src/report/explain-compare.ts` | Append delta fields to rank-changed blocks |
-| Contract suite | `tests/contract/json-schema.test.ts` | Assert new properties / validate fixtures |
+| Component                           | Location                                                    | How to Use                                                                       |
+| ----------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `ScanMeta.timings` additive pattern | `src/types/domain.ts`, `schemas/scan-result.json`, M51      | Same optional-declare / always-emit pattern for `scannerVersion`                 |
+| `compareRankedSections`             | `src/compare/compare.ts`                                    | When pushing `rankChanged`, also read current entity metrics for deltas          |
+| `renderJson` / `renderCompareJson`  | `src/report/json.ts`, `compare-json.ts`                     | Inject `$schema` into payload object before stringify                            |
+| `parseScanResult` optional timings  | `src/compare/load-baseline.ts`                              | Mirror for optional `scannerVersion`; ignore `$schema`                           |
+| Schema `$id` URLs                   | `schemas/*.json`                                            | Constants for render-layer `$schema` values                                      |
+| Doctor package.json read            | `src/doctor/index.ts`                                       | Extract/share pattern — prefer new small helper, do not couple compare to doctor |
+| Report formatters                   | `compare-table.ts`, `compare-markdown.ts`, `compare-csv.ts` | Extend headers/rows only for rank-changed                                        |
+| Explain compare                     | `src/report/explain-compare.ts`                             | Append delta fields to rank-changed blocks                                       |
+| Contract suite                      | `tests/contract/json-schema.test.ts`                        | Assert new properties / validate fixtures                                        |
 
 ### Integration Points
 
-| System | Integration Method |
-| ------ | ------------------ |
-| JSON schemas | Declare optional `scannerVersion`, optional `$schema`, required deltas on `RankChangeHotspot` |
-| Baseline loader | Preserve optional meta; never require new fields; ignore `$schema` |
-| Public types | Export updated `ScanMeta`, `CompareMeta`, `RankChange` via `src/types` |
+| System          | Integration Method                                                                            |
+| --------------- | --------------------------------------------------------------------------------------------- |
+| JSON schemas    | Declare optional `scannerVersion`, optional `$schema`, required deltas on `RankChangeHotspot` |
+| Baseline loader | Preserve optional meta; never require new fields; ignore `$schema`                            |
+| Public types    | Export updated `ScanMeta`, `CompareMeta`, `RankChange` via `src/types`                        |
 
 ---
 
@@ -158,7 +158,7 @@ interface RankChange<HotspotScore> {
   baselineRank: number;
   currentRank: number;
   rankDelta: number;
-  scoreDelta: number;       // current − baseline
+  scoreDelta: number; // current − baseline
   nclocDelta: number;
   commitCountDelta: number;
 }
@@ -179,24 +179,24 @@ interface RankChange<HotspotScore> {
 
 ## Error Handling
 
-| Case | Behavior |
-| ---- | -------- |
-| Missing `scannerVersion` on baseline | Accept |
+| Case                                          | Behavior                                                                                                                                                                                             |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Missing `scannerVersion` on baseline          | Accept                                                                                                                                                                                               |
 | Invalid type for `scannerVersion` on baseline | Prefer reject with clear `BaselineError` if present-but-wrong-type (parity with strict meta fields); if YAGNI cost high, ignore non-strings — **recommendation: reject non-string when key present** |
-| Top-level `$schema` on baseline | Ignore |
-| Package version unreadable | Fail scan/compare with clear error (package.json must exist in published package layout) |
+| Top-level `$schema` on baseline               | Ignore                                                                                                                                                                                               |
+| Package version unreadable                    | Fail scan/compare with clear error (package.json must exist in published package layout)                                                                                                             |
 
 ---
 
 ## Decisions Needed
 
-| ID | Decision | Resolution |
-| -- | -------- | ---------- |
-| D1 | Version bump? | Locked: stay `"3.0"` |
-| D2 | RankChange shape | Locked in context.md |
-| D3 | `$schema` in domain types? | Locked: render-layer only |
-| D4 | entity side | Locked: baseline (current code) |
-| D5 | Sync vs inject version into compare | Design recommendation: sync cached helper |
+| ID  | Decision                            | Resolution                                |
+| --- | ----------------------------------- | ----------------------------------------- |
+| D1  | Version bump?                       | Locked: stay `"3.0"`                      |
+| D2  | RankChange shape                    | Locked in context.md                      |
+| D3  | `$schema` in domain types?          | Locked: render-layer only                 |
+| D4  | entity side                         | Locked: baseline (current code)           |
+| D5  | Sync vs inject version into compare | Design recommendation: sync cached helper |
 
 No open decisions for Discuss.
 
@@ -204,36 +204,36 @@ No open decisions for Discuss.
 
 ## Risks & Trade-offs (CONCERNS)
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| Schema/fixture drift | Update `tests/contract/json-schema.test.ts` + report fixtures in same tasks |
-| Compare fragile classification | Only add fields inside existing rankChanged push; keep sort/key logic |
-| Consumers assumed entity was current | Document baseline entity + reconstruction via deltas; do not flip entity |
-| Path conflicts on `src/report/` | Single report task for table/markdown/CSV or strict sequential owners |
-| `loadBaseline` strips unknown meta | Explicitly preserve `scannerVersion` like `timings` |
+| Risk                                 | Mitigation                                                                  |
+| ------------------------------------ | --------------------------------------------------------------------------- |
+| Schema/fixture drift                 | Update `tests/contract/json-schema.test.ts` + report fixtures in same tasks |
+| Compare fragile classification       | Only add fields inside existing rankChanged push; keep sort/key logic       |
+| Consumers assumed entity was current | Document baseline entity + reconstruction via deltas; do not flip entity    |
+| Path conflicts on `src/report/`      | Single report task for table/markdown/CSV or strict sequential owners       |
+| `loadBaseline` strips unknown meta   | Explicitly preserve `scannerVersion` like `timings`                         |
 
 ---
 
 ## Testing Strategy
 
-| Layer | Coverage |
-| ----- | -------- |
-| Unit | `compare.test.ts` delta arithmetic; `json`/`compare-json` `$schema`; table/markdown/csv/explain columns; load-baseline with/without `scannerVersion` / with `$schema`; scan meta version |
-| Contract | Schema validates fresh payloads with new fields; Ajv compile |
-| Integration | Optional: fixture scan `--format json` asserts `$schema` + `scannerVersion` (if cheap in existing CLI tests) |
-| Gate | `pnpm build && pnpm test` |
+| Layer       | Coverage                                                                                                                                                                                 |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit        | `compare.test.ts` delta arithmetic; `json`/`compare-json` `$schema`; table/markdown/csv/explain columns; load-baseline with/without `scannerVersion` / with `$schema`; scan meta version |
+| Contract    | Schema validates fresh payloads with new fields; Ajv compile                                                                                                                             |
+| Integration | Optional: fixture scan `--format json` asserts `$schema` + `scannerVersion` (if cheap in existing CLI tests)                                                                             |
+| Gate        | `pnpm build && pnpm test`                                                                                                                                                                |
 
 ---
 
 ## Documentation Plan (Execute)
 
-| Doc | Update |
-| --- | ------ |
+| Doc             | Update                                                                              |
+| --------------- | ----------------------------------------------------------------------------------- |
 | ARCHITECTURE.md | Additive `scannerVersion`, `$schema` on JSON render, rankChanged deltas under `3.0` |
-| README.md | JSON example + compare delta columns as needed |
-| STRUCTURE.md | New helper module if added |
-| TESTING.md | Contract note if schema section lists fields |
-| CONCERNS.md | Only if compare fragility note needs delta mention (optional) |
+| README.md       | JSON example + compare delta columns as needed                                      |
+| STRUCTURE.md    | New helper module if added                                                          |
+| TESTING.md      | Contract note if schema section lists fields                                        |
+| CONCERNS.md     | Only if compare fragility note needs delta mention (optional)                       |
 
 **Not in this planning session:** ROADMAP.md / STATE.md (mission lock).
 

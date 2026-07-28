@@ -10,10 +10,7 @@ import {
 
 type Point = Pick<ComplexityTrendPoint, "rev" | "indentMean" | "ncloc">;
 
-function series(
-  indentMeans: number[],
-  ncloc = 100,
-): Point[] {
+function series(indentMeans: number[], ncloc = 100): Point[] {
   return indentMeans.map((indentMean, index) => ({
     rev: `r${index + 1}`,
     indentMean,
@@ -43,7 +40,9 @@ describe("classifyGrowthPattern", () => {
   });
 
   it("classifies a steadily rising series as deteriorating", () => {
-    const result = classifyGrowthPattern(series([1, 1.05, 1.1, 1.15, 1.2], 100));
+    const result = classifyGrowthPattern(
+      series([1, 1.05, 1.1, 1.15, 1.2], 100),
+    );
 
     expect(result.kind).toBe("deteriorating");
     expect(result.summary).toContain("indentMean +20%");
@@ -82,7 +81,7 @@ describe("classifyGrowthPattern", () => {
     expect(result.kind).toBe("refactored");
     expect(result.peakRev).toBe("r3");
     expect(result.summary).toContain("r3");
-    expect((result.indentMeanDeltaRel ?? 0)).toBeLessThan(DETERIORATE_RISE);
+    expect(result.indentMeanDeltaRel ?? 0).toBeLessThan(DETERIORATE_RISE);
     const dropFromPeak = (2 - 1) / 2;
     expect(dropFromPeak).toBeGreaterThanOrEqual(REFACTOR_DROP);
   });

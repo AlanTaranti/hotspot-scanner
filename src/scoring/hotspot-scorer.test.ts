@@ -79,9 +79,7 @@ describe("scoreHotspots", () => {
   });
 
   it("sets authorCount from authors Set size", () => {
-    const complexity: ComplexityResult[] = [
-      { filePath: "src/a.ts", ncloc: 5 },
-    ];
+    const complexity: ComplexityResult[] = [{ filePath: "src/a.ts", ncloc: 5 }];
     const fileStats = buildFileStats([
       {
         filePath: "src/a.ts",

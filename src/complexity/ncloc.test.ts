@@ -22,7 +22,7 @@ describe("countNcloc", () => {
   it("counts lines with // inside strings as code", () => {
     expect(countNcloc('const url = "http://example.com";')).toBe(1);
     expect(countNcloc("const msg = 'say // hello';")).toBe(1);
-    expect(countNcloc('const tpl = `path // segment`;')).toBe(1);
+    expect(countNcloc("const tpl = `path // segment`;")).toBe(1);
   });
 
   it("counts code with trailing line comments", () => {
@@ -35,18 +35,14 @@ describe("countNcloc", () => {
   });
 
   it("excludes comment-only lines mixed with code", () => {
-    const source = [
-      "const x = 1;",
-      "// comment",
-      "const y = 2;",
-    ].join("\n");
+    const source = ["const x = 1;", "// comment", "const y = 2;"].join("\n");
     expect(countNcloc(source)).toBe(2);
   });
 
   it("counts template literal expressions", () => {
     expect(countNcloc("const x = `value ${1 + 2}`;")).toBe(1);
-    expect(
-      countNcloc(["const x = `line1", "line2 ${name}`;"].join("\n")),
-    ).toBe(2);
+    expect(countNcloc(["const x = `line1", "line2 ${name}`;"].join("\n"))).toBe(
+      2,
+    );
   });
 });

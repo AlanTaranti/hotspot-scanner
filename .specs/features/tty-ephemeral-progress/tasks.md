@@ -32,44 +32,44 @@ flowchart LR
 
 | Task | Depends on (declared) | Diagram shows | Match |
 | ---- | --------------------- | ------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T2 | T2 → T3 | ✅ |
+| T1   | None                  | Root          | ✅    |
+| T2   | T1                    | T1 → T2       | ✅    |
+| T3   | T2                    | T2 → T3       | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | diagnostics | `src/diagnostics/logger.ts`, `src/diagnostics/logger.test.ts`, optionally `src/diagnostics/index.ts` exports | Sole diagnostics owner |
-| T2 | docs | `README.md`, `.specs/codebase/ARCHITECTURE.md`, optionally `docs/recipes.md`; Execute may tick ROADMAP/STATE Done | After T1; no src overlap |
-| T3 | gate | none (verify) | After T2 |
+| Task | Module owner | Paths                                                                                                             | Conflict                 |
+| ---- | ------------ | ----------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| T1   | diagnostics  | `src/diagnostics/logger.ts`, `src/diagnostics/logger.test.ts`, optionally `src/diagnostics/index.ts` exports      | Sole diagnostics owner   |
+| T2   | docs         | `README.md`, `.specs/codebase/ARCHITECTURE.md`, optionally `docs/recipes.md`; Execute may tick ROADMAP/STATE Done | After T1; no src overlap |
+| T3   | gate         | none (verify)                                                                                                     | After T2                 |
 
 No `[P]` — sequential docs after code. Bin wiring unchanged (existing `flushWarnings()` is teardown hook); optional bin test only if T1 discovers a required CLI seam — prefer staying in `logger.test.ts`.
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task says | Match |
-| ---- | ---------- | ---------------------- | --------- | ----- |
-| T1 | `src/diagnostics/` | Unit | unit in same task | ✅ |
-| T2 | Docs | none | none | ✅ |
-| T3 | Full project | Gate | `pnpm build && pnpm test` | ✅ |
+| Task | Code layer         | TESTING.md expectation | Task says                 | Match |
+| ---- | ------------------ | ---------------------- | ------------------------- | ----- |
+| T1   | `src/diagnostics/` | Unit                   | unit in same task         | ✅    |
+| T2   | Docs               | none                   | none                      | ✅    |
+| T3   | Full project       | Gate                   | `pnpm build && pnpm test` | ✅    |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | TTY/non-TTY write + clear + handlers compose + unit tests | ✅ Cohesive diagnostics module |
-| T2 | Living docs | ✅ Granular |
-| T3 | Project gate | ✅ Granular |
+| Task | Scope                                                     | Status                         |
+| ---- | --------------------------------------------------------- | ------------------------------ |
+| T1   | TTY/non-TTY write + clear + handlers compose + unit tests | ✅ Cohesive diagnostics module |
+| T2   | Living docs                                               | ✅ Granular                    |
+| T3   | Project gate                                              | ✅ Granular                    |
 
 ### Requirement → Task Mapping
 
-| Requirement ID | Task |
-| -------------- | ---- |
-| HOTSPOT-970, HOTSPOT-971, HOTSPOT-972, HOTSPOT-973, HOTSPOT-974, HOTSPOT-975, HOTSPOT-976, HOTSPOT-977, HOTSPOT-978, HOTSPOT-979 | T1 |
-| HOTSPOT-980 | T2 |
-| (gate) | T3 |
-| HOTSPOT-981–989 | Reserved — unused |
+| Requirement ID                                                                                                                   | Task              |
+| -------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| HOTSPOT-970, HOTSPOT-971, HOTSPOT-972, HOTSPOT-973, HOTSPOT-974, HOTSPOT-975, HOTSPOT-976, HOTSPOT-977, HOTSPOT-978, HOTSPOT-979 | T1                |
+| HOTSPOT-980                                                                                                                      | T2                |
+| (gate)                                                                                                                           | T3                |
+| HOTSPOT-981–989                                                                                                                  | Reserved — unused |
 
 ---
 

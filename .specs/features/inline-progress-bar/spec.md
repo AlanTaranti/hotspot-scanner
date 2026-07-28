@@ -25,16 +25,16 @@ M59 gave interactive scans a single ephemeral stderr progress line, but complexi
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| ora / cli-progress / new runtime deps | Locked Option B — homegrown |
-| ETA / spinners | YAGNI |
-| Fake overall 0–99% meter | Locked — honest phase counters only |
-| Cap complexity file progress at 99% | Locked — show 100% of files then finalize |
-| doctor / init / dry-run / completion progress | Different commands |
-| Schema bump / ranking / JSON contract | Presentation + lifecycle only |
-| Multi-bar for overlap | Last-writer-wins single line |
-| Change throttle intervals (except finalize always emits once) | YAGNI |
+| Feature                                                       | Reason                                    |
+| ------------------------------------------------------------- | ----------------------------------------- |
+| ora / cli-progress / new runtime deps                         | Locked Option B — homegrown               |
+| ETA / spinners                                                | YAGNI                                     |
+| Fake overall 0–99% meter                                      | Locked — honest phase counters only       |
+| Cap complexity file progress at 99%                           | Locked — show 100% of files then finalize |
+| doctor / init / dry-run / completion progress                 | Different commands                        |
+| Schema bump / ranking / JSON contract                         | Presentation + lifecycle only             |
+| Multi-bar for overlap                                         | Last-writer-wins single line              |
+| Change throttle intervals (except finalize always emits once) | YAGNI                                     |
 
 ---
 
@@ -167,25 +167,25 @@ M59 gave interactive scans a single ephemeral stderr progress line, but complexi
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-1010 | P1: Complexity TTY bar | Tasks | Pending |
-| HOTSPOT-1011 | P1: Complexity non-TTY ASCII | Tasks | Pending |
-| HOTSPOT-1012 | P1: Omit bar when total unknown | Tasks | Pending |
-| HOTSPOT-1013 | P1: Git indeterminate counter | Tasks | Pending |
-| HOTSPOT-1014 | P1: No overall % / no 99% freeze | Tasks | Pending |
-| HOTSPOT-1015 | P1: Finalize body | Tasks | Pending |
-| HOTSPOT-1016 | P1: Emit finalize once | Tasks | Pending |
-| HOTSPOT-1017 | P1: Keep line through write | Tasks | Pending |
-| HOTSPOT-1018 | P1: Defer flush after write | Tasks | Pending |
-| HOTSPOT-1019 | P1: Clear before diagnostics / explain | Tasks | Pending |
-| HOTSPOT-1020 | P1: Quiet / no-progress | Tasks | Pending |
-| HOTSPOT-1021 | P1: Width from columns | Tasks | Pending |
-| HOTSPOT-1022 | P1: Overlap last-writer-wins | Tasks | Pending |
-| HOTSPOT-1023 | P1: No new surface | Tasks | Pending |
-| HOTSPOT-1024 | P1: Homegrown Option B | Tasks | Pending |
-| HOTSPOT-1025 | P1: Living docs | Tasks | Pending |
-| HOTSPOT-1026–1029 | — | — | Reserved |
+| Requirement ID    | Story                                  | Phase | Status   |
+| ----------------- | -------------------------------------- | ----- | -------- |
+| HOTSPOT-1010      | P1: Complexity TTY bar                 | Tasks | Pending  |
+| HOTSPOT-1011      | P1: Complexity non-TTY ASCII           | Tasks | Pending  |
+| HOTSPOT-1012      | P1: Omit bar when total unknown        | Tasks | Pending  |
+| HOTSPOT-1013      | P1: Git indeterminate counter          | Tasks | Pending  |
+| HOTSPOT-1014      | P1: No overall % / no 99% freeze       | Tasks | Pending  |
+| HOTSPOT-1015      | P1: Finalize body                      | Tasks | Pending  |
+| HOTSPOT-1016      | P1: Emit finalize once                 | Tasks | Pending  |
+| HOTSPOT-1017      | P1: Keep line through write            | Tasks | Pending  |
+| HOTSPOT-1018      | P1: Defer flush after write            | Tasks | Pending  |
+| HOTSPOT-1019      | P1: Clear before diagnostics / explain | Tasks | Pending  |
+| HOTSPOT-1020      | P1: Quiet / no-progress                | Tasks | Pending  |
+| HOTSPOT-1021      | P1: Width from columns                 | Tasks | Pending  |
+| HOTSPOT-1022      | P1: Overlap last-writer-wins           | Tasks | Pending  |
+| HOTSPOT-1023      | P1: No new surface                     | Tasks | Pending  |
+| HOTSPOT-1024      | P1: Homegrown Option B                 | Tasks | Pending  |
+| HOTSPOT-1025      | P1: Living docs                        | Tasks | Pending  |
+| HOTSPOT-1026–1029 | —                                      | —     | Reserved |
 
 **Coverage:** 16 mapped requirements + reserved band; all P1 mapped to tasks.
 

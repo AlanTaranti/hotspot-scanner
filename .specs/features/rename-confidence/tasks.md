@@ -47,51 +47,51 @@ flowchart TD
 
 | Task | Depends on (task body) | Diagram shows | Match |
 | ---- | ---------------------- | ------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1→T2 | ✅ |
-| T3 | T2 | T2→T3 | ✅ |
-| T4 | T2 | T2→T4 | ✅ |
-| T5 | T2 | T2→T5 | ✅ |
-| T6 | T3, T4, T5 | T3/T4/T5→T6 | ✅ |
-| T7 | T6 | T6→T7 | ✅ |
+| T1   | None                   | Root          | ✅    |
+| T2   | T1                     | T1→T2         | ✅    |
+| T3   | T2                     | T2→T3         | ✅    |
+| T4   | T2                     | T2→T4         | ✅    |
+| T5   | T2                     | T2→T5         | ✅    |
+| T6   | T3, T4, T5             | T3/T4/T5→T6   | ✅    |
+| T7   | T6                     | T6→T7         | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | `src/git/` warnings helper | `src/git/rename-warnings.ts`, `rename-warnings.test.ts` | Sole owner |
-| T2 | `src/git/` file miner | `src/git/spawn.ts`, `src/git/index.ts`, optionally `aggregate.ts`; tests `spawn`/`index` | After T1; does **not** edit `function-churn/` |
-| T3 | fixtures git-log | `tests/fixtures/git-log/*` (+ tests that only consume new fixtures under `src/git/*.test.ts` if needed — prefer assertions in T2/T5) | Disjoint from T4/T5 source; if T3 adds test cases in `index.test.ts`, **sequentially after T2** and do not mark parallel with T2 — T3 is `[P]` vs **T4 only** |
-| T4 | `src/git/function-churn/` | `function-churn/spawn.ts`, `function-churn/index.ts`, tests; import T1 helper | Disjoint from T2 paths after T2 complete |
-| T5 | fixtures repos + integration | `tests/fixtures/repos/with-renames/`, integration/scan tests touching that fixture | Do not edit `src/git/` miners |
-| T6 | docs | `.specs/codebase/ARCHITECTURE.md`, `CONCERNS.md`, `TESTING.md`, `README.md` as needed | Docs only |
-| T7 | verification | Gate only; ROADMAP/STATE sync deferred to parent / Execute Done | — |
+| Task | Module owner                 | Paths                                                                                                                                | Conflict                                                                                                                                                      |
+| ---- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| T1   | `src/git/` warnings helper   | `src/git/rename-warnings.ts`, `rename-warnings.test.ts`                                                                              | Sole owner                                                                                                                                                    |
+| T2   | `src/git/` file miner        | `src/git/spawn.ts`, `src/git/index.ts`, optionally `aggregate.ts`; tests `spawn`/`index`                                             | After T1; does **not** edit `function-churn/`                                                                                                                 |
+| T3   | fixtures git-log             | `tests/fixtures/git-log/*` (+ tests that only consume new fixtures under `src/git/*.test.ts` if needed — prefer assertions in T2/T5) | Disjoint from T4/T5 source; if T3 adds test cases in `index.test.ts`, **sequentially after T2** and do not mark parallel with T2 — T3 is `[P]` vs **T4 only** |
+| T4   | `src/git/function-churn/`    | `function-churn/spawn.ts`, `function-churn/index.ts`, tests; import T1 helper                                                        | Disjoint from T2 paths after T2 complete                                                                                                                      |
+| T5   | fixtures repos + integration | `tests/fixtures/repos/with-renames/`, integration/scan tests touching that fixture                                                   | Do not edit `src/git/` miners                                                                                                                                 |
+| T6   | docs                         | `.specs/codebase/ARCHITECTURE.md`, `CONCERNS.md`, `TESTING.md`, `README.md` as needed                                                | Docs only                                                                                                                                                     |
+| T7   | verification                 | Gate only; ROADMAP/STATE sync deferred to parent / Execute Done                                                                      | —                                                                                                                                                             |
 
 **Parallel rule:** T3 `[P]` with T4 only. T5 runs after T2; may run parallel with T3/T4 if no shared test file edits — **if T5 and T3 both edit the same `*.test.ts`, serialize**. Prefer T5 owning `with-renames` integration test file only.
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task `Tests` | Match |
-| ---- | ---------- | ---------------------- | ------------ | ----- |
-| T1 | `src/git/` helper | unit | unit | ✅ |
-| T2 | `src/git/` miner/spawn | unit / Git Miner fixtures | unit | ✅ |
-| T3 | fixtures | Git Miner fixtures | unit (consumed by miner tests) | ✅ |
-| T4 | `src/git/function-churn/` | Function churn unit | unit | ✅ |
-| T5 | fixture repo + integration | Integration | integration | ✅ |
-| T6 | docs | none | none | ✅ |
-| T7 | verification | full gate | `pnpm build && pnpm test` | ✅ |
+| Task | Code layer                 | TESTING.md expectation    | Task `Tests`                   | Match |
+| ---- | -------------------------- | ------------------------- | ------------------------------ | ----- |
+| T1   | `src/git/` helper          | unit                      | unit                           | ✅    |
+| T2   | `src/git/` miner/spawn     | unit / Git Miner fixtures | unit                           | ✅    |
+| T3   | fixtures                   | Git Miner fixtures        | unit (consumed by miner tests) | ✅    |
+| T4   | `src/git/function-churn/`  | Function churn unit       | unit                           | ✅    |
+| T5   | fixture repo + integration | Integration               | integration                    | ✅    |
+| T6   | docs                       | none                      | none                           | ✅    |
+| T7   | verification               | full gate                 | `pnpm build && pnpm test`      | ✅    |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | One helper module + tests | ✅ Granular |
-| T2 | File miner wiring + `-M` | ✅ Cohesive (one pipeline) |
-| T3 | git-log fixtures (+ assertions wiring) | ✅ Granular |
-| T4 | Function miner warning + `-M` | ✅ Granular |
-| T5 | with-renames E2E | ✅ Granular |
-| T6 | Living docs | ✅ OK cohesive docs |
-| T7 | Project gate | ✅ Granular |
+| Task | Scope                                  | Status                     |
+| ---- | -------------------------------------- | -------------------------- |
+| T1   | One helper module + tests              | ✅ Granular                |
+| T2   | File miner wiring + `-M`               | ✅ Cohesive (one pipeline) |
+| T3   | git-log fixtures (+ assertions wiring) | ✅ Granular                |
+| T4   | Function miner warning + `-M`          | ✅ Granular                |
+| T5   | with-renames E2E                       | ✅ Granular                |
+| T6   | Living docs                            | ✅ OK cohesive docs        |
+| T7   | Project gate                           | ✅ Granular                |
 
 ---
 
@@ -313,17 +313,17 @@ flowchart TD
 
 ## Requirement → Task Mapping
 
-| Requirement | Tasks |
-| ----------- | ----- |
+| Requirement | Tasks      |
+| ----------- | ---------- |
 | HOTSPOT-203 | T1, T2, T3 |
-| HOTSPOT-204 | T1, T2 |
-| HOTSPOT-205 | T1, T2 |
-| HOTSPOT-206 | T2, T4 |
-| HOTSPOT-207 | T3 |
-| HOTSPOT-208 | T5 |
-| HOTSPOT-209 | T1, T4 |
-| HOTSPOT-210 | T6 |
-| Gate / all | T7 |
+| HOTSPOT-204 | T1, T2     |
+| HOTSPOT-205 | T1, T2     |
+| HOTSPOT-206 | T2, T4     |
+| HOTSPOT-207 | T3         |
+| HOTSPOT-208 | T5         |
+| HOTSPOT-209 | T1, T4     |
+| HOTSPOT-210 | T6         |
+| Gate / all  | T7         |
 
 ---
 

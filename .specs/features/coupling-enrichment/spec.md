@@ -24,17 +24,17 @@ M14’s `hasStaticDependency` only resolves **relative** import/export/require e
 
 ## Out of Scope
 
-| Feature                                                      | Reason                                                                 |
-| ------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| `package.json` `exports` / `imports` resolution              | Deferred; CONCERNS gap partially remains                               |
-| Full TypeScript project-references / solution configs        | YAGNI                                                                  |
-| Full import graph / cycles / fan-in metrics                  | Pair enrichment only                                                   |
-| Changing ranking by static edge or `--min-cochange`          | Temporal ranking stays authoritative                                   |
-| PathAliasMap / RT-003 rename warnings (M26)                  | Hard boundary — do not duplicate                                       |
-| Dynamic `import(expr)` / non-literal `require`               | Unchanged M14 exclusion                                                |
-| Per-function coupling                                        | Coupling remains file-level                                            |
-| New CLI flags for enrichment                                 | Always on after score (YAGNI)                                          |
-| Bumping `ScanResult.version` to `1.1`                        | Additive under `"1.0"` (context.md)                                    |
+| Feature                                               | Reason                                   |
+| ----------------------------------------------------- | ---------------------------------------- |
+| `package.json` `exports` / `imports` resolution       | Deferred; CONCERNS gap partially remains |
+| Full TypeScript project-references / solution configs | YAGNI                                    |
+| Full import graph / cycles / fan-in metrics           | Pair enrichment only                     |
+| Changing ranking by static edge or `--min-cochange`   | Temporal ranking stays authoritative     |
+| PathAliasMap / RT-003 rename warnings (M26)           | Hard boundary — do not duplicate         |
+| Dynamic `import(expr)` / non-literal `require`        | Unchanged M14 exclusion                  |
+| Per-function coupling                                 | Coupling remains file-level              |
+| New CLI flags for enrichment                          | Always on after score (YAGNI)            |
+| Bumping `ScanResult.version` to `1.1`                 | Additive under `"1.0"` (context.md)      |
 
 ---
 
@@ -190,20 +190,20 @@ M14’s `hasStaticDependency` only resolves **relative** import/export/require e
 
 ## Requirement Traceability
 
-| Requirement ID | Story                                      | Phase | Status   |
-| -------------- | ------------------------------------------ | ----- | -------- |
-| HOTSPOT-231    | P1: Additive domain fields                 | Tasks | In Tasks |
-| HOTSPOT-232    | P1: Additive domain fields (invariants)    | Tasks | In Tasks |
-| HOTSPOT-233    | P1: tsconfig paths / baseUrl               | Tasks | In Tasks |
-| HOTSPOT-234    | P1: Dependency direction                   | Tasks | In Tasks |
-| HOTSPOT-235    | P1: Type-only vs runtime                   | Tasks | In Tasks |
-| HOTSPOT-236    | P1: Re-exports                             | Tasks | In Tasks |
-| HOTSPOT-237    | P1: Graceful fallback                      | Tasks | In Tasks |
-| HOTSPOT-238    | P1: Schema version / additive required     | Tasks | In Tasks |
-| HOTSPOT-239    | P1: Baseline validation                    | Tasks | In Tasks |
-| HOTSPOT-240    | P1: Reporter surfaces                      | Tasks | In Tasks |
-| HOTSPOT-241    | P1: Ranking purity + M26 boundary          | Tasks | In Tasks |
-| HOTSPOT-242    | P1: Docs / CONCERNS                        | Tasks | In Tasks |
+| Requirement ID | Story                                   | Phase | Status   |
+| -------------- | --------------------------------------- | ----- | -------- |
+| HOTSPOT-231    | P1: Additive domain fields              | Tasks | In Tasks |
+| HOTSPOT-232    | P1: Additive domain fields (invariants) | Tasks | In Tasks |
+| HOTSPOT-233    | P1: tsconfig paths / baseUrl            | Tasks | In Tasks |
+| HOTSPOT-234    | P1: Dependency direction                | Tasks | In Tasks |
+| HOTSPOT-235    | P1: Type-only vs runtime                | Tasks | In Tasks |
+| HOTSPOT-236    | P1: Re-exports                          | Tasks | In Tasks |
+| HOTSPOT-237    | P1: Graceful fallback                   | Tasks | In Tasks |
+| HOTSPOT-238    | P1: Schema version / additive required  | Tasks | In Tasks |
+| HOTSPOT-239    | P1: Baseline validation                 | Tasks | In Tasks |
+| HOTSPOT-240    | P1: Reporter surfaces                   | Tasks | In Tasks |
+| HOTSPOT-241    | P1: Ranking purity + M26 boundary       | Tasks | In Tasks |
+| HOTSPOT-242    | P1: Docs / CONCERNS                     | Tasks | In Tasks |
 
 **Coverage:** 12 total, 12 mapped to tasks (see tasks.md), 0 unmapped
 

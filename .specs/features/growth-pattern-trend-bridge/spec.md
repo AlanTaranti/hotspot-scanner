@@ -23,17 +23,17 @@
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| `--classify` flag | Always-on (context 2A) |
-| `--fail-on-deteriorating` / SARIF | Deferred CI horizon |
-| `scan --trend-top` / batch trend | Cost / YAGNI |
-| Repo-wide trend inside `scan` | M72 lock |
-| Compare / baseline | M71 |
-| McCabe / historical AST / charts | Deferred / YAGNI |
-| CSV pattern column | Table + JSON only |
-| Config keys for trend | M72 CLI-only |
-| Changing hotspotScore / NCLOC | Orthogonal |
+| Feature                           | Reason                 |
+| --------------------------------- | ---------------------- |
+| `--classify` flag                 | Always-on (context 2A) |
+| `--fail-on-deteriorating` / SARIF | Deferred CI horizon    |
+| `scan --trend-top` / batch trend  | Cost / YAGNI           |
+| Repo-wide trend inside `scan`     | M72 lock               |
+| Compare / baseline                | M71                    |
+| McCabe / historical AST / charts  | Deferred / YAGNI       |
+| CSV pattern column                | Table + JSON only      |
+| Config keys for trend             | M72 CLI-only           |
+| Changing hotspotScore / NCLOC     | Orthogonal             |
 
 ---
 
@@ -148,25 +148,25 @@
 
 ## Requirement Traceability
 
-| ID | Story | Priority | Status |
-| -- | ----- | -------- | ------ |
-| HOTSPOT-1540 | Classify — API + kinds | P1 | Pending |
-| HOTSPOT-1541 | Classify — min points / inconclusive | P1 | Pending |
-| HOTSPOT-1542 | Classify — stable / refactored / deteriorating heuristics | P1 | Pending |
-| HOTSPOT-1543 | Classify — indentMean primary; no AST | P1 | Pending |
-| HOTSPOT-1544 | Wire — `meta.growthPattern` always | P1 | Pending |
-| HOTSPOT-1545 | Schema — complexity-trend `3.0` | P1 | Pending |
-| HOTSPOT-1546 | Schema — scan `3.0` untouched | P1 | Pending |
-| HOTSPOT-1547 | Table — Pattern line above sparklines | P1 | Pending |
-| HOTSPOT-1548 | CSV — no pattern column | P1 | Pending |
-| HOTSPOT-1549 | Explain — next-step on hit | P1 | Pending |
-| HOTSPOT-1550 | Explain — no next-step on miss | P1 | Pending |
-| HOTSPOT-1551 | Explain — stderr-only; quiet parity; exit codes | P1 | Pending |
-| HOTSPOT-1552 | Docs — recipes cookbook + glossary | P1 | Pending |
-| HOTSPOT-1553 | Docs — README brief | P1 | Pending |
-| HOTSPOT-1554 | Docs — living ARCHITECTURE/CONCERNS/STRUCTURE/skills | P1 | Pending |
-| HOTSPOT-1555–1569 | Buffer unused | — | — |
-| HOTSPOT-1570–1599 | Reserved | — | — |
+| ID                | Story                                                     | Priority | Status  |
+| ----------------- | --------------------------------------------------------- | -------- | ------- |
+| HOTSPOT-1540      | Classify — API + kinds                                    | P1       | Pending |
+| HOTSPOT-1541      | Classify — min points / inconclusive                      | P1       | Pending |
+| HOTSPOT-1542      | Classify — stable / refactored / deteriorating heuristics | P1       | Pending |
+| HOTSPOT-1543      | Classify — indentMean primary; no AST                     | P1       | Pending |
+| HOTSPOT-1544      | Wire — `meta.growthPattern` always                        | P1       | Pending |
+| HOTSPOT-1545      | Schema — complexity-trend `3.0`                           | P1       | Pending |
+| HOTSPOT-1546      | Schema — scan `3.0` untouched                             | P1       | Pending |
+| HOTSPOT-1547      | Table — Pattern line above sparklines                     | P1       | Pending |
+| HOTSPOT-1548      | CSV — no pattern column                                   | P1       | Pending |
+| HOTSPOT-1549      | Explain — next-step on hit                                | P1       | Pending |
+| HOTSPOT-1550      | Explain — no next-step on miss                            | P1       | Pending |
+| HOTSPOT-1551      | Explain — stderr-only; quiet parity; exit codes           | P1       | Pending |
+| HOTSPOT-1552      | Docs — recipes cookbook + glossary                        | P1       | Pending |
+| HOTSPOT-1553      | Docs — README brief                                       | P1       | Pending |
+| HOTSPOT-1554      | Docs — living ARCHITECTURE/CONCERNS/STRUCTURE/skills      | P1       | Pending |
+| HOTSPOT-1555–1569 | Buffer unused                                             | —        | —       |
+| HOTSPOT-1570–1599 | Reserved                                                  | —        | —       |
 
 ---
 

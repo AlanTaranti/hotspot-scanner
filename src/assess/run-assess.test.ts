@@ -225,13 +225,14 @@ describe("runAssess", () => {
     ];
 
     const runScan = vi.fn().mockResolvedValue(makeScanResult(hotspots));
-    const runComplexityTrend = vi.fn().mockImplementation(
-      async ({ filePath }: { filePath: string }) =>
+    const runComplexityTrend = vi
+      .fn()
+      .mockImplementation(async ({ filePath }: { filePath: string }) =>
         makeTrendResult(filePath.replace(/^\/repo\//, ""), {
           kind: "inconclusive",
           summary: "insufficient history",
         }),
-    );
+      );
     const onAssessProgress = vi.fn();
 
     await runAssess(
@@ -255,13 +256,14 @@ describe("runAssess", () => {
     ];
 
     const runScan = vi.fn().mockResolvedValue(makeScanResult(hotspots));
-    const runComplexityTrend = vi.fn().mockImplementation(
-      async ({ filePath }: { filePath: string }) =>
+    const runComplexityTrend = vi
+      .fn()
+      .mockImplementation(async ({ filePath }: { filePath: string }) =>
         makeTrendResult(filePath.replace(/^\/repo\//, ""), {
           kind: "stable",
           summary: "stable",
         }),
-    );
+      );
 
     await runAssess(
       { repoPath: "/repo", signal: controller.signal },

@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/assess-color-ux/spec.md`](./spec.md)  
 **Context**: [`.specs/features/assess-color-ux/context.md`](./context.md)  
-**Status**: Specs Done  
+**Status**: Specs Done
 
 ---
 
@@ -34,23 +34,23 @@ JSON/markdown paths unchanged: `renderAssessJson` / `renderAssessMarkdown` — n
 
 ## Code Reuse Analysis
 
-| Component | Location | How to use |
-| --------- | -------- | ---------- |
-| ANSI + `stripAnsi` + `paintScore` | `src/report/color.ts` | Add `paintBold`; reuse/add `paintGrowthPattern`; reuse `paintScore` |
-| Table color gate | `bin/hotspot-scanner.ts` `resolveTableColor` / `resolveTrendColor` | Mirror as `resolveAssessColor` (`format === "table"` + `outputPath`) |
-| Assess table | `src/report/assess-table.ts` | Add optional `{ color?: boolean }`; paint locked tokens only |
-| Assess actions | `bin/assess-actions.ts` | Accept `color` in `executeAssess` / `renderAssessOutput`; pass to table only |
-| Assess CLI tests | `bin/hotspot-scanner.test.ts` | Extend assess cases; use `stripAnsi` where needed |
+| Component                         | Location                                                           | How to use                                                                   |
+| --------------------------------- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
+| ANSI + `stripAnsi` + `paintScore` | `src/report/color.ts`                                              | Add `paintBold`; reuse/add `paintGrowthPattern`; reuse `paintScore`          |
+| Table color gate                  | `bin/hotspot-scanner.ts` `resolveTableColor` / `resolveTrendColor` | Mirror as `resolveAssessColor` (`format === "table"` + `outputPath`)         |
+| Assess table                      | `src/report/assess-table.ts`                                       | Add optional `{ color?: boolean }`; paint locked tokens only                 |
+| Assess actions                    | `bin/assess-actions.ts`                                            | Accept `color` in `executeAssess` / `renderAssessOutput`; pass to table only |
+| Assess CLI tests                  | `bin/hotspot-scanner.test.ts`                                      | Extend assess cases; use `stripAnsi` where needed                            |
 
 ### Fragile / concerns
 
-| Concern | Mitigation |
-| ------- | ---------- |
-| Existing assess table assertions break with ANSI | Prefer `stripAnsi` then assert |
-| Summary line has four kinds | Paint each kind token once; leave `=` and digits plain |
-| M76 not yet Done | Implement `paintGrowthPattern` in T1 if missing; shared export |
-| Scan vs assess `--no-color` | Separate commander options; document all four surfaces |
-| Bold + color on same token | Forbidden by D1 — bold structure only; color semantics only |
+| Concern                                          | Mitigation                                                     |
+| ------------------------------------------------ | -------------------------------------------------------------- |
+| Existing assess table assertions break with ANSI | Prefer `stripAnsi` then assert                                 |
+| Summary line has four kinds                      | Paint each kind token once; leave `=` and digits plain         |
+| M76 not yet Done                                 | Implement `paintGrowthPattern` in T1 if missing; shared export |
+| Scan vs assess `--no-color`                      | Separate commander options; document all four surfaces         |
+| Bold + color on same token                       | Forbidden by D1 — bold structure only; color semantics only    |
 
 ---
 
@@ -127,12 +127,12 @@ Commander maps `--no-color` to `options.color === false` — match scan/doctor/t
 
 ## Test Plan
 
-| Layer | Coverage |
-| ----- | -------- |
-| Unit `src/report/color.test.ts` | `paintBold` on/off; `paintGrowthPattern` if added here |
+| Layer                                                           | Coverage                                                                                        |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Unit `src/report/color.test.ts`                                 | `paintBold` on/off; `paintGrowthPattern` if added here                                          |
 | Unit `src/report/assess-format.test.ts` (or assess-table tests) | `renderAssessTable` color true/false; `stripAnsi` equality; title/section/summary/detail tokens |
-| Unit bin | `resolveAssessColor` matrix (table/json/markdown, TTY, noColor, NO_COLOR, outputPath) |
-| CLI `bin/hotspot-scanner.test.ts` | assess `--no-color`; json/markdown no ANSI; help lists flag; TTY → ANSI when injectable |
+| Unit bin                                                        | `resolveAssessColor` matrix (table/json/markdown, TTY, noColor, NO_COLOR, outputPath)           |
+| CLI `bin/hotspot-scanner.test.ts`                               | assess `--no-color`; json/markdown no ANSI; help lists flag; TTY → ANSI when injectable         |
 
 Gate: `pnpm build && pnpm test`
 

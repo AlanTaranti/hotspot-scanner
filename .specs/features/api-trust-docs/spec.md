@@ -22,15 +22,15 @@ Package consumers cannot import dry-run preview or doctor from the public entry.
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| npm publish / npx / `pnpm dlx` | Deferred (STATE) |
-| Hard-fail on unknown config keys | Locked warn-only / forward-compat |
-| New CLI flags or config keys | YAGNI |
-| JSON schema / ranking / miner changes | Docs + exports + thin config warn only |
-| Subpath `package.json` exports | Keep M45 single `"."` map |
-| `formatScanScopePreview` / doctor internals as public API | YAGNI |
-| Redesign `merge-heavy` history | Fixture already exists |
+| Feature                                                   | Reason                                 |
+| --------------------------------------------------------- | -------------------------------------- |
+| npm publish / npx / `pnpm dlx`                            | Deferred (STATE)                       |
+| Hard-fail on unknown config keys                          | Locked warn-only / forward-compat      |
+| New CLI flags or config keys                              | YAGNI                                  |
+| JSON schema / ranking / miner changes                     | Docs + exports + thin config warn only |
+| Subpath `package.json` exports                            | Keep M45 single `"."` map              |
+| `formatScanScopePreview` / doctor internals as public API | YAGNI                                  |
+| Redesign `merge-heavy` history                            | Fixture already exists                 |
 
 ---
 
@@ -70,7 +70,7 @@ Package consumers cannot import dry-run preview or doctor from the public entry.
 2. WHEN unknown keys are present THEN the system SHALL emit a `ScanWarning` with `code: "UNKNOWN_CONFIG_KEY"` (severity `warning`) listing the unknown key name(s) — prefer one warning with sorted key names
 3. WHEN unknown keys are present THEN scan/doctor/config load SHALL **not** throw `ConfigError` solely because of those keys
 4. WHEN only unknown keys differ from a valid empty/known config THEN exit code on successful scan SHALL remain `0`
-5. WHEN invalid *known* key types appear THEN behavior SHALL remain hard-fail (`ConfigError`) as today
+5. WHEN invalid _known_ key types appear THEN behavior SHALL remain hard-fail (`ConfigError`) as today
 6. WHEN `runScan` completes with unknown config keys THEN `meta.warnings` SHALL include the `UNKNOWN_CONFIG_KEY` entry and `onWarning` SHALL have been invoked (when provided)
 7. WHEN README / Configuration docs mention unknown keys THEN they SHALL state warn-only + ignored for merge (supersede “silently ignored”)
 8. WHEN `docs/warning-codes.md` is updated THEN it SHALL list `UNKNOWN_CONFIG_KEY` with a one-line interpretation
@@ -133,32 +133,32 @@ Package consumers cannot import dry-run preview or doctor from the public entry.
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-860 | P1: Public exports — `previewScanScope` | Tasks | Pending |
-| HOTSPOT-861 | P1: Public exports — `ScanScopePreview` | Tasks | Pending |
-| HOTSPOT-862 | P1: Public exports — `runDoctor` | Tasks | Pending |
-| HOTSPOT-863 | P1: Public exports — doctor types | Tasks | Pending |
-| HOTSPOT-864 | P1: README Programmatic API | Tasks | Pending |
-| HOTSPOT-865 | P1: `exports` map unchanged shape | Tasks | Pending |
-| HOTSPOT-866 | P1: `dist` types after build | Tasks | Pending |
-| HOTSPOT-867 | P1: Unknown keys ignored for merge | Tasks | Pending |
-| HOTSPOT-868 | P1: Warn-only emission | Tasks | Pending |
-| HOTSPOT-869 | P1: Code `UNKNOWN_CONFIG_KEY` | Tasks | Pending |
-| HOTSPOT-870 | P1: No fail / exit 0 | Tasks | Pending |
-| HOTSPOT-871 | P1: Docs supersede silent ignore | Tasks | Pending |
-| HOTSPOT-872 | P1: warning-codes cheatsheet | Tasks | Pending |
-| HOTSPOT-873 | P1: Bootstrap merge-heavy | Tasks | Pending |
-| HOTSPOT-874 | P1: Integration describe | Tasks | Pending |
-| HOTSPOT-875 | P1: keep/remove assertions | Tasks | Pending |
-| HOTSPOT-876 | P1: TESTING.md wire note | Tasks | Pending |
-| HOTSPOT-877 | P1: Zero-network callout | Tasks | Pending |
-| HOTSPOT-878 | P1: SECURITY.md | Tasks | Pending |
-| HOTSPOT-879 | P1: README → SECURITY link | Tasks | Pending |
-| HOTSPOT-880 | P1: Baseline-in-artifacts | Tasks | Pending |
-| HOTSPOT-881 | P1: `--only` ≠ baseline cross-link | Tasks | Pending |
-| HOTSPOT-882 | P1: `files` includes SECURITY.md | Tasks | Pending |
-| HOTSPOT-883–889 | Reserved | — | Reserved |
+| Requirement ID  | Story                                   | Phase | Status   |
+| --------------- | --------------------------------------- | ----- | -------- |
+| HOTSPOT-860     | P1: Public exports — `previewScanScope` | Tasks | Pending  |
+| HOTSPOT-861     | P1: Public exports — `ScanScopePreview` | Tasks | Pending  |
+| HOTSPOT-862     | P1: Public exports — `runDoctor`        | Tasks | Pending  |
+| HOTSPOT-863     | P1: Public exports — doctor types       | Tasks | Pending  |
+| HOTSPOT-864     | P1: README Programmatic API             | Tasks | Pending  |
+| HOTSPOT-865     | P1: `exports` map unchanged shape       | Tasks | Pending  |
+| HOTSPOT-866     | P1: `dist` types after build            | Tasks | Pending  |
+| HOTSPOT-867     | P1: Unknown keys ignored for merge      | Tasks | Pending  |
+| HOTSPOT-868     | P1: Warn-only emission                  | Tasks | Pending  |
+| HOTSPOT-869     | P1: Code `UNKNOWN_CONFIG_KEY`           | Tasks | Pending  |
+| HOTSPOT-870     | P1: No fail / exit 0                    | Tasks | Pending  |
+| HOTSPOT-871     | P1: Docs supersede silent ignore        | Tasks | Pending  |
+| HOTSPOT-872     | P1: warning-codes cheatsheet            | Tasks | Pending  |
+| HOTSPOT-873     | P1: Bootstrap merge-heavy               | Tasks | Pending  |
+| HOTSPOT-874     | P1: Integration describe                | Tasks | Pending  |
+| HOTSPOT-875     | P1: keep/remove assertions              | Tasks | Pending  |
+| HOTSPOT-876     | P1: TESTING.md wire note                | Tasks | Pending  |
+| HOTSPOT-877     | P1: Zero-network callout                | Tasks | Pending  |
+| HOTSPOT-878     | P1: SECURITY.md                         | Tasks | Pending  |
+| HOTSPOT-879     | P1: README → SECURITY link              | Tasks | Pending  |
+| HOTSPOT-880     | P1: Baseline-in-artifacts               | Tasks | Pending  |
+| HOTSPOT-881     | P1: `--only` ≠ baseline cross-link      | Tasks | Pending  |
+| HOTSPOT-882     | P1: `files` includes SECURITY.md        | Tasks | Pending  |
+| HOTSPOT-883–889 | Reserved                                | —     | Reserved |
 
 **Coverage:** 23 mapped requirements + 7 reserved; all P1 criteria map to tasks below.
 

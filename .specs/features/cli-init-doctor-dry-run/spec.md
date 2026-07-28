@@ -23,16 +23,16 @@ Adopters need a safe on-ramp: an exemplar config file without hand-copying docs,
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
+| Feature                                           | Reason                                       |
+| ------------------------------------------------- | -------------------------------------------- |
 | M38 polish (`--quiet`, aliases, default scan `.`) | Separate milestone; do not depend on aliases |
-| M40 `baseline save` / workflow subcommands | Separate milestone |
-| Changing PathScope / default exclude set | Preview only; M7/M30 locks stand |
-| Interactive init wizard / TTY prompts | YAGNI |
-| Auto-fix from doctor | Diagnose only |
-| JSON Schema for config file | YAGNI (parse rules already in `src/config/`) |
-| npm publish / npx install path | Deferred backlog |
-| Machine-readable doctor/dry-run JSON | YAGNI — text stdout |
+| M40 `baseline save` / workflow subcommands        | Separate milestone                           |
+| Changing PathScope / default exclude set          | Preview only; M7/M30 locks stand             |
+| Interactive init wizard / TTY prompts             | YAGNI                                        |
+| Auto-fix from doctor                              | Diagnose only                                |
+| JSON Schema for config file                       | YAGNI (parse rules already in `src/config/`) |
+| npm publish / npx install path                    | Deferred backlog                             |
+| Machine-readable doctor/dry-run JSON              | YAGNI — text stdout                          |
 
 ---
 
@@ -119,28 +119,28 @@ Adopters need a safe on-ramp: an exemplar config file without hand-copying docs,
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-470 | P1: init cwd write | Tasks | Pending |
-| HOTSPOT-471 | P1: init optional dir | Tasks | Pending |
-| HOTSPOT-472 | P1: no overwrite without `--force` | Tasks | Pending |
-| HOTSPOT-473 | P1: `--force` overwrite | Tasks | Pending |
-| HOTSPOT-474 | P1: exemplar keys/values | Tasks | Pending |
-| HOTSPOT-475 | P1: init help | Tasks | Pending |
-| HOTSPOT-476 | P1: init success exit 0 | Tasks | Pending |
-| HOTSPOT-477 | P1: doctor Node engines | Tasks | Pending |
-| HOTSPOT-478 | P1: doctor git on PATH | Tasks | Pending |
-| HOTSPOT-479 | P1: doctor git repo | Tasks | Pending |
-| HOTSPOT-480 | P1: doctor config discovery/validity | Tasks | Pending |
-| HOTSPOT-481 | P1: doctor tsconfig/jsconfig info | Tasks | Pending |
-| HOTSPOT-482 | P1: doctor hard-fail exit | Tasks | Pending |
-| HOTSPOT-483 | P1: doctor soft warn exit 0 | Tasks | Pending |
-| HOTSPOT-484 | P1: doctor path default cwd | Tasks | Pending |
-| HOTSPOT-485 | P1: dry-run prints effective scope | Tasks | Pending |
-| HOTSPOT-486 | P1: dry-run eligible file count | Tasks | Pending |
-| HOTSPOT-487 | P1: dry-run concurrency | Tasks | Pending |
-| HOTSPOT-488 | P1: dry-run skips mine/AST/scoring | Tasks | Pending |
-| HOTSPOT-489 | P1: dry-run help + flag interactions | Tasks | Pending |
+| Requirement ID | Story                                | Phase | Status  |
+| -------------- | ------------------------------------ | ----- | ------- |
+| HOTSPOT-470    | P1: init cwd write                   | Tasks | Pending |
+| HOTSPOT-471    | P1: init optional dir                | Tasks | Pending |
+| HOTSPOT-472    | P1: no overwrite without `--force`   | Tasks | Pending |
+| HOTSPOT-473    | P1: `--force` overwrite              | Tasks | Pending |
+| HOTSPOT-474    | P1: exemplar keys/values             | Tasks | Pending |
+| HOTSPOT-475    | P1: init help                        | Tasks | Pending |
+| HOTSPOT-476    | P1: init success exit 0              | Tasks | Pending |
+| HOTSPOT-477    | P1: doctor Node engines              | Tasks | Pending |
+| HOTSPOT-478    | P1: doctor git on PATH               | Tasks | Pending |
+| HOTSPOT-479    | P1: doctor git repo                  | Tasks | Pending |
+| HOTSPOT-480    | P1: doctor config discovery/validity | Tasks | Pending |
+| HOTSPOT-481    | P1: doctor tsconfig/jsconfig info    | Tasks | Pending |
+| HOTSPOT-482    | P1: doctor hard-fail exit            | Tasks | Pending |
+| HOTSPOT-483    | P1: doctor soft warn exit 0          | Tasks | Pending |
+| HOTSPOT-484    | P1: doctor path default cwd          | Tasks | Pending |
+| HOTSPOT-485    | P1: dry-run prints effective scope   | Tasks | Pending |
+| HOTSPOT-486    | P1: dry-run eligible file count      | Tasks | Pending |
+| HOTSPOT-487    | P1: dry-run concurrency              | Tasks | Pending |
+| HOTSPOT-488    | P1: dry-run skips mine/AST/scoring   | Tasks | Pending |
+| HOTSPOT-489    | P1: dry-run help + flag interactions | Tasks | Pending |
 
 **Coverage:** 20 total (HOTSPOT-470–489), mapped in tasks.md.
 

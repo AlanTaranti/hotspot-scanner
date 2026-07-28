@@ -22,7 +22,9 @@ describe("paintBold", () => {
   });
 
   it("wraps text in bold when enabled", () => {
-    expect(paintBold("Deteriorating", true)).toBe(`${BOLD}Deteriorating${RESET}`);
+    expect(paintBold("Deteriorating", true)).toBe(
+      `${BOLD}Deteriorating${RESET}`,
+    );
   });
 });
 

@@ -27,11 +27,11 @@ All gray areas for M65 are closed below. No open `PENDING-DISCUSSION`.
 
 **Question:** Which stderr families get hints?
 
-| Family | Detect (case-insensitive substrings / cheap regex on stderr) | Hint tone (locked intent) |
-| ------ | ------------------------------------------------------------ | ------------------------- |
-| Invalid `--since` / date | `invalid date`, `not a valid date`, `bad date` (and close git phrasing) | Fix `--since` / config `since` — relative window (e.g. `12 months ago`) or ISO `YYYY-MM-DD` |
-| Shallow clone | stderr contains `shallow` (git shallow limitation / object missing due to shallow) | Deepen or full clone — e.g. `git fetch --unshallow` / re-clone without `--depth` |
-| Corrupt / bad objects | `corrupt`, `bad object`, `loose object`, `object file` + empty/corrupt cues | `git fsck` / repair or re-clone |
+| Family                   | Detect (case-insensitive substrings / cheap regex on stderr)                       | Hint tone (locked intent)                                                                   |
+| ------------------------ | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Invalid `--since` / date | `invalid date`, `not a valid date`, `bad date` (and close git phrasing)            | Fix `--since` / config `since` — relative window (e.g. `12 months ago`) or ISO `YYYY-MM-DD` |
+| Shallow clone            | stderr contains `shallow` (git shallow limitation / object missing due to shallow) | Deepen or full clone — e.g. `git fetch --unshallow` / re-clone without `--depth`            |
+| Corrupt / bad objects    | `corrupt`, `bad object`, `loose object`, `object file` + empty/corrupt cues        | `git fsck` / repair or re-clone                                                             |
 
 **First match wins** — order: **since/date → shallow → corrupt**. Unmatched stderr: keep today’s message shape (`git log failed for repo …: <stderr|unknown error>`) with **no** `Hint:` line.
 
@@ -43,11 +43,11 @@ All gray areas for M65 are closed below. No open `PENDING-DISCUSSION`.
 
 ## Decision: Do not duplicate not-a-git or doctor since (LOCKED)
 
-| Sister / existing | M65 does | M65 does not |
-| ----------------- | -------- | ------------ |
-| M38 guided errors | Same `Hint:` tone and newline presentation | Re-touch CliUsageError / ConfigError / baseline families |
-| `resolve-repo` / not-a-git | Leave existing Hint on non-repo path | Add a dedicated not-a-git pattern as a deliverable (already handled before mine) |
-| M64 config-doctor-dx since preflight | Runtime `GitLogError` when scan still hits git-rejected since | Implement `probeSinceWindow`, doctor finding `since`, or doctor CLI changes |
+| Sister / existing                    | M65 does                                                      | M65 does not                                                                     |
+| ------------------------------------ | ------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| M38 guided errors                    | Same `Hint:` tone and newline presentation                    | Re-touch CliUsageError / ConfigError / baseline families                         |
+| `resolve-repo` / not-a-git           | Leave existing Hint on non-repo path                          | Add a dedicated not-a-git pattern as a deliverable (already handled before mine) |
+| M64 config-doctor-dx since preflight | Runtime `GitLogError` when scan still hits git-rejected since | Implement `probeSinceWindow`, doctor finding `since`, or doctor CLI changes      |
 
 Empty `--since` windows that **succeed** with exit 0 remain M26/M64 warn territory — **not** GitLogError hints.
 
@@ -71,12 +71,12 @@ Empty `--since` windows that **succeed** with exit 0 remain M26/M64 warn territo
 
 ## Decision: Exit codes and surface unchanged (LOCKED)
 
-| Item | Lock |
-| ---- | ---- |
+| Item                                      | Lock                                  |
+| ----------------------------------------- | ------------------------------------- |
 | Exit on `GitLogError` / `GitLsFilesError` | Still **1** (pipeline failure), not 2 |
-| New CLI flags / config keys / schema | **None** |
-| JSON report / rankings / spawn argv | Unchanged |
-| AbortError / SIGINT paths | Unchanged (no Hint injection) |
+| New CLI flags / config keys / schema      | **None**                              |
+| JSON report / rankings / spawn argv       | Unchanged                             |
+| AbortError / SIGINT paths                 | Unchanged (no Hint injection)         |
 
 **Status:** **Confirmed**
 

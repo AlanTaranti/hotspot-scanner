@@ -35,68 +35,68 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (body) | Diagram shows | Status |
-| ---- | ----------------- | ------------- | ------ |
-| T1 | None | Root | ✅ Match |
-| T2 | T1 | T1→T2 | ✅ Match |
-| T3 | T1, T2 | T1→T3, T2→T3 | ✅ Match |
-| T4 | T2 | T2→T4 | ✅ Match |
-| T5 | T3, T4 | T3→T5, T4→T5 | ✅ Match |
+| Task | Depends on (body) | Diagram shows | Status   |
+| ---- | ----------------- | ------------- | -------- |
+| T1   | None              | Root          | ✅ Match |
+| T2   | T1                | T1→T2         | ✅ Match |
+| T3   | T1, T2            | T1→T3, T2→T3  | ✅ Match |
+| T4   | T2                | T2→T4         | ✅ Match |
+| T5   | T3, T4            | T3→T5, T4→T5  | ✅ Match |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | `src/scan.ts` + `src/types/` | `domain.ts`, `scan.ts`, `scan.test.ts` (orchestration unit) | Sole owner of sequential branch |
-| T2 | `bin/` | `hotspot-scanner.ts`, `scan-actions.ts`, bin tests | After T1; does not edit scan orchestration |
-| T3 | `src/` tests | `scan.test.ts` (remaining), `scan.integration.test.ts` | May extend T1 tests; no bin/scripts |
-| T4 | `scripts/` + `package.json` | bench script, `benchmark-scan.md`, `"bench"` | Disjoint from T3 `[P]` |
-| T5 | docs | ARCHITECTURE, CONCERNS, TESTING, README (brief) | After T3/T4 |
+| Task | Module owner                 | Paths                                                       | Conflict                                   |
+| ---- | ---------------------------- | ----------------------------------------------------------- | ------------------------------------------ |
+| T1   | `src/scan.ts` + `src/types/` | `domain.ts`, `scan.ts`, `scan.test.ts` (orchestration unit) | Sole owner of sequential branch            |
+| T2   | `bin/`                       | `hotspot-scanner.ts`, `scan-actions.ts`, bin tests          | After T1; does not edit scan orchestration |
+| T3   | `src/` tests                 | `scan.test.ts` (remaining), `scan.integration.test.ts`      | May extend T1 tests; no bin/scripts        |
+| T4   | `scripts/` + `package.json`  | bench script, `benchmark-scan.md`, `"bench"`                | Disjoint from T3 `[P]`                     |
+| T5   | docs                         | ARCHITECTURE, CONCERNS, TESTING, README (brief)             | After T3/T4                                |
 
 ### Test Co-location Validation
 
-| Task | Code layer | Matrix / TESTING.md | Task Tests | Status |
-| ---- | ---------- | ------------------- | ---------- | ------ |
-| T1 | `src/scan.ts` / types | unit co-located | unit | ✅ OK |
-| T2 | `bin/` | CLI Vitest | CLI unit | ✅ OK |
-| T3 | scan unit + integration | unit + integration | unit + integration | ✅ OK |
-| T4 | scripts / package.json | Performance: manual / not CI | none (policy) | ✅ OK |
-| T5 | docs | none | none + full gate | ✅ OK |
+| Task | Code layer              | Matrix / TESTING.md          | Task Tests         | Status |
+| ---- | ----------------------- | ---------------------------- | ------------------ | ------ |
+| T1   | `src/scan.ts` / types   | unit co-located              | unit               | ✅ OK  |
+| T2   | `bin/`                  | CLI Vitest                   | CLI unit           | ✅ OK  |
+| T3   | scan unit + integration | unit + integration           | unit + integration | ✅ OK  |
+| T4   | scripts / package.json  | Performance: manual / not CI | none (policy)      | ✅ OK  |
+| T5   | docs                    | none                         | none + full gate   | ✅ OK  |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | One option + orchestration branch + core unit proofs | ✅ Cohesive scan slice |
-| T2 | CLI flag pair + forward | ✅ Granular |
-| T3 | Structural + fixture parity tests | ✅ Granular |
-| T4 | Bench harness + docs for harness | ✅ Cohesive tooling |
-| T5 | Living docs + project gate | ✅ Granular |
+| Task | Scope                                                | Status                 |
+| ---- | ---------------------------------------------------- | ---------------------- |
+| T1   | One option + orchestration branch + core unit proofs | ✅ Cohesive scan slice |
+| T2   | CLI flag pair + forward                              | ✅ Granular            |
+| T3   | Structural + fixture parity tests                    | ✅ Granular            |
+| T4   | Bench harness + docs for harness                     | ✅ Cohesive tooling    |
+| T5   | Living docs + project gate                           | ✅ Granular            |
 
 ### Requirement → Task Mapping
 
-| Requirement ID | Task |
-| -------------- | ---- |
-| HOTSPOT-710 | T1 |
-| HOTSPOT-711 | T2 |
-| HOTSPOT-712 | T1 |
-| HOTSPOT-713 | T1, T2 |
-| HOTSPOT-714 | T2, T3 |
-| HOTSPOT-715 | T1 |
-| HOTSPOT-716 | T3 |
-| HOTSPOT-717 | T2 |
-| HOTSPOT-718 | T2 |
-| HOTSPOT-719 | T1, T3 |
-| HOTSPOT-720 | T3 |
-| HOTSPOT-721 | T4 |
-| HOTSPOT-722 | T4 |
-| HOTSPOT-723 | T4 |
-| HOTSPOT-724 | T4 |
-| HOTSPOT-725 | T4 |
-| HOTSPOT-726 | T4 |
-| HOTSPOT-727 | T5 |
-| HOTSPOT-728 | T5 |
-| HOTSPOT-729 | T5 |
+| Requirement ID | Task   |
+| -------------- | ------ |
+| HOTSPOT-710    | T1     |
+| HOTSPOT-711    | T2     |
+| HOTSPOT-712    | T1     |
+| HOTSPOT-713    | T1, T2 |
+| HOTSPOT-714    | T2, T3 |
+| HOTSPOT-715    | T1     |
+| HOTSPOT-716    | T3     |
+| HOTSPOT-717    | T2     |
+| HOTSPOT-718    | T2     |
+| HOTSPOT-719    | T1, T3 |
+| HOTSPOT-720    | T3     |
+| HOTSPOT-721    | T4     |
+| HOTSPOT-722    | T4     |
+| HOTSPOT-723    | T4     |
+| HOTSPOT-724    | T4     |
+| HOTSPOT-725    | T4     |
+| HOTSPOT-726    | T4     |
+| HOTSPOT-727    | T5     |
+| HOTSPOT-728    | T5     |
+| HOTSPOT-729    | T5     |
 
 **Coverage:** 20/20 mapped, 0 unmapped
 

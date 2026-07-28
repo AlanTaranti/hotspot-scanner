@@ -41,52 +41,52 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (body) | Diagram | Status |
-| ---- | ----------------- | ------- | ------ |
-| T1 | None | Root parallel | ✅ Match |
-| T2 | T1 | T1 → T2 | ✅ Match |
-| T3 | None | Root parallel | ✅ Match |
-| T4 | T2, T3 | T2/T3 → T4 | ✅ Match |
-| T5 | T4 | T4 → T5 | ✅ Match |
+| Task | Depends on (body) | Diagram       | Status   |
+| ---- | ----------------- | ------------- | -------- |
+| T1   | None              | Root parallel | ✅ Match |
+| T2   | T1                | T1 → T2       | ✅ Match |
+| T3   | None              | Root parallel | ✅ Match |
+| T4   | T2, T3            | T2/T3 → T4    | ✅ Match |
+| T5   | T4                | T4 → T5       | ✅ Match |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | git | `src/git/ls-files.ts`, `src/git/ls-files.test.ts` (+ optional `src/git/index` export) | None vs T3 |
-| T2 | complexity | `src/complexity/discover.ts`, `src/complexity/discover.test.ts` | After T1 only |
-| T3 | complexity/pool | `src/complexity/pool.ts` (+ pool test assert if needed) | Disjoint from T1; do not edit `discover.ts` |
-| T4 | docs | `README.md`, `.specs/codebase/{ARCHITECTURE,INTEGRATIONS,CONCERNS}.md`, `scripts/benchmark-scan.md` | After code tasks |
-| T5 | gate | none (verify only) | After T4 |
+| Task | Module owner    | Paths                                                                                               | Conflict                                    |
+| ---- | --------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| T1   | git             | `src/git/ls-files.ts`, `src/git/ls-files.test.ts` (+ optional `src/git/index` export)               | None vs T3                                  |
+| T2   | complexity      | `src/complexity/discover.ts`, `src/complexity/discover.test.ts`                                     | After T1 only                               |
+| T3   | complexity/pool | `src/complexity/pool.ts` (+ pool test assert if needed)                                             | Disjoint from T1; do not edit `discover.ts` |
+| T4   | docs            | `README.md`, `.specs/codebase/{ARCHITECTURE,INTEGRATIONS,CONCERNS}.md`, `scripts/benchmark-scan.md` | After code tasks                            |
+| T5   | gate            | none (verify only)                                                                                  | After T4                                    |
 
 ### Test Co-location Validation
 
-| Task | Code layer | Matrix requires | Task says | Status |
-| ---- | ---------- | --------------- | --------- | ------ |
-| T1 | Git adapter helper | unit (mock spawn) | unit `ls-files.test.ts` | ✅ OK |
-| T2 | Complexity discover | unit | unit `discover.test.ts` | ✅ OK |
-| T3 | Complexity pool constant | unit | unit assert on `DEFAULT_WORKER_CONCURRENCY` | ✅ OK |
-| T4 | Docs | none | none | ✅ OK |
-| T5 | Gate | full | `pnpm build && pnpm test` | ✅ OK |
+| Task | Code layer               | Matrix requires   | Task says                                   | Status |
+| ---- | ------------------------ | ----------------- | ------------------------------------------- | ------ |
+| T1   | Git adapter helper       | unit (mock spawn) | unit `ls-files.test.ts`                     | ✅ OK  |
+| T2   | Complexity discover      | unit              | unit `discover.test.ts`                     | ✅ OK  |
+| T3   | Complexity pool constant | unit              | unit assert on `DEFAULT_WORKER_CONCURRENCY` | ✅ OK  |
+| T4   | Docs                     | none              | none                                        | ✅ OK  |
+| T5   | Gate                     | full              | `pnpm build && pnpm test`                   | ✅ OK  |
 
 ### Requirement → Task Mapping
 
 | Requirement ID | Task(s) |
 | -------------- | ------- |
-| HOTSPOT-400 | T2 |
-| HOTSPOT-401 | T2 |
-| HOTSPOT-402 | T2 |
-| HOTSPOT-403 | T2 |
-| HOTSPOT-404 | T1 |
-| HOTSPOT-405 | T2 |
-| HOTSPOT-406 | T3 |
-| HOTSPOT-407 | T3 |
-| HOTSPOT-408 | T4 |
-| HOTSPOT-409 | T4 |
-| HOTSPOT-410 | T4 |
-| HOTSPOT-411 | T4 |
-| HOTSPOT-412 | T2 |
-| HOTSPOT-413 | T2 |
+| HOTSPOT-400    | T2      |
+| HOTSPOT-401    | T2      |
+| HOTSPOT-402    | T2      |
+| HOTSPOT-403    | T2      |
+| HOTSPOT-404    | T1      |
+| HOTSPOT-405    | T2      |
+| HOTSPOT-406    | T3      |
+| HOTSPOT-407    | T3      |
+| HOTSPOT-408    | T4      |
+| HOTSPOT-409    | T4      |
+| HOTSPOT-410    | T4      |
+| HOTSPOT-411    | T4      |
+| HOTSPOT-412    | T2      |
+| HOTSPOT-413    | T2      |
 
 ---
 

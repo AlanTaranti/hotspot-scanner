@@ -33,32 +33,32 @@ flowchart LR
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `createPathScope` / `isPathInScope` / `shouldPruneDirectory` | `src/paths/scope.ts` | Split constants; add `includeTests` to `PathScopeOptions` |
-| `DEFAULT_EXCLUDE_PATTERNS` consumers / tests | `src/paths/scope.test.ts`, ARCHITECTURE | Update assertions; keep export name as full defaults |
-| `runScan` PathScope build | `src/scan.ts` | Pass `includeTests: options.includeTests` |
-| `previewScanScope` | `src/scan-preview.ts` | Same wiring + preview line |
-| `buildScanOptions` / `executeScan` / `executeCompareAndRender` | `bin/scan-actions.ts` | Forward boolean like diagnostics options (not `HotspotScannerConfig`) |
-| Commander flag pattern | `bin/hotspot-scanner.ts` | Mirror `--quiet` / `--dry-run` boolean options on scan + baseline save + compare |
-| Config merge | `src/config/merge-options.ts` | **Do not** add `includeTests` key |
+| Component                                                      | Location                                | How to Use                                                                       |
+| -------------------------------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------- |
+| `createPathScope` / `isPathInScope` / `shouldPruneDirectory`   | `src/paths/scope.ts`                    | Split constants; add `includeTests` to `PathScopeOptions`                        |
+| `DEFAULT_EXCLUDE_PATTERNS` consumers / tests                   | `src/paths/scope.test.ts`, ARCHITECTURE | Update assertions; keep export name as full defaults                             |
+| `runScan` PathScope build                                      | `src/scan.ts`                           | Pass `includeTests: options.includeTests`                                        |
+| `previewScanScope`                                             | `src/scan-preview.ts`                   | Same wiring + preview line                                                       |
+| `buildScanOptions` / `executeScan` / `executeCompareAndRender` | `bin/scan-actions.ts`                   | Forward boolean like diagnostics options (not `HotspotScannerConfig`)            |
+| Commander flag pattern                                         | `bin/hotspot-scanner.ts`                | Mirror `--quiet` / `--dry-run` boolean options on scan + baseline save + compare |
+| Config merge                                                   | `src/config/merge-options.ts`           | **Do not** add `includeTests` key                                                |
 
 ### Integration Points
 
-| System | Integration Method |
-| ------ | ------------------ |
-| PathScope (M7/M30) | Extend options; preserve exclude-wins-over-include |
-| Dry-run (M39) | Surface policy in `formatScanScopePreview` |
+| System               | Integration Method                                               |
+| -------------------- | ---------------------------------------------------------------- |
+| PathScope (M7/M30)   | Extend options; preserve exclude-wins-over-include               |
+| Dry-run (M39)        | Surface policy in `formatScanScopePreview`                       |
 | Workflow verbs (M40) | Same flag on `baseline save` / `compare` via shared scan-actions |
-| picomatch | Unchanged dependency; verify `__tests__` prune in unit tests |
+| picomatch            | Unchanged dependency; verify `__tests__` prune in unit tests     |
 
 ### Fragile / concern notes
 
-| Area | Risk | Mitigation |
-| ---- | ---- | ---------- |
-| PathScope is shared filter for git + complexity | Wrong default → silent ranking drift | Co-located unit tests on patterns + prune; CLI forward tests |
-| Baseline/compare migration | Pre-M46 baselines include tests | Docs note expected “removed” test deltas; no schema migration |
-| Over-exclusion | Excluding `testing/` dirs by name | Patterns are suffix/`__tests__` only — edge case in spec |
+| Area                                            | Risk                                 | Mitigation                                                    |
+| ----------------------------------------------- | ------------------------------------ | ------------------------------------------------------------- |
+| PathScope is shared filter for git + complexity | Wrong default → silent ranking drift | Co-located unit tests on patterns + prune; CLI forward tests  |
+| Baseline/compare migration                      | Pre-M46 baselines include tests      | Docs note expected “removed” test deltas; no schema migration |
+| Over-exclusion                                  | Excluding `testing/` dirs by name    | Patterns are suffix/`__tests__` only — edge case in spec      |
 
 ---
 
@@ -71,7 +71,9 @@ flowchart LR
 - **Interfaces**:
 
 ```typescript
-export const DEFAULT_ARTIFACT_EXCLUDE_PATTERNS = [ /* current M7/M30 list */ ] as const;
+export const DEFAULT_ARTIFACT_EXCLUDE_PATTERNS = [
+  /* current M7/M30 list */
+] as const;
 
 export const DEFAULT_TEST_EXCLUDE_PATTERNS = [
   "**/*.test.ts",
@@ -126,7 +128,7 @@ default excludes: always on
 test files: excluded   # or: test files: included
 ```
 
-  Keep existing `default excludes: always on` (artifact+test policy when excluded; when included, still true for artifacts). Do not dump full pattern lists into dry-run (YAGNI).
+Keep existing `default excludes: always on` (artifact+test policy when excluded; when included, still true for artifacts). Do not dump full pattern lists into dry-run (YAGNI).
 
 ### 4. CLI / scan-actions
 
@@ -156,35 +158,35 @@ No new JSON Schema fields. `ScanResult` / `CompareResult` unchanged.
 
 ## Error Handling Strategy
 
-| Error Scenario | Handling | User Impact |
-| -------------- | -------- | ----------- |
-| Unknown config key `includeTests` in JSON | Unchanged M21 validation — do not add key; if unknown keys already error, leave as-is | No new config surface |
-| Pre-M46 baseline vs post-M46 default scan | Compare runs normally | Many “removed” test entities — documented |
-| Invalid CLI (no new failure modes) | N/A | Boolean flag only |
+| Error Scenario                            | Handling                                                                              | User Impact                               |
+| ----------------------------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------- |
+| Unknown config key `includeTests` in JSON | Unchanged M21 validation — do not add key; if unknown keys already error, leave as-is | No new config surface                     |
+| Pre-M46 baseline vs post-M46 default scan | Compare runs normally                                                                 | Many “removed” test entities — documented |
+| Invalid CLI (no new failure modes)        | N/A                                                                                   | Boolean flag only                         |
 
 ---
 
 ## Tech Decisions
 
-| Decision | Choice | Rationale |
-| -------- | ------ | --------- |
-| Split constants vs single list + filter | Split artifact + test | Clear mental model; matches user lock; easy `includeTests` |
-| Config key | None | Same category as `--quiet` / `--dry-run` |
-| Lift semantics | Only built-in test list | User excludes stay additive (M7) |
-| Fixture repo | None | Scope unit tests sufficient (YAGNI) |
-| Dry-run line | `test files: excluded\|included` | Stable, greppable; no pattern dump |
-| Order of `DEFAULT_EXCLUDE_PATTERNS` | Artifact then test | Predictable; updates `scope.test.ts` equality |
+| Decision                                | Choice                           | Rationale                                                  |
+| --------------------------------------- | -------------------------------- | ---------------------------------------------------------- |
+| Split constants vs single list + filter | Split artifact + test            | Clear mental model; matches user lock; easy `includeTests` |
+| Config key                              | None                             | Same category as `--quiet` / `--dry-run`                   |
+| Lift semantics                          | Only built-in test list          | User excludes stay additive (M7)                           |
+| Fixture repo                            | None                             | Scope unit tests sufficient (YAGNI)                        |
+| Dry-run line                            | `test files: excluded\|included` | Stable, greppable; no pattern dump                         |
+| Order of `DEFAULT_EXCLUDE_PATTERNS`     | Artifact then test               | Predictable; updates `scope.test.ts` equality              |
 
 ---
 
 ## Test Plan (design-level)
 
-| Surface | Focus |
-| ------- | ----- |
-| `src/paths/scope.test.ts` | Constant composition; default exclude of `*.test.ts` / `*.spec.tsx` / `__tests__`; `includeTests: true` includes those; user exclude still wins; prune `__tests__` |
-| `src/scan-preview.test.ts` | Preview line + eligible count with/without includeTests |
-| `bin/hotspot-scanner.test.ts` | Flag on scan help; forward on scan / baseline save / compare |
-| Optional smoke | Dogfood `scan . --top 10` vs `--include-tests` (manual / noted in tasks Verify) |
+| Surface                       | Focus                                                                                                                                                              |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/paths/scope.test.ts`     | Constant composition; default exclude of `*.test.ts` / `*.spec.tsx` / `__tests__`; `includeTests: true` includes those; user exclude still wins; prune `__tests__` |
+| `src/scan-preview.test.ts`    | Preview line + eligible count with/without includeTests                                                                                                            |
+| `bin/hotspot-scanner.test.ts` | Flag on scan help; forward on scan / baseline save / compare                                                                                                       |
+| Optional smoke                | Dogfood `scan . --top 10` vs `--include-tests` (manual / noted in tasks Verify)                                                                                    |
 
 Full gate: `pnpm build && pnpm test`.
 

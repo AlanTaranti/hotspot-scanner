@@ -28,11 +28,7 @@ export interface CoChangePairCount {
 }
 
 /** Aggregate static edge direction between fileA and fileB (coupling enrich internal). */
-export type StaticDependencyDirection =
-  | "none"
-  | "a-to-b"
-  | "b-to-a"
-  | "both";
+export type StaticDependencyDirection = "none" | "a-to-b" | "b-to-a" | "both";
 
 /** Ranked temporal coupling pair (coupling scorer internal; removed from JSON 2.0). */
 export interface CouplingPair {

@@ -71,7 +71,9 @@ describe("buildTriageHints", () => {
   });
 
   it("does not match dual-signal-hotspot when any signal is below threshold", () => {
-    const lowScore = makeHotspot({ hotspotScore: TRIAGE_HOTSPOT_SCORE_THRESHOLD - 0.01 });
+    const lowScore = makeHotspot({
+      hotspotScore: TRIAGE_HOTSPOT_SCORE_THRESHOLD - 0.01,
+    });
     const lowComplexity = makeHotspot({
       complexityNormalized: TRIAGE_NORMALIZED_SIGNAL_THRESHOLD - 0.01,
     });
@@ -79,9 +81,15 @@ describe("buildTriageHints", () => {
       churnNormalized: TRIAGE_NORMALIZED_SIGNAL_THRESHOLD - 0.01,
     });
 
-    expect(buildTriageHints(makeScanResult({ hotspots: [lowScore] }))).toEqual([]);
-    expect(buildTriageHints(makeScanResult({ hotspots: [lowComplexity] }))).toEqual([]);
-    expect(buildTriageHints(makeScanResult({ hotspots: [lowChurn] }))).toEqual([]);
+    expect(buildTriageHints(makeScanResult({ hotspots: [lowScore] }))).toEqual(
+      [],
+    );
+    expect(
+      buildTriageHints(makeScanResult({ hotspots: [lowComplexity] })),
+    ).toEqual([]);
+    expect(buildTriageHints(makeScanResult({ hotspots: [lowChurn] }))).toEqual(
+      [],
+    );
   });
 
   it("caps dual-signal matches at three sorted by rank metric descending", () => {

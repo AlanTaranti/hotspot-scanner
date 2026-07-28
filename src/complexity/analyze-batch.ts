@@ -39,12 +39,7 @@ export async function analyzeBatch(
     try {
       source = await readFile(absolutePath, "utf8");
     } catch (error) {
-      warnings.push(
-        createReadFailedWarning(
-          relativePath,
-          String(error),
-        ),
-      );
+      warnings.push(createReadFailedWarning(relativePath, String(error)));
       continue;
     }
 

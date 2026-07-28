@@ -18,7 +18,9 @@ export function getPackageVersion(): string {
   const parsed = JSON.parse(raw) as { version?: string };
   const version = parsed.version;
   if (typeof version !== "string" || version.length === 0) {
-    throw new Error(`package.json at ${packageJsonPath} is missing a non-empty "version"`);
+    throw new Error(
+      `package.json at ${packageJsonPath} is missing a non-empty "version"`,
+    );
   }
   cachedPackageVersion = version;
   return cachedPackageVersion;

@@ -41,16 +41,16 @@ flowchart LR
 
 ## Code Reuse Analysis
 
-| Pattern | Location | How to use |
-| ------- | -------- | ---------- |
-| NCLOC | `src/complexity/ncloc.ts` `countNcloc` | Per-revision size axis |
-| Git spawn + hints | `src/git/spawn.ts`, `git-error-hint.ts` | New helpers alongside; same stderr→Hint style |
-| Repo resolve / remount | `src/paths/resolve-repo.ts` | Resolve `--repo` / cwd; optional remount awareness for nested paths |
-| Cancel signals | `bin/scan-actions.ts` `runWithScanCancelSignals` | Reuse or thin twin for trend AbortSignal |
-| Doctor-style command | `src/doctor/` | Pattern for `src/trend/` orchestration separate from scan |
-| Completions parity | `bin/completion-scripts.ts` + tests | Add `trend` + flags |
-| Contract tests | `tests/contract/` | New schema `complexity-trend.json` |
-| Pure report + bin I/O | `src/report/` vs `bin/` | Trend formatters pure; `-o` in bin |
+| Pattern                | Location                                         | How to use                                                          |
+| ---------------------- | ------------------------------------------------ | ------------------------------------------------------------------- |
+| NCLOC                  | `src/complexity/ncloc.ts` `countNcloc`           | Per-revision size axis                                              |
+| Git spawn + hints      | `src/git/spawn.ts`, `git-error-hint.ts`          | New helpers alongside; same stderr→Hint style                       |
+| Repo resolve / remount | `src/paths/resolve-repo.ts`                      | Resolve `--repo` / cwd; optional remount awareness for nested paths |
+| Cancel signals         | `bin/scan-actions.ts` `runWithScanCancelSignals` | Reuse or thin twin for trend AbortSignal                            |
+| Doctor-style command   | `src/doctor/`                                    | Pattern for `src/trend/` orchestration separate from scan           |
+| Completions parity     | `bin/completion-scripts.ts` + tests              | Add `trend` + flags                                                 |
+| Contract tests         | `tests/contract/`                                | New schema `complexity-trend.json`                                  |
+| Pure report + bin I/O  | `src/report/` vs `bin/`                          | Trend formatters pure; `-o` in bin                                  |
 
 ---
 
@@ -200,27 +200,27 @@ type ComplexityTrendResult = {
 
 ## Risks and mitigations
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| `--follow` rename path-at-rev wrong | Fixture with rename; integration asserts continuity across rename |
-| N × `git show` slow | Default max 100; `--all` documented; sequential MVP |
-| Prettier mass-reindent cliffs | Docs Limitations / recipes note |
-| CONCERNS “working-tree only” confusion | Update CONCERNS: scan-only constraint; trend reads history |
-| Scope creep into scan JSON | Separate schema + `kind`; no fields on `ScanResult` |
-| Empty vs never-tracked ambiguity | Distinct warning codes / CLI exit policy (context) |
-| Completions drift | M54-style tests for bash/zsh/fish |
+| Risk                                   | Mitigation                                                        |
+| -------------------------------------- | ----------------------------------------------------------------- |
+| `--follow` rename path-at-rev wrong    | Fixture with rename; integration asserts continuity across rename |
+| N × `git show` slow                    | Default max 100; `--all` documented; sequential MVP               |
+| Prettier mass-reindent cliffs          | Docs Limitations / recipes note                                   |
+| CONCERNS “working-tree only” confusion | Update CONCERNS: scan-only constraint; trend reads history        |
+| Scope creep into scan JSON             | Separate schema + `kind`; no fields on `ScanResult`               |
+| Empty vs never-tracked ambiguity       | Distinct warning codes / CLI exit policy (context)                |
+| Completions drift                      | M54-style tests for bash/zsh/fish                                 |
 
 ---
 
 ## Testing strategy
 
-| Layer | What |
-| ----- | ---- |
-| Unit | `analyzeIndentation`, `sparkline`, `uniformSample`, formatters with fixed result |
-| Unit/integration | git helpers with temp repo or fixture |
-| Contract | Ajv `complexity-trend.json` |
-| CLI | `runCli` trend smoke; negative usage; completions |
-| Gate | Per-task Vitest paths; final `pnpm build && pnpm test` |
+| Layer            | What                                                                             |
+| ---------------- | -------------------------------------------------------------------------------- |
+| Unit             | `analyzeIndentation`, `sparkline`, `uniformSample`, formatters with fixed result |
+| Unit/integration | git helpers with temp repo or fixture                                            |
+| Contract         | Ajv `complexity-trend.json`                                                      |
+| CLI              | `runCli` trend smoke; negative usage; completions                                |
+| Gate             | Per-task Vitest paths; final `pnpm build && pnpm test`                           |
 
 ---
 

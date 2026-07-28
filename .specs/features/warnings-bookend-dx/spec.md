@@ -28,15 +28,15 @@ After M61 deferred `flushWarnings` until **after** report write, operators still
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Full warning lines in scan report body (item C) | Explicitly deferred |
-| Fail-on-warning / CI gate on warning codes | Deferred horizon |
-| npm publish / SARIF | Deferred horizon |
-| Timing stderr on `baseline save` | Out of this batch |
-| New CLI flags / config keys / schema bump | YAGNI |
-| Thinning `meta.warnings` | M58 lock — full structured list stays |
-| M69 write confirm / M70 Lines column | Separate milestones |
+| Feature                                         | Reason                                |
+| ----------------------------------------------- | ------------------------------------- |
+| Full warning lines in scan report body (item C) | Explicitly deferred                   |
+| Fail-on-warning / CI gate on warning codes      | Deferred horizon                      |
+| npm publish / SARIF                             | Deferred horizon                      |
+| Timing stderr on `baseline save`                | Out of this batch                     |
+| New CLI flags / config keys / schema bump       | YAGNI                                 |
+| Thinning `meta.warnings`                        | M58 lock — full structured list stays |
+| M69 write confirm / M70 Lines column            | Separate milestones                   |
 
 ---
 
@@ -111,25 +111,25 @@ After M61 deferred `flushWarnings` until **after** report write, operators still
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-1230 | P1: Teaser API / clear-live helper | Design | Pending |
-| HOTSPOT-1231 | P1: Order finalize → teaser → write → flush | Design | Pending |
-| HOTSPOT-1232 | P1: summary teaser + post-write aggregated flush | Design | Pending |
-| HOTSPOT-1233 | P1: full — no teaser; flush no re-emit | Design | Pending |
-| HOTSPOT-1234 | P1: json — one emission at end only | Design | Pending |
-| HOTSPOT-1235 | P1: quiet compose with teaser/flush | Design | Pending |
-| HOTSPOT-1236 | P1: scan + compare + baseline save paths | Design | Pending |
-| HOTSPOT-1237 | P1: remove compare `formatScanWarning` loops | Design | Pending |
-| HOTSPOT-1238 | P1: compare exec summary rollup only | Design | Pending |
-| HOTSPOT-1239 | P2: warning-codes.md timing truth | Design | Pending |
-| HOTSPOT-1240 | P2: document `json` mode in warning-codes | Design | Pending |
-| HOTSPOT-1241 | P2: ROADMAP M58 / historical “before report” notes | Design | Pending |
-| HOTSPOT-1242 | P2: AGENTS.md exit codes `0/1/2/130/143` | Design | Pending |
-| HOTSPOT-1243 | P2: ARCHITECTURE/README lifecycle note if needed | Design | Pending |
-| HOTSPOT-1244 | P1: order tests (teaser/write/flush/timing/explain) | Design | Pending |
-| HOTSPOT-1245–1254 | — | — | Unassigned (buffer) |
-| HOTSPOT-1255–1259 | — | — | Reserved |
+| Requirement ID    | Story                                               | Phase  | Status              |
+| ----------------- | --------------------------------------------------- | ------ | ------------------- |
+| HOTSPOT-1230      | P1: Teaser API / clear-live helper                  | Design | Pending             |
+| HOTSPOT-1231      | P1: Order finalize → teaser → write → flush         | Design | Pending             |
+| HOTSPOT-1232      | P1: summary teaser + post-write aggregated flush    | Design | Pending             |
+| HOTSPOT-1233      | P1: full — no teaser; flush no re-emit              | Design | Pending             |
+| HOTSPOT-1234      | P1: json — one emission at end only                 | Design | Pending             |
+| HOTSPOT-1235      | P1: quiet compose with teaser/flush                 | Design | Pending             |
+| HOTSPOT-1236      | P1: scan + compare + baseline save paths            | Design | Pending             |
+| HOTSPOT-1237      | P1: remove compare `formatScanWarning` loops        | Design | Pending             |
+| HOTSPOT-1238      | P1: compare exec summary rollup only                | Design | Pending             |
+| HOTSPOT-1239      | P2: warning-codes.md timing truth                   | Design | Pending             |
+| HOTSPOT-1240      | P2: document `json` mode in warning-codes           | Design | Pending             |
+| HOTSPOT-1241      | P2: ROADMAP M58 / historical “before report” notes  | Design | Pending             |
+| HOTSPOT-1242      | P2: AGENTS.md exit codes `0/1/2/130/143`            | Design | Pending             |
+| HOTSPOT-1243      | P2: ARCHITECTURE/README lifecycle note if needed    | Design | Pending             |
+| HOTSPOT-1244      | P1: order tests (teaser/write/flush/timing/explain) | Design | Pending             |
+| HOTSPOT-1245–1254 | —                                                   | —      | Unassigned (buffer) |
+| HOTSPOT-1255–1259 | —                                                   | —      | Reserved            |
 
 **Coverage:** 15 mapped P1/P2 IDs; 1255–1259 reserved; 1245–1254 buffer.
 

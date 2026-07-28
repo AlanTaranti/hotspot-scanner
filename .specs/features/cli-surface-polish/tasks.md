@@ -36,63 +36,63 @@ flowchart LR
 
 | Task | Depends on (declared) | Diagram shows | Match |
 | ---- | --------------------- | ------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T2 | T2 → T3 | ✅ |
-| T4 | T3 | T3 → T4 | ✅ |
-| T5 | T4 | T4 → T5 | ✅ |
-| T6 | T5 | T5 → T6 | ✅ |
-| T7 | T6 | T6 → T7 | ✅ |
+| T1   | None                  | Root          | ✅    |
+| T2   | T1                    | T1 → T2       | ✅    |
+| T3   | T2                    | T2 → T3       | ✅    |
+| T4   | T3                    | T3 → T4       | ✅    |
+| T5   | T4                    | T4 → T5       | ✅    |
+| T6   | T5                    | T5 → T6       | ✅    |
+| T7   | T6                    | T6 → T7       | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | bin | `bin/hotspot-scanner.ts`, `bin/hotspot-scanner.test.ts`, `bin/hotspot-scanner.integration.test.ts` | Sequential before later bin tasks |
-| T2 | bin | `bin/hotspot-scanner.ts`, `bin/hotspot-scanner.test.ts` | After T1 |
-| T3 | bin (+ diagnostics if helper) | `bin/hotspot-scanner.ts`, `bin/*.test.ts`, optional `src/diagnostics/logger.ts` + test | After T2; only T3 may touch diagnostics |
-| T4 | bin (+ scan/config message text) | `bin/hotspot-scanner.ts`, `bin/*.test.ts`; optional `src/scan.ts`, `src/config/load-config.ts`, `src/compare/load-baseline.ts` + their unit tests | After T3; hint-only string changes — no parallel with other src owners |
-| T5 | bin | `bin/hotspot-scanner.ts`, `bin/hotspot-scanner.test.ts` | After T4 |
-| T6 | docs | `README.md`, `.specs/codebase/ARCHITECTURE.md`, `.specs/project/ROADMAP.md`, `.specs/project/STATE.md` | After T5; no `[P]` with bin |
-| T7 | gate | none (verify) | After T6 |
+| Task | Module owner                     | Paths                                                                                                                                             | Conflict                                                               |
+| ---- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| T1   | bin                              | `bin/hotspot-scanner.ts`, `bin/hotspot-scanner.test.ts`, `bin/hotspot-scanner.integration.test.ts`                                                | Sequential before later bin tasks                                      |
+| T2   | bin                              | `bin/hotspot-scanner.ts`, `bin/hotspot-scanner.test.ts`                                                                                           | After T1                                                               |
+| T3   | bin (+ diagnostics if helper)    | `bin/hotspot-scanner.ts`, `bin/*.test.ts`, optional `src/diagnostics/logger.ts` + test                                                            | After T2; only T3 may touch diagnostics                                |
+| T4   | bin (+ scan/config message text) | `bin/hotspot-scanner.ts`, `bin/*.test.ts`; optional `src/scan.ts`, `src/config/load-config.ts`, `src/compare/load-baseline.ts` + their unit tests | After T3; hint-only string changes — no parallel with other src owners |
+| T5   | bin                              | `bin/hotspot-scanner.ts`, `bin/hotspot-scanner.test.ts`                                                                                           | After T4                                                               |
+| T6   | docs                             | `README.md`, `.specs/codebase/ARCHITECTURE.md`, `.specs/project/ROADMAP.md`, `.specs/project/STATE.md`                                            | After T5; no `[P]` with bin                                            |
+| T7   | gate                             | none (verify)                                                                                                                                     | After T6                                                               |
 
 No `[P]` — all tasks share `bin/` or depend on prior bin state.
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task says | Match |
-| ---- | ---------- | ---------------------- | --------- | ----- |
-| T1 | `bin/` | Unit + integration | unit + integration in same task | ✅ |
-| T2 | `bin/` | Unit | unit in same task | ✅ |
-| T3 | `bin/` (+ optional diagnostics) | Unit | unit in same task | ✅ |
-| T4 | `bin/` (+ optional scan/config/compare messages) | Unit | unit in same task | ✅ |
-| T5 | `bin/` | Unit | unit in same task | ✅ |
-| T6 | Docs | none | none | ✅ |
-| T7 | Full project | Gate | `pnpm build && pnpm test` | ✅ |
+| Task | Code layer                                       | TESTING.md expectation | Task says                       | Match |
+| ---- | ------------------------------------------------ | ---------------------- | ------------------------------- | ----- |
+| T1   | `bin/`                                           | Unit + integration     | unit + integration in same task | ✅    |
+| T2   | `bin/`                                           | Unit                   | unit in same task               | ✅    |
+| T3   | `bin/` (+ optional diagnostics)                  | Unit                   | unit in same task               | ✅    |
+| T4   | `bin/` (+ optional scan/config/compare messages) | Unit                   | unit in same task               | ✅    |
+| T5   | `bin/`                                           | Unit                   | unit in same task               | ✅    |
+| T6   | Docs                                             | none                   | none                            | ✅    |
+| T7   | Full project                                     | Gate                   | `pnpm build && pnpm test`       | ✅    |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Optional path default + validation tests | ✅ Cohesive |
-| T2 | Version wiring + tests | ✅ Granular |
-| T3 | Quiet / no-progress sinks + tests | ✅ Cohesive |
-| T4 | Four hint families + tests | ✅ Cohesive |
-| T5 | Help examples + four aliases + tests | ✅ Cohesive |
-| T6 | Docs sync | ✅ Granular |
-| T7 | Project gate | ✅ Granular |
+| Task | Scope                                    | Status      |
+| ---- | ---------------------------------------- | ----------- |
+| T1   | Optional path default + validation tests | ✅ Cohesive |
+| T2   | Version wiring + tests                   | ✅ Granular |
+| T3   | Quiet / no-progress sinks + tests        | ✅ Cohesive |
+| T4   | Four hint families + tests               | ✅ Cohesive |
+| T5   | Help examples + four aliases + tests     | ✅ Cohesive |
+| T6   | Docs sync                                | ✅ Granular |
+| T7   | Project gate                             | ✅ Granular |
 
 ### Requirement → Task Mapping
 
-| Requirement ID | Task |
-| -------------- | ---- |
-| HOTSPOT-450, HOTSPOT-451 | T1 |
-| HOTSPOT-452 | T2 |
-| HOTSPOT-453, HOTSPOT-454 | T3 |
-| HOTSPOT-455, HOTSPOT-456, HOTSPOT-457, HOTSPOT-458 | T4 |
-| HOTSPOT-459, HOTSPOT-460 | T5 |
-| HOTSPOT-461 | T6 |
-| (gate) | T7 |
+| Requirement ID                                     | Task |
+| -------------------------------------------------- | ---- |
+| HOTSPOT-450, HOTSPOT-451                           | T1   |
+| HOTSPOT-452                                        | T2   |
+| HOTSPOT-453, HOTSPOT-454                           | T3   |
+| HOTSPOT-455, HOTSPOT-456, HOTSPOT-457, HOTSPOT-458 | T4   |
+| HOTSPOT-459, HOTSPOT-460                           | T5   |
+| HOTSPOT-461                                        | T6   |
+| (gate)                                             | T7   |
 
 ---
 
@@ -327,7 +327,7 @@ No `[P]` — all tasks share `bin/` or depend on prior bin state.
 **Tools**:
 
 - MCP: NONE
-- Skill: NONE  
+- Skill: NONE
 - Agent (dev session): `verifier-quality-gates`
 
 **Done when**:

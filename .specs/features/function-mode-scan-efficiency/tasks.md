@@ -37,36 +37,36 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (task body) | Diagram shows | Match |
-| ---- | ---------------------- | ------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | None | Root | ✅ |
-| T3 | None (seq after T2 recommended) | Root / after T2 in prose | ✅ |
-| T4 | T1, T2, T3 | T1→T4, T2→T4, T3→T4 | ✅ |
-| T5 | T4 | T4→T5 | ✅ |
-| T6 | T5 | T5→T6 | ✅ |
+| Task | Depends on (task body)          | Diagram shows            | Match |
+| ---- | ------------------------------- | ------------------------ | ----- |
+| T1   | None                            | Root                     | ✅    |
+| T2   | None                            | Root                     | ✅    |
+| T3   | None (seq after T2 recommended) | Root / after T2 in prose | ✅    |
+| T4   | T1, T2, T3                      | T1→T4, T2→T4, T3→T4      | ✅    |
+| T5   | T4                              | T4→T5                    | ✅    |
+| T6   | T5                              | T5→T6                    | ✅    |
 
 ### Path Conflict Check
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | `src/complexity/` | `index.ts`, `index.test.ts` | None vs T2/T3 |
-| T2 | `src/git/function-churn/` | `aggregate.ts`, aggregate/parse tests | Disjoint files from T3 spawn |
-| T3 | `src/git/function-churn/` | `spawn.ts`, `index.ts` (miner options), tests | After T2 if same agent folder; do **not** edit numstat `src/git/spawn.ts` |
-| T4 | `src/scan.ts` (+ small helper if extracted under `src/git/` or `src/scan` util) | `scan.ts`, maybe tiny allowlist helper | Sole scan owner |
-| T5 | integration | `src/scan.integration.test.ts` (± spawn spy helpers) | After T4 |
-| T6 | docs | `.specs/codebase/ARCHITECTURE.md`, `CONCERNS.md`, `TESTING.md` | After T5; **do not** require ROADMAP/STATE in this feature’s planning lock — Execute may sync later |
+| Task | Module owner                                                                    | Paths                                                          | Conflict                                                                                            |
+| ---- | ------------------------------------------------------------------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| T1   | `src/complexity/`                                                               | `index.ts`, `index.test.ts`                                    | None vs T2/T3                                                                                       |
+| T2   | `src/git/function-churn/`                                                       | `aggregate.ts`, aggregate/parse tests                          | Disjoint files from T3 spawn                                                                        |
+| T3   | `src/git/function-churn/`                                                       | `spawn.ts`, `index.ts` (miner options), tests                  | After T2 if same agent folder; do **not** edit numstat `src/git/spawn.ts`                           |
+| T4   | `src/scan.ts` (+ small helper if extracted under `src/git/` or `src/scan` util) | `scan.ts`, maybe tiny allowlist helper                         | Sole scan owner                                                                                     |
+| T5   | integration                                                                     | `src/scan.integration.test.ts` (± spawn spy helpers)           | After T4                                                                                            |
+| T6   | docs                                                                            | `.specs/codebase/ARCHITECTURE.md`, `CONCERNS.md`, `TESTING.md` | After T5; **do not** require ROADMAP/STATE in this feature’s planning lock — Execute may sync later |
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task `Tests` | Match |
-| ---- | ---------- | ---------------------- | ------------ | ----- |
-| T1 | complexity analyzer | unit | unit | ✅ |
-| T2 | function-churn aggregate | unit + git-patch fixtures | unit | ✅ |
-| T3 | function-churn spawn/miner | unit | unit | ✅ |
-| T4 | scan orchestration | integration / unit | unit + integration assertions | ✅ |
-| T5 | scan integration | integration | integration | ✅ |
-| T6 | docs | full gate | full gate | ✅ |
+| Task | Code layer                 | TESTING.md expectation    | Task `Tests`                  | Match |
+| ---- | -------------------------- | ------------------------- | ----------------------------- | ----- |
+| T1   | complexity analyzer        | unit                      | unit                          | ✅    |
+| T2   | function-churn aggregate   | unit + git-patch fixtures | unit                          | ✅    |
+| T3   | function-churn spawn/miner | unit                      | unit                          | ✅    |
+| T4   | scan orchestration         | integration / unit        | unit + integration assertions | ✅    |
+| T5   | scan integration           | integration               | integration                   | ✅    |
+| T6   | docs                       | full gate                 | full gate                     | ✅    |
 
 ---
 
@@ -281,28 +281,28 @@ Phase 2:
 
 ## Requirement → Task Mapping
 
-| Requirement ID | Task | Status |
-| -------------- | ---- | ------ |
-| HOTSPOT-380 | T3 | Done |
-| HOTSPOT-381 | T3 | Done |
-| HOTSPOT-382 | T3 | Done |
-| HOTSPOT-383 | T3 | Done |
-| HOTSPOT-384 | T4 | Done |
-| HOTSPOT-385 | T1 | Done |
-| HOTSPOT-386 | T1 | Done |
-| HOTSPOT-387 | T4 | Done |
-| HOTSPOT-388 | T5 | Done |
-| HOTSPOT-389 | T2 | Done |
-| HOTSPOT-390 | T2 | Done |
-| HOTSPOT-391 | T2 | Done |
-| HOTSPOT-392 | T4, T5 | Done |
-| HOTSPOT-393 | T4 | Done |
-| HOTSPOT-394 | T4 | Done |
-| HOTSPOT-395 | T4 | Done |
-| HOTSPOT-396 | T6 | Done |
-| HOTSPOT-397 | T5 | Done |
-| HOTSPOT-398 | T6 | Done |
-| HOTSPOT-399 | T6 | Done |
+| Requirement ID | Task   | Status |
+| -------------- | ------ | ------ |
+| HOTSPOT-380    | T3     | Done   |
+| HOTSPOT-381    | T3     | Done   |
+| HOTSPOT-382    | T3     | Done   |
+| HOTSPOT-383    | T3     | Done   |
+| HOTSPOT-384    | T4     | Done   |
+| HOTSPOT-385    | T1     | Done   |
+| HOTSPOT-386    | T1     | Done   |
+| HOTSPOT-387    | T4     | Done   |
+| HOTSPOT-388    | T5     | Done   |
+| HOTSPOT-389    | T2     | Done   |
+| HOTSPOT-390    | T2     | Done   |
+| HOTSPOT-391    | T2     | Done   |
+| HOTSPOT-392    | T4, T5 | Done   |
+| HOTSPOT-393    | T4     | Done   |
+| HOTSPOT-394    | T4     | Done   |
+| HOTSPOT-395    | T4     | Done   |
+| HOTSPOT-396    | T6     | Done   |
+| HOTSPOT-397    | T5     | Done   |
+| HOTSPOT-398    | T6     | Done   |
+| HOTSPOT-399    | T6     | Done   |
 
 **Coverage:** 20 total, 20 mapped, 0 unmapped ✅
 

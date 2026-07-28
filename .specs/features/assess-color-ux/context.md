@@ -15,13 +15,13 @@ User-locked scope from the planning brief (assess table screenshot + bold/struct
 
 **In scope:** TTY-aware ANSI emphasis on `hotspot-scanner assess` **table** output:
 
-| Surface | Emphasis |
-| ------- | -------- |
-| Title `Hotspot assess` | Bold only |
-| Section header `Deteriorating` | Bold only |
+| Surface                               | Emphasis                                     |
+| ------------------------------------- | -------------------------------------------- |
+| Title `Hotspot assess`                | Bold only                                    |
+| Section header `Deteriorating`        | Bold only                                    |
 | Summary `Pattern counts:` kind tokens | Color via `paintGrowthPattern` (M76 palette) |
-| Detail line Pattern kind | Color via `paintGrowthPattern` |
-| Detail line `score=` numeric value | `paintScore` bands (M41 scan) |
+| Detail line Pattern kind              | Color via `paintGrowthPattern`               |
+| Detail line `score=` numeric value    | `paintScore` bands (M41 scan)                |
 
 Disable via assess `--no-color`, non-empty `NO_COLOR`, non-TTY, `--output`, or non-table format. Raw ANSI only (no chalk).
 
@@ -45,15 +45,15 @@ Disable via assess `--no-color`, non-empty `NO_COLOR`, non-TTY, `--output`, or n
 
 **Choice:** Reuse [`src/report/color.ts`](../../../src/report/color.ts):
 
-| Token | Style |
-| ----- | ----- |
-| `deteriorating` | Red (`\x1b[31m`) |
-| `refactored` | Green (`\x1b[32m`) |
-| `inconclusive` | Yellow (`\x1b[33m`) |
-| `stable` | Plain |
-| Score ≥ 0.7 | Red (`paintScore`) |
-| Score ≥ 0.4 | Yellow (`paintScore`) |
-| Score &lt; 0.4 | Plain |
+| Token                  | Style                                        |
+| ---------------------- | -------------------------------------------- |
+| `deteriorating`        | Red (`\x1b[31m`)                             |
+| `refactored`           | Green (`\x1b[32m`)                           |
+| `inconclusive`         | Yellow (`\x1b[33m`)                          |
+| `stable`               | Plain                                        |
+| Score ≥ 0.7            | Red (`paintScore`)                           |
+| Score ≥ 0.4            | Yellow (`paintScore`)                        |
+| Score &lt; 0.4         | Plain                                        |
 | Title / section header | Bold (`\x1b[1m` … `\x1b[0m`) via `paintBold` |
 
 Wrap with reset after each painted token when enabled.
@@ -126,10 +126,10 @@ Help text: “Disable ANSI colors in assess table output” (agent discretion on
 
 ## Related Closed Decisions
 
-| Decision | Value | Relevance |
-| -------- | ----- | --------- |
-| M41 table color gates | TTY + `--no-color` + `NO_COLOR` + no `--output`; no FORCE_COLOR; no chalk | Sister gates |
-| M74 doctor prefix color | Status prefix only; subcommand `--no-color` | Flag pattern |
-| M76 trend Pattern kind color | `paintGrowthPattern` palette | Shared paint helper |
-| M77 hotspot-assess | Plain table MVP; “No color in MVP” | This milestone adds presentation |
-| Reporter pure / stripAnsi | `src/report/color.ts` | Reuse for tests |
+| Decision                     | Value                                                                     | Relevance                        |
+| ---------------------------- | ------------------------------------------------------------------------- | -------------------------------- |
+| M41 table color gates        | TTY + `--no-color` + `NO_COLOR` + no `--output`; no FORCE_COLOR; no chalk | Sister gates                     |
+| M74 doctor prefix color      | Status prefix only; subcommand `--no-color`                               | Flag pattern                     |
+| M76 trend Pattern kind color | `paintGrowthPattern` palette                                              | Shared paint helper              |
+| M77 hotspot-assess           | Plain table MVP; “No color in MVP”                                        | This milestone adds presentation |
+| Reporter pure / stripAnsi    | `src/report/color.ts`                                                     | Reuse for tests                  |

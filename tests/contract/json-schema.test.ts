@@ -128,7 +128,9 @@ describe("JSON schema contract", () => {
   it("rejects scan JSON with string meta.warnings entries", () => {
     const json = loadScanFixture("sample-result.json");
     const invalid = structuredClone(json);
-    (invalid.meta as { warnings: unknown }).warnings = ["legacy string warning"];
+    (invalid.meta as { warnings: unknown }).warnings = [
+      "legacy string warning",
+    ];
 
     expect(validateScan(invalid)).toBe(false);
     expect(validateScan.errors?.length).toBeGreaterThan(0);
@@ -381,8 +383,7 @@ describe("hotspot-assess.json schema", () => {
       .AssessCandidate as Record<string, unknown>;
     const required = assessCandidate.required as string[] | undefined;
     const properties = assessCandidate.properties as
-      | Record<string, unknown>
-      | undefined;
+      Record<string, unknown> | undefined;
 
     expect(required ?? []).not.toContain("points");
     expect(properties ?? {}).not.toHaveProperty("points");

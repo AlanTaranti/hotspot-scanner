@@ -48,14 +48,14 @@ flowchart LR
 
 ## Path Conflict Check (Check 5)
 
-| Task | Primary owner prefix | Notes |
-| ---- | -------------------- | ----- |
-| T1 | `src/git/` | spawn + miner options; do **not** edit `src/scan.ts` |
-| T2 | `src/complexity/` | pool + analyze options; do **not** edit `src/scan.ts` |
-| T3 | `src/scan.ts` (+ `src/scan.test.ts`) | Sole overlap wiring owner |
-| T4 | `src/scan.integration.test.ts` | May touch scan tests only; no adapter redesign |
-| T5 | `.specs/codebase/` | Docs only |
-| T6 | gate | No product code unless fix from gate failures |
+| Task | Primary owner prefix                 | Notes                                                 |
+| ---- | ------------------------------------ | ----------------------------------------------------- |
+| T1   | `src/git/`                           | spawn + miner options; do **not** edit `src/scan.ts`  |
+| T2   | `src/complexity/`                    | pool + analyze options; do **not** edit `src/scan.ts` |
+| T3   | `src/scan.ts` (+ `src/scan.test.ts`) | Sole overlap wiring owner                             |
+| T4   | `src/scan.integration.test.ts`       | May touch scan tests only; no adapter redesign        |
+| T5   | `.specs/codebase/`                   | Docs only                                             |
+| T6   | gate                                 | No product code unless fix from gate failures         |
 
 T1 ∥ T2 are `[P]` — disjoint prefixes. T3+ sequential (shared scan ownership).
 
@@ -257,26 +257,26 @@ Phase 4 (Sequential):
 
 | Requirement ID | Task(s) |
 | -------------- | ------- |
-| HOTSPOT-360 | T3 |
-| HOTSPOT-361 | T3 |
-| HOTSPOT-362 | T3 |
-| HOTSPOT-363 | T3 |
-| HOTSPOT-364 | T3 |
-| HOTSPOT-365 | T3 |
-| HOTSPOT-366 | T3 |
-| HOTSPOT-367 | T3 |
-| HOTSPOT-368 | T3 |
-| HOTSPOT-369 | T3 |
-| HOTSPOT-370 | T4 |
-| HOTSPOT-371 | T3 |
-| HOTSPOT-372 | T3 |
-| HOTSPOT-373 | T5 |
-| HOTSPOT-374 | T5 |
-| HOTSPOT-375 | T5 |
-| HOTSPOT-376 | T1 |
-| HOTSPOT-377 | T2 |
-| HOTSPOT-378 | T4 |
-| HOTSPOT-379 | T6 |
+| HOTSPOT-360    | T3      |
+| HOTSPOT-361    | T3      |
+| HOTSPOT-362    | T3      |
+| HOTSPOT-363    | T3      |
+| HOTSPOT-364    | T3      |
+| HOTSPOT-365    | T3      |
+| HOTSPOT-366    | T3      |
+| HOTSPOT-367    | T3      |
+| HOTSPOT-368    | T3      |
+| HOTSPOT-369    | T3      |
+| HOTSPOT-370    | T4      |
+| HOTSPOT-371    | T3      |
+| HOTSPOT-372    | T3      |
+| HOTSPOT-373    | T5      |
+| HOTSPOT-374    | T5      |
+| HOTSPOT-375    | T5      |
+| HOTSPOT-376    | T1      |
+| HOTSPOT-377    | T2      |
+| HOTSPOT-378    | T4      |
+| HOTSPOT-379    | T6      |
 
 **Coverage:** 20/20 mapped — 0 unmapped
 
@@ -284,40 +284,40 @@ Phase 4 (Sequential):
 
 ## Diagram-Definition Cross-Check
 
-| Task | Depends On (task body) | Diagram Shows | Status |
-| ---- | ---------------------- | ------------- | ------ |
-| T1 | None | No inbound arrows | ✅ Match |
-| T2 | None | No inbound arrows | ✅ Match |
-| T3 | T1, T2 | T1→T3, T2→T3 | ✅ Match |
-| T4 | T3 | T3→T4 | ✅ Match |
-| T5 | T4 | T4→T5 | ✅ Match |
-| T6 | T5 | T5→T6 | ✅ Match |
+| Task | Depends On (task body) | Diagram Shows     | Status   |
+| ---- | ---------------------- | ----------------- | -------- |
+| T1   | None                   | No inbound arrows | ✅ Match |
+| T2   | None                   | No inbound arrows | ✅ Match |
+| T3   | T1, T2                 | T1→T3, T2→T3      | ✅ Match |
+| T4   | T3                     | T3→T4             | ✅ Match |
+| T5   | T4                     | T4→T5             | ✅ Match |
+| T6   | T5                     | T5→T6             | ✅ Match |
 
 ---
 
 ## Test Co-location Validation
 
-| Task | Code Layer Created/Modified | Matrix / layer expectation | Task Says | Status |
-| ---- | --------------------------- | -------------------------- | --------- | ------ |
-| T1 | Git miner / spawn | unit (Git Miner layer) | unit | ✅ OK |
-| T2 | Complexity pool/analyzer | unit (Complexity layer) | unit | ✅ OK |
-| T3 | Pipeline `src/scan.ts` | unit + fragile-area tests | unit | ✅ OK |
-| T4 | Pipeline integration | integration (fixture E2E) | integration | ✅ OK |
-| T5 | `.specs/codebase/` docs | none | none | ✅ OK |
-| T6 | gate only | full suite | full suite | ✅ OK |
+| Task | Code Layer Created/Modified | Matrix / layer expectation | Task Says   | Status |
+| ---- | --------------------------- | -------------------------- | ----------- | ------ |
+| T1   | Git miner / spawn           | unit (Git Miner layer)     | unit        | ✅ OK  |
+| T2   | Complexity pool/analyzer    | unit (Complexity layer)    | unit        | ✅ OK  |
+| T3   | Pipeline `src/scan.ts`      | unit + fragile-area tests  | unit        | ✅ OK  |
+| T4   | Pipeline integration        | integration (fixture E2E)  | integration | ✅ OK  |
+| T5   | `.specs/codebase/` docs     | none                       | none        | ✅ OK  |
+| T6   | gate only                   | full suite                 | full suite  | ✅ OK  |
 
 ---
 
 ## Task Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Git abort plumbing + tests | ✅ Granular |
-| T2 | Complexity abort plumbing + tests | ✅ Granular |
-| T3 | scan overlap wiring + unit tests (one module owner) | ✅ Cohesive |
-| T4 | Integration equivalence | ✅ Granular |
-| T5 | Docs sync | ✅ Granular |
-| T6 | Full gate | ✅ Granular |
+| Task | Scope                                               | Status      |
+| ---- | --------------------------------------------------- | ----------- |
+| T1   | Git abort plumbing + tests                          | ✅ Granular |
+| T2   | Complexity abort plumbing + tests                   | ✅ Granular |
+| T3   | scan overlap wiring + unit tests (one module owner) | ✅ Cohesive |
+| T4   | Integration equivalence                             | ✅ Granular |
+| T5   | Docs sync                                           | ✅ Granular |
+| T6   | Full gate                                           | ✅ Granular |
 
 ---
 

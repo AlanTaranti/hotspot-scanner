@@ -47,11 +47,11 @@ Inventory detail: [../codebase/STACK.md](../codebase/STACK.md). Adapters: [../co
 
 ### JSON contracts
 
-| Contract | `version` | Schema |
-| -------- | --------- | ------ |
-| Scan result | `"3.0"` | `schemas/scan-result.json` |
-| Complexity trend | `"3.0"` | `schemas/complexity-trend.json` (`kind: "complexity-trend"`) |
-| Hotspot assess | `"1.0"` | `schemas/hotspot-assess.json` (`kind: "hotspot-assess"`) |
+| Contract         | `version` | Schema                                                       |
+| ---------------- | --------- | ------------------------------------------------------------ |
+| Scan result      | `"3.0"`   | `schemas/scan-result.json`                                   |
+| Complexity trend | `"3.0"`   | `schemas/complexity-trend.json` (`kind: "complexity-trend"`) |
+| Hotspot assess   | `"1.0"`   | `schemas/hotspot-assess.json` (`kind: "hotspot-assess"`)     |
 
 **Not in product:**
 

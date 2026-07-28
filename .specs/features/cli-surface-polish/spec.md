@@ -23,18 +23,18 @@ First-time and daily CLI users must always pass an explicit repo path, lack `--v
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| npm publish / npx install | Deferred (STATE.md); not M38–M45 |
-| `init` / `doctor` / `--dry-run` | M39 |
-| Workflow subcommands (`baseline save` / `compare`) | M40 |
-| Output colors / legend / triage hints | M41 |
-| `--explain` / rename next-steps / complexity progress | M42 |
-| Changing ranking formulas or JSON `version: "1.0"` contract | YAGNI / contract freeze |
-| New `.hotspot-scanner.json` keys for quiet / version / progress | CLI-only flags |
-| `--verbose` | Not clearly useful beyond default diagnostics — see context.md |
-| Monorepo cwd heuristics (scan from package without `.git` at path) | M43 |
-| Changing exit-code scheme (0 success; `CliUsageError`/`ConfigError` → 2; else → 1) | Preserve M5/M21 |
+| Feature                                                                            | Reason                                                         |
+| ---------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| npm publish / npx install                                                          | Deferred (STATE.md); not M38–M45                               |
+| `init` / `doctor` / `--dry-run`                                                    | M39                                                            |
+| Workflow subcommands (`baseline save` / `compare`)                                 | M40                                                            |
+| Output colors / legend / triage hints                                              | M41                                                            |
+| `--explain` / rename next-steps / complexity progress                              | M42                                                            |
+| Changing ranking formulas or JSON `version: "1.0"` contract                        | YAGNI / contract freeze                                        |
+| New `.hotspot-scanner.json` keys for quiet / version / progress                    | CLI-only flags                                                 |
+| `--verbose`                                                                        | Not clearly useful beyond default diagnostics — see context.md |
+| Monorepo cwd heuristics (scan from package without `.git` at path)                 | M43                                                            |
+| Changing exit-code scheme (0 success; `CliUsageError`/`ConfigError` → 2; else → 1) | Preserve M5/M21                                                |
 
 ---
 
@@ -169,20 +169,20 @@ First-time and daily CLI users must always pass an explicit repo path, lack `--v
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-450 | P1: Default scan path | Tasks | Pending |
-| HOTSPOT-451 | P1: Default path `.git` validation | Tasks | Pending |
-| HOTSPOT-452 | P1: Version flag | Tasks | Pending |
-| HOTSPOT-453 | P1: `--quiet` | Tasks | Pending |
-| HOTSPOT-454 | P1: `--no-progress` | Tasks | Pending |
-| HOTSPOT-455 | P1: Hint — non-git path | Tasks | Pending |
-| HOTSPOT-456 | P1: Hint — csv without `--output` | Tasks | Pending |
-| HOTSPOT-457 | P1: Hint — baseline missing/invalid | Tasks | Pending |
-| HOTSPOT-458 | P1: Hint — missing `--config` | Tasks | Pending |
-| HOTSPOT-459 | P1: Help examples | Tasks | Pending |
-| HOTSPOT-460 | P1: Short aliases | Tasks | Pending |
-| HOTSPOT-461 | P2: Living docs | Tasks | Pending |
+| Requirement ID | Story                               | Phase | Status  |
+| -------------- | ----------------------------------- | ----- | ------- |
+| HOTSPOT-450    | P1: Default scan path               | Tasks | Pending |
+| HOTSPOT-451    | P1: Default path `.git` validation  | Tasks | Pending |
+| HOTSPOT-452    | P1: Version flag                    | Tasks | Pending |
+| HOTSPOT-453    | P1: `--quiet`                       | Tasks | Pending |
+| HOTSPOT-454    | P1: `--no-progress`                 | Tasks | Pending |
+| HOTSPOT-455    | P1: Hint — non-git path             | Tasks | Pending |
+| HOTSPOT-456    | P1: Hint — csv without `--output`   | Tasks | Pending |
+| HOTSPOT-457    | P1: Hint — baseline missing/invalid | Tasks | Pending |
+| HOTSPOT-458    | P1: Hint — missing `--config`       | Tasks | Pending |
+| HOTSPOT-459    | P1: Help examples                   | Tasks | Pending |
+| HOTSPOT-460    | P1: Short aliases                   | Tasks | Pending |
+| HOTSPOT-461    | P2: Living docs                     | Tasks | Pending |
 
 **ID range used:** HOTSPOT-450–461 (462–469 reserved unused)  
 **Coverage:** 12 total, mapped in tasks.md

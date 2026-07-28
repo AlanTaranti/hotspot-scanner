@@ -67,17 +67,17 @@ flowchart TB
   CFG_S -.-> EX
 ```
 
-| Concern | Owner | Action |
-| ------- | ----- | ------ |
-| Reserved meta | `load-config.ts` | `RESERVED_META_KEYS` skip from known + unknown |
-| Richer exemplar | `exemplar.ts` | Locked JSON; still omit `concurrency` |
-| Provenance merge | `merge-options.ts` or `print-config.ts` | Per-field `cli`/`config`/`default` |
-| Validate / print APIs | `src/config/` | New helpers; export via `#config` |
-| Config path on load | `LoadedHotspotScannerConfig.path` | `string \| null` |
-| Dry-run enrichment | `scan-preview.ts` + prelude threading | Config path, remount, unknown keys |
-| Since probe | `src/git/` new small helper | Doctor consumes |
-| Schema + exports | `schemas/` + `package.json` | Three schema subpaths |
-| CLI | `bin/hotspot-scanner.ts` | `config` command group |
+| Concern               | Owner                                   | Action                                         |
+| --------------------- | --------------------------------------- | ---------------------------------------------- |
+| Reserved meta         | `load-config.ts`                        | `RESERVED_META_KEYS` skip from known + unknown |
+| Richer exemplar       | `exemplar.ts`                           | Locked JSON; still omit `concurrency`          |
+| Provenance merge      | `merge-options.ts` or `print-config.ts` | Per-field `cli`/`config`/`default`             |
+| Validate / print APIs | `src/config/`                           | New helpers; export via `#config`              |
+| Config path on load   | `LoadedHotspotScannerConfig.path`       | `string \| null`                               |
+| Dry-run enrichment    | `scan-preview.ts` + prelude threading   | Config path, remount, unknown keys             |
+| Since probe           | `src/git/` new small helper             | Doctor consumes                                |
+| Schema + exports      | `schemas/` + `package.json`             | Three schema subpaths                          |
+| CLI                   | `bin/hotspot-scanner.ts`                | `config` command group                         |
 
 ---
 
@@ -85,25 +85,25 @@ flowchart TB
 
 ### Existing components to leverage
 
-| Component | Location | How to use |
-| --------- | -------- | ---------- |
-| `parseHotspotScannerConfig` / `loadHotspotScannerConfig` | `src/config/load-config.ts` | Extend with reserved meta + `path` |
-| `mergeScanOptions` | `src/config/merge-options.ts` | Keep for scan; add provenance sibling or return tags |
-| `writeInitConfig` / `formatExemplarConfig` | `src/config/exemplar.ts` | Replace locked exemplar body |
-| `resolveScanPipelineContext` | `src/scan.ts` | Already returns remount + unknownKeys; thread `configPath` |
-| `previewScanScope` / `formatScanScopePreview` | `src/scan-preview.ts` | Extend preview DTO + formatter |
-| `runDoctor` / `aggregateExitCode` | `src/doctor/index.ts` | Add `since` finding; enrich config check |
-| Ajv contract pattern | `tests/contract/json-schema.test.ts` | Add config schema `$id` |
-| Scan/compare `$id` family | `schemas/*.json` | Mirror `https://vitals.dev/hotspot-scanner/schemas/…` |
+| Component                                                | Location                             | How to use                                                 |
+| -------------------------------------------------------- | ------------------------------------ | ---------------------------------------------------------- |
+| `parseHotspotScannerConfig` / `loadHotspotScannerConfig` | `src/config/load-config.ts`          | Extend with reserved meta + `path`                         |
+| `mergeScanOptions`                                       | `src/config/merge-options.ts`        | Keep for scan; add provenance sibling or return tags       |
+| `writeInitConfig` / `formatExemplarConfig`               | `src/config/exemplar.ts`             | Replace locked exemplar body                               |
+| `resolveScanPipelineContext`                             | `src/scan.ts`                        | Already returns remount + unknownKeys; thread `configPath` |
+| `previewScanScope` / `formatScanScopePreview`            | `src/scan-preview.ts`                | Extend preview DTO + formatter                             |
+| `runDoctor` / `aggregateExitCode`                        | `src/doctor/index.ts`                | Add `since` finding; enrich config check                   |
+| Ajv contract pattern                                     | `tests/contract/json-schema.test.ts` | Add config schema `$id`                                    |
+| Scan/compare `$id` family                                | `schemas/*.json`                     | Mirror `https://vitals.dev/hotspot-scanner/schemas/…`      |
 
 ### Integration points
 
-| System | Integration |
-| ------ | ----------- |
-| git subprocess | New probe **only** under `src/git/` (INTEGRATIONS.md). Doctor already uses `spawnSync("git", ["--version"])` for PATH — do not expand ad-hoc git log there |
-| commander | Nested `config` command; mirror `doctor --format` option style for print |
-| package exports | Additive schema subpaths; keep `"."` |
-| Warning codes | Unknown keys remain `UNKNOWN_CONFIG_KEY` on scan; dry-run/doctor text may mirror message without requiring new code |
+| System          | Integration                                                                                                                                                |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| git subprocess  | New probe **only** under `src/git/` (INTEGRATIONS.md). Doctor already uses `spawnSync("git", ["--version"])` for PATH — do not expand ad-hoc git log there |
+| commander       | Nested `config` command; mirror `doctor --format` option style for print                                                                                   |
+| package exports | Additive schema subpaths; keep `"."`                                                                                                                       |
+| Warning codes   | Unknown keys remain `UNKNOWN_CONFIG_KEY` on scan; dry-run/doctor text may mirror message without requiring new code                                        |
 
 ---
 
@@ -149,7 +149,9 @@ function formatConfigPrintText(result: MergedScanConfigWithSources): string;
 function formatConfigPrintJson(result: MergedScanConfigWithSources): string;
 
 /** Resolve path arg → file; missing → ConfigError. Exit mapping in bin. */
-function validateHotspotScannerConfigFile(pathOrDir: string): Promise<{ path: string }>;
+function validateHotspotScannerConfigFile(
+  pathOrDir: string,
+): Promise<{ path: string }>;
 ```
 
 - **Rules**: `include`/`exclude` absent → effective empty/undefined per today’s merge; source `default` when neither CLI nor config provided
@@ -276,27 +278,27 @@ interface ConfigPrintJson {
 
 ## Error Handling
 
-| Case | Behavior |
-| ---- | -------- |
-| Invalid JSON / bad known types | `ConfigError` → CLI exit `2` |
-| Validate: no file found | `ConfigError` (or dedicated message) → exit `2` |
-| Print: path/git failures | Same class as dry-run/scan prelude if print resolves via prelude; if print is config-only merge without git, document — **prefer** merge without requiring git repo so `config print` works on config file alone when `[path]` is a config file; when `[path]` is a directory, load via walk + merge defaults (git optional). **Lock:** print does **not** require git; validate does **not** require git |
-| Doctor since invalid | finding fail → exit `1` |
-| Doctor since empty | finding warn → exit `0` if no other hard fails |
-| Init exists without force | `InitError` → `2` (unchanged) |
+| Case                           | Behavior                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Invalid JSON / bad known types | `ConfigError` → CLI exit `2`                                                                                                                                                                                                                                                                                                                                                                              |
+| Validate: no file found        | `ConfigError` (or dedicated message) → exit `2`                                                                                                                                                                                                                                                                                                                                                           |
+| Print: path/git failures       | Same class as dry-run/scan prelude if print resolves via prelude; if print is config-only merge without git, document — **prefer** merge without requiring git repo so `config print` works on config file alone when `[path]` is a config file; when `[path]` is a directory, load via walk + merge defaults (git optional). **Lock:** print does **not** require git; validate does **not** require git |
+| Doctor since invalid           | finding fail → exit `1`                                                                                                                                                                                                                                                                                                                                                                                   |
+| Doctor since empty             | finding warn → exit `0` if no other hard fails                                                                                                                                                                                                                                                                                                                                                            |
+| Init exists without force      | `InitError` → `2` (unchanged)                                                                                                                                                                                                                                                                                                                                                                             |
 
 ---
 
 ## Risks & Fragile Areas
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| INTEGRATIONS: git spawn outside `src/git/` | Since probe lives in `src/git/`; doctor imports helper only |
-| M55 single-export lock | Context explicitly supersedes for **schema JSON** subpaths only |
-| Exemplar include filters fixtures to 0 files | Acceptable; examples are documentation — tests assert exemplar parse, not fixture eligible count |
-| `ScanPipelineContext` / load signature churn | Update `scan.ts`, doctor, preview, tests together in owning tasks; Check 5 path owners |
-| Doctor format JSON (M51) must accept new `since` id | Additive finding; update format tests if they freeze id unions |
-| CONCERNS: warning code stability | Do not rename `UNKNOWN_CONFIG_KEY`; meta keys simply never emit it |
+| Risk                                                | Mitigation                                                                                       |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| INTEGRATIONS: git spawn outside `src/git/`          | Since probe lives in `src/git/`; doctor imports helper only                                      |
+| M55 single-export lock                              | Context explicitly supersedes for **schema JSON** subpaths only                                  |
+| Exemplar include filters fixtures to 0 files        | Acceptable; examples are documentation — tests assert exemplar parse, not fixture eligible count |
+| `ScanPipelineContext` / load signature churn        | Update `scan.ts`, doctor, preview, tests together in owning tasks; Check 5 path owners           |
+| Doctor format JSON (M51) must accept new `since` id | Additive finding; update format tests if they freeze id unions                                   |
+| CONCERNS: warning code stability                    | Do not rename `UNKNOWN_CONFIG_KEY`; meta keys simply never emit it                               |
 
 ---
 
@@ -316,13 +318,13 @@ Update when implementing (HOTSPOT-1135):
 
 ## Test Strategy
 
-| Layer | What |
-| ----- | ---- |
-| Unit `src/config/` | Meta skip, path on load, exemplar snapshot, provenance, validate helper |
-| Unit `src/scan-preview/` | New preview fields + format lines |
-| Unit `src/git/` | probeSinceWindow mock spawn: ok / empty / invalid |
-| Unit `src/doctor/` | since finding mapping; unknown-key warn; exit policy |
-| CLI `bin/` | `config validate` / `print` exits + stdout; dry-run lines; doctor since |
-| Contract | Config schema Ajv + exemplar accept / bad-type reject |
+| Layer                    | What                                                                    |
+| ------------------------ | ----------------------------------------------------------------------- |
+| Unit `src/config/`       | Meta skip, path on load, exemplar snapshot, provenance, validate helper |
+| Unit `src/scan-preview/` | New preview fields + format lines                                       |
+| Unit `src/git/`          | probeSinceWindow mock spawn: ok / empty / invalid                       |
+| Unit `src/doctor/`       | since finding mapping; unknown-key warn; exit policy                    |
+| CLI `bin/`               | `config validate` / `print` exits + stdout; dry-run lines; doctor since |
+| Contract                 | Config schema Ajv + exemplar accept / bad-type reject                   |
 
 **Gate:** per-task narrow Vitest; feature Done → `pnpm build && pnpm test`.

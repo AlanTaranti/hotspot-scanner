@@ -11,10 +11,7 @@ import {
 export type WarningsMode = "summary" | "full" | "json";
 
 export type WarningSubKind =
-  | "ambiguous"
-  | "unlinked"
-  | "since-truncation"
-  | "default";
+  "ambiguous" | "unlinked" | "since-truncation" | "default";
 
 export interface WarningClassification {
   code: string;

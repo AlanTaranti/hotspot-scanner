@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/feedback-copy-ux/spec.md`](./spec.md)  
 **Context**: [`.specs/features/feedback-copy-ux/context.md`](./context.md)  
-**Status**: Done  
+**Status**: Done
 
 ---
 
@@ -10,9 +10,9 @@
 
 Presentation and CLI copy only. Pipeline scoring, JSON contract, and M51 `meta.timings` population stay unchanged. Changes concentrate in three layers:
 
-1. **Diagnostics** — first-progress `since=` prefix in the CLI sink  
-2. **Report** — executive-summary Timing + empty-compare copy (`src/report` stays pure: no `fs`, no stderr)  
-3. **Bin** — CSV confirm + stderr timing + exit mapping + help/hints; README prose cleanup  
+1. **Diagnostics** — first-progress `since=` prefix in the CLI sink
+2. **Report** — executive-summary Timing + empty-compare copy (`src/report` stays pure: no `fs`, no stderr)
+3. **Bin** — CSV confirm + stderr timing + exit mapping + help/hints; README prose cleanup
 
 ```mermaid
 flowchart TD
@@ -35,28 +35,28 @@ flowchart TD
 
 ## Code Reuse Analysis
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| CLI diagnostic handlers | `src/diagnostics/logger.ts` | Extend options with `since`; track `sincePrefixed` flag |
-| Progress formatters | `formatProgressBody` / `writeProgressLine` | Prefix only on first successful write |
-| Executive summaries | `src/report/summary.ts` | Add Timing helper; empty-delta branch |
-| Compare table/markdown | `src/report/compare-table.ts`, `compare-markdown.ts` | Consume shared summary (smoke tests) |
-| CSV write | `bin/scan-actions.ts` `writeCsvBundle` | After `Promise.all`, confirm paths |
-| Quiet flags | existing `ScanDiagnosticOptions` / bin | Suppress CSV confirm + stderr timing |
-| Baseline path validation | `validateBaselinePath` + `BASELINE_JSON_HINT` | Mention `baseline save` |
-| Baseline load hints | `src/compare/load-baseline.ts` | Extend Hint to mention `baseline save` |
-| Exit mapping | `bin/hotspot-scanner.ts` `main` | Add `BaselineError` → 2 |
-| Help constants | `SEQUENTIAL_OPTION_HELP` / `NO_OVERLAP_OPTION_HELP` | De-jargon |
-| Defaults | `DEFAULT_SINCE` from `src/scan.ts` | Resolve effective since for handlers |
+| Component                | Location                                             | How to Use                                              |
+| ------------------------ | ---------------------------------------------------- | ------------------------------------------------------- |
+| CLI diagnostic handlers  | `src/diagnostics/logger.ts`                          | Extend options with `since`; track `sincePrefixed` flag |
+| Progress formatters      | `formatProgressBody` / `writeProgressLine`           | Prefix only on first successful write                   |
+| Executive summaries      | `src/report/summary.ts`                              | Add Timing helper; empty-delta branch                   |
+| Compare table/markdown   | `src/report/compare-table.ts`, `compare-markdown.ts` | Consume shared summary (smoke tests)                    |
+| CSV write                | `bin/scan-actions.ts` `writeCsvBundle`               | After `Promise.all`, confirm paths                      |
+| Quiet flags              | existing `ScanDiagnosticOptions` / bin               | Suppress CSV confirm + stderr timing                    |
+| Baseline path validation | `validateBaselinePath` + `BASELINE_JSON_HINT`        | Mention `baseline save`                                 |
+| Baseline load hints      | `src/compare/load-baseline.ts`                       | Extend Hint to mention `baseline save`                  |
+| Exit mapping             | `bin/hotspot-scanner.ts` `main`                      | Add `BaselineError` → 2                                 |
+| Help constants           | `SEQUENTIAL_OPTION_HELP` / `NO_OVERLAP_OPTION_HELP`  | De-jargon                                               |
+| Defaults                 | `DEFAULT_SINCE` from `src/scan.ts`                   | Resolve effective since for handlers                    |
 
 ### Fragile / concerns
 
-| Concern | Mitigation |
-| ------- | ---------- |
-| Diagnostics TTY live line (M59) | Unit-test first vs second write with `stderrIsTTY: true`; do not break clear-on-flush |
-| Report purity ([INTEGRATIONS.md](../../codebase/INTEGRATIONS.md)) | Timing **summary** strings only in `src/report/`; stderr timing stays in bin |
-| Compare / baseline validation | Hints only — no validation weakening; co-locate load-baseline tests |
-| M61 sister drift | Explicit non-goals; no flush/lifecycle changes beyond existing M58 flush |
+| Concern                                                           | Mitigation                                                                            |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Diagnostics TTY live line (M59)                                   | Unit-test first vs second write with `stderrIsTTY: true`; do not break clear-on-flush |
+| Report purity ([INTEGRATIONS.md](../../codebase/INTEGRATIONS.md)) | Timing **summary** strings only in `src/report/`; stderr timing stays in bin          |
+| Compare / baseline validation                                     | Hints only — no validation weakening; co-locate load-baseline tests                   |
+| M61 sister drift                                                  | Explicit non-goals; no flush/lifecycle changes beyond existing M58 flush              |
 
 ---
 
@@ -170,13 +170,13 @@ Compare: same since + brief timing from `compareResult.meta.current.timings` whe
 
 ## Test Plan
 
-| Layer | Focus |
-| ----- | ----- |
-| Unit `src/diagnostics/` | First vs second progress; TTY + non-TTY; quiet/no-progress; missing since |
-| Unit `src/report/` | Timing summary line; empty vs non-empty compare deltas; scan summary |
-| Unit `src/compare/` | Baseline hint includes `baseline save` |
-| Unit `bin/` | CSV confirm paths; quiet suppress; BaselineError → 2; help strings; stderr timing; path hints |
-| Docs | README milestone-ID scrub |
+| Layer                   | Focus                                                                                         |
+| ----------------------- | --------------------------------------------------------------------------------------------- |
+| Unit `src/diagnostics/` | First vs second progress; TTY + non-TTY; quiet/no-progress; missing since                     |
+| Unit `src/report/`      | Timing summary line; empty vs non-empty compare deltas; scan summary                          |
+| Unit `src/compare/`     | Baseline hint includes `baseline save`                                                        |
+| Unit `bin/`             | CSV confirm paths; quiet suppress; BaselineError → 2; help strings; stderr timing; path hints |
+| Docs                    | README milestone-ID scrub                                                                     |
 
 **Gate:** per-task vitest paths; final `pnpm build && pnpm test`.
 
@@ -184,13 +184,13 @@ Compare: same since + brief timing from `compareResult.meta.current.timings` whe
 
 ## Risks
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| since prefix wrong when only in config | Resolve via merge/load before handlers |
-| TTY line length / wrap with since prefix | Accept; keep prefix short `since=… ·` |
-| Double timing noise (summary + stderr) | Context lock: stderr brief; quiet suppresses stderr |
-| Exit-code regressions | Update BaselineError tests explicitly; leave cancel/strict alone |
-| Accidental M61 scope creep | Tasks forbid flush deferral / finalize / bars |
+| Risk                                     | Mitigation                                                       |
+| ---------------------------------------- | ---------------------------------------------------------------- |
+| since prefix wrong when only in config   | Resolve via merge/load before handlers                           |
+| TTY line length / wrap with since prefix | Accept; keep prefix short `since=… ·`                            |
+| Double timing noise (summary + stderr)   | Context lock: stderr brief; quiet suppresses stderr              |
+| Exit-code regressions                    | Update BaselineError tests explicitly; leave cancel/strict alone |
+| Accidental M61 scope creep               | Tasks forbid flush deferral / finalize / bars                    |
 
 ---
 

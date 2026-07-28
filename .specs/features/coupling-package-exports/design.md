@@ -35,39 +35,39 @@ flowchart LR
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `buildStaticEdgeGraph` / `getStaticEdge` | `enrich-coupling-static.ts` | Keep; extend `resolutionBases` only |
-| `buildResolutionCandidates` | same | Reuse after package target → base path |
-| `extractStaticReferences` + kind merge | same | Unchanged classification |
-| `TsconfigPathMap` | `tsconfig-path-map.ts` | Keep order: try before package name exports; pattern helpers inspirational for single-`*` |
-| `normalizeRepoPath` | enricher / path-map | Share for package-relative targets |
-| M33 read-once tests | `enrich-coupling-static.test.ts` | Extend; do not delete |
-| M14/M27 enrich cases | same | Regression oracle |
+| Component                                | Location                         | How to Use                                                                                |
+| ---------------------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------- |
+| `buildStaticEdgeGraph` / `getStaticEdge` | `enrich-coupling-static.ts`      | Keep; extend `resolutionBases` only                                                       |
+| `buildResolutionCandidates`              | same                             | Reuse after package target → base path                                                    |
+| `extractStaticReferences` + kind merge   | same                             | Unchanged classification                                                                  |
+| `TsconfigPathMap`                        | `tsconfig-path-map.ts`           | Keep order: try before package name exports; pattern helpers inspirational for single-`*` |
+| `normalizeRepoPath`                      | enricher / path-map              | Share for package-relative targets                                                        |
+| M33 read-once tests                      | `enrich-coupling-static.test.ts` | Extend; do not delete                                                                     |
+| M14/M27 enrich cases                     | same                             | Regression oracle                                                                         |
 
 ### Integration Points
 
-| Consumer | Impact |
-| -------- | ------ |
-| `src/scoring/package-exports-map.ts` (new) | Parse + resolve + peer package index |
-| `src/scoring/enrich-coupling-static.ts` | Wire map into `resolutionBases` / graph build |
-| `src/scan.ts` | **No change** — already calls enricher |
-| `schemas/` / reporters / compare | **No shape change** — behavior-only |
-| `tests/fixtures/repos/` | New slug for exports/imports |
-| `tests/contract/` | Regression only (fields still required) |
-| ARCHITECTURE / CONCERNS / STRUCTURE | Document resolution; close unmitigated gap on Done |
+| Consumer                                   | Impact                                             |
+| ------------------------------------------ | -------------------------------------------------- |
+| `src/scoring/package-exports-map.ts` (new) | Parse + resolve + peer package index               |
+| `src/scoring/enrich-coupling-static.ts`    | Wire map into `resolutionBases` / graph build      |
+| `src/scan.ts`                              | **No change** — already calls enricher             |
+| `schemas/` / reporters / compare           | **No shape change** — behavior-only                |
+| `tests/fixtures/repos/`                    | New slug for exports/imports                       |
+| `tests/contract/`                          | Regression only (fields still required)            |
+| ARCHITECTURE / CONCERNS / STRUCTURE        | Document resolution; close unmitigated gap on Done |
 
 ### Fragile areas (CONCERNS.md)
 
-| Area | Mitigation |
-| ---- | ---------- |
-| Scoring formulas / ranking | Do not edit `coupling-scorer`; enrich metadata only |
-| Enriched coupling false negatives (`exports`/`imports`) | **This milestone** — in-repo package resolution |
-| M33 hub I/O regression | Peer-scoped caches for package.json; keep one source read per peer |
-| Renamed-unlinked → false | Document only; no PathAliasMap |
-| ts-morph boundary | Regex extract + `JSON.parse` only |
-| External package false confidence | Explicit miss for non-indexed / node_modules-only names |
-| Residual source↔dist misses | Document; no invent mapping |
+| Area                                                    | Mitigation                                                         |
+| ------------------------------------------------------- | ------------------------------------------------------------------ |
+| Scoring formulas / ranking                              | Do not edit `coupling-scorer`; enrich metadata only                |
+| Enriched coupling false negatives (`exports`/`imports`) | **This milestone** — in-repo package resolution                    |
+| M33 hub I/O regression                                  | Peer-scoped caches for package.json; keep one source read per peer |
+| Renamed-unlinked → false                                | Document only; no PathAliasMap                                     |
+| ts-morph boundary                                       | Regex extract + `JSON.parse` only                                  |
+| External package false confidence                       | Explicit miss for non-indexed / node_modules-only names            |
+| Residual source↔dist misses                             | Document; no invent mapping                                        |
 
 ---
 
@@ -169,13 +169,13 @@ interface PackageScope {
 
 ## Error Handling Strategy
 
-| Error Scenario | Handling | User Impact |
-| -------------- | -------- | ----------- |
-| Missing / unreadable package.json | Scope null; miss | No edge; scan continues |
-| Invalid JSON | Scope null; miss | No edge; scan continues |
-| Exports present, no matching key | Miss for package path | No edge |
-| External package name not in peer index | Miss | No edge (may still hit tsconfig) |
-| Exports → dist, peer is src | Miss unless candidates equal | Documented residual FN |
+| Error Scenario                          | Handling                     | User Impact                      |
+| --------------------------------------- | ---------------------------- | -------------------------------- |
+| Missing / unreadable package.json       | Scope null; miss             | No edge; scan continues          |
+| Invalid JSON                            | Scope null; miss             | No edge; scan continues          |
+| Exports present, no matching key        | Miss for package path        | No edge                          |
+| External package name not in peer index | Miss                         | No edge (may still hit tsconfig) |
+| Exports → dist, peer is src             | Miss unless candidates equal | Documented residual FN           |
 
 No new `ScanWarning` codes (YAGNI).
 
@@ -183,14 +183,14 @@ No new `ScanWarning` codes (YAGNI).
 
 ## Tech Decisions
 
-| Decision | Choice | Rationale |
-| -------- | ------ | --------- |
-| Scope | Peer-indexed in-repo packages only | Closes monorepo gap; avoids node_modules cost/YAGNI |
-| Condition strategy | Union of import/require/default/types/node targets | Peer matching ≠ runtime load |
-| Order vs tsconfig | Relative → tsconfig → `#` imports → package exports | Preserve M27 wins; package fills remaining gaps |
-| Cache | Per enrich call on PackageExportsMap | Aligns with TsconfigPathMap + M33 |
-| Schema | No change | Behavior-only enrichment |
-| main fallback | Only when exports absent | Matches Node-ish entry without defeating exports encapsulation |
+| Decision           | Choice                                              | Rationale                                                      |
+| ------------------ | --------------------------------------------------- | -------------------------------------------------------------- |
+| Scope              | Peer-indexed in-repo packages only                  | Closes monorepo gap; avoids node_modules cost/YAGNI            |
+| Condition strategy | Union of import/require/default/types/node targets  | Peer matching ≠ runtime load                                   |
+| Order vs tsconfig  | Relative → tsconfig → `#` imports → package exports | Preserve M27 wins; package fills remaining gaps                |
+| Cache              | Per enrich call on PackageExportsMap                | Aligns with TsconfigPathMap + M33                              |
+| Schema             | No change                                           | Behavior-only enrichment                                       |
+| main fallback      | Only when exports absent                            | Matches Node-ish entry without defeating exports encapsulation |
 
 ---
 
@@ -204,13 +204,13 @@ No new `ScanWarning` codes (YAGNI).
 
 ## Testing Strategy
 
-| Layer | What |
-| ----- | ---- |
-| Unit `package-exports-map.test.ts` | imports `#`, exports entry/subpath/`*`, conditions, main fallback, malformed JSON, no node_modules |
-| Unit `enrich-coupling-static.test.ts` | end-to-end enrich flags; ranking fields untouched; M14/M27 regression; M33 read-once + package.json read-once |
-| Contract | Existing `tests/contract/json-schema.test.ts` still passes (no schema edit expected) |
-| Integration / fixture | Optional mini repo under `tests/fixtures/repos/package-exports-coupling/`; assert enrich true on package-entry pair |
-| Gate | `pnpm build && pnpm test` |
+| Layer                                 | What                                                                                                                |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Unit `package-exports-map.test.ts`    | imports `#`, exports entry/subpath/`*`, conditions, main fallback, malformed JSON, no node_modules                  |
+| Unit `enrich-coupling-static.test.ts` | end-to-end enrich flags; ranking fields untouched; M14/M27 regression; M33 read-once + package.json read-once       |
+| Contract                              | Existing `tests/contract/json-schema.test.ts` still passes (no schema edit expected)                                |
+| Integration / fixture                 | Optional mini repo under `tests/fixtures/repos/package-exports-coupling/`; assert enrich true on package-entry pair |
+| Gate                                  | `pnpm build && pnpm test`                                                                                           |
 
 Coverage: new `src/scoring/package-exports-map.ts` must meet per-file thresholds (TESTING.md).
 
@@ -218,9 +218,9 @@ Coverage: new `src/scoring/package-exports-map.ts` must meet per-file thresholds
 
 ## Docs Sync (Execute)
 
-1. ARCHITECTURE § Enriched coupling — add exports/imports bullets; remove deferred line for package.json  
-2. CONCERNS — move mitigation into enriched-coupling table; **remove** Unmitigated matrix row for package exports  
-3. STRUCTURE.md — list `package-exports-map` under `src/scoring/`  
+1. ARCHITECTURE § Enriched coupling — add exports/imports bullets; remove deferred line for package.json
+2. CONCERNS — move mitigation into enriched-coupling table; **remove** Unmitigated matrix row for package exports
+3. STRUCTURE.md — list `package-exports-map` under `src/scoring/`
 4. Planning note: CONCERNS backlog already points at M44 Planned; final removal is Execute T-final
 
 ---

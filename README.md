@@ -75,23 +75,23 @@ Rank  File                      Score     NLOC  NLOCN     Churn  ChurnN  Authors
 
 ## Commands at a glance
 
-| Command | Question it answers | Example |
-| ------- | ------------------- | ------- |
-| `scan` | Which files are maintenance hotspots? | `hotspot-scanner scan . --top 10` |
-| `trend` | How did this file’s complexity evolve? | `hotspot-scanner trend src/foo.ts` |
-| `assess` | Are the top hotspots getting worse? | `hotspot-scanner assess .` |
+| Command  | Question it answers                    | Example                            |
+| -------- | -------------------------------------- | ---------------------------------- |
+| `scan`   | Which files are maintenance hotspots?  | `hotspot-scanner scan . --top 10`  |
+| `trend`  | How did this file’s complexity evolve? | `hotspot-scanner trend src/foo.ts` |
+| `assess` | Are the top hotspots getting worse?    | `hotspot-scanner assess .`         |
 
 Typical flow: `scan` → `scan --explain <path>` → `trend <path>` or `assess .` for a batch. Cookbooks: [Hotspot drill-down](docs/recipes.md#hotspot-drill-down-scan--explain--trend) · [Scan → assess](docs/recipes.md#scan--assess-batch-deteriorating-hotspots). Assess orchestration: [CLI reference → Scan → assess](docs/cli-reference.md#scan--assess).
 
 ## Use this when…
 
-| You want… | When to run | Example |
-| --------- | ----------- | ------- |
-| A ranked list for this sprint | Weekly triage of files to refactor | `hotspot-scanner scan . --since "3 months ago" --top 10` |
-| A shareable report in a PR | Attach markdown output to a review | `hotspot-scanner scan . --format markdown --output report.md` |
-| Machine-readable output | Scripts, dashboards, or CI artifacts | `hotspot-scanner scan . --format json --output scan.json` |
-| Score context, then history for one file | Drill down after a hotspot catches your eye | `scan --explain <path>` → `trend <path>` |
-| Which top hotspots look like they’re getting worse | Batch check without N manual trends | `assess . --min-hotspot-score 0.7 --top 10` |
+| You want…                                          | When to run                                 | Example                                                       |
+| -------------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------- |
+| A ranked list for this sprint                      | Weekly triage of files to refactor          | `hotspot-scanner scan . --since "3 months ago" --top 10`      |
+| A shareable report in a PR                         | Attach markdown output to a review          | `hotspot-scanner scan . --format markdown --output report.md` |
+| Machine-readable output                            | Scripts, dashboards, or CI artifacts        | `hotspot-scanner scan . --format json --output scan.json`     |
+| Score context, then history for one file           | Drill down after a hotspot catches your eye | `scan --explain <path>` → `trend <path>`                      |
+| Which top hotspots look like they’re getting worse | Batch check without N manual trends         | `assess . --min-hotspot-score 0.7 --top 10`                   |
 
 Copy-paste cookbooks (including monorepo scoping): [docs/recipes.md](docs/recipes.md).
 
@@ -129,26 +129,26 @@ NCLOC and indentation are **proxies for prioritization**, not substitutes for AS
 
 ## Essential flags
 
-| Flag | Default | Description |
-| ---- | ------- | ----------- |
-| `<path>` | `.` | Scan target (git root or nested directory inside a git workspace) |
-| `--since` | `12 months ago` | Git history window |
-| `-f`, `--format` | `table` | `table`, `json`, `markdown`, or `csv` |
-| `-t`, `--top` | `20` | Top N rows in table/markdown (ignored for json/csv) |
-| `-o`, `--output` | — | Write report to file (required for `--format csv`) |
-| `--include` / `--exclude` | — | Path globs (repeatable) |
-| `--explain <target>` | — | After the report, print a file-path score breakdown to stderr |
-| `--dry-run` | — | Preview scope and config without git mine / NCLOC |
+| Flag                      | Default         | Description                                                       |
+| ------------------------- | --------------- | ----------------------------------------------------------------- |
+| `<path>`                  | `.`             | Scan target (git root or nested directory inside a git workspace) |
+| `--since`                 | `12 months ago` | Git history window                                                |
+| `-f`, `--format`          | `table`         | `table`, `json`, `markdown`, or `csv`                             |
+| `-t`, `--top`             | `20`            | Top N rows in table/markdown (ignored for json/csv)               |
+| `-o`, `--output`          | —               | Write report to file (required for `--format csv`)                |
+| `--include` / `--exclude` | —               | Path globs (repeatable)                                           |
+| `--explain <target>`      | —               | After the report, print a file-path score breakdown to stderr     |
+| `--dry-run`               | —               | Preview scope and config without git mine / NCLOC                 |
 
 Full flag list: [docs/cli-reference.md](docs/cli-reference.md#command-synopsis-and-flags). Also: `hotspot-scanner scan --help`.
 
 ## Requirements
 
-| Requirement | Version |
-| ----------- | ------- |
-| Node.js | 22+ |
-| git | required at scan time |
-| pnpm | for development |
+| Requirement | Version               |
+| ----------- | --------------------- |
+| Node.js     | 22+                   |
+| git         | required at scan time |
+| pnpm        | for development       |
 
 ## Installation
 
@@ -179,13 +179,13 @@ Restart your shell or reload the config after installing. Invalid shell names ex
 
 **Precedence:** CLI **>** config **>** defaults.
 
-| Key | Maps to | Type |
-| --- | ------- | ---- |
-| `since` | `--since` | string |
-| `include` | `--include` | string array (globs) |
-| `exclude` | `--exclude` | string array (globs) |
-| `top` | `--top` | positive integer |
-| `concurrency` | `--concurrency` | positive integer |
+| Key           | Maps to         | Type                 |
+| ------------- | --------------- | -------------------- |
+| `since`       | `--since`       | string               |
+| `include`     | `--include`     | string array (globs) |
+| `exclude`     | `--exclude`     | string array (globs) |
+| `top`         | `--top`         | positive integer     |
+| `concurrency` | `--concurrency` | positive integer     |
 
 `format`, `output`, and most presentation flags are **CLI-only**. Unknown keys emit `UNKNOWN_CONFIG_KEY` ([warning codes](docs/warning-codes.md)). Use `config validate` / `config print` without a full scan.
 
@@ -228,12 +228,12 @@ GitHub-flavored report with summary, how-to-read, hotspot table, and optional tr
 
 Canonical table: [docs/cli-reference.md → Exit codes](docs/cli-reference.md#exit-codes).
 
-| Code | Meaning |
-| ---- | ------- |
-| `0` | Success (`--explain` miss without `--fail-on-explain-miss` also `0`) |
-| `1` | `--fail-on-explain-miss` when explain target missing |
-| `2` | Invalid usage / config / unknown removed commands |
-| `130` / `143` | Cancelled by `SIGINT` / `SIGTERM` |
+| Code          | Meaning                                                              |
+| ------------- | -------------------------------------------------------------------- |
+| `0`           | Success (`--explain` miss without `--fail-on-explain-miss` also `0`) |
+| `1`           | `--fail-on-explain-miss` when explain target missing                 |
+| `2`           | Invalid usage / config / unknown removed commands                    |
+| `130` / `143` | Cancelled by `SIGINT` / `SIGTERM`                                    |
 
 ## Programmatic API
 
@@ -247,7 +247,11 @@ import {
   previewScanScope,
   runDoctor,
 } from "@taranti/hotspot-scanner";
-import type { ScanResult, AssessResult, DoctorResult } from "@taranti/hotspot-scanner";
+import type {
+  ScanResult,
+  AssessResult,
+  DoctorResult,
+} from "@taranti/hotspot-scanner";
 
 const result: ScanResult = await runScan({
   repoPath: "/path/to/repo",
@@ -267,14 +271,14 @@ const doctor: DoctorResult = await runDoctor({ targetPath: "/path/to/repo" });
 
 ## Documentation
 
-| Doc | Contents |
-| --- | -------- |
-| [docs/recipes.md](docs/recipes.md) | Copy-paste workflows (triage, PR report, monorepo, drill-down, assess) |
-| [docs/methodology.md](docs/methodology.md) | Why NCLOC and indentation |
-| [docs/warning-codes.md](docs/warning-codes.md) | Stable `meta.warnings` codes and stderr modes |
-| [docs/cli-reference.md](docs/cli-reference.md) | Full flags, pipeline internals, assess / explain, examples |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Local setup and contribution workflow |
-| [SECURITY.md](SECURITY.md) | Local trust model and vulnerability reporting |
+| Doc                                            | Contents                                                               |
+| ---------------------------------------------- | ---------------------------------------------------------------------- |
+| [docs/recipes.md](docs/recipes.md)             | Copy-paste workflows (triage, PR report, monorepo, drill-down, assess) |
+| [docs/methodology.md](docs/methodology.md)     | Why NCLOC and indentation                                              |
+| [docs/warning-codes.md](docs/warning-codes.md) | Stable `meta.warnings` codes and stderr modes                          |
+| [docs/cli-reference.md](docs/cli-reference.md) | Full flags, pipeline internals, assess / explain, examples             |
+| [CONTRIBUTING.md](CONTRIBUTING.md)             | Local setup and contribution workflow                                  |
+| [SECURITY.md](SECURITY.md)                     | Local trust model and vulnerability reporting                          |
 
 ## Limitations
 

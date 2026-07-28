@@ -81,13 +81,13 @@ interface CouplingPair {
 | `tsconfig.json` / `jsconfig.json` | Walk up from importer directory to `repoPath`; first found wins          |
 | JSONC                             | Strip `//` and `/* */` comments before `JSON.parse` (no new runtime dep) |
 
-| Explicitly out of scope (M27)                                      | Reason                                      |
-| ------------------------------------------------------------------ | ------------------------------------------- |
-| `package.json` `exports` / `imports`                               | Separate complexity; leave for a later gap  |
-| Full TypeScript project-references graph / solution-style configs  | YAGNI                                       |
-| `extends` deep-merge beyond one level of practical need            | Implement **shallow `extends` chain** only (merge `compilerOptions.paths`/`baseUrl` from extended configs until cycle or missing file); do not implement full TS config semantics |
-| Bare npm package names without a matching `paths`/`baseUrl` hit    | Still not a pair edge (M14 rule unchanged)  |
-| Dynamic `import(expr)` / non-literal `require`                     | Unchanged M14 exclusion                     |
+| Explicitly out of scope (M27)                                     | Reason                                                                                                                                                                            |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `package.json` `exports` / `imports`                              | Separate complexity; leave for a later gap                                                                                                                                        |
+| Full TypeScript project-references graph / solution-style configs | YAGNI                                                                                                                                                                             |
+| `extends` deep-merge beyond one level of practical need           | Implement **shallow `extends` chain** only (merge `compilerOptions.paths`/`baseUrl` from extended configs until cycle or missing file); do not implement full TS config semantics |
+| Bare npm package names without a matching `paths`/`baseUrl` hit   | Still not a pair edge (M14 rule unchanged)                                                                                                                                        |
+| Dynamic `import(expr)` / non-literal `require`                    | Unchanged M14 exclusion                                                                                                                                                           |
 
 **Fallback:** If no config found, parse fails, or alias does not resolve to an existing candidate → treat that specifier as unresolved (same as M14 miss → no edge). Scan continues.
 
@@ -103,12 +103,12 @@ interface CouplingPair {
 
 **Choice:** Extend the literal-string extractor in `src/scoring/` (no ts-morph; INTEGRATIONS boundary). Classify each matched static string specifier:
 
-| Construct                                                         | Runtime | Type-only | Re-export |
-| ----------------------------------------------------------------- | ------- | --------- | --------- |
-| `import … from '…'` / side-effect `import '…'` / `import('…')`    | yes     | no        | no        |
-| `import type … from '…'` / `export type … from '…'`               | no      | yes       | re-export only for `export type … from` |
-| `export { … } from '…'` / `export * from '…'`                     | yes     | no        | yes       |
-| `require('…')` string literal                                     | yes     | no        | no        |
+| Construct                                                      | Runtime | Type-only | Re-export                               |
+| -------------------------------------------------------------- | ------- | --------- | --------------------------------------- |
+| `import … from '…'` / side-effect `import '…'` / `import('…')` | yes     | no        | no                                      |
+| `import type … from '…'` / `export type … from '…'`            | no      | yes       | re-export only for `export type … from` |
+| `export { … } from '…'` / `export * from '…'`                  | yes     | no        | yes                                     |
+| `require('…')` string literal                                  | yes     | no        | no                                      |
 
 Mixed pairs (both runtime and type-only edges present in either direction) set **both** kind flags `true`.
 
@@ -148,12 +148,12 @@ Mixed pairs (both runtime and type-only edges present in either direction) set *
 
 **Choice:**
 
-| Surface          | Behavior                                                                                          |
-| ---------------- | ------------------------------------------------------------------------------------------------- |
-| JSON             | All five static fields on every coupling object                                                   |
+| Surface          | Behavior                                                                                                                                                       |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| JSON             | All five static fields on every coupling object                                                                                                                |
 | Table / markdown | Keep `StaticDep` (`yes`/`no`); add `Direction` (`none` / `a→b` / `b→a` / `both`); add `Kinds` (`—` / comma list from `{runtime,type,re-export}` present flags) |
-| CSV coupling     | Columns: existing + `staticDependencyDirection`, `hasRuntimeStaticDependency`, `hasTypeOnlyStaticDependency`, `hasReExportStaticDependency` |
-| Compare          | Same fields on coupling entities / columns                                                        |
+| CSV coupling     | Columns: existing + `staticDependencyDirection`, `hasRuntimeStaticDependency`, `hasTypeOnlyStaticDependency`, `hasReExportStaticDependency`                    |
+| Compare          | Same fields on coupling entities / columns                                                                                                                     |
 
 **Status:** **Confirmed**
 
@@ -163,11 +163,11 @@ Mixed pairs (both runtime and type-only edges present in either direction) set *
 
 ## Related closed decisions (upstream)
 
-| Decision                         | Value                                      | Relevance                                      |
-| -------------------------------- | ------------------------------------------ | ---------------------------------------------- |
-| Post-score enrichment            | M14 context                                | Extend enricher; do not move into scorer       |
-| Relative resolution + extensions | M14                                        | Keep; aliases are additional resolution path   |
-| `import type` counted as edge    | M14 (`hasStaticDependency: true`)          | Still true; now also sets type-only flag       |
-| No ts-morph in `src/scoring/`    | M14 / INTEGRATIONS.md                      | Retain                                        |
-| JSON `"1.0"` additive            | M9/M11/M14/M20                             | No version bump                                |
-| Requirement ID range             | `HOTSPOT-231`–`HOTSPOT-250` (use as needed)| This feature                                   |
+| Decision                         | Value                                       | Relevance                                    |
+| -------------------------------- | ------------------------------------------- | -------------------------------------------- |
+| Post-score enrichment            | M14 context                                 | Extend enricher; do not move into scorer     |
+| Relative resolution + extensions | M14                                         | Keep; aliases are additional resolution path |
+| `import type` counted as edge    | M14 (`hasStaticDependency: true`)           | Still true; now also sets type-only flag     |
+| No ts-morph in `src/scoring/`    | M14 / INTEGRATIONS.md                       | Retain                                       |
+| JSON `"1.0"` additive            | M9/M11/M14/M20                              | No version bump                              |
+| Requirement ID range             | `HOTSPOT-231`–`HOTSPOT-250` (use as needed) | This feature                                 |

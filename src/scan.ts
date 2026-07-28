@@ -234,13 +234,16 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
   }
 
   if (unknownConfigKeys.length > 0) {
-    const unknownConfigWarning = createUnknownConfigKeyWarning(unknownConfigKeys);
+    const unknownConfigWarning =
+      createUnknownConfigKeyWarning(unknownConfigKeys);
     collectedWarnings.push(unknownConfigWarning);
     onWarning?.(unknownConfigWarning);
   }
 
   const miner = createGitMiner();
-  const analyzer = createComplexityAnalyzer({ concurrency: merged.concurrency });
+  const analyzer = createComplexityAnalyzer({
+    concurrency: merged.concurrency,
+  });
   const abortController = new AbortController();
   const signal = abortController.signal;
   const unlinkExternalAbort = linkAbortSignal(options.signal, abortController);
@@ -298,10 +301,10 @@ export async function runScan(options: ScanOptions): Promise<ScanResult> {
       }
     }
 
-    const {
-      fileStats,
-      warnings: gitWarnings,
-    } = filterGitMinerResult(rawGit, scope);
+    const { fileStats, warnings: gitWarnings } = filterGitMinerResult(
+      rawGit,
+      scope,
+    );
 
     const { results, warnings: complexityWarnings } = cxResult;
 

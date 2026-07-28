@@ -20,15 +20,15 @@ Function mode is expensive: a second full-repo `git log -p --unified=0` stream p
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Historical AST / per-commit function ranges | User locked; CONCERNS deferred |
-| Changing McCabe decision nodes or AST collection constructs | RT-005 / M22/M29 — collection policy unchanged |
-| Scoring formula / JSON `version` / public score fields | Rankings semantics preserved for typical cases only |
-| Parallelizing function-churn with numstat | M34 boundary |
-| Persistent AST workers / discovery `git ls-files` | M31 / M36 |
-| Changing file-mode numstat argv or coupling | ADR-2026-020 preserved |
-| Global `git log --follow` | Forbidden (ARCHITECTURE / CONCERNS) |
+| Feature                                                     | Reason                                              |
+| ----------------------------------------------------------- | --------------------------------------------------- |
+| Historical AST / per-commit function ranges                 | User locked; CONCERNS deferred                      |
+| Changing McCabe decision nodes or AST collection constructs | RT-005 / M22/M29 — collection policy unchanged      |
+| Scoring formula / JSON `version` / public score fields      | Rankings semantics preserved for typical cases only |
+| Parallelizing function-churn with numstat                   | M34 boundary                                        |
+| Persistent AST workers / discovery `git ls-files`           | M31 / M36                                           |
+| Changing file-mode numstat argv or coupling                 | ADR-2026-020 preserved                              |
+| Global `git log --follow`                                   | Forbidden (ARCHITECTURE / CONCERNS)                 |
 
 ---
 
@@ -146,28 +146,28 @@ Function mode is expensive: a second full-repo `git log -p --unified=0` stream p
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-380 | P1: Pathspecs | Tasks | Pending |
-| HOTSPOT-381 | P1: Pathspecs | Tasks | Pending |
-| HOTSPOT-382 | P1: Pathspecs | Tasks | Pending |
-| HOTSPOT-383 | P1: Pathspecs | Tasks | Pending |
-| HOTSPOT-384 | P1: AST limit | Tasks | Pending |
-| HOTSPOT-385 | P1: AST limit | Tasks | Pending |
-| HOTSPOT-386 | P1: AST limit | Tasks | Pending |
-| HOTSPOT-387 | P1: AST limit | Tasks | Pending |
-| HOTSPOT-388 | P1: AST limit | Tasks | Pending |
-| HOTSPOT-389 | P1: Interval index | Tasks | Pending |
-| HOTSPOT-390 | P1: Interval index | Tasks | Pending |
-| HOTSPOT-391 | P1: Interval index | Tasks | Pending |
-| HOTSPOT-392 | P1: Wiring / file mode | Tasks | Pending |
-| HOTSPOT-393 | P1: Wiring / file mode | Tasks | Pending |
-| HOTSPOT-394 | P1: Wiring / file mode | Tasks | Pending |
-| HOTSPOT-395 | P1: Wiring / file mode | Tasks | Pending |
-| HOTSPOT-396 | P2: Docs + gate | Tasks | Pending |
-| HOTSPOT-397 | P1: Wiring / file mode | Tasks | Pending |
-| HOTSPOT-398 | P2: Docs + gate | Tasks | Pending |
-| HOTSPOT-399 | P2: Docs + gate | Tasks | Pending |
+| Requirement ID | Story                  | Phase | Status  |
+| -------------- | ---------------------- | ----- | ------- |
+| HOTSPOT-380    | P1: Pathspecs          | Tasks | Pending |
+| HOTSPOT-381    | P1: Pathspecs          | Tasks | Pending |
+| HOTSPOT-382    | P1: Pathspecs          | Tasks | Pending |
+| HOTSPOT-383    | P1: Pathspecs          | Tasks | Pending |
+| HOTSPOT-384    | P1: AST limit          | Tasks | Pending |
+| HOTSPOT-385    | P1: AST limit          | Tasks | Pending |
+| HOTSPOT-386    | P1: AST limit          | Tasks | Pending |
+| HOTSPOT-387    | P1: AST limit          | Tasks | Pending |
+| HOTSPOT-388    | P1: AST limit          | Tasks | Pending |
+| HOTSPOT-389    | P1: Interval index     | Tasks | Pending |
+| HOTSPOT-390    | P1: Interval index     | Tasks | Pending |
+| HOTSPOT-391    | P1: Interval index     | Tasks | Pending |
+| HOTSPOT-392    | P1: Wiring / file mode | Tasks | Pending |
+| HOTSPOT-393    | P1: Wiring / file mode | Tasks | Pending |
+| HOTSPOT-394    | P1: Wiring / file mode | Tasks | Pending |
+| HOTSPOT-395    | P1: Wiring / file mode | Tasks | Pending |
+| HOTSPOT-396    | P2: Docs + gate        | Tasks | Pending |
+| HOTSPOT-397    | P1: Wiring / file mode | Tasks | Pending |
+| HOTSPOT-398    | P2: Docs + gate        | Tasks | Pending |
+| HOTSPOT-399    | P2: Docs + gate        | Tasks | Pending |
 
 **ID format:** `HOTSPOT-NNN` (band **380–399** only)
 

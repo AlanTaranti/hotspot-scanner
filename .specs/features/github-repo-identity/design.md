@@ -39,21 +39,21 @@ flowchart LR
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `repository` block | `package.json` | Update `url` only; keep `type: "git"` |
-| Adoption clone / Issues patterns | README, CONTRIBUTING | Exact URL replace |
-| Advisories wording | SECURITY.md | Exact URL replace (link + bare) |
-| Shield badge pattern | README.md | Update encoded label + href |
+| Component                        | Location             | How to Use                            |
+| -------------------------------- | -------------------- | ------------------------------------- |
+| `repository` block               | `package.json`       | Update `url` only; keep `type: "git"` |
+| Adoption clone / Issues patterns | README, CONTRIBUTING | Exact URL replace                     |
+| Advisories wording               | SECURITY.md          | Exact URL replace (link + bare)       |
+| Shield badge pattern             | README.md            | Update encoded label + href           |
 
 ### Integration Points
 
-| System | Integration Method |
-| ------ | ------------------ |
-| `package.json` | Set `repository.url`, add `homepage` + `bugs` |
-| npm publish | Out of scope — metadata only |
-| Git remote (local) | Contributor verify note; no tracked remotes file |
-| STACK.md | No edit unless wrong URL string appears (none today) |
+| System             | Integration Method                                   |
+| ------------------ | ---------------------------------------------------- |
+| `package.json`     | Set `repository.url`, add `homepage` + `bugs`        |
+| npm publish        | Out of scope — metadata only                         |
+| Git remote (local) | Contributor verify note; no tracked remotes file     |
+| STACK.md           | No edit unless wrong URL string appears (none today) |
 
 ---
 
@@ -85,12 +85,12 @@ None. No domain types or JSON contract `version` changes.
 
 ## Error Handling Strategy
 
-| Error Scenario | Handling | User Impact |
-| -------------- | -------- | ----------- |
-| Leftover `taranti/hotspot-scanner` on live surfaces | T4 fails until empty | Block Done |
-| Accidental rewrite of Done historical specs | Forbidden | Archive noise |
-| Inventing CI workflows | Forbidden | Scope creep |
-| Conflating npm `@taranti` with GitHub `AlanTaranti` | Locked distinct | Wrong “fix” |
+| Error Scenario                                      | Handling             | User Impact   |
+| --------------------------------------------------- | -------------------- | ------------- |
+| Leftover `taranti/hotspot-scanner` on live surfaces | T4 fails until empty | Block Done    |
+| Accidental rewrite of Done historical specs         | Forbidden            | Archive noise |
+| Inventing CI workflows                              | Forbidden            | Scope creep   |
+| Conflating npm `@taranti` with GitHub `AlanTaranti` | Locked distinct      | Wrong “fix”   |
 
 Exit codes SoT unchanged.
 
@@ -98,20 +98,20 @@ Exit codes SoT unchanged.
 
 ## Risks
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| Incomplete live-surface replace | T4 scoped `rg` must be empty for old; hits for new |
-| Over-eager historical / STACK / CI edits | Locked out of scope in context |
+| Risk                                      | Mitigation                                            |
+| ----------------------------------------- | ----------------------------------------------------- |
+| Incomplete live-surface replace           | T4 scoped `rg` must be empty for old; hits for new    |
+| Over-eager historical / STACK / CI edits  | Locked out of scope in context                        |
 | Local `origin` still wrong after docs fix | Contributor note in T4 Done when (not a tracked file) |
 
 ---
 
 ## Tech Decisions (locked — do not re-open)
 
-| Decision | Choice | Rationale |
-| -------- | ------ | --------- |
-| GitHub owner | `AlanTaranti` | Real remote |
-| npm scope | Remains `@taranti` (M79) | Intentionally differs |
-| Method | Exact string / badge replace + metadata fields | YAGNI; no architecture |
-| Historical specs | Untouched | Archive SoT |
-| Local remote | Verify note only | Not a repo file |
+| Decision         | Choice                                         | Rationale              |
+| ---------------- | ---------------------------------------------- | ---------------------- |
+| GitHub owner     | `AlanTaranti`                                  | Real remote            |
+| npm scope        | Remains `@taranti` (M79)                       | Intentionally differs  |
+| Method           | Exact string / badge replace + metadata fields | YAGNI; no architecture |
+| Historical specs | Untouched                                      | Archive SoT            |
+| Local remote     | Verify note only                               | Not a repo file        |

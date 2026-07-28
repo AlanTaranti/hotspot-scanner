@@ -45,69 +45,69 @@ flowchart LR
 
 | Task | Depends on (declared) | Diagram shows | Match |
 | ---- | --------------------- | ------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T2 | T2 → T3 | ✅ |
-| T4 | T3 | T3 → T4 | ✅ |
-| T5 | T4 | T4 → T5 | ✅ |
-| T6 | T5 | T5 → T6 | ✅ |
-| T7 | T6 | T6 → T7 | ✅ |
-| T8 | T7 | T7 → T8 | ✅ |
+| T1   | None                  | Root          | ✅    |
+| T2   | T1                    | T1 → T2       | ✅    |
+| T3   | T2                    | T2 → T3       | ✅    |
+| T4   | T3                    | T3 → T4       | ✅    |
+| T5   | T4                    | T4 → T5       | ✅    |
+| T6   | T5                    | T5 → T6       | ✅    |
+| T7   | T6                    | T6 → T7       | ✅    |
+| T8   | T7                    | T7 → T8       | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | bin | `bin/hotspot-scanner.ts`, `bin/hotspot-scanner.test.ts` | Sole early bin argv owner |
-| T2 | bin | `bin/hotspot-scanner.ts`, `bin/scan-actions.ts` (if needed), `bin/hotspot-scanner.test.ts` | After T1; sequential |
-| T3 | bin + report | `bin/hotspot-scanner.ts`, `src/report/explain.ts` (+ compare explain if separate), co-located tests, `bin/hotspot-scanner.test.ts` | After T2; only T3 touches explain helpers |
-| T4 | diagnostics + bin | `src/diagnostics/warning-summary.ts`, `logger.ts`, exports, diagnostics tests; `bin/hotspot-scanner.ts`, `bin/scan-actions.ts`, bin tests | After T3; only T4 touches diagnostics |
-| T5 | bin | `bin/scan-actions.ts`, `bin/hotspot-scanner.ts`, bin unit/integration tests | After T4; sequential on bin |
-| T6 | bin (completion) | `bin/completion-scripts.ts`, `bin/completion-scripts.test.ts` and/or bin tests | After T5; sequential |
-| T7 | docs | `README.md`, `.specs/codebase/ARCHITECTURE.md` (optional recipes) | After T6 |
-| T8 | gate | none (verify) | After T7 |
+| Task | Module owner      | Paths                                                                                                                                     | Conflict                                  |
+| ---- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| T1   | bin               | `bin/hotspot-scanner.ts`, `bin/hotspot-scanner.test.ts`                                                                                   | Sole early bin argv owner                 |
+| T2   | bin               | `bin/hotspot-scanner.ts`, `bin/scan-actions.ts` (if needed), `bin/hotspot-scanner.test.ts`                                                | After T1; sequential                      |
+| T3   | bin + report      | `bin/hotspot-scanner.ts`, `src/report/explain.ts` (+ compare explain if separate), co-located tests, `bin/hotspot-scanner.test.ts`        | After T2; only T3 touches explain helpers |
+| T4   | diagnostics + bin | `src/diagnostics/warning-summary.ts`, `logger.ts`, exports, diagnostics tests; `bin/hotspot-scanner.ts`, `bin/scan-actions.ts`, bin tests | After T3; only T4 touches diagnostics     |
+| T5   | bin               | `bin/scan-actions.ts`, `bin/hotspot-scanner.ts`, bin unit/integration tests                                                               | After T4; sequential on bin               |
+| T6   | bin (completion)  | `bin/completion-scripts.ts`, `bin/completion-scripts.test.ts` and/or bin tests                                                            | After T5; sequential                      |
+| T7   | docs              | `README.md`, `.specs/codebase/ARCHITECTURE.md` (optional recipes)                                                                         | After T6                                  |
+| T8   | gate              | none (verify)                                                                                                                             | After T7                                  |
 
 No `[P]` — shared `bin/` ownership; keep sequential.
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task says | Match |
-| ---- | ---------- | ---------------------- | --------- | ----- |
-| T1 | `bin/` | Unit | unit in same task | ✅ |
-| T2 | `bin/` | Unit | unit in same task | ✅ |
-| T3 | `bin/` + `src/report/` | Unit | unit in same task | ✅ |
-| T4 | `src/diagnostics/` + `bin/` | Unit | unit in same task | ✅ |
-| T5 | `bin/` | Unit (+ integration optional) | unit in same task | ✅ |
-| T6 | `bin/` | Unit | unit in same task | ✅ |
-| T7 | Docs | none | none | ✅ |
-| T8 | Full project | Gate | `pnpm build && pnpm test` | ✅ |
+| Task | Code layer                  | TESTING.md expectation        | Task says                 | Match |
+| ---- | --------------------------- | ----------------------------- | ------------------------- | ----- |
+| T1   | `bin/`                      | Unit                          | unit in same task         | ✅    |
+| T2   | `bin/`                      | Unit                          | unit in same task         | ✅    |
+| T3   | `bin/` + `src/report/`      | Unit                          | unit in same task         | ✅    |
+| T4   | `src/diagnostics/` + `bin/` | Unit                          | unit in same task         | ✅    |
+| T5   | `bin/`                      | Unit (+ integration optional) | unit in same task         | ✅    |
+| T6   | `bin/`                      | Unit                          | unit in same task         | ✅    |
+| T7   | Docs                        | none                          | none                      | ✅    |
+| T8   | Full project                | Gate                          | `pnpm build && pnpm test` | ✅    |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Argv rewrite helper + tests | ✅ Cohesive |
-| T2 | Baseline diagnostic flags + tests | ✅ Cohesive |
-| T3 | Fail-on-explain-miss + miss helper + tests | ✅ Cohesive |
-| T4 | WarningsMode json + parse + CLI tests | ✅ Cohesive |
-| T5 | csv-single-file write path + tests | ✅ Cohesive |
-| T6 | Completion parity three shells | ✅ Granular |
-| T7 | Living docs | ✅ Granular |
-| T8 | Project gate | ✅ Granular |
+| Task | Scope                                      | Status      |
+| ---- | ------------------------------------------ | ----------- |
+| T1   | Argv rewrite helper + tests                | ✅ Cohesive |
+| T2   | Baseline diagnostic flags + tests          | ✅ Cohesive |
+| T3   | Fail-on-explain-miss + miss helper + tests | ✅ Cohesive |
+| T4   | WarningsMode json + parse + CLI tests      | ✅ Cohesive |
+| T5   | csv-single-file write path + tests         | ✅ Cohesive |
+| T6   | Completion parity three shells             | ✅ Granular |
+| T7   | Living docs                                | ✅ Granular |
+| T8   | Project gate                               | ✅ Granular |
 
 ### Requirement → Task Mapping
 
-| Requirement ID | Task |
-| -------------- | ---- |
-| HOTSPOT-1065, HOTSPOT-1066, HOTSPOT-1067, HOTSPOT-1068 | T1 |
-| HOTSPOT-1060, HOTSPOT-1061, HOTSPOT-1062, HOTSPOT-1063 | T2 |
-| HOTSPOT-1070, HOTSPOT-1071, HOTSPOT-1072, HOTSPOT-1073, HOTSPOT-1074 | T3 |
-| HOTSPOT-1075, HOTSPOT-1076, HOTSPOT-1077, HOTSPOT-1078, HOTSPOT-1079, HOTSPOT-1080, HOTSPOT-1081 | T4 |
-| HOTSPOT-1082, HOTSPOT-1083, HOTSPOT-1084, HOTSPOT-1085, HOTSPOT-1086, HOTSPOT-1087 | T5 |
-| HOTSPOT-1088, HOTSPOT-1089, HOTSPOT-1090, HOTSPOT-1091 | T6 |
-| HOTSPOT-1093, HOTSPOT-1094, HOTSPOT-1095 | T7 |
-| (gate) | T8 |
-| HOTSPOT-1064, HOTSPOT-1069, HOTSPOT-1092, HOTSPOT-1096–1099 | Reserved unused |
+| Requirement ID                                                                                   | Task            |
+| ------------------------------------------------------------------------------------------------ | --------------- |
+| HOTSPOT-1065, HOTSPOT-1066, HOTSPOT-1067, HOTSPOT-1068                                           | T1              |
+| HOTSPOT-1060, HOTSPOT-1061, HOTSPOT-1062, HOTSPOT-1063                                           | T2              |
+| HOTSPOT-1070, HOTSPOT-1071, HOTSPOT-1072, HOTSPOT-1073, HOTSPOT-1074                             | T3              |
+| HOTSPOT-1075, HOTSPOT-1076, HOTSPOT-1077, HOTSPOT-1078, HOTSPOT-1079, HOTSPOT-1080, HOTSPOT-1081 | T4              |
+| HOTSPOT-1082, HOTSPOT-1083, HOTSPOT-1084, HOTSPOT-1085, HOTSPOT-1086, HOTSPOT-1087               | T5              |
+| HOTSPOT-1088, HOTSPOT-1089, HOTSPOT-1090, HOTSPOT-1091                                           | T6              |
+| HOTSPOT-1093, HOTSPOT-1094, HOTSPOT-1095                                                         | T7              |
+| (gate)                                                                                           | T8              |
+| HOTSPOT-1064, HOTSPOT-1069, HOTSPOT-1092, HOTSPOT-1096–1099                                      | Reserved unused |
 
 ---
 

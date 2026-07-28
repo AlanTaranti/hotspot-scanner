@@ -227,14 +227,14 @@ describe("diagnostics logger", () => {
         .spyOn(process.stderr, "write")
         .mockImplementation(() => true);
 
-      expect(
-        maybeLogProgress({ phase: "git", commitsProcessed: 999 }),
-      ).toBe(false);
+      expect(maybeLogProgress({ phase: "git", commitsProcessed: 999 })).toBe(
+        false,
+      );
       expect(write).not.toHaveBeenCalled();
 
-      expect(
-        maybeLogProgress({ phase: "git", commitsProcessed: 1000 }),
-      ).toBe(true);
+      expect(maybeLogProgress({ phase: "git", commitsProcessed: 1000 })).toBe(
+        true,
+      );
       expect(write).toHaveBeenCalledWith("git 1,000 commits…\n");
     });
 
@@ -243,9 +243,9 @@ describe("diagnostics logger", () => {
         .spyOn(process.stderr, "write")
         .mockImplementation(() => true);
 
-      expect(
-        maybeLogProgress({ phase: "git", commitsProcessed: 0 }),
-      ).toBe(false);
+      expect(maybeLogProgress({ phase: "git", commitsProcessed: 0 })).toBe(
+        false,
+      );
       expect(write).not.toHaveBeenCalled();
     });
 
@@ -399,9 +399,9 @@ describe("diagnostics logger", () => {
 
       expect(write).toHaveBeenNthCalledWith(1, "\x1b[2K\rgit 1,000 commits…");
       expect(write).toHaveBeenNthCalledWith(2, "\x1b[2K\rgit 2,000 commits…");
-      expect(write.mock.calls.every((call) => !String(call[0]).endsWith("\n"))).toBe(
-        true,
-      );
+      expect(
+        write.mock.calls.every((call) => !String(call[0]).endsWith("\n")),
+      ).toBe(true);
     });
 
     it("overwrites one live line on TTY stderr for complexity progress", () => {
@@ -530,17 +530,16 @@ describe("diagnostics logger", () => {
       });
       onProgress({ phase: "finalize", commitsProcessed: 0 });
 
-      expect(write).toHaveBeenNthCalledWith(
-        3,
-        "\x1b[2K\rFinalizing…",
-      );
+      expect(write).toHaveBeenNthCalledWith(3, "\x1b[2K\rFinalizing…");
     });
 
     it("emits finalize without throttle", () => {
       const write = vi
         .spyOn(process.stderr, "write")
         .mockImplementation(() => true);
-      const { onProgress } = createCliDiagnosticHandlers({ stderrIsTTY: false });
+      const { onProgress } = createCliDiagnosticHandlers({
+        stderrIsTTY: false,
+      });
 
       onProgress({ phase: "finalize", commitsProcessed: 0 });
 

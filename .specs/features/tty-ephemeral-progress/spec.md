@@ -24,14 +24,14 @@ Every progress tick in `src/diagnostics/logger.ts` ends with `\n`, so complexity
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Percentage bars / ETA / spinner glyphs | Locked UX — overwrite text only |
-| New CLI flags or config key | Presentation polish only; M38 pattern |
-| JSON / schema / contract change | Presentation-only |
-| Change throttle intervals | YAGNI — keep `PROGRESS_LOG_INTERVAL` / `COMPLEXITY_PROGRESS_LOG_INTERVAL` |
-| Function-churn progress revival | M57 retired; phases are `git` \| `complexity` only |
-| Wrap `--verbose` git argv for clear | YAGNI — known risk; see [context.md](./context.md) |
+| Feature                                | Reason                                                                    |
+| -------------------------------------- | ------------------------------------------------------------------------- |
+| Percentage bars / ETA / spinner glyphs | Locked UX — overwrite text only                                           |
+| New CLI flags or config key            | Presentation polish only; M38 pattern                                     |
+| JSON / schema / contract change        | Presentation-only                                                         |
+| Change throttle intervals              | YAGNI — keep `PROGRESS_LOG_INTERVAL` / `COMPLEXITY_PROGRESS_LOG_INTERVAL` |
+| Function-churn progress revival        | M57 retired; phases are `git` \| `complexity` only                        |
+| Wrap `--verbose` git argv for clear    | YAGNI — known risk; see [context.md](./context.md)                        |
 
 ---
 
@@ -157,20 +157,20 @@ Every progress tick in `src/diagnostics/logger.ts` ends with `\n`, so complexity
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-970 | P1: TTY live overwrite | Tasks | Pending |
-| HOTSPOT-971 | P1: Non-TTY newlines | Tasks | Pending |
-| HOTSPOT-972 | P1: Clear on teardown | Tasks | Pending |
-| HOTSPOT-973 | P1: Clear before diagnostics | Tasks | Pending |
-| HOTSPOT-974 | P1: Clear on phase switch | Tasks | Pending |
-| HOTSPOT-975 | P1: Quiet / no-progress | Tasks | Pending |
-| HOTSPOT-976 | P1: M58 summary compose | Tasks | Pending |
-| HOTSPOT-977 | P1: M58 full compose | Tasks | Pending |
-| HOTSPOT-978 | P1: Message format unchanged | Tasks | Pending |
-| HOTSPOT-979 | P1: Injectable isTTY | Tasks | Pending |
-| HOTSPOT-980 | P1: Living docs | Tasks | Pending |
-| HOTSPOT-981–989 | — | — | Reserved |
+| Requirement ID  | Story                        | Phase | Status   |
+| --------------- | ---------------------------- | ----- | -------- |
+| HOTSPOT-970     | P1: TTY live overwrite       | Tasks | Pending  |
+| HOTSPOT-971     | P1: Non-TTY newlines         | Tasks | Pending  |
+| HOTSPOT-972     | P1: Clear on teardown        | Tasks | Pending  |
+| HOTSPOT-973     | P1: Clear before diagnostics | Tasks | Pending  |
+| HOTSPOT-974     | P1: Clear on phase switch    | Tasks | Pending  |
+| HOTSPOT-975     | P1: Quiet / no-progress      | Tasks | Pending  |
+| HOTSPOT-976     | P1: M58 summary compose      | Tasks | Pending  |
+| HOTSPOT-977     | P1: M58 full compose         | Tasks | Pending  |
+| HOTSPOT-978     | P1: Message format unchanged | Tasks | Pending  |
+| HOTSPOT-979     | P1: Injectable isTTY         | Tasks | Pending  |
+| HOTSPOT-980     | P1: Living docs              | Tasks | Pending  |
+| HOTSPOT-981–989 | —                            | —     | Reserved |
 
 **Coverage:** 11 mapped requirements + reserved band; all P1 mapped to tasks.
 

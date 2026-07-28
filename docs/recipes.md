@@ -169,7 +169,7 @@ hotspot-scanner scan . --only hotspots --format json --output hotspots-only.json
 
 ## Hotspot drill-down: scan → explain → trend
 
-Use this workflow when a ranked hotspot needs more than a score — first understand *why* it ranks high, then see *how* indentation complexity evolved over Git history.
+Use this workflow when a ranked hotspot needs more than a score — first understand _why_ it ranks high, then see _how_ indentation complexity evolved over Git history.
 
 **1. Scan** — surface candidates:
 
@@ -261,12 +261,12 @@ Why NCLOC + indentation as proxies (and how they differ for `scan` vs `trend`): 
 
 Every successful `trend` run classifies the sampled series into one of four **growth patterns** (Adam Tornhill framing). Labels appear as `Pattern: <kind> — <summary>` in table output and in JSON `meta.growthPattern`.
 
-| Kind | Meaning | Typical signal |
-| ---- | ------- | -------------- |
-| **deteriorating** | Indentation complexity is rising faster than file size | `indentMean` first→last rise ≥ 10%; summary compares mean vs `ncloc` growth |
-| **refactored** | Complexity peaked mid-history then dropped | Peak `indentMean` not at last revision; drop from peak to end ≥ 18% |
-| **stable** | Complexity stayed in a narrow band | Relative `indentMean` range within ~8% across the series |
-| **inconclusive** | Too little history or no clear curve | Fewer than 5 sampled points, or mixed movement that does not match the rules above |
+| Kind              | Meaning                                                | Typical signal                                                                     |
+| ----------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| **deteriorating** | Indentation complexity is rising faster than file size | `indentMean` first→last rise ≥ 10%; summary compares mean vs `ncloc` growth        |
+| **refactored**    | Complexity peaked mid-history then dropped             | Peak `indentMean` not at last revision; drop from peak to end ≥ 18%                |
+| **stable**        | Complexity stayed in a narrow band                     | Relative `indentMean` range within ~8% across the series                           |
+| **inconclusive**  | Too little history or no clear curve                   | Fewer than 5 sampled points, or mixed movement that does not match the rules above |
 
 **Formatter cliffs:** A one-shot Prettier run or mass re-indent can spike `indentMean` and produce a false **deteriorating** or **refactored** label. Treat Pattern as a hint alongside sparklines and blame — not a gate. There is no special detector for format-only commits in M75/M77 (`assess` inherits the same classifier).
 

@@ -40,39 +40,39 @@ flowchart LR
 
 | Task | Depends on (body) | Diagram shows | Status |
 | ---- | ----------------- | ------------- | ------ |
-| T1 | None | Root | Match |
-| T2 | T1 | T1→T2 | Match |
-| T3 | T2 | T2→T3 | Match |
-| T4 | T3 | T3→T4 | Match |
+| T1   | None              | Root          | Match  |
+| T2   | T1                | T1→T2         | Match  |
+| T3   | T2                | T2→T3         | Match  |
+| T4   | T3                | T3→T4         | Match  |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | report + doctor format | `src/report/color.ts`, `src/report/color.test.ts` (or co-located), `src/doctor/format.ts`, `src/doctor/format.test.ts` | Sole paint/format owner |
-| T2 | bin | `bin/hotspot-scanner.ts`, `bin/hotspot-scanner.test.ts` | Sole CLI owner; may delete local `formatDoctorFindings` |
-| T3 | docs | `README.md`, `.specs/codebase/ARCHITECTURE.md`, `.specs/codebase/CONVENTIONS.md` (brief) | After T2 |
-| T4 | gate | none | After T3 |
+| Task | Module owner           | Paths                                                                                                                  | Conflict                                                |
+| ---- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| T1   | report + doctor format | `src/report/color.ts`, `src/report/color.test.ts` (or co-located), `src/doctor/format.ts`, `src/doctor/format.test.ts` | Sole paint/format owner                                 |
+| T2   | bin                    | `bin/hotspot-scanner.ts`, `bin/hotspot-scanner.test.ts`                                                                | Sole CLI owner; may delete local `formatDoctorFindings` |
+| T3   | docs                   | `README.md`, `.specs/codebase/ARCHITECTURE.md`, `.specs/codebase/CONVENTIONS.md` (brief)                               | After T2                                                |
+| T4   | gate                   | none                                                                                                                   | After T3                                                |
 
 No `[P]` — sequential owners.
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task Tests | Status |
-| ---- | ---------- | ---------------------- | ---------- | ------ |
-| T1 | `src/report/`, `src/doctor/` | unit | unit | OK |
-| T2 | `bin/` | unit | unit | OK |
-| T3 | docs | none | review checklist | OK |
-| T4 | full project | gate | `pnpm build && pnpm test` | OK |
+| Task | Code layer                   | TESTING.md expectation | Task Tests                | Status |
+| ---- | ---------------------------- | ---------------------- | ------------------------- | ------ |
+| T1   | `src/report/`, `src/doctor/` | unit                   | unit                      | OK     |
+| T2   | `bin/`                       | unit                   | unit                      | OK     |
+| T3   | docs                         | none                   | review checklist          | OK     |
+| T4   | full project                 | gate                   | `pnpm build && pnpm test` | OK     |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Paint + text formatter + unit tests | Cohesive |
-| T2 | Color resolve + `--no-color` + CLI tests | Cohesive |
-| T3 | Living docs only | Cohesive |
-| T4 | Project gate | Granular |
+| Task | Scope                                    | Status   |
+| ---- | ---------------------------------------- | -------- |
+| T1   | Paint + text formatter + unit tests      | Cohesive |
+| T2   | Color resolve + `--no-color` + CLI tests | Cohesive |
+| T3   | Living docs only                         | Cohesive |
+| T4   | Project gate                             | Granular |
 
 ---
 
@@ -202,8 +202,8 @@ No `[P]` — sequential owners.
 
 ## Parallelization Summary
 
-| Flag | Tasks | Reason |
-| ---- | ----- | ------ |
+| Flag | Tasks       | Reason                      |
+| ---- | ----------- | --------------------------- |
 | none | T1→T2→T3→T4 | Sequential module ownership |
 
 **Max parallel workers:** 1
@@ -212,18 +212,18 @@ No `[P]` — sequential owners.
 
 ## Requirement Coverage
 
-| ID | Task |
-| -- | ---- |
-| HOTSPOT-1520 | T1 |
-| HOTSPOT-1521 | T1 |
-| HOTSPOT-1522 | T1 |
-| HOTSPOT-1523 | T2 |
-| HOTSPOT-1524 | T2 |
-| HOTSPOT-1525 | T2 |
-| HOTSPOT-1526 | T2 |
-| HOTSPOT-1527 | T2 |
-| HOTSPOT-1528 | T2 |
-| HOTSPOT-1529 | T3 |
-| HOTSPOT-1530 | T3 |
+| ID           | Task |
+| ------------ | ---- |
+| HOTSPOT-1520 | T1   |
+| HOTSPOT-1521 | T1   |
+| HOTSPOT-1522 | T1   |
+| HOTSPOT-1523 | T2   |
+| HOTSPOT-1524 | T2   |
+| HOTSPOT-1525 | T2   |
+| HOTSPOT-1526 | T2   |
+| HOTSPOT-1527 | T2   |
+| HOTSPOT-1528 | T2   |
+| HOTSPOT-1529 | T3   |
+| HOTSPOT-1530 | T3   |
 
 All mapped. Buffer/reserved IDs unassigned.

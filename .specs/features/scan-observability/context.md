@@ -33,9 +33,9 @@ Operator observability for long scans and doctor: clean cancel on SIGINT/SIGTERM
 5. **No partial report:** do not write scan/compare stdout/file body on cancel; do not emit a successful `ScanResult`.
 6. **Stderr:** one concise line, e.g. `warning: scan cancelled` (severity `warning`), no stack dump for clean cancel.
 7. **Exit codes (POSIX 128+N):**
-   | Signal | Exit |
-   | ------ | ---- |
-   | `SIGINT` | `130` |
+   | Signal    | Exit  |
+   | --------- | ----- |
+   | `SIGINT`  | `130` |
    | `SIGTERM` | `143` |
 8. Sibling-failure abort (non-signal) remains existing non-zero error path (unchanged exit semantics for `GitLogError` / analyzer errors).
 
@@ -107,18 +107,16 @@ interface ScanStageTimings {
 
 **Choice:**
 
-| Flag | Values | Default |
-| ---- | ------ | ------- |
-| `-f, --format <format>` on `doctor` | `text` \| `json` | `text` |
+| Flag                                | Values           | Default |
+| ----------------------------------- | ---------------- | ------- |
+| `-f, --format <format>` on `doctor` | `text` \| `json` | `text`  |
 
 **JSON stdout (success and failure paths that still print findings):**
 
 ```json
 {
   "version": "1.0",
-  "findings": [
-    { "id": "node-engines", "status": "pass", "message": "…" }
-  ],
+  "findings": [{ "id": "node-engines", "status": "pass", "message": "…" }],
   "exitCode": 0
 }
 ```
@@ -140,12 +138,12 @@ interface ScanStageTimings {
 
 **Choice:** **Narrow reopen** — CLI-only `--verbose` on `scan` and `compare` (commands that spawn git).
 
-| Behavior | Rule |
-| -------- | ---- |
-| Emit | Before each git spawn (numstat + function-churn patch), one stderr line: `verbose: git <argv joined by space>` |
-| Scope | Spawn argv only — **not** AST dumps, not progress spam, not scoring traces |
-| Quiet | `--quiet` **suppresses** verbose lines |
-| Config | Not a `.hotspot-scanner.json` key |
+| Behavior       | Rule                                                                                                                               |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Emit           | Before each git spawn (numstat + function-churn patch), one stderr line: `verbose: git <argv joined by space>`                     |
+| Scope          | Spawn argv only — **not** AST dumps, not progress spam, not scoring traces                                                         |
+| Quiet          | `--quiet` **suppresses** verbose lines                                                                                             |
+| Config         | Not a `.hotspot-scanner.json` key                                                                                                  |
 | Implementation | Prefer injectable hook / option on spawn helpers (e.g. `onSpawnArgv?: (argv: string[]) => void`) so bin/diagnostics own formatting |
 
 **Rationale:** STATE already records this reopen; useful for pathspec/ARG_MAX debugging without a general debug mode.
@@ -158,13 +156,13 @@ interface ScanStageTimings {
 
 ## Deferred / non-goals
 
-| Item | Disposition |
-| ---- | ----------- |
-| Doctor remount / shared prelude with `runScan` | M52 |
-| Benchmark harness / wall-clock CI budgets | M49 |
-| Ranking or formula changes | Out of scope |
-| `--strict` on warnings / fail-on-warning | Not M51 (M53 owns compare strict elsewhere) |
-| Verbose beyond git argv | Rejected |
+| Item                                           | Disposition                                 |
+| ---------------------------------------------- | ------------------------------------------- |
+| Doctor remount / shared prelude with `runScan` | M52                                         |
+| Benchmark harness / wall-clock CI budgets      | M49                                         |
+| Ranking or formula changes                     | Out of scope                                |
+| `--strict` on warnings / fail-on-warning       | Not M51 (M53 owns compare strict elsewhere) |
+| Verbose beyond git argv                        | Rejected                                    |
 
 ---
 

@@ -32,37 +32,37 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (body) | Diagram shows | Status |
-| ---- | ----------------- | ------------- | ------ |
-| T1 | None | Root | ✅ Match |
-| T2 | None | Root | ✅ Match |
-| T3 | T1, T2 | T1→T3, T2→T3 | ✅ Match |
+| Task | Depends on (body) | Diagram shows | Status   |
+| ---- | ----------------- | ------------- | -------- |
+| T1   | None              | Root          | ✅ Match |
+| T2   | None              | Root          | ✅ Match |
+| T3   | T1, T2            | T1→T3, T2→T3  | ✅ Match |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | `src/paths/` | `scope.ts`, `scope.test.ts`; `paths/index.ts` only if re-exports need touch | Sole PathScope owner; **do not** edit `ELIGIBLE_EXTENSIONS` |
-| T2 | `src/complexity/` (+ rename sync) | `discover.ts`, `discover.test.ts`; `src/git/rename-warnings.ts`, `rename-warnings.test.ts`; touch other complexity tests only if they hard-code the six-extension list | Disjoint from T1 `src/paths/` |
-| T3 | docs | ARCHITECTURE, README, CONCERNS; ROADMAP/STATE only on Execute Done (not this planning session) | After T1+T2 |
+| Task | Module owner                      | Paths                                                                                                                                                                  | Conflict                                                    |
+| ---- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| T1   | `src/paths/`                      | `scope.ts`, `scope.test.ts`; `paths/index.ts` only if re-exports need touch                                                                                            | Sole PathScope owner; **do not** edit `ELIGIBLE_EXTENSIONS` |
+| T2   | `src/complexity/` (+ rename sync) | `discover.ts`, `discover.test.ts`; `src/git/rename-warnings.ts`, `rename-warnings.test.ts`; touch other complexity tests only if they hard-code the six-extension list | Disjoint from T1 `src/paths/`                               |
+| T3   | docs                              | ARCHITECTURE, README, CONCERNS; ROADMAP/STATE only on Execute Done (not this planning session)                                                                         | After T1+T2                                                 |
 
 T1 `[P]` with T2 — disjoint path prefixes. No other `[P]`.
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task Tests | Status |
-| ---- | ---------- | ---------------------- | ---------- | ------ |
-| T1 | `src/paths/` | unit | unit | ✅ OK |
-| T2 | `src/complexity/` + `src/git/` | unit | unit | ✅ OK |
-| T3 | docs + project gate | none / full gate | none + `pnpm build && pnpm test` | ✅ OK |
+| Task | Code layer                     | TESTING.md expectation | Task Tests                       | Status |
+| ---- | ------------------------------ | ---------------------- | -------------------------------- | ------ |
+| T1   | `src/paths/`                   | unit                   | unit                             | ✅ OK  |
+| T2   | `src/complexity/` + `src/git/` | unit                   | unit                             | ✅ OK  |
+| T3   | docs + project gate            | none / full gate       | none + `pnpm build && pnpm test` | ✅ OK  |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | One constant append + unit tests | ✅ Granular |
-| T2 | One constant + rename sync + unit tests | ✅ Cohesive SoT sync |
-| T3 | Docs + full gate | ✅ Granular |
+| Task | Scope                                   | Status               |
+| ---- | --------------------------------------- | -------------------- |
+| T1   | One constant append + unit tests        | ✅ Granular          |
+| T2   | One constant + rename sync + unit tests | ✅ Cohesive SoT sync |
+| T3   | Docs + full gate                        | ✅ Granular          |
 
 ---
 
@@ -198,12 +198,12 @@ Phase 2 (Sequential):
 
 ## Requirement → Task Mapping
 
-| Requirement IDs | Task |
-| --------------- | ---- |
-| HOTSPOT-1200, HOTSPOT-1201, HOTSPOT-1202, HOTSPOT-1203, HOTSPOT-1204 | T1 |
-| HOTSPOT-1205, HOTSPOT-1206, HOTSPOT-1207, HOTSPOT-1208, HOTSPOT-1209 | T2 |
-| HOTSPOT-1210, HOTSPOT-1211, HOTSPOT-1212 | T3 |
-| HOTSPOT-1213–1229 | Reserved — unused |
+| Requirement IDs                                                      | Task              |
+| -------------------------------------------------------------------- | ----------------- |
+| HOTSPOT-1200, HOTSPOT-1201, HOTSPOT-1202, HOTSPOT-1203, HOTSPOT-1204 | T1                |
+| HOTSPOT-1205, HOTSPOT-1206, HOTSPOT-1207, HOTSPOT-1208, HOTSPOT-1209 | T2                |
+| HOTSPOT-1210, HOTSPOT-1211, HOTSPOT-1212                             | T3                |
+| HOTSPOT-1213–1229                                                    | Reserved — unused |
 
 ---
 

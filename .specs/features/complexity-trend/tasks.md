@@ -64,33 +64,33 @@ flowchart TD
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (declared) | Diagram shows | Match |
-| ---- | --------------------- | ------------- | ----- |
-| T1 | None | Root | yes |
-| T2 | None | Root | yes |
-| T3 | None | Root | yes |
-| T4 | T1 | T1→T4 | yes (T1 ensures indent ready before orchestration path; T4 itself is git-only but sequenced after T1 for phase clarity) |
-| T5 | T2, T3, T4 | T2/T3/T4→T5 | yes |
-| T6 | T5 | T5→T6 | yes |
-| T7 | T6 | T6→T7 | yes |
-| T8 | T7 | T7→T8 | yes |
-| T9 | T8 | T8→T9 | yes |
-| T10 | T9 | T9→T10 | yes |
+| Task | Depends on (declared) | Diagram shows | Match                                                                                                                   |
+| ---- | --------------------- | ------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| T1   | None                  | Root          | yes                                                                                                                     |
+| T2   | None                  | Root          | yes                                                                                                                     |
+| T3   | None                  | Root          | yes                                                                                                                     |
+| T4   | T1                    | T1→T4         | yes (T1 ensures indent ready before orchestration path; T4 itself is git-only but sequenced after T1 for phase clarity) |
+| T5   | T2, T3, T4            | T2/T3/T4→T5   | yes                                                                                                                     |
+| T6   | T5                    | T5→T6         | yes                                                                                                                     |
+| T7   | T6                    | T6→T7         | yes                                                                                                                     |
+| T8   | T7                    | T7→T8         | yes                                                                                                                     |
+| T9   | T8                    | T8→T9         | yes                                                                                                                     |
+| T10  | T9                    | T9→T10        | yes                                                                                                                     |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths (primary) | Conflict with parallel peers |
-| ---- | ------------ | --------------- | ---------------------------- |
-| T1 | `src/complexity/` | `indentation.ts` + test | None vs T2/T3 |
-| T2 | `src/trend/` | `sparkline.ts` + test | None vs T1/T3 |
-| T3 | `src/trend/` | `sample.ts` + test | None vs T1/T2 (different file from T2) |
-| T4 | `src/git/` | `file-history.ts` (or split) + tests/fixtures | Sole after Phase 1 |
-| T5 | `src/trend/` + `schemas/` | `run-trend.ts`, types, index, schema, contract test | After T4 |
-| T6 | `src/report/` | `trend-*.ts` + tests | After T5 |
-| T7 | `bin/` | `hotspot-scanner.ts`, completions (+ optional trend-actions) | After T6 |
-| T8 | `tests/fixtures/` + integration | new fixture repo + trend integration/CLI tests | After T7 |
-| T9 | docs + `src/index.ts` | living docs, README, recipes, skills, public export | After T8 |
-| T10 | gate | none (run only) | After T9 |
+| Task | Module owner                    | Paths (primary)                                              | Conflict with parallel peers           |
+| ---- | ------------------------------- | ------------------------------------------------------------ | -------------------------------------- |
+| T1   | `src/complexity/`               | `indentation.ts` + test                                      | None vs T2/T3                          |
+| T2   | `src/trend/`                    | `sparkline.ts` + test                                        | None vs T1/T3                          |
+| T3   | `src/trend/`                    | `sample.ts` + test                                           | None vs T1/T2 (different file from T2) |
+| T4   | `src/git/`                      | `file-history.ts` (or split) + tests/fixtures                | Sole after Phase 1                     |
+| T5   | `src/trend/` + `schemas/`       | `run-trend.ts`, types, index, schema, contract test          | After T4                               |
+| T6   | `src/report/`                   | `trend-*.ts` + tests                                         | After T5                               |
+| T7   | `bin/`                          | `hotspot-scanner.ts`, completions (+ optional trend-actions) | After T6                               |
+| T8   | `tests/fixtures/` + integration | new fixture repo + trend integration/CLI tests               | After T7                               |
+| T9   | docs + `src/index.ts`           | living docs, README, recipes, skills, public export          | After T8                               |
+| T10  | gate                            | none (run only)                                              | After T9                               |
 
 > **[P]**: T1, T2, T3 only.
 
@@ -98,20 +98,20 @@ flowchart TD
 
 ## Requirement → Task Mapping
 
-| IDs | Task |
-| --- | ---- |
-| HOTSPOT-1400, HOTSPOT-1401, HOTSPOT-1402 | T1 |
-| HOTSPOT-1403, HOTSPOT-1404 | T2 (series wiring completed in T5) |
-| HOTSPOT-1408 (sample algorithm) | T3 |
-| HOTSPOT-1406, HOTSPOT-1409 (show), HOTSPOT-1411 (git encapsulation) | T4 |
-| HOTSPOT-1404 (attach sparklines), HOTSPOT-1405, HOTSPOT-1407, HOTSPOT-1408 (truncate meta), HOTSPOT-1410, HOTSPOT-1411 (order), HOTSPOT-1412, HOTSPOT-1413, HOTSPOT-1414 | T5 |
-| HOTSPOT-1415, HOTSPOT-1416, HOTSPOT-1417 | T6 |
-| HOTSPOT-1418, HOTSPOT-1419, HOTSPOT-1420, HOTSPOT-1421 | T7 |
-| HOTSPOT-1425 | T8 |
-| HOTSPOT-1422, HOTSPOT-1423, HOTSPOT-1424 | T9 |
-| all HOTSPOT-1400–1425 | T10 verification |
-| HOTSPOT-1426–1469 | Buffer unused |
-| HOTSPOT-1470–1499 | Reserved |
+| IDs                                                                                                                                                                      | Task                               |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------- |
+| HOTSPOT-1400, HOTSPOT-1401, HOTSPOT-1402                                                                                                                                 | T1                                 |
+| HOTSPOT-1403, HOTSPOT-1404                                                                                                                                               | T2 (series wiring completed in T5) |
+| HOTSPOT-1408 (sample algorithm)                                                                                                                                          | T3                                 |
+| HOTSPOT-1406, HOTSPOT-1409 (show), HOTSPOT-1411 (git encapsulation)                                                                                                      | T4                                 |
+| HOTSPOT-1404 (attach sparklines), HOTSPOT-1405, HOTSPOT-1407, HOTSPOT-1408 (truncate meta), HOTSPOT-1410, HOTSPOT-1411 (order), HOTSPOT-1412, HOTSPOT-1413, HOTSPOT-1414 | T5                                 |
+| HOTSPOT-1415, HOTSPOT-1416, HOTSPOT-1417                                                                                                                                 | T6                                 |
+| HOTSPOT-1418, HOTSPOT-1419, HOTSPOT-1420, HOTSPOT-1421                                                                                                                   | T7                                 |
+| HOTSPOT-1425                                                                                                                                                             | T8                                 |
+| HOTSPOT-1422, HOTSPOT-1423, HOTSPOT-1424                                                                                                                                 | T9                                 |
+| all HOTSPOT-1400–1425                                                                                                                                                    | T10 verification                   |
+| HOTSPOT-1426–1469                                                                                                                                                        | Buffer unused                      |
+| HOTSPOT-1470–1499                                                                                                                                                        | Reserved                           |
 
 ---
 
@@ -125,11 +125,12 @@ flowchart TD
 **Reuses**: None (pure). Do not change `ncloc.ts` semantics.  
 **Requirements**: HOTSPOT-1400, HOTSPOT-1401, HOTSPOT-1402  
 **Done when**:
+
 - [x] Function exported and documented briefly
 - [x] Fixtures cover flat, nested, tabs, blanks, empty source
 - [x] No ts-morph / AST imports
-**Tests**: Co-located unit tests with exact expected metrics  
-**Gate**: `pnpm test -- src/complexity/indentation.test.ts`
+      **Tests**: Co-located unit tests with exact expected metrics  
+      **Gate**: `pnpm test -- src/complexity/indentation.test.ts`
 
 ---
 
@@ -141,10 +142,11 @@ flowchart TD
 **Reuses**: None  
 **Requirements**: HOTSPOT-1403, HOTSPOT-1404 (helper half)  
 **Done when**:
+
 - [x] Edge cases unit-tested
 - [x] Module creatable without git deps
-**Tests**: Co-located unit tests  
-**Gate**: `pnpm test -- src/trend/sparkline.test.ts`
+      **Tests**: Co-located unit tests  
+      **Gate**: `pnpm test -- src/trend/sparkline.test.ts`
 
 ---
 
@@ -156,10 +158,11 @@ flowchart TD
 **Reuses**: None  
 **Requirements**: HOTSPOT-1408 (algorithm)  
 **Done when**:
+
 - [x] `length <= max` returns full copy
 - [x] Truncation picks evenly; deterministic
-**Tests**: Co-located unit tests (including max=1, max=2, exact length)  
-**Gate**: `pnpm test -- src/trend/sample.test.ts`
+      **Tests**: Co-located unit tests (including max=1, max=2, exact length)  
+      **Gate**: `pnpm test -- src/trend/sample.test.ts`
 
 ---
 
@@ -171,11 +174,12 @@ flowchart TD
 **Reuses**: spawn patterns, `formatGitStderrHint`  
 **Requirements**: HOTSPOT-1406, HOTSPOT-1409, HOTSPOT-1411  
 **Done when**:
+
 - [x] Follow on/off works in tests
 - [x] Show returns blob text; failures typed/clear
 - [x] Scan miner argv tests still assert no global `--follow`
-**Tests**: Unit/integration with temp or fixture git repo  
-**Gate**: `pnpm test -- src/git/`
+      **Tests**: Unit/integration with temp or fixture git repo  
+      **Gate**: `pnpm test -- src/git/`
 
 ---
 
@@ -187,13 +191,14 @@ flowchart TD
 **Reuses**: `countNcloc`, `analyzeIndentation`, `sparkline`, `uniformSample`, `getPackageVersion` optional  
 **Requirements**: HOTSPOT-1404, HOTSPOT-1405, HOTSPOT-1407, HOTSPOT-1408, HOTSPOT-1410, HOTSPOT-1411, HOTSPOT-1412, HOTSPOT-1413, HOTSPOT-1414  
 **Done when**:
+
 - [x] Result matches contract sketch in design.md
 - [x] Truncation sets `meta.truncated` + sample size
 - [x] `--all` path leaves truncated false
 - [x] Contract tests pass; scan-result schema untouched
 - [x] No `loadHotspotScannerConfig` in trend path
-**Tests**: Unit tests for run-trend with mocked git or fixture; contract Ajv  
-**Gate**: `pnpm test -- src/trend/ tests/contract/`
+      **Tests**: Unit tests for run-trend with mocked git or fixture; contract Ajv  
+      **Gate**: `pnpm test -- src/trend/ tests/contract/`
 
 ---
 
@@ -205,11 +210,12 @@ flowchart TD
 **Reuses**: Report purity pattern (no fs)  
 **Requirements**: HOTSPOT-1415, HOTSPOT-1416, HOTSPOT-1417  
 **Done when**:
+
 - [x] Fixed fixture result snapshots/assertions for all three formats
 - [x] Table contains both sparkline strings from meta
 - [x] CSV header has no sparkline fields
-**Tests**: Co-located reporter unit tests  
-**Gate**: `pnpm test -- src/report/trend`
+      **Tests**: Co-located reporter unit tests  
+      **Gate**: `pnpm test -- src/report/trend`
 
 ---
 
@@ -221,12 +227,13 @@ flowchart TD
 **Reuses**: cancel helper from scan-actions if clean; `CliUsageError` patterns  
 **Requirements**: HOTSPOT-1418, HOTSPOT-1419, HOTSPOT-1420, HOTSPOT-1421  
 **Done when**:
+
 - [x] `trend --help` lists flags
 - [x] Negative tests: missing file arg, directory, since+start mix, never-tracked path → exit 2
 - [x] Completions include `trend` in bash/zsh/fish tests
 - [x] Known-subcommand list includes `trend`
-**Tests**: `bin/hotspot-scanner.test.ts`, `bin/completion-scripts.test.ts`  
-**Gate**: `pnpm test -- bin/hotspot-scanner.test.ts bin/completion-scripts.test.ts`
+      **Tests**: `bin/hotspot-scanner.test.ts`, `bin/completion-scripts.test.ts`  
+      **Gate**: `pnpm test -- bin/hotspot-scanner.test.ts bin/completion-scripts.test.ts`
 
 ---
 
@@ -238,11 +245,12 @@ flowchart TD
 **Reuses**: Existing fixture-builder patterns / real git repos under `tests/fixtures/repos/`  
 **Requirements**: HOTSPOT-1425  
 **Done when**:
+
 - [x] ≥3 commits; trend returns ≥2 points with changing metrics
 - [x] Sparklines non-empty on happy path
 - [x] CLI exit 0 on fixture file
-**Tests**: Integration + CLI smoke  
-**Gate**: `pnpm test --` paths covering trend integration/CLI fixture
+      **Tests**: Integration + CLI smoke  
+      **Gate**: `pnpm test --` paths covering trend integration/CLI fixture
 
 ---
 
@@ -254,11 +262,12 @@ flowchart TD
 **Reuses**: M45/M66 docs patterns  
 **Requirements**: HOTSPOT-1422, HOTSPOT-1423, HOTSPOT-1424  
 **Done when**:
+
 - [x] Public export smoke test
 - [x] Docs claim scan→trend drill-down; no compare resurrection
 - [x] CONCERNS clarifies scan working-tree vs trend history
-**Tests**: `src/index.test.ts`  
-**Gate**: `pnpm test -- src/index.test.ts`
+      **Tests**: `src/index.test.ts`  
+      **Gate**: `pnpm test -- src/index.test.ts`
 
 ---
 
@@ -269,20 +278,21 @@ flowchart TD
 **Depends on**: T9  
 **Requirements**: HOTSPOT-1400–1425 (verification)  
 **Done when**:
+
 - [x] `pnpm build && pnpm test` passes
 - [x] tasks.md Status → Done (Execute session only)
 - [x] ROADMAP M72 marked Done (Execute Phase F)
-**Tests**: Full suite  
-**Gate**: `pnpm build && pnpm test`  
-**Note**: `deferred_project_gate` — this is the milestone gate task
+      **Tests**: Full suite  
+      **Gate**: `pnpm build && pnpm test`  
+      **Note**: `deferred_project_gate` — this is the milestone gate task
 
 ---
 
 ## Parallelism summary
 
-| Phase | Parallel |
-| ----- | -------- |
-| Phase 1 | T1 ‖ T2 ‖ T3 |
+| Phase    | Parallel          |
+| -------- | ----------------- |
+| Phase 1  | T1 ‖ T2 ‖ T3      |
 | Phase 2+ | Sequential T4→T10 |
 
 ---

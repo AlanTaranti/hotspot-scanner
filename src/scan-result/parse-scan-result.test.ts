@@ -2,10 +2,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import {
-  parseScanResult,
-  ScanResultParseError,
-} from "./parse-scan-result.js";
+import { parseScanResult, ScanResultParseError } from "./parse-scan-result.js";
 
 const fixturePath = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -70,8 +67,7 @@ describe("parseScanResult", () => {
     const raw = loadFixture();
     const result = parseScanResult({
       ...raw,
-      $schema:
-        "https://vitals.dev/hotspot-scanner/schemas/scan-result.json",
+      $schema: "https://vitals.dev/hotspot-scanner/schemas/scan-result.json",
     });
 
     expect(result.version).toBe("3.0");

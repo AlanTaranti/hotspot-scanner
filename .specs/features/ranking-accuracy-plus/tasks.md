@@ -29,53 +29,53 @@ flowchart TD
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (body) | Diagram | Status |
-| ---- | ----------------- | ------- | ------ |
-| T1 | None | Root | ✅ Match |
-| T2 | T1 | T1 → T2 | ✅ Match |
-| T3 | T1 | T1 → T3 | ✅ Match |
-| T4 | T1 | T1 → T4 | ✅ Match |
-| T5 | T2 | T2 → T5 | ✅ Match |
-| T6 | T3, T4, T5 | T3/T4/T5 → T6 | ✅ Match |
-| T7 | T6 | T6 → T7 | ✅ Match |
+| Task | Depends on (body) | Diagram       | Status   |
+| ---- | ----------------- | ------------- | -------- |
+| T1   | None              | Root          | ✅ Match |
+| T2   | T1                | T1 → T2       | ✅ Match |
+| T3   | T1                | T1 → T3       | ✅ Match |
+| T4   | T1                | T1 → T4       | ✅ Match |
+| T5   | T2                | T2 → T5       | ✅ Match |
+| T6   | T3, T4, T5        | T3/T4/T5 → T6 | ✅ Match |
+| T7   | T6                | T6 → T7       | ✅ Match |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Primary paths | Conflict |
-| ---- | ------------ | ------------- | -------- |
-| T1 | `src/git/` | `rename-warnings.ts`, `index.ts`, fixtures `git-log/` | Sole git owner |
-| T2 | `src/scoring/` + `src/scan.ts` | `enrich-coupling-static.ts`, `scan.ts` (alias wire only) | Before T5 — sequential on `scan.ts` |
-| T3 | `src/complexity/` + `src/scoring/` + types/schema/report | `analyze-batch.ts`, `hotspot-scorer.ts`, `domain.ts`, schemas, report | No `scan.ts`; sequential vs T4 on complexity — **T3 before T4 not required** if T3 touches only `analyze-batch` and T4 only `analyze-file` — mark no `[P]` between T3/T4 for safety? T4 is `[P]` with T2/T3 — different files OK |
-| T4 | `src/complexity/` | `analyze-file.ts` (+ fixtures) | Disjoint file from T3 `analyze-batch` — `[P]` OK |
-| T5 | `src/scan.ts` | Allowlist wiring + integration test updates | After T2 |
-| T6 | docs + integration | `.specs/codebase/*`, `scan.integration.test.ts` | After implementers |
-| T7 | gate | — | Final |
+| Task | Module owner                                             | Primary paths                                                         | Conflict                                                                                                                                                                                                                         |
+| ---- | -------------------------------------------------------- | --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| T1   | `src/git/`                                               | `rename-warnings.ts`, `index.ts`, fixtures `git-log/`                 | Sole git owner                                                                                                                                                                                                                   |
+| T2   | `src/scoring/` + `src/scan.ts`                           | `enrich-coupling-static.ts`, `scan.ts` (alias wire only)              | Before T5 — sequential on `scan.ts`                                                                                                                                                                                              |
+| T3   | `src/complexity/` + `src/scoring/` + types/schema/report | `analyze-batch.ts`, `hotspot-scorer.ts`, `domain.ts`, schemas, report | No `scan.ts`; sequential vs T4 on complexity — **T3 before T4 not required** if T3 touches only `analyze-batch` and T4 only `analyze-file` — mark no `[P]` between T3/T4 for safety? T4 is `[P]` with T2/T3 — different files OK |
+| T4   | `src/complexity/`                                        | `analyze-file.ts` (+ fixtures)                                        | Disjoint file from T3 `analyze-batch` — `[P]` OK                                                                                                                                                                                 |
+| T5   | `src/scan.ts`                                            | Allowlist wiring + integration test updates                           | After T2                                                                                                                                                                                                                         |
+| T6   | docs + integration                                       | `.specs/codebase/*`, `scan.integration.test.ts`                       | After implementers                                                                                                                                                                                                               |
+| T7   | gate                                                     | —                                                                     | Final                                                                                                                                                                                                                            |
 
 **Verdict:** T2→T5 sequential for `scan.ts`. T3∥T4∥T2 after T1 (T4 `[P]`). No two unfinished tasks own the same file.
 
 ### Test Co-location Validation
 
-| Task | Code layer | Matrix / practice | Task `Tests` | Status |
-| ---- | ---------- | ----------------- | ------------ | ------ |
-| T1 | git miner / rename | unit + git-log fixtures | unit | ✅ OK |
-| T2 | scoring enrich + scan wire | unit (+ scan unit for wire) | unit | ✅ OK |
-| T3 | complexity batch + scoring + schema/report | unit + contract | unit + contract | ✅ OK |
-| T4 | complexity analyze-file | unit + complexity fixtures | unit | ✅ OK |
-| T5 | scan orchestration | unit + integration | unit + integration | ✅ OK |
-| T6 | integration + docs | integration; docs none | integration | ✅ OK |
-| T7 | full gate | build+test | full | ✅ OK |
+| Task | Code layer                                 | Matrix / practice           | Task `Tests`       | Status |
+| ---- | ------------------------------------------ | --------------------------- | ------------------ | ------ |
+| T1   | git miner / rename                         | unit + git-log fixtures     | unit               | ✅ OK  |
+| T2   | scoring enrich + scan wire                 | unit (+ scan unit for wire) | unit               | ✅ OK  |
+| T3   | complexity batch + scoring + schema/report | unit + contract             | unit + contract    | ✅ OK  |
+| T4   | complexity analyze-file                    | unit + complexity fixtures  | unit               | ✅ OK  |
+| T5   | scan orchestration                         | unit + integration          | unit + integration | ✅ OK  |
+| T6   | integration + docs                         | integration; docs none      | integration        | ✅ OK  |
+| T7   | full gate                                  | build+test                  | full               | ✅ OK  |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Heuristic link + relatedness + fixtures | ✅ Cohesive git domain |
-| T2 | Enrich canonicalize + scan pass-through | ✅ Cohesive |
-| T3 | PARSE_FAILED end-to-end in ranking contract | ✅ Cohesive accuracy slice |
-| T4 | AST collection extension | ✅ Cohesive |
-| T5 | Zero-churn allowlist revisit | ✅ Cohesive |
-| T6 | Integration + living docs | ✅ Cohesive |
-| T7 | Gate only | ✅ |
+| Task | Scope                                       | Status                     |
+| ---- | ------------------------------------------- | -------------------------- |
+| T1   | Heuristic link + relatedness + fixtures     | ✅ Cohesive git domain     |
+| T2   | Enrich canonicalize + scan pass-through     | ✅ Cohesive                |
+| T3   | PARSE_FAILED end-to-end in ranking contract | ✅ Cohesive accuracy slice |
+| T4   | AST collection extension                    | ✅ Cohesive                |
+| T5   | Zero-churn allowlist revisit                | ✅ Cohesive                |
+| T6   | Integration + living docs                   | ✅ Cohesive                |
+| T7   | Gate only                                   | ✅                         |
 
 ---
 
@@ -368,15 +368,15 @@ Phase 4 (Sequential):
 
 ## Requirement → Task Mapping
 
-| Requirement IDs | Task |
-| --------------- | ---- |
-| HOTSPOT-730–736 | T1 |
+| Requirement IDs           | Task                                            |
+| ------------------------- | ----------------------------------------------- |
+| HOTSPOT-730–736           | T1                                              |
 | HOTSPOT-737, 745, 766–768 | T6 (docs + integration; 737/745 may land in T6) |
-| HOTSPOT-738–744 | T2 |
-| HOTSPOT-746–753 | T3 |
-| HOTSPOT-754–760 | T4 |
-| HOTSPOT-761–765 | T5 |
-| HOTSPOT-769 | T6 (docs) + T7 (gate) |
+| HOTSPOT-738–744           | T2                                              |
+| HOTSPOT-746–753           | T3                                              |
+| HOTSPOT-754–760           | T4                                              |
+| HOTSPOT-761–765           | T5                                              |
+| HOTSPOT-769               | T6 (docs) + T7 (gate)                           |
 
 ---
 

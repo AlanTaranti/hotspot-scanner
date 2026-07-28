@@ -36,7 +36,9 @@ function takeTopByMetric<T>(
   metric: (item: T) => number,
   limit: number,
 ): T[] {
-  return [...items].sort((left, right) => metric(right) - metric(left)).slice(0, limit);
+  return [...items]
+    .sort((left, right) => metric(right) - metric(left))
+    .slice(0, limit);
 }
 
 function buildDualSignalHints(result: ScanResult): TriageHint[] {
@@ -54,14 +56,20 @@ function buildDualSignalHints(result: ScanResult): TriageHint[] {
     });
   }
 
-  return takeTopByMetric(matches, (hint) => hint.rankMetric, TRIAGE_MAX_HINTS_PER_RULE);
+  return takeTopByMetric(
+    matches,
+    (hint) => hint.rankMetric,
+    TRIAGE_MAX_HINTS_PER_RULE,
+  );
 }
 
 export function buildTriageHints(displayed: ScanResult): TriageHint[] {
   return buildDualSignalHints(displayed);
 }
 
-export function renderTableTriageHints(hints: readonly RenderableTriageHint[]): string[] {
+export function renderTableTriageHints(
+  hints: readonly RenderableTriageHint[],
+): string[] {
   if (hints.length === 0) {
     return [];
   }
@@ -72,7 +80,9 @@ export function renderTableTriageHints(hints: readonly RenderableTriageHint[]): 
   ];
 }
 
-export function renderMarkdownTriageHints(hints: readonly RenderableTriageHint[]): string[] {
+export function renderMarkdownTriageHints(
+  hints: readonly RenderableTriageHint[],
+): string[] {
   if (hints.length === 0) {
     return [];
   }

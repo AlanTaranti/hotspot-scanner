@@ -21,14 +21,14 @@ Long scans can leave orphan git children or complexity workers when the operator
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Doctor remount / shared scan prelude | M52 |
-| Benchmark harness / CI perf budgets | M49 |
-| Ranking, scores, coupling formulas | Unrelated |
-| General debug / AST verbose dumps | Explicitly rejected — argv only |
-| Fail-on-warning / `--strict` warnings | Not M51 |
-| New progress phases | Unneeded |
+| Feature                               | Reason                          |
+| ------------------------------------- | ------------------------------- |
+| Doctor remount / shared scan prelude  | M52                             |
+| Benchmark harness / CI perf budgets   | M49                             |
+| Ranking, scores, coupling formulas    | Unrelated                       |
+| General debug / AST verbose dumps     | Explicitly rejected — argv only |
+| Fail-on-warning / `--strict` warnings | Not M51                         |
+| New progress phases                   | Unneeded                        |
 
 ---
 
@@ -150,27 +150,27 @@ Long scans can leave orphan git children or complexity workers when the operator
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-770 | P1: Signal listeners + AbortSignal into runScan | Tasks | Pending |
-| HOTSPOT-771 | P1: Exit 130 / 143; no partial report | Tasks | Pending |
-| HOTSPOT-772 | P1: Abort kills numstat git child | Tasks | Pending |
-| HOTSPOT-773 | P1: Abort terminates complexity pool | Tasks | Pending |
-| HOTSPOT-774 | P1: Function-churn spawn honors AbortSignal | Tasks | Pending |
-| HOTSPOT-775 | P1: Cancel stderr line; no stack dump | Tasks | Pending |
-| HOTSPOT-776 | P1: Sibling-failure abort unchanged | Tasks | Pending |
-| HOTSPOT-780 | P1: `meta.timings` shape + always on success | Tasks | Pending |
-| HOTSPOT-781 | P1: functionChurnMs only in function mode | Tasks | Pending |
-| HOTSPOT-782 | P1: Keep JSON version `1.0`; schema declare timings | Tasks | Pending |
-| HOTSPOT-783 | P1: Baselines without timings still load | Tasks | Pending |
-| HOTSPOT-786 | P1: Scan executive summary Warnings line | Tasks | Pending |
-| HOTSPOT-787 | P1: Compare executive summary Warnings line | Tasks | Pending |
-| HOTSPOT-790 | P1: doctor `--format json` payload | Tasks | Pending |
-| HOTSPOT-791 | P1: doctor text default + invalid format | Tasks | Pending |
-| HOTSPOT-794 | P1: `--verbose` git argv stderr | Tasks | Pending |
-| HOTSPOT-795 | P1: `--quiet` suppresses verbose | Tasks | Pending |
-| HOTSPOT-798 | P2: Living docs (cancel, timings, doctor JSON, verbose) | Tasks | Pending |
-| HOTSPOT-799 | P2: Full quality gate | Tasks | Pending |
+| Requirement ID | Story                                                   | Phase | Status  |
+| -------------- | ------------------------------------------------------- | ----- | ------- |
+| HOTSPOT-770    | P1: Signal listeners + AbortSignal into runScan         | Tasks | Pending |
+| HOTSPOT-771    | P1: Exit 130 / 143; no partial report                   | Tasks | Pending |
+| HOTSPOT-772    | P1: Abort kills numstat git child                       | Tasks | Pending |
+| HOTSPOT-773    | P1: Abort terminates complexity pool                    | Tasks | Pending |
+| HOTSPOT-774    | P1: Function-churn spawn honors AbortSignal             | Tasks | Pending |
+| HOTSPOT-775    | P1: Cancel stderr line; no stack dump                   | Tasks | Pending |
+| HOTSPOT-776    | P1: Sibling-failure abort unchanged                     | Tasks | Pending |
+| HOTSPOT-780    | P1: `meta.timings` shape + always on success            | Tasks | Pending |
+| HOTSPOT-781    | P1: functionChurnMs only in function mode               | Tasks | Pending |
+| HOTSPOT-782    | P1: Keep JSON version `1.0`; schema declare timings     | Tasks | Pending |
+| HOTSPOT-783    | P1: Baselines without timings still load                | Tasks | Pending |
+| HOTSPOT-786    | P1: Scan executive summary Warnings line                | Tasks | Pending |
+| HOTSPOT-787    | P1: Compare executive summary Warnings line             | Tasks | Pending |
+| HOTSPOT-790    | P1: doctor `--format json` payload                      | Tasks | Pending |
+| HOTSPOT-791    | P1: doctor text default + invalid format                | Tasks | Pending |
+| HOTSPOT-794    | P1: `--verbose` git argv stderr                         | Tasks | Pending |
+| HOTSPOT-795    | P1: `--quiet` suppresses verbose                        | Tasks | Pending |
+| HOTSPOT-798    | P2: Living docs (cancel, timings, doctor JSON, verbose) | Tasks | Pending |
+| HOTSPOT-799    | P2: Full quality gate                                   | Tasks | Pending |
 
 **Coverage:** 19 requirements mapped; IDs 777–779, 784–785, 788–789, 792–793, 796–797 reserved for task split / implementer sub-criteria.
 

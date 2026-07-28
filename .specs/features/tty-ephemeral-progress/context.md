@@ -39,10 +39,10 @@ While a scan runs on an interactive terminal, stderr progress should occupy **on
 
 **Choice:**
 
-| Stream | Behavior |
-| ------ | -------- |
+| Stream                                                          | Behavior                                                                                                                                                                                                                                            |
+| --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **TTY** (`process.stderr.isTTY === true`, injectable for tests) | Write progress with `\r` + clear-to-EOL overwrite (e.g. `\x1b[2K\r` before/with the line). **No** spinners, bars, or ETA. Same human-readable text as today (git commit / complexity batch lines), without a trailing permanent newline while live. |
-| **Non-TTY** (piped/CI) | Keep current `\n`-terminated lines (permanent log). |
+| **Non-TTY** (piped/CI)                                          | Keep current `\n`-terminated lines (permanent log).                                                                                                                                                                                                 |
 
 **Status:** **Confirmed — planner locked**
 
@@ -86,10 +86,10 @@ Clear is a no-op when no live line is open (non-TTY path never opens one).
 
 **Choice:**
 
-| Mode | Compose rule |
-| ---- | ------------ |
+| Mode                         | Compose rule                                                                                                                                                |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `warnings=summary` (default) | Warnings buffer during scan → **clear live progress at `flushWarnings()`** (and before report). Progress may run uninterrupted while warnings are buffered. |
-| `warnings=full` | **Clear live progress before each `logWarning`** so per-path / per-pair detail lines are not overwritten by `\r` updates. |
+| `warnings=full`              | **Clear live progress before each `logWarning`** so per-path / per-pair detail lines are not overwritten by `\r` updates.                                   |
 
 Progress throttle intervals and message text stay as today.
 

@@ -22,15 +22,15 @@ Dogfooding shows co-located tests (`src/*.test.ts`, `bin/*.test.ts`, etc.) ranki
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| `--no-default-excludes` | M7 locked — forbidden |
-| Config key `includeTests` | CLI/API only (like `--quiet`) |
-| `.mts` / `.cts` test suffixes | Eligible extensions remain `.ts`/`.tsx`/`.js`/`.jsx` |
-| New fixture repo under `tests/fixtures/repos/` | Unit + CLI/preview tests suffice |
-| JSON Schema / `version` bump | Ranking population changes; contract shape unchanged |
-| Scoring / McCabe / coupling formula changes | Path filter only |
-| Removing user ability to `--exclude` tests when included | User excludes stay additive |
+| Feature                                                  | Reason                                               |
+| -------------------------------------------------------- | ---------------------------------------------------- |
+| `--no-default-excludes`                                  | M7 locked — forbidden                                |
+| Config key `includeTests`                                | CLI/API only (like `--quiet`)                        |
+| `.mts` / `.cts` test suffixes                            | Eligible extensions remain `.ts`/`.tsx`/`.js`/`.jsx` |
+| New fixture repo under `tests/fixtures/repos/`           | Unit + CLI/preview tests suffice                     |
+| JSON Schema / `version` bump                             | Ranking population changes; contract shape unchanged |
+| Scoring / McCabe / coupling formula changes              | Path filter only                                     |
+| Removing user ability to `--exclude` tests when included | User excludes stay additive                          |
 
 ---
 
@@ -165,26 +165,26 @@ Dogfooding shows co-located tests (`src/*.test.ts`, `bin/*.test.ts`, etc.) ranki
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-640 | P1: Default test excludes in constants | Tasks | Done |
-| HOTSPOT-641 | P1: `isPathInScope` excludes test paths by default | Tasks | Done |
-| HOTSPOT-642 | P1: `__tests__` directory prune | Tasks | Done |
-| HOTSPOT-643 | P1: Artifact defaults unchanged / always on | Tasks | Done |
-| HOTSPOT-644 | P1: `includeTests: true` lifts test defaults only | Tasks | Done |
-| HOTSPOT-645 | P1: User exclude still additive with includeTests | Tasks | Done |
-| HOTSPOT-646 | P1: `ScanOptions.includeTests` → createPathScope | Tasks | Done |
-| HOTSPOT-647 | P1: CLI `--include-tests` on scan | Tasks | Done |
-| HOTSPOT-648 | P1: CLI on baseline save + compare | Tasks | Done |
-| HOTSPOT-649 | P1: Help lists `--include-tests` | Tasks | Done |
-| HOTSPOT-650 | P1: Dry-run shows test policy line | Tasks | Done |
-| HOTSPOT-651 | P1: Dry-run eligible count respects scope | Tasks | Done |
-| HOTSPOT-652 | P1: ARCHITECTURE PathScope docs | Tasks | Done |
-| HOTSPOT-653 | P1: README CLI / path scoping | Tasks | Done |
-| HOTSPOT-654 | P1: recipes.md + STATE decision | Tasks | Done |
-| HOTSPOT-655 | P2: Export artifact/test constant split | Tasks | Done |
-| HOTSPOT-656 | Cross-cutting — no config key / no schema change | Tasks | Done |
-| HOTSPOT-657 | Cross-cutting — full project gate | Tasks | Done |
+| Requirement ID | Story                                              | Phase | Status |
+| -------------- | -------------------------------------------------- | ----- | ------ |
+| HOTSPOT-640    | P1: Default test excludes in constants             | Tasks | Done   |
+| HOTSPOT-641    | P1: `isPathInScope` excludes test paths by default | Tasks | Done   |
+| HOTSPOT-642    | P1: `__tests__` directory prune                    | Tasks | Done   |
+| HOTSPOT-643    | P1: Artifact defaults unchanged / always on        | Tasks | Done   |
+| HOTSPOT-644    | P1: `includeTests: true` lifts test defaults only  | Tasks | Done   |
+| HOTSPOT-645    | P1: User exclude still additive with includeTests  | Tasks | Done   |
+| HOTSPOT-646    | P1: `ScanOptions.includeTests` → createPathScope   | Tasks | Done   |
+| HOTSPOT-647    | P1: CLI `--include-tests` on scan                  | Tasks | Done   |
+| HOTSPOT-648    | P1: CLI on baseline save + compare                 | Tasks | Done   |
+| HOTSPOT-649    | P1: Help lists `--include-tests`                   | Tasks | Done   |
+| HOTSPOT-650    | P1: Dry-run shows test policy line                 | Tasks | Done   |
+| HOTSPOT-651    | P1: Dry-run eligible count respects scope          | Tasks | Done   |
+| HOTSPOT-652    | P1: ARCHITECTURE PathScope docs                    | Tasks | Done   |
+| HOTSPOT-653    | P1: README CLI / path scoping                      | Tasks | Done   |
+| HOTSPOT-654    | P1: recipes.md + STATE decision                    | Tasks | Done   |
+| HOTSPOT-655    | P2: Export artifact/test constant split            | Tasks | Done   |
+| HOTSPOT-656    | Cross-cutting — no config key / no schema change   | Tasks | Done   |
+| HOTSPOT-657    | Cross-cutting — full project gate                  | Tasks | Done   |
 
 **Coverage:** 18 total (HOTSPOT-640–657; 658–659 reserved), mapped in tasks.md.
 

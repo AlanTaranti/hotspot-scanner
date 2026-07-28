@@ -22,15 +22,15 @@ M34 overlaps **numstat ∥ complexity** in `src/scan.ts` with coherent cancel/er
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Function-churn ∥ numstat (or ∥ complexity) | ROADMAP boundary — rename/alias complexity; deferred |
-| New progress phases (`complexity`, `overlap`) | Locked — phases unchanged ([context.md](./context.md)) |
-| User-facing cancel API / SIGINT orchestration | YAGNI — abort is internal sibling-cancel only |
-| Scoring formula / ranking / JSON `version` changes | Locked unchanged |
-| CI wall-clock or peak-RSS gates | Manual / documented trade-off only (existing policy) |
-| M35 pathspec / interval-index / discovery defaults | Separate milestones |
-| Parallelizing enrich or coupling with git/complexity | Not in ROADMAP M34 |
+| Feature                                              | Reason                                                 |
+| ---------------------------------------------------- | ------------------------------------------------------ |
+| Function-churn ∥ numstat (or ∥ complexity)           | ROADMAP boundary — rename/alias complexity; deferred   |
+| New progress phases (`complexity`, `overlap`)        | Locked — phases unchanged ([context.md](./context.md)) |
+| User-facing cancel API / SIGINT orchestration        | YAGNI — abort is internal sibling-cancel only          |
+| Scoring formula / ranking / JSON `version` changes   | Locked unchanged                                       |
+| CI wall-clock or peak-RSS gates                      | Manual / documented trade-off only (existing policy)   |
+| M35 pathspec / interval-index / discovery defaults   | Separate milestones                                    |
+| Parallelizing enrich or coupling with git/complexity | Not in ROADMAP M34                                     |
 
 ---
 
@@ -185,28 +185,28 @@ M34 overlaps **numstat ∥ complexity** in `src/scan.ts` with coherent cancel/er
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-360 | P1: Overlap numstat ∥ complexity | Tasks | In Tasks |
-| HOTSPOT-361 | P1: File-mode barrier | Tasks | In Tasks |
-| HOTSPOT-362 | P1: Function-mode churn after complexity | Tasks | In Tasks |
-| HOTSPOT-363 | P1: Function-mode coupling waits for git | Tasks | In Tasks |
-| HOTSPOT-364 | P1: Abort sibling on first failure | Tasks | In Tasks |
-| HOTSPOT-365 | P1: Propagate original error / non-zero exit | Tasks | In Tasks |
-| HOTSPOT-366 | P1: No unhandled sibling rejection | Tasks | In Tasks |
-| HOTSPOT-367 | P1: Progress phases unchanged | Tasks | In Tasks |
-| HOTSPOT-368 | P1: git progress during overlap | Tasks | In Tasks |
-| HOTSPOT-369 | P1: Warning aggregation during overlap | Tasks | In Tasks |
-| HOTSPOT-370 | P2: Ranking/JSON equivalence | Tasks | In Tasks |
-| HOTSPOT-371 | P1: File mode no function-churn spawn | Tasks | In Tasks |
-| HOTSPOT-372 | P1: No function-churn ∥ numstat | Tasks | In Tasks |
-| HOTSPOT-373 | P1: Peak-memory docs | Tasks | In Tasks |
-| HOTSPOT-374 | P1: ARCHITECTURE data-flow update | Tasks | In Tasks |
-| HOTSPOT-375 | P1: CONCERNS Performance update | Tasks | In Tasks |
-| HOTSPOT-376 | P1: Git spawn abort/kill | Tasks | In Tasks |
-| HOTSPOT-377 | P1: Complexity pool abort/terminate | Tasks | In Tasks |
-| HOTSPOT-378 | P2: Integration + cancel coverage | Tasks | In Tasks |
-| HOTSPOT-379 | P2: Full project gate | Tasks | In Tasks |
+| Requirement ID | Story                                        | Phase | Status   |
+| -------------- | -------------------------------------------- | ----- | -------- |
+| HOTSPOT-360    | P1: Overlap numstat ∥ complexity             | Tasks | In Tasks |
+| HOTSPOT-361    | P1: File-mode barrier                        | Tasks | In Tasks |
+| HOTSPOT-362    | P1: Function-mode churn after complexity     | Tasks | In Tasks |
+| HOTSPOT-363    | P1: Function-mode coupling waits for git     | Tasks | In Tasks |
+| HOTSPOT-364    | P1: Abort sibling on first failure           | Tasks | In Tasks |
+| HOTSPOT-365    | P1: Propagate original error / non-zero exit | Tasks | In Tasks |
+| HOTSPOT-366    | P1: No unhandled sibling rejection           | Tasks | In Tasks |
+| HOTSPOT-367    | P1: Progress phases unchanged                | Tasks | In Tasks |
+| HOTSPOT-368    | P1: git progress during overlap              | Tasks | In Tasks |
+| HOTSPOT-369    | P1: Warning aggregation during overlap       | Tasks | In Tasks |
+| HOTSPOT-370    | P2: Ranking/JSON equivalence                 | Tasks | In Tasks |
+| HOTSPOT-371    | P1: File mode no function-churn spawn        | Tasks | In Tasks |
+| HOTSPOT-372    | P1: No function-churn ∥ numstat              | Tasks | In Tasks |
+| HOTSPOT-373    | P1: Peak-memory docs                         | Tasks | In Tasks |
+| HOTSPOT-374    | P1: ARCHITECTURE data-flow update            | Tasks | In Tasks |
+| HOTSPOT-375    | P1: CONCERNS Performance update              | Tasks | In Tasks |
+| HOTSPOT-376    | P1: Git spawn abort/kill                     | Tasks | In Tasks |
+| HOTSPOT-377    | P1: Complexity pool abort/terminate          | Tasks | In Tasks |
+| HOTSPOT-378    | P2: Integration + cancel coverage            | Tasks | In Tasks |
+| HOTSPOT-379    | P2: Full project gate                        | Tasks | In Tasks |
 
 **ID range:** HOTSPOT-360 … HOTSPOT-379 (exclusive use for M34)  
 **Coverage:** 20 total, 20 mapped to tasks, 0 unmapped

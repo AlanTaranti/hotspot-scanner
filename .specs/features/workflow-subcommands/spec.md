@@ -21,15 +21,15 @@ M13 enables delta reports via `scan --baseline`, but saving a baseline still req
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Fail-on thresholds / non-zero exit on delta content | STATE / M12 removed |
-| CI action packaging (GitHub Action, etc.) | Future backlog |
-| Changing `CompareResult` or `ScanResult` schema | Reuse M13/M20 contracts |
-| Deprecating or removing `scan --baseline` | Locked keep |
-| Database / remote baseline store | Locked: JSON files only |
-| `--force` / `--no-clobber` on baseline save | YAGNI — overwrite like `scan --output` |
-| New scoring, git, or complexity behavior | CLI surface only |
+| Feature                                             | Reason                                 |
+| --------------------------------------------------- | -------------------------------------- |
+| Fail-on thresholds / non-zero exit on delta content | STATE / M12 removed                    |
+| CI action packaging (GitHub Action, etc.)           | Future backlog                         |
+| Changing `CompareResult` or `ScanResult` schema     | Reuse M13/M20 contracts                |
+| Deprecating or removing `scan --baseline`           | Locked keep                            |
+| Database / remote baseline store                    | Locked: JSON files only                |
+| `--force` / `--no-clobber` on baseline save         | YAGNI — overwrite like `scan --output` |
+| New scoring, git, or complexity behavior            | CLI surface only                       |
 
 ---
 
@@ -181,23 +181,23 @@ M13 enables delta reports via `scan --baseline`, but saving a baseline still req
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-490 | P1: baseline save runs `runScan` | Tasks T2 | Pending |
-| HOTSPOT-491 | P1: default `./hotspot-baseline.json` | Tasks T2 | Pending |
-| HOTSPOT-492 | P1: `--output` override + validate | Tasks T2 | Pending |
-| HOTSPOT-493 | P1: JSON semantics (full ScanResult) | Tasks T2 | Pending |
-| HOTSPOT-494 | P1: scan options on save | Tasks T2 | Pending |
-| HOTSPOT-495 | P1: save errors / exit 0 | Tasks T2 | Pending |
-| HOTSPOT-496 | P1: compare requires `--baseline` | Tasks T3 | Pending |
-| HOTSPOT-497 | P1: parity with `scan --baseline` | Tasks T3 | Pending |
-| HOTSPOT-498 | P1: compare format/output/top/csv | Tasks T3 | Pending |
-| HOTSPOT-499 | P1: retain `scan --baseline` | Tasks T1, T4 | Pending |
-| HOTSPOT-500 | P1: reuse domain APIs | Tasks T1–T3 | Pending |
-| HOTSPOT-501 | P1: help / registration | Tasks T2, T3 | Pending |
-| HOTSPOT-502 | P1: CLI unit tests | Tasks T2–T4 | Pending |
-| HOTSPOT-503 | P1: integration round-trip | Tasks T4 | Pending |
-| HOTSPOT-504 | P1: documentation sync | Tasks T5 | Pending |
+| Requirement ID | Story                                 | Phase        | Status  |
+| -------------- | ------------------------------------- | ------------ | ------- |
+| HOTSPOT-490    | P1: baseline save runs `runScan`      | Tasks T2     | Pending |
+| HOTSPOT-491    | P1: default `./hotspot-baseline.json` | Tasks T2     | Pending |
+| HOTSPOT-492    | P1: `--output` override + validate    | Tasks T2     | Pending |
+| HOTSPOT-493    | P1: JSON semantics (full ScanResult)  | Tasks T2     | Pending |
+| HOTSPOT-494    | P1: scan options on save              | Tasks T2     | Pending |
+| HOTSPOT-495    | P1: save errors / exit 0              | Tasks T2     | Pending |
+| HOTSPOT-496    | P1: compare requires `--baseline`     | Tasks T3     | Pending |
+| HOTSPOT-497    | P1: parity with `scan --baseline`     | Tasks T3     | Pending |
+| HOTSPOT-498    | P1: compare format/output/top/csv     | Tasks T3     | Pending |
+| HOTSPOT-499    | P1: retain `scan --baseline`          | Tasks T1, T4 | Pending |
+| HOTSPOT-500    | P1: reuse domain APIs                 | Tasks T1–T3  | Pending |
+| HOTSPOT-501    | P1: help / registration               | Tasks T2, T3 | Pending |
+| HOTSPOT-502    | P1: CLI unit tests                    | Tasks T2–T4  | Pending |
+| HOTSPOT-503    | P1: integration round-trip            | Tasks T4     | Pending |
+| HOTSPOT-504    | P1: documentation sync                | Tasks T5     | Pending |
 
 **Reserved:** HOTSPOT-505–509 (unused in M40; available for Execute follow-ups)
 

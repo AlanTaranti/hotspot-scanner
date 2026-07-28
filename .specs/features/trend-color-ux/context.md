@@ -35,12 +35,12 @@ User-locked scope from the planning brief; gray areas decided firmly below (no o
 
 **Choice:** Raw ANSI (no chalk/picocolors/kleur), reusing [`src/report/color.ts`](../../../src/report/color.ts):
 
-| Kind | Color |
-| ---- | ----- |
-| `deteriorating` | Red (`\x1b[31m`) |
-| `refactored` | Green (`\x1b[32m`) |
-| `inconclusive` | Yellow (`\x1b[33m`) |
-| `stable` | Plain (uncolored) |
+| Kind            | Color               |
+| --------------- | ------------------- |
+| `deteriorating` | Red (`\x1b[31m`)    |
+| `refactored`    | Green (`\x1b[32m`)  |
+| `inconclusive`  | Yellow (`\x1b[33m`) |
+| `stable`        | Plain (uncolored)   |
 
 Wrap with reset (`\x1b[0m`) after the kind token when colored.
 
@@ -102,10 +102,10 @@ Help text may say “Disable ANSI colors in trend table output” (agent discret
 
 ## Related Closed Decisions
 
-| Decision | Value | Relevance |
-| -------- | ----- | --------- |
-| M41 table color gates | TTY + `--no-color` + `NO_COLOR` + no `--output`; no FORCE_COLOR; no chalk | Sister gates to reuse |
-| M74 doctor prefix color | Status prefix only; subcommand `--no-color` | Sparsity + flag pattern |
-| M75 growth Pattern line | `Pattern: ${kind} — ${summary}` always-on | Color target exists |
-| Reporter pure / stripAnsi | `src/report/color.ts` | Reuse `stripAnsi` for tests |
-| M74 out-of-scope “scan/trend color” | Explicitly deferred trend | This milestone delivers trend half |
+| Decision                            | Value                                                                     | Relevance                          |
+| ----------------------------------- | ------------------------------------------------------------------------- | ---------------------------------- |
+| M41 table color gates               | TTY + `--no-color` + `NO_COLOR` + no `--output`; no FORCE_COLOR; no chalk | Sister gates to reuse              |
+| M74 doctor prefix color             | Status prefix only; subcommand `--no-color`                               | Sparsity + flag pattern            |
+| M75 growth Pattern line             | `Pattern: ${kind} — ${summary}` always-on                                 | Color target exists                |
+| Reporter pure / stripAnsi           | `src/report/color.ts`                                                     | Reuse `stripAnsi` for tests        |
+| M74 out-of-scope “scan/trend color” | Explicitly deferred trend                                                 | This milestone delivers trend half |

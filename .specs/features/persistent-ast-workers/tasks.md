@@ -55,68 +55,68 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (body) | Diagram shows | Status |
-| ---- | ----------------- | ------------- | ------ |
-| T1 | None | Root | ✅ Match |
-| T2 | T1 | T1 → T2 | ✅ Match |
-| T3 | T2 | T2 → T3 | ✅ Match |
-| T4 | T3 | T3 → T4 | ✅ Match |
-| T5 | T4 | T4 → T5 | ✅ Match |
-| T6 | T5 | T5 → T6 | ✅ Match |
+| Task | Depends on (body) | Diagram shows | Status   |
+| ---- | ----------------- | ------------- | -------- |
+| T1   | None              | Root          | ✅ Match |
+| T2   | T1                | T1 → T2       | ✅ Match |
+| T3   | T2                | T2 → T3       | ✅ Match |
+| T4   | T3                | T3 → T4       | ✅ Match |
+| T5   | T4                | T4 → T5       | ✅ Match |
+| T6   | T5                | T5 → T6       | ✅ Match |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | `src/complexity/` | `project.ts`, `project.test.ts` | Sole owner |
-| T2 | `src/complexity/` | `analyze-batch.ts` (+ co-located test if added/updated) | After T1 — sequential |
-| T3 | `src/complexity/` | `worker.ts`, `pool.ts`, `pool.test.ts` | After T2 — sequential (shared batch API) |
-| T4 | `src/complexity/` | `index.test.ts`, `pool.test.ts` (extend), optionally `index.ts` only if needed | After T3 — sequential |
-| T5 | repo gate | none (run only) | After T4 |
-| T6 | docs | `scripts/benchmark-scan.md`, `.specs/codebase/ARCHITECTURE.md`, `.specs/codebase/CONCERNS.md` | After T5 — no `src/` overlap |
+| Task | Module owner      | Paths                                                                                         | Conflict                                 |
+| ---- | ----------------- | --------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| T1   | `src/complexity/` | `project.ts`, `project.test.ts`                                                               | Sole owner                               |
+| T2   | `src/complexity/` | `analyze-batch.ts` (+ co-located test if added/updated)                                       | After T1 — sequential                    |
+| T3   | `src/complexity/` | `worker.ts`, `pool.ts`, `pool.test.ts`                                                        | After T2 — sequential (shared batch API) |
+| T4   | `src/complexity/` | `index.test.ts`, `pool.test.ts` (extend), optionally `index.ts` only if needed                | After T3 — sequential                    |
+| T5   | repo gate         | none (run only)                                                                               | After T4                                 |
+| T6   | docs              | `scripts/benchmark-scan.md`, `.specs/codebase/ARCHITECTURE.md`, `.specs/codebase/CONCERNS.md` | After T5 — no `src/` overlap             |
 
 **Verdict:** All implementation tasks sequential under `src/complexity/` — **no `[P]`**. Docs after gate.
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md / practice | Task `Tests` | Status |
-| ---- | ---------- | --------------------- | ------------ | ------ |
-| T1 | `src/complexity/project.ts` | unit required | unit (`project.test.ts`) | ✅ OK |
-| T2 | `src/complexity/analyze-batch.ts` | unit required | unit (extend/add analyze-batch or project/index coverage of shared adapter) | ✅ OK |
-| T3 | `src/complexity/pool.ts` (+ worker via pool) | unit required; `worker.ts` coverage-excluded | unit (`pool.test.ts`) | ✅ OK |
-| T4 | `src/complexity/index.ts` / pool equivalence | unit + complexity fixtures | unit (`index.test.ts` / pool) | ✅ OK |
-| T5 | full project | full gate | `pnpm build && pnpm test` | ✅ OK |
-| T6 | docs only | none for docs | none + already gated by T5 | ✅ OK |
+| Task | Code layer                                   | TESTING.md / practice                        | Task `Tests`                                                                | Status |
+| ---- | -------------------------------------------- | -------------------------------------------- | --------------------------------------------------------------------------- | ------ |
+| T1   | `src/complexity/project.ts`                  | unit required                                | unit (`project.test.ts`)                                                    | ✅ OK  |
+| T2   | `src/complexity/analyze-batch.ts`            | unit required                                | unit (extend/add analyze-batch or project/index coverage of shared adapter) | ✅ OK  |
+| T3   | `src/complexity/pool.ts` (+ worker via pool) | unit required; `worker.ts` coverage-excluded | unit (`pool.test.ts`)                                                       | ✅ OK  |
+| T4   | `src/complexity/index.ts` / pool equivalence | unit + complexity fixtures                   | unit (`index.test.ts` / pool)                                               | ✅ OK  |
+| T5   | full project                                 | full gate                                    | `pnpm build && pnpm test`                                                   | ✅ OK  |
+| T6   | docs only                                    | none for docs                                | none + already gated by T5                                                  | ✅ OK  |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | One module (`project` + tests) | ✅ Granular |
-| T2 | One module (`analyze-batch` + tests) | ✅ Granular |
-| T3 | Pool + worker protocol (cohesive thread boundary) | ✅ Cohesive |
-| T4 | Equivalence / regression tests | ✅ Cohesive |
-| T5 | Gate only | ✅ Granular |
-| T6 | Docs trio listed in ROADMAP | ✅ Cohesive |
+| Task | Scope                                             | Status      |
+| ---- | ------------------------------------------------- | ----------- |
+| T1   | One module (`project` + tests)                    | ✅ Granular |
+| T2   | One module (`analyze-batch` + tests)              | ✅ Granular |
+| T3   | Pool + worker protocol (cohesive thread boundary) | ✅ Cohesive |
+| T4   | Equivalence / regression tests                    | ✅ Cohesive |
+| T5   | Gate only                                         | ✅ Granular |
+| T6   | Docs trio listed in ROADMAP                       | ✅ Cohesive |
 
 ### Requirement → Task Mapping
 
-| Requirement ID | Tasks |
-| -------------- | ----- |
-| HOTSPOT-300 | T3 |
-| HOTSPOT-301 | T3 |
-| HOTSPOT-302 | T3 |
-| HOTSPOT-303 | T1, T2, T3 |
-| HOTSPOT-304 | T1 |
-| HOTSPOT-305 | T1 |
-| HOTSPOT-306 | T4 |
-| HOTSPOT-307 | T3 |
-| HOTSPOT-308 | T4 (regression; no bin/config edits) |
-| HOTSPOT-309 | T4 |
-| HOTSPOT-310 | T2, T4 |
-| HOTSPOT-311 | T3, T4 |
-| HOTSPOT-312 | T6 |
-| HOTSPOT-313 | T6 |
+| Requirement ID | Tasks                                |
+| -------------- | ------------------------------------ |
+| HOTSPOT-300    | T3                                   |
+| HOTSPOT-301    | T3                                   |
+| HOTSPOT-302    | T3                                   |
+| HOTSPOT-303    | T1, T2, T3                           |
+| HOTSPOT-304    | T1                                   |
+| HOTSPOT-305    | T1                                   |
+| HOTSPOT-306    | T4                                   |
+| HOTSPOT-307    | T3                                   |
+| HOTSPOT-308    | T4 (regression; no bin/config edits) |
+| HOTSPOT-309    | T4                                   |
+| HOTSPOT-310    | T2, T4                               |
+| HOTSPOT-311    | T3, T4                               |
+| HOTSPOT-312    | T6                                   |
+| HOTSPOT-313    | T6                                   |
 
 **Unused IDs (reserved):** HOTSPOT-314 … HOTSPOT-319
 

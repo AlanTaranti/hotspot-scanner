@@ -45,15 +45,15 @@ vi.mock("./git/index.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./git/index.js")>();
   return {
     ...actual,
-    createGitMiner: (
-      ...args: Parameters<typeof actual.createGitMiner>
-    ) => {
+    createGitMiner: (...args: Parameters<typeof actual.createGitMiner>) => {
       createGitMinerSpy(...args);
       if (mineOverride.fn) {
         return {
-          mine: (mineArgs: Parameters<
-            ReturnType<typeof actual.createGitMiner>["mine"]
-          >[0]) => {
+          mine: (
+            mineArgs: Parameters<
+              ReturnType<typeof actual.createGitMiner>["mine"]
+            >[0],
+          ) => {
             mineSpy(mineArgs);
             return mineOverride.fn!(mineArgs);
           },
@@ -72,8 +72,7 @@ vi.mock("./git/index.js", async (importOriginal) => {
 });
 
 vi.mock("./complexity/index.js", async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import("./complexity/index.js")>();
+  const actual = await importOriginal<typeof import("./complexity/index.js")>();
   return {
     ...actual,
     createComplexityAnalyzer: (
@@ -82,9 +81,11 @@ vi.mock("./complexity/index.js", async (importOriginal) => {
       createComplexityAnalyzerSpy(...args);
       if (analyzeOverride.fn) {
         return {
-          analyze: (analyzeArgs: Parameters<
-            ReturnType<typeof actual.createComplexityAnalyzer>["analyze"]
-          >[0]) => {
+          analyze: (
+            analyzeArgs: Parameters<
+              ReturnType<typeof actual.createComplexityAnalyzer>["analyze"]
+            >[0],
+          ) => {
             analyzeSpy(analyzeArgs);
             return analyzeOverride.fn!(analyzeArgs);
           },
@@ -139,16 +140,12 @@ async function createNestedMonorepoFixture(): Promise<{
   await cp(smallTsFixture, packageDir, { recursive: true });
   await rm(join(packageDir, ".git"), { recursive: true, force: true });
   await execFileAsync("git", ["init"], { cwd: workspaceDir });
-  await execFileAsync(
-    "git",
-    ["config", "user.email", "test@example.com"],
-    { cwd: workspaceDir },
-  );
-  await execFileAsync(
-    "git",
-    ["config", "user.name", "Test User"],
-    { cwd: workspaceDir },
-  );
+  await execFileAsync("git", ["config", "user.email", "test@example.com"], {
+    cwd: workspaceDir,
+  });
+  await execFileAsync("git", ["config", "user.name", "Test User"], {
+    cwd: workspaceDir,
+  });
   await execFileAsync("git", ["add", "."], { cwd: workspaceDir });
   await execFileAsync("git", ["commit", "-m", "init"], { cwd: workspaceDir });
   return { workspaceDir, packageDir };
@@ -163,9 +160,10 @@ describe("createScanPathScope", () => {
     expect(isPathInScope("src/app.test.ts", withTests)).toBe(true);
     expect(isPathInScope("legacy/foo.ts", withTests)).toBe(false);
 
-    const withoutTests = createScanPathScope(
-      { include: ["src/**"], exclude: ["legacy/**"] },
-    );
+    const withoutTests = createScanPathScope({
+      include: ["src/**"],
+      exclude: ["legacy/**"],
+    });
     expect(isPathInScope("src/app.test.ts", withoutTests)).toBe(false);
     expect(isPathInScope("src/high.ts", withoutTests)).toBe(true);
   });
@@ -218,7 +216,9 @@ describe("runScan", () => {
 
   it("loads config from explicit configPath and skips repo-local file", async () => {
     const repoPath = await createIsolatedSmallTsRepo();
-    const workspaceDir = await mkdtemp(join(tmpdir(), "hotspot-scan-explicit-"));
+    const workspaceDir = await mkdtemp(
+      join(tmpdir(), "hotspot-scan-explicit-"),
+    );
     try {
       const explicitConfigPath = join(workspaceDir, "ci-config.json");
       await writeFile(
@@ -247,7 +247,9 @@ describe("runScan", () => {
 
   it("uses explicit options over configPath file", async () => {
     const repoPath = await createIsolatedSmallTsRepo();
-    const workspaceDir = await mkdtemp(join(tmpdir(), "hotspot-scan-override-"));
+    const workspaceDir = await mkdtemp(
+      join(tmpdir(), "hotspot-scan-override-"),
+    );
     try {
       const explicitConfigPath = join(workspaceDir, "ci-config.json");
       await writeFile(
@@ -486,10 +488,9 @@ describe("runScan", () => {
   it("runs git mine and complexity analyze concurrently by default", async () => {
     const { createGitMiner } =
       await vi.importActual<typeof import("./git/index.js")>("./git/index.js");
-    const { createComplexityAnalyzer } =
-      await vi.importActual<typeof import("./complexity/index.js")>(
-        "./complexity/index.js",
-      );
+    const { createComplexityAnalyzer } = await vi.importActual<
+      typeof import("./complexity/index.js")
+    >("./complexity/index.js");
 
     let releaseMine!: () => void;
     let releaseAnalyze!: () => void;
@@ -544,10 +545,9 @@ describe("runScan", () => {
   it("runs git mine then complexity analyze sequentially when sequential is true", async () => {
     const { createGitMiner } =
       await vi.importActual<typeof import("./git/index.js")>("./git/index.js");
-    const { createComplexityAnalyzer } =
-      await vi.importActual<typeof import("./complexity/index.js")>(
-        "./complexity/index.js",
-      );
+    const { createComplexityAnalyzer } = await vi.importActual<
+      typeof import("./complexity/index.js")
+    >("./complexity/index.js");
 
     let releaseMine!: () => void;
     let releaseAnalyze!: () => void;
@@ -615,10 +615,9 @@ describe("runScan", () => {
   it("does not score until both git and complexity complete", async () => {
     const { createGitMiner } =
       await vi.importActual<typeof import("./git/index.js")>("./git/index.js");
-    const { createComplexityAnalyzer } =
-      await vi.importActual<typeof import("./complexity/index.js")>(
-        "./complexity/index.js",
-      );
+    const { createComplexityAnalyzer } = await vi.importActual<
+      typeof import("./complexity/index.js")
+    >("./complexity/index.js");
 
     let releaseMine!: () => void;
     let releaseAnalyze!: () => void;
@@ -724,9 +723,7 @@ describe("runScan", () => {
 
     scoreHotspotsSpy.mockClear();
 
-    await expect(
-      runScan({ repoPath: smallTsFixture }),
-    ).rejects.toBe(cxError);
+    await expect(runScan({ repoPath: smallTsFixture })).rejects.toBe(cxError);
 
     await vi.waitFor(() => {
       expect(mineAborted).toBe(true);
@@ -796,10 +793,9 @@ describe("runScan", () => {
   it("aggregates git warnings before complexity warnings after overlap succeeds", async () => {
     const { createGitMiner } =
       await vi.importActual<typeof import("./git/index.js")>("./git/index.js");
-    const { createComplexityAnalyzer } =
-      await vi.importActual<typeof import("./complexity/index.js")>(
-        "./complexity/index.js",
-      );
+    const { createComplexityAnalyzer } = await vi.importActual<
+      typeof import("./complexity/index.js")
+    >("./complexity/index.js");
 
     const gitWarning = {
       code: "GIT_WARNING",
@@ -902,10 +898,9 @@ describe("runScan", () => {
   it("emits finalize once after git and complexity before scoring", async () => {
     const { createGitMiner } =
       await vi.importActual<typeof import("./git/index.js")>("./git/index.js");
-    const { createComplexityAnalyzer } =
-      await vi.importActual<typeof import("./complexity/index.js")>(
-        "./complexity/index.js",
-      );
+    const { createComplexityAnalyzer } = await vi.importActual<
+      typeof import("./complexity/index.js")
+    >("./complexity/index.js");
 
     let releaseMine!: () => void;
     let releaseAnalyze!: () => void;

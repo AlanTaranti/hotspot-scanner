@@ -13,11 +13,11 @@
 
 **Choice:** **`min(os.availableParallelism(), 8)`**
 
-| Aspect | Detail |
-| ------ | ------ |
-| Today (M15/M28) | `min(availableParallelism(), 4)` |
-| M36 | Cap raised **4 → 8**; still bounded by available parallelism |
-| Override | Unchanged — CLI `--concurrency` and config `concurrency` (CLI > config > default) |
+| Aspect           | Detail                                                                                             |
+| ---------------- | -------------------------------------------------------------------------------------------------- |
+| Today (M15/M28)  | `min(availableParallelism(), 4)`                                                                   |
+| M36              | Cap raised **4 → 8**; still bounded by available parallelism                                       |
+| Override         | Unchanged — CLI `--concurrency` and config `concurrency` (CLI > config > default)                  |
 | Formula location | Single source: `DEFAULT_WORKER_CONCURRENCY` in `src/complexity/pool.ts` (imported by config merge) |
 
 **Rationale:**
@@ -40,12 +40,12 @@
 
 **Choice:** **Prefer `git ls-files` + PathScope/extension filter; filesystem walk as fallback.**
 
-| Step | Behavior |
-| ---- | -------- |
-| 1 | Spawn `git -C <repoPath> ls-files -z` via a helper **inside `src/git/`** (INTEGRATIONS: no git spawn outside `src/git/`) |
-| 2 | Decode null-delimited paths; keep eligible extensions (`.ts`/`.tsx`/`.js`/`.jsx`); apply `isPathInScope` (defaults + include/exclude) |
-| 3 | Sort posix-relative paths (same contract as today) |
-| 4 | On spawn failure or non-zero exit → **silent** fallback to existing recursive walk + prune |
+| Step | Behavior                                                                                                                              |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | Spawn `git -C <repoPath> ls-files -z` via a helper **inside `src/git/`** (INTEGRATIONS: no git spawn outside `src/git/`)              |
+| 2    | Decode null-delimited paths; keep eligible extensions (`.ts`/`.tsx`/`.js`/`.jsx`); apply `isPathInScope` (defaults + include/exclude) |
+| 3    | Sort posix-relative paths (same contract as today)                                                                                    |
+| 4    | On spawn failure or non-zero exit → **silent** fallback to existing recursive walk + prune                                            |
 
 **Primary-path semantics:** tracked files only (classic `git ls-files`). Untracked working-tree sources are **not** listed on the success path. Fallback walk still sees untracked files (preserves existing unit tests on non-git temp trees and direct API callers without git).
 

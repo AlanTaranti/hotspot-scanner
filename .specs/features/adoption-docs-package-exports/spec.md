@@ -21,15 +21,15 @@ Post-M37 adoption DX got evaluators past the GitHub first screen, but day-2 work
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| npm publish / npx / `pnpm dlx` | Deferred (STATE); M45 is prep only for `"exports"` |
-| Changing scanner pipeline, rankings, or warning `code` values | Docs + package metadata only |
-| M37 README rewrite beyond sample sync + links | Sister Done; do not re-open structure |
-| M44 coupling `package.json` `exports`/`imports` resolution | Separate milestone (static enrich) |
-| New CLI flags / subcommands | M38–M42 |
-| Expanding public API surface beyond current `src/index.ts` | YAGNI — map what already exports |
-| Adding `docs/` to npm `files` for publish | Optional later; GitHub readers get docs via clone |
+| Feature                                                       | Reason                                             |
+| ------------------------------------------------------------- | -------------------------------------------------- |
+| npm publish / npx / `pnpm dlx`                                | Deferred (STATE); M45 is prep only for `"exports"` |
+| Changing scanner pipeline, rankings, or warning `code` values | Docs + package metadata only                       |
+| M37 README rewrite beyond sample sync + links                 | Sister Done; do not re-open structure              |
+| M44 coupling `package.json` `exports`/`imports` resolution    | Separate milestone (static enrich)                 |
+| New CLI flags / subcommands                                   | M38–M42                                            |
+| Expanding public API surface beyond current `src/index.ts`    | YAGNI — map what already exports                   |
+| Adding `docs/` to npm `files` for publish                     | Optional later; GitHub readers get docs via clone  |
 
 ---
 
@@ -139,28 +139,28 @@ Post-M37 adoption DX got evaluators past the GitHub first screen, but day-2 work
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-620 | P1: Recipes — file exists | Tasks | Pending |
-| HOTSPOT-621 | P1: Recipes — weekly triage | Tasks | Pending |
-| HOTSPOT-622 | P1: Recipes — PR markdown | Tasks | Pending |
-| HOTSPOT-623 | P1: Recipes — monorepo config | Tasks | Pending |
-| HOTSPOT-624 | P1: Recipes — baseline/compare | Tasks | Pending |
-| HOTSPOT-625 | P1: Sample sync — single capture SoT | Tasks | Pending |
-| HOTSPOT-626 | P1: Sample sync — Quick start matches capture | Tasks | Pending |
-| HOTSPOT-627 | P1: Sample sync — mid-doc Table matches capture | Tasks | Pending |
-| HOTSPOT-628 | P1: Sample sync — asset refresh if needed | Tasks | Pending |
-| HOTSPOT-629 | P1: Cheatsheet — `docs/warning-codes.md` | Tasks | Pending |
-| HOTSPOT-630 | P1: Cheatsheet — severity vs exit code note | Tasks | Pending |
-| HOTSPOT-631 | P1: Cheatsheet — README link / no contradiction | Tasks | Pending |
-| HOTSPOT-632 | P1: Cheatsheet — stable codes only | Tasks | Pending |
-| HOTSPOT-633 | P1: exports — `"."` → dist/index | Tasks | Pending |
-| HOTSPOT-634 | P1: exports — main/types/bin kept | Tasks | Pending |
-| HOTSPOT-635 | P1: exports — no publish / no API expand | Tasks | Pending |
-| HOTSPOT-636 | P1: exports — build targets exist | Tasks | Pending |
-| HOTSPOT-637 | P2: README links to recipes | Tasks | Pending |
-| HOTSPOT-638 | P2: README links / API note for exports | Tasks | Pending |
-| HOTSPOT-639 | Cross-cutting — ROADMAP/STATE + full gate | Tasks | Pending |
+| Requirement ID | Story                                           | Phase | Status  |
+| -------------- | ----------------------------------------------- | ----- | ------- |
+| HOTSPOT-620    | P1: Recipes — file exists                       | Tasks | Pending |
+| HOTSPOT-621    | P1: Recipes — weekly triage                     | Tasks | Pending |
+| HOTSPOT-622    | P1: Recipes — PR markdown                       | Tasks | Pending |
+| HOTSPOT-623    | P1: Recipes — monorepo config                   | Tasks | Pending |
+| HOTSPOT-624    | P1: Recipes — baseline/compare                  | Tasks | Pending |
+| HOTSPOT-625    | P1: Sample sync — single capture SoT            | Tasks | Pending |
+| HOTSPOT-626    | P1: Sample sync — Quick start matches capture   | Tasks | Pending |
+| HOTSPOT-627    | P1: Sample sync — mid-doc Table matches capture | Tasks | Pending |
+| HOTSPOT-628    | P1: Sample sync — asset refresh if needed       | Tasks | Pending |
+| HOTSPOT-629    | P1: Cheatsheet — `docs/warning-codes.md`        | Tasks | Pending |
+| HOTSPOT-630    | P1: Cheatsheet — severity vs exit code note     | Tasks | Pending |
+| HOTSPOT-631    | P1: Cheatsheet — README link / no contradiction | Tasks | Pending |
+| HOTSPOT-632    | P1: Cheatsheet — stable codes only              | Tasks | Pending |
+| HOTSPOT-633    | P1: exports — `"."` → dist/index                | Tasks | Pending |
+| HOTSPOT-634    | P1: exports — main/types/bin kept               | Tasks | Pending |
+| HOTSPOT-635    | P1: exports — no publish / no API expand        | Tasks | Pending |
+| HOTSPOT-636    | P1: exports — build targets exist               | Tasks | Pending |
+| HOTSPOT-637    | P2: README links to recipes                     | Tasks | Pending |
+| HOTSPOT-638    | P2: README links / API note for exports         | Tasks | Pending |
+| HOTSPOT-639    | Cross-cutting — ROADMAP/STATE + full gate       | Tasks | Pending |
 
 **Coverage:** 20 total (HOTSPOT-620–639), mapped in tasks.md.
 

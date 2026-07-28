@@ -72,63 +72,63 @@ flowchart TD
 
 | Task | Depends on (declared) | Diagram shows | Match |
 | ---- | --------------------- | ------------- | ----- |
-| T1 | None | Root | yes |
-| T2 | T1 | T1→T2 | yes |
-| T3 | T2 | T2→T3 | yes |
-| T4 | T3 | T3→T4 | yes |
-| T5 | T4 | T4→T5 | yes |
-| T6 | T3, T5 | T3/T5→T6 | yes |
-| T7 | T3, T6 | T3/T6→T7 | yes |
-| T8 | T6, T7 | T6/T7→T8 | yes |
-| T9 | T8 | T8→T9 | yes |
+| T1   | None                  | Root          | yes   |
+| T2   | T1                    | T1→T2         | yes   |
+| T3   | T2                    | T2→T3         | yes   |
+| T4   | T3                    | T3→T4         | yes   |
+| T5   | T4                    | T4→T5         | yes   |
+| T6   | T3, T5                | T3/T5→T6      | yes   |
+| T7   | T3, T6                | T3/T6→T7      | yes   |
+| T8   | T6, T7                | T6/T7→T8      | yes   |
+| T9   | T8                    | T8→T9         | yes   |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths (primary) | Conflict with parallel peers |
-| ---- | ------------ | --------------- | ---------------------------- |
-| T1 | `src/assess/` | `types.ts`, `select-candidates.ts`, tests | None (no `[P]` peers) |
-| T2 | `schemas/` + `tests/contract/` | `hotspot-assess.json`, contract tests | After T1 |
-| T3 | `src/assess/` | `run-assess.ts`, `index.ts`, tests | After T2; sole assess owner |
-| T4 | `src/report/` | `assess-table.ts`, `assess-markdown.ts`, report index | After T3 |
-| T5 | `src/report/` | `assess-json.ts`, report index | After T4 (serializes index) |
-| T6 | `bin/` | `assess-actions.ts`, `hotspot-scanner.ts`, completion, CLI tests | After T3+T5 |
-| T7 | package root + `src/index.ts` | `package.json`, `tsconfig.bin.json`, `src/index.ts` | After T3+T6 |
-| T8 | docs | README, recipes, ARCHITECTURE, STRUCTURE, CONCERNS, skills | After T6+T7 |
-| T9 | gate | none (run only) | After T8 |
+| Task | Module owner                   | Paths (primary)                                                  | Conflict with parallel peers |
+| ---- | ------------------------------ | ---------------------------------------------------------------- | ---------------------------- |
+| T1   | `src/assess/`                  | `types.ts`, `select-candidates.ts`, tests                        | None (no `[P]` peers)        |
+| T2   | `schemas/` + `tests/contract/` | `hotspot-assess.json`, contract tests                            | After T1                     |
+| T3   | `src/assess/`                  | `run-assess.ts`, `index.ts`, tests                               | After T2; sole assess owner  |
+| T4   | `src/report/`                  | `assess-table.ts`, `assess-markdown.ts`, report index            | After T3                     |
+| T5   | `src/report/`                  | `assess-json.ts`, report index                                   | After T4 (serializes index)  |
+| T6   | `bin/`                         | `assess-actions.ts`, `hotspot-scanner.ts`, completion, CLI tests | After T3+T5                  |
+| T7   | package root + `src/index.ts`  | `package.json`, `tsconfig.bin.json`, `src/index.ts`              | After T3+T6                  |
+| T8   | docs                           | README, recipes, ARCHITECTURE, STRUCTURE, CONCERNS, skills       | After T6+T7                  |
+| T9   | gate                           | none (run only)                                                  | After T8                     |
 
 > **`[P]`:** none in this plan — report index and package.json serialize naturally via T4→T5 and T6→T7.
 
 ### Test Co-location Validation
 
-| Task | Code layer | Required tests (TESTING.md) | Co-located in task |
-| ---- | ---------- | --------------------------- | ------------------ |
-| T1 | `src/assess/select-candidates.ts` | unit | yes |
-| T2 | `schemas/` | contract | yes — contract tests |
-| T3 | `src/assess/run-assess.ts` | unit (+ mock integration) | yes |
-| T4 | `src/report/assess-*.ts` | unit | yes |
-| T5 | `src/report/assess-json.ts` | unit | yes |
-| T6 | `bin/` | CLI | yes — hotspot-scanner / assess-actions tests |
-| T7 | package exports | unit (index export smoke) | yes — extend `src/index.test.ts` |
-| T8 | docs | none | n/a |
-| T9 | gate | full | `pnpm build && pnpm test` |
+| Task | Code layer                        | Required tests (TESTING.md) | Co-located in task                           |
+| ---- | --------------------------------- | --------------------------- | -------------------------------------------- |
+| T1   | `src/assess/select-candidates.ts` | unit                        | yes                                          |
+| T2   | `schemas/`                        | contract                    | yes — contract tests                         |
+| T3   | `src/assess/run-assess.ts`        | unit (+ mock integration)   | yes                                          |
+| T4   | `src/report/assess-*.ts`          | unit                        | yes                                          |
+| T5   | `src/report/assess-json.ts`       | unit                        | yes                                          |
+| T6   | `bin/`                            | CLI                         | yes — hotspot-scanner / assess-actions tests |
+| T7   | package exports                   | unit (index export smoke)   | yes — extend `src/index.test.ts`             |
+| T8   | docs                              | none                        | n/a                                          |
+| T9   | gate                              | full                        | `pnpm build && pnpm test`                    |
 
 ---
 
 ## Requirement → Task Mapping
 
-| IDs | Task |
-| --- | ---- |
-| HOTSPOT-1622 (selector), HOTSPOT-1624 (types partial) | T1 |
-| HOTSPOT-1625, HOTSPOT-1626 (schema isolation) | T2 |
-| HOTSPOT-1620 (pipeline core), HOTSPOT-1623, HOTSPOT-1624, HOTSPOT-1628, HOTSPOT-1629, HOTSPOT-1630 | T3 |
-| HOTSPOT-1631, HOTSPOT-1632, HOTSPOT-1633 | T4 |
-| HOTSPOT-1634, HOTSPOT-1635, HOTSPOT-1626 (no points) | T5 |
-| HOTSPOT-1620, HOTSPOT-1621, HOTSPOT-1622, HOTSPOT-1630 | T6 |
-| HOTSPOT-1627 | T7 |
-| HOTSPOT-1636, HOTSPOT-1637, HOTSPOT-1638 | T8 |
-| all HOTSPOT-1620–1638 | T9 verification |
-| HOTSPOT-1639–1659 | Buffer unused |
-| HOTSPOT-1660–1679 | Reserved |
+| IDs                                                                                                | Task            |
+| -------------------------------------------------------------------------------------------------- | --------------- |
+| HOTSPOT-1622 (selector), HOTSPOT-1624 (types partial)                                              | T1              |
+| HOTSPOT-1625, HOTSPOT-1626 (schema isolation)                                                      | T2              |
+| HOTSPOT-1620 (pipeline core), HOTSPOT-1623, HOTSPOT-1624, HOTSPOT-1628, HOTSPOT-1629, HOTSPOT-1630 | T3              |
+| HOTSPOT-1631, HOTSPOT-1632, HOTSPOT-1633                                                           | T4              |
+| HOTSPOT-1634, HOTSPOT-1635, HOTSPOT-1626 (no points)                                               | T5              |
+| HOTSPOT-1620, HOTSPOT-1621, HOTSPOT-1622, HOTSPOT-1630                                             | T6              |
+| HOTSPOT-1627                                                                                       | T7              |
+| HOTSPOT-1636, HOTSPOT-1637, HOTSPOT-1638                                                           | T8              |
+| all HOTSPOT-1620–1638                                                                              | T9 verification |
+| HOTSPOT-1639–1659                                                                                  | Buffer unused   |
+| HOTSPOT-1660–1679                                                                                  | Reserved        |
 
 ---
 
@@ -316,14 +316,14 @@ No `[P]` tasks — path ownership on `src/report/index.ts` and `package.json` fo
 
 ## Proposed commits (Execute — do not commit in planning)
 
-| Task | Suggested message |
-| ---- | ----------------- |
-| T1 | `feat(assess): add candidate selection and types` |
-| T2 | `feat(assess): add hotspot-assess JSON schema 1.0` |
-| T3 | `feat(assess): implement runAssess orchestration` |
-| T4 | `feat(report): assess table and markdown reporters` |
-| T5 | `feat(report): assess JSON reporter` |
-| T6 | `feat(cli): add hotspot-scanner assess command` |
-| T7 | `feat(assess): export runAssess and schema` |
-| T8 | `docs(assess): document assess CLI and cliffs` |
-| T9 | (no commit — gate only; or chore if fixes needed) |
+| Task | Suggested message                                   |
+| ---- | --------------------------------------------------- |
+| T1   | `feat(assess): add candidate selection and types`   |
+| T2   | `feat(assess): add hotspot-assess JSON schema 1.0`  |
+| T3   | `feat(assess): implement runAssess orchestration`   |
+| T4   | `feat(report): assess table and markdown reporters` |
+| T5   | `feat(report): assess JSON reporter`                |
+| T6   | `feat(cli): add hotspot-scanner assess command`     |
+| T7   | `feat(assess): export runAssess and schema`         |
+| T8   | `docs(assess): document assess CLI and cliffs`      |
+| T9   | (no commit — gate only; or chore if fixes needed)   |

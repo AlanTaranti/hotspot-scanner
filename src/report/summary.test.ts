@@ -48,8 +48,16 @@ describe("buildScanExecutiveSummary", () => {
     const full = loadScanFixture("sample-result.json");
     full.meta.warnings = [
       { severity: "warning", message: "mega", code: "MEGA_COMMIT_SKIPPED" },
-      { severity: "warning", message: "mega again", code: "MEGA_COMMIT_SKIPPED" },
-      { severity: "warning", message: "rename", code: "RENAME_HISTORY_INCOMPLETE" },
+      {
+        severity: "warning",
+        message: "mega again",
+        code: "MEGA_COMMIT_SKIPPED",
+      },
+      {
+        severity: "warning",
+        message: "rename",
+        code: "RENAME_HISTORY_INCOMPLETE",
+      },
       { severity: "warning", message: "no code" },
     ];
     const lines = buildScanExecutiveSummary(full, full);

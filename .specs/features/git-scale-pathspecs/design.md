@@ -56,39 +56,39 @@ discoverSourceFiles → eligibleFileCount
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `PATCH_PATHSPEC_FALLBACK_THRESHOLD` / `buildGitPatchLogArgv` | `src/git/function-churn/spawn.ts` | Keep constant as max pathspecs per argv; remove count-based omit; add partition helper |
-| `createFunctionChurnMiner` | `src/git/function-churn/index.ts` | Orchestrate sequential batched streams + merge |
-| `aggregatePatchCommit` | `src/git/function-churn/aggregate.ts` | Unchanged overlap semantics; reuse per batch |
-| `MEGA_COMMIT_UNIQUE_FILE_THRESHOLD` / `aggregateOneCommit` | `src/git/aggregate.ts` | Default + accept override threshold |
-| `createMegaCommitSkippedWarnings` | `src/git/mega-commit-warnings.ts` | Parameterize message threshold |
-| `createGitMiner` | `src/git/index.ts` | Pass threshold into aggregate options |
-| `mergeScanOptions` / `load-config` / exemplar | `src/config/` | Add `megaCommitThreshold` like `minCochange` |
-| `ScanOptions` | `src/types/domain.ts` | Optional `megaCommitThreshold?: number` |
-| `previewScanScope` / `formatScanScopePreview` | `src/scan-preview.ts` | Eligible-count warning |
-| CLI `parsePositiveInteger` | `bin/hotspot-scanner.ts` | `--mega-commit-threshold` |
-| M35 spawn/integration tests | `spawn.test.ts`, `scan.integration.test.ts` | Retarget fallback cases to batching |
+| Component                                                    | Location                                    | How to Use                                                                             |
+| ------------------------------------------------------------ | ------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `PATCH_PATHSPEC_FALLBACK_THRESHOLD` / `buildGitPatchLogArgv` | `src/git/function-churn/spawn.ts`           | Keep constant as max pathspecs per argv; remove count-based omit; add partition helper |
+| `createFunctionChurnMiner`                                   | `src/git/function-churn/index.ts`           | Orchestrate sequential batched streams + merge                                         |
+| `aggregatePatchCommit`                                       | `src/git/function-churn/aggregate.ts`       | Unchanged overlap semantics; reuse per batch                                           |
+| `MEGA_COMMIT_UNIQUE_FILE_THRESHOLD` / `aggregateOneCommit`   | `src/git/aggregate.ts`                      | Default + accept override threshold                                                    |
+| `createMegaCommitSkippedWarnings`                            | `src/git/mega-commit-warnings.ts`           | Parameterize message threshold                                                         |
+| `createGitMiner`                                             | `src/git/index.ts`                          | Pass threshold into aggregate options                                                  |
+| `mergeScanOptions` / `load-config` / exemplar                | `src/config/`                               | Add `megaCommitThreshold` like `minCochange`                                           |
+| `ScanOptions`                                                | `src/types/domain.ts`                       | Optional `megaCommitThreshold?: number`                                                |
+| `previewScanScope` / `formatScanScopePreview`                | `src/scan-preview.ts`                       | Eligible-count warning                                                                 |
+| CLI `parsePositiveInteger`                                   | `bin/hotspot-scanner.ts`                    | `--mega-commit-threshold`                                                              |
+| M35 spawn/integration tests                                  | `spawn.test.ts`, `scan.integration.test.ts` | Retarget fallback cases to batching                                                    |
 
 ### Integration Points
 
-| System | M47 behavior |
-| ------ | ------------ |
+| System           | M47 behavior                                                                              |
+| ---------------- | ----------------------------------------------------------------------------------------- |
 | `git` subprocess | Multiple sequential pathspec-restricted patch spawns when batched; numstat argv unchanged |
-| Config / CLI | New optional key/flag; precedence unchanged |
-| Diagnostics | Existing `MEGA_COMMIT_SKIPPED`; optional new warning code for ARG_MAX emergency |
-| JSON schemas | No shape change |
-| Dry-run | Preview text only; still no mine |
+| Config / CLI     | New optional key/flag; precedence unchanged                                               |
+| Diagnostics      | Existing `MEGA_COMMIT_SKIPPED`; optional new warning code for ARG_MAX emergency           |
+| JSON schemas     | No shape change                                                                           |
+| Dry-run          | Preview text only; still no mine                                                          |
 
 ### Fragile areas (CONCERNS.md)
 
-| Area | Design mitigation |
-| ---- | ----------------- |
-| M35 pathspec fallback | Replace count-omit with batching; keep streaming line-by-line |
-| M32 mega-commit | Threshold injectable; skip+churn policy untouched |
-| Patch stream memory | Sequential batches — never N concurrent patch streams |
-| File mode must not spawn patch | Keep M35 regression |
-| ARG_MAX on long paths | Emergency shrink + unrestricted last resort + warning |
+| Area                           | Design mitigation                                             |
+| ------------------------------ | ------------------------------------------------------------- |
+| M35 pathspec fallback          | Replace count-omit with batching; keep streaming line-by-line |
+| M32 mega-commit                | Threshold injectable; skip+churn policy untouched             |
+| Patch stream memory            | Sequential batches — never N concurrent patch streams         |
+| File mode must not spawn patch | Keep M35 regression                                           |
+| ARG_MAX on long paths          | Emergency shrink + unrestricted last resort + warning         |
 
 ---
 
@@ -173,49 +173,49 @@ Exact string may be refined in Execute if tests need a stable substring assert.
 
 ## Error Handling Strategy
 
-| Error Scenario | Handling | User Impact |
-| -------------- | -------- | ----------- |
-| Invalid `megaCommitThreshold` / CLI | `ConfigError` / `CliUsageError` before scan | Non-zero exit; no partial mine |
-| Patch chunk ARG_MAX | Half-size retry once; then unrestricted + `PATHSPEC_ARG_MAX_FALLBACK` | Scan continues; warning in meta/stderr |
-| Empty allowlist | No spawn | Empty function churn (M35) |
-| Dry-run eligible > 1000 | Warning line in preview | Exit 0; no mine |
+| Error Scenario                      | Handling                                                              | User Impact                            |
+| ----------------------------------- | --------------------------------------------------------------------- | -------------------------------------- |
+| Invalid `megaCommitThreshold` / CLI | `ConfigError` / `CliUsageError` before scan                           | Non-zero exit; no partial mine         |
+| Patch chunk ARG_MAX                 | Half-size retry once; then unrestricted + `PATHSPEC_ARG_MAX_FALLBACK` | Scan continues; warning in meta/stderr |
+| Empty allowlist                     | No spawn                                                              | Empty function churn (M35)             |
+| Dry-run eligible > 1000             | Warning line in preview                                               | Exit 0; no mine                        |
 
 ---
 
 ## Tech Decisions
 
-| Decision | Choice | Rationale |
-| -------- | ------ | --------- |
-| Numstat pathspecs | Out of scope | Coupling + ADR-2026-020 |
-| Batch parallelism | Sequential | Peak RSS / CONCERNS |
-| Inequality for mega skip | Keep `>` (not `≥`) | M32 lock / edge case |
+| Decision                                          | Choice                                      | Rationale                             |
+| ------------------------------------------------- | ------------------------------------------- | ------------------------------------- |
+| Numstat pathspecs                                 | Out of scope                                | Coupling + ADR-2026-020               |
+| Batch parallelism                                 | Sequential                                  | Peak RSS / CONCERNS                   |
+| Inequality for mega skip                          | Keep `>` (not `≥`)                          | M32 lock / edge case                  |
 | Constant name `PATCH_PATHSPEC_FALLBACK_THRESHOLD` | Keep symbol; docs redefine as max-per-chunk | Avoid noisy rename; optional alias OK |
-| Unrestricted by count | Removed | Mission primary fix |
-| Mega sampling | No | Mission prefer keep skip |
+| Unrestricted by count                             | Removed                                     | Mission primary fix                   |
+| Mega sampling                                     | No                                          | Mission prefer keep skip              |
 
 ---
 
 ## Risks
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| Progress counter double-counts cross-batch commits | Documented acceptable; do not build unique-hash set (YAGNI) |
-| Long path strings still hit ARG_MAX inside one chunk of 1000 | Emergency shrink + unrestricted path |
-| Tests still assert M35 “omit pathspecs over threshold” | Update unit/integration to expect batching |
-| Warning catalog growth | One new code max; document in ARCHITECTURE |
-| Config exemplar drift | Add key in `src/config/exemplar.ts` with default 100 |
+| Risk                                                         | Mitigation                                                  |
+| ------------------------------------------------------------ | ----------------------------------------------------------- |
+| Progress counter double-counts cross-batch commits           | Documented acceptable; do not build unique-hash set (YAGNI) |
+| Long path strings still hit ARG_MAX inside one chunk of 1000 | Emergency shrink + unrestricted path                        |
+| Tests still assert M35 “omit pathspecs over threshold”       | Update unit/integration to expect batching                  |
+| Warning catalog growth                                       | One new code max; document in ARCHITECTURE                  |
+| Config exemplar drift                                        | Add key in `src/config/exemplar.ts` with default 100        |
 
 ---
 
 ## Test Plan (design-level)
 
-| Area | Surface |
-| ---- | ------- |
-| Partition + argv | `spawn.test.ts` |
-| Miner multi-spawn / merge | `function-churn/index.test.ts` |
-| Mega threshold | `aggregate.test.ts`, `mega-commit-warnings.test.ts`, `git/index.test.ts` |
-| Config merge/parse | `load-config.test.ts`, `merge-options.test.ts`, exemplar |
-| CLI | `bin/hotspot-scanner.test.ts` |
-| Dry-run | `scan-preview.test.ts` |
-| File-mode zero patch + batching spy | `scan.integration.test.ts` |
-| Full gate | `pnpm build && pnpm test` |
+| Area                                | Surface                                                                  |
+| ----------------------------------- | ------------------------------------------------------------------------ |
+| Partition + argv                    | `spawn.test.ts`                                                          |
+| Miner multi-spawn / merge           | `function-churn/index.test.ts`                                           |
+| Mega threshold                      | `aggregate.test.ts`, `mega-commit-warnings.test.ts`, `git/index.test.ts` |
+| Config merge/parse                  | `load-config.test.ts`, `merge-options.test.ts`, exemplar                 |
+| CLI                                 | `bin/hotspot-scanner.test.ts`                                            |
+| Dry-run                             | `scan-preview.test.ts`                                                   |
+| File-mode zero patch + batching spy | `scan.integration.test.ts`                                               |
+| Full gate                           | `pnpm build && pnpm test`                                                |

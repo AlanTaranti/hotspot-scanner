@@ -31,38 +31,38 @@ flowchart LR
 
 ### Existing Components to Leverage
 
-| Component                         | Location                               | How to Use                                                                 |
-| --------------------------------- | -------------------------------------- | -------------------------------------------------------------------------- |
-| `enrichCouplingStaticDeps`        | `src/scoring/enrich-coupling-static.ts`| Extend: structured edges + alias resolve; keep export name                 |
-| Relative resolution helpers       | same file                              | Keep `buildResolutionCandidates` / extension fallbacks                     |
-| `scoreCoupling`                   | `src/scoring/coupling-scorer.ts`       | Untouched formulas                                                         |
-| `runScan` wiring                  | `src/scan.ts`                          | Already calls enricher — may only pass through unless options needed       |
-| Reporters                         | `src/report/*`                         | Add Direction / Kinds columns; CSV headers                                 |
-| `assertCouplingPair`              | `src/compare/load-baseline.ts`         | Require + type-check new fields (M14 pattern)                              |
-| JSON Schema `$defs/CouplingPair`  | `schemas/scan-result.json`             | Additive required properties                                               |
-| M14 unit tests / fixtures         | `enrich-coupling-static.test.ts`       | Extend cases; do not delete relative-resolution coverage                   |
+| Component                        | Location                                | How to Use                                                           |
+| -------------------------------- | --------------------------------------- | -------------------------------------------------------------------- |
+| `enrichCouplingStaticDeps`       | `src/scoring/enrich-coupling-static.ts` | Extend: structured edges + alias resolve; keep export name           |
+| Relative resolution helpers      | same file                               | Keep `buildResolutionCandidates` / extension fallbacks               |
+| `scoreCoupling`                  | `src/scoring/coupling-scorer.ts`        | Untouched formulas                                                   |
+| `runScan` wiring                 | `src/scan.ts`                           | Already calls enricher — may only pass through unless options needed |
+| Reporters                        | `src/report/*`                          | Add Direction / Kinds columns; CSV headers                           |
+| `assertCouplingPair`             | `src/compare/load-baseline.ts`          | Require + type-check new fields (M14 pattern)                        |
+| JSON Schema `$defs/CouplingPair` | `schemas/scan-result.json`              | Additive required properties                                         |
+| M14 unit tests / fixtures        | `enrich-coupling-static.test.ts`        | Extend cases; do not delete relative-resolution coverage             |
 
 ### Integration Points
 
-| Consumer                       | Impact                                                                 |
-| ------------------------------ | ---------------------------------------------------------------------- |
-| `src/types/domain.ts`          | New fields + `StaticDependencyDirection` type                          |
-| `src/scoring/`                 | New path-map helper + enricher rewrite of edge detection               |
-| `schemas/` + `tests/contract/` | Required fields; contract fixtures                                     |
-| `src/compare/load-baseline.ts` | Reject missing new fields                                              |
-| `src/report/`                  | Table/markdown/CSV/compare surfaces                                    |
-| Report/scan fixtures           | Sample coupling objects include new fields                             |
-| ARCHITECTURE / CONCERNS / README | Document enriched fields + paths mitigation                          |
+| Consumer                         | Impact                                                   |
+| -------------------------------- | -------------------------------------------------------- |
+| `src/types/domain.ts`            | New fields + `StaticDependencyDirection` type            |
+| `src/scoring/`                   | New path-map helper + enricher rewrite of edge detection |
+| `schemas/` + `tests/contract/`   | Required fields; contract fixtures                       |
+| `src/compare/load-baseline.ts`   | Reject missing new fields                                |
+| `src/report/`                    | Table/markdown/CSV/compare surfaces                      |
+| Report/scan fixtures             | Sample coupling objects include new fields               |
+| ARCHITECTURE / CONCERNS / README | Document enriched fields + paths mitigation              |
 
 ### Fragile areas (CONCERNS.md)
 
-| Area                                         | Mitigation                                                                 |
-| -------------------------------------------- | -------------------------------------------------------------------------- |
-| Scoring formulas                             | Do **not** edit `couplingStrength`; enrich metadata only                   |
-| Enriched coupling false negatives (paths)    | This milestone — alias resolution                                          |
-| Renamed-unlinked → false                     | Document only; no PathAliasMap in scoring                                  |
-| ts-morph boundary                            | No ts-morph in `src/scoring/`; literal extract + JSONC tsconfig parse      |
-| JSON contract / baselines                    | Strict required fields + re-scan hint (M20 pattern)                        |
+| Area                                      | Mitigation                                                            |
+| ----------------------------------------- | --------------------------------------------------------------------- |
+| Scoring formulas                          | Do **not** edit `couplingStrength`; enrich metadata only              |
+| Enriched coupling false negatives (paths) | This milestone — alias resolution                                     |
+| Renamed-unlinked → false                  | Document only; no PathAliasMap in scoring                             |
+| ts-morph boundary                         | No ts-morph in `src/scoring/`; literal extract + JSONC tsconfig parse |
+| JSON contract / baselines                 | Strict required fields + re-scan hint (M20 pattern)                   |
 
 ---
 
@@ -139,7 +139,7 @@ interface CouplingPair {
 /** Internal edge used only inside the enricher */
 interface StaticEdge {
   from: string; // importer repo-relative path
-  to: string;   // resolved peer path
+  to: string; // resolved peer path
   isTypeOnly: boolean;
   isReExport: boolean;
 }
@@ -158,39 +158,39 @@ interface StaticEdge {
 
 ## Error Handling Strategy
 
-| Error Scenario                         | Handling                                              | User Impact                |
-| -------------------------------------- | ----------------------------------------------------- | -------------------------- |
-| Missing/unreadable source              | No edges from that file                               | Pair may still have other side |
-| Missing/invalid tsconfig               | Alias resolve unavailable; relative-only              | Possible false negatives   |
-| Broken `extends` target                | Use partial options; no throw                         | Best-effort aliases        |
-| Alias resolves but not to peer         | Ignore (no edge)                                      | Correct for that pair      |
-| Malformed import line                  | Skip line                                             | Best-effort                |
-| Baseline missing new fields            | `BaselineError` + re-scan hint                        | User regenerates baseline  |
-| Empty coupling list                    | No-op enrich                                          | None                       |
+| Error Scenario                 | Handling                                 | User Impact                    |
+| ------------------------------ | ---------------------------------------- | ------------------------------ |
+| Missing/unreadable source      | No edges from that file                  | Pair may still have other side |
+| Missing/invalid tsconfig       | Alias resolve unavailable; relative-only | Possible false negatives       |
+| Broken `extends` target        | Use partial options; no throw            | Best-effort aliases            |
+| Alias resolves but not to peer | Ignore (no edge)                         | Correct for that pair          |
+| Malformed import line          | Skip line                                | Best-effort                    |
+| Baseline missing new fields    | `BaselineError` + re-scan hint           | User regenerates baseline      |
+| Empty coupling list            | No-op enrich                             | None                           |
 
 ---
 
 ## Tech Decisions
 
-| Decision                    | Choice                                      | Rationale                                      |
-| --------------------------- | ------------------------------------------- | ---------------------------------------------- |
-| Flat additive fields        | Four new fields + keep boolean              | CSV/table friendly; clear invariants           |
-| Version                     | Stay `"1.0"`                                | Additive precedent                             |
-| Paths scope                 | tsconfig/jsconfig paths + baseUrl           | ROADMAP; package exports deferred              |
-| Nearest config walk         | Up from importer to repo root               | Monorepo packages often have local tsconfigs   |
-| No ts-morph in scoring      | Literal extract + JSONC                     | INTEGRATIONS.md                                |
-| Separate PathMap module     | `tsconfig-path-map.ts`                      | Testable; path-conflict isolation from reports |
-| M26 boundary                | Zero PathAliasMap coupling                  | Explicit ROADMAP boundary                      |
-| Schema required             | New fields required                         | Same strictness as M14 boolean                 |
+| Decision                | Choice                            | Rationale                                      |
+| ----------------------- | --------------------------------- | ---------------------------------------------- |
+| Flat additive fields    | Four new fields + keep boolean    | CSV/table friendly; clear invariants           |
+| Version                 | Stay `"1.0"`                      | Additive precedent                             |
+| Paths scope             | tsconfig/jsconfig paths + baseUrl | ROADMAP; package exports deferred              |
+| Nearest config walk     | Up from importer to repo root     | Monorepo packages often have local tsconfigs   |
+| No ts-morph in scoring  | Literal extract + JSONC           | INTEGRATIONS.md                                |
+| Separate PathMap module | `tsconfig-path-map.ts`            | Testable; path-conflict isolation from reports |
+| M26 boundary            | Zero PathAliasMap coupling        | Explicit ROADMAP boundary                      |
+| Schema required         | New fields required               | Same strictness as M14 boolean                 |
 
 ---
 
 ## Risks
 
-| Risk                                              | Mitigation                                                                 |
-| ------------------------------------------------- | -------------------------------------------------------------------------- |
-| Over-broad regex false positives on strings       | Anchor on `import`/`from`/`require`/`export` constructs; unit fixtures     |
-| Complex `paths` patterns (`*` count mismatches)   | Support single `*` segment patterns first; document unsupported as no-match |
-| Fixture explosion for monorepos                   | Prefer temp dirs in unit tests; one small fixture tree if integration needs |
-| Reporter column width                             | Compact Direction + Kinds; keep StaticDep                                  |
-| Baseline churn for users                          | Clear re-scan error; document in ARCHITECTURE / README                     |
+| Risk                                            | Mitigation                                                                  |
+| ----------------------------------------------- | --------------------------------------------------------------------------- |
+| Over-broad regex false positives on strings     | Anchor on `import`/`from`/`require`/`export` constructs; unit fixtures      |
+| Complex `paths` patterns (`*` count mismatches) | Support single `*` segment patterns first; document unsupported as no-match |
+| Fixture explosion for monorepos                 | Prefer temp dirs in unit tests; one small fixture tree if integration needs |
+| Reporter column width                           | Compact Direction + Kinds; keep StaticDep                                   |
+| Baseline churn for users                        | Clear re-scan error; document in ARCHITECTURE / README                      |

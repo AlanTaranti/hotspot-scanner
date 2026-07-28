@@ -24,23 +24,23 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on | Diagram     | Match |
-| ---- | ---------- | ----------- | ----- |
-| T1   | None       | Root        | ✅    |
-| T2   | T1         | T1 → T2     | ✅    |
-| T3   | T2         | T2 → T3     | ✅    |
-| T4   | T3         | T3 → T4     | ✅    |
-| T5   | T4         | T4 → T5     | ✅    |
+| Task | Depends on | Diagram | Match |
+| ---- | ---------- | ------- | ----- |
+| T1   | None       | Root    | ✅    |
+| T2   | T1         | T1 → T2 | ✅    |
+| T3   | T2         | T2 → T3 | ✅    |
+| T4   | T3         | T3 → T4 | ✅    |
+| T5   | T4         | T4 → T5 | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths                                                                 | Conflict   |
-| ---- | ------------ | --------------------------------------------------------------------- | ---------- |
-| T1   | docs         | `.specs/project/PROJECT.md`                                           | Sequential |
-| T2   | docs         | `.specs/codebase/ARCHITECTURE.md`, `README.md` (rename bullets)       | After T1   |
-| T3   | docs         | `README.md` (function-mode / dual-stream)                             | After T2   |
-| T4   | docs         | `.specs/features/{function-ast-coverage,per-function-churn,package-dx}/design.md` (+ others) | After T3 |
-| T5   | docs         | `.specs/project/ROADMAP.md`, `.specs/project/STATE.md`                | After T4   |
+| Task | Module owner | Paths                                                                                        | Conflict   |
+| ---- | ------------ | -------------------------------------------------------------------------------------------- | ---------- |
+| T1   | docs         | `.specs/project/PROJECT.md`                                                                  | Sequential |
+| T2   | docs         | `.specs/codebase/ARCHITECTURE.md`, `README.md` (rename bullets)                              | After T1   |
+| T3   | docs         | `README.md` (function-mode / dual-stream)                                                    | After T2   |
+| T4   | docs         | `.specs/features/{function-ast-coverage,per-function-churn,package-dx}/design.md` (+ others) | After T3   |
+| T5   | docs         | `.specs/project/ROADMAP.md`, `.specs/project/STATE.md`                                       | After T4   |
 
 T2 and T3 both touch `README.md` — **not** `[P]`; sequential to avoid merge conflicts.
 
@@ -53,13 +53,13 @@ T2 and T3 both touch `README.md` — **not** `[P]`; sequential to avoid merge co
 
 ### Granularity Check
 
-| Task | Scope                         | Status      |
-| ---- | ----------------------------- | ----------- |
-| T1   | One file (PROJECT)            | ✅ Granular |
+| Task | Scope                           | Status      |
+| ---- | ------------------------------- | ----------- |
+| T1   | One file (PROJECT)              | ✅ Granular |
 | T2   | Rename constraint across 2 docs | ✅ Cohesive |
-| T3   | README M23 / dual-stream only | ✅ Granular |
-| T4   | Status fields on Done designs | ✅ Cohesive |
-| T5   | Consistency + project gate    | ✅ Granular |
+| T3   | README M23 / dual-stream only   | ✅ Granular |
+| T4   | Status fields on Done designs   | ✅ Cohesive |
+| T5   | Consistency + project gate      | ✅ Granular |
 
 ---
 

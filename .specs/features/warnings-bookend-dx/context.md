@@ -14,13 +14,13 @@ Fix warnings **presentation DX** so stderr timing matches the M61 post-write flu
 
 **In scope:**
 
-| Item | Scope |
-| ---- | ----- |
-| **B** | Pre-write short teaser + post-write full flush lifecycle in `bin/` + `src/diagnostics/` |
-| **K** | Remove `formatScanWarning` body loops from compare table/markdown; keep exec-summary rollup |
-| **A + G** | Fix/expand `docs/warning-codes.md` (real timing + `json` mode) |
-| **L** | Align ROADMAP M58 (and related historical notes) that still say “before Hotspots report”; pointer to M61+M68 |
-| **E** | Align `AGENTS.md` exit-code table with README (`0/1/2/130/143`) |
+| Item      | Scope                                                                                                        |
+| --------- | ------------------------------------------------------------------------------------------------------------ |
+| **B**     | Pre-write short teaser + post-write full flush lifecycle in `bin/` + `src/diagnostics/`                      |
+| **K**     | Remove `formatScanWarning` body loops from compare table/markdown; keep exec-summary rollup                  |
+| **A + G** | Fix/expand `docs/warning-codes.md` (real timing + `json` mode)                                               |
+| **L**     | Align ROADMAP M58 (and related historical notes) that still say “before Hotspots report”; pointer to M61+M68 |
+| **E**     | Align `AGENTS.md` exit-code table with README (`0/1/2/130/143`)                                              |
 
 **Out of scope:** Item C (full warning lines in scan report body); fail-on-warning; npm/SARIF; timing on `baseline save`; new CLI flags; schema bump; thinning `meta.warnings`; changing M62 timing/explain order after flush.
 
@@ -34,19 +34,19 @@ Fix warnings **presentation DX** so stderr timing matches the M61 post-write flu
 
 **Choice:**
 
-| Step | Behavior |
-| ---- | -------- |
-| 1 | Keep live `Finalizing…` through score / compare / render until immediately before teaser |
-| 2 | Clear live line → **pre-write teaser** (short rollup) → **write** report/baseline → **flushWarnings** (complete emission) |
-| 3 | Preserve M62 order after flush: timing stderr → explain (when requested) |
+| Step | Behavior                                                                                                                  |
+| ---- | ------------------------------------------------------------------------------------------------------------------------- |
+| 1    | Keep live `Finalizing…` through score / compare / render until immediately before teaser                                  |
+| 2    | Clear live line → **pre-write teaser** (short rollup) → **write** report/baseline → **flushWarnings** (complete emission) |
+| 3    | Preserve M62 order after flush: timing stderr → explain (when requested)                                                  |
 
 **Per `--warnings` mode:**
 
-| Mode | Pre-write teaser | During scan | Post-write `flushWarnings` |
-| ---- | ---------------- | ----------- | -------------------------- |
-| `summary` (default) | **Yes** — short rollup via `formatWarningSummaryLine` (or equivalent) of buffered warnings; skip line when buffer empty | Buffer only (unchanged) | Full aggregated per-group lines (current `flushWarningSummary`) |
-| `full` | **Omit** | Stream each line (unchanged M58/M59 clear-before-diagnostic) | Clear live / no-op only — **must NOT re-emit** full lines |
-| `json` | **Omit** | Buffer only | **One** JSON document emission only at end (unchanged M63 semantics; no teaser) |
+| Mode                | Pre-write teaser                                                                                                        | During scan                                                  | Post-write `flushWarnings`                                                      |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| `summary` (default) | **Yes** — short rollup via `formatWarningSummaryLine` (or equivalent) of buffered warnings; skip line when buffer empty | Buffer only (unchanged)                                      | Full aggregated per-group lines (current `flushWarningSummary`)                 |
+| `full`              | **Omit**                                                                                                                | Stream each line (unchanged M58/M59 clear-before-diagnostic) | Clear live / no-op only — **must NOT re-emit** full lines                       |
+| `json`              | **Omit**                                                                                                                | Buffer only                                                  | **One** JSON document emission only at end (unchanged M63 semantics; no teaser) |
 
 **Applies to:** `scan`, `scan --baseline` / `executeCompareAndRender`, and `baseline save` (same flush lifecycle as M61).
 
@@ -92,12 +92,12 @@ When buffer is empty under `summary`: clear live, skip teaser line, proceed to w
 
 ## Composition locks (carry forward)
 
-| Sister | Constraint |
-| ------ | ---------- |
-| M59 | Clear live before any diagnostic stderr write |
-| M61 | `Finalizing…` through write; `flushWarnings` after write (extended: teaser inserted immediately before write) |
-| M62 | `emitBriefTimingStderr` and explain **after** flush |
-| M58/M63 | `meta.warnings` / programmatic `onWarning` stay full; no schema bump; `--warnings` CLI-only |
+| Sister  | Constraint                                                                                                    |
+| ------- | ------------------------------------------------------------------------------------------------------------- |
+| M59     | Clear live before any diagnostic stderr write                                                                 |
+| M61     | `Finalizing…` through write; `flushWarnings` after write (extended: teaser inserted immediately before write) |
+| M62     | `emitBriefTimingStderr` and explain **after** flush                                                           |
+| M58/M63 | `meta.warnings` / programmatic `onWarning` stay full; no schema bump; `--warnings` CLI-only                   |
 
 ---
 

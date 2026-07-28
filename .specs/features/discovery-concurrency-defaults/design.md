@@ -30,23 +30,23 @@ flowchart TD
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `discoverSourceFiles` / walk | `src/complexity/discover.ts` | Keep walk as fallback; add Git-primary branch |
-| `PathScope` / `isPathInScope` / `shouldPruneDirectory` | `src/paths/scope.ts` | Same filter on Git paths; prune only on walk |
-| `ELIGIBLE_EXTENSIONS` | `src/complexity/discover.ts` | Shared filter for both paths |
-| Git spawn pattern | `src/git/spawn.ts` | Mirror `-C repo`, stderr capture, error type |
-| `DEFAULT_WORKER_CONCURRENCY` | `src/complexity/pool.ts` | Change cap `4` → `8` only |
-| Config merge | `src/config/merge-options.ts` | Already imports constant — no formula duplication |
-| `--concurrency` CLI | `bin/hotspot-scanner.ts` | Untouched validation |
+| Component                                              | Location                      | How to Use                                        |
+| ------------------------------------------------------ | ----------------------------- | ------------------------------------------------- |
+| `discoverSourceFiles` / walk                           | `src/complexity/discover.ts`  | Keep walk as fallback; add Git-primary branch     |
+| `PathScope` / `isPathInScope` / `shouldPruneDirectory` | `src/paths/scope.ts`          | Same filter on Git paths; prune only on walk      |
+| `ELIGIBLE_EXTENSIONS`                                  | `src/complexity/discover.ts`  | Shared filter for both paths                      |
+| Git spawn pattern                                      | `src/git/spawn.ts`            | Mirror `-C repo`, stderr capture, error type      |
+| `DEFAULT_WORKER_CONCURRENCY`                           | `src/complexity/pool.ts`      | Change cap `4` → `8` only                         |
+| Config merge                                           | `src/config/merge-options.ts` | Already imports constant — no formula duplication |
+| `--concurrency` CLI                                    | `bin/hotspot-scanner.ts`      | Untouched validation                              |
 
 ### Integration Points
 
-| System | Integration Method |
-| ------ | ------------------ |
-| Git binary | New `listTrackedFiles` under `src/git/` — **only** spawn site for ls-files |
+| System     | Integration Method                                                                         |
+| ---------- | ------------------------------------------------------------------------------------------ |
+| Git binary | New `listTrackedFiles` under `src/git/` — **only** spawn site for ls-files                 |
 | Complexity | `discover.ts` imports git helper (or injectable default); no `child_process` in complexity |
-| Docs / SoT | README, ARCHITECTURE, INTEGRATIONS, CONCERNS, `scripts/benchmark-scan.md` |
+| Docs / SoT | README, ARCHITECTURE, INTEGRATIONS, CONCERNS, `scripts/benchmark-scan.md`                  |
 
 ---
 
@@ -102,48 +102,48 @@ Public signature may remain `discoverSourceFiles(repoPath, scope?)` with an over
 
 ## Error Handling Strategy
 
-| Error Scenario | Handling | User Impact |
-| -------------- | -------- | ----------- |
-| `repoPath` missing / not dir | Throw (existing) | Non-zero exit via scan |
+| Error Scenario                        | Handling                          | User Impact                            |
+| ------------------------------------- | --------------------------------- | -------------------------------------- |
+| `repoPath` missing / not dir          | Throw (existing)                  | Non-zero exit via scan                 |
 | `git ls-files` non-zero / spawn error | Catch in discover → walk fallback | Transparent; slightly slower discovery |
-| Walk on huge non-git tree | Same as today | Tests / rare API use |
-| Invalid `--concurrency` | Unchanged M28 | Non-zero before scan |
-| Worker OOM at high concurrency | Operator lowers `--concurrency` | Documented; no new code |
+| Walk on huge non-git tree             | Same as today                     | Tests / rare API use                   |
+| Invalid `--concurrency`               | Unchanged M28                     | Non-zero before scan                   |
+| Worker OOM at high concurrency        | Operator lowers `--concurrency`   | Documented; no new code                |
 
 ---
 
 ## Tech Decisions
 
-| ID | Decision | Choice | Rationale |
-| -- | -------- | ------ | --------- |
-| D1 | Default concurrency | `min(availableParallelism(), 8)` | Parent lock; memory still capped vs uncapped |
-| D2 | Primary discovery | `git ls-files -z` tracked-only | ROADMAP; faster than walk on monorepos |
-| D3 | Fallback | Silent filesystem walk | Preserves non-git tests; YAGNI warnings |
-| D4 | Git boundary | Helper in `src/git/` | INTEGRATIONS compliance |
-| D5 | Success empty set | Return `[]`, no walk merge | Avoid double-counting / surprise untracked |
-| D6 | Docs | Living SoT + README + benchmark | Do not rewrite archival M15/M28 feature locks |
+| ID  | Decision            | Choice                           | Rationale                                     |
+| --- | ------------------- | -------------------------------- | --------------------------------------------- |
+| D1  | Default concurrency | `min(availableParallelism(), 8)` | Parent lock; memory still capped vs uncapped  |
+| D2  | Primary discovery   | `git ls-files -z` tracked-only   | ROADMAP; faster than walk on monorepos        |
+| D3  | Fallback            | Silent filesystem walk           | Preserves non-git tests; YAGNI warnings       |
+| D4  | Git boundary        | Helper in `src/git/`             | INTEGRATIONS compliance                       |
+| D5  | Success empty set   | Return `[]`, no walk merge       | Avoid double-counting / surprise untracked    |
+| D6  | Docs                | Living SoT + README + benchmark  | Do not rewrite archival M15/M28 feature locks |
 
 ---
 
 ## Risks
 
-| Risk | Mitigation |
-| ---- | ---------- |
+| Risk                                                                    | Mitigation                                                 |
+| ----------------------------------------------------------------------- | ---------------------------------------------------------- |
 | Behavior change: untracked TS/JS no longer analyzed on Git success path | Locked in context; document; fallback still covers non-git |
-| complexity → git import coupling | Allowed if spawn stays in git; prefer thin helper |
-| Memory spike at default 8 | Docs + `--concurrency`; CONCERNS RT-001 note updated |
-| Path conflict on parallel tasks | T1 `src/git/` ∥ T3 `pool.ts`; T2 after T1 |
+| complexity → git import coupling                                        | Allowed if spawn stays in git; prefer thin helper          |
+| Memory spike at default 8                                               | Docs + `--concurrency`; CONCERNS RT-001 note updated       |
+| Path conflict on parallel tasks                                         | T1 `src/git/` ∥ T3 `pool.ts`; T2 after T1                  |
 
 ---
 
 ## Test Plan (summary)
 
-| Layer | Focus |
-| ----- | ----- |
-| Unit `src/git/ls-files.test.ts` | Mock spawn; `-z` split; error on non-zero |
-| Unit `discover.test.ts` | Existing non-git cases; inject reject → walk; inject list → filter/scope/sort; tracked-only |
-| Unit `pool` / merge | Constant `min(AP, 8)`; merge still uses export |
-| Docs | Manual checklist in T4 |
-| Gate | `pnpm build && pnpm test` |
+| Layer                           | Focus                                                                                       |
+| ------------------------------- | ------------------------------------------------------------------------------------------- |
+| Unit `src/git/ls-files.test.ts` | Mock spawn; `-z` split; error on non-zero                                                   |
+| Unit `discover.test.ts`         | Existing non-git cases; inject reject → walk; inject list → filter/scope/sort; tracked-only |
+| Unit `pool` / merge             | Constant `min(AP, 8)`; merge still uses export                                              |
+| Docs                            | Manual checklist in T4                                                                      |
+| Gate                            | `pnpm build && pnpm test`                                                                   |
 
 No new fixture repo required (optional real-git temp in discover test is implementer discretion).

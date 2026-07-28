@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/table-path-column-ux/spec.md`](./spec.md)  
 **Context**: [`.specs/features/table-path-column-ux/context.md`](./context.md)  
-**Status**: Done  
+**Status**: Done
 
 ---
 
@@ -32,21 +32,21 @@ filePath → middleEllipsize(path, width) → padEnd → table / compare-table r
 
 ## Code Reuse Analysis
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| Scan table pad helpers | `src/report/table.ts` | Keep `padStart` / `padEnd` for numeric/score; **replace** `padEnd(filePath, 24)` with shared File cell helper; make File header dashes dynamic |
-| Compare table pads | `src/report/compare-table.ts` | Same File cell helper for New/Removed/Rank Changed |
-| Injectable options pattern | M59 `stderrIsTTY` | Mirror as `stdoutColumns?: number` on `RenderTableOptions` / `CompareRenderOptions` |
-| `stripAnsi` | `src/report/color.js` | File column stays uncolored; no change required unless a future color wraps paths |
+| Component                  | Location                      | How to Use                                                                                                                                     |
+| -------------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Scan table pad helpers     | `src/report/table.ts`         | Keep `padStart` / `padEnd` for numeric/score; **replace** `padEnd(filePath, 24)` with shared File cell helper; make File header dashes dynamic |
+| Compare table pads         | `src/report/compare-table.ts` | Same File cell helper for New/Removed/Rank Changed                                                                                             |
+| Injectable options pattern | M59 `stderrIsTTY`             | Mirror as `stdoutColumns?: number` on `RenderTableOptions` / `CompareRenderOptions`                                                            |
+| `stripAnsi`                | `src/report/color.js`         | File column stays uncolored; no change required unless a future color wraps paths                                                              |
 
 ### Fragile / concerns
 
-| Concern | Mitigation |
-| ------- | ---------- |
-| Wide Unicode / East Asian width | Paths are repo-relative ASCII-heavy; treat `…` and BMP as width 1; YAGNI grapheme cluster library |
-| Compare rank-changed wider than 80 | Same File width as scan; document acceptance — do not shrink File below scan budget for compare-only columns |
-| Existing test expects `slice(0, 24)` | Update `table.test.ts` “truncates long file paths…” to middle-ellipsis assertions |
-| Header / separator misalignment | Build File header label/dashes from resolved width in both renderers |
+| Concern                              | Mitigation                                                                                                   |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| Wide Unicode / East Asian width      | Paths are repo-relative ASCII-heavy; treat `…` and BMP as width 1; YAGNI grapheme cluster library            |
+| Compare rank-changed wider than 80   | Same File width as scan; document acceptance — do not shrink File below scan budget for compare-only columns |
+| Existing test expects `slice(0, 24)` | Update `table.test.ts` “truncates long file paths…” to middle-ellipsis assertions                            |
+| Header / separator misalignment      | Build File header label/dashes from resolved width in both renderers                                         |
 
 ---
 
@@ -94,9 +94,7 @@ Optional: export `middleEllipsizePath` for unit tests; or test only via `formatF
 ```ts
 function resolveFileColumnWidth(stdoutColumns?: number): number {
   const cols =
-    stdoutColumns !== undefined
-      ? stdoutColumns
-      : process.stdout.columns;
+    stdoutColumns !== undefined ? stdoutColumns : process.stdout.columns;
 
   if (cols === undefined || !Number.isFinite(cols) || cols <= 0) {
     return FALLBACK_FILE_COLUMN_WIDTH; // 24
@@ -107,13 +105,13 @@ function resolveFileColumnWidth(stdoutColumns?: number): number {
 }
 ```
 
-| `cols` | Expected `fileWidth` |
-| ------ | -------------------- |
-| undefined / 0 / NaN | 24 |
-| 80 | 24 |
-| 100 | 44 (= 100 − 56) |
-| 200 | 64 (hit max) |
-| 50 | 16 (hit min; row may wrap on tiny terminals — accepted) |
+| `cols`              | Expected `fileWidth`                                    |
+| ------------------- | ------------------------------------------------------- |
+| undefined / 0 / NaN | 24                                                      |
+| 80                  | 24                                                      |
+| 100                 | 44 (= 100 − 56)                                         |
+| 200                 | 64 (hit max)                                            |
+| 50                  | 16 (hit min; row may wrap on tiny terminals — accepted) |
 
 **Compare:** call the same `resolveFileColumnWidth`; do **not** subtract Baseline/Current/Delta from the budget.
 
@@ -158,35 +156,35 @@ Numeric column widths stay as today (4 / 8 / 4 / 8 / 5 / 6 / 7, etc.).
 
 ## Decisions log (design)
 
-| ID | Decision | Rationale |
-| -- | -------- | --------- |
-| D1 | Unicode `…` | Locked; single-cell width; matches progress UX tone |
-| D2 | Fallback File width 24 | Preserves today’s pipe/CI layout |
-| D3 | Cap via `cols - 56` | At 80 cols → 24; numeric columns remain visible |
-| D4 | Shared helper module | Scan/compare parity; single SoT for tests |
-| D5 | Injectable `stdoutColumns` | Testability parity with M59 `stderrIsTTY` |
-| D6 | No flags / schema | Presentation-only |
+| ID  | Decision                   | Rationale                                           |
+| --- | -------------------------- | --------------------------------------------------- |
+| D1  | Unicode `…`                | Locked; single-cell width; matches progress UX tone |
+| D2  | Fallback File width 24     | Preserves today’s pipe/CI layout                    |
+| D3  | Cap via `cols - 56`        | At 80 cols → 24; numeric columns remain visible     |
+| D4  | Shared helper module       | Scan/compare parity; single SoT for tests           |
+| D5  | Injectable `stdoutColumns` | Testability parity with M59 `stderrIsTTY`           |
+| D6  | No flags / schema          | Presentation-only                                   |
 
 ---
 
 ## Risks
 
-| Risk | Likelihood | Impact | Mitigation |
-| ---- | ---------- | ------ | ---------- |
-| Tiny terminals (cols &lt; 56+min) wrap | Medium | Low | Min clamp 16; accepted wrap |
-| `head` mid-segment looks rough | Low | Low | Document; segment-align is YAGNI |
-| Test flake from live `stdout.columns` | Medium | Medium | Always inject in unit tests |
-| README sample drift | Low | Low | Short fixture paths; no forced screenshot |
+| Risk                                   | Likelihood | Impact | Mitigation                                |
+| -------------------------------------- | ---------- | ------ | ----------------------------------------- |
+| Tiny terminals (cols &lt; 56+min) wrap | Medium     | Low    | Min clamp 16; accepted wrap               |
+| `head` mid-segment looks rough         | Low        | Low    | Document; segment-align is YAGNI          |
+| Test flake from live `stdout.columns`  | Medium     | Medium | Always inject in unit tests               |
+| README sample drift                    | Low        | Low    | Short fixture paths; no forced screenshot |
 
 ---
 
 ## Testing strategy
 
-| Layer | What |
-| ----- | ---- |
-| Unit `path-column.test.ts` | Width table (undefined/80/100/200/50); middle-ellipsis examples; no-slash; basename-too-long; pad |
-| Unit `table.test.ts` | Replace left-truncation assertion; inject `stdoutColumns`; header dash length |
-| Unit `compare-table.test.ts` | Long path + inject columns; parity with `formatFileColumn` |
-| Gate | `pnpm build && pnpm test` |
+| Layer                        | What                                                                                              |
+| ---------------------------- | ------------------------------------------------------------------------------------------------- |
+| Unit `path-column.test.ts`   | Width table (undefined/80/100/200/50); middle-ellipsis examples; no-slash; basename-too-long; pad |
+| Unit `table.test.ts`         | Replace left-truncation assertion; inject `stdoutColumns`; header dash length                     |
+| Unit `compare-table.test.ts` | Long path + inject columns; parity with `formatFileColumn`                                        |
+| Gate                         | `pnpm build && pnpm test`                                                                         |
 
 No new fixture repo. No CLI flag tests.

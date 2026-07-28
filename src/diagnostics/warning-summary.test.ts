@@ -9,10 +9,7 @@ import {
   flushWarningSummary,
   flushWarningsJson,
 } from "./warning-summary.js";
-import {
-  createCliDiagnosticHandlers,
-  createScanWarning,
-} from "./logger.js";
+import { createCliDiagnosticHandlers, createScanWarning } from "./logger.js";
 import type { ScanWarning } from "../types/domain.js";
 
 function renameWarning(message: string): ScanWarning {

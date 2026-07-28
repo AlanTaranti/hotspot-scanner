@@ -52,11 +52,11 @@ On an **interactive TTY**, progress updates **one live line** on stderr (overwri
 
 **Warnings on stderr (`--warnings`).** Default `summary`: aggregate repeated same-code / rename sub-kind lines into one stderr line per group (with count + next-step). Pass `--warnings=full` for per-path / per-pair detail (useful when debugging renames). Pass `--warnings=json` to flush one JSON object to stderr after the run: `{"warnings":[...]}` with full `ScanWarning` objects (empty → `{"warnings":[]}`); no human summary/full lines in json mode. CLI-only (not a config key). Composes with `--quiet` (progress/info suppressed; json mode still omits info-level entries from the payload). `--verbose` traces git argv only — does not force full warnings.
 
-| `phase` | When emitted |
-| ------- | ------------ |
-| `git` | Numstat stream (`--numstat`) |
-| `complexity` | NCLOC analyzer batches (inline or worker pool) |
-| `finalize` | Once after git + complexity complete; through score / render / write |
+| `phase`      | When emitted                                                         |
+| ------------ | -------------------------------------------------------------------- |
+| `git`        | Numstat stream (`--numstat`)                                         |
+| `complexity` | NCLOC analyzer batches (inline or worker pool)                       |
+| `finalize`   | Once after git + complexity complete; through score / render / write |
 
 **Warnings (`meta.warnings`).** Structured `{ severity, message, code? }` objects — always the full list regardless of `--warnings`. See [warning-codes.md](warning-codes.md).
 
@@ -109,31 +109,31 @@ hotspot-scanner <path>   # path-first shorthand → scan <path> (., ./dir, absol
 
 **Path-first invocation.** When the first argument looks like a path (`.`, `./…`, absolute path, or an existing directory) and is not a known subcommand or flag, the CLI rewrites argv to `scan <path> …` before parsing. Bare `hotspot-scanner` (no subcommand) still prints help and exits `2`.
 
-| Flag | Default | Description |
-| ---- | ------- | ----------- |
-| `<path>` | `.` | Scan target (git root or nested directory inside a git workspace) |
-| `-V`, `--version` | — | Print package version from `package.json` and exit |
-| `--since` | `12 months ago` | Git history window |
-| `-f`, `--format` | `table` | Output format: `table`, `json`, `markdown`, or `csv` (csv requires `--output`) |
-| `-o`, `--output <path>` | — | Write report to file instead of stdout (required for `--format csv`) |
-| `-t`, `--top` | `20` | Top N rows in table/markdown output (ignored for json/csv) |
-| `--only <section>` | — | Include only `hotspots` (repeatable) |
-| `--no-triage-hints` | — | Suppress triage hints in scan table/markdown |
-| `--no-color` | — | Disable ANSI colors in scan table output |
-| `--explain <target>` | — | After the report, print file-path score breakdown to stderr |
-| `--fail-on-explain-miss` | — | Exit `1` when `--explain` target is not found (requires `--explain`) |
-| `--include <glob>` | — | Include only paths matching glob (repeatable) |
-| `--exclude <glob>` | — | Exclude paths matching glob (repeatable, additive) |
-| `--include-tests` | — | Include test/spec files and `__tests__/` (lifts built-in test excludes only; artifact defaults and `--exclude` still apply) |
-| `--config <path>` | — | Load config from explicit file (skips parent-directory discovery) |
-| `--concurrency` | `min(availableParallelism(), 8)` | NCLOC analyzer worker-pool size (positive integer ≥ 1) |
-| `--sequential` | — | Run git mining then NCLOC analysis sequentially (disables concurrent stage overlap; lowers peak memory); `--no-overlap` is an alias |
-| `--quiet` | — | Suppress progress and info-level diagnostics on stderr (warnings/errors remain per `--warnings`) |
-| `--no-progress` | — | Suppress progress lines on stderr only |
-| `--dry-run` | — | Preview effective since/include/exclude, config file path, remount note, unknown config keys, test-file policy, and eligible file count without mining git or running NCLOC; `--format` / `--output` ignored |
-| `--verbose` | — | Trace each git spawn argv on stderr (`verbose: git …`; `scan` only; suppressed when `--quiet`; does not expand warnings) |
-| `--warnings` | `summary` | Stderr warning presentation: `summary` (default), `full` (per-path detail), or `json` (one JSON object on stderr). JSON `meta.warnings` always full; CLI-only |
-| `--csv-single-file` | — | With `--format csv`, write one CSV to exact `--output` (hotspots) instead of stem bundle |
+| Flag                     | Default                          | Description                                                                                                                                                                                                  |
+| ------------------------ | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `<path>`                 | `.`                              | Scan target (git root or nested directory inside a git workspace)                                                                                                                                            |
+| `-V`, `--version`        | —                                | Print package version from `package.json` and exit                                                                                                                                                           |
+| `--since`                | `12 months ago`                  | Git history window                                                                                                                                                                                           |
+| `-f`, `--format`         | `table`                          | Output format: `table`, `json`, `markdown`, or `csv` (csv requires `--output`)                                                                                                                               |
+| `-o`, `--output <path>`  | —                                | Write report to file instead of stdout (required for `--format csv`)                                                                                                                                         |
+| `-t`, `--top`            | `20`                             | Top N rows in table/markdown output (ignored for json/csv)                                                                                                                                                   |
+| `--only <section>`       | —                                | Include only `hotspots` (repeatable)                                                                                                                                                                         |
+| `--no-triage-hints`      | —                                | Suppress triage hints in scan table/markdown                                                                                                                                                                 |
+| `--no-color`             | —                                | Disable ANSI colors in scan table output                                                                                                                                                                     |
+| `--explain <target>`     | —                                | After the report, print file-path score breakdown to stderr                                                                                                                                                  |
+| `--fail-on-explain-miss` | —                                | Exit `1` when `--explain` target is not found (requires `--explain`)                                                                                                                                         |
+| `--include <glob>`       | —                                | Include only paths matching glob (repeatable)                                                                                                                                                                |
+| `--exclude <glob>`       | —                                | Exclude paths matching glob (repeatable, additive)                                                                                                                                                           |
+| `--include-tests`        | —                                | Include test/spec files and `__tests__/` (lifts built-in test excludes only; artifact defaults and `--exclude` still apply)                                                                                  |
+| `--config <path>`        | —                                | Load config from explicit file (skips parent-directory discovery)                                                                                                                                            |
+| `--concurrency`          | `min(availableParallelism(), 8)` | NCLOC analyzer worker-pool size (positive integer ≥ 1)                                                                                                                                                       |
+| `--sequential`           | —                                | Run git mining then NCLOC analysis sequentially (disables concurrent stage overlap; lowers peak memory); `--no-overlap` is an alias                                                                          |
+| `--quiet`                | —                                | Suppress progress and info-level diagnostics on stderr (warnings/errors remain per `--warnings`)                                                                                                             |
+| `--no-progress`          | —                                | Suppress progress lines on stderr only                                                                                                                                                                       |
+| `--dry-run`              | —                                | Preview effective since/include/exclude, config file path, remount note, unknown config keys, test-file policy, and eligible file count without mining git or running NCLOC; `--format` / `--output` ignored |
+| `--verbose`              | —                                | Trace each git spawn argv on stderr (`verbose: git …`; `scan` only; suppressed when `--quiet`; does not expand warnings)                                                                                     |
+| `--warnings`             | `summary`                        | Stderr warning presentation: `summary` (default), `full` (per-path detail), or `json` (one JSON object on stderr). JSON `meta.warnings` always full; CLI-only                                                |
+| `--csv-single-file`      | —                                | With `--format csv`, write one CSV to exact `--output` (hotspots) instead of stem bundle                                                                                                                     |
 
 **`doctor --format`** — `text` (default) prints `status: message` lines; `json` prints `{ "version": "1.0", "findings": [...], "exitCode": N }` to stdout (JSON is emitted even when `exitCode` ≠ 0). Findings include `since` (git since preflight), `scope` (eligible file count), config validity (unknown keys soft-warn), and other pre-flight checks. Invalid format → usage error (exit `2`). Doctor does not run the scan pipeline.
 
@@ -149,13 +149,13 @@ hotspot-scanner <path>   # path-first shorthand → scan <path> (., ./dir, absol
 
 Canonical exit-code table for the CLI (SoT). Adoption overview also in [README](../README.md#exit-codes).
 
-| Code | Meaning |
-| ---- | ------- |
-| `0` | Scan completed successfully (`--explain` miss without `--fail-on-explain-miss` also exits `0`) |
-| `1` | `--fail-on-explain-miss` with missing explain target |
-| `2` | Invalid CLI args, config validation, or usage errors (including unknown/removed `compare` / `baseline` / `--strict`) |
-| `130` | Cancelled by `SIGINT` (POSIX 128+2) |
-| `143` | Cancelled by `SIGTERM` (POSIX 128+15) |
+| Code  | Meaning                                                                                                              |
+| ----- | -------------------------------------------------------------------------------------------------------------------- |
+| `0`   | Scan completed successfully (`--explain` miss without `--fail-on-explain-miss` also exits `0`)                       |
+| `1`   | `--fail-on-explain-miss` with missing explain target                                                                 |
+| `2`   | Invalid CLI args, config validation, or usage errors (including unknown/removed `compare` / `baseline` / `--strict`) |
+| `130` | Cancelled by `SIGINT` (POSIX 128+2)                                                                                  |
+| `143` | Cancelled by `SIGTERM` (POSIX 128+15)                                                                                |
 
 Run `hotspot-scanner scan --help` for copy-paste examples (cwd default, JSON output, short aliases).
 

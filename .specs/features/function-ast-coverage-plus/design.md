@@ -23,35 +23,35 @@ flowchart TD
 
 **Brownfield notes (verified gaps):**
 
-| Gap | Root cause in current code |
-| --- | -------------------------- |
-| ClassExpression | `VariableStatement` returns after `collectCallableInitializer`, which ignores `ClassExpression` |
-| Object-literal accessors | `collectFromObjectLiteral` handles `MethodDeclaration` + `PropertyAssignment` only |
-| Assignment RHS | No branch for `BinaryExpression` / assignment with callable RHS |
-| Function overloads | Top-level `FunctionDeclaration` stubs pushed with no body → complexity 1 noise |
+| Gap                      | Root cause in current code                                                                      |
+| ------------------------ | ----------------------------------------------------------------------------------------------- |
+| ClassExpression          | `VariableStatement` returns after `collectCallableInitializer`, which ignores `ClassExpression` |
+| Object-literal accessors | `collectFromObjectLiteral` handles `MethodDeclaration` + `PropertyAssignment` only              |
+| Assignment RHS           | No branch for `BinaryExpression` / assignment with callable RHS                                 |
+| Function overloads       | Top-level `FunctionDeclaration` stubs pushed with no body → complexity 1 noise                  |
 
 ---
 
 ## Code Reuse Analysis
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| Class member loop | `analyze-file.ts` ClassDeclaration branch | Extract shared `collectClassLikeMembers(classLike, functions)` for Declaration **and** Expression |
-| `collectFromObjectLiteral` | `analyze-file.ts` | Add get/set accessor branches (mirror class accessors) |
-| `collectCallableInitializer` | `analyze-file.ts` | Optionally accept ClassExpression → delegate to class-like member collector |
-| `resolveFunctionName` | `analyze-file.ts` | Add AssignmentExpression / PropertyAccess LHS naming per context.md |
-| `complexityForFunction` | `mccabe.ts` | **Do not modify** decision nodes |
-| M11/M22 naming | sister `context.md` files | Additive rows only |
-| Fixture style | `tests/fixtures/complexity/` (M22) | New files + comments with expected complexities |
+| Component                    | Location                                  | How to Use                                                                                        |
+| ---------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Class member loop            | `analyze-file.ts` ClassDeclaration branch | Extract shared `collectClassLikeMembers(classLike, functions)` for Declaration **and** Expression |
+| `collectFromObjectLiteral`   | `analyze-file.ts`                         | Add get/set accessor branches (mirror class accessors)                                            |
+| `collectCallableInitializer` | `analyze-file.ts`                         | Optionally accept ClassExpression → delegate to class-like member collector                       |
+| `resolveFunctionName`        | `analyze-file.ts`                         | Add AssignmentExpression / PropertyAccess LHS naming per context.md                               |
+| `complexityForFunction`      | `mccabe.ts`                               | **Do not modify** decision nodes                                                                  |
+| M11/M22 naming               | sister `context.md` files                 | Additive rows only                                                                                |
+| Fixture style                | `tests/fixtures/complexity/` (M22)        | New files + comments with expected complexities                                                   |
 
 ### Fragile areas (CONCERNS.md / RT-005)
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| Accidental McCabe definition drift | No semantic edits to `mccabe.ts`; review in T3; fixture lock |
-| Double-counting ClassExpression | Ensure VariableStatement path collects class-like members **once** and does not also recurse into the same nodes via a second walk |
-| Over-filtering abstracts | Skip only body-less **non-abstract** Function/Method declarations; keep M22 abstract accessors |
-| File-sum churn | Document intentional increases (new nodes) and decreases (stub skip) in fixture headers |
+| Risk                               | Mitigation                                                                                                                         |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Accidental McCabe definition drift | No semantic edits to `mccabe.ts`; review in T3; fixture lock                                                                       |
+| Double-counting ClassExpression    | Ensure VariableStatement path collects class-like members **once** and does not also recurse into the same nodes via a second walk |
+| Over-filtering abstracts           | Skip only body-less **non-abstract** Function/Method declarations; keep M22 abstract accessors                                     |
+| File-sum churn                     | Document intentional increases (new nodes) and decreases (stub skip) in fixture headers                                            |
 
 ---
 
@@ -96,30 +96,30 @@ flowchart TD
 
 ## Tech Decisions
 
-| Decision | Choice | Rationale |
-| -------- | ------ | --------- |
-| Touch `mccabe.ts` semantics? | No | RT-005 / ROADMAP |
-| Assignment operators | Only `=` | YAGNI |
-| FunctionExpression inner name on assignment | Ignore; use LHS | Match VariableDeclaration policy |
-| ClassExpression via VariableStatement | Collect members in initializer path | Fixes early-return hole |
-| Overload stubs | Skip body-less non-abstract | Removes verified noise on `function` overloads |
-| Namespace collector | No change | Already works |
+| Decision                                    | Choice                              | Rationale                                      |
+| ------------------------------------------- | ----------------------------------- | ---------------------------------------------- |
+| Touch `mccabe.ts` semantics?                | No                                  | RT-005 / ROADMAP                               |
+| Assignment operators                        | Only `=`                            | YAGNI                                          |
+| FunctionExpression inner name on assignment | Ignore; use LHS                     | Match VariableDeclaration policy               |
+| ClassExpression via VariableStatement       | Collect members in initializer path | Fixes early-return hole                        |
+| Overload stubs                              | Skip body-less non-abstract         | Removes verified noise on `function` overloads |
+| Namespace collector                         | No change                           | Already works                                  |
 
 ---
 
 ## Error Handling Strategy
 
-| Scenario | Handling | User impact |
-| -------- | -------- | ----------- |
-| Invalid syntax file | Unchanged warn-skip at analyzer boundary | No abort |
-| Exotic assignment LHS | Fall back to `<anonymous>:L{line}` | Stable IDs |
+| Scenario              | Handling                                 | User impact |
+| --------------------- | ---------------------------------------- | ----------- |
+| Invalid syntax file   | Unchanged warn-skip at analyzer boundary | No abort    |
+| Exotic assignment LHS | Fall back to `<anonymous>:L{line}`       | Stable IDs  |
 
 ---
 
 ## Integration Points
 
-| System | Integration |
-| ------ | ----------- |
-| Complexity workers / batch | Transparent — still call `analyzeSourceFile` |
-| Function churn (M23) | New nodes get `[line,endLine]` automatically; no miner API change |
-| JSON schema | No shape change — still `FunctionComplexityResult[]` |
+| System                     | Integration                                                       |
+| -------------------------- | ----------------------------------------------------------------- |
+| Complexity workers / batch | Transparent — still call `analyzeSourceFile`                      |
+| Function churn (M23)       | New nodes get `[line,endLine]` automatically; no miner API change |
+| JSON schema                | No shape change — still `FunctionComplexityResult[]`              |

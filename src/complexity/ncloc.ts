@@ -10,7 +10,10 @@ function isWhitespace(char: string): boolean {
   return char === " " || char === "\t" || char === "\r";
 }
 
-function finishLine(lineHasCode: boolean, ncloc: number): {
+function finishLine(
+  lineHasCode: boolean,
+  ncloc: number,
+): {
   lineHasCode: boolean;
   ncloc: number;
 } {

@@ -40,9 +40,9 @@ describe("formatDoctorTextReport", () => {
   });
 
   it("ends output with a trailing newline", () => {
-    expect(
-      formatDoctorTextReport([], { color: false }).endsWith("\n"),
-    ).toBe(true);
+    expect(formatDoctorTextReport([], { color: false }).endsWith("\n")).toBe(
+      true,
+    );
   });
 });
 
@@ -71,9 +71,21 @@ describe("formatDoctorJsonReport", () => {
   it("preserves all finding fields across mixed statuses", () => {
     const findings = [
       { id: "node-engines" as const, status: "pass" as const, message: "ok" },
-      { id: "config" as const, status: "warn" as const, message: "missing config" },
-      { id: "git-repo" as const, status: "fail" as const, message: "not a repo" },
-      { id: "scope" as const, status: "pass" as const, message: "eligible files: 3" },
+      {
+        id: "config" as const,
+        status: "warn" as const,
+        message: "missing config",
+      },
+      {
+        id: "git-repo" as const,
+        status: "fail" as const,
+        message: "not a repo",
+      },
+      {
+        id: "scope" as const,
+        status: "pass" as const,
+        message: "eligible files: 3",
+      },
     ];
     const result: DoctorResult = { findings, exitCode: 1 };
 

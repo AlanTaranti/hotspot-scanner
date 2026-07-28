@@ -20,15 +20,15 @@ File-mode rankings can silently split history across paths when git does not emi
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Historical AST / per-commit function ranges | User locked — avisos only |
-| Blame-based attribution | Locked hunk-overlap approach (M23) |
-| `git log --follow` on global mine | CONCERNS / ARCHITECTURE — still forbidden |
-| `ScanResult.meta.warnings` or score `confidence` fields | YAGNI; stderr/`onWarning` only; avoid JSON contract churn |
-| Warning severity levels / progress UX / `--concurrency` | M28 |
-| tsconfig `paths` / package `exports` | M27 |
-| Dedicated fix for renamed-but-unlinked → `hasStaticDependency: false` | CONCERNS: no dedicated M26 milestone |
+| Feature                                                               | Reason                                                    |
+| --------------------------------------------------------------------- | --------------------------------------------------------- |
+| Historical AST / per-commit function ranges                           | User locked — avisos only                                 |
+| Blame-based attribution                                               | Locked hunk-overlap approach (M23)                        |
+| `git log --follow` on global mine                                     | CONCERNS / ARCHITECTURE — still forbidden                 |
+| `ScanResult.meta.warnings` or score `confidence` fields               | YAGNI; stderr/`onWarning` only; avoid JSON contract churn |
+| Warning severity levels / progress UX / `--concurrency`               | M28                                                       |
+| tsconfig `paths` / package `exports`                                  | M27                                                       |
+| Dedicated fix for renamed-but-unlinked → `hasStaticDependency: false` | CONCERNS: no dedicated M26 milestone                      |
 
 ---
 
@@ -139,16 +139,16 @@ File-mode rankings can silently split history across paths when git does not emi
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-203 | P1: Unlinked / copy-paste warning | Tasks | Pending |
-| HOTSPOT-204 | P1: `--since` truncation warning | Tasks | Pending |
-| HOTSPOT-205 | P1: Ambiguous PathAliasMap warnings retained | Tasks | Pending |
-| HOTSPOT-206 | P1: Find-renames (`-M`) on spawns | Tasks | Pending |
-| HOTSPOT-207 | P1: Stronger `git-log` fixtures | Tasks | Pending |
-| HOTSPOT-208 | P1: `with-renames` E2E churn + warnings | Tasks | Pending |
-| HOTSPOT-209 | P1: Function-mode pós-rename overlap warning | Tasks | Pending |
-| HOTSPOT-210 | P2: Living docs | Tasks | Pending |
+| Requirement ID | Story                                        | Phase | Status  |
+| -------------- | -------------------------------------------- | ----- | ------- |
+| HOTSPOT-203    | P1: Unlinked / copy-paste warning            | Tasks | Pending |
+| HOTSPOT-204    | P1: `--since` truncation warning             | Tasks | Pending |
+| HOTSPOT-205    | P1: Ambiguous PathAliasMap warnings retained | Tasks | Pending |
+| HOTSPOT-206    | P1: Find-renames (`-M`) on spawns            | Tasks | Pending |
+| HOTSPOT-207    | P1: Stronger `git-log` fixtures              | Tasks | Pending |
+| HOTSPOT-208    | P1: `with-renames` E2E churn + warnings      | Tasks | Pending |
+| HOTSPOT-209    | P1: Function-mode pós-rename overlap warning | Tasks | Pending |
+| HOTSPOT-210    | P2: Living docs                              | Tasks | Pending |
 
 **ID range reserved:** HOTSPOT-203–HOTSPOT-220 (unused IDs intentionally left free).
 

@@ -5,10 +5,7 @@ import {
   mergeScanOptions,
   type HotspotScannerConfig,
 } from "#config";
-import {
-  createCliDiagnosticHandlers,
-  type WarningsMode,
-} from "#diagnostics";
+import { createCliDiagnosticHandlers, type WarningsMode } from "#diagnostics";
 import type { CsvBundle, ReportSection } from "#report";
 import { runScan } from "#scan";
 import type { ScanOptions, ScanResult } from "#types";
@@ -131,9 +128,7 @@ export class ScanCancelExit extends Error {
 }
 
 export function isAbortError(error: unknown): boolean {
-  return (
-    error instanceof DOMException && error.name === "AbortError"
-  );
+  return error instanceof DOMException && error.name === "AbortError";
 }
 
 export function createVerboseSpawnArgvHandler(options: {
@@ -247,15 +242,16 @@ export type ExecuteScanResult = {
   flushWarnings: () => void;
 };
 
-export async function executeScan(options: {
-  repoPath: string;
-  cliOverrides: HotspotScannerConfig;
-  configPath?: string;
-  sequential?: boolean;
-} & ScanDiagnosticOptions): Promise<ExecuteScanResult> {
+export async function executeScan(
+  options: {
+    repoPath: string;
+    cliOverrides: HotspotScannerConfig;
+    configPath?: string;
+    sequential?: boolean;
+  } & ScanDiagnosticOptions,
+): Promise<ExecuteScanResult> {
   const since = await resolveEffectiveSince(options);
-  const { onWarning, onProgress, flushWarnings } =
-    createCliDiagnosticHandlers({
+  const { onWarning, onProgress, flushWarnings } = createCliDiagnosticHandlers({
     quiet: options.quiet ?? false,
     noProgress: options.noProgress ?? false,
     warningsMode: options.warningsMode ?? "summary",
@@ -307,11 +303,7 @@ export async function writeRenderedOutput(
     if (options?.csvSingleFile) {
       const key = options.csvBundleKey ?? CSV_SINGLE_FILE_SCAN_KEY;
       const content = pickSingleFileCsvContent(output as CsvBundle, key);
-      await writeFile(
-        outputPath!,
-        ensureTrailingNewline(content),
-        "utf8",
-      );
+      await writeFile(outputPath!, ensureTrailingNewline(content), "utf8");
       emitWriteConfirm(outputPath!, options?.quiet);
       return;
     }

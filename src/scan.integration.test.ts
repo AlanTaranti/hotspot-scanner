@@ -14,14 +14,10 @@ vi.mock("./git/index.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./git/index.js")>();
   return {
     ...actual,
-    createGitMiner: (
-      ...args: Parameters<typeof actual.createGitMiner>
-    ) => {
+    createGitMiner: (...args: Parameters<typeof actual.createGitMiner>) => {
       const miner = actual.createGitMiner(...args);
       return {
-        mine: async (
-          opts: Parameters<typeof miner.mine>[0],
-        ) => {
+        mine: async (opts: Parameters<typeof miner.mine>[0]) => {
           if (gitMineFailure.error) {
             throw gitMineFailure.error;
           }
@@ -33,8 +29,7 @@ vi.mock("./git/index.js", async (importOriginal) => {
 });
 
 vi.mock("./complexity/index.js", async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import("./complexity/index.js")>();
+  const actual = await importOriginal<typeof import("./complexity/index.js")>();
   return {
     ...actual,
     createComplexityAnalyzer: (
@@ -42,9 +37,7 @@ vi.mock("./complexity/index.js", async (importOriginal) => {
     ) => {
       const analyzer = actual.createComplexityAnalyzer(...args);
       return {
-        analyze: async (
-          opts: Parameters<typeof analyzer.analyze>[0],
-        ) => {
+        analyze: async (opts: Parameters<typeof analyzer.analyze>[0]) => {
           if (analyzeFailure.error) {
             throw analyzeFailure.error;
           }
@@ -237,9 +230,9 @@ describe("runScan integration — pipeline stage overlap (M34)", () => {
     });
 
     assertFileModeRankingBaseline(sequentialResult);
-    expect(sequentialResult.hotspots.map((hotspot) => hotspot.filePath)).toEqual(
-      overlapResult.hotspots.map((hotspot) => hotspot.filePath),
-    );
+    expect(
+      sequentialResult.hotspots.map((hotspot) => hotspot.filePath),
+    ).toEqual(overlapResult.hotspots.map((hotspot) => hotspot.filePath));
     expect(
       sequentialResult.hotspots.map((hotspot) => hotspot.hotspotScore),
     ).toEqual(overlapResult.hotspots.map((hotspot) => hotspot.hotspotScore));
@@ -376,9 +369,13 @@ describe("runScan integration — ranking accuracy plus (M50)", () => {
       execFileSync("git", ["add", "src/foo.ts", "src/foo.tsx"], {
         cwd: repoPath,
       });
-      execFileSync("git", ["commit", "-m", "unlinked rename foo.ts to foo.tsx"], {
-        cwd: repoPath,
-      });
+      execFileSync(
+        "git",
+        ["commit", "-m", "unlinked rename foo.ts to foo.tsx"],
+        {
+          cwd: repoPath,
+        },
+      );
 
       const result = await runScan({ repoPath });
 

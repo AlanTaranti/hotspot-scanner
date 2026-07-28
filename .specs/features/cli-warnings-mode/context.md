@@ -28,11 +28,11 @@ Operator control over **stderr warning verbosity** so rename / multi-path diagno
 
 **Choice:**
 
-| Item | Value |
-| ---- | ----- |
-| Flag | `--warnings <mode>` |
-| Values | `summary` \| `full` |
-| Default | **`summary`** (breaking stderr UX — intentional) |
+| Item    | Value                                                                                          |
+| ------- | ---------------------------------------------------------------------------------------------- |
+| Flag    | `--warnings <mode>`                                                                            |
+| Values  | `summary` \| `full`                                                                            |
+| Default | **`summary`** (breaking stderr UX — intentional)                                               |
 | Invalid | `CliUsageError` → exit **2**, message lists allowed values (parity with `--format` / `--only`) |
 
 No short alias (YAGNI). Present on **`scan`**, **`compare`**, and **`baseline save`** (any path that builds handlers via `executeScan` / `executeCompareAndRender`).
@@ -66,13 +66,13 @@ No short alias (YAGNI). Present on **`scan`**, **`compare`**, and **`baseline sa
 
 **Choice:**
 
-| Flag | Role |
-| ---- | ---- |
-| `--verbose` | **Git spawn argv only** (M51 lock). Do **not** overload for warning detail. |
-| `--warnings=full` | Owns per-path / per-pair **stderr** expansion. |
-| `--quiet` | Suppresses progress + `severity: "info"`. Warning/error still respect `--warnings` mode. |
+| Flag                          | Role                                                                                        |
+| ----------------------------- | ------------------------------------------------------------------------------------------- |
+| `--verbose`                   | **Git spawn argv only** (M51 lock). Do **not** overload for warning detail.                 |
+| `--warnings=full`             | Owns per-path / per-pair **stderr** expansion.                                              |
+| `--quiet`                     | Suppresses progress + `severity: "info"`. Warning/error still respect `--warnings` mode.    |
 | `--quiet` + `--warnings=full` | Quiet wins for progress/info; warning/error still emit in **full** detail per `--warnings`. |
-| `--no-progress` | Progress only; unrelated to warning aggregation. |
+| `--no-progress`               | Progress only; unrelated to warning aggregation.                                            |
 
 **Status:** **Confirmed — planner locked** (echoes M51 + user lock)
 
@@ -88,11 +88,11 @@ No short alias (YAGNI). Present on **`scan`**, **`compare`**, and **`baseline sa
 
 1. Group buffered `warning` / `error` diagnostics by **`(code, subKind)`**.
 2. **Rename sub-kinds** under `RENAME_HISTORY_INCOMPLETE` (classify by stable message prefixes from `format*` in `rename-warnings.ts` — no new JSON fields):
-   | subKind | Message shape (today) |
-   | ------- | --------------------- |
-   | `ambiguous` | `Rename history may be incomplete for: …` |
-   | `unlinked` | `Suspected unlinked rename…` and `... and N more suspected unlinked rename…` |
-   | `since-truncation` | `Rename history before the --since window…` |
+   | subKind            | Message shape (today)                                                        |
+   | ------------------ | ---------------------------------------------------------------------------- |
+   | `ambiguous`        | `Rename history may be incomplete for: …`                                    |
+   | `unlinked`         | `Suspected unlinked rename…` and `... and N more suspected unlinked rename…` |
+   | `since-truncation` | `Rename history before the --since window…`                                  |
 3. Emit **one stderr line per non-empty group**, with **count** + shared next-step text (reuse existing next-step sentences).
 4. Codes that already emit a single logical line (`EMPTY_SINCE_WINDOW`, `COMPARE_SINCE_MISMATCH`, single `since-truncation`, etc.) stay one line (count may be 1).
 5. Repeated same-code multi-file noise (e.g. many `READ_FAILED`) **also** collapses to one line with count under summary.

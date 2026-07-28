@@ -29,12 +29,12 @@ Domain logic stays in `src/config/`, `src/scan-preview.ts`, `src/doctor/`, `src/
 
 **Choice:** Treat as **reserved meta keys**.
 
-| Rule | Behavior |
-| ---- | -------- |
-| Parse | Strip / skip — **not** copied into `HotspotScannerConfig` |
-| Merge | Never become ScanOptions fields |
+| Rule             | Behavior                                                                                   |
+| ---------------- | ------------------------------------------------------------------------------------------ |
+| Parse            | Strip / skip — **not** copied into `HotspotScannerConfig`                                  |
+| Merge            | Never become ScanOptions fields                                                            |
 | Unknown-key warn | **Do not** include in `unknownKeys` / `UNKNOWN_CONFIG_KEY` (ignore silently for warn spam) |
-| Document | README + config schema describe them as reserved meta |
+| Document         | README + config schema describe them as reserved meta                                      |
 
 **Reserved set (exact):** `$schema`, `$comment`, `$comments`.
 
@@ -52,15 +52,15 @@ Domain logic stays in `src/config/`, `src/scan-preview.ts`, `src/doctor/`, `src/
 
 **Choice:** Valid JSON with:
 
-| Field | Value |
-| ----- | ----- |
-| `$schema` | `"https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json"` (same `$id` family as scan/compare schemas) |
-| `$comments` | string array with short human hints (include/exclude semantics, omit concurrency, CLI > config > defaults) — **prefer array** over single `$comment` in the written file |
-| `since` | `"12 months ago"` (`DEFAULT_SINCE`) |
-| `include` | **Non-empty realistic example** — e.g. `["src/**"]` (not `[]`-only) |
-| `exclude` | **Non-empty realistic example** — e.g. `["**/*.generated.ts"]` (additive; defaults still always on) |
-| `top` | `20` (`DEFAULT_TOP`) |
-| `concurrency` | **Omit** (carry M39 lock — hosts keep `DEFAULT_WORKER_CONCURRENCY`) |
+| Field         | Value                                                                                                                                                                    |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `$schema`     | `"https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json"` (same `$id` family as scan/compare schemas)                                                   |
+| `$comments`   | string array with short human hints (include/exclude semantics, omit concurrency, CLI > config > defaults) — **prefer array** over single `$comment` in the written file |
+| `since`       | `"12 months ago"` (`DEFAULT_SINCE`)                                                                                                                                      |
+| `include`     | **Non-empty realistic example** — e.g. `["src/**"]` (not `[]`-only)                                                                                                      |
+| `exclude`     | **Non-empty realistic example** — e.g. `["**/*.generated.ts"]` (additive; defaults still always on)                                                                      |
+| `top`         | `20` (`DEFAULT_TOP`)                                                                                                                                                     |
+| `concurrency` | **Omit** (carry M39 lock — hosts keep `DEFAULT_WORKER_CONCURRENCY`)                                                                                                      |
 
 Also accept `$comment` (string) as reserved if operators paste it — reserved, not exemplar-required.
 
@@ -84,10 +84,10 @@ Pretty-print: 2-space indent + trailing newline. Overwrite rules unchanged (refu
 4. Documents reserved meta (`$schema`, `$comment`, `$comments`) as optional; `additionalProperties: true` (or equivalent) so forward-compat unknown keys remain schema-valid while runtime still warns via M55
 5. Add `package.json` `"exports"` subpaths for **all three** schemas:
 
-| Export | Target |
-| ------ | ------ |
-| `./schemas/scan-result.json` | `./schemas/scan-result.json` |
-| `./schemas/compare-result.json` | `./schemas/compare-result.json` |
+| Export                                  | Target                                  |
+| --------------------------------------- | --------------------------------------- |
+| `./schemas/scan-result.json`            | `./schemas/scan-result.json`            |
+| `./schemas/compare-result.json`         | `./schemas/compare-result.json`         |
 | `./schemas/hotspot-scanner-config.json` | `./schemas/hotspot-scanner-config.json` |
 
 Keep existing `"."` entry. `schemas/` already in `"files"`.
@@ -106,26 +106,26 @@ Keep existing `"."` entry. `schemas/` already in `"files"`.
 
 ### Commands
 
-| Invocation | Behavior |
-| ---------- | -------- |
+| Invocation                               | Behavior                                                                                                                                                                                                                                                                                                                                                                           |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `hotspot-scanner config validate [path]` | Validate file: optional `[path]` = config file path **or** directory (then discover `.hotspot-scanner.json` with M30 walk from that dir / cwd). Invalid JSON/types → exit **`2`**. Valid → exit **`0`** (+ short stdout confirmation). Missing discovery (no file) → exit **`2`** with clear message (validate is explicit about needing a file). Explicit missing file → **`2`**. |
-| `hotspot-scanner config print [path]` | Print **effective merged** options with **source tags** per field: `cli` \| `config` \| `default`. `[path]` = scan target directory (default cwd); optional `--config <file>` same as scan. Does **not** run mine/NCLOC/scoring. |
+| `hotspot-scanner config print [path]`    | Print **effective merged** options with **source tags** per field: `cli` \| `config` \| `default`. `[path]` = scan target directory (default cwd); optional `--config <file>` same as scan. Does **not** run mine/NCLOC/scoring.                                                                                                                                                   |
 
 ### Print formats (LOCKED — include JSON; Low cost)
 
-| Flag | Output |
-| ---- | ------ |
-| (default) | Human text lines: `since: <value> (source: default\|config\|cli)`, etc. for `since`, `include`, `exclude`, `top`, `concurrency`; also show `config file: <path\|none>` |
-| `--format json` | JSON object with effective values + per-field `source` + `configPath` (`null` if none) |
+| Flag            | Output                                                                                                                                                                 |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| (default)       | Human text lines: `since: <value> (source: default\|config\|cli)`, etc. for `since`, `include`, `exclude`, `top`, `concurrency`; also show `config file: <path\|none>` |
+| `--format json` | JSON object with effective values + per-field `source` + `configPath` (`null` if none)                                                                                 |
 
 Invalid `--format` → `CliUsageError` exit `2`.
 
 ### Domain vs bin
 
-| Concern | Owner |
-| ------- | ----- |
-| Validate / print / provenance merge | `src/config/` |
-| Commander `config` command group | `bin/hotspot-scanner.ts` only |
+| Concern                             | Owner                         |
+| ----------------------------------- | ----------------------------- |
+| Validate / print / provenance merge | `src/config/`                 |
+| Commander `config` command group    | `bin/hotspot-scanner.ts` only |
 
 **Status:** **Confirmed — planner locked**
 
@@ -139,10 +139,10 @@ Invalid `--format` → `CliUsageError` exit `2`.
 
 **Choice:** Mirror useful prelude already available from `resolveScanPipelineContext` / config load:
 
-| Line / field | Content |
-| ------------ | ------- |
-| Config path | Discovered or `--config` absolute path, or explicit `none` when no file |
-| Remount | If `remountWarning` present — print its message (info/warn class); omit line when absent |
+| Line / field | Content                                                                                                   |
+| ------------ | --------------------------------------------------------------------------------------------------------- |
+| Config path  | Discovered or `--config` absolute path, or explicit `none` when no file                                   |
+| Remount      | If `remountWarning` present — print its message (info/warn class); omit line when absent                  |
 | Unknown keys | If non-empty after reserved-meta strip — list keys (same spirit as `UNKNOWN_CONFIG_KEY`); omit when empty |
 
 Keep existing preview lines (repo, since, include, exclude, defaults, tests, eligible, concurrency). Still **no** Git Change Miner / NCLOC / scoring. `--baseline` still rejected.
@@ -161,11 +161,11 @@ Keep existing preview lines (repo, since, include, exclude, defaults, tests, eli
 
 **Choice:**
 
-| Case | Severity | Exit alone |
-| ---- | -------- | ---------- |
-| `git log -1 --since=<effective>` succeeds and returns a commit | **Pass** | — |
-| Git accepts `--since` but window is empty / no commit (dubious) | **Soft warn** | Exit `0` if no hard fails |
-| Git **rejects** the since string (non-zero with parse/usage error on stderr) | **Hard fail** | Non-zero (`1`) |
+| Case                                                                         | Severity      | Exit alone                |
+| ---------------------------------------------------------------------------- | ------------- | ------------------------- |
+| `git log -1 --since=<effective>` succeeds and returns a commit               | **Pass**      | —                         |
+| Git accepts `--since` but window is empty / no commit (dubious)              | **Soft warn** | Exit `0` if no hard fails |
+| Git **rejects** the since string (non-zero with parse/usage error on stderr) | **Hard fail** | Non-zero (`1`)            |
 
 **Rules:**
 
@@ -194,26 +194,26 @@ Keep existing preview lines (repo, since, include, exclude, defaults, tests, eli
 
 ## Related closed decisions (do not reopen)
 
-| Source | Decision |
-| ------ | -------- |
-| M21 | Filename only `.hotspot-scanner.json`; CLI > config > defaults |
-| M30 | Parent walk + `--config`; invalid → `ConfigError` |
-| M39 | Doctor hard/soft exit policy; init overwrite/`--force`; dry-run text preview; domain vs bin |
-| M52 | Doctor uses `resolveScanPipelineContext`; no doctor `--since`/`--include`/`--exclude` CLI flags |
-| M55 | Unknown keys warn-only `UNKNOWN_CONFIG_KEY`; never fail scan solely for unknowns |
-| M57 | No `granularity` / `minCochange` as known keys |
-| AGENTS.md | Gate `pnpm build && pnpm test`; no Execute in planning session |
+| Source    | Decision                                                                                        |
+| --------- | ----------------------------------------------------------------------------------------------- |
+| M21       | Filename only `.hotspot-scanner.json`; CLI > config > defaults                                  |
+| M30       | Parent walk + `--config`; invalid → `ConfigError`                                               |
+| M39       | Doctor hard/soft exit policy; init overwrite/`--force`; dry-run text preview; domain vs bin     |
+| M52       | Doctor uses `resolveScanPipelineContext`; no doctor `--since`/`--include`/`--exclude` CLI flags |
+| M55       | Unknown keys warn-only `UNKNOWN_CONFIG_KEY`; never fail scan solely for unknowns                |
+| M57       | No `granularity` / `minCochange` as known keys                                                  |
+| AGENTS.md | Gate `pnpm build && pnpm test`; no Execute in planning session                                  |
 
 ---
 
 ## Out of scope
 
-| Item | Reason |
-| ---- | ------ |
-| Interactive init wizard | YAGNI |
-| Auto-fix / mutate from doctor | Diagnose only |
-| Changing PathScope / default excludes | Sisters own |
-| ScanResult / CompareResult `version` bump | Unrelated |
-| New known scan config keys | YAGNI |
-| Publishing to npm | Deferred horizon |
-| Doctor CLI `--since` flag | M52; use config or `scan --dry-run` / `config print` |
+| Item                                      | Reason                                               |
+| ----------------------------------------- | ---------------------------------------------------- |
+| Interactive init wizard                   | YAGNI                                                |
+| Auto-fix / mutate from doctor             | Diagnose only                                        |
+| Changing PathScope / default excludes     | Sisters own                                          |
+| ScanResult / CompareResult `version` bump | Unrelated                                            |
+| New known scan config keys                | YAGNI                                                |
+| Publishing to npm                         | Deferred horizon                                     |
+| Doctor CLI `--since` flag                 | M52; use config or `scan --dry-run` / `config print` |

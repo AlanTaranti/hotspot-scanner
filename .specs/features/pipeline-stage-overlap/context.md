@@ -9,15 +9,15 @@
 
 ## Locked by user (ROADMAP / session)
 
-| Topic | Choice |
-| ----- | ------ |
-| Overlapping stages | **Git miner (numstat) ∥ Complexity analyzer only** |
-| Function-churn | Stays **sequential after complexity** (needs `[line, endLine]` ranges) |
-| Function-churn ∥ numstat | **Out of scope** this milestone (rename/alias complexity) |
-| Rankings / JSON | **Unchanged** (`version: "1.0"`, same fields/order semantics) |
-| Gate | `pnpm build && pnpm test` |
-| ROADMAP / STATE edits | **Deferred** — do not sync in planning session |
-| tasks.md Status | **Planned** — no Execute in this session |
+| Topic                    | Choice                                                                 |
+| ------------------------ | ---------------------------------------------------------------------- |
+| Overlapping stages       | **Git miner (numstat) ∥ Complexity analyzer only**                     |
+| Function-churn           | Stays **sequential after complexity** (needs `[line, endLine]` ranges) |
+| Function-churn ∥ numstat | **Out of scope** this milestone (rename/alias complexity)              |
+| Rankings / JSON          | **Unchanged** (`version: "1.0"`, same fields/order semantics)          |
+| Gate                     | `pnpm build && pnpm test`                                              |
+| ROADMAP / STATE edits    | **Deferred** — do not sync in planning session                         |
+| tasks.md Status          | **Planned** — no Execute in this session                               |
 
 ---
 
@@ -57,9 +57,9 @@
 
 ## Decision: Barrier semantics (file vs function)
 
-| Mode | After `git ∥ complexity` both settle successfully |
-| ---- | -------------------------------------------------- |
-| **file** | Then hotspot scoring + temporal coupling + static enrich (unchanged consumers) |
+| Mode         | After `git ∥ complexity` both settle successfully                                                                                                                                       |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **file**     | Then hotspot scoring + temporal coupling + static enrich (unchanged consumers)                                                                                                          |
 | **function** | Then **function-churn** (patch stream) using `functionComplexity` ranges → function hotspot scoring; coupling still uses **numstat** `coChangeEvents` / `fileStats` (must wait for git) |
 
 **Invariant:** Coupling and scoring never start until **both** overlapping stages complete successfully. Function-churn never starts until complexity completes (ranges). Function-churn never runs in parallel with numstat.

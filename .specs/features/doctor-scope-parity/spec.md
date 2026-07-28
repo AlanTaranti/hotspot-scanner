@@ -23,14 +23,14 @@
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| `doctor --format json` | M51 — additive findings only; do not implement JSON here |
-| Changing PathScope / test-exclude defaults | M46 owns that |
-| Workspace yaml / nx / turborepo parsers | YAGNI (M43 lock) |
-| Doctor `--include` / `--exclude` / `--since` CLI flags | YAGNI — use config or `scan --dry-run` |
-| Auto-fix / mutating repo from doctor | Diagnose only (M39) |
-| Ranking / miner / AST / JSON contract changes | Unrelated |
+| Feature                                                | Reason                                                   |
+| ------------------------------------------------------ | -------------------------------------------------------- |
+| `doctor --format json`                                 | M51 — additive findings only; do not implement JSON here |
+| Changing PathScope / test-exclude defaults             | M46 owns that                                            |
+| Workspace yaml / nx / turborepo parsers                | YAGNI (M43 lock)                                         |
+| Doctor `--include` / `--exclude` / `--since` CLI flags | YAGNI — use config or `scan --dry-run`                   |
+| Auto-fix / mutating repo from doctor                   | Diagnose only (M39)                                      |
+| Ranking / miner / AST / JSON contract changes          | Unrelated                                                |
 
 ---
 
@@ -165,25 +165,25 @@
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-800 | P1: Doctor uses `resolveScanPipelineContext` | Tasks | Pending |
-| HOTSPOT-801 | P1: Nested package doctor succeeds | Tasks | Pending |
-| HOTSPOT-802 | P1: `git-repo` names pipeline root / remount | Tasks | Pending |
-| HOTSPOT-803 | P1: Config discovery from request path | Tasks | Pending |
-| HOTSPOT-804 | P1: Shared PathScope helper + `includeTests` | Tasks | Pending |
-| HOTSPOT-805 | P1: Doctor `scope` finding | Tasks | Pending |
-| HOTSPOT-806 | P1: Eligible count === dry-run | Tasks | Pending |
-| HOTSPOT-807 | P1: M46 `includeTests` forward-compat | Tasks | Pending |
-| HOTSPOT-808 | P1: Zero eligible still `scope` pass | Tasks | Pending |
-| HOTSPOT-809 | P1: Config soft-warn preserved | Tasks | Pending |
-| HOTSPOT-810 | P1: Exit policy / Node+git-path unchanged | Tasks | Pending |
-| HOTSPOT-811 | P1: Docs ARCHITECTURE/STRUCTURE/README | Tasks | Pending |
-| HOTSPOT-812 | P1: M51 additive finding note | Tasks | Pending |
-| HOTSPOT-813 | P2: Doctor CLI `--include-tests` | Tasks | Pending |
-| HOTSPOT-814 | P1: Single PathScope call-site pattern | Tasks | Pending |
-| HOTSPOT-815 | P1: Fixture / integration parity tests | Tasks | Pending |
-| HOTSPOT-816–819 | Reserved | — | — |
+| Requirement ID  | Story                                        | Phase | Status  |
+| --------------- | -------------------------------------------- | ----- | ------- |
+| HOTSPOT-800     | P1: Doctor uses `resolveScanPipelineContext` | Tasks | Pending |
+| HOTSPOT-801     | P1: Nested package doctor succeeds           | Tasks | Pending |
+| HOTSPOT-802     | P1: `git-repo` names pipeline root / remount | Tasks | Pending |
+| HOTSPOT-803     | P1: Config discovery from request path       | Tasks | Pending |
+| HOTSPOT-804     | P1: Shared PathScope helper + `includeTests` | Tasks | Pending |
+| HOTSPOT-805     | P1: Doctor `scope` finding                   | Tasks | Pending |
+| HOTSPOT-806     | P1: Eligible count === dry-run               | Tasks | Pending |
+| HOTSPOT-807     | P1: M46 `includeTests` forward-compat        | Tasks | Pending |
+| HOTSPOT-808     | P1: Zero eligible still `scope` pass         | Tasks | Pending |
+| HOTSPOT-809     | P1: Config soft-warn preserved               | Tasks | Pending |
+| HOTSPOT-810     | P1: Exit policy / Node+git-path unchanged    | Tasks | Pending |
+| HOTSPOT-811     | P1: Docs ARCHITECTURE/STRUCTURE/README       | Tasks | Pending |
+| HOTSPOT-812     | P1: M51 additive finding note                | Tasks | Pending |
+| HOTSPOT-813     | P2: Doctor CLI `--include-tests`             | Tasks | Pending |
+| HOTSPOT-814     | P1: Single PathScope call-site pattern       | Tasks | Pending |
+| HOTSPOT-815     | P1: Fixture / integration parity tests       | Tasks | Pending |
+| HOTSPOT-816–819 | Reserved                                     | —     | —       |
 
 **Coverage:** 16 mapped (800–815), 4 reserved (816–819).
 

@@ -60,11 +60,7 @@ const monorepoNestedFixture = join(
   "../tests/fixtures/repos/monorepo-nested",
 );
 
-const monorepoApiPackagePath = join(
-  monorepoNestedFixture,
-  "packages",
-  "api",
-);
+const monorepoApiPackagePath = join(monorepoNestedFixture, "packages", "api");
 
 function extractEligibleFileCount(output: string): number {
   const match = output.match(/eligible files: (\d+)/);
@@ -310,7 +306,6 @@ describe("createCliProgram", () => {
     expect(help).toMatch(/default:\s*"summary"/);
   });
 
-
   it("scan help lists --sequential and --no-overlap with alias language", () => {
     const help = getScanHelpText();
 
@@ -358,8 +353,6 @@ describe("createCliProgram", () => {
     expect(help).toMatch(/default: \./);
   });
 
-
-
   it("scan help lists short and long forms for aliased flags", () => {
     const program = createCliProgram();
     const scan = program.commands.find((command) => command.name() === "scan");
@@ -378,12 +371,7 @@ describe("createCliProgram", () => {
       expect.arrayContaining(["-f", "-o", "-t"]),
     );
     expect(scan?.options.map((option) => option.long)).toEqual(
-      expect.arrayContaining([
-        "--format",
-        "--output",
-        "--top",
-        "--dry-run",
-      ]),
+      expect.arrayContaining(["--format", "--output", "--top", "--dry-run"]),
     );
   });
 
@@ -397,13 +385,17 @@ describe("createCliProgram", () => {
 
   it("exposes config validate and print subcommands", () => {
     const program = createCliProgram();
-    const config = program.commands.find((command) => command.name() === "config");
+    const config = program.commands.find(
+      (command) => command.name() === "config",
+    );
 
     expect(config).toBeDefined();
     const subcommands = config?.commands.map((command) => command.name()) ?? [];
     expect(subcommands).toEqual(expect.arrayContaining(["validate", "print"]));
 
-    const print = config?.commands.find((command) => command.name() === "print");
+    const print = config?.commands.find(
+      (command) => command.name() === "print",
+    );
     expect(print?.options.map((option) => option.long)).toEqual(
       expect.arrayContaining([
         "--since",
@@ -419,8 +411,12 @@ describe("createCliProgram", () => {
 
   it("config print help lists --format text default", () => {
     const program = createCliProgram();
-    const config = program.commands.find((command) => command.name() === "config");
-    const print = config?.commands.find((command) => command.name() === "print");
+    const config = program.commands.find(
+      (command) => command.name() === "config",
+    );
+    const print = config?.commands.find(
+      (command) => command.name() === "print",
+    );
     const chunks: string[] = [];
     print?.configureOutput({
       writeOut: (str) => {
@@ -452,7 +448,9 @@ describe("createCliProgram", () => {
 
   it("exposes trend command with history flags", () => {
     const program = createCliProgram();
-    const trend = program.commands.find((command) => command.name() === "trend");
+    const trend = program.commands.find(
+      (command) => command.name() === "trend",
+    );
 
     expect(trend).toBeDefined();
     const optionLongs = trend?.options.map((option) => option.long) ?? [];
@@ -485,12 +483,6 @@ describe("createCliProgram", () => {
 
     expect(help).toContain("--dry-run");
   });
-
-
-
-
-
-
 
   it("exposes completion command with shell argument", () => {
     const program = createCliProgram();
@@ -640,13 +632,16 @@ function expectWarningsJsonText(shell: string, script: string): void {
 }
 
 describe("getCompletionScript", () => {
-  it.each(COMPLETION_SHELLS)("returns a non-empty %s script with commands and flags", (shell) => {
-    const script = getCompletionScript(shell);
+  it.each(COMPLETION_SHELLS)(
+    "returns a non-empty %s script with commands and flags",
+    (shell) => {
+      const script = getCompletionScript(shell);
 
-    expect(script.length).toBeGreaterThan(0);
-    expectCompletionScriptBasics(script);
-    expectWarningsJsonText(shell, script);
-  });
+      expect(script.length).toBeGreaterThan(0);
+      expectCompletionScriptBasics(script);
+      expectWarningsJsonText(shell, script);
+    },
+  );
 
   it("rejects unknown shells with CliUsageError listing allowed shells", () => {
     expect(() => getCompletionScript("powershell")).toThrow(CliUsageError);
@@ -662,18 +657,21 @@ describe("runCli completion", () => {
     vi.restoreAllMocks();
   });
 
-  it.each(COMPLETION_SHELLS)("prints %s completion script to stdout", async (shell) => {
-    const runScanSpy = vi.spyOn(scan, "runScan");
-    const { chunks } = captureStdout();
+  it.each(COMPLETION_SHELLS)(
+    "prints %s completion script to stdout",
+    async (shell) => {
+      const runScanSpy = vi.spyOn(scan, "runScan");
+      const { chunks } = captureStdout();
 
-    await runCli(["node", "hotspot-scanner", "completion", shell]);
+      await runCli(["node", "hotspot-scanner", "completion", shell]);
 
-    const output = chunks.join("");
-    expect(output.length).toBeGreaterThan(0);
-    expectCompletionScriptBasics(output);
-    expectWarningsJsonText(shell, output);
-    expect(runScanSpy).not.toHaveBeenCalled();
-  });
+      const output = chunks.join("");
+      expect(output.length).toBeGreaterThan(0);
+      expectCompletionScriptBasics(output);
+      expectWarningsJsonText(shell, output);
+      expect(runScanSpy).not.toHaveBeenCalled();
+    },
+  );
 
   it("throws CliUsageError for invalid shell", async () => {
     await expect(
@@ -768,31 +766,25 @@ describe("resolveTableColor", () => {
   });
 
   it("disables color for non-table formats", () => {
-    expect(
-      resolveTableColor({ ...enabledBase, format: "json" }),
-    ).toBe(false);
-    expect(
-      resolveTableColor({ ...enabledBase, format: "markdown" }),
-    ).toBe(false);
-    expect(
-      resolveTableColor({ ...enabledBase, format: "csv" }),
-    ).toBe(false);
+    expect(resolveTableColor({ ...enabledBase, format: "json" })).toBe(false);
+    expect(resolveTableColor({ ...enabledBase, format: "markdown" })).toBe(
+      false,
+    );
+    expect(resolveTableColor({ ...enabledBase, format: "csv" })).toBe(false);
   });
 
   it("disables color for --no-color, NO_COLOR, --output, and non-TTY", () => {
     expect(resolveTableColor({ ...enabledBase, noColor: true })).toBe(false);
-    expect(
-      resolveTableColor({ ...enabledBase, envNoColor: "1" }),
-    ).toBe(false);
+    expect(resolveTableColor({ ...enabledBase, envNoColor: "1" })).toBe(false);
     expect(
       resolveTableColor({ ...enabledBase, outputPath: "/tmp/out.txt" }),
     ).toBe(false);
-    expect(
-      resolveTableColor({ ...enabledBase, stdoutIsTTY: false }),
-    ).toBe(false);
-    expect(
-      resolveTableColor({ ...enabledBase, stdoutIsTTY: undefined }),
-    ).toBe(false);
+    expect(resolveTableColor({ ...enabledBase, stdoutIsTTY: false })).toBe(
+      false,
+    );
+    expect(resolveTableColor({ ...enabledBase, stdoutIsTTY: undefined })).toBe(
+      false,
+    );
   });
 
   it("allows color when NO_COLOR is empty", () => {
@@ -813,22 +805,18 @@ describe("resolveDoctorColor", () => {
   });
 
   it("disables color for json format", () => {
-    expect(
-      resolveDoctorColor({ ...enabledBase, format: "json" }),
-    ).toBe(false);
+    expect(resolveDoctorColor({ ...enabledBase, format: "json" })).toBe(false);
   });
 
   it("disables color for --no-color, NO_COLOR, and non-TTY", () => {
     expect(resolveDoctorColor({ ...enabledBase, noColor: true })).toBe(false);
-    expect(
-      resolveDoctorColor({ ...enabledBase, envNoColor: "1" }),
-    ).toBe(false);
-    expect(
-      resolveDoctorColor({ ...enabledBase, stdoutIsTTY: false }),
-    ).toBe(false);
-    expect(
-      resolveDoctorColor({ ...enabledBase, stdoutIsTTY: undefined }),
-    ).toBe(false);
+    expect(resolveDoctorColor({ ...enabledBase, envNoColor: "1" })).toBe(false);
+    expect(resolveDoctorColor({ ...enabledBase, stdoutIsTTY: false })).toBe(
+      false,
+    );
+    expect(resolveDoctorColor({ ...enabledBase, stdoutIsTTY: undefined })).toBe(
+      false,
+    );
   });
 
   it("allows color when NO_COLOR is empty", () => {
@@ -849,28 +837,22 @@ describe("resolveTrendColor", () => {
   });
 
   it("disables color for non-table formats", () => {
-    expect(
-      resolveTrendColor({ ...enabledBase, format: "json" }),
-    ).toBe(false);
-    expect(
-      resolveTrendColor({ ...enabledBase, format: "csv" }),
-    ).toBe(false);
+    expect(resolveTrendColor({ ...enabledBase, format: "json" })).toBe(false);
+    expect(resolveTrendColor({ ...enabledBase, format: "csv" })).toBe(false);
   });
 
   it("disables color for --no-color, NO_COLOR, --output, and non-TTY", () => {
     expect(resolveTrendColor({ ...enabledBase, noColor: true })).toBe(false);
-    expect(
-      resolveTrendColor({ ...enabledBase, envNoColor: "1" }),
-    ).toBe(false);
+    expect(resolveTrendColor({ ...enabledBase, envNoColor: "1" })).toBe(false);
     expect(
       resolveTrendColor({ ...enabledBase, outputPath: "/tmp/out.txt" }),
     ).toBe(false);
-    expect(
-      resolveTrendColor({ ...enabledBase, stdoutIsTTY: false }),
-    ).toBe(false);
-    expect(
-      resolveTrendColor({ ...enabledBase, stdoutIsTTY: undefined }),
-    ).toBe(false);
+    expect(resolveTrendColor({ ...enabledBase, stdoutIsTTY: false })).toBe(
+      false,
+    );
+    expect(resolveTrendColor({ ...enabledBase, stdoutIsTTY: undefined })).toBe(
+      false,
+    );
   });
 
   it("allows color when NO_COLOR is empty", () => {
@@ -891,28 +873,24 @@ describe("resolveAssessColor", () => {
   });
 
   it("disables color for non-table formats", () => {
-    expect(
-      resolveAssessColor({ ...enabledBase, format: "json" }),
-    ).toBe(false);
-    expect(
-      resolveAssessColor({ ...enabledBase, format: "markdown" }),
-    ).toBe(false);
+    expect(resolveAssessColor({ ...enabledBase, format: "json" })).toBe(false);
+    expect(resolveAssessColor({ ...enabledBase, format: "markdown" })).toBe(
+      false,
+    );
   });
 
   it("disables color for --no-color, NO_COLOR, --output, and non-TTY", () => {
     expect(resolveAssessColor({ ...enabledBase, noColor: true })).toBe(false);
-    expect(
-      resolveAssessColor({ ...enabledBase, envNoColor: "1" }),
-    ).toBe(false);
+    expect(resolveAssessColor({ ...enabledBase, envNoColor: "1" })).toBe(false);
     expect(
       resolveAssessColor({ ...enabledBase, outputPath: "/tmp/out.txt" }),
     ).toBe(false);
-    expect(
-      resolveAssessColor({ ...enabledBase, stdoutIsTTY: false }),
-    ).toBe(false);
-    expect(
-      resolveAssessColor({ ...enabledBase, stdoutIsTTY: undefined }),
-    ).toBe(false);
+    expect(resolveAssessColor({ ...enabledBase, stdoutIsTTY: false })).toBe(
+      false,
+    );
+    expect(resolveAssessColor({ ...enabledBase, stdoutIsTTY: undefined })).toBe(
+      false,
+    );
   });
 
   it("allows color when NO_COLOR is empty", () => {
@@ -974,7 +952,6 @@ describe("validateOutputPath", () => {
   });
 });
 
-
 describe("resolvePackageVersion", () => {
   it("matches package.json version field", () => {
     expect(resolvePackageVersion()).toBe(packageVersion);
@@ -1021,12 +998,7 @@ describe("maybeRewritePathToScan", () => {
 
   it("preserves trailing scan flags after rewrite", () => {
     expect(
-      maybeRewritePathToScan([
-        ...nodeArgv,
-        ".",
-        "--format",
-        "json",
-      ]),
+      maybeRewritePathToScan([...nodeArgv, ".", "--format", "json"]),
     ).toEqual([...nodeArgv, "scan", ".", "--format", "json"]);
   });
 
@@ -1314,24 +1286,10 @@ describe("runCli", () => {
     captureStdout();
 
     await expect(
-      runCli([
-        "node",
-        "hotspot-scanner",
-        "scan",
-        ".",
-        "--warnings",
-        "brief",
-      ]),
+      runCli(["node", "hotspot-scanner", "scan", ".", "--warnings", "brief"]),
     ).rejects.toThrow(CliUsageError);
     await expect(
-      runCli([
-        "node",
-        "hotspot-scanner",
-        "scan",
-        ".",
-        "--warnings",
-        "brief",
-      ]),
+      runCli(["node", "hotspot-scanner", "scan", ".", "--warnings", "brief"]),
     ).rejects.toThrow(/Invalid --warnings.*summary, full, or json/);
   });
 
@@ -1358,14 +1316,7 @@ describe("runCli", () => {
     });
     captureStdout();
 
-    await runCli([
-      "node",
-      "hotspot-scanner",
-      "scan",
-      ".",
-      "--format",
-      "json",
-    ]);
+    await runCli(["node", "hotspot-scanner", "scan", ".", "--format", "json"]);
 
     const stderr = stderrSpy.mock.calls.map((call) => String(call[0])).join("");
     expect(stderr).toContain(
@@ -1645,7 +1596,6 @@ describe("runCli", () => {
     }
   });
 
-
   it("writes report to file under --quiet", async () => {
     const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-test-"));
     const outputPath = join(tempDir, "report.json");
@@ -1766,7 +1716,9 @@ describe("runCli", () => {
       expect(hotspotsContent.split("\n")[0]).toBe(
         "rank,file,score,ncloc,nclocN,churn,churnN,authors,lines",
       );
-      const stderr = stderrSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
+      const stderr = stderrSpy.mock.calls
+        .map(([chunk]) => String(chunk))
+        .join("");
       expect(stderr).toContain("Wrote CSV bundle:");
       expect(stderr).toContain(`  ${join(tempDir, "report.hotspots.csv")}`);
       expect(stderr).toContain(`  ${join(tempDir, "report.meta.json")}`);
@@ -1797,7 +1749,9 @@ describe("runCli", () => {
         "--quiet",
       ]);
 
-      const stderr = stderrSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
+      const stderr = stderrSpy.mock.calls
+        .map(([chunk]) => String(chunk))
+        .join("");
       expect(stderr).not.toContain("Wrote CSV bundle:");
     } finally {
       await rm(tempDir, { recursive: true, force: true });
@@ -1857,7 +1811,9 @@ describe("runCli", () => {
       await expect(
         fs.access(join(tempDir, "hotspots-only.hotspots.csv")),
       ).rejects.toThrow();
-      const stderr = stderrSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
+      const stderr = stderrSpy.mock.calls
+        .map(([chunk]) => String(chunk))
+        .join("");
       expect(stderr).not.toContain("Wrote CSV bundle:");
       expect(stderr).toContain(`Wrote ${outputPath}`);
     } finally {
@@ -1866,7 +1822,9 @@ describe("runCli", () => {
   });
 
   it("confirms successful --output writes on stderr", async () => {
-    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-write-confirm-"));
+    const tempDir = await mkdtemp(
+      join(tmpdir(), "hotspot-scanner-write-confirm-"),
+    );
     const outputPath = join(tempDir, "report.json");
     const stderrSpy = vi
       .spyOn(process.stderr, "write")
@@ -1886,7 +1844,9 @@ describe("runCli", () => {
         outputPath,
       ]);
 
-      const stderr = stderrSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
+      const stderr = stderrSpy.mock.calls
+        .map(([chunk]) => String(chunk))
+        .join("");
       expect(stderr).toContain(`Wrote ${outputPath}`);
       expect(chunks.join("")).toBe("");
     } finally {
@@ -1895,7 +1855,9 @@ describe("runCli", () => {
   });
 
   it("suppresses single-file write confirm under --quiet", async () => {
-    const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-write-confirm-"));
+    const tempDir = await mkdtemp(
+      join(tmpdir(), "hotspot-scanner-write-confirm-"),
+    );
     const outputPath = join(tempDir, "report.md");
     const stderrSpy = vi
       .spyOn(process.stderr, "write")
@@ -1916,7 +1878,9 @@ describe("runCli", () => {
         "--quiet",
       ]);
 
-      const stderr = stderrSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
+      const stderr = stderrSpy.mock.calls
+        .map(([chunk]) => String(chunk))
+        .join("");
       expect(stderr).not.toContain(`Wrote ${outputPath}`);
     } finally {
       await rm(tempDir, { recursive: true, force: true });
@@ -1930,16 +1894,11 @@ describe("runCli", () => {
     vi.spyOn(scan, "runScan").mockResolvedValue(mockScanResult());
     const { chunks } = captureStdout();
 
-    await runCli([
-      "node",
-      "hotspot-scanner",
-      "scan",
-      ".",
-      "--format",
-      "json",
-    ]);
+    await runCli(["node", "hotspot-scanner", "scan", ".", "--format", "json"]);
 
-    const stderr = stderrSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
+    const stderr = stderrSpy.mock.calls
+      .map(([chunk]) => String(chunk))
+      .join("");
     expect(stderr).not.toMatch(/^Wrote /m);
     expect(chunks.join("")).toContain('"version": "3.0"');
   });
@@ -3027,7 +2986,14 @@ describe("runCli", () => {
     captureStdout();
 
     try {
-      await runCli(["node", "hotspot-scanner", "scan", ".", "--format", "table"]);
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "scan",
+        ".",
+        "--format",
+        "table",
+      ]);
 
       expect(render).toHaveBeenCalledWith(
         expect.anything(),
@@ -3170,8 +3136,6 @@ describe("runCli", () => {
     }
   });
 
-
-
   it("defaults repoPath to . when scan omits path", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan").mockResolvedValue({
       version: "3.0",
@@ -3225,7 +3189,6 @@ describe("runCli", () => {
       }),
     );
   });
-
 
   it("writes explain block to stderr after report without altering JSON stdout", async () => {
     const stderrSpy = vi
@@ -3576,10 +3539,6 @@ describe("runCli", () => {
     }
   });
 
-
-
-
-
   it("fails when cwd is not a git repository and path is omitted", async () => {
     const tempDir = await mkdtemp(join(tmpdir(), "hotspot-scanner-nogit-"));
     const originalCwd = process.cwd();
@@ -3736,10 +3695,7 @@ describe("runCli", () => {
     expect(stderrSpy).toHaveBeenCalledWith("warning: scan cancelled\n");
     expect(chunks.join("")).toBe("");
   });
-
 });
-
-
 
 describe("runCli init", () => {
   afterEach(() => {
@@ -3791,13 +3747,7 @@ describe("runCli init", () => {
       await runCli(["node", "hotspot-scanner", "init", tempDir]);
       await writeFile(configPath, '{"since":"1 week ago"}\n', "utf8");
 
-      await runCli([
-        "node",
-        "hotspot-scanner",
-        "init",
-        tempDir,
-        "--force",
-      ]);
+      await runCli(["node", "hotspot-scanner", "init", tempDir, "--force"]);
 
       const content = await import("node:fs/promises").then((fs) =>
         fs.readFile(configPath, "utf8"),
@@ -3844,27 +3794,19 @@ describe("runCli doctor", () => {
   it("exits 0 on monorepo nested package path with remount and scope", async () => {
     const { chunks } = captureStdout();
 
-    await runCli([
-      "node",
-      "hotspot-scanner",
-      "doctor",
-      monorepoApiPackagePath,
-    ]);
+    await runCli(["node", "hotspot-scanner", "doctor", monorepoApiPackagePath]);
 
     const output = chunks.join("");
-    expect(stripAnsi(output)).toMatch(/pass:.*Git repository:.*monorepo-nested/);
+    expect(stripAnsi(output)).toMatch(
+      /pass:.*Git repository:.*monorepo-nested/,
+    );
     expect(stripAnsi(output)).toMatch(/pass:.*eligible files: \d+/);
     expect(stripAnsi(output)).toMatch(/remounted to git root/i);
   });
 
   it("reports scope eligible count matching dry-run for the same path", async () => {
     const doctorStdout = captureStdout();
-    await runCli([
-      "node",
-      "hotspot-scanner",
-      "doctor",
-      monorepoApiPackagePath,
-    ]);
+    await runCli(["node", "hotspot-scanner", "doctor", monorepoApiPackagePath]);
     const doctorOutput = doctorStdout.chunks.join("");
 
     const dryRunStdout = captureStdout();
@@ -4010,14 +3952,7 @@ describe("runCli doctor", () => {
     const { chunks } = captureStdout();
 
     await expect(
-      runCli([
-        "node",
-        "hotspot-scanner",
-        "doctor",
-        ".",
-        "--format",
-        "json",
-      ]),
+      runCli(["node", "hotspot-scanner", "doctor", ".", "--format", "json"]),
     ).rejects.toMatchObject({ exitCode: 1 });
 
     const parsed = JSON.parse(chunks.join("")) as {
@@ -4259,9 +4194,9 @@ describe("runCli trend", () => {
   });
 
   it("exits 2 when file argument is missing", async () => {
-    await expect(
-      runCli(["node", "hotspot-scanner", "trend"]),
-    ).rejects.toThrow(CliUsageError);
+    await expect(runCli(["node", "hotspot-scanner", "trend"])).rejects.toThrow(
+      CliUsageError,
+    );
   });
 
   it("exits 2 when mixing since with start/end", async () => {
@@ -4474,13 +4409,7 @@ describe("runCli config", () => {
 
     try {
       await expect(
-        runCli([
-          "node",
-          "hotspot-scanner",
-          "config",
-          "validate",
-          configPath,
-        ]),
+        runCli(["node", "hotspot-scanner", "config", "validate", configPath]),
       ).rejects.toThrow(/Invalid JSON/);
     } finally {
       await rm(tempDir, { recursive: true, force: true });
@@ -4690,7 +4619,6 @@ describe("runCli scan --dry-run", () => {
     }
   });
 
-
   it("ignores --format and --output for preview output", async () => {
     const runScanSpy = vi.spyOn(scan, "runScan");
     const renderSpy = vi.spyOn(report, "createReporter");
@@ -4723,7 +4651,6 @@ describe("runCli scan --dry-run", () => {
 });
 
 describe("resolveCliExitCode", () => {
-
   it("maps CliUsageError to exit 2", () => {
     expect(resolveCliExitCode(new CliUsageError("bad flag"))).toBe(2);
   });
@@ -4756,16 +4683,11 @@ describe("stderr feedback copy", () => {
     });
     captureStdout();
 
-    await runCli([
-      "node",
-      "hotspot-scanner",
-      "scan",
-      ".",
-      "--format",
-      "json",
-    ]);
+    await runCli(["node", "hotspot-scanner", "scan", ".", "--format", "json"]);
 
-    const stderr = stderrSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
+    const stderr = stderrSpy.mock.calls
+      .map(([chunk]) => String(chunk))
+      .join("");
     expect(stderr).not.toContain("timing: total");
     expect(stderr).not.toMatch(/^Warnings: \d+ total/m);
   });
@@ -4842,14 +4764,7 @@ describe("deferred flushWarnings lifecycle", () => {
       });
     captureStdout();
 
-    await runCli([
-      "node",
-      "hotspot-scanner",
-      "scan",
-      ".",
-      "--format",
-      "json",
-    ]);
+    await runCli(["node", "hotspot-scanner", "scan", ".", "--format", "json"]);
 
     expect(writeRenderedSpy).toHaveBeenCalled();
     expect(callOrder).toEqual(["write", "flush"]);
@@ -4887,9 +4802,11 @@ describe("deferred flushWarnings lifecycle", () => {
         warnings: [],
       },
     });
-    vi.spyOn(scanActions, "writeRenderedOutput").mockImplementation(async () => {
-      callOrder.push("write");
-    });
+    vi.spyOn(scanActions, "writeRenderedOutput").mockImplementation(
+      async () => {
+        callOrder.push("write");
+      },
+    );
     vi.spyOn(process.stderr, "write").mockImplementation((chunk) => {
       const text = String(chunk);
       if (text.includes("=== Explain:")) {

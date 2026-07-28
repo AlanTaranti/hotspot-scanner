@@ -89,9 +89,7 @@ describe("analyzeBatch", () => {
         batch: ["valid.ts", "unreadable.ts"],
       });
 
-      expect(output.results).toEqual([
-        { filePath: "valid.ts", ncloc: 1 },
-      ]);
+      expect(output.results).toEqual([{ filePath: "valid.ts", ncloc: 1 }]);
       expect(output.warnings).toHaveLength(1);
       expect(output.warnings[0]).toEqual({
         code: "READ_FAILED",

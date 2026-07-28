@@ -49,56 +49,56 @@ flowchart TD
 
 | Task | Depends on (declared) | Diagram shows | Match |
 | ---- | --------------------- | ------------- | ----- |
-| T1 | None | Root | yes |
-| T2 | T1 | T1→T2 | yes |
-| T3 | T1 | T1→T3 | yes |
-| T4 | T1 | T1→T4 | yes |
-| T5 | T2, T3, T4 | T2/T3/T4→T5 | yes |
+| T1   | None                  | Root          | yes   |
+| T2   | T1                    | T1→T2         | yes   |
+| T3   | T1                    | T1→T3         | yes   |
+| T4   | T1                    | T1→T4         | yes   |
+| T5   | T2, T3, T4            | T2/T3/T4→T5   | yes   |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths (primary) | Conflict with parallel peers |
-| ---- | ------------ | --------------- | ---------------------------- |
-| T1 | package root + `src/` entry | `package.json`, `src/index.ts`, `src/index.test.ts` | None (no `[P]` peers) |
-| T2 [P] | docs / product | `README.md`, `CONTRIBUTING.md`, `docs/recipes.md`, `AGENTS.md`, `.specs/project/PROJECT.md`, `.specs/codebase/STACK.md` | Disjoint from T3/T4 |
-| T3 [P] | living + features | `.specs/codebase/*` (except STACK if done in T2), `.specs/project/ROADMAP.md` title, `.specs/project/STATE.md` title, `STATE-ARCHIVE.md`, `.specs/features/**` prose citing package string | Do not re-edit T2 files; STACK owned by T2 |
-| T4 [P] | `.cursor/` | `.cursor/agents/**`, `.cursor/skills/**` prose (not folder renames), `.cursor/hooks/session-context.mjs` | Disjoint from T2/T3 |
-| T5 | gate | none (run only) | After T2–T4 |
+| Task   | Module owner                | Paths (primary)                                                                                                                                                                            | Conflict with parallel peers               |
+| ------ | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------ |
+| T1     | package root + `src/` entry | `package.json`, `src/index.ts`, `src/index.test.ts`                                                                                                                                        | None (no `[P]` peers)                      |
+| T2 [P] | docs / product              | `README.md`, `CONTRIBUTING.md`, `docs/recipes.md`, `AGENTS.md`, `.specs/project/PROJECT.md`, `.specs/codebase/STACK.md`                                                                    | Disjoint from T3/T4                        |
+| T3 [P] | living + features           | `.specs/codebase/*` (except STACK if done in T2), `.specs/project/ROADMAP.md` title, `.specs/project/STATE.md` title, `STATE-ARCHIVE.md`, `.specs/features/**` prose citing package string | Do not re-edit T2 files; STACK owned by T2 |
+| T4 [P] | `.cursor/`                  | `.cursor/agents/**`, `.cursor/skills/**` prose (not folder renames), `.cursor/hooks/session-context.mjs`                                                                                   | Disjoint from T2/T3                        |
+| T5     | gate                        | none (run only)                                                                                                                                                                            | After T2–T4                                |
 
 > **`[P]`:** T2, T3, T4 — path-disjoint after T1. STACK.md is **T2 only**; other `.specs/codebase/*` are **T3**.
 
 ### Test Co-location Validation
 
-| Task | Code layer | Required tests (TESTING.md) | Co-located in task |
-| ---- | ---------- | --------------------------- | ------------------ |
-| T1 | `src/index.ts` public export | unit | yes — `src/index.test.ts` |
-| T2 | docs | none | n/a |
-| T3 | docs / prose | none | n/a |
-| T4 | Cursor prose | none | n/a |
-| T5 | gate | full | `pnpm build && pnpm test` + `rg` |
+| Task | Code layer                   | Required tests (TESTING.md) | Co-located in task               |
+| ---- | ---------------------------- | --------------------------- | -------------------------------- |
+| T1   | `src/index.ts` public export | unit                        | yes — `src/index.test.ts`        |
+| T2   | docs                         | none                        | n/a                              |
+| T3   | docs / prose                 | none                        | n/a                              |
+| T4   | Cursor prose                 | none                        | n/a                              |
+| T5   | gate                         | full                        | `pnpm build && pnpm test` + `rg` |
 
 ### Granularity Check (Check 1)
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | package name + PACKAGE_NAME + one unit assertion | ✅ Granular |
-| T2 | adoption/product identity citations (one concern) | ✅ OK cohesive |
-| T3 | living + historical package-string citations | ✅ OK cohesive |
-| T4 | Cursor prose identity citations | ✅ OK cohesive |
-| T5 | verify-only | ✅ Granular |
+| Task | Scope                                             | Status         |
+| ---- | ------------------------------------------------- | -------------- |
+| T1   | package name + PACKAGE_NAME + one unit assertion  | ✅ Granular    |
+| T2   | adoption/product identity citations (one concern) | ✅ OK cohesive |
+| T3   | living + historical package-string citations      | ✅ OK cohesive |
+| T4   | Cursor prose identity citations                   | ✅ OK cohesive |
+| T5   | verify-only                                       | ✅ Granular    |
 
 ---
 
 ## Requirement → Task Mapping
 
-| IDs | Task |
-| --- | ---- |
-| HOTSPOT-1700, HOTSPOT-1701, HOTSPOT-1702 | T1 |
-| HOTSPOT-1703, HOTSPOT-1704 | T2 |
-| HOTSPOT-1705, HOTSPOT-1706, HOTSPOT-1709 | T3 |
-| HOTSPOT-1707, HOTSPOT-1710 (skills folders unchanged) | T4 |
-| HOTSPOT-1708, HOTSPOT-1710 (bin + gate) | T5 |
-| HOTSPOT-1711–1719 | Reserved unused |
+| IDs                                                   | Task            |
+| ----------------------------------------------------- | --------------- |
+| HOTSPOT-1700, HOTSPOT-1701, HOTSPOT-1702              | T1              |
+| HOTSPOT-1703, HOTSPOT-1704                            | T2              |
+| HOTSPOT-1705, HOTSPOT-1706, HOTSPOT-1709              | T3              |
+| HOTSPOT-1707, HOTSPOT-1710 (skills folders unchanged) | T4              |
+| HOTSPOT-1708, HOTSPOT-1710 (bin + gate)               | T5              |
+| HOTSPOT-1711–1719                                     | Reserved unused |
 
 ---
 
@@ -203,6 +203,6 @@ pnpm build && pnpm test
 
 ## Suggested execution order
 
-1. T1 (code)  
-2. T2 ∥ T3 ∥ T4  
+1. T1 (code)
+2. T2 ∥ T3 ∥ T4
 3. T5 (sweep + gate)

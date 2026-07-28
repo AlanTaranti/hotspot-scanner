@@ -11,9 +11,7 @@ export function parseOnlySection(value: string): ReportSection {
     throw new Error("--only section must not be empty");
   }
   if (!VALID_SECTIONS.has(value)) {
-    throw new Error(
-      `Invalid --only: ${value}. Expected hotspots.`,
-    );
+    throw new Error(`Invalid --only: ${value}. Expected hotspots.`);
   }
   return value as ReportSection;
 }

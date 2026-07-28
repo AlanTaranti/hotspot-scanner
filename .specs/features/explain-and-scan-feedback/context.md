@@ -42,21 +42,21 @@
 
 **Choice:** Single CLI option `--explain <target>` with this grammar:
 
-| Form | Meaning |
-| ---- | ------- |
-| `<path>` | File path relative to repo root (or absolute under repo), posix-style as in `ScanResult` |
+| Form                    | Meaning                                                                                                            |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `<path>`                | File path relative to repo root (or absolute under repo), posix-style as in `ScanResult`                           |
 | `<path>:<functionName>` | Function target — `functionName` is the suffix after the **last** `:` that matches the function-name pattern below |
 
 **Function-name pattern:** one or more segments separated by `.`, each segment `/^[A-Za-z_$][\w$]*$/` (covers `foo`, `Foo.bar`, getters named like identifiers). If the suffix after the last `:` does **not** match, treat the **entire** string as a path (so exotic paths with colons are not mis-split).
 
 **Granularity rules:**
 
-| `--granularity` | Accepted target | Lookup |
-| --------------- | --------------- | ------ |
-| `file` (default) | `<path>` only | `ScanResult.hotspots` by `filePath` |
-| `file` | `<path>:<functionName>` | **CliUsageError** — suggest `--granularity function` |
-| `function` | `<path>` | All `ScanResult.functions` rows with that `filePath` (rank order preserved) |
-| `function` | `<path>:<functionName>` | Single row matching `filePath` + `functionName` |
+| `--granularity`  | Accepted target         | Lookup                                                                      |
+| ---------------- | ----------------------- | --------------------------------------------------------------------------- |
+| `file` (default) | `<path>` only           | `ScanResult.hotspots` by `filePath`                                         |
+| `file`           | `<path>:<functionName>` | **CliUsageError** — suggest `--granularity function`                        |
+| `function`       | `<path>`                | All `ScanResult.functions` rows with that `filePath` (rank order preserved) |
+| `function`       | `<path>:<functionName>` | Single row matching `filePath` + `functionName`                             |
 
 **Path normalization:** Strip repo-root prefix; compare with `filePath` as stored in rankings (repo-relative). Leading `./` ignored. No glob support in M42.
 
@@ -107,11 +107,11 @@ Do **not** recompute scores in explain — read fields from the ranked entry. No
 
 **Choice:** Append a short **next-step** sentence to each existing `format*` message in `src/git/rename-warnings.ts`. **Do not** change `code` values (`RENAME_HISTORY_INCOMPLETE`, `EMPTY_SINCE_WINDOW`). Do not add new warning codes or families.
 
-| Message family | Next-step intent (exact copy in design/Execute) |
-| -------------- | ----------------------------------------------- |
-| Ambiguous path | Suggest verifying rename detection / widening `--since` |
-| Unlinked suspected rename | Suggest ensuring git records renames (`-M` already on) or widening `--since` |
-| `--since` truncation | Explicitly suggest widening `--since` to include pre-window rename history |
+| Message family              | Next-step intent (exact copy in design/Execute)                                                |
+| --------------------------- | ---------------------------------------------------------------------------------------------- |
+| Ambiguous path              | Suggest verifying rename detection / widening `--since`                                        |
+| Unlinked suspected rename   | Suggest ensuring git records renames (`-M` already on) or widening `--since`                   |
+| `--since` truncation        | Explicitly suggest widening `--since` to include pre-window rename history                     |
 | Function pós-rename overlap | Suggest treating function ranks cautiously after moves; file mode / wider window as mitigation |
 
 `EMPTY_SINCE_WINDOW` may gain a next-step (“widen `--since` or check path scope”) in the same pass if already emitted from rename-warnings helpers — still **same code**.
@@ -168,12 +168,12 @@ Do **not** recompute scores in explain — read fields from the ranked entry. No
 
 ## Out of scope (locked)
 
-| Item | Reason |
-| ---- | ------ |
-| Historical AST / blame re-attribution | CONCERNS deferred; M26 boundary |
-| Changing McCabe decision nodes | RT-005 |
-| New or renamed warning `code` values | Stable M26/M28 catalog |
-| Triage hints / legend / colors | M41 |
-| `--no-progress` / `--quiet` / `--verbose` flags | M38 |
-| Explain-only scan / skipping coupling | YAGNI |
-| Explain as JSON field / schema bump | stderr CLI only |
+| Item                                            | Reason                          |
+| ----------------------------------------------- | ------------------------------- |
+| Historical AST / blame re-attribution           | CONCERNS deferred; M26 boundary |
+| Changing McCabe decision nodes                  | RT-005                          |
+| New or renamed warning `code` values            | Stable M26/M28 catalog          |
+| Triage hints / legend / colors                  | M41                             |
+| `--no-progress` / `--quiet` / `--verbose` flags | M38                             |
+| Explain-only scan / skipping coupling           | YAGNI                           |
+| Explain as JSON field / schema bump             | stderr CLI only                 |

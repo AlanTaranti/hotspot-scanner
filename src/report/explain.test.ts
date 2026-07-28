@@ -193,7 +193,9 @@ describe("formatExplainBlock", () => {
       filePath: beyondTop.filePath,
     });
 
-    expect(output).toContain(`=== Explain: ${beyondTop.filePath} (rank 12) ===`);
+    expect(output).toContain(
+      `=== Explain: ${beyondTop.filePath} (rank 12) ===`,
+    );
   });
 
   it("matches ./ prefixed paths against repo-relative rankings", () => {

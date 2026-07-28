@@ -42,14 +42,10 @@ describe("formatAmbiguousRenameWarnings", () => {
   it("matches the existing incomplete-history prefix per path", () => {
     const warnings = formatAmbiguousRenameWarnings(["a.ts", "b.ts"]);
     expect(warnings).toHaveLength(2);
-    expect(warnings[0]).toMatch(
-      /^Rename history may be incomplete for: a\.ts/,
-    );
+    expect(warnings[0]).toMatch(/^Rename history may be incomplete for: a\.ts/);
     expect(warnings[0]).toContain("Next step:");
     expect(warnings[0]).toContain("widen --since");
-    expect(warnings[1]).toMatch(
-      /^Rename history may be incomplete for: b\.ts/,
-    );
+    expect(warnings[1]).toMatch(/^Rename history may be incomplete for: b\.ts/);
   });
 
   it("returns an empty array for no paths", () => {

@@ -9,10 +9,7 @@ import {
   loadHotspotScannerConfig,
 } from "../config/load-config.js";
 import { resolveMonorepoScanPath } from "../paths/index.js";
-import {
-  previewScanScope,
-  type ScanScopePreview,
-} from "../scan-preview.js";
+import { previewScanScope, type ScanScopePreview } from "../scan-preview.js";
 import { probeSinceWindow } from "../git/probe-since.js";
 import {
   resolveScanPipelineContext,
@@ -104,7 +101,9 @@ export function isGitOnPath(): boolean {
 
 async function validateTargetPath(
   targetPath: string,
-): Promise<{ ok: true; resolvedPath: string } | { ok: false; message: string }> {
+): Promise<
+  { ok: true; resolvedPath: string } | { ok: false; message: string }
+> {
   try {
     const resolvedPath = resolve(targetPath);
     const targetStat = await stat(resolvedPath);
@@ -163,9 +162,7 @@ export function findNearestTsConfigPath(targetPath: string): string | null {
   return null;
 }
 
-export function aggregateExitCode(
-  findings: DoctorFinding[],
-): 0 | 1 | 2 {
+export function aggregateExitCode(findings: DoctorFinding[]): 0 | 1 | 2 {
   const failures = findings.filter((finding) => finding.status === "fail");
   if (failures.length === 0) {
     return 0;
@@ -232,7 +229,10 @@ async function checkConfig(
   }
 }
 
-function buildScanOptions(options: RunDoctorOptions, resolvedPath: string): ScanOptions {
+function buildScanOptions(
+  options: RunDoctorOptions,
+  resolvedPath: string,
+): ScanOptions {
   return {
     repoPath: resolvedPath,
     configPath: options.configPath,
@@ -377,8 +377,7 @@ export async function runDoctor(
   options: RunDoctorOptions,
 ): Promise<DoctorResult> {
   const findings: DoctorFinding[] = [];
-  const enginesNode =
-    options.enginesNode ?? (await readDefaultEnginesNode());
+  const enginesNode = options.enginesNode ?? (await readDefaultEnginesNode());
   const nodeVersion = options.nodeVersion ?? process.version;
 
   if (satisfiesEnginesNode(enginesNode, nodeVersion)) {

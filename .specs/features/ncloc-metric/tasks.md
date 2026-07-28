@@ -66,48 +66,48 @@ flowchart TD
 
 | Task | Depends on (declared) | Diagram shows | Match |
 | ---- | --------------------- | ------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1→T2 | ✅ |
-| T3 | T2 | T2→T3 | ✅ |
-| T4 | T3 | T3→T4 | ✅ |
-| T5 | T4 | T4→T5 | ✅ |
-| T6 | T5 | T5→T6 | ✅ |
-| T7 | T6 | T6→T7 | ✅ |
-| T8 | T7 | T7→T8 | ✅ |
-| T9 | T8 | T8→T9 | ✅ |
-| T10 | T9 | T9→T10 | ✅ |
+| T1   | None                  | Root          | ✅    |
+| T2   | T1                    | T1→T2         | ✅    |
+| T3   | T2                    | T2→T3         | ✅    |
+| T4   | T3                    | T3→T4         | ✅    |
+| T5   | T4                    | T4→T5         | ✅    |
+| T6   | T5                    | T5→T6         | ✅    |
+| T7   | T6                    | T6→T7         | ✅    |
+| T8   | T7                    | T7→T8         | ✅    |
+| T9   | T8                    | T8→T9         | ✅    |
+| T10  | T9                    | T9→T10        | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths (primary) | Conflict with parallel peers |
-| ---- | ------------ | --------------- | ---------------------------- |
-| T1 | schemas + types + compare/load-baseline + contract | `schemas/*.json`, `src/types/domain.ts`, `src/compare/load-baseline.ts` (+test), `tests/contract/**` | Sole — sequential |
-| T2 | complexity | `src/complexity/**` (add `ncloc.ts`; retarget analyze/discover/pool/worker/index; fixtures under `tests/fixtures/complexity/`) | After T1 |
-| T3 | scoring | `src/scoring/hotspot-scorer.ts*`, `normalize` if needed, `index.ts`; stop exporting function scorer | After T2 |
-| T4 | scan | `src/scan.ts`, `src/scan*.test.ts` | After T3 |
-| T5 | compare | `src/compare/compare.ts`, `keys.ts` (+tests); **not** re-open load-baseline except import fix | After T4 |
-| T6 | report | `src/report/**` | After T5 |
-| T7 | config + bin + index | `src/config/**`, `bin/**`, `src/index.ts` | After T6 |
-| T8 | delete + package.json | Delete `mccabe*`, `function-churn/**`, `function-hotspot-scorer*`, orphan tests/fixtures; remove `ts-morph` dep | After T7 |
-| T9 | docs / skills | `.specs/codebase/*`, PROJECT, README, AGENTS, CONTRIBUTING, `docs/*`, pipeline-domain, fragile-areas, vitals-project, STATE ADR | After T8 |
-| T10 | gate | none (run only) | After T9 |
+| Task | Module owner                                       | Paths (primary)                                                                                                                 | Conflict with parallel peers |
+| ---- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| T1   | schemas + types + compare/load-baseline + contract | `schemas/*.json`, `src/types/domain.ts`, `src/compare/load-baseline.ts` (+test), `tests/contract/**`                            | Sole — sequential            |
+| T2   | complexity                                         | `src/complexity/**` (add `ncloc.ts`; retarget analyze/discover/pool/worker/index; fixtures under `tests/fixtures/complexity/`)  | After T1                     |
+| T3   | scoring                                            | `src/scoring/hotspot-scorer.ts*`, `normalize` if needed, `index.ts`; stop exporting function scorer                             | After T2                     |
+| T4   | scan                                               | `src/scan.ts`, `src/scan*.test.ts`                                                                                              | After T3                     |
+| T5   | compare                                            | `src/compare/compare.ts`, `keys.ts` (+tests); **not** re-open load-baseline except import fix                                   | After T4                     |
+| T6   | report                                             | `src/report/**`                                                                                                                 | After T5                     |
+| T7   | config + bin + index                               | `src/config/**`, `bin/**`, `src/index.ts`                                                                                       | After T6                     |
+| T8   | delete + package.json                              | Delete `mccabe*`, `function-churn/**`, `function-hotspot-scorer*`, orphan tests/fixtures; remove `ts-morph` dep                 | After T7                     |
+| T9   | docs / skills                                      | `.specs/codebase/*`, PROJECT, README, AGENTS, CONTRIBUTING, `docs/*`, pipeline-domain, fragile-areas, vitals-project, STATE ADR | After T8                     |
+| T10  | gate                                               | none (run only)                                                                                                                 | After T9                     |
 
 > **[P]**: None. Overlapping type/compile surface makes parallel unsafe for this Complex hard cut.
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Tests in same task | Match |
-| ---- | ---------- | ---------------------- | ------------------ | ----- |
-| T1 | schemas, load-baseline, types | Unit + contract | `load-baseline.test.ts`, `tests/contract/json-schema.test.ts` | ✅ |
-| T2 | complexity / NCLOC | Unit + fixtures | `ncloc.test.ts`, retargeted complexity tests/fixtures | ✅ |
-| T3 | scoring | Unit | `hotspot-scorer.test.ts`, scoring index tests; drop function scorer tests | ✅ |
-| T4 | scan | Integration/unit | `scan.integration.test.ts`, `scan.test.ts` | ✅ |
-| T5 | compare | Unit | `compare.test.ts`, `keys.test.ts` | ✅ |
-| T6 | report | Unit | Co-located `src/report/*.test.ts` | ✅ |
-| T7 | config + bin | Unit (+ CLI) | config + `bin/*.test.ts` / completion | ✅ |
-| T8 | deletions | cleanup | Remove orphan tests; fix remaining refs | ✅ |
-| T9 | docs | none | Grep/checklist in Done when | ✅ |
-| T10 | full tree | Full gate | `pnpm build && pnpm test` | ✅ |
+| Task | Code layer                    | TESTING.md expectation | Tests in same task                                                        | Match |
+| ---- | ----------------------------- | ---------------------- | ------------------------------------------------------------------------- | ----- |
+| T1   | schemas, load-baseline, types | Unit + contract        | `load-baseline.test.ts`, `tests/contract/json-schema.test.ts`             | ✅    |
+| T2   | complexity / NCLOC            | Unit + fixtures        | `ncloc.test.ts`, retargeted complexity tests/fixtures                     | ✅    |
+| T3   | scoring                       | Unit                   | `hotspot-scorer.test.ts`, scoring index tests; drop function scorer tests | ✅    |
+| T4   | scan                          | Integration/unit       | `scan.integration.test.ts`, `scan.test.ts`                                | ✅    |
+| T5   | compare                       | Unit                   | `compare.test.ts`, `keys.test.ts`                                         | ✅    |
+| T6   | report                        | Unit                   | Co-located `src/report/*.test.ts`                                         | ✅    |
+| T7   | config + bin                  | Unit (+ CLI)           | config + `bin/*.test.ts` / completion                                     | ✅    |
+| T8   | deletions                     | cleanup                | Remove orphan tests; fix remaining refs                                   | ✅    |
+| T9   | docs                          | none                   | Grep/checklist in Done when                                               | ✅    |
+| T10  | full tree                     | Full gate              | `pnpm build && pnpm test`                                                 | ✅    |
 
 ---
 
@@ -444,30 +444,30 @@ flowchart TD
 
 | Requirement | Task(s) |
 | ----------- | ------- |
-| HOTSPOT-920 | T2 |
-| HOTSPOT-921 | T3 |
-| HOTSPOT-922 | T2, T8 |
-| HOTSPOT-923 | T2 |
-| HOTSPOT-924 | T1 |
-| HOTSPOT-925 | T1, T5 |
-| HOTSPOT-926 | T1 |
-| HOTSPOT-927 | T1 |
-| HOTSPOT-928 | T1 |
-| HOTSPOT-929 | T1 |
-| HOTSPOT-930 | T1 |
-| HOTSPOT-931 | T7 |
-| HOTSPOT-932 | T4 |
-| HOTSPOT-933 | T5 |
-| HOTSPOT-934 | T6 |
-| HOTSPOT-935 | T6, T7 |
-| HOTSPOT-936 | T6 |
-| HOTSPOT-937 | T7, T8 |
-| HOTSPOT-938 | T6 |
-| HOTSPOT-939 | T6 |
-| HOTSPOT-940 | T4 |
-| HOTSPOT-941 | T9 |
-| HOTSPOT-942 | T9 |
-| HOTSPOT-943 | T9 |
+| HOTSPOT-920 | T2      |
+| HOTSPOT-921 | T3      |
+| HOTSPOT-922 | T2, T8  |
+| HOTSPOT-923 | T2      |
+| HOTSPOT-924 | T1      |
+| HOTSPOT-925 | T1, T5  |
+| HOTSPOT-926 | T1      |
+| HOTSPOT-927 | T1      |
+| HOTSPOT-928 | T1      |
+| HOTSPOT-929 | T1      |
+| HOTSPOT-930 | T1      |
+| HOTSPOT-931 | T7      |
+| HOTSPOT-932 | T4      |
+| HOTSPOT-933 | T5      |
+| HOTSPOT-934 | T6      |
+| HOTSPOT-935 | T6, T7  |
+| HOTSPOT-936 | T6      |
+| HOTSPOT-937 | T7, T8  |
+| HOTSPOT-938 | T6      |
+| HOTSPOT-939 | T6      |
+| HOTSPOT-940 | T4      |
+| HOTSPOT-941 | T9      |
+| HOTSPOT-942 | T9      |
+| HOTSPOT-943 | T9      |
 
 **Coverage:** 24/24 mapped. No unmapped P1.
 

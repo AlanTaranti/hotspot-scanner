@@ -58,93 +58,93 @@ flowchart TD
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (task body) | Diagram shows | Match |
-| ---- | ---------------------- | ------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1→T2 | ✅ |
-| T3 | None | Root | ✅ |
-| T4 | T1 | T1→T4 | ✅ |
-| T5 | T1 | T1→T5 | ✅ |
-| T6 | T1 | T1→T6 | ✅ |
-| T7 | T3, T4, T5 | T3/T4/T5→T7 | ✅ |
-| T8 | T6, T7 | T6/T7→T8 | ✅ |
-| T9 | T6, T7 | T6/T7→T9 | ✅ |
-| T10 | T2, T7, T8, T9 | T2/T7/T8/T9→T10 | ✅ |
-| T11 | T10 | T10→T11 | ✅ |
-| T12 | T11 | T11→T12 | ✅ |
+| Task | Depends on (task body) | Diagram shows   | Match |
+| ---- | ---------------------- | --------------- | ----- |
+| T1   | None                   | Root            | ✅    |
+| T2   | T1                     | T1→T2           | ✅    |
+| T3   | None                   | Root            | ✅    |
+| T4   | T1                     | T1→T4           | ✅    |
+| T5   | T1                     | T1→T5           | ✅    |
+| T6   | T1                     | T1→T6           | ✅    |
+| T7   | T3, T4, T5             | T3/T4/T5→T7     | ✅    |
+| T8   | T6, T7                 | T6/T7→T8        | ✅    |
+| T9   | T6, T7                 | T6/T7→T9        | ✅    |
+| T10  | T2, T7, T8, T9         | T2/T7/T8/T9→T10 | ✅    |
+| T11  | T10                    | T10→T11         | ✅    |
+| T12  | T11                    | T11→T12         | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | `src/types/` | `src/types/domain.ts` (+ barrel if needed) | Sole owner |
-| T2 | `src/diagnostics/` | `src/diagnostics/logger.ts`, `index.ts`, `*.test.ts` | Sole owner; `[P]` vs T3/T4/T5/T6 |
-| T3 | `src/config/` | `load-config.ts`, `merge-options.ts`, `*.test.ts` | Sole owner; `[P]` vs T1 |
-| T4 | `src/git/` | `src/git/index.ts`, `function-churn/index.ts`, related `*.test.ts` | Sole git owner this feature; not `[P]` with other git tasks |
-| T5 | `src/complexity/` | `analyze-batch.ts`, `index.ts`, related `*.test.ts` | Sole complexity owner; do not change pool algorithm |
-| T6 | `src/compare/` | `compare.ts`, `*.test.ts` | Sole compare owner |
-| T7 | `src/scan.ts` | `src/scan.ts`, `src/scan.test.ts`, `src/scan.integration.test.ts` as needed | Sole scan owner — **no `[P]` with other scan editors** |
-| T8 | `src/report/` | compare/scan reporters touching warnings | Sole report owner; `[P]` with T9 |
-| T9 | `schemas/` + contract | `schemas/scan-result.json`, `schemas/compare-result.json`, `tests/contract/**` | Sole schema owner; `[P]` with T8 |
-| T10 | `bin/` | `bin/hotspot-scanner.ts`, `bin/*.test.ts` | Sole bin owner |
-| T11 | docs | README + `.specs/codebase/*` listed in task | Docs only |
-| T12 | verification | no module ownership edits beyond checkbox hygiene | After T11 |
+| Task | Module owner          | Paths                                                                          | Conflict                                                    |
+| ---- | --------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------- |
+| T1   | `src/types/`          | `src/types/domain.ts` (+ barrel if needed)                                     | Sole owner                                                  |
+| T2   | `src/diagnostics/`    | `src/diagnostics/logger.ts`, `index.ts`, `*.test.ts`                           | Sole owner; `[P]` vs T3/T4/T5/T6                            |
+| T3   | `src/config/`         | `load-config.ts`, `merge-options.ts`, `*.test.ts`                              | Sole owner; `[P]` vs T1                                     |
+| T4   | `src/git/`            | `src/git/index.ts`, `function-churn/index.ts`, related `*.test.ts`             | Sole git owner this feature; not `[P]` with other git tasks |
+| T5   | `src/complexity/`     | `analyze-batch.ts`, `index.ts`, related `*.test.ts`                            | Sole complexity owner; do not change pool algorithm         |
+| T6   | `src/compare/`        | `compare.ts`, `*.test.ts`                                                      | Sole compare owner                                          |
+| T7   | `src/scan.ts`         | `src/scan.ts`, `src/scan.test.ts`, `src/scan.integration.test.ts` as needed    | Sole scan owner — **no `[P]` with other scan editors**      |
+| T8   | `src/report/`         | compare/scan reporters touching warnings                                       | Sole report owner; `[P]` with T9                            |
+| T9   | `schemas/` + contract | `schemas/scan-result.json`, `schemas/compare-result.json`, `tests/contract/**` | Sole schema owner; `[P]` with T8                            |
+| T10  | `bin/`                | `bin/hotspot-scanner.ts`, `bin/*.test.ts`                                      | Sole bin owner                                              |
+| T11  | docs                  | README + `.specs/codebase/*` listed in task                                    | Docs only                                                   |
+| T12  | verification          | no module ownership edits beyond checkbox hygiene                              | After T11                                                   |
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task `Tests` | Match |
-| ---- | ---------- | ---------------------- | ------------ | ----- |
-| T1 | `src/types/` | none (excluded from coverage) | none — compile consumers in later tasks | ✅ |
-| T2 | diagnostics | unit | unit | ✅ |
-| T3 | config | unit | unit | ✅ |
-| T4 | git / function-churn | unit | unit | ✅ |
-| T5 | complexity | unit | unit | ✅ |
-| T6 | compare | unit | unit | ✅ |
-| T7 | scan orchestration | unit + integration as needed | unit (+ integration touch) | ✅ |
-| T8 | report | unit | unit | ✅ |
-| T9 | schemas / contract | contract | contract | ✅ |
-| T10 | bin CLI | CLI / integration | CLI unit + integration | ✅ |
-| T11 | docs | none | N/A — doc review | ✅ |
-| T12 | full gate | `pnpm build && pnpm test` | full gate | ✅ |
+| Task | Code layer           | TESTING.md expectation        | Task `Tests`                            | Match |
+| ---- | -------------------- | ----------------------------- | --------------------------------------- | ----- |
+| T1   | `src/types/`         | none (excluded from coverage) | none — compile consumers in later tasks | ✅    |
+| T2   | diagnostics          | unit                          | unit                                    | ✅    |
+| T3   | config               | unit                          | unit                                    | ✅    |
+| T4   | git / function-churn | unit                          | unit                                    | ✅    |
+| T5   | complexity           | unit                          | unit                                    | ✅    |
+| T6   | compare              | unit                          | unit                                    | ✅    |
+| T7   | scan orchestration   | unit + integration as needed  | unit (+ integration touch)              | ✅    |
+| T8   | report               | unit                          | unit                                    | ✅    |
+| T9   | schemas / contract   | contract                      | contract                                | ✅    |
+| T10  | bin CLI              | CLI / integration             | CLI unit + integration                  | ✅    |
+| T11  | docs                 | none                          | N/A — doc review                        | ✅    |
+| T12  | full gate            | `pnpm build && pnpm test`     | full gate                               | ✅    |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Domain type contracts | ✅ Granular |
-| T2 | Diagnostics logger API | ✅ Granular |
-| T3 | Config concurrency key + merge | ✅ Granular |
-| T4 | Both miners progress+warnings (same domain) | ✅ OK cohesive |
-| T5 | Complexity warning shape | ✅ Granular |
-| T6 | Compare warning shape | ✅ Granular |
-| T7 | Scan wiring only | ✅ Granular |
-| T8 | Reporter warning render | ✅ Granular |
-| T9 | Schemas + contract | ✅ Granular |
-| T10 | CLI flag + callback wiring | ✅ Granular |
-| T11 | Living docs | ✅ OK cohesive docs |
-| T12 | Verification gate | ✅ Granular |
+| Task | Scope                                       | Status              |
+| ---- | ------------------------------------------- | ------------------- |
+| T1   | Domain type contracts                       | ✅ Granular         |
+| T2   | Diagnostics logger API                      | ✅ Granular         |
+| T3   | Config concurrency key + merge              | ✅ Granular         |
+| T4   | Both miners progress+warnings (same domain) | ✅ OK cohesive      |
+| T5   | Complexity warning shape                    | ✅ Granular         |
+| T6   | Compare warning shape                       | ✅ Granular         |
+| T7   | Scan wiring only                            | ✅ Granular         |
+| T8   | Reporter warning render                     | ✅ Granular         |
+| T9   | Schemas + contract                          | ✅ Granular         |
+| T10  | CLI flag + callback wiring                  | ✅ Granular         |
+| T11  | Living docs                                 | ✅ OK cohesive docs |
+| T12  | Verification gate                           | ✅ Granular         |
 
 ---
 
 ## Requirement → Task Mapping
 
-| Requirement | Tasks |
-| ----------- | ----- |
-| HOTSPOT-251 | T3, T10 |
-| HOTSPOT-252 | T3 |
-| HOTSPOT-253 | T7, T10 |
-| HOTSPOT-254 | T11 |
-| HOTSPOT-255 | T1, T4 |
-| HOTSPOT-256 | T2, T10 |
-| HOTSPOT-257 | T2 |
-| HOTSPOT-258 | T1, T2 |
-| HOTSPOT-259 | T7, T9 |
-| HOTSPOT-260 | T2, T10 |
+| Requirement | Tasks      |
+| ----------- | ---------- |
+| HOTSPOT-251 | T3, T10    |
+| HOTSPOT-252 | T3         |
+| HOTSPOT-253 | T7, T10    |
+| HOTSPOT-254 | T11        |
+| HOTSPOT-255 | T1, T4     |
+| HOTSPOT-256 | T2, T10    |
+| HOTSPOT-257 | T2         |
+| HOTSPOT-258 | T1, T2     |
+| HOTSPOT-259 | T7, T9     |
+| HOTSPOT-260 | T2, T10    |
 | HOTSPOT-261 | T6, T8, T9 |
-| HOTSPOT-262 | T11 |
+| HOTSPOT-262 | T11        |
 | HOTSPOT-263 | T4, T5, T6 |
-| HOTSPOT-264 | T11 |
-| HOTSPOT-265 | T12 |
+| HOTSPOT-264 | T11        |
+| HOTSPOT-265 | T12        |
 
 ---
 

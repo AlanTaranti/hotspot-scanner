@@ -3,8 +3,7 @@ import { CliUsageError } from "./scan-actions.js";
 export const COMPLETION_SHELLS = ["bash", "zsh", "fish"] as const;
 export type CompletionShell = (typeof COMPLETION_SHELLS)[number];
 
-const TOP_LEVEL_COMMANDS =
-  "init doctor trend assess scan completion" as const;
+const TOP_LEVEL_COMMANDS = "init doctor trend assess scan completion" as const;
 
 const WARNINGS_DESC = "Stderr warning presentation: summary|full|json";
 
@@ -27,7 +26,10 @@ const SCAN_FLAG_DEFS: readonly FlagDef[] = [
   { long: "no-progress", desc: "Suppress progress lines on stderr" },
   { long: "dry-run", desc: "Preview effective scan scope" },
   { long: "only", desc: "Include only report sections: hotspots" },
-  { long: "no-triage-hints", desc: "Suppress triage hints in table and markdown" },
+  {
+    long: "no-triage-hints",
+    desc: "Suppress triage hints in table and markdown",
+  },
   { long: "no-color", desc: "Disable ANSI colors in table output" },
   { long: "explain", desc: "Print score breakdown for path to stderr" },
   {

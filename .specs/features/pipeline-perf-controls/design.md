@@ -32,25 +32,25 @@ flowchart TD
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| Overlap orchestrator | `src/scan.ts` | Branch on `options.sequential` before starting stages |
-| `ScanOptions` | `src/types/domain.ts` | Add optional `sequential?: boolean` |
-| CLI flag patterns | `bin/hotspot-scanner.ts` | Mirror boolean flags (`--quiet`); help text |
-| `buildScanOptions` / `executeScan` | `bin/scan-actions.ts` | Forward `sequential` outside `HotspotScannerConfig` |
-| Overlap unit tests | `src/scan.test.ts` | Invert concurrency assertion for sequential; keep overlap tests |
-| Integration parity | `src/scan.integration.test.ts` | Compare sequential vs default on `small-ts` |
-| Manual bench doc | `scripts/benchmark-scan.md` | Evolve into harness operator guide |
-| Complexity concurrency | `--concurrency` / M15–M36 pool | Unchanged; orthogonal to stage overlap |
+| Component                          | Location                       | How to Use                                                      |
+| ---------------------------------- | ------------------------------ | --------------------------------------------------------------- |
+| Overlap orchestrator               | `src/scan.ts`                  | Branch on `options.sequential` before starting stages           |
+| `ScanOptions`                      | `src/types/domain.ts`          | Add optional `sequential?: boolean`                             |
+| CLI flag patterns                  | `bin/hotspot-scanner.ts`       | Mirror boolean flags (`--quiet`); help text                     |
+| `buildScanOptions` / `executeScan` | `bin/scan-actions.ts`          | Forward `sequential` outside `HotspotScannerConfig`             |
+| Overlap unit tests                 | `src/scan.test.ts`             | Invert concurrency assertion for sequential; keep overlap tests |
+| Integration parity                 | `src/scan.integration.test.ts` | Compare sequential vs default on `small-ts`                     |
+| Manual bench doc                   | `scripts/benchmark-scan.md`    | Evolve into harness operator guide                              |
+| Complexity concurrency             | `--concurrency` / M15–M36 pool | Unchanged; orthogonal to stage overlap                          |
 
 ### Integration Points
 
-| System | Integration Method |
-| ------ | ------------------ |
-| Commander | `--sequential` + `--no-overlap` on scan / compare / baseline save |
-| Config merge | **No** new key; do not add to `HotspotScannerConfig` |
-| package.json | Add `"bench"` script only; leave `"test"` without bench |
-| JSON schemas | **No change** |
+| System       | Integration Method                                                |
+| ------------ | ----------------------------------------------------------------- |
+| Commander    | `--sequential` + `--no-overlap` on scan / compare / baseline save |
+| Config merge | **No** new key; do not add to `HotspotScannerConfig`              |
+| package.json | Add `"bench"` script only; leave `"test"` without bench           |
+| JSON schemas | **No change**                                                     |
 
 ---
 
@@ -134,45 +134,45 @@ export interface ScanOptions {
 
 ## Error Handling Strategy
 
-| Error Scenario | Handling | User Impact |
-| -------------- | -------- | ----------- |
-| Git fails under sequential | Rethrow original; no scoring | Non-zero exit; same as today |
-| Complexity fails under sequential | Rethrow original; no scoring | Non-zero exit |
-| Overlap path failure | Unchanged M34 sibling abort | Unchanged |
-| Both CLI flags set | Treat as sequential | No usage error |
-| Bench repo missing / git fail | Script non-zero; message clear | Operator fixes path; not CI |
+| Error Scenario                    | Handling                       | User Impact                  |
+| --------------------------------- | ------------------------------ | ---------------------------- |
+| Git fails under sequential        | Rethrow original; no scoring   | Non-zero exit; same as today |
+| Complexity fails under sequential | Rethrow original; no scoring   | Non-zero exit                |
+| Overlap path failure              | Unchanged M34 sibling abort    | Unchanged                    |
+| Both CLI flags set                | Treat as sequential            | No usage error               |
+| Bench repo missing / git fail     | Script non-zero; message clear | Operator fixes path; not CI  |
 
 ---
 
 ## Tech Decisions
 
-| Decision | Choice | Rationale |
-| -------- | ------ | --------- |
-| Primary flag | `--sequential` | Affirmative stage order; alias keeps M34 wording |
-| Config | CLI / `ScanOptions` only | YAGNI; matches quiet/explain class |
-| Bench entry | `pnpm bench` | ROADMAP; discoverable |
-| Bench vs gate | Separate from `pnpm test` | Existing policy; M51 also excludes timing gates |
-| Equivalence | Structural + fixture parity | No flaky wall-clock in CI (TESTING.md M34 precedent) |
+| Decision      | Choice                      | Rationale                                            |
+| ------------- | --------------------------- | ---------------------------------------------------- |
+| Primary flag  | `--sequential`              | Affirmative stage order; alias keeps M34 wording     |
+| Config        | CLI / `ScanOptions` only    | YAGNI; matches quiet/explain class                   |
+| Bench entry   | `pnpm bench`                | ROADMAP; discoverable                                |
+| Bench vs gate | Separate from `pnpm test`   | Existing policy; M51 also excludes timing gates      |
+| Equivalence   | Structural + fixture parity | No flaky wall-clock in CI (TESTING.md M34 precedent) |
 
 ---
 
 ## Risks
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| Accidental regression of M34 overlap default | Unit test asserts overlap still concurrent when sequential unset |
-| Function-mode allowlist path broken by refactor | Keep function branch; CLI accept test; integration still green |
-| Bench script becomes a hidden CI dependency | Explicit docs + package.json: only `"bench"` references script |
-| Path conflict on `src/scan.ts` | Single owner task for orchestration branch |
+| Risk                                            | Mitigation                                                       |
+| ----------------------------------------------- | ---------------------------------------------------------------- |
+| Accidental regression of M34 overlap default    | Unit test asserts overlap still concurrent when sequential unset |
+| Function-mode allowlist path broken by refactor | Keep function branch; CLI accept test; integration still green   |
+| Bench script becomes a hidden CI dependency     | Explicit docs + package.json: only `"bench"` references script   |
+| Path conflict on `src/scan.ts`                  | Single owner task for orchestration branch                       |
 
 ---
 
 ## Requirement → Component Mapping
 
-| IDs | Component |
-| --- | --------- |
-| HOTSPOT-710, 712, 713, 714, 715 | `runScan` + `ScanOptions` |
-| HOTSPOT-711, 717, 718 | CLI / scan-actions |
-| HOTSPOT-716, 719, 720 | Unit + integration tests |
-| HOTSPOT-721–726 | Bench harness + benchmark-scan.md |
-| HOTSPOT-727–729 | Living docs + full gate |
+| IDs                             | Component                         |
+| ------------------------------- | --------------------------------- |
+| HOTSPOT-710, 712, 713, 714, 715 | `runScan` + `ScanOptions`         |
+| HOTSPOT-711, 717, 718           | CLI / scan-actions                |
+| HOTSPOT-716, 719, 720           | Unit + integration tests          |
+| HOTSPOT-721–726                 | Bench harness + benchmark-scan.md |
+| HOTSPOT-727–729                 | Living docs + full gate           |

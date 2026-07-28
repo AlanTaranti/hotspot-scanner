@@ -42,23 +42,23 @@ flowchart TD
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `DEFAULT_WORKER_CONCURRENCY` / `createWorkerPool` | `src/complexity/pool.ts` | Reuse default; pass `concurrency` from scan deps |
-| `ComplexityAnalyzerDependencies.concurrency` | `src/complexity/index.ts` | Already injectable — wire from `runScan` |
-| `maybeLogProgress` / `logWarning` | `src/diagnostics/logger.ts` | Extend for phase + severity prefixes |
-| `onProgress` / `onWarning` hooks | `src/types/domain.ts`, miners, `scan.ts` | Evolve payload/types |
-| Config merge / CLI overrides | `src/config/merge-options.ts`, `bin/hotspot-scanner.ts` | Add `concurrency` like `top` |
-| Compare warnings | `src/compare/compare.ts` | Emit `ScanWarning` instead of string |
-| JSON schemas + contract tests | `schemas/`, `tests/contract/` | Additive `ScanWarning` defs |
+| Component                                         | Location                                                | How to Use                                       |
+| ------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------ |
+| `DEFAULT_WORKER_CONCURRENCY` / `createWorkerPool` | `src/complexity/pool.ts`                                | Reuse default; pass `concurrency` from scan deps |
+| `ComplexityAnalyzerDependencies.concurrency`      | `src/complexity/index.ts`                               | Already injectable — wire from `runScan`         |
+| `maybeLogProgress` / `logWarning`                 | `src/diagnostics/logger.ts`                             | Extend for phase + severity prefixes             |
+| `onProgress` / `onWarning` hooks                  | `src/types/domain.ts`, miners, `scan.ts`                | Evolve payload/types                             |
+| Config merge / CLI overrides                      | `src/config/merge-options.ts`, `bin/hotspot-scanner.ts` | Add `concurrency` like `top`                     |
+| Compare warnings                                  | `src/compare/compare.ts`                                | Emit `ScanWarning` instead of string             |
+| JSON schemas + contract tests                     | `schemas/`, `tests/contract/`                           | Additive `ScanWarning` defs                      |
 
 ### Integration Points
 
-| System | Integration Method |
-| ------ | ------------------ |
-| Complexity pool (M15) | Pass resolved concurrency into `createComplexityAnalyzer({ concurrency })` |
-| Function churn (M23) | Add `phase: "function-churn"` to existing `onProgress` calls |
-| Reporter / CSV compare meta | Render `ScanWarning` objects; update CSV `meta.json` warnings shape |
+| System                        | Integration Method                                                         |
+| ----------------------------- | -------------------------------------------------------------------------- |
+| Complexity pool (M15)         | Pass resolved concurrency into `createComplexityAnalyzer({ concurrency })` |
+| Function churn (M23)          | Add `phase: "function-churn"` to existing `onProgress` calls               |
+| Reporter / CSV compare meta   | Render `ScanWarning` objects; update CSV `meta.json` warnings shape        |
 | Package `#diagnostics` export | Export new helpers/types as needed without breaking existing named exports |
 
 ---
@@ -157,57 +157,57 @@ See Components § Domain types.
 
 ### Warning code catalog (M28)
 
-| Code | Severity | Emitter | Operator interpretation (docs) |
-| ---- | -------- | ------- | ------------------------------ |
-| `EMPTY_SINCE_WINDOW` | warning | git / function-churn | No commits in `--since`; rankings may be empty or sparse — widen window |
-| `RENAME_HISTORY_INCOMPLETE` | warning | git / function-churn | Rename tracking incomplete for path — history may split; see M26 for deeper rename UX |
-| `PARSE_FAILED` | warning | complexity | File skipped in complexity — fix syntax or exclude path |
-| `COMPARE_SINCE_MISMATCH` | warning | compare | Baseline/current `--since` differ — deltas less comparable |
+| Code                        | Severity | Emitter              | Operator interpretation (docs)                                                        |
+| --------------------------- | -------- | -------------------- | ------------------------------------------------------------------------------------- |
+| `EMPTY_SINCE_WINDOW`        | warning  | git / function-churn | No commits in `--since`; rankings may be empty or sparse — widen window               |
+| `RENAME_HISTORY_INCOMPLETE` | warning  | git / function-churn | Rename tracking incomplete for path — history may split; see M26 for deeper rename UX |
+| `PARSE_FAILED`              | warning  | complexity           | File skipped in complexity — fix syntax or exclude path                               |
+| `COMPARE_SINCE_MISMATCH`    | warning  | compare              | Baseline/current `--since` differ — deltas less comparable                            |
 
 ---
 
 ## Error Handling Strategy
 
-| Error Scenario | Handling | User Impact |
-| -------------- | -------- | ----------- |
-| `--concurrency` ≤ 0 / non-integer | `CliUsageError` before scan | Non-zero exit; no partial report |
-| Config `concurrency` invalid | `ConfigError` | Non-zero exit |
-| Worker throw (unchanged) | Propagate from analyzer | Scan fails with context |
-| Parse failure (unchanged semantics) | `ScanWarning` + skip file | Scan continues; warning in meta + stderr |
-| Empty `--since` window | `ScanWarning` | Scan continues |
+| Error Scenario                      | Handling                    | User Impact                              |
+| ----------------------------------- | --------------------------- | ---------------------------------------- |
+| `--concurrency` ≤ 0 / non-integer   | `CliUsageError` before scan | Non-zero exit; no partial report         |
+| Config `concurrency` invalid        | `ConfigError`               | Non-zero exit                            |
+| Worker throw (unchanged)            | Propagate from analyzer     | Scan fails with context                  |
+| Parse failure (unchanged semantics) | `ScanWarning` + skip file   | Scan continues; warning in meta + stderr |
+| Empty `--since` window              | `ScanWarning`               | Scan continues                           |
 
 ---
 
 ## Tech Decisions
 
-| ID | Decision | Choice | Rationale |
-| -- | -------- | ------ | --------- |
-| D1 | Concurrency surface | CLI + config | ROADMAP + existing merge pattern |
-| D2 | Default | Unchanged `min(availableParallelism(), 4)` | CONCERNS / M15 |
-| D3 | Progress phases | `git` \| `function-churn` only | Patch-stream UX; YAGNI complexity phase |
-| D4 | Warning shape | `ScanWarning` objects | Severity + codes for docs/JSON |
-| D5 | Schema version | Keep `"1.0"` | Additive scan field; compare warnings shape change documented |
-| D6 | M26 boundary | No new rename-confidence warnings | ROADMAP hard boundary |
-| D7 | Batch size flag | Out of scope | M15 context |
+| ID  | Decision            | Choice                                     | Rationale                                                     |
+| --- | ------------------- | ------------------------------------------ | ------------------------------------------------------------- |
+| D1  | Concurrency surface | CLI + config                               | ROADMAP + existing merge pattern                              |
+| D2  | Default             | Unchanged `min(availableParallelism(), 4)` | CONCERNS / M15                                                |
+| D3  | Progress phases     | `git` \| `function-churn` only             | Patch-stream UX; YAGNI complexity phase                       |
+| D4  | Warning shape       | `ScanWarning` objects                      | Severity + codes for docs/JSON                                |
+| D5  | Schema version      | Keep `"1.0"`                               | Additive scan field; compare warnings shape change documented |
+| D6  | M26 boundary        | No new rename-confidence warnings          | ROADMAP hard boundary                                         |
+| D7  | Batch size flag     | Out of scope                               | M15 context                                                   |
 
 ### CONCERNS mitigations
 
-| Concern | Design response |
-| ------- | ---------------- |
+| Concern                           | Design response                                                               |
+| --------------------------------- | ----------------------------------------------------------------------------- |
 | RT-001 memory (N workers × batch) | Document that raising `--concurrency` increases memory; default cap 4 remains |
-| Fragile git/complexity | Co-located tests; no parse/McCabe semantic changes |
-| Rename warnings | Only re-wrap existing incomplete-rename string; M26 owns new content |
+| Fragile git/complexity            | Co-located tests; no parse/McCabe semantic changes                            |
+| Rename warnings                   | Only re-wrap existing incomplete-rename string; M26 owns new content          |
 
 ---
 
 ## Testing Strategy
 
-| Layer | Focus |
-| ----- | ----- |
-| Unit | config merge concurrency; diagnostics phase/severity; miner progress phase; warning codes; compare structured warning |
-| Contract | `schemas/scan-result.json`, `schemas/compare-result.json` + `tests/contract/json-schema.test.ts` |
-| Integration / CLI | `--concurrency` valid/invalid; function-mode JSON `meta.warnings`; progress callbacks |
-| Gate | `pnpm build && pnpm test` |
+| Layer             | Focus                                                                                                                 |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Unit              | config merge concurrency; diagnostics phase/severity; miner progress phase; warning codes; compare structured warning |
+| Contract          | `schemas/scan-result.json`, `schemas/compare-result.json` + `tests/contract/json-schema.test.ts`                      |
+| Integration / CLI | `--concurrency` valid/invalid; function-mode JSON `meta.warnings`; progress callbacks                                 |
+| Gate              | `pnpm build && pnpm test`                                                                                             |
 
 Mock boundaries unchanged (TESTING.md): mock git at miner boundary; mock pool via `createWorkerPool` / `concurrency: 1`.
 
@@ -215,12 +215,12 @@ Mock boundaries unchanged (TESTING.md): mock git at miner boundary; mock pool vi
 
 ## Documentation Updates (Execute)
 
-| Doc | Update |
-| --- | ------ |
-| README | `--concurrency`, default formula, warning codes / severity, progress phases |
-| ARCHITECTURE | CLI concurrency wiring; progress phases; `meta.warnings` |
-| CONCERNS | Operator override note under AST concurrency |
-| TESTING | Contract notes for `ScanWarning` |
-| INTEGRATIONS | Only if export surface of `#diagnostics` changes materially |
+| Doc          | Update                                                                      |
+| ------------ | --------------------------------------------------------------------------- |
+| README       | `--concurrency`, default formula, warning codes / severity, progress phases |
+| ARCHITECTURE | CLI concurrency wiring; progress phases; `meta.warnings`                    |
+| CONCERNS     | Operator override note under AST concurrency                                |
+| TESTING      | Contract notes for `ScanWarning`                                            |
+| INTEGRATIONS | Only if export surface of `#diagnostics` changes materially                 |
 
 ROADMAP/STATE: **deferred to parent** per planning request.

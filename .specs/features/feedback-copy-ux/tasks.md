@@ -41,55 +41,55 @@ flowchart LR
 
 | Task | Depends on (declared) | Diagram shows | Match |
 | ---- | --------------------- | ------------- | ----- |
-| T1 | None | Root parallel | ✅ |
-| T2 | None | Root parallel | ✅ |
-| T3 | T1, T2 | T1→T3, T2→T3 | ✅ |
-| T4 | T3 | T3→T4 | ✅ |
-| T5 | T4 | T4→T5 | ✅ |
+| T1   | None                  | Root parallel | ✅    |
+| T2   | None                  | Root parallel | ✅    |
+| T3   | T1, T2                | T1→T3, T2→T3  | ✅    |
+| T4   | T3                    | T3→T4         | ✅    |
+| T5   | T4                    | T4→T5         | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | report | `src/report/summary.ts`, `src/report/summary.test.ts`; smoke updates in `compare-table.test.ts` / `compare-markdown.test.ts` / `table.test.ts` / `markdown.test.ts` as needed | Sole report owner for summary copy |
-| T2 | diagnostics | `src/diagnostics/logger.ts`, `src/diagnostics/logger.test.ts`; `src/diagnostics/index.ts` only if exporting new option types | Sole diagnostics owner; **no** bin yet |
-| T3 | bin (+ compare hint) | `bin/scan-actions.ts`, `bin/hotspot-scanner.ts`, `bin/hotspot-scanner.test.ts`; `src/compare/load-baseline.ts`, `src/compare/load-baseline.test.ts` for Hint text | After T1/T2; only T3 touches bin + load-baseline hint |
-| T4 | docs | `README.md`; optional `.specs/codebase/ARCHITECTURE.md` one-line timings note | After T3 |
-| T5 | gate | none (verify) | After T4 |
+| Task | Module owner         | Paths                                                                                                                                                                         | Conflict                                              |
+| ---- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| T1   | report               | `src/report/summary.ts`, `src/report/summary.test.ts`; smoke updates in `compare-table.test.ts` / `compare-markdown.test.ts` / `table.test.ts` / `markdown.test.ts` as needed | Sole report owner for summary copy                    |
+| T2   | diagnostics          | `src/diagnostics/logger.ts`, `src/diagnostics/logger.test.ts`; `src/diagnostics/index.ts` only if exporting new option types                                                  | Sole diagnostics owner; **no** bin yet                |
+| T3   | bin (+ compare hint) | `bin/scan-actions.ts`, `bin/hotspot-scanner.ts`, `bin/hotspot-scanner.test.ts`; `src/compare/load-baseline.ts`, `src/compare/load-baseline.test.ts` for Hint text             | After T1/T2; only T3 touches bin + load-baseline hint |
+| T4   | docs                 | `README.md`; optional `.specs/codebase/ARCHITECTURE.md` one-line timings note                                                                                                 | After T3                                              |
+| T5   | gate                 | none (verify)                                                                                                                                                                 | After T4                                              |
 
 T1 `[P]` with T2 — disjoint `src/report/` vs `src/diagnostics/`. No other `[P]`.
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task says | Match |
-| ---- | ---------- | ---------------------- | --------- | ----- |
-| T1 | `src/report/` | Unit | unit in same task | ✅ |
-| T2 | `src/diagnostics/` | Unit | unit in same task | ✅ |
-| T3 | `bin/` + `src/compare/` | Unit | unit in same task | ✅ |
-| T4 | Docs | none | none | ✅ |
-| T5 | Full project | Gate | `pnpm build && pnpm test` | ✅ |
+| Task | Code layer              | TESTING.md expectation | Task says                 | Match |
+| ---- | ----------------------- | ---------------------- | ------------------------- | ----- |
+| T1   | `src/report/`           | Unit                   | unit in same task         | ✅    |
+| T2   | `src/diagnostics/`      | Unit                   | unit in same task         | ✅    |
+| T3   | `bin/` + `src/compare/` | Unit                   | unit in same task         | ✅    |
+| T4   | Docs                    | none                   | none                      | ✅    |
+| T5   | Full project            | Gate                   | `pnpm build && pnpm test` | ✅    |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Summary Timing + empty compare copy + tests | ✅ Cohesive report |
-| T2 | First-progress since prefix + tests | ✅ Cohesive diagnostics |
-| T3 | Bin feedback + exit/hints/help + compare hint | ✅ Cohesive CLI surface |
-| T4 | README de-jargon | ✅ Granular |
-| T5 | Project gate | ✅ Granular |
+| Task | Scope                                         | Status                  |
+| ---- | --------------------------------------------- | ----------------------- |
+| T1   | Summary Timing + empty compare copy + tests   | ✅ Cohesive report      |
+| T2   | First-progress since prefix + tests           | ✅ Cohesive diagnostics |
+| T3   | Bin feedback + exit/hints/help + compare hint | ✅ Cohesive CLI surface |
+| T4   | README de-jargon                              | ✅ Granular             |
+| T5   | Project gate                                  | ✅ Granular             |
 
 ### Requirement → Task Mapping
 
-| Requirement ID | Task |
-| -------------- | ---- |
-| HOTSPOT-1031, HOTSPOT-1036, HOTSPOT-1037 | T1 |
-| HOTSPOT-1034, HOTSPOT-1035 | T2 |
-| HOTSPOT-1030, HOTSPOT-1032, HOTSPOT-1033, HOTSPOT-1038, HOTSPOT-1039, HOTSPOT-1040 | T3 |
-| HOTSPOT-1041, HOTSPOT-1042 | T4 |
-| (gate) | T5 |
-| HOTSPOT-1043–1045 | Unused stretch (available) |
-| HOTSPOT-1046–1059 | Reserved — unused |
+| Requirement ID                                                                     | Task                       |
+| ---------------------------------------------------------------------------------- | -------------------------- |
+| HOTSPOT-1031, HOTSPOT-1036, HOTSPOT-1037                                           | T1                         |
+| HOTSPOT-1034, HOTSPOT-1035                                                         | T2                         |
+| HOTSPOT-1030, HOTSPOT-1032, HOTSPOT-1033, HOTSPOT-1038, HOTSPOT-1039, HOTSPOT-1040 | T3                         |
+| HOTSPOT-1041, HOTSPOT-1042                                                         | T4                         |
+| (gate)                                                                             | T5                         |
+| HOTSPOT-1043–1045                                                                  | Unused stretch (available) |
+| HOTSPOT-1046–1059                                                                  | Reserved — unused          |
 
 ---
 

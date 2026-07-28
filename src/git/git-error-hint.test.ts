@@ -84,9 +84,7 @@ describe("formatGitStderrHint", () => {
     });
 
     it("prefers since/date over corrupt when both cues appear", () => {
-      expect(
-        formatGitStderrHint("bad date and corrupt object at abc"),
-      ).toBe(
+      expect(formatGitStderrHint("bad date and corrupt object at abc")).toBe(
         "Fix --since or config since — use a relative window (e.g. `12 months ago`) or an ISO date (YYYY-MM-DD).",
       );
     });

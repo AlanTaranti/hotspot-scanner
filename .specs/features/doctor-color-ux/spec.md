@@ -28,17 +28,17 @@
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Color message body / paths / numbers | YAGNI — prefix scan is enough |
-| `FORCE_COLOR` | M41 YAGNI lock |
-| Color in JSON output | Machine formats stay plain (M41 spirit) |
-| New color libraries (chalk, etc.) | M41 — raw ANSI only |
-| Changing finding messages or exit codes | Unrelated |
-| Scan / trend table color changes | Sister M41 only |
-| Doctor `--output` / file write path | Doctor has no `--output` |
-| Hoisting `--no-color` to program-global | YAGNI — doctor subcommand flag only |
-| M73 top-only-rollups | Separate milestone |
+| Feature                                 | Reason                                  |
+| --------------------------------------- | --------------------------------------- |
+| Color message body / paths / numbers    | YAGNI — prefix scan is enough           |
+| `FORCE_COLOR`                           | M41 YAGNI lock                          |
+| Color in JSON output                    | Machine formats stay plain (M41 spirit) |
+| New color libraries (chalk, etc.)       | M41 — raw ANSI only                     |
+| Changing finding messages or exit codes | Unrelated                               |
+| Scan / trend table color changes        | Sister M41 only                         |
+| Doctor `--output` / file write path     | Doctor has no `--output`                |
+| Hoisting `--no-color` to program-global | YAGNI — doctor subcommand flag only     |
+| M73 top-only-rollups                    | Separate milestone                      |
 
 ---
 
@@ -127,21 +127,21 @@
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-1520 | P1: Colorize `pass:` / `warn:` / `fail:` prefixes | Tasks | Pending |
-| HOTSPOT-1521 | P1: Message body uncolored | Tasks | Pending |
-| HOTSPOT-1522 | P1: `stripAnsi` equals plain lines | Tasks | Pending |
-| HOTSPOT-1523 | P1: Non-TTY → plain | Tasks | Pending |
-| HOTSPOT-1524 | P1: `--no-color` → plain | Tasks | Pending |
-| HOTSPOT-1525 | P1: Non-empty `NO_COLOR` → plain | Tasks | Pending |
-| HOTSPOT-1526 | P1: JSON never colored | Tasks | Pending |
-| HOTSPOT-1527 | P1: Color not a config key | Tasks | Pending |
-| HOTSPOT-1528 | P1: Doctor `--no-color` flag | Tasks | Pending |
-| HOTSPOT-1529 | P2: README doctor color note | Tasks | Pending |
-| HOTSPOT-1530 | P2: ARCHITECTURE/CONVENTIONS note | Tasks | Pending |
-| HOTSPOT-1531–1534 | — | — | Buffer |
-| HOTSPOT-1535–1539 | — | — | Reserved |
+| Requirement ID    | Story                                             | Phase | Status   |
+| ----------------- | ------------------------------------------------- | ----- | -------- |
+| HOTSPOT-1520      | P1: Colorize `pass:` / `warn:` / `fail:` prefixes | Tasks | Pending  |
+| HOTSPOT-1521      | P1: Message body uncolored                        | Tasks | Pending  |
+| HOTSPOT-1522      | P1: `stripAnsi` equals plain lines                | Tasks | Pending  |
+| HOTSPOT-1523      | P1: Non-TTY → plain                               | Tasks | Pending  |
+| HOTSPOT-1524      | P1: `--no-color` → plain                          | Tasks | Pending  |
+| HOTSPOT-1525      | P1: Non-empty `NO_COLOR` → plain                  | Tasks | Pending  |
+| HOTSPOT-1526      | P1: JSON never colored                            | Tasks | Pending  |
+| HOTSPOT-1527      | P1: Color not a config key                        | Tasks | Pending  |
+| HOTSPOT-1528      | P1: Doctor `--no-color` flag                      | Tasks | Pending  |
+| HOTSPOT-1529      | P2: README doctor color note                      | Tasks | Pending  |
+| HOTSPOT-1530      | P2: ARCHITECTURE/CONVENTIONS note                 | Tasks | Pending  |
+| HOTSPOT-1531–1534 | —                                                 | —     | Buffer   |
+| HOTSPOT-1535–1539 | —                                                 | —     | Reserved |
 
 ---
 

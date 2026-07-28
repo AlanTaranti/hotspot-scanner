@@ -24,15 +24,15 @@ Adopters get a minimal empty-array init exemplar, no machine-readable config sch
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Interactive init wizard / prompts | YAGNI |
-| Doctor auto-fix / mutating repo | Diagnose only (M39) |
-| New known scan config keys | YAGNI |
+| Feature                                          | Reason                                      |
+| ------------------------------------------------ | ------------------------------------------- |
+| Interactive init wizard / prompts                | YAGNI                                       |
+| Doctor auto-fix / mutating repo                  | Diagnose only (M39)                         |
+| New known scan config keys                       | YAGNI                                       |
 | Doctor CLI `--since` / `--include` / `--exclude` | M52; use config or dry-run / `config print` |
-| PathScope / default exclude changes | Sisters |
-| ScanResult / CompareResult version bump | Unrelated |
-| npm publish | Deferred horizon |
+| PathScope / default exclude changes              | Sisters                                     |
+| ScanResult / CompareResult version bump          | Unrelated                                   |
+| npm publish                                      | Deferred horizon                            |
 
 ---
 
@@ -229,45 +229,45 @@ Adopters get a minimal empty-array init exemplar, no machine-readable config sch
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-1100 | P1: Reserved meta keys | Tasks | Pending |
-| HOTSPOT-1101 | P1: Reserved meta keys | Tasks | Pending |
-| HOTSPOT-1102 | P1: Richer init exemplar | Tasks | Pending |
-| HOTSPOT-1103 | P1: Richer init exemplar | Tasks | Pending |
-| HOTSPOT-1104 | P1: Richer init exemplar | Tasks | Pending |
-| HOTSPOT-1105 | P1: Richer init exemplar | Tasks | Pending |
-| HOTSPOT-1106 | P1: Richer init exemplar | Tasks | Pending |
-| HOTSPOT-1107 | P1: Config schema + exports | Tasks | Pending |
-| HOTSPOT-1108 | P1: Config schema + exports | Tasks | Pending |
-| HOTSPOT-1109 | P1: Config schema + exports | Tasks | Pending |
-| HOTSPOT-1110 | P1: Config schema + exports | Tasks | Pending |
-| HOTSPOT-1111 | P1: config validate | Tasks | Pending |
-| HOTSPOT-1112 | P1: config validate | Tasks | Pending |
-| HOTSPOT-1113 | P1: config validate | Tasks | Pending |
-| HOTSPOT-1114 | P1: config validate | Tasks | Pending |
-| HOTSPOT-1115 | P1: config validate | Tasks | Pending |
-| HOTSPOT-1116 | P1: config print | Tasks | Pending |
-| HOTSPOT-1117 | P1: config print | Tasks | Pending |
-| HOTSPOT-1118 | P1: config print | Tasks | Pending |
-| HOTSPOT-1119 | P1: config print | Tasks | Pending |
-| HOTSPOT-1120 | P1: config print | Tasks | Pending |
-| HOTSPOT-1121 | P1: config print | Tasks | Pending |
-| HOTSPOT-1122 | P1: config print | Tasks | Pending |
-| HOTSPOT-1123 | P1: Dry-run enrichment | Tasks | Pending |
-| HOTSPOT-1124 | P1: Dry-run enrichment | Tasks | Pending |
-| HOTSPOT-1125 | P1: Dry-run enrichment | Tasks | Pending |
-| HOTSPOT-1126 | P1: Dry-run enrichment | Tasks | Pending |
-| HOTSPOT-1127 | P1: Dry-run enrichment | Tasks | Pending |
-| HOTSPOT-1128 | P1: Dry-run enrichment | Tasks | Pending |
-| HOTSPOT-1129 | P1: Doctor since preflight | Tasks | Pending |
-| HOTSPOT-1130 | P1: Doctor since preflight | Tasks | Pending |
-| HOTSPOT-1131 | P1: Doctor since preflight | Tasks | Pending |
-| HOTSPOT-1132 | P1: Doctor since preflight | Tasks | Pending |
-| HOTSPOT-1133 | P1: Doctor since preflight | Tasks | Pending |
-| HOTSPOT-1134 | P1: Doctor unknown-key surfacing | Tasks | Pending |
-| HOTSPOT-1135 | P2: Living documentation | Tasks | Pending |
-| HOTSPOT-1136–1139 | — | — | Reserved |
+| Requirement ID    | Story                            | Phase | Status   |
+| ----------------- | -------------------------------- | ----- | -------- |
+| HOTSPOT-1100      | P1: Reserved meta keys           | Tasks | Pending  |
+| HOTSPOT-1101      | P1: Reserved meta keys           | Tasks | Pending  |
+| HOTSPOT-1102      | P1: Richer init exemplar         | Tasks | Pending  |
+| HOTSPOT-1103      | P1: Richer init exemplar         | Tasks | Pending  |
+| HOTSPOT-1104      | P1: Richer init exemplar         | Tasks | Pending  |
+| HOTSPOT-1105      | P1: Richer init exemplar         | Tasks | Pending  |
+| HOTSPOT-1106      | P1: Richer init exemplar         | Tasks | Pending  |
+| HOTSPOT-1107      | P1: Config schema + exports      | Tasks | Pending  |
+| HOTSPOT-1108      | P1: Config schema + exports      | Tasks | Pending  |
+| HOTSPOT-1109      | P1: Config schema + exports      | Tasks | Pending  |
+| HOTSPOT-1110      | P1: Config schema + exports      | Tasks | Pending  |
+| HOTSPOT-1111      | P1: config validate              | Tasks | Pending  |
+| HOTSPOT-1112      | P1: config validate              | Tasks | Pending  |
+| HOTSPOT-1113      | P1: config validate              | Tasks | Pending  |
+| HOTSPOT-1114      | P1: config validate              | Tasks | Pending  |
+| HOTSPOT-1115      | P1: config validate              | Tasks | Pending  |
+| HOTSPOT-1116      | P1: config print                 | Tasks | Pending  |
+| HOTSPOT-1117      | P1: config print                 | Tasks | Pending  |
+| HOTSPOT-1118      | P1: config print                 | Tasks | Pending  |
+| HOTSPOT-1119      | P1: config print                 | Tasks | Pending  |
+| HOTSPOT-1120      | P1: config print                 | Tasks | Pending  |
+| HOTSPOT-1121      | P1: config print                 | Tasks | Pending  |
+| HOTSPOT-1122      | P1: config print                 | Tasks | Pending  |
+| HOTSPOT-1123      | P1: Dry-run enrichment           | Tasks | Pending  |
+| HOTSPOT-1124      | P1: Dry-run enrichment           | Tasks | Pending  |
+| HOTSPOT-1125      | P1: Dry-run enrichment           | Tasks | Pending  |
+| HOTSPOT-1126      | P1: Dry-run enrichment           | Tasks | Pending  |
+| HOTSPOT-1127      | P1: Dry-run enrichment           | Tasks | Pending  |
+| HOTSPOT-1128      | P1: Dry-run enrichment           | Tasks | Pending  |
+| HOTSPOT-1129      | P1: Doctor since preflight       | Tasks | Pending  |
+| HOTSPOT-1130      | P1: Doctor since preflight       | Tasks | Pending  |
+| HOTSPOT-1131      | P1: Doctor since preflight       | Tasks | Pending  |
+| HOTSPOT-1132      | P1: Doctor since preflight       | Tasks | Pending  |
+| HOTSPOT-1133      | P1: Doctor since preflight       | Tasks | Pending  |
+| HOTSPOT-1134      | P1: Doctor unknown-key surfacing | Tasks | Pending  |
+| HOTSPOT-1135      | P2: Living documentation         | Tasks | Pending  |
+| HOTSPOT-1136–1139 | —                                | —     | Reserved |
 
 **Coverage:** 36 assigned (1100–1135), 4 reserved (1136–1139). All assigned map to tasks.
 

@@ -18,15 +18,15 @@ Operators see hotspot rankings but cannot see **why** a file or function scored 
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Historical AST / blame-based attribution | CONCERNS deferred; M26 avisos-only boundary |
-| Changing McCabe decision nodes | RT-005 |
-| Changing warning `code` strings | Stable M26/M28 catalog |
-| Triage hints, legends, colors, `--only` | M41 |
-| `--no-progress` / `--quiet` / `--verbose` | M38 (sister; honor later via same hook) |
-| Explain-only / partial pipeline | Locked: full scan always |
-| Explain embedded in JSON schema | stderr CLI only; `version: "1.0"` unchanged |
+| Feature                                   | Reason                                      |
+| ----------------------------------------- | ------------------------------------------- |
+| Historical AST / blame-based attribution  | CONCERNS deferred; M26 avisos-only boundary |
+| Changing McCabe decision nodes            | RT-005                                      |
+| Changing warning `code` strings           | Stable M26/M28 catalog                      |
+| Triage hints, legends, colors, `--only`   | M41                                         |
+| `--no-progress` / `--quiet` / `--verbose` | M38 (sister; honor later via same hook)     |
+| Explain-only / partial pipeline           | Locked: full scan always                    |
+| Explain embedded in JSON schema           | stderr CLI only; `version: "1.0"` unchanged |
 
 ---
 
@@ -100,38 +100,38 @@ Operators see hotspot rankings but cannot see **why** a file or function scored 
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-540 | P1: Explain — CLI `--explain` flag | Tasks | Pending |
-| HOTSPOT-541 | P1: Explain — file-mode breakdown fields | Tasks | Pending |
-| HOTSPOT-542 | P1: Explain — function-mode single-target breakdown | Tasks | Pending |
-| HOTSPOT-543 | P1: Explain — function-mode path-only (all functions in file) | Tasks | Pending |
-| HOTSPOT-544 | P1: Explain — not-found message, exit 0 | Tasks | Pending |
-| HOTSPOT-545 | P1: Explain — file mode rejects `:function` | Tasks | Pending |
-| HOTSPOT-546 | P1: Explain — grammar parse (last `:` + name pattern) | Tasks | Pending |
-| HOTSPOT-547 | P1: Explain — stderr only; stdout formats intact | Tasks | Pending |
-| HOTSPOT-548 | P1: Explain — full scan always; lookup vs full rankings / `--top` | Tasks | Pending |
-| HOTSPOT-549 | P1: Explain — path normalization | Tasks | Pending |
-| HOTSPOT-550 | P1: Rename — append next-steps to ambiguous messages | Tasks | Pending |
-| HOTSPOT-551 | P1: Rename — append next-steps to unlinked messages | Tasks | Pending |
-| HOTSPOT-552 | P1: Rename — append next-steps to `--since` truncation | Tasks | Pending |
-| HOTSPOT-553 | P1: Rename — append next-steps to function pós-rename overlap | Tasks | Pending |
-| HOTSPOT-554 | P1: Rename — stable `code` values unchanged | Tasks | Pending |
-| HOTSPOT-555 | P1: Rename — tests/fixtures updated for message suffix | Tasks | Pending |
-| HOTSPOT-556 | P1: Progress — `ScanProgressPhase` includes `complexity` | Tasks | Pending |
-| HOTSPOT-557 | P1: Progress — `ScanProgress` additive file/batch fields | Tasks | Pending |
-| HOTSPOT-558 | P1: Progress — emit from complexity analyzer/pool | Tasks | Pending |
-| HOTSPOT-559 | P1: Progress — `runScan` forwards `onProgress` to complexity | Tasks | Pending |
-| HOTSPOT-560 | P1: Progress — diagnostics stderr format for complexity | Tasks | Pending |
-| HOTSPOT-561 | P1: Progress — inline (`concurrency === 1`) path emits | Tasks | Pending |
-| HOTSPOT-562 | P1: Progress — worker-pool path emits | Tasks | Pending |
-| HOTSPOT-563 | P1: Progress — git/function-churn semantics unchanged | Tasks | Pending |
-| HOTSPOT-564 | P1: Docs — ARCHITECTURE progress table + explain CLI | Tasks | Pending |
-| HOTSPOT-565 | P1: Docs — README `--explain` + rename next-steps note | Tasks | Pending |
-| HOTSPOT-566 | P1: Docs — CONCERNS/TESTING notes as needed | Tasks | Pending |
-| HOTSPOT-567 | Reserved | — | Unused |
-| HOTSPOT-568 | Reserved | — | Unused |
-| HOTSPOT-569 | P1: Full project gate | Tasks | Pending |
+| Requirement ID | Story                                                             | Phase | Status  |
+| -------------- | ----------------------------------------------------------------- | ----- | ------- |
+| HOTSPOT-540    | P1: Explain — CLI `--explain` flag                                | Tasks | Pending |
+| HOTSPOT-541    | P1: Explain — file-mode breakdown fields                          | Tasks | Pending |
+| HOTSPOT-542    | P1: Explain — function-mode single-target breakdown               | Tasks | Pending |
+| HOTSPOT-543    | P1: Explain — function-mode path-only (all functions in file)     | Tasks | Pending |
+| HOTSPOT-544    | P1: Explain — not-found message, exit 0                           | Tasks | Pending |
+| HOTSPOT-545    | P1: Explain — file mode rejects `:function`                       | Tasks | Pending |
+| HOTSPOT-546    | P1: Explain — grammar parse (last `:` + name pattern)             | Tasks | Pending |
+| HOTSPOT-547    | P1: Explain — stderr only; stdout formats intact                  | Tasks | Pending |
+| HOTSPOT-548    | P1: Explain — full scan always; lookup vs full rankings / `--top` | Tasks | Pending |
+| HOTSPOT-549    | P1: Explain — path normalization                                  | Tasks | Pending |
+| HOTSPOT-550    | P1: Rename — append next-steps to ambiguous messages              | Tasks | Pending |
+| HOTSPOT-551    | P1: Rename — append next-steps to unlinked messages               | Tasks | Pending |
+| HOTSPOT-552    | P1: Rename — append next-steps to `--since` truncation            | Tasks | Pending |
+| HOTSPOT-553    | P1: Rename — append next-steps to function pós-rename overlap     | Tasks | Pending |
+| HOTSPOT-554    | P1: Rename — stable `code` values unchanged                       | Tasks | Pending |
+| HOTSPOT-555    | P1: Rename — tests/fixtures updated for message suffix            | Tasks | Pending |
+| HOTSPOT-556    | P1: Progress — `ScanProgressPhase` includes `complexity`          | Tasks | Pending |
+| HOTSPOT-557    | P1: Progress — `ScanProgress` additive file/batch fields          | Tasks | Pending |
+| HOTSPOT-558    | P1: Progress — emit from complexity analyzer/pool                 | Tasks | Pending |
+| HOTSPOT-559    | P1: Progress — `runScan` forwards `onProgress` to complexity      | Tasks | Pending |
+| HOTSPOT-560    | P1: Progress — diagnostics stderr format for complexity           | Tasks | Pending |
+| HOTSPOT-561    | P1: Progress — inline (`concurrency === 1`) path emits            | Tasks | Pending |
+| HOTSPOT-562    | P1: Progress — worker-pool path emits                             | Tasks | Pending |
+| HOTSPOT-563    | P1: Progress — git/function-churn semantics unchanged             | Tasks | Pending |
+| HOTSPOT-564    | P1: Docs — ARCHITECTURE progress table + explain CLI              | Tasks | Pending |
+| HOTSPOT-565    | P1: Docs — README `--explain` + rename next-steps note            | Tasks | Pending |
+| HOTSPOT-566    | P1: Docs — CONCERNS/TESTING notes as needed                       | Tasks | Pending |
+| HOTSPOT-567    | Reserved                                                          | —     | Unused  |
+| HOTSPOT-568    | Reserved                                                          | —     | Unused  |
+| HOTSPOT-569    | P1: Full project gate                                             | Tasks | Pending |
 
 **Coverage:** 27 mapped requirements (+ 2 reserved), all P1 stories → tasks.
 

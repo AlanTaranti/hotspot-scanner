@@ -21,13 +21,13 @@ Live product surfaces still advertise `github.com/taranti/hotspot-scanner`, whic
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
+| Feature                                      | Reason                            |
+| -------------------------------------------- | --------------------------------- |
 | Rewrite Done historical specs citing old URL | Archive prose; live surfaces only |
-| CI / `.github/workflows` | STATE Deferred (CI recipes) |
-| npm scope rename / publish | M79 + Deferred |
-| Change CLI bin / config / `vitals-*` folders | Unrelated |
-| Tracked remotes file | Contributor note only |
+| CI / `.github/workflows`                     | STATE Deferred (CI recipes)       |
+| npm scope rename / publish                   | M79 + Deferred                    |
+| Change CLI bin / config / `vitals-*` folders | Unrelated                         |
+| Tracked remotes file                         | Contributor note only             |
 
 ---
 
@@ -101,15 +101,15 @@ Live product surfaces still advertise `github.com/taranti/hotspot-scanner`, whic
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-1720 | P1: `repository.url` | Tasks | Pending |
-| HOTSPOT-1721 | P1: `homepage` + `bugs` | Tasks | Pending |
-| HOTSPOT-1722 | P1: README badge + clone | Tasks | Pending |
-| HOTSPOT-1723 | P1: CONTRIBUTING clone + Issues | Tasks | Pending |
-| HOTSPOT-1724 | P1: SECURITY advisories | Tasks | Pending |
-| HOTSPOT-1725 | P1: Live-surface verify + gate | Tasks | Pending |
-| HOTSPOT-1726–1729 | — | — | Reserved |
+| Requirement ID    | Story                           | Phase | Status   |
+| ----------------- | ------------------------------- | ----- | -------- |
+| HOTSPOT-1720      | P1: `repository.url`            | Tasks | Pending  |
+| HOTSPOT-1721      | P1: `homepage` + `bugs`         | Tasks | Pending  |
+| HOTSPOT-1722      | P1: README badge + clone        | Tasks | Pending  |
+| HOTSPOT-1723      | P1: CONTRIBUTING clone + Issues | Tasks | Pending  |
+| HOTSPOT-1724      | P1: SECURITY advisories         | Tasks | Pending  |
+| HOTSPOT-1725      | P1: Live-surface verify + gate  | Tasks | Pending  |
+| HOTSPOT-1726–1729 | —                               | —     | Reserved |
 
 **Coverage:** 6 requirements mapped to tasks (T1–T4); 1726–1729 reserved unused.
 

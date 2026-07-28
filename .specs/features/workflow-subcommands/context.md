@@ -103,12 +103,12 @@
 
 **Choice:**
 
-| Flag | On `baseline save` |
-| ---- | ------------------ |
-| `--output` | Yes (default `./hotspot-baseline.json`) |
+| Flag                                                                                                                       | On `baseline save`                                                                                                         |
+| -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `--output`                                                                                                                 | Yes (default `./hotspot-baseline.json`)                                                                                    |
 | Scan options (`--since`, `--granularity`, `--top`, `--min-cochange`, `--include`/`--exclude`, `--concurrency`, `--config`) | Yes — same merge semantics as `scan` (CLI > config > defaults). `--top` does **not** truncate JSON (M16: ignored for json) |
-| `--format` | **Not exposed** — always ScanResult JSON |
-| `--baseline` | **Not exposed** |
+| `--format`                                                                                                                 | **Not exposed** — always ScanResult JSON                                                                                   |
+| `--baseline`                                                                                                               | **Not exposed**                                                                                                            |
 
 **Rationale:**
 
@@ -154,22 +154,22 @@
 
 ## Out of scope (locked)
 
-| Item | Reason |
-| ---- | ------ |
-| Fail-on thresholds / non-zero exit on delta | STATE: M12 CI gate removed |
-| CI action packaging | Future backlog |
+| Item                                           | Reason                          |
+| ---------------------------------------------- | ------------------------------- |
+| Fail-on thresholds / non-zero exit on delta    | STATE: M12 CI gate removed      |
+| CI action packaging                            | Future backlog                  |
 | Changing `CompareResult` / `ScanResult` schema | Sister of M13/M20 — reuse as-is |
-| Deprecating `scan --baseline` | Explicit keep |
-| DB / remote baseline store | Locked: JSON files only |
+| Deprecating `scan --baseline`                  | Explicit keep                   |
+| DB / remote baseline store                     | Locked: JSON files only         |
 
 ---
 
 ## Related closed decisions
 
-| Decision | Value | Relevance to M40 |
-| -------- | ----- | ---------------- |
-| M13 CLI shape | `scan --baseline` only | M40 **adds** subcommands; does not remove flag |
-| Exit code on successful compare | `0` | Same for `compare` subcommand |
-| JSON `--top` | Ignored (full arrays) | Baseline save always full ScanResult |
-| Baseline validation | Strong `loadBaseline` | Compare path unchanged |
-| Requirement ID range | HOTSPOT-490–509 | M40 allocation |
+| Decision                        | Value                  | Relevance to M40                               |
+| ------------------------------- | ---------------------- | ---------------------------------------------- |
+| M13 CLI shape                   | `scan --baseline` only | M40 **adds** subcommands; does not remove flag |
+| Exit code on successful compare | `0`                    | Same for `compare` subcommand                  |
+| JSON `--top`                    | Ignored (full arrays)  | Baseline save always full ScanResult           |
+| Baseline validation             | Strong `loadBaseline`  | Compare path unchanged                         |
+| Requirement ID range            | HOTSPOT-490–509        | M40 allocation                                 |

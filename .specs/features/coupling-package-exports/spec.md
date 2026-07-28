@@ -25,16 +25,16 @@ After M14/M27/M33, static coupling enrichment resolves relative paths and tsconf
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Full npm / `node_modules` package resolution | YAGNI — workspace/in-repo first ([context.md](./context.md)) |
-| PathAliasMap / historical AST / M26 rename graph | Hard boundary |
-| Changing `ScanResult.version` or new coupling JSON fields | Additive behavior only under `"1.0"` |
-| Source↔dist inventing heuristics | Extension/index candidates only |
-| Full Node ESM_RESOLVE parity | Pragmatic subset |
-| New CLI flags for enrichment | Always-on post-score |
-| This package’s published `"exports"` map / adoption docs | M45 |
-| Changing `couplingStrength` or pair ordering | Temporal ranking authoritative |
+| Feature                                                   | Reason                                                       |
+| --------------------------------------------------------- | ------------------------------------------------------------ |
+| Full npm / `node_modules` package resolution              | YAGNI — workspace/in-repo first ([context.md](./context.md)) |
+| PathAliasMap / historical AST / M26 rename graph          | Hard boundary                                                |
+| Changing `ScanResult.version` or new coupling JSON fields | Additive behavior only under `"1.0"`                         |
+| Source↔dist inventing heuristics                          | Extension/index candidates only                              |
+| Full Node ESM_RESOLVE parity                              | Pragmatic subset                                             |
+| New CLI flags for enrichment                              | Always-on post-score                                         |
+| This package’s published `"exports"` map / adoption docs  | M45                                                          |
+| Changing `couplingStrength` or pair ordering              | Temporal ranking authoritative                               |
 
 ---
 
@@ -204,33 +204,33 @@ After M14/M27/M33, static coupling enrichment resolves relative paths and tsconf
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-590 | P1: exports resolution | Tasks | Pending |
-| HOTSPOT-591 | P1: ranking unchanged | Tasks | Pending |
-| HOTSPOT-592 | P1: field semantics | Tasks | Pending |
-| HOTSPOT-593 | P1: no M14/M27 regression | Tasks | Pending |
-| HOTSPOT-594 | P1: imports `#` | Tasks | Pending |
-| HOTSPOT-595 | P1: exports forms | Tasks | Pending |
-| HOTSPOT-596 | P1: workspace package name | Tasks | Pending |
-| HOTSPOT-597 | P1: conditions | Tasks | Pending |
-| HOTSPOT-598 | P1: miss continues | Tasks | Pending |
-| HOTSPOT-599 | P1: no node_modules | Tasks | Pending |
-| HOTSPOT-600 | P1: M33 graph cache | Tasks | Pending |
-| HOTSPOT-601 | P1: package.json cache | Tasks | Pending |
-| HOTSPOT-602 | P1: no version/schema fields | Tasks | Pending |
-| HOTSPOT-603 | P2: contract regression | Tasks | Pending |
-| HOTSPOT-604 | P2: exports fixture | Tasks | Pending |
-| HOTSPOT-605 | P2: imports fixture | Tasks | Pending |
-| HOTSPOT-606 | P1: kinds/direction | Tasks | Pending |
-| HOTSPOT-607 | P2: no ts-morph | Tasks | Pending |
-| HOTSPOT-608 | P2: CONCERNS gap remove | Tasks | Pending |
-| HOTSPOT-609 | P2: ARCHITECTURE update | Tasks | Pending |
-| HOTSPOT-610 | P1: main fallback | Tasks | Pending |
-| HOTSPOT-611 | P1: malformed package.json | Tasks | Pending |
-| HOTSPOT-612 | P1: single-`*` patterns | Tasks | Pending |
-| HOTSPOT-613 | P1: read-once invariant | Tasks | Pending |
-| HOTSPOT-614 | Gate | Tasks | Pending |
+| Requirement ID | Story                        | Phase | Status  |
+| -------------- | ---------------------------- | ----- | ------- |
+| HOTSPOT-590    | P1: exports resolution       | Tasks | Pending |
+| HOTSPOT-591    | P1: ranking unchanged        | Tasks | Pending |
+| HOTSPOT-592    | P1: field semantics          | Tasks | Pending |
+| HOTSPOT-593    | P1: no M14/M27 regression    | Tasks | Pending |
+| HOTSPOT-594    | P1: imports `#`              | Tasks | Pending |
+| HOTSPOT-595    | P1: exports forms            | Tasks | Pending |
+| HOTSPOT-596    | P1: workspace package name   | Tasks | Pending |
+| HOTSPOT-597    | P1: conditions               | Tasks | Pending |
+| HOTSPOT-598    | P1: miss continues           | Tasks | Pending |
+| HOTSPOT-599    | P1: no node_modules          | Tasks | Pending |
+| HOTSPOT-600    | P1: M33 graph cache          | Tasks | Pending |
+| HOTSPOT-601    | P1: package.json cache       | Tasks | Pending |
+| HOTSPOT-602    | P1: no version/schema fields | Tasks | Pending |
+| HOTSPOT-603    | P2: contract regression      | Tasks | Pending |
+| HOTSPOT-604    | P2: exports fixture          | Tasks | Pending |
+| HOTSPOT-605    | P2: imports fixture          | Tasks | Pending |
+| HOTSPOT-606    | P1: kinds/direction          | Tasks | Pending |
+| HOTSPOT-607    | P2: no ts-morph              | Tasks | Pending |
+| HOTSPOT-608    | P2: CONCERNS gap remove      | Tasks | Pending |
+| HOTSPOT-609    | P2: ARCHITECTURE update      | Tasks | Pending |
+| HOTSPOT-610    | P1: main fallback            | Tasks | Pending |
+| HOTSPOT-611    | P1: malformed package.json   | Tasks | Pending |
+| HOTSPOT-612    | P1: single-`*` patterns      | Tasks | Pending |
+| HOTSPOT-613    | P1: read-once invariant      | Tasks | Pending |
+| HOTSPOT-614    | Gate                         | Tasks | Pending |
 
 **Coverage:** 25 total, mapped in tasks.md
 

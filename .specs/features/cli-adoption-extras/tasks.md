@@ -32,44 +32,44 @@ flowchart LR
 
 | Task | Depends on (declared) | Diagram shows | Match |
 | ---- | --------------------- | ------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T2 | T2 → T3 | ✅ |
+| T1   | None                  | Root          | ✅    |
+| T2   | T1                    | T1 → T2       | ✅    |
+| T3   | T2                    | T2 → T3       | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | bin | `bin/hotspot-scanner.ts`, optional `bin/completion-scripts.ts`, `bin/hotspot-scanner.test.ts`, optional `bin/completion-scripts.test.ts` | Sole bin owner |
-| T2 | docs | `README.md`, `docs/recipes.md`, `.specs/codebase/ARCHITECTURE.md`, `.specs/project/ROADMAP.md`, `.specs/project/STATE.md` | After T1; no `[P]` with bin |
-| T3 | gate | none (verify) | After T2 |
+| Task | Module owner | Paths                                                                                                                                    | Conflict                    |
+| ---- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
+| T1   | bin          | `bin/hotspot-scanner.ts`, optional `bin/completion-scripts.ts`, `bin/hotspot-scanner.test.ts`, optional `bin/completion-scripts.test.ts` | Sole bin owner              |
+| T2   | docs         | `README.md`, `docs/recipes.md`, `.specs/codebase/ARCHITECTURE.md`, `.specs/project/ROADMAP.md`, `.specs/project/STATE.md`                | After T1; no `[P]` with bin |
+| T3   | gate         | none (verify)                                                                                                                            | After T2                    |
 
 No `[P]` — docs depend on CLI surface existing for accurate install examples.
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task says | Match |
-| ---- | ---------- | ---------------------- | --------- | ----- |
-| T1 | `bin/` | Unit | unit in same task | ✅ |
-| T2 | Docs | none | none | ✅ |
-| T3 | Full project | Gate | `pnpm build && pnpm test` | ✅ |
+| Task | Code layer   | TESTING.md expectation | Task says                 | Match |
+| ---- | ------------ | ---------------------- | ------------------------- | ----- |
+| T1   | `bin/`       | Unit                   | unit in same task         | ✅    |
+| T2   | Docs         | none                   | none                      | ✅    |
+| T3   | Full project | Gate                   | `pnpm build && pnpm test` | ✅    |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Completion scripts + subcommand + unit tests | ✅ Cohesive (Small milestone) |
-| T2 | Docs: completion install + `.hotspotignore` rejection | ✅ Granular |
-| T3 | Project gate | ✅ Granular |
+| Task | Scope                                                 | Status                        |
+| ---- | ----------------------------------------------------- | ----------------------------- |
+| T1   | Completion scripts + subcommand + unit tests          | ✅ Cohesive (Small milestone) |
+| T2   | Docs: completion install + `.hotspotignore` rejection | ✅ Granular                   |
+| T3   | Project gate                                          | ✅ Granular                   |
 
 ### Requirement → Task Mapping
 
-| Requirement ID | Task |
-| -------------- | ---- |
-| HOTSPOT-840, HOTSPOT-841, HOTSPOT-842, HOTSPOT-843, HOTSPOT-844 | T1 |
-| HOTSPOT-845, HOTSPOT-846 | T2 |
-| (gate) | T3 |
-| HOTSPOT-847–859 | Reserved — unused |
+| Requirement ID                                                  | Task              |
+| --------------------------------------------------------------- | ----------------- |
+| HOTSPOT-840, HOTSPOT-841, HOTSPOT-842, HOTSPOT-843, HOTSPOT-844 | T1                |
+| HOTSPOT-845, HOTSPOT-846                                        | T2                |
+| (gate)                                                          | T3                |
+| HOTSPOT-847–859                                                 | Reserved — unused |
 
 ---
 

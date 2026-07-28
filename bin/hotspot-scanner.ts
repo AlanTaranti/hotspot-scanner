@@ -110,18 +110,14 @@ export function parseDoctorFormat(value: string): DoctorOutputFormat {
   if (value === "text" || value === "json") {
     return value;
   }
-  throw new CliUsageError(
-    `Invalid --format: ${value}. Expected text or json.`,
-  );
+  throw new CliUsageError(`Invalid --format: ${value}. Expected text or json.`);
 }
 
 export function parseConfigPrintFormat(value: string): ConfigPrintFormat {
   if (value === "text" || value === "json") {
     return value;
   }
-  throw new CliUsageError(
-    `Invalid --format: ${value}. Expected text or json.`,
-  );
+  throw new CliUsageError(`Invalid --format: ${value}. Expected text or json.`);
 }
 
 export function parseFormat(value: string): OutputFormat {
@@ -215,9 +211,7 @@ export function parseOnlySectionCli(value: string): ReportSection {
     throw new CliUsageError("--only section must not be empty");
   }
   if (!VALID_ONLY_SECTIONS.includes(value as ReportSection)) {
-    throw new CliUsageError(
-      `Invalid --only: ${value}. Expected hotspots.`,
-    );
+    throw new CliUsageError(`Invalid --only: ${value}. Expected hotspots.`);
   }
   return value as ReportSection;
 }
@@ -433,11 +427,7 @@ export function createCliProgram(): Command {
       ".",
     )
     .option("--since <period>", "Git history window", DEFAULT_SINCE)
-    .option(
-      "-f, --format <format>",
-      "Output format: text or json",
-      "text",
-    )
+    .option("-f, --format <format>", "Output format: text or json", "text")
     .option(
       "-t, --top <n>",
       "Top N rows in table/markdown output (ignored for json/csv)",
@@ -507,11 +497,7 @@ export function createCliProgram(): Command {
       "Repository path (default: current working directory)",
       ".",
     )
-    .option(
-      "-f, --format <format>",
-      "Output format: text or json",
-      "text",
-    )
+    .option("-f, --format <format>", "Output format: text or json", "text")
     .option(
       "--config <path>",
       "Load config from explicit file (skip parent walk)",
@@ -564,11 +550,7 @@ export function createCliProgram(): Command {
     .option("--max-revisions <n>", "Uniform sample cap", "100")
     .option("--all", "Analyze all revisions in range (disable cap)")
     .option("--follow", "Follow renames", true)
-    .option(
-      "-f, --format <format>",
-      "Output format: table|json|csv",
-      "table",
-    )
+    .option("-f, --format <format>", "Output format: table|json|csv", "table")
     .option("-o, --output <path>", "Write report to file instead of stdout")
     .option("--no-color", "Disable ANSI colors in trend table output")
     .action(async function (file: string, options) {
@@ -686,9 +668,12 @@ export function createCliProgram(): Command {
         const minHotspotScore = isExplicitCliOption(cmd, "minHotspotScore")
           ? parseMinHotspotScore(options.minHotspotScore as string)
           : 0.7;
-        const { config: fileConfig } = await loadHotspotScannerConfig(repoPath, {
-          configPath,
-        });
+        const { config: fileConfig } = await loadHotspotScannerConfig(
+          repoPath,
+          {
+            configPath,
+          },
+        );
         const merged = mergeScanOptions({
           config: fileConfig,
           cli: cliOverrides,
@@ -801,14 +786,8 @@ export function createCliProgram(): Command {
       "--explain <target>",
       "After the report, print a score breakdown for <path> to stderr",
     )
-    .option(
-      "--fail-on-explain-miss",
-      FAIL_ON_EXPLAIN_MISS_OPTION_HELP,
-    )
-    .option(
-      "--csv-single-file",
-      CSV_SINGLE_FILE_OPTION_HELP,
-    )
+    .option("--fail-on-explain-miss", FAIL_ON_EXPLAIN_MISS_OPTION_HELP)
+    .option("--csv-single-file", CSV_SINGLE_FILE_OPTION_HELP)
     .addHelpText(
       "after",
       `
@@ -1040,7 +1019,10 @@ async function main(): Promise<void> {
     await runCli(process.argv);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
-    if (!(error instanceof CliExitError) && !(error instanceof ScanCancelExit)) {
+    if (
+      !(error instanceof CliExitError) &&
+      !(error instanceof ScanCancelExit)
+    ) {
       console.error(message);
     }
     process.exit(resolveCliExitCode(error));

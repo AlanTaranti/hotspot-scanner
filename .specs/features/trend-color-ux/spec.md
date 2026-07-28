@@ -28,17 +28,17 @@
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Color summary / headers / sparklines / row cells | YAGNI — kind token is enough |
-| Per-row ncloc/indentMean delta coloring | YAGNI — noisy; separate feature if needed |
-| `FORCE_COLOR` | M41/M74 YAGNI lock |
-| Color in JSON or CSV output | Machine formats stay plain |
-| New color libraries (chalk, etc.) | M41 — raw ANSI only |
-| Changing `classifyGrowthPattern` or JSON `meta.growthPattern` | Unrelated; M75 contract stable |
-| Scan / doctor color behavior changes | Sister M41/M74 only |
-| Hoisting `--no-color` to program-global | YAGNI — trend subcommand flag only |
-| Complexity-trend schema / version bump | Presentation only |
+| Feature                                                       | Reason                                    |
+| ------------------------------------------------------------- | ----------------------------------------- |
+| Color summary / headers / sparklines / row cells              | YAGNI — kind token is enough              |
+| Per-row ncloc/indentMean delta coloring                       | YAGNI — noisy; separate feature if needed |
+| `FORCE_COLOR`                                                 | M41/M74 YAGNI lock                        |
+| Color in JSON or CSV output                                   | Machine formats stay plain                |
+| New color libraries (chalk, etc.)                             | M41 — raw ANSI only                       |
+| Changing `classifyGrowthPattern` or JSON `meta.growthPattern` | Unrelated; M75 contract stable            |
+| Scan / doctor color behavior changes                          | Sister M41/M74 only                       |
+| Hoisting `--no-color` to program-global                       | YAGNI — trend subcommand flag only        |
+| Complexity-trend schema / version bump                        | Presentation only                         |
 
 ---
 
@@ -128,22 +128,22 @@
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-1600 | P1: Colorize Pattern kind token | Tasks | Pending |
-| HOTSPOT-1601 | P1: Summary / rows / sparklines uncolored | Tasks | Pending |
-| HOTSPOT-1602 | P1: `stripAnsi` equals plain table | Tasks | Pending |
-| HOTSPOT-1603 | P1: Non-TTY → plain | Tasks | Pending |
-| HOTSPOT-1604 | P1: `--no-color` → plain | Tasks | Pending |
-| HOTSPOT-1605 | P1: Non-empty `NO_COLOR` → plain | Tasks | Pending |
-| HOTSPOT-1606 | P1: `--output` → plain | Tasks | Pending |
-| HOTSPOT-1607 | P1: JSON/CSV never colored | Tasks | Pending |
-| HOTSPOT-1608 | P1: Color not a config key | Tasks | Pending |
-| HOTSPOT-1609 | P1: Trend `--no-color` flag | Tasks | Pending |
-| HOTSPOT-1610 | P2: README trend color note | Tasks | Pending |
-| HOTSPOT-1611 | P2: ARCHITECTURE/CONVENTIONS note | Tasks | Pending |
-| HOTSPOT-1612–1614 | — | — | Buffer |
-| HOTSPOT-1615–1619 | — | — | Reserved |
+| Requirement ID    | Story                                     | Phase | Status   |
+| ----------------- | ----------------------------------------- | ----- | -------- |
+| HOTSPOT-1600      | P1: Colorize Pattern kind token           | Tasks | Pending  |
+| HOTSPOT-1601      | P1: Summary / rows / sparklines uncolored | Tasks | Pending  |
+| HOTSPOT-1602      | P1: `stripAnsi` equals plain table        | Tasks | Pending  |
+| HOTSPOT-1603      | P1: Non-TTY → plain                       | Tasks | Pending  |
+| HOTSPOT-1604      | P1: `--no-color` → plain                  | Tasks | Pending  |
+| HOTSPOT-1605      | P1: Non-empty `NO_COLOR` → plain          | Tasks | Pending  |
+| HOTSPOT-1606      | P1: `--output` → plain                    | Tasks | Pending  |
+| HOTSPOT-1607      | P1: JSON/CSV never colored                | Tasks | Pending  |
+| HOTSPOT-1608      | P1: Color not a config key                | Tasks | Pending  |
+| HOTSPOT-1609      | P1: Trend `--no-color` flag               | Tasks | Pending  |
+| HOTSPOT-1610      | P2: README trend color note               | Tasks | Pending  |
+| HOTSPOT-1611      | P2: ARCHITECTURE/CONVENTIONS note         | Tasks | Pending  |
+| HOTSPOT-1612–1614 | —                                         | —     | Buffer   |
+| HOTSPOT-1615–1619 | —                                         | —     | Reserved |
 
 ---
 

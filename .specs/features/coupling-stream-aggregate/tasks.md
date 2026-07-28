@@ -46,63 +46,63 @@ flowchart TD
 
 | Task | Depends on (task body) | Diagram shows | Match |
 | ---- | ---------------------- | ------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1→T2 | ✅ |
-| T3 | T2 | T2→T3 | ✅ |
-| T4 | T3 | T3→T4 | ✅ |
-| T5 | T3 | T3→T5 | ✅ |
-| T6 | T3 | T3→T6 | ✅ |
-| T7 | T4, T5, T6 | T4/T5/T6→T7 | ✅ |
-| T8 | T7 | T7→T8 | ✅ |
-| T9 | T8 | T8→T9 | ✅ |
+| T1   | None                   | Root          | ✅    |
+| T2   | T1                     | T1→T2         | ✅    |
+| T3   | T2                     | T2→T3         | ✅    |
+| T4   | T3                     | T3→T4         | ✅    |
+| T5   | T3                     | T3→T5         | ✅    |
+| T6   | T3                     | T3→T6         | ✅    |
+| T7   | T4, T5, T6             | T4/T5/T6→T7   | ✅    |
+| T8   | T7                     | T7→T8         | ✅    |
+| T9   | T8                     | T8→T9         | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | `src/types/` | `src/types/domain.ts`, `src/types/index.ts` | Sole owner |
-| T2 | `src/git/` (aggregate) | `src/git/aggregate.ts`, `src/git/aggregate.test.ts` | Sole aggregate owner; not `[P]` with T3/T4 |
-| T3 | `src/git/` (canonicalize) | `src/git/canonicalize.ts`, `src/git/canonicalize.test.ts` | After T2; sequential with other git |
-| T4 | `src/git/` (miner + warnings) | `src/git/index.ts`, mega-warning helper, related `*.test.ts`, `src/git/index.test.ts` | Sole remaining git owner; **not** `[P]` with T2/T3 |
-| T5 | `src/paths/` | `src/paths/filter-git.ts`, `src/paths/filter-git.test.ts` | Sole paths owner; `[P]` vs T4/T6 |
-| T6 | `src/scoring/` | `src/scoring/coupling-scorer.ts`, `coupling-scorer.test.ts`, `src/scoring/index.ts`, `index.test.ts` as needed | Sole scoring owner; `[P]` vs T4/T5 |
-| T7 | `src/scan.ts` | `src/scan.ts`, `src/scan.test.ts`, `src/scan.integration.test.ts` as needed | Sole scan owner — **no `[P]`** |
-| T8 | docs | README, `.specs/codebase/CONCERNS.md`, `ARCHITECTURE.md` (+ TESTING if needed) | Docs only |
-| T9 | verification | no module ownership edits | After T8 |
+| Task | Module owner                  | Paths                                                                                                          | Conflict                                           |
+| ---- | ----------------------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| T1   | `src/types/`                  | `src/types/domain.ts`, `src/types/index.ts`                                                                    | Sole owner                                         |
+| T2   | `src/git/` (aggregate)        | `src/git/aggregate.ts`, `src/git/aggregate.test.ts`                                                            | Sole aggregate owner; not `[P]` with T3/T4         |
+| T3   | `src/git/` (canonicalize)     | `src/git/canonicalize.ts`, `src/git/canonicalize.test.ts`                                                      | After T2; sequential with other git                |
+| T4   | `src/git/` (miner + warnings) | `src/git/index.ts`, mega-warning helper, related `*.test.ts`, `src/git/index.test.ts`                          | Sole remaining git owner; **not** `[P]` with T2/T3 |
+| T5   | `src/paths/`                  | `src/paths/filter-git.ts`, `src/paths/filter-git.test.ts`                                                      | Sole paths owner; `[P]` vs T4/T6                   |
+| T6   | `src/scoring/`                | `src/scoring/coupling-scorer.ts`, `coupling-scorer.test.ts`, `src/scoring/index.ts`, `index.test.ts` as needed | Sole scoring owner; `[P]` vs T4/T5                 |
+| T7   | `src/scan.ts`                 | `src/scan.ts`, `src/scan.test.ts`, `src/scan.integration.test.ts` as needed                                    | Sole scan owner — **no `[P]`**                     |
+| T8   | docs                          | README, `.specs/codebase/CONCERNS.md`, `ARCHITECTURE.md` (+ TESTING if needed)                                 | Docs only                                          |
+| T9   | verification                  | no module ownership edits                                                                                      | After T8                                           |
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task `Tests` | Match |
-| ---- | ---------- | ---------------------- | ------------ | ----- |
-| T1 | `src/types/` | none (excluded from coverage) | none | ✅ |
-| T2 | `src/git/aggregate` | unit | unit | ✅ |
-| T3 | `src/git/canonicalize` | unit | unit | ✅ |
-| T4 | `src/git/` miner | unit / git-log fixtures | unit | ✅ |
-| T5 | `src/paths/` | unit | unit | ✅ |
-| T6 | `src/scoring/` | unit | unit | ✅ |
-| T7 | `src/scan.ts` | unit / integration | unit (+ integration if existing cases break) | ✅ |
-| T8 | docs | none | none | ✅ |
-| T9 | gate | full | full gate | ✅ |
+| Task | Code layer             | TESTING.md expectation        | Task `Tests`                                 | Match |
+| ---- | ---------------------- | ----------------------------- | -------------------------------------------- | ----- |
+| T1   | `src/types/`           | none (excluded from coverage) | none                                         | ✅    |
+| T2   | `src/git/aggregate`    | unit                          | unit                                         | ✅    |
+| T3   | `src/git/canonicalize` | unit                          | unit                                         | ✅    |
+| T4   | `src/git/` miner       | unit / git-log fixtures       | unit                                         | ✅    |
+| T5   | `src/paths/`           | unit                          | unit                                         | ✅    |
+| T6   | `src/scoring/`         | unit                          | unit                                         | ✅    |
+| T7   | `src/scan.ts`          | unit / integration            | unit (+ integration if existing cases break) | ✅    |
+| T8   | docs                   | none                          | none                                         | ✅    |
+| T9   | gate                   | full                          | full gate                                    | ✅    |
 
 ### Requirement → Task Mapping
 
 | Requirement ID | Task(s) |
 | -------------- | ------- |
-| HOTSPOT-320 | T2 |
-| HOTSPOT-321 | T1, T4 |
-| HOTSPOT-322 | T3 |
-| HOTSPOT-323 | T6 |
-| HOTSPOT-324 | T6 |
-| HOTSPOT-325 | T2 |
-| HOTSPOT-326 | T2 |
-| HOTSPOT-327 | T4 |
-| HOTSPOT-328 | T4, T7 |
-| HOTSPOT-329 | T2, T4 |
-| HOTSPOT-330 | T5 |
-| HOTSPOT-331 | T6 |
-| HOTSPOT-332 | T7 |
-| HOTSPOT-333 | T8 |
-| HOTSPOT-334 | T8 |
+| HOTSPOT-320    | T2      |
+| HOTSPOT-321    | T1, T4  |
+| HOTSPOT-322    | T3      |
+| HOTSPOT-323    | T6      |
+| HOTSPOT-324    | T6      |
+| HOTSPOT-325    | T2      |
+| HOTSPOT-326    | T2      |
+| HOTSPOT-327    | T4      |
+| HOTSPOT-328    | T4, T7  |
+| HOTSPOT-329    | T2, T4  |
+| HOTSPOT-330    | T5      |
+| HOTSPOT-331    | T6      |
+| HOTSPOT-332    | T7      |
+| HOTSPOT-333    | T8      |
+| HOTSPOT-334    | T8      |
 
 ---
 

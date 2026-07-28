@@ -15,10 +15,10 @@
 
 **Choice:** **Function-mode patch stream only** (`git log -p` via `buildGitPatchLogArgv` / `FunctionChurnMiner`).
 
-| Stream | M47 change |
-| ------ | ---------- |
-| Numstat (`git log --numstat`) | **Unchanged** — no pathspecs; ADR-2026-020 full stream for churn + coupling |
-| Patch (`git log -p`) | **Batch** when allowlist length `> PATCH_PATHSPEC_FALLBACK_THRESHOLD` (1000) |
+| Stream                        | M47 change                                                                   |
+| ----------------------------- | ---------------------------------------------------------------------------- |
+| Numstat (`git log --numstat`) | **Unchanged** — no pathspecs; ADR-2026-020 full stream for churn + coupling  |
+| Patch (`git log -p`)          | **Batch** when allowlist length `> PATCH_PATHSPEC_FALLBACK_THRESHOLD` (1000) |
 
 **Rationale:** Coupling needs the full scoped numstat universe; M35 pathspecs already apply only to the patch allowlist (churn ∩ eligible). Batching replaces the M35 unrestricted fallback for large allowlists.
 
@@ -34,11 +34,11 @@
 
 **Choice:** **Batch.** Never omit pathspecs **solely because** `paths.length > PATCH_PATHSPEC_FALLBACK_THRESHOLD`.
 
-| Condition | Behavior |
-| --------- | -------- |
-| `paths` empty | No spawn (M35 unchanged) |
-| `1 ≤ paths.length ≤ 1000` | Single spawn with `--` + pathspecs (M35 unchanged) |
-| `paths.length > 1000` | Partition into chunks of size ≤ 1000; sequential pathspec-restricted spawns; merge results |
+| Condition                 | Behavior                                                                                   |
+| ------------------------- | ------------------------------------------------------------------------------------------ |
+| `paths` empty             | No spawn (M35 unchanged)                                                                   |
+| `1 ≤ paths.length ≤ 1000` | Single spawn with `--` + pathspecs (M35 unchanged)                                         |
+| `paths.length > 1000`     | Partition into chunks of size ≤ 1000; sequential pathspec-restricted spawns; merge results |
 
 **Threshold constant:** Keep exporting `PATCH_PATHSPEC_FALLBACK_THRESHOLD = 1000` as the **batch chunk size** (rename meaning in docs to “max pathspecs per argv”; keep symbol name for YAGNI/API stability unless Execute finds a clearer alias with re-exports).
 
@@ -73,9 +73,9 @@
 
 **Choice:** **Yes, only as documented emergency** — not for “paths.length > 1000”.
 
-| Trigger | Action |
-| ------- | ------ |
-| Count > threshold | Batch (never unrestricted for this alone) |
+| Trigger                                                   | Action                                                                                                                                                                                                                                                                                                   |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Count > threshold                                         | Batch (never unrestricted for this alone)                                                                                                                                                                                                                                                                |
 | Spawn fails with ARG_MAX / `E2BIG`-class error on a chunk | Retry once with **half chunk size** (min 1); if still failing, fall back to **unrestricted** single stream for the **remaining paths of that failure path** and emit a `ScanWarning` (new code or reuse documented message — design picks code; prefer one stable code e.g. `PATHSPEC_ARG_MAX_FALLBACK`) |
 
 **Do not** add a user-facing CLI flag to force unrestricted in M47 (YAGNI).
@@ -96,13 +96,13 @@
 - **Churn** (`FileChangeStats`) still aggregated.
 - **No** sampling / partial pair counting in M47.
 
-| Surface | Name | Notes |
-| ------- | ---- | ----- |
-| Default | `100` | `MEGA_COMMIT_UNIQUE_FILE_THRESHOLD` remains the default constant |
-| Config | `megaCommitThreshold` | Positive integer; same validation class as `minCochange` / `concurrency` |
-| CLI | `--mega-commit-threshold <n>` | Positive integer; `CliUsageError` on invalid |
-| API | `ScanOptions.megaCommitThreshold?: number` | Merged CLI > config > default |
-| Precedence | CLI > config > default | M21 |
+| Surface    | Name                                       | Notes                                                                    |
+| ---------- | ------------------------------------------ | ------------------------------------------------------------------------ |
+| Default    | `100`                                      | `MEGA_COMMIT_UNIQUE_FILE_THRESHOLD` remains the default constant         |
+| Config     | `megaCommitThreshold`                      | Positive integer; same validation class as `minCochange` / `concurrency` |
+| CLI        | `--mega-commit-threshold <n>`              | Positive integer; `CliUsageError` on invalid                             |
+| API        | `ScanOptions.megaCommitThreshold?: number` | Merged CLI > config > default                                            |
+| Precedence | CLI > config > default                     | M21                                                                      |
 
 Warning detail/summary strings SHALL interpolate the **effective** threshold (not a hard-coded `100`).
 
@@ -118,10 +118,10 @@ Warning detail/summary strings SHALL interpolate the **effective** threshold (no
 
 **Choice:** Warn when **`eligibleFileCount > PATCH_PATHSPEC_FALLBACK_THRESHOLD`** (1000).
 
-| Rationale | Detail |
-| --------- | ------ |
-| Proxy | Function-mode allowlist ⊆ eligible churned paths ⊆ eligible discovery set; eligible count is an upper-bound scale signal without running numstat |
-| Surface | `previewScanScope` / `formatScanScopePreview` — add a clear warning line (design locks exact phrasing); dry-run still exit `0` / no mine |
+| Rationale   | Detail                                                                                                                                                |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Proxy       | Function-mode allowlist ⊆ eligible churned paths ⊆ eligible discovery set; eligible count is an upper-bound scale signal without running numstat      |
+| Surface     | `previewScanScope` / `formatScanScopePreview` — add a clear warning line (design locks exact phrasing); dry-run still exit `0` / no mine              |
 | Granularity | Warn based on eligible count **regardless of granularity** (file-mode operators still see scale); wording may mention function-mode pathspec batching |
 
 **Not in M47:** Computing true churn allowlist size in dry-run (would require numstat).
@@ -134,16 +134,16 @@ Warning detail/summary strings SHALL interpolate the **effective** threshold (no
 
 ## Decision: Out of scope / YAGNI (LOCKED)
 
-| Item | Reason |
-| ---- | ------ |
-| `--sequential` / benchmark harness | M49 |
-| Historical AST | CONCERNS deferred |
-| Ranking formula / JSON `version` changes | Out of scope |
-| M46 exclude-tests | Separate milestone — do not replan |
-| Numstat pathspecs | Locked out above |
-| Parallel patch batch spawns | Peak RSS; sequential only |
-| User flag to force unrestricted pathspecs | YAGNI |
-| Changing default mega threshold from 100 | Default stays 100 |
+| Item                                      | Reason                             |
+| ----------------------------------------- | ---------------------------------- |
+| `--sequential` / benchmark harness        | M49                                |
+| Historical AST                            | CONCERNS deferred                  |
+| Ranking formula / JSON `version` changes  | Out of scope                       |
+| M46 exclude-tests                         | Separate milestone — do not replan |
+| Numstat pathspecs                         | Locked out above                   |
+| Parallel patch batch spawns               | Peak RSS; sequential only          |
+| User flag to force unrestricted pathspecs | YAGNI                              |
+| Changing default mega threshold from 100  | Default stays 100                  |
 
 **Status:** **Confirmed**
 

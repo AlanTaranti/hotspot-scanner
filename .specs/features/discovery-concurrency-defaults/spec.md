@@ -19,17 +19,17 @@ Source discovery still walks the filesystem with directory prune (`discoverSourc
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| Changing `--concurrency` / config precedence or validation | M28 lock; only the default formula changes |
-| Changing `DEFAULT_BATCH_SIZE` or exposing `--batch-size` | M15/M28 YAGNI |
-| `git ls-files --others` / include untracked on primary path | Locked: tracked-only; walk remains fallback |
-| New diagnostics / `ScanWarning` for discovery fallback | YAGNI |
-| PathScope pattern changes or `--no-default-excludes` | M7/M30 locks |
-| Parallel pipeline stages / overlapping git+AST | Separate milestones (e.g. M34) |
-| CI wall-clock performance gates | Manual benchmark only |
+| Feature                                                      | Reason                                       |
+| ------------------------------------------------------------ | -------------------------------------------- |
+| Changing `--concurrency` / config precedence or validation   | M28 lock; only the default formula changes   |
+| Changing `DEFAULT_BATCH_SIZE` or exposing `--batch-size`     | M15/M28 YAGNI                                |
+| `git ls-files --others` / include untracked on primary path  | Locked: tracked-only; walk remains fallback  |
+| New diagnostics / `ScanWarning` for discovery fallback       | YAGNI                                        |
+| PathScope pattern changes or `--no-default-excludes`         | M7/M30 locks                                 |
+| Parallel pipeline stages / overlapping git+AST               | Separate milestones (e.g. M34)               |
+| CI wall-clock performance gates                              | Manual benchmark only                        |
 | Rewriting historical M15/M28 feature specs to say “always 8” | Past locks stay archival; living docs update |
-| McCabe / scoring / git log parsing changes | Unrelated |
+| McCabe / scoring / git log parsing changes                   | Unrelated                                    |
 
 ---
 
@@ -142,22 +142,22 @@ Source discovery still walks the filesystem with directory prune (`discoverSourc
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-400 | P1: Prefer git ls-files | Tasks | In Tasks |
-| HOTSPOT-401 | P1: Prefer git ls-files (PathScope + extensions) | Tasks | In Tasks |
-| HOTSPOT-402 | P1: Walk fallback | Tasks | In Tasks |
-| HOTSPOT-403 | P1: Silent fallback | Tasks | In Tasks |
-| HOTSPOT-404 | P1: Git spawn encapsulation | Tasks | In Tasks |
-| HOTSPOT-405 | P1: Tracked-only primary path | Tasks | In Tasks |
-| HOTSPOT-406 | P1: Default concurrency cap 8 | Tasks | In Tasks |
-| HOTSPOT-407 | P1: Override unchanged | Tasks | In Tasks |
-| HOTSPOT-408 | P2: Memory vs concurrency docs | Tasks | In Tasks |
-| HOTSPOT-409 | P2: README | Tasks | In Tasks |
-| HOTSPOT-410 | P2: Living SoT docs | Tasks | In Tasks |
-| HOTSPOT-411 | P2: Benchmark notes | Tasks | In Tasks |
-| HOTSPOT-412 | P1: Non-git temp trees via fallback | Tasks | In Tasks |
-| HOTSPOT-413 | P1: Sorted posix-relative contract | Tasks | In Tasks |
+| Requirement ID | Story                                            | Phase | Status   |
+| -------------- | ------------------------------------------------ | ----- | -------- |
+| HOTSPOT-400    | P1: Prefer git ls-files                          | Tasks | In Tasks |
+| HOTSPOT-401    | P1: Prefer git ls-files (PathScope + extensions) | Tasks | In Tasks |
+| HOTSPOT-402    | P1: Walk fallback                                | Tasks | In Tasks |
+| HOTSPOT-403    | P1: Silent fallback                              | Tasks | In Tasks |
+| HOTSPOT-404    | P1: Git spawn encapsulation                      | Tasks | In Tasks |
+| HOTSPOT-405    | P1: Tracked-only primary path                    | Tasks | In Tasks |
+| HOTSPOT-406    | P1: Default concurrency cap 8                    | Tasks | In Tasks |
+| HOTSPOT-407    | P1: Override unchanged                           | Tasks | In Tasks |
+| HOTSPOT-408    | P2: Memory vs concurrency docs                   | Tasks | In Tasks |
+| HOTSPOT-409    | P2: README                                       | Tasks | In Tasks |
+| HOTSPOT-410    | P2: Living SoT docs                              | Tasks | In Tasks |
+| HOTSPOT-411    | P2: Benchmark notes                              | Tasks | In Tasks |
+| HOTSPOT-412    | P1: Non-git temp trees via fallback              | Tasks | In Tasks |
+| HOTSPOT-413    | P1: Sorted posix-relative contract               | Tasks | In Tasks |
 
 **ID range used:** HOTSPOT-400–HOTSPOT-413 (HOTSPOT-414–419 reserved unused)  
 **Coverage:** 14 total, 14 mapped to tasks, 0 unmapped

@@ -21,17 +21,17 @@ Modern Node packages often ship dual-format sources (`.mjs` / `.cjs`) that today
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| `.mts` / `.cts` | YAGNI; not in ROADMAP |
-| Changing `DEFAULT_TEST_EXCLUDE_PATTERNS` / adding `*.test.mjs` etc. | **M46 owns** test globs |
-| `--no-default-excludes` | M7 locked — forbidden |
-| New CLI flags or config keys | Not required |
-| New fixture repo under `tests/fixtures/repos/` | Unit tests suffice |
-| Doctor scope inventory | **M52** |
-| Scoring / McCabe / coupling formula changes | Filter / eligibility only |
-| JSON Schema / `version` bump | Shape unchanged |
-| Replanning M46 / M47 / M50–M52 | Mission lock |
+| Feature                                                             | Reason                    |
+| ------------------------------------------------------------------- | ------------------------- |
+| `.mts` / `.cts`                                                     | YAGNI; not in ROADMAP     |
+| Changing `DEFAULT_TEST_EXCLUDE_PATTERNS` / adding `*.test.mjs` etc. | **M46 owns** test globs   |
+| `--no-default-excludes`                                             | M7 locked — forbidden     |
+| New CLI flags or config keys                                        | Not required              |
+| New fixture repo under `tests/fixtures/repos/`                      | Unit tests suffice        |
+| Doctor scope inventory                                              | **M52**                   |
+| Scoring / McCabe / coupling formula changes                         | Filter / eligibility only |
+| JSON Schema / `version` bump                                        | Shape unchanged           |
+| Replanning M46 / M47 / M50–M52                                      | Mission lock              |
 
 ---
 
@@ -107,20 +107,20 @@ Modern Node packages often ship dual-format sources (`.mjs` / `.cjs`) that today
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-690 | P1: Eligible extensions — constant | Done | Tasks |
-| HOTSPOT-691 | P1: Eligible extensions — discovery | Done | Tasks |
-| HOTSPOT-692 | P1: Eligible extensions — function-mode ∩ | Done | Tasks |
-| HOTSPOT-693 | P1: Eligible extensions — enrich SoT | Done | Tasks |
-| HOTSPOT-694 | P1: Eligible extensions — no `.mts`/`.cts` | Done | Tasks |
-| HOTSPOT-695 | P1: Artifact excludes — pattern set | Done | Tasks |
-| HOTSPOT-696 | P1: Artifact excludes — isPathInScope | Done | Tasks |
-| HOTSPOT-697 | P1: Artifact excludes — prune | Done | Tasks |
-| HOTSPOT-698 | P1: Artifact excludes — no test-pattern churn | Done | Tasks |
-| HOTSPOT-699 | P1: Docs — ARCHITECTURE/README | Done | Tasks |
-| HOTSPOT-700 | P1: Docs — residual test.mjs note | Done | Tasks |
-| HOTSPOT-701–709 | Reserved | — | — |
+| Requirement ID  | Story                                         | Phase | Status |
+| --------------- | --------------------------------------------- | ----- | ------ |
+| HOTSPOT-690     | P1: Eligible extensions — constant            | Done  | Tasks  |
+| HOTSPOT-691     | P1: Eligible extensions — discovery           | Done  | Tasks  |
+| HOTSPOT-692     | P1: Eligible extensions — function-mode ∩     | Done  | Tasks  |
+| HOTSPOT-693     | P1: Eligible extensions — enrich SoT          | Done  | Tasks  |
+| HOTSPOT-694     | P1: Eligible extensions — no `.mts`/`.cts`    | Done  | Tasks  |
+| HOTSPOT-695     | P1: Artifact excludes — pattern set           | Done  | Tasks  |
+| HOTSPOT-696     | P1: Artifact excludes — isPathInScope         | Done  | Tasks  |
+| HOTSPOT-697     | P1: Artifact excludes — prune                 | Done  | Tasks  |
+| HOTSPOT-698     | P1: Artifact excludes — no test-pattern churn | Done  | Tasks  |
+| HOTSPOT-699     | P1: Docs — ARCHITECTURE/README                | Done  | Tasks  |
+| HOTSPOT-700     | P1: Docs — residual test.mjs note             | Done  | Tasks  |
+| HOTSPOT-701–709 | Reserved                                      | —     | —      |
 
 **Coverage:** 11 mapped, 0 unmapped; 701–709 reserved.
 

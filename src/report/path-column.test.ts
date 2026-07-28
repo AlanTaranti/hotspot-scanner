@@ -10,14 +10,10 @@ import {
 
 describe("resolveFileColumnWidth", () => {
   it("falls back to 24 when columns are missing or invalid", () => {
-    expect(resolveFileColumnWidth(undefined)).toBe(
-      FALLBACK_FILE_COLUMN_WIDTH,
-    );
+    expect(resolveFileColumnWidth(undefined)).toBe(FALLBACK_FILE_COLUMN_WIDTH);
     expect(resolveFileColumnWidth(0)).toBe(FALLBACK_FILE_COLUMN_WIDTH);
     expect(resolveFileColumnWidth(-1)).toBe(FALLBACK_FILE_COLUMN_WIDTH);
-    expect(resolveFileColumnWidth(Number.NaN)).toBe(
-      FALLBACK_FILE_COLUMN_WIDTH,
-    );
+    expect(resolveFileColumnWidth(Number.NaN)).toBe(FALLBACK_FILE_COLUMN_WIDTH);
   });
 
   it("preserves 80-column scan layout budget", () => {

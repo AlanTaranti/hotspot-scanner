@@ -13,8 +13,7 @@ export class CliUsageError extends Error {
 /** Parsed `--explain` target (file path only). */
 export type ExplainTarget = { kind: "file"; filePath: string };
 
-const FUNCTION_NAME_PATTERN =
-  /^(?:[A-Za-z_$][\w$]*)(?:\.[A-Za-z_$][\w$]*)*$/;
+const FUNCTION_NAME_PATTERN = /^(?:[A-Za-z_$][\w$]*)(?:\.[A-Za-z_$][\w$]*)*$/;
 
 function toPosixPath(filePath: string): string {
   return filePath.replace(/\\/g, "/");
@@ -56,10 +55,7 @@ export function normalizeExplainPath(
   const repoRoot = resolve(repoPath);
   const resolved = normalize(resolve(repoRoot, posixInput));
 
-  if (
-    resolved === repoRoot ||
-    resolved.startsWith(`${repoRoot}${sep}`)
-  ) {
+  if (resolved === repoRoot || resolved.startsWith(`${repoRoot}${sep}`)) {
     return normalizeMatchKey(relative(repoRoot, resolved));
   }
 
@@ -70,10 +66,7 @@ function pathsMatch(storedPath: string, targetPath: string): boolean {
   return normalizeMatchKey(storedPath) === normalizeMatchKey(targetPath);
 }
 
-function formatFileHotspotBlock(
-  hotspot: HotspotScore,
-  rank: number,
-): string[] {
+function formatFileHotspotBlock(hotspot: HotspotScore, rank: number): string[] {
   return [
     `=== Explain: ${hotspot.filePath} (rank ${rank}) ===`,
     `filePath: ${hotspot.filePath}`,

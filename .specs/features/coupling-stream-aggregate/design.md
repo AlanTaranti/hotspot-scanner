@@ -10,7 +10,7 @@
 
 Replace the dual-structure git coupling feed (`CoChangeEvent[]` retained for a second pass) with **stream-time pair aggregation**. During each parsed commit, after rename canonicalization of paths and optional path-scope filtering, either:
 
-1. **Skip** coupling increments when unique in-scope file count `> 100` (mega-commit), emit `MEGA_COMMIT_SKIPPED` warning accounting, still update `FileChangeStats`; or  
+1. **Skip** coupling increments when unique in-scope file count `> 100` (mega-commit), emit `MEGA_COMMIT_SKIPPED` warning accounting, still update `FileChangeStats`; or
 2. **Increment** `coChangeCount` for every unordered pair among in-scope unique paths.
 
 `scoreCoupling` consumes the pair map directly. `filterGitMinerResult` filters `fileStats` and pair entries (both endpoints in scope). Line-by-line numstat streaming is unchanged (RT-001).
@@ -61,48 +61,48 @@ flowchart TB
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `aggregateOneCommit` / accumulators | `src/git/aggregate.ts` | Replace `coChangeEvents[]` push with pair-count increments + mega-guard |
-| `PathAliasMap` + canonicalize | `src/git/rename.ts`, `canonicalize.ts` | Add `canonicalizePairCounts`; keep `canonicalizeFileStats` |
-| `createGitMiner` | `src/git/index.ts` | Wire optional `isPathInScope`; return pair counts + mega warnings |
-| `filterGitMinerResult` | `src/paths/filter-git.ts` | Filter pair map instead of `coChangeEvents` |
-| `scoreCoupling` | `src/scoring/coupling-scorer.ts` | Drop `aggregateCoChangeCounts` over events; score from map |
-| `createTemporalCouplingScorer` | `src/scoring/index.ts` | Update `score` signature |
-| `createScanWarning` | `src/diagnostics/logger.ts` | Build `MEGA_COMMIT_SKIPPED` warnings |
-| Rename warning capping pattern | `src/git/rename-warnings.ts` | Mirror max-5 detail + summary for mega skips |
-| Path scope | `src/paths/scope.ts` | Predicate from `runScan` — **callback** into git to avoid `git ↔ paths` cycle |
+| Component                           | Location                               | How to Use                                                                    |
+| ----------------------------------- | -------------------------------------- | ----------------------------------------------------------------------------- |
+| `aggregateOneCommit` / accumulators | `src/git/aggregate.ts`                 | Replace `coChangeEvents[]` push with pair-count increments + mega-guard       |
+| `PathAliasMap` + canonicalize       | `src/git/rename.ts`, `canonicalize.ts` | Add `canonicalizePairCounts`; keep `canonicalizeFileStats`                    |
+| `createGitMiner`                    | `src/git/index.ts`                     | Wire optional `isPathInScope`; return pair counts + mega warnings             |
+| `filterGitMinerResult`              | `src/paths/filter-git.ts`              | Filter pair map instead of `coChangeEvents`                                   |
+| `scoreCoupling`                     | `src/scoring/coupling-scorer.ts`       | Drop `aggregateCoChangeCounts` over events; score from map                    |
+| `createTemporalCouplingScorer`      | `src/scoring/index.ts`                 | Update `score` signature                                                      |
+| `createScanWarning`                 | `src/diagnostics/logger.ts`            | Build `MEGA_COMMIT_SKIPPED` warnings                                          |
+| Rename warning capping pattern      | `src/git/rename-warnings.ts`           | Mirror max-5 detail + summary for mega skips                                  |
+| Path scope                          | `src/paths/scope.ts`                   | Predicate from `runScan` — **callback** into git to avoid `git ↔ paths` cycle |
 
 ### Integration Points
 
-| System | M32 behavior |
-| ------ | ------------ |
-| `src/git/aggregate.ts` | Owns pair map + mega threshold constant |
-| `src/git/canonicalize.ts` | Remap/merge pair keys after full alias map |
-| `src/git/index.ts` | Options + result shape; warning emission |
-| `src/paths/filter-git.ts` | Filter `pairCounts` / `fileStats` |
-| `src/scoring/coupling-scorer.ts` | Consume pair counts |
-| `src/scan.ts` | Pass `isPathInScope`; wire pair counts to scorer |
-| `src/index.ts` | Export any new public types if needed; `CoChangeEvent` may remain |
-| JSON schemas | **No** ranking/schema field changes; warnings already `ScanWarning[]` |
-| README / ARCHITECTURE / CONCERNS | Document aggregation + `MEGA_COMMIT_SKIPPED` |
+| System                           | M32 behavior                                                          |
+| -------------------------------- | --------------------------------------------------------------------- |
+| `src/git/aggregate.ts`           | Owns pair map + mega threshold constant                               |
+| `src/git/canonicalize.ts`        | Remap/merge pair keys after full alias map                            |
+| `src/git/index.ts`               | Options + result shape; warning emission                              |
+| `src/paths/filter-git.ts`        | Filter `pairCounts` / `fileStats`                                     |
+| `src/scoring/coupling-scorer.ts` | Consume pair counts                                                   |
+| `src/scan.ts`                    | Pass `isPathInScope`; wire pair counts to scorer                      |
+| `src/index.ts`                   | Export any new public types if needed; `CoChangeEvent` may remain     |
+| JSON schemas                     | **No** ranking/schema field changes; warnings already `ScanWarning[]` |
+| README / ARCHITECTURE / CONCERNS | Document aggregation + `MEGA_COMMIT_SKIPPED`                          |
 
 ---
 
 ## Design Decisions
 
-| # | Decision | Rationale |
-| - | -------- | --------- |
-| D1 | **Skip** mega-commits for coupling (do not cap/truncate file lists) | Cap would arbitrarily choose which pairs count; skip is deterministic and matches “preserve ranking below guard” |
-| D2 | Threshold = **`MEGA_COMMIT_UNIQUE_FILE_THRESHOLD = 100`** (strictly `>` skips) | `C(100,2)=4950` bounded; not a CLI flag (YAGNI). Document in CONCERNS |
-| D3 | Mega-guard counts **in-scope unique** canonical paths only | ROADMAP: scope before/during aggregation; avoids false skips when `--include` is narrow |
-| D4 | Churn (`FileChangeStats`) **not** gated by mega-commit | Coupling memory guard only; hotspot churn still sees the commit |
-| D5 | Pass `isPathInScope?: (path: string) => boolean` into mine/aggregate — not `PathScope` type | Avoids circular import (`paths` already imports `GitMinerResult`) |
-| D6 | Replace production `coChangeEvents[]` with `Map` (or equivalent) of pair counts | Core memory win; second pass removed |
-| D7 | `canonicalizePairCounts` at mine end | Same rename-finalization need as today's `canonicalizeCoChangeEvents` |
-| D8 | Warning code **`MEGA_COMMIT_SKIPPED`**; max **5** detail lines + **1** summary | Matches M26/M28 noise control; additive to `meta.warnings` only intentional JSON-visible change |
-| D9 | `filterGitMinerResult` keeps defense-in-depth filtering | Miner tests may omit predicate; scan always passes predicate |
-| D10 | Keep exporting `CoChangeEvent` type | No forced public type deletion; production path stops retaining event arrays |
+| #   | Decision                                                                                    | Rationale                                                                                                        |
+| --- | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| D1  | **Skip** mega-commits for coupling (do not cap/truncate file lists)                         | Cap would arbitrarily choose which pairs count; skip is deterministic and matches “preserve ranking below guard” |
+| D2  | Threshold = **`MEGA_COMMIT_UNIQUE_FILE_THRESHOLD = 100`** (strictly `>` skips)              | `C(100,2)=4950` bounded; not a CLI flag (YAGNI). Document in CONCERNS                                            |
+| D3  | Mega-guard counts **in-scope unique** canonical paths only                                  | ROADMAP: scope before/during aggregation; avoids false skips when `--include` is narrow                          |
+| D4  | Churn (`FileChangeStats`) **not** gated by mega-commit                                      | Coupling memory guard only; hotspot churn still sees the commit                                                  |
+| D5  | Pass `isPathInScope?: (path: string) => boolean` into mine/aggregate — not `PathScope` type | Avoids circular import (`paths` already imports `GitMinerResult`)                                                |
+| D6  | Replace production `coChangeEvents[]` with `Map` (or equivalent) of pair counts             | Core memory win; second pass removed                                                                             |
+| D7  | `canonicalizePairCounts` at mine end                                                        | Same rename-finalization need as today's `canonicalizeCoChangeEvents`                                            |
+| D8  | Warning code **`MEGA_COMMIT_SKIPPED`**; max **5** detail lines + **1** summary              | Matches M26/M28 noise control; additive to `meta.warnings` only intentional JSON-visible change                  |
+| D9  | `filterGitMinerResult` keeps defense-in-depth filtering                                     | Miner tests may omit predicate; scan always passes predicate                                                     |
+| D10 | Keep exporting `CoChangeEvent` type                                                         | No forced public type deletion; production path stops retaining event arrays                                     |
 
 ---
 
@@ -198,49 +198,49 @@ interface GitMinerResult {
 
 ### Warning catalog addition
 
-| Code | Emitter | Operator interpretation |
-| ---- | ------- | ----------------------- |
+| Code                  | Emitter   | Operator interpretation                                                                                                                                                                    |
+| --------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `MEGA_COMMIT_SKIPPED` | git miner | One or more commits exceeded 100 unique in-scope files; those commits did not contribute to coupling pair counts. Churn still counted. Consider splitting bulk commits or narrowing scope. |
 
 ---
 
 ## Ranking / formula invariants
 
-| Invariant | M32 stance |
-| --------- | ---------- |
-| `couplingStrength = coChangeCount / min(commitsA, commitsB)` | Unchanged |
-| Sort: strength desc, then `fileA` localeCompare | Unchanged |
-| `--min-cochange` | Unchanged |
-| Static enrich fields / ranking | Unchanged |
-| Published hotspot/coupling JSON item shapes | Unchanged |
-| Coupling **values** when any mega-commit skipped | **May differ** from pre-M32 — documented exception only |
+| Invariant                                                    | M32 stance                                              |
+| ------------------------------------------------------------ | ------------------------------------------------------- |
+| `couplingStrength = coChangeCount / min(commitsA, commitsB)` | Unchanged                                               |
+| Sort: strength desc, then `fileA` localeCompare              | Unchanged                                               |
+| `--min-cochange`                                             | Unchanged                                               |
+| Static enrich fields / ranking                               | Unchanged                                               |
+| Published hotspot/coupling JSON item shapes                  | Unchanged                                               |
+| Coupling **values** when any mega-commit skipped             | **May differ** from pre-M32 — documented exception only |
 
 ---
 
 ## Risks (CONCERNS)
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| Git streaming / dual-output fragility | Unit tests: fileStats + pairCounts from same stream; keep large-synthetic streaming fixture |
-| Rename canonicalize drift vs old event remap | Golden tests: rename fixtures → same pairs as expand-after-canonicalize reference |
-| Scope/mega interaction regression | Explicit tests: large out-of-scope + small in-scope still couples |
-| Warning flood | Cap 5 + summary |
-| Accidental formula change | Parity tests from existing coupling-scorer fixtures |
-| Import cycle git↔paths | Callback predicate only |
+| Risk                                         | Mitigation                                                                                  |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Git streaming / dual-output fragility        | Unit tests: fileStats + pairCounts from same stream; keep large-synthetic streaming fixture |
+| Rename canonicalize drift vs old event remap | Golden tests: rename fixtures → same pairs as expand-after-canonicalize reference           |
+| Scope/mega interaction regression            | Explicit tests: large out-of-scope + small in-scope still couples                           |
+| Warning flood                                | Cap 5 + summary                                                                             |
+| Accidental formula change                    | Parity tests from existing coupling-scorer fixtures                                         |
+| Import cycle git↔paths                       | Callback predicate only                                                                     |
 
 ---
 
 ## Testing Strategy
 
-| Layer | What |
-| ----- | ---- |
-| Unit `aggregate.test.ts` | Pair increments; threshold 100 vs 101; churn on mega skip; scope callback |
-| Unit `canonicalize.test.ts` | Pair key remap + merge |
-| Unit mega warnings | Cap 5 + summary; code/severity |
-| Unit `filter-git.test.ts` | Pair map filtering; `<2` equivalent (no single-file pairs) |
-| Unit `coupling-scorer.test.ts` | Same expected rankings from pair-count inputs |
-| Unit / integration miner + scan | Wire `isPathInScope`; warnings in `meta.warnings` |
-| Fixture | Optional synthetic numstat with >100 files for miner integration — prefer unit-constructed `ParsedCommit` to avoid huge fixtures |
+| Layer                           | What                                                                                                                             |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Unit `aggregate.test.ts`        | Pair increments; threshold 100 vs 101; churn on mega skip; scope callback                                                        |
+| Unit `canonicalize.test.ts`     | Pair key remap + merge                                                                                                           |
+| Unit mega warnings              | Cap 5 + summary; code/severity                                                                                                   |
+| Unit `filter-git.test.ts`       | Pair map filtering; `<2` equivalent (no single-file pairs)                                                                       |
+| Unit `coupling-scorer.test.ts`  | Same expected rankings from pair-count inputs                                                                                    |
+| Unit / integration miner + scan | Wire `isPathInScope`; warnings in `meta.warnings`                                                                                |
+| Fixture                         | Optional synthetic numstat with >100 files for miner integration — prefer unit-constructed `ParsedCommit` to avoid huge fixtures |
 
 **Gate**: `pnpm build && pnpm test`
 

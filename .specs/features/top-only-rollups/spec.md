@@ -28,21 +28,21 @@ Default `scan` table output surfaces the same Warnings rollup twice (stderr pre-
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| New CLI flags / config keys | YAGNI |
-| Schema / ranking / `meta.warnings` / `meta.timings` changes | Unrelated; payloads stay full |
-| Bottom-only (strip exec-summary Warnings/Timing) | Rejected — report must stay self-contained for `--output` / pipes |
-| Moving actionable `warning:` detail into the report body (item C) | Deferred horizon |
-| Changing `--warnings=full` stream-during-scan or `json` post-write payload | Sister modes unchanged |
-| Reviving compare/baseline | M71 hard cut |
+| Feature                                                                    | Reason                                                            |
+| -------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| New CLI flags / config keys                                                | YAGNI                                                             |
+| Schema / ranking / `meta.warnings` / `meta.timings` changes                | Unrelated; payloads stay full                                     |
+| Bottom-only (strip exec-summary Warnings/Timing)                           | Rejected — report must stay self-contained for `--output` / pipes |
+| Moving actionable `warning:` detail into the report body (item C)          | Deferred horizon                                                  |
+| Changing `--warnings=full` stream-during-scan or `json` post-write payload | Sister modes unchanged                                            |
+| Reviving compare/baseline                                                  | M71 hard cut                                                      |
 
 ---
 
 ## Locked decision
 
-| Item | Lock |
-| ---- | ---- |
+| Item                 | Lock                                                                                                                                                                                               |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Top-only rollups** | Keep `Warnings:` and `Timing:` only in the human report executive summary. Drop M68 pre-write teaser and M62 brief stderr timing. Keep post-write `flushWarnings` detail for `--warnings=summary`. |
 
 **Supersedes (presentation only):** M68 lock B pre-write teaser half; M62 dual-surface brief stderr timing. Historical Done sister specs stay historical — do not reopen their tasks.md to Done→edit.
@@ -117,21 +117,21 @@ Default `scan` table output surfaces the same Warnings rollup twice (stderr pre-
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-1500 | P1: no pre-write teaser | Tasks | Pending |
-| HOTSPOT-1501 | P1: keep exec-summary Warnings | Tasks | Pending |
-| HOTSPOT-1502 | P1: keep post-write flush detail | Tasks | Pending |
-| HOTSPOT-1503 | P1: full mode unchanged (no teaser, no re-emit) | Tasks | Pending |
-| HOTSPOT-1504 | P1: json mode unchanged (no teaser, one flush) | Tasks | Pending |
-| HOTSPOT-1505 | P1: keep exec-summary Timing | Tasks | Pending |
-| HOTSPOT-1506 | P1: remove brief stderr timing | Tasks | Pending |
-| HOTSPOT-1507 | P1: quiet compose | Tasks | Pending |
-| HOTSPOT-1508 | P2: warning-codes.md | Tasks | Pending |
-| HOTSPOT-1509 | P2: README | Tasks | Pending |
-| HOTSPOT-1510 | P2: ARCHITECTURE | Tasks | Pending |
-| HOTSPOT-1511–1514 | (unassigned buffer) | — | Reserved |
-| HOTSPOT-1515–1519 | (reserved) | — | Reserved |
+| Requirement ID    | Story                                           | Phase | Status   |
+| ----------------- | ----------------------------------------------- | ----- | -------- |
+| HOTSPOT-1500      | P1: no pre-write teaser                         | Tasks | Pending  |
+| HOTSPOT-1501      | P1: keep exec-summary Warnings                  | Tasks | Pending  |
+| HOTSPOT-1502      | P1: keep post-write flush detail                | Tasks | Pending  |
+| HOTSPOT-1503      | P1: full mode unchanged (no teaser, no re-emit) | Tasks | Pending  |
+| HOTSPOT-1504      | P1: json mode unchanged (no teaser, one flush)  | Tasks | Pending  |
+| HOTSPOT-1505      | P1: keep exec-summary Timing                    | Tasks | Pending  |
+| HOTSPOT-1506      | P1: remove brief stderr timing                  | Tasks | Pending  |
+| HOTSPOT-1507      | P1: quiet compose                               | Tasks | Pending  |
+| HOTSPOT-1508      | P2: warning-codes.md                            | Tasks | Pending  |
+| HOTSPOT-1509      | P2: README                                      | Tasks | Pending  |
+| HOTSPOT-1510      | P2: ARCHITECTURE                                | Tasks | Pending  |
+| HOTSPOT-1511–1514 | (unassigned buffer)                             | —     | Reserved |
+| HOTSPOT-1515–1519 | (reserved)                                      | —     | Reserved |
 
 ## Success Criteria
 

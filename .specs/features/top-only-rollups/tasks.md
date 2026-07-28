@@ -34,43 +34,43 @@ flowchart LR
 
 | Task | Depends on (body) | Diagram shows | Status |
 | ---- | ----------------- | ------------- | ------ |
-| T1 | None | Root | Match |
-| T2 | T1 | T1→T2 | Match |
-| T3 | T2 | T2→T3 | Match |
-| T4 | T3 | T3→T4 | Match |
-| T5 | T4 | T4→T5 | Match |
+| T1   | None              | Root          | Match  |
+| T2   | T1                | T1→T2         | Match  |
+| T3   | T2                | T2→T3         | Match  |
+| T4   | T3                | T3→T4         | Match  |
+| T5   | T4                | T4→T5         | Match  |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | diagnostics + bin | `src/diagnostics/logger.ts`, `src/diagnostics/index.ts`, `bin/scan-actions.ts`, `bin/hotspot-scanner.ts` | Sole teaser removal owner |
-| T2 | bin | `bin/scan-actions.ts`, `bin/hotspot-scanner.ts` | After T1; same bin files OK sequential |
-| T3 | bin tests | `bin/hotspot-scanner.test.ts`, `src/diagnostics/logger.test.ts` (if needed) | After API stable |
-| T4 | docs | `docs/warning-codes.md`, `README.md`, `.specs/codebase/ARCHITECTURE.md` | Sole docs |
-| T5 | gate | none | After T4 |
+| Task | Module owner      | Paths                                                                                                    | Conflict                               |
+| ---- | ----------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| T1   | diagnostics + bin | `src/diagnostics/logger.ts`, `src/diagnostics/index.ts`, `bin/scan-actions.ts`, `bin/hotspot-scanner.ts` | Sole teaser removal owner              |
+| T2   | bin               | `bin/scan-actions.ts`, `bin/hotspot-scanner.ts`                                                          | After T1; same bin files OK sequential |
+| T3   | bin tests         | `bin/hotspot-scanner.test.ts`, `src/diagnostics/logger.test.ts` (if needed)                              | After API stable                       |
+| T4   | docs              | `docs/warning-codes.md`, `README.md`, `.specs/codebase/ARCHITECTURE.md`                                  | Sole docs                              |
+| T5   | gate              | none                                                                                                     | After T4                               |
 
 No `[P]` — sequential owners.
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task Tests | Status |
-| ---- | ---------- | ---------------------- | ---------- | ------ |
-| T1 | `src/diagnostics/` + `bin/` | unit | covered in T3 | OK |
-| T2 | `bin/` | unit | covered in T3 | OK |
-| T3 | `bin/` / diagnostics tests | unit | unit | OK |
-| T4 | docs | n/a | review | OK |
-| T5 | full project | gate | `pnpm build && pnpm test` | OK |
+| Task | Code layer                  | TESTING.md expectation | Task Tests                | Status |
+| ---- | --------------------------- | ---------------------- | ------------------------- | ------ |
+| T1   | `src/diagnostics/` + `bin/` | unit                   | covered in T3             | OK     |
+| T2   | `bin/`                      | unit                   | covered in T3             | OK     |
+| T3   | `bin/` / diagnostics tests  | unit                   | unit                      | OK     |
+| T4   | docs                        | n/a                    | review                    | OK     |
+| T5   | full project                | gate                   | `pnpm build && pnpm test` | OK     |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Teaser API + call-site removal | Cohesive |
-| T2 | Brief timing removal | Cohesive |
-| T3 | Lifecycle test updates | Cohesive |
-| T4 | Living docs | Cohesive |
-| T5 | Project gate | Granular |
+| Task | Scope                          | Status   |
+| ---- | ------------------------------ | -------- |
+| T1   | Teaser API + call-site removal | Cohesive |
+| T2   | Brief timing removal           | Cohesive |
+| T3   | Lifecycle test updates         | Cohesive |
+| T4   | Living docs                    | Cohesive |
+| T5   | Project gate                   | Granular |
 
 ---
 
@@ -218,16 +218,16 @@ No `[P]` — sequential owners.
 
 ## Requirement → Task Mapping
 
-| Requirement ID | Task |
-| -------------- | ---- |
-| HOTSPOT-1500 | T1, T3 |
-| HOTSPOT-1501 | T3 (assert exec summary still present; no `summary.ts` change) |
-| HOTSPOT-1502 | T1, T3 |
-| HOTSPOT-1503 | T1, T3 |
-| HOTSPOT-1504 | T1, T3 |
-| HOTSPOT-1505 | T2, T3 |
-| HOTSPOT-1506 | T2, T3 |
-| HOTSPOT-1507 | T2, T3 |
-| HOTSPOT-1508 | T4 |
-| HOTSPOT-1509 | T4 |
-| HOTSPOT-1510 | T4 |
+| Requirement ID | Task                                                           |
+| -------------- | -------------------------------------------------------------- |
+| HOTSPOT-1500   | T1, T3                                                         |
+| HOTSPOT-1501   | T3 (assert exec summary still present; no `summary.ts` change) |
+| HOTSPOT-1502   | T1, T3                                                         |
+| HOTSPOT-1503   | T1, T3                                                         |
+| HOTSPOT-1504   | T1, T3                                                         |
+| HOTSPOT-1505   | T2, T3                                                         |
+| HOTSPOT-1506   | T2, T3                                                         |
+| HOTSPOT-1507   | T2, T3                                                         |
+| HOTSPOT-1508   | T4                                                             |
+| HOTSPOT-1509   | T4                                                             |
+| HOTSPOT-1510   | T4                                                             |

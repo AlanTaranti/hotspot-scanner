@@ -20,13 +20,13 @@ Living product docs still lag shipped M19–M24. `PROJECT.md` claims scope throu
 
 ## Out of Scope
 
-| Feature                                      | Reason                                      |
-| -------------------------------------------- | ------------------------------------------- |
-| Implementing M26–M30 features                | Separate milestones                         |
-| Emitting new rename/confidence warnings      | M26 (`rename-confidence`)                   |
-| Rewriting ARCHITECTURE from scratch          | Incremental sync only where stale           |
-| Changing CLI / pipeline behavior             | Docs only                                   |
-| Parent ROADMAP Specs-link sync for M25–M30   | Parent session; this feature verifies prose |
+| Feature                                    | Reason                                      |
+| ------------------------------------------ | ------------------------------------------- |
+| Implementing M26–M30 features              | Separate milestones                         |
+| Emitting new rename/confidence warnings    | M26 (`rename-confidence`)                   |
+| Rewriting ARCHITECTURE from scratch        | Incremental sync only where stale           |
+| Changing CLI / pipeline behavior           | Docs only                                   |
+| Parent ROADMAP Specs-link sync for M25–M30 | Parent session; this feature verifies prose |
 
 ---
 
@@ -150,14 +150,14 @@ Living product docs still lag shipped M19–M24. `PROJECT.md` claims scope throu
 
 ## Requirement Traceability
 
-| Requirement ID | Story                              | Phase  | Status  |
-| -------------- | ---------------------------------- | ------ | ------- |
-| HOTSPOT-221    | P1: PROJECT.md through M24         | Tasks T1 | Done |
-| HOTSPOT-222    | P1: Rename / `--follow` accuracy   | Tasks T2 | Done |
-| HOTSPOT-223    | P1: README function-mode gaps      | Tasks T3 | Done |
-| HOTSPOT-224    | P1: Stale Status on Done designs   | Tasks T4 | Done |
-| HOTSPOT-225    | P1: ROADMAP / STATE prose          | Tasks T5 | Done |
-| HOTSPOT-226    | P1: Docs-only + project gate       | Tasks T5 | Done |
+| Requirement ID | Story                            | Phase    | Status |
+| -------------- | -------------------------------- | -------- | ------ |
+| HOTSPOT-221    | P1: PROJECT.md through M24       | Tasks T1 | Done   |
+| HOTSPOT-222    | P1: Rename / `--follow` accuracy | Tasks T2 | Done   |
+| HOTSPOT-223    | P1: README function-mode gaps    | Tasks T3 | Done   |
+| HOTSPOT-224    | P1: Stale Status on Done designs | Tasks T4 | Done   |
+| HOTSPOT-225    | P1: ROADMAP / STATE prose        | Tasks T5 | Done   |
+| HOTSPOT-226    | P1: Docs-only + project gate     | Tasks T5 | Done   |
 
 **ID range reserved:** HOTSPOT-221–HOTSPOT-230 (unused: 227–230)  
 **Coverage:** 6 total, 6 mapped to tasks, 0 unmapped

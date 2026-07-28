@@ -132,12 +132,12 @@ describe("writeInitConfig", () => {
   it("throws when the target directory does not exist", async () => {
     const targetDir = join(tmpdir(), "hotspot-init-missing-dir");
 
-    await expect(
-      writeInitConfig({ targetDir, force: false }),
-    ).rejects.toThrow(InitError);
-    await expect(
-      writeInitConfig({ targetDir, force: false }),
-    ).rejects.toThrow(/does not exist/);
+    await expect(writeInitConfig({ targetDir, force: false })).rejects.toThrow(
+      InitError,
+    );
+    await expect(writeInitConfig({ targetDir, force: false })).rejects.toThrow(
+      /does not exist/,
+    );
   });
 
   it("throws when the target path is not a directory", async () => {

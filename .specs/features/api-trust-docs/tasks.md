@@ -12,7 +12,7 @@
 
 ```
 T1 index exports [P] ──┐
-T2 unknown-key warn [P]┼→ T4 trust docs [P with T3 after code?] 
+T2 unknown-key warn [P]┼→ T4 trust docs [P with T3 after code?]
 T3 merge-heavy wire [P]┘      │
                               └→ T5 verify + full gate
 ```
@@ -29,45 +29,45 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (body) | Diagram shows | Status |
-| ---- | ----------------- | ------------- | ------ |
-| T1 | None | Root | ✅ Match |
-| T2 | None | Root | ✅ Match |
-| T3 | None | Root | ✅ Match |
-| T4 | T1, T2 | T1/T2 → T4 | ✅ Match |
-| T5 | T3, T4 | T3/T4 → T5 | ✅ Match |
+| Task | Depends on (body) | Diagram shows | Status   |
+| ---- | ----------------- | ------------- | -------- |
+| T1   | None              | Root          | ✅ Match |
+| T2   | None              | Root          | ✅ Match |
+| T3   | None              | Root          | ✅ Match |
+| T4   | T1, T2            | T1/T2 → T4    | ✅ Match |
+| T5   | T3, T4            | T3/T4 → T5    | ✅ Match |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | `src/index.ts` | `src/index.ts` only (+ README Programmatic snippet OK to defer to T4) | None — `[P]` with T2/T3 |
-| T2 | `src/config/` (+ thin `src/scan.ts` emit) | `load-config.ts`, `load-config.test.ts`, `scan.ts` / scan test for meta.warnings | None vs T1/T3 if T3 only touches integration + global-setup |
-| T3 | fixtures + integration | `global-setup.ts`, `src/scan.integration.test.ts`, `TESTING.md` | Do not edit `src/scan.ts` in T3 |
-| T4 | docs | `README.md`, `SECURITY.md`, `docs/recipes.md`, `docs/warning-codes.md`, `package.json` `files` | After T1/T2; sole README owner for trust prose |
-| T5 | verify | greps + ROADMAP/STATE Execute notes deferred + gate | After T3+T4 |
+| Task | Module owner                              | Paths                                                                                          | Conflict                                                    |
+| ---- | ----------------------------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| T1   | `src/index.ts`                            | `src/index.ts` only (+ README Programmatic snippet OK to defer to T4)                          | None — `[P]` with T2/T3                                     |
+| T2   | `src/config/` (+ thin `src/scan.ts` emit) | `load-config.ts`, `load-config.test.ts`, `scan.ts` / scan test for meta.warnings               | None vs T1/T3 if T3 only touches integration + global-setup |
+| T3   | fixtures + integration                    | `global-setup.ts`, `src/scan.integration.test.ts`, `TESTING.md`                                | Do not edit `src/scan.ts` in T3                             |
+| T4   | docs                                      | `README.md`, `SECURITY.md`, `docs/recipes.md`, `docs/warning-codes.md`, `package.json` `files` | After T1/T2; sole README owner for trust prose              |
+| T5   | verify                                    | greps + ROADMAP/STATE Execute notes deferred + gate                                            | After T3+T4                                                 |
 
 **Parallel rule:** T1 ‖ T2 ‖ T3. T4 after T1+T2 (may mention exports + `UNKNOWN_CONFIG_KEY`). T3 may finish before T4; T5 waits for both T3 and T4.
 
 ### Test Co-location Validation
 
-| Task | Code layer | Matrix / TESTING.md | Task Tests | Status |
-| ---- | ---------- | ------------------- | ---------- | ------ |
-| T1 | `src/index.ts` re-exports | none required beyond build | none (build types) | ✅ OK |
-| T2 | `src/config/` + scan warn wire | unit co-located | unit | ✅ OK |
-| T3 | Integration fixture | integration | integration | ✅ OK |
-| T4 | Docs / package metadata | none | none | ✅ OK |
-| T5 | Project gate | full | none + Gate full | ✅ OK |
+| Task | Code layer                     | Matrix / TESTING.md        | Task Tests         | Status |
+| ---- | ------------------------------ | -------------------------- | ------------------ | ------ |
+| T1   | `src/index.ts` re-exports      | none required beyond build | none (build types) | ✅ OK  |
+| T2   | `src/config/` + scan warn wire | unit co-located            | unit               | ✅ OK  |
+| T3   | Integration fixture            | integration                | integration        | ✅ OK  |
+| T4   | Docs / package metadata        | none                       | none               | ✅ OK  |
+| T5   | Project gate                   | full                       | none + Gate full   | ✅ OK  |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Entry re-exports | ✅ Granular |
-| T2 | Unknown-key detect + emit + unit tests | ✅ Cohesive config slice |
-| T3 | Fixture wire + one describe | ✅ Granular |
-| T4 | Trust docs package | ✅ Cohesive docs slice |
-| T5 | Verify + project gate | ✅ Granular |
+| Task | Scope                                  | Status                   |
+| ---- | -------------------------------------- | ------------------------ |
+| T1   | Entry re-exports                       | ✅ Granular              |
+| T2   | Unknown-key detect + emit + unit tests | ✅ Cohesive config slice |
+| T3   | Fixture wire + one describe            | ✅ Granular              |
+| T4   | Trust docs package                     | ✅ Cohesive docs slice   |
+| T5   | Verify + project gate                  | ✅ Granular              |
 
 ---
 
@@ -275,14 +275,14 @@ Phase 3 (Sequential):
 
 ## Requirement → Task Mapping
 
-| Requirement IDs | Task |
-| --------------- | ---- |
-| HOTSPOT-860–863, 865–866 | T1 |
-| HOTSPOT-867–870 | T2 |
-| HOTSPOT-873–876 | T3 |
-| HOTSPOT-864, 871–872, 877–882 | T4 |
-| All success criteria | T5 |
-| HOTSPOT-883–889 | Reserved |
+| Requirement IDs               | Task     |
+| ----------------------------- | -------- |
+| HOTSPOT-860–863, 865–866      | T1       |
+| HOTSPOT-867–870               | T2       |
+| HOTSPOT-873–876               | T3       |
+| HOTSPOT-864, 871–872, 877–882 | T4       |
+| All success criteria          | T5       |
+| HOTSPOT-883–889               | Reserved |
 
 ---
 

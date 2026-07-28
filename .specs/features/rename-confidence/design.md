@@ -38,33 +38,33 @@ flowchart TD
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `PathAliasMap` | `src/git/rename.ts` | Keep `link` / `canonical` / `getAmbiguousPaths`; do not reinvent |
-| File miner pipeline | `src/git/index.ts` | After aggregate loop, append new warning families |
-| Function miner | `src/git/function-churn/index.ts` | Same pattern for overlap warning |
-| Argv builders | `src/git/spawn.ts`, `src/git/function-churn/spawn.ts` | Add `-M` |
-| Aggregate commit shapes | `src/git/parse.ts`, `function-churn/parse.ts` | `renameFrom`, add/del counts for heuristics |
-| Warning channel | `src/scan.ts` + `src/diagnostics/logger.ts` | Forward only; no severity API |
-| Fixtures | `tests/fixtures/git-log/`, `repos/with-renames/`, `git-patch/` | Extend |
+| Component               | Location                                                       | How to Use                                                       |
+| ----------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `PathAliasMap`          | `src/git/rename.ts`                                            | Keep `link` / `canonical` / `getAmbiguousPaths`; do not reinvent |
+| File miner pipeline     | `src/git/index.ts`                                             | After aggregate loop, append new warning families                |
+| Function miner          | `src/git/function-churn/index.ts`                              | Same pattern for overlap warning                                 |
+| Argv builders           | `src/git/spawn.ts`, `src/git/function-churn/spawn.ts`          | Add `-M`                                                         |
+| Aggregate commit shapes | `src/git/parse.ts`, `function-churn/parse.ts`                  | `renameFrom`, add/del counts for heuristics                      |
+| Warning channel         | `src/scan.ts` + `src/diagnostics/logger.ts`                    | Forward only; no severity API                                    |
+| Fixtures                | `tests/fixtures/git-log/`, `repos/with-renames/`, `git-patch/` | Extend                                                           |
 
 ### Integration Points
 
-| System | Integration |
-| ------ | ----------- |
-| `runScan` | No API change; existing warning loops pick up new strings |
-| Reporter / JSON | Unchanged shape (`version: "1.0"`) |
-| Compare | Unaffected (scan stderr warnings only) |
-| M28 | Must not introduce severity enums or progress redesign |
+| System          | Integration                                               |
+| --------------- | --------------------------------------------------------- |
+| `runScan`       | No API change; existing warning loops pick up new strings |
+| Reporter / JSON | Unchanged shape (`version: "1.0"`)                        |
+| Compare         | Unaffected (scan stderr warnings only)                    |
+| M28             | Must not introduce severity enums or progress redesign    |
 
 ### Fragile areas (CONCERNS.md)
 
-| Area | Design mitigation |
-| ---- | ----------------- |
+| Area                                   | Design mitigation                                                                         |
+| -------------------------------------- | ----------------------------------------------------------------------------------------- |
 | Streaming parse must not load full log | Blind-spot collection is O(files per commit) during existing pass — no second full buffer |
-| Rename without `--follow` | `-M` only; still no `--follow` |
-| Function overlap vs historical hunks | Warning + docs; no AST |
-| Heuristic false positives | Require relatedness (basename / path similarity); cap warnings |
+| Rename without `--follow`              | `-M` only; still no `--follow`                                                            |
+| Function overlap vs historical hunks   | Warning + docs; no AST                                                                    |
+| Heuristic false positives              | Require relatedness (basename / path similarity); cap warnings                            |
 
 ---
 
@@ -127,13 +127,13 @@ export function pathsLookLikeRename(a: string, b: string): boolean;
 
 ### 5. Fixtures
 
-| Fixture | Purpose |
-| ------- | ------- |
-| `tests/fixtures/git-log/rename-unlinked.txt` (name flexible) | Same-commit delete+add, no `=>`; expect unlinked warning; churn split |
-| Existing `rename-multi.txt` | Still unifies; may also assert no unlinked warning |
-| Stream + `since` unit case | Rename links present + `since` set → truncation warning |
-| `tests/fixtures/repos/with-renames/` | Rebuild history so `-M` can detect renames (prefer content-preserving `git mv` steps, then edit); assert unified canonical churn + documented warnings |
-| Patch fixture with rename | Function miner emits pós-rename warning |
+| Fixture                                                      | Purpose                                                                                                                                                |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tests/fixtures/git-log/rename-unlinked.txt` (name flexible) | Same-commit delete+add, no `=>`; expect unlinked warning; churn split                                                                                  |
+| Existing `rename-multi.txt`                                  | Still unifies; may also assert no unlinked warning                                                                                                     |
+| Stream + `since` unit case                                   | Rename links present + `since` set → truncation warning                                                                                                |
+| `tests/fixtures/repos/with-renames/`                         | Rebuild history so `-M` can detect renames (prefer content-preserving `git mv` steps, then edit); assert unified canonical churn + documented warnings |
+| Patch fixture with rename                                    | Function miner emits pós-rename warning                                                                                                                |
 
 Use `fixture-builder` agent for repo tree changes when Execute needs it.
 
@@ -159,50 +159,50 @@ Public contracts unchanged:
 
 ## Error Handling Strategy
 
-| Error Scenario | Handling | User Impact |
-| -------------- | -------- | ----------- |
-| Many unlinked pairs | Cap listed pairs (e.g. max 5) + “and N more” summary | Bounded stderr |
-| Heuristic miss (true rename, no signal) | Accept; docs say limits remain | Possible silent split — mitigated by `-M` |
-| Heuristic false positive | Basename/relatedness gate | Occasional extra warning (prefer over silence on real moves) |
-| Malformed numstat | Existing parse resilience; skip pair | No new fatal path |
-| Function mode, renames observed | One overlap warning | Clear confidence caveat |
+| Error Scenario                          | Handling                                             | User Impact                                                  |
+| --------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------ |
+| Many unlinked pairs                     | Cap listed pairs (e.g. max 5) + “and N more” summary | Bounded stderr                                               |
+| Heuristic miss (true rename, no signal) | Accept; docs say limits remain                       | Possible silent split — mitigated by `-M`                    |
+| Heuristic false positive                | Basename/relatedness gate                            | Occasional extra warning (prefer over silence on real moves) |
+| Malformed numstat                       | Existing parse resilience; skip pair                 | No new fatal path                                            |
+| Function mode, renames observed         | One overlap warning                                  | Clear confidence caveat                                      |
 
 ---
 
 ## Tech Decisions (non-obvious)
 
-| ID | Decision | Choice | Rationale |
-| -- | -------- | ------ | --------- |
-| D1 | Mitigation depth | Avisos + fixtures; no historical AST | User locked |
-| D2 | Confidence representation | Warning text only | No JSON/schema churn; YAGNI |
-| D3 | Find-renames | `-M` on file + function spawns | Makes PathAliasMap work on real repos; not `--follow` |
-| D4 | Unlinked detection | Same-commit delete+add + basename relatedness | Actionable without similarity index reimplementation |
-| D5 | Since truncation warning | Only if `since` set **and** renameLinkCount > 0 | Avoid warning every file in a window |
-| D6 | Function warning trigger | Rename link or ambiguous in that mine | Avoid noise when no moves |
-| D7 | Shared message module | `src/git/rename-warnings.ts` | One owner; file + function reuse |
-| D8 | M28 boundary | No severity levels | ROADMAP |
+| ID  | Decision                  | Choice                                          | Rationale                                             |
+| --- | ------------------------- | ----------------------------------------------- | ----------------------------------------------------- |
+| D1  | Mitigation depth          | Avisos + fixtures; no historical AST            | User locked                                           |
+| D2  | Confidence representation | Warning text only                               | No JSON/schema churn; YAGNI                           |
+| D3  | Find-renames              | `-M` on file + function spawns                  | Makes PathAliasMap work on real repos; not `--follow` |
+| D4  | Unlinked detection        | Same-commit delete+add + basename relatedness   | Actionable without similarity index reimplementation  |
+| D5  | Since truncation warning  | Only if `since` set **and** renameLinkCount > 0 | Avoid warning every file in a window                  |
+| D6  | Function warning trigger  | Rename link or ambiguous in that mine           | Avoid noise when no moves                             |
+| D7  | Shared message module     | `src/git/rename-warnings.ts`                    | One owner; file + function reuse                      |
+| D8  | M28 boundary              | No severity levels                              | ROADMAP                                               |
 
 ### CONCERNS / RT mapping
 
-| Concern | Mitigation in M26 |
-| ------- | ----------------- |
-| Rename blind spots (copy-paste, pre-since, no `=>`) | HOTSPOT-203–205 + fixtures HOTSPOT-207–208 |
-| Function overlap current vs historical | HOTSPOT-209–210 avisos + docs |
-| Post-rename hunk mismatch true fix | **Deferred** (historical AST — do not prioritize) |
-| Paths / exports | M27 |
-| Warning severity consolidation | M28 |
+| Concern                                             | Mitigation in M26                                 |
+| --------------------------------------------------- | ------------------------------------------------- |
+| Rename blind spots (copy-paste, pre-since, no `=>`) | HOTSPOT-203–205 + fixtures HOTSPOT-207–208        |
+| Function overlap current vs historical              | HOTSPOT-209–210 avisos + docs                     |
+| Post-rename hunk mismatch true fix                  | **Deferred** (historical AST — do not prioritize) |
+| Paths / exports                                     | M27                                               |
+| Warning severity consolidation                      | M28                                               |
 
 ---
 
 ## Test Plan
 
-| Layer | Where | Assert |
-| ----- | ----- | ------ |
-| Unit | `rename-warnings.test.ts` | Message formatting, relatedness, caps |
-| Unit | `spawn.test.ts` / argv tests | `-M` present; no `--follow` |
-| Unit | `src/git/index.test.ts` | Unlinked + since truncation warnings from fixtures |
-| Unit | `function-churn/index.test.ts` | Pós-rename warning on/off |
-| Integration | `with-renames` scan | Unified churn under final path; warnings per README |
-| Gate | Project | `pnpm build && pnpm test` |
+| Layer       | Where                          | Assert                                              |
+| ----------- | ------------------------------ | --------------------------------------------------- |
+| Unit        | `rename-warnings.test.ts`      | Message formatting, relatedness, caps               |
+| Unit        | `spawn.test.ts` / argv tests   | `-M` present; no `--follow`                         |
+| Unit        | `src/git/index.test.ts`        | Unlinked + since truncation warnings from fixtures  |
+| Unit        | `function-churn/index.test.ts` | Pós-rename warning on/off                           |
+| Integration | `with-renames` scan            | Unified churn under final path; warnings per README |
+| Gate        | Project                        | `pnpm build && pnpm test`                           |
 
 **Mock boundary:** Inject line streams at miner boundary; do not mock PathAliasMap internals for warning tests when fixtures suffice.

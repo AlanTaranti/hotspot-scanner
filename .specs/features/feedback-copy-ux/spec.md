@@ -25,15 +25,15 @@ Operators get incomplete or jargon-heavy feedback after scans: CSV writes are si
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
-| JSON schema / `version` bump | Presentation-only; timings already in meta |
-| Ranking / scoring / NCLOC changes | Unrelated |
-| Implement M61 progress bar / finalize / flush deferral | Sister only — [context.md](./context.md) |
-| New CLI flags or config keys | YAGNI |
-| Changing `--warnings` aggregation rules | M58 Done; compose only |
-| Doctor / init / completion progress UX | Out of this milestone |
-| Rewriting `.specs/` milestone IDs | Specs remain historical SoT |
+| Feature                                                | Reason                                     |
+| ------------------------------------------------------ | ------------------------------------------ |
+| JSON schema / `version` bump                           | Presentation-only; timings already in meta |
+| Ranking / scoring / NCLOC changes                      | Unrelated                                  |
+| Implement M61 progress bar / finalize / flush deferral | Sister only — [context.md](./context.md)   |
+| New CLI flags or config keys                           | YAGNI                                      |
+| Changing `--warnings` aggregation rules                | M58 Done; compose only                     |
+| Doctor / init / completion progress UX                 | Out of this milestone                      |
+| Rewriting `.specs/` milestone IDs                      | Specs remain historical SoT                |
 
 ---
 
@@ -181,22 +181,22 @@ Operators get incomplete or jargon-heavy feedback after scans: CSV writes are si
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-1030 | P1: CSV confirmation | Tasks | Pending |
-| HOTSPOT-1031 | P1: Timings summary | Tasks | Pending |
-| HOTSPOT-1032 | P1: Timings stderr | Tasks | Pending |
-| HOTSPOT-1033 | P1: Help de-jargon | Tasks | Pending |
-| HOTSPOT-1034 | P1: since= first progress | Tasks | Pending |
-| HOTSPOT-1035 | P1: since= M59/M61 compose | Tasks | Pending |
-| HOTSPOT-1036 | P1: Empty compare summary | Tasks | Pending |
-| HOTSPOT-1037 | P1: Empty compare table/md smoke | Tasks | Pending |
-| HOTSPOT-1038 | P1: BaselineError exit 2 | Tasks | Pending |
-| HOTSPOT-1039 | P1: Missing path baseline save hint | Tasks | Pending |
-| HOTSPOT-1040 | P1: Invalid baseline save hint | Tasks | Pending |
-| HOTSPOT-1041 | P1: README strip milestone IDs | Tasks | Pending |
+| Requirement ID    | Story                                         | Phase | Status  |
+| ----------------- | --------------------------------------------- | ----- | ------- |
+| HOTSPOT-1030      | P1: CSV confirmation                          | Tasks | Pending |
+| HOTSPOT-1031      | P1: Timings summary                           | Tasks | Pending |
+| HOTSPOT-1032      | P1: Timings stderr                            | Tasks | Pending |
+| HOTSPOT-1033      | P1: Help de-jargon                            | Tasks | Pending |
+| HOTSPOT-1034      | P1: since= first progress                     | Tasks | Pending |
+| HOTSPOT-1035      | P1: since= M59/M61 compose                    | Tasks | Pending |
+| HOTSPOT-1036      | P1: Empty compare summary                     | Tasks | Pending |
+| HOTSPOT-1037      | P1: Empty compare table/md smoke              | Tasks | Pending |
+| HOTSPOT-1038      | P1: BaselineError exit 2                      | Tasks | Pending |
+| HOTSPOT-1039      | P1: Missing path baseline save hint           | Tasks | Pending |
+| HOTSPOT-1040      | P1: Invalid baseline save hint                | Tasks | Pending |
+| HOTSPOT-1041      | P1: README strip milestone IDs                | Tasks | Pending |
 | HOTSPOT-1042–1045 | Stretch / docs living sync if needed in tasks | Tasks | Pending |
-| HOTSPOT-1046–1059 | Reserved | — | Unused |
+| HOTSPOT-1046–1059 | Reserved                                      | —     | Unused  |
 
 **Coverage:** 12 mapped core IDs (1030–1041); 1042–1045 available for living-docs/ARCHITECTURE notes in tasks; 1046–1059 reserved.
 

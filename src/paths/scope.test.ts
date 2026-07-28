@@ -112,9 +112,9 @@ describe("isPathInScope", () => {
   });
 
   it("excludes nested monorepo build and snapshot paths", () => {
-    expect(
-      isPathInScope("apps/web/.next/static/chunk.js", defaultScope),
-    ).toBe(false);
+    expect(isPathInScope("apps/web/.next/static/chunk.js", defaultScope)).toBe(
+      false,
+    );
     expect(isPathInScope("apps/site/out/page.html", defaultScope)).toBe(false);
     expect(isPathInScope("services/api/vendor/lib.go", defaultScope)).toBe(
       false,
@@ -131,9 +131,9 @@ describe("isPathInScope", () => {
   });
 
   it("excludes nested M48 toolchain artifact paths", () => {
-    expect(
-      isPathInScope("apps/web/.turbo/cache/abc123", defaultScope),
-    ).toBe(false);
+    expect(isPathInScope("apps/web/.turbo/cache/abc123", defaultScope)).toBe(
+      false,
+    );
     expect(isPathInScope("apps/web/.vercel/output.json", defaultScope)).toBe(
       false,
     );
@@ -147,10 +147,7 @@ describe("isPathInScope", () => {
       isPathInScope("apps/site/.output/public/index.html", defaultScope),
     ).toBe(false);
     expect(
-      isPathInScope(
-        "packages/ui/.parcel-cache/data.abc123",
-        defaultScope,
-      ),
+      isPathInScope("packages/ui/.parcel-cache/data.abc123", defaultScope),
     ).toBe(false);
     expect(isPathInScope("tools/tmp/scratch.ts", defaultScope)).toBe(false);
   });
@@ -158,9 +155,7 @@ describe("isPathInScope", () => {
   it("excludes test files and __tests__ paths by default", () => {
     expect(isPathInScope("src/foo.test.ts", defaultScope)).toBe(false);
     expect(isPathInScope("a.spec.tsx", defaultScope)).toBe(false);
-    expect(isPathInScope("src/__tests__/helpers.ts", defaultScope)).toBe(
-      false,
-    );
+    expect(isPathInScope("src/__tests__/helpers.ts", defaultScope)).toBe(false);
     expect(isPathInScope("src/foo.test.mjs", defaultScope)).toBe(false);
     expect(isPathInScope("pkg/bar.spec.cjs", defaultScope)).toBe(false);
     expect(isPathInScope("src/a.test.mts", defaultScope)).toBe(false);
@@ -248,9 +243,7 @@ describe("shouldPruneDirectory", () => {
     expect(shouldPruneDirectory("packages/lib/.cache", defaultScope)).toBe(
       true,
     );
-    expect(shouldPruneDirectory("packages/app/.nuxt", defaultScope)).toBe(
-      true,
-    );
+    expect(shouldPruneDirectory("packages/app/.nuxt", defaultScope)).toBe(true);
     expect(shouldPruneDirectory("apps/site/.output", defaultScope)).toBe(true);
     expect(
       shouldPruneDirectory("packages/ui/.parcel-cache", defaultScope),

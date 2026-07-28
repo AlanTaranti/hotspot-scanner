@@ -46,7 +46,9 @@ describe("createWorkerPool", () => {
   it("returns empty array for no batches", async () => {
     const onProgress = vi.fn();
     const pool = createWorkerPool({ concurrency: 2 });
-    await expect(pool.runBatches("/tmp/repo", [], undefined, onProgress)).resolves.toEqual([]);
+    await expect(
+      pool.runBatches("/tmp/repo", [], undefined, onProgress),
+    ).resolves.toEqual([]);
     expect(onProgress).not.toHaveBeenCalled();
   });
 
@@ -225,16 +227,18 @@ describe("createWorkerPool", () => {
       "d.ts": "export const d = 4;",
     };
     const repoPath = await createTempRepo(files);
-    const batches = [["a.ts", "b.ts"], ["c.ts", "d.ts"]];
+    const batches = [
+      ["a.ts", "b.ts"],
+      ["c.ts", "d.ts"],
+    ];
 
     const inlineOutputs = await createWorkerPool({ concurrency: 1 }).runBatches(
       repoPath,
       batches,
     );
-    const parallelOutputs = await createWorkerPool({ concurrency: 2 }).runBatches(
-      repoPath,
-      batches,
-    );
+    const parallelOutputs = await createWorkerPool({
+      concurrency: 2,
+    }).runBatches(repoPath, batches);
 
     expect(parallelOutputs).toEqual(inlineOutputs);
   });

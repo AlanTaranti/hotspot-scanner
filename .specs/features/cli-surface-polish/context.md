@@ -43,10 +43,10 @@ All gray areas for M38 are closed below. No open `PENDENTE-DISCUSSÃO`.
 
 **Choice:** **Omit `--verbose` in M38.** Ship only:
 
-| Flag | Effect |
-| ---- | ------ |
-| `--no-progress` | Suppress progress stderr lines only |
-| `--quiet` | Suppress progress **and** `severity: "info"` warnings; keep `warning` / `error` + report + hard errors |
+| Flag            | Effect                                                                                                 |
+| --------------- | ------------------------------------------------------------------------------------------------------ |
+| `--no-progress` | Suppress progress stderr lines only                                                                    |
+| `--quiet`       | Suppress progress **and** `severity: "info"` warnings; keep `warning` / `error` + report + hard errors |
 
 Default (neither flag) = pre-M38 behavior (throttled progress + all warning severities).
 
@@ -95,12 +95,12 @@ Hint tone: short actionable English, e.g. `Hint: …` or `Next: …` on a follow
 
 ## Decision: Short aliases (LOCKED)
 
-| Short | Long |
-| ----- | ---- |
-| `-f` | `--format` |
-| `-o` | `--output` |
-| `-t` | `--top` |
-| `-g` | `--granularity` |
+| Short | Long            |
+| ----- | --------------- |
+| `-f`  | `--format`      |
+| `-o`  | `--output`      |
+| `-t`  | `--top`         |
+| `-g`  | `--granularity` |
 
 Long flags remain. Document in help + README. No other short aliases in M38 (e.g. no `-c` for concurrency — avoids collision with future `--config` short form; `--config` stays long-only).
 
@@ -122,10 +122,10 @@ Long flags remain. Document in help + README. No other short aliases in M38 (e.g
 
 ## Related closed decisions (do not reopen)
 
-| Decision | Value | Relevance |
-| -------- | ----- | --------- |
-| Exit codes | 0 / 2 (usage+config) / 1 (else) | Preserve |
-| CSV requires `--output` | M18 | Hint only |
-| Config discovery miss | null, not error (M30) | Only explicit `--config` missing is error |
-| M43 monorepo path detect | Separate milestone | No cwd package heuristic |
-| npm publish | Deferred | Out of scope |
+| Decision                 | Value                           | Relevance                                 |
+| ------------------------ | ------------------------------- | ----------------------------------------- |
+| Exit codes               | 0 / 2 (usage+config) / 1 (else) | Preserve                                  |
+| CSV requires `--output`  | M18                             | Hint only                                 |
+| Config discovery miss    | null, not error (M30)           | Only explicit `--config` missing is error |
+| M43 monorepo path detect | Separate milestone              | No cwd package heuristic                  |
+| npm publish              | Deferred                        | Out of scope                              |

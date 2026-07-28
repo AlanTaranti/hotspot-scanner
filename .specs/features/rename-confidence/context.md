@@ -36,11 +36,11 @@
 
 **Choice:** Emit warnings for these signals (in addition to existing PathAliasMap ambiguous paths):
 
-| Signal | When | Intent |
-| ------ | ---- | ------ |
-| Ambiguous alias chains | `PathAliasMap.getAmbiguousPaths()` nonempty | Keep existing RT-003 message pattern |
-| Suspected copy-paste / unlinked rename | Same commit: path fully deleted + path fully added (or add-only / delete-only pair) with **no** `old => new` / `renameFrom`, and a cheap relatedness heuristic (same basename **or** basename+parent similarity — exact rule in design) | History may split across paths |
-| `--since` truncates rename history | `since` is set **and** at least one in-window rename link was recorded | Pre-window history under old paths is invisible |
+| Signal                                 | When                                                                                                                                                                                                                                    | Intent                                          |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| Ambiguous alias chains                 | `PathAliasMap.getAmbiguousPaths()` nonempty                                                                                                                                                                                             | Keep existing RT-003 message pattern            |
+| Suspected copy-paste / unlinked rename | Same commit: path fully deleted + path fully added (or add-only / delete-only pair) with **no** `old => new` / `renameFrom`, and a cheap relatedness heuristic (same basename **or** basename+parent similarity — exact rule in design) | History may split across paths                  |
+| `--since` truncates rename history     | `since` is set **and** at least one in-window rename link was recorded                                                                                                                                                                  | Pre-window history under old paths is invisible |
 
 Prefer **deduplicated / summary** messages over per-path spam when many paths match (cap or single summary — design § Error Handling).
 
@@ -80,12 +80,12 @@ Do **not** emit on every function row. File mode must not pay for this message b
 
 ## Decision: Boundary with M27 / M28
 
-| Topic | Owner |
-| ----- | ----- |
-| RT-003 / rename blind spots / function-rename avisos | **M26** (this feature) |
-| tsconfig `paths` / package `exports` enrichment | **M27** — out of scope |
+| Topic                                                                  | Owner                                                                         |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| RT-003 / rename blind spots / function-rename avisos                   | **M26** (this feature)                                                        |
+| tsconfig `paths` / package `exports` enrichment                        | **M27** — out of scope                                                        |
 | Generic `--concurrency` / progress UX / warning-severity consolidation | **M28** — out of scope (do not add severity levels or progress redesign here) |
-| Renamed-but-unlinked → `hasStaticDependency: false` | Explicitly **not** a dedicated M26 deliverable (CONCERNS) |
+| Renamed-but-unlinked → `hasStaticDependency: false`                    | Explicitly **not** a dedicated M26 deliverable (CONCERNS)                     |
 
 **Status:** **Confirmed** (ROADMAP boundary)
 
@@ -93,12 +93,12 @@ Do **not** emit on every function row. File mode must not pay for this message b
 
 ## Decision: Requirement IDs and fixtures
 
-| Item | Value |
-| ---- | ----- |
-| Requirement IDs | `HOTSPOT-203` … (range reserved through `HOTSPOT-220`; gaps OK) |
-| File-miner fixtures | Extend `tests/fixtures/git-log/` (copy-paste / unlinked, since-truncation cases) |
-| Repo fixture | Strengthen `tests/fixtures/repos/with-renames/` so E2E proves unified churn **and** expected warnings |
-| Patch fixtures | Extend `tests/fixtures/git-patch/` only if needed for function-rename warning unit coverage |
+| Item                | Value                                                                                                 |
+| ------------------- | ----------------------------------------------------------------------------------------------------- |
+| Requirement IDs     | `HOTSPOT-203` … (range reserved through `HOTSPOT-220`; gaps OK)                                       |
+| File-miner fixtures | Extend `tests/fixtures/git-log/` (copy-paste / unlinked, since-truncation cases)                      |
+| Repo fixture        | Strengthen `tests/fixtures/repos/with-renames/` so E2E proves unified churn **and** expected warnings |
+| Patch fixtures      | Extend `tests/fixtures/git-patch/` only if needed for function-rename warning unit coverage           |
 
 **Status:** **Confirmed**
 
@@ -106,10 +106,10 @@ Do **not** emit on every function row. File mode must not pay for this message b
 
 ## Related closed decisions (prior milestones)
 
-| Decision | Value | Relevance to M26 |
-| -------- | ----- | ---------------- |
-| Rename via `PathAliasMap`, not `--follow` | M2 / ARCHITECTURE | Extend warnings; keep no-`--follow` |
-| Ambiguous path warning text | `Rename history may be incomplete for: …` | Keep pattern; add new message families |
-| Function churn = hunk overlap vs current ranges | M23 | Document + warn; no AST |
-| Working-tree AST only | Project constraint | Locked again for M26 |
-| Scan warnings → `onWarning` / stderr | M5+ | No ScanMeta.warnings in M26 |
+| Decision                                        | Value                                     | Relevance to M26                       |
+| ----------------------------------------------- | ----------------------------------------- | -------------------------------------- |
+| Rename via `PathAliasMap`, not `--follow`       | M2 / ARCHITECTURE                         | Extend warnings; keep no-`--follow`    |
+| Ambiguous path warning text                     | `Rename history may be incomplete for: …` | Keep pattern; add new message families |
+| Function churn = hunk overlap vs current ranges | M23                                       | Document + warn; no AST                |
+| Working-tree AST only                           | Project constraint                        | Locked again for M26                   |
+| Scan warnings → `onWarning` / stderr            | M5+                                       | No ScanMeta.warnings in M26            |

@@ -25,9 +25,7 @@ vi.mock("./git/index.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./git/index.js")>();
   return {
     ...actual,
-    createGitMiner: (
-      ...args: Parameters<typeof actual.createGitMiner>
-    ) => {
+    createGitMiner: (...args: Parameters<typeof actual.createGitMiner>) => {
       createGitMinerSpy(...args);
       const miner = actual.createGitMiner(...args);
       return {
@@ -41,8 +39,7 @@ vi.mock("./git/index.js", async (importOriginal) => {
 });
 
 vi.mock("./complexity/index.js", async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import("./complexity/index.js")>();
+  const actual = await importOriginal<typeof import("./complexity/index.js")>();
   return {
     ...actual,
     createComplexityAnalyzer: (
@@ -94,23 +91,21 @@ async function createNestedMonorepoFixture(): Promise<{
   workspaceDir: string;
   packageDir: string;
 }> {
-  const workspaceDir = await mkdtemp(join(tmpdir(), "hotspot-preview-monorepo-"));
+  const workspaceDir = await mkdtemp(
+    join(tmpdir(), "hotspot-preview-monorepo-"),
+  );
   tempDirs.push(workspaceDir);
   const packageDir = join(workspaceDir, "packages", "api");
   await mkdir(packageDir, { recursive: true });
   await cp(smallTsFixture, packageDir, { recursive: true });
   await rm(join(packageDir, ".git"), { recursive: true, force: true });
   await execFileAsync("git", ["init"], { cwd: workspaceDir });
-  await execFileAsync(
-    "git",
-    ["config", "user.email", "test@example.com"],
-    { cwd: workspaceDir },
-  );
-  await execFileAsync(
-    "git",
-    ["config", "user.name", "Test User"],
-    { cwd: workspaceDir },
-  );
+  await execFileAsync("git", ["config", "user.email", "test@example.com"], {
+    cwd: workspaceDir,
+  });
+  await execFileAsync("git", ["config", "user.name", "Test User"], {
+    cwd: workspaceDir,
+  });
   await execFileAsync("git", ["add", "."], { cwd: workspaceDir });
   await execFileAsync("git", ["commit", "-m", "init"], { cwd: workspaceDir });
   return { workspaceDir, packageDir };
@@ -343,7 +338,9 @@ describe("previewScanScope", () => {
     );
 
     await expect(previewScanScope({ repoPath })).rejects.toThrow(ConfigError);
-    await expect(previewScanScope({ repoPath })).rejects.toThrow(/Invalid JSON/);
+    await expect(previewScanScope({ repoPath })).rejects.toThrow(
+      /Invalid JSON/,
+    );
   });
 });
 

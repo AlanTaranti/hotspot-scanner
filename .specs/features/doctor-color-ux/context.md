@@ -35,11 +35,11 @@ User-locked scope from the planning brief; gray areas decided firmly below (no o
 
 **Choice:** Raw ANSI (no chalk/picocolors/kleur):
 
-| Status | Color |
-| ------ | ----- |
-| `pass` | Green (`\x1b[32m`) |
+| Status | Color               |
+| ------ | ------------------- |
+| `pass` | Green (`\x1b[32m`)  |
 | `warn` | Yellow (`\x1b[33m`) |
-| `fail` | Red (`\x1b[31m`) |
+| `fail` | Red (`\x1b[31m`)    |
 
 Wrap with reset (`\x1b[0m`) after the prefix. Reuse patterns from [`src/report/color.ts`](../../../src/report/color.ts).
 
@@ -102,9 +102,9 @@ Help text may say “Disable ANSI colors in doctor text output” (agent discret
 
 ## Related Closed Decisions
 
-| Decision | Value | Relevance |
-| -------- | ----- | --------- |
-| M41 table color gates | TTY + `--no-color` + `NO_COLOR`; no FORCE_COLOR; no chalk | Sister gates to reuse |
-| M51 doctor text shape | `status: message` lines; JSON envelope | Keep shape; color wraps prefix only |
-| M39/M52/M64 doctor checks | Finding IDs and messages | Do not change messages |
-| Reporter pure / stripAnsi | `src/report/color.ts` | Reuse `stripAnsi` for tests |
+| Decision                  | Value                                                     | Relevance                           |
+| ------------------------- | --------------------------------------------------------- | ----------------------------------- |
+| M41 table color gates     | TTY + `--no-color` + `NO_COLOR`; no FORCE_COLOR; no chalk | Sister gates to reuse               |
+| M51 doctor text shape     | `status: message` lines; JSON envelope                    | Keep shape; color wraps prefix only |
+| M39/M52/M64 doctor checks | Finding IDs and messages                                  | Do not change messages              |
+| Reporter pure / stripAnsi | `src/report/color.ts`                                     | Reuse `stripAnsi` for tests         |

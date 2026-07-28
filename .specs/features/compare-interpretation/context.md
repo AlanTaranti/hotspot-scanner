@@ -25,11 +25,11 @@ M53 closes the compare interpretation gap: **delta-aware** triage on table/markd
 
 **Choice:** Default **ON** for compare `table` and `markdown` only. Disable with `--no-triage-hints` (same flag as M41; **no longer a no-op** for compare). Exactly **3** deterministic rules. Cap **3 matches per rule**. Evaluate on the **sliced** display set (what the user sees). Omit section when no matches. Never emit triage in json/csv. Must not change rankings, scores, or JSON/CSV payloads.
 
-| ID | Condition | Hint text (stable) |
-| -- | --------- | ------------------ |
-| `new-dual-signal` | Entity in `hotspots.new` or `functions.new` with `hotspotScore ≥ 0.7` **and** `complexityNormalized ≥ 0.5` **and** `churnNormalized ≥ 0.5` | `New dual-signal hotspot vs baseline — complexity and churn both elevated; prioritize review.` |
-| `rank-worsened` | Entry in `hotspots.rankChanged` or `functions.rankChanged` with `rankDelta ≥ 5` (positive = moved **down** / worse) **and** `entity.hotspotScore ≥ 0.5` | `Rank worsened by ≥5 vs baseline — investigate regression.` |
-| `new-coupled-with-static` | Pair in `coupling.new` with `couplingStrength ≥ 0.5` **and** `hasStaticDependency === true` | `New strong temporal coupling with a static dependency vs baseline — candidate boundary/split review.` |
+| ID                        | Condition                                                                                                                                               | Hint text (stable)                                                                                     |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `new-dual-signal`         | Entity in `hotspots.new` or `functions.new` with `hotspotScore ≥ 0.7` **and** `complexityNormalized ≥ 0.5` **and** `churnNormalized ≥ 0.5`              | `New dual-signal hotspot vs baseline — complexity and churn both elevated; prioritize review.`         |
+| `rank-worsened`           | Entry in `hotspots.rankChanged` or `functions.rankChanged` with `rankDelta ≥ 5` (positive = moved **down** / worse) **and** `entity.hotspotScore ≥ 0.5` | `Rank worsened by ≥5 vs baseline — investigate regression.`                                            |
+| `new-coupled-with-static` | Pair in `coupling.new` with `couplingStrength ≥ 0.5` **and** `hasStaticDependency === true`                                                             | `New strong temporal coupling with a static dependency vs baseline — candidate boundary/split review.` |
 
 **Thresholds:** Export named constants (reuse M41 dual-signal / coupling strength where equal; add `COMPARE_TRIAGE_RANK_DELTA_THRESHOLD = 5` and `COMPARE_TRIAGE_WORSENED_SCORE_THRESHOLD = 0.5`).
 
@@ -67,10 +67,10 @@ M53 closes the compare interpretation gap: **delta-aware** triage on table/markd
 
 **Choice:**
 
-| Mode | Behavior |
-| ---- | -------- |
-| Default (no `--strict`) | Unchanged: warning on stderr + `meta.warnings`; compare proceeds; exit `0` on success |
-| `--strict` | After successful compare + report write, if any `meta.warnings` entry has `code === "COMPARE_SINCE_MISMATCH"`, exit **`1`** (hard error) |
+| Mode                    | Behavior                                                                                                                                 |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Default (no `--strict`) | Unchanged: warning on stderr + `meta.warnings`; compare proceeds; exit `0` on success                                                    |
+| `--strict`              | After successful compare + report write, if any `meta.warnings` entry has `code === "COMPARE_SINCE_MISMATCH"`, exit **`1`** (hard error) |
 
 **Rules:**
 
@@ -86,11 +86,11 @@ M53 closes the compare interpretation gap: **delta-aware** triage on table/markd
 
 ## Decision: CLI / config surface (LOCKED)
 
-| Flag | Config key? | Commands |
-| ---- | ----------- | -------- |
-| `--no-triage-hints` | No | `scan`, `compare` — now effective for compare triage |
-| `--explain <target>` | No | `scan`, `compare` |
-| `--strict` | No | `scan`, `compare` |
+| Flag                 | Config key? | Commands                                             |
+| -------------------- | ----------- | ---------------------------------------------------- |
+| `--no-triage-hints`  | No          | `scan`, `compare` — now effective for compare triage |
+| `--explain <target>` | No          | `scan`, `compare`                                    |
+| `--strict`           | No          | `scan`, `compare`                                    |
 
 Help text: document that `--strict` fails on `COMPARE_SINCE_MISMATCH`; that compare triage is delta-aware; that `--explain` with baseline explains deltas.
 
@@ -98,22 +98,22 @@ Help text: document that `--strict` fails on `COMPARE_SINCE_MISMATCH`; that comp
 
 ## Explicitly out of scope
 
-| Item | Reason |
-| ---- | ------ |
-| Absolute M41 rules on compare rankChanged rows | Misleading; use delta-aware rules only |
+| Item                                                  | Reason                                  |
+| ----------------------------------------------------- | --------------------------------------- |
+| Absolute M41 rules on compare rankChanged rows        | Misleading; use delta-aware rules only  |
 | Fail-on score / rank thresholds beyond since-mismatch | STATE: CI fail-on deferred; M12 removed |
-| Explain coupling pairs | YAGNI |
-| JSON schema / `version` bump | stderr + report text only |
-| Changing `compareScanResults` warn emission | Keep M13 pure warn; strict at CLI |
-| SARIF / harmonic formula / color policy changes | Unrelated |
+| Explain coupling pairs                                | YAGNI                                   |
+| JSON schema / `version` bump                          | stderr + report text only               |
+| Changing `compareScanResults` warn emission           | Keep M13 pure warn; strict at CLI       |
+| SARIF / harmonic formula / color policy changes       | Unrelated                               |
 
 ---
 
 ## Supersedes / sister notes
 
-| Prior lock | M53 action |
-| ---------- | ---------- |
-| M41 D4 “no compare triage” | **Override** — delta-aware triage ON by default |
-| M13 “since mismatch = warning only” | Default preserved; `--strict` opt-in hard fail |
-| M42 explain = ScanResult | Compare mode switches lookup to CompareResult |
-| STATE “M53 will override M41…” | Satisfied by this feature |
+| Prior lock                          | M53 action                                      |
+| ----------------------------------- | ----------------------------------------------- |
+| M41 D4 “no compare triage”          | **Override** — delta-aware triage ON by default |
+| M13 “since mismatch = warning only” | Default preserved; `--strict` opt-in hard fail  |
+| M42 explain = ScanResult            | Compare mode switches lookup to CompareResult   |
+| STATE “M53 will override M41…”      | Satisfied by this feature                       |

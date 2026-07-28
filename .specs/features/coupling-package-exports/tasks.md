@@ -57,69 +57,69 @@ flowchart TD
 
 | Task | Depends on (declared) | Diagram shows | Match |
 | ---- | --------------------- | ------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1→T2 | ✅ |
-| T3 | T2 | T2→T3 | ✅ |
-| T4 | T3 | T3→T4 | ✅ |
-| T5 | T3, T4 | T3→T5, T4→T5 | ✅ |
-| T6 | T5 | T5→T6 | ✅ |
-| T7 | T6 | T6→T7 | ✅ |
+| T1   | None                  | Root          | ✅    |
+| T2   | T1                    | T1→T2         | ✅    |
+| T3   | T2                    | T2→T3         | ✅    |
+| T4   | T3                    | T3→T4         | ✅    |
+| T5   | T3, T4                | T3→T5, T4→T5  | ✅    |
+| T6   | T5                    | T5→T6         | ✅    |
+| T7   | T6                    | T6→T7         | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict with parallel peers |
-| ---- | ------------ | ----- | ---------------------------- |
-| T1 | `src/scoring/` | `package-exports-map.ts`, `package-exports-map.test.ts` | Sole owner of new module |
-| T2 | `src/scoring/` | same `package-exports-map.ts` (+ test) | After T1 — sole owner |
-| T3 | `src/scoring/` | `enrich-coupling-static.ts`, `enrich-coupling-static.test.ts`; may import package-exports-map only | After T2 — sole enricher owner; **do not** edit package-exports-map except import |
-| T4 | `tests/fixtures/` | `tests/fixtures/repos/package-exports-coupling/**` (+ README) | Disjoint from T3 scoring files — may start after T3 API stable; **not [P] with T3** (depends on resolution behavior for fixture design). No parallel peer. |
-| T5 | scoring + scan tests | `enrich-coupling-static.test.ts` and/or `src/scan.integration.test.ts` | After T3+T4; sole test owner for this slice |
-| T6 | docs + contract | `.specs/codebase/ARCHITECTURE.md`, `CONCERNS.md`, `STRUCTURE.md`; `tests/contract/` only if assert tweaks needed | After T5 |
-| T7 | gate | none (run only) | After T6 |
+| Task | Module owner         | Paths                                                                                                            | Conflict with parallel peers                                                                                                                               |
+| ---- | -------------------- | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| T1   | `src/scoring/`       | `package-exports-map.ts`, `package-exports-map.test.ts`                                                          | Sole owner of new module                                                                                                                                   |
+| T2   | `src/scoring/`       | same `package-exports-map.ts` (+ test)                                                                           | After T1 — sole owner                                                                                                                                      |
+| T3   | `src/scoring/`       | `enrich-coupling-static.ts`, `enrich-coupling-static.test.ts`; may import package-exports-map only               | After T2 — sole enricher owner; **do not** edit package-exports-map except import                                                                          |
+| T4   | `tests/fixtures/`    | `tests/fixtures/repos/package-exports-coupling/**` (+ README)                                                    | Disjoint from T3 scoring files — may start after T3 API stable; **not [P] with T3** (depends on resolution behavior for fixture design). No parallel peer. |
+| T5   | scoring + scan tests | `enrich-coupling-static.test.ts` and/or `src/scan.integration.test.ts`                                           | After T3+T4; sole test owner for this slice                                                                                                                |
+| T6   | docs + contract      | `.specs/codebase/ARCHITECTURE.md`, `CONCERNS.md`, `STRUCTURE.md`; `tests/contract/` only if assert tweaks needed | After T5                                                                                                                                                   |
+| T7   | gate                 | none (run only)                                                                                                  | After T6                                                                                                                                                   |
 
 > **[P]**: None required. T1→T2→T3 are sequential on overlapping/adjacent scoring files. T4 is fixtures-only but depends on T3 for known resolution rules — keep sequential. Check 5: one module owner per in-flight task.
 
 ### Test Co-location Validation
 
-| Task | Code layer created/modified | Matrix / TESTING.md expectation | Task Tests field | Match |
-| ---- | --------------------------- | ------------------------------- | ---------------- | ----- |
-| T1 | `src/scoring/package-exports-map.ts` | unit required | unit — `package-exports-map.test.ts` | ✅ |
-| T2 | same module | unit required | unit — extend same test file | ✅ |
-| T3 | `src/scoring/enrich-coupling-static.ts` | unit required | unit — `enrich-coupling-static.test.ts` | ✅ |
-| T4 | fixtures only | none / fixture-builder | none (tree + README expectations) | ✅ |
-| T5 | integration / enrich asserts | integration or unit on fixture | unit and/or integration | ✅ |
-| T6 | docs + optional contract | contract regression | contract — `pnpm test -- tests/contract` (or full) | ✅ |
-| T7 | gate | full gate | gate — `pnpm build && pnpm test` | ✅ |
+| Task | Code layer created/modified             | Matrix / TESTING.md expectation | Task Tests field                                   | Match |
+| ---- | --------------------------------------- | ------------------------------- | -------------------------------------------------- | ----- |
+| T1   | `src/scoring/package-exports-map.ts`    | unit required                   | unit — `package-exports-map.test.ts`               | ✅    |
+| T2   | same module                             | unit required                   | unit — extend same test file                       | ✅    |
+| T3   | `src/scoring/enrich-coupling-static.ts` | unit required                   | unit — `enrich-coupling-static.test.ts`            | ✅    |
+| T4   | fixtures only                           | none / fixture-builder          | none (tree + README expectations)                  | ✅    |
+| T5   | integration / enrich asserts            | integration or unit on fixture  | unit and/or integration                            | ✅    |
+| T6   | docs + optional contract                | contract regression             | contract — `pnpm test -- tests/contract` (or full) | ✅    |
+| T7   | gate                                    | full gate                       | gate — `pnpm build && pnpm test`                   | ✅    |
 
 ### Requirement → Task Mapping
 
-| Requirement ID | Task(s) |
-| -------------- | ------- |
-| HOTSPOT-590 | T3, T5 |
-| HOTSPOT-591 | T3 |
-| HOTSPOT-592 | T3 |
-| HOTSPOT-593 | T3 |
-| HOTSPOT-594 | T1, T3, T5 |
-| HOTSPOT-595 | T1, T2, T3 |
-| HOTSPOT-596 | T2, T3 |
-| HOTSPOT-597 | T1, T3 |
-| HOTSPOT-598 | T1, T3 |
-| HOTSPOT-599 | T2, T3 |
-| HOTSPOT-600 | T3 |
-| HOTSPOT-601 | T1, T2, T3 |
-| HOTSPOT-602 | T3, T6 |
-| HOTSPOT-603 | T6 |
-| HOTSPOT-604 | T4, T5 |
-| HOTSPOT-605 | T4, T5 |
-| HOTSPOT-606 | T3 |
-| HOTSPOT-607 | T1, T3 |
-| HOTSPOT-608 | T6 |
-| HOTSPOT-609 | T6 |
-| HOTSPOT-610 | T1, T3 |
-| HOTSPOT-611 | T1, T3 |
-| HOTSPOT-612 | T1, T3 |
-| HOTSPOT-613 | T3 |
-| HOTSPOT-614 | T7 |
+| Requirement ID | Task(s)    |
+| -------------- | ---------- |
+| HOTSPOT-590    | T3, T5     |
+| HOTSPOT-591    | T3         |
+| HOTSPOT-592    | T3         |
+| HOTSPOT-593    | T3         |
+| HOTSPOT-594    | T1, T3, T5 |
+| HOTSPOT-595    | T1, T2, T3 |
+| HOTSPOT-596    | T2, T3     |
+| HOTSPOT-597    | T1, T3     |
+| HOTSPOT-598    | T1, T3     |
+| HOTSPOT-599    | T2, T3     |
+| HOTSPOT-600    | T3         |
+| HOTSPOT-601    | T1, T2, T3 |
+| HOTSPOT-602    | T3, T6     |
+| HOTSPOT-603    | T6         |
+| HOTSPOT-604    | T4, T5     |
+| HOTSPOT-605    | T4, T5     |
+| HOTSPOT-606    | T3         |
+| HOTSPOT-607    | T1, T3     |
+| HOTSPOT-608    | T6         |
+| HOTSPOT-609    | T6         |
+| HOTSPOT-610    | T1, T3     |
+| HOTSPOT-611    | T1, T3     |
+| HOTSPOT-612    | T1, T3     |
+| HOTSPOT-613    | T3         |
+| HOTSPOT-614    | T7         |
 
 **Coverage:** 25 total, 25 mapped, 0 unmapped
 

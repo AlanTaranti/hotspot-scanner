@@ -4,17 +4,16 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { promisify } from "node:util";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import {
-  formatTruncationNote,
-  runComplexityTrend,
-} from "./run-trend.js";
+import { formatTruncationNote, runComplexityTrend } from "./run-trend.js";
 import { TrendNotTrackedError, TrendUsageError } from "./types.js";
 
 const execFileAsync = promisify(execFile);
 const tempDirs: string[] = [];
 
 afterEach(async () => {
-  await Promise.all(tempDirs.splice(0).map((dir) => rm(dir, { force: true, recursive: true })));
+  await Promise.all(
+    tempDirs.splice(0).map((dir) => rm(dir, { force: true, recursive: true })),
+  );
 });
 
 async function createTempRepo(): Promise<string> {
@@ -66,7 +65,9 @@ describe.sequential("runComplexityTrend", () => {
 
   it("rejects missing file paths", async () => {
     await expect(
-      runComplexityTrend({ filePath: "/tmp/definitely-missing-hotspot-trend.ts" }),
+      runComplexityTrend({
+        filePath: "/tmp/definitely-missing-hotspot-trend.ts",
+      }),
     ).rejects.toThrow("File not found:");
   });
 
@@ -168,7 +169,9 @@ describe.sequential("runComplexityTrend", () => {
     });
 
     showSpy.mockRestore();
-    expect(result.meta.warnings.some((w) => w.code === "SHOW_FAILED")).toBe(true);
+    expect(result.meta.warnings.some((w) => w.code === "SHOW_FAILED")).toBe(
+      true,
+    );
   });
 
   it("rejects file outside explicit repository root", async () => {

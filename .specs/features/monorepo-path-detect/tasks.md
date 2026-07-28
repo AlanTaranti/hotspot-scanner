@@ -22,8 +22,8 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (body) | Diagram shows | Status |
-| ---- | ----------------- | ------------- | ------ |
+| Task | Depends on (body) | Diagram shows | Status   |
+| ---- | ----------------- | ------------- | -------- |
 | T1   | None              | Root          | ✅ Match |
 | T2   | T1                | T1→T2         | ✅ Match |
 | T3   | T2                | T2→T3         | ✅ Match |
@@ -31,30 +31,30 @@ flowchart LR
 
 ### Path Conflict Check
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1   | `src/paths/` | `resolve-repo.ts`, `resolve-repo.test.ts`, `index.ts` | None |
-| T2   | `src/scan.ts` | `scan.ts`, `scan.test.ts` (and/or focused unit) | After T1; sole owner of scan wiring |
+| Task | Module owner                              | Paths                                                           | Conflict                                               |
+| ---- | ----------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------ |
+| T1   | `src/paths/`                              | `resolve-repo.ts`, `resolve-repo.test.ts`, `index.ts`           | None                                                   |
+| T2   | `src/scan.ts`                             | `scan.ts`, `scan.test.ts` (and/or focused unit)                 | After T1; sole owner of scan wiring                    |
 | T3   | `tests/fixtures/` + integration/CLI tests | fixture tree, `scan.integration.test.ts` and/or `bin/*.test.ts` | After T2; may touch scan/bin tests only for assertions |
-| T4   | docs | README, ARCHITECTURE, STRUCTURE/INTEGRATIONS as needed | After T3 |
+| T4   | docs                                      | README, ARCHITECTURE, STRUCTURE/INTEGRATIONS as needed          | After T3                                               |
 
 ### Test Co-location Validation
 
-| Task | Code layer | Matrix / TESTING.md | Task Tests | Status |
-| ---- | ---------- | ------------------- | ---------- | ------ |
-| T1   | `src/paths/` | unit co-located | unit | ✅ OK |
-| T2   | `src/scan.ts` | unit + integration as needed | unit (remount / warning / include) | ✅ OK |
-| T3   | fixtures + integration/CLI | integration / CLI | integration (+ CLI smoke if practical) | ✅ OK |
-| T4   | docs only | none | none + full gate | ✅ OK |
+| Task | Code layer                 | Matrix / TESTING.md          | Task Tests                             | Status |
+| ---- | -------------------------- | ---------------------------- | -------------------------------------- | ------ |
+| T1   | `src/paths/`               | unit co-located              | unit                                   | ✅ OK  |
+| T2   | `src/scan.ts`              | unit + integration as needed | unit (remount / warning / include)     | ✅ OK  |
+| T3   | fixtures + integration/CLI | integration / CLI            | integration (+ CLI smoke if practical) | ✅ OK  |
+| T4   | docs only                  | none                         | none + full gate                       | ✅ OK  |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | One module: resolve + auto-include helper + unit tests | ✅ Granular |
-| T2 | Cohesive scan wiring: config-from-request, inject include, validate root, warning | ✅ OK |
-| T3 | Fixture + end-to-end nested vs root behavior | ✅ Granular |
-| T4 | Docs + full project gate | ✅ Granular |
+| Task | Scope                                                                             | Status      |
+| ---- | --------------------------------------------------------------------------------- | ----------- |
+| T1   | One module: resolve + auto-include helper + unit tests                            | ✅ Granular |
+| T2   | Cohesive scan wiring: config-from-request, inject include, validate root, warning | ✅ OK       |
+| T3   | Fixture + end-to-end nested vs root behavior                                      | ✅ Granular |
+| T4   | Docs + full project gate                                                          | ✅ Granular |
 
 ---
 
@@ -215,28 +215,28 @@ pnpm build && pnpm test
 
 ## Requirement → Task Mapping
 
-| Requirement ID | Task |
-| -------------- | ---- |
-| HOTSPOT-570 | T1 |
-| HOTSPOT-571 | T1 |
-| HOTSPOT-572 | T1 |
-| HOTSPOT-573 | T1 |
-| HOTSPOT-574 | T1 |
-| HOTSPOT-575 | T2 |
-| HOTSPOT-576 | T2 |
-| HOTSPOT-577 | T2, T3 |
-| HOTSPOT-578 | T2 |
-| HOTSPOT-579 | T2 |
-| HOTSPOT-580 | T2 |
-| HOTSPOT-581 | T2 |
-| HOTSPOT-582 | T2 |
-| HOTSPOT-583 | T4 |
-| HOTSPOT-584 | T4 |
-| HOTSPOT-585 | T3 |
-| HOTSPOT-586 | T3 |
-| HOTSPOT-587 | T2 |
-| HOTSPOT-588 | T4 |
-| HOTSPOT-589 | T4 |
+| Requirement ID | Task   |
+| -------------- | ------ |
+| HOTSPOT-570    | T1     |
+| HOTSPOT-571    | T1     |
+| HOTSPOT-572    | T1     |
+| HOTSPOT-573    | T1     |
+| HOTSPOT-574    | T1     |
+| HOTSPOT-575    | T2     |
+| HOTSPOT-576    | T2     |
+| HOTSPOT-577    | T2, T3 |
+| HOTSPOT-578    | T2     |
+| HOTSPOT-579    | T2     |
+| HOTSPOT-580    | T2     |
+| HOTSPOT-581    | T2     |
+| HOTSPOT-582    | T2     |
+| HOTSPOT-583    | T4     |
+| HOTSPOT-584    | T4     |
+| HOTSPOT-585    | T3     |
+| HOTSPOT-586    | T3     |
+| HOTSPOT-587    | T2     |
+| HOTSPOT-588    | T4     |
+| HOTSPOT-589    | T4     |
 
 **Coverage:** 20/20 IDs mapped. Unmapped: none.
 

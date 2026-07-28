@@ -41,14 +41,14 @@ flowchart LR
 
 ### Safe change order (compile + contract)
 
-| Step | Why this order |
-| ---- | -------------- |
-| 1. Schemas + domain types + baseline reject | Contract SoT first; fail closed on `"2.0"` / legacy fields |
-| 2. NCLOC scanner + scoring field rename | New metric green behind types; McCabe path can still compile briefly |
-| 3. Pipeline producers (scan, compare, reporters, CLI/config) | Stop function mode + emit `ncloc` / `"3.0"` |
-| 4. Delete McCabe / function-churn / function scorers + fixtures | No dangling imports; drop `ts-morph` when unused |
-| 5. Living docs / skills / ADR-2026-019 | Match shipped behavior |
-| 6. Full gate | Prove green tree |
+| Step                                                            | Why this order                                                       |
+| --------------------------------------------------------------- | -------------------------------------------------------------------- |
+| 1. Schemas + domain types + baseline reject                     | Contract SoT first; fail closed on `"2.0"` / legacy fields           |
+| 2. NCLOC scanner + scoring field rename                         | New metric green behind types; McCabe path can still compile briefly |
+| 3. Pipeline producers (scan, compare, reporters, CLI/config)    | Stop function mode + emit `ncloc` / `"3.0"`                          |
+| 4. Delete McCabe / function-churn / function scorers + fixtures | No dangling imports; drop `ts-morph` when unused                     |
+| 5. Living docs / skills / ADR-2026-019                          | Match shipped behavior                                               |
+| 6. Full gate                                                    | Prove green tree                                                     |
 
 **Compile note:** Between step 1 and end of step 3, full `pnpm build` may be red. Tasks use **targeted Vitest gates** until producers align; full `pnpm build && pnpm test` is the final task. Do **not** leave empty `functions: []` or dual `cyclomaticComplexity` stubs.
 
@@ -58,10 +58,10 @@ flowchart LR
 
 ## Tech Decision: NCLOC scanner vs ts-morph
 
-| Option | Pros | Cons |
-| ------ | ---- | ---- |
-| **A. Keep ts-morph**, count lines via AST / source text | Reuses Project/workers | Heavy dep for line metric; RT-005 McCabe surface unused; function AST dead |
-| **B. Lighter stateful line/token scanner** | Accurate comment/string handling without AST; drop `ts-morph`; simpler workers | Must implement string/`/* */` state carefully; regex-literal edge cases |
+| Option                                                  | Pros                                                                           | Cons                                                                       |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
+| **A. Keep ts-morph**, count lines via AST / source text | Reuses Project/workers                                                         | Heavy dep for line metric; RT-005 McCabe surface unused; function AST dead |
+| **B. Lighter stateful line/token scanner**              | Accurate comment/string handling without AST; drop `ts-morph`; simpler workers | Must implement string/`/* */` state carefully; regex-literal edge cases    |
 
 **Choice: B — lighter scanner** (locked in [context.md](./context.md)).
 
@@ -80,13 +80,13 @@ Implement a **single-pass state machine** over file text (UTF-8):
 
 ### Module shape
 
-| Piece | Location | Notes |
-| ----- | -------- | ----- |
-| `countNcloc(source: string): number` | `src/complexity/ncloc.ts` (or rename package folder later — keep `src/complexity/` path to limit blast) | Pure; heavily unit-tested |
-| File analyze | Replace `analyze-file.ts` McCabe path with read text → `countNcloc` | No ts-morph `Project` |
-| Discovery | Keep `discover.ts` + PathScope + eligible extensions | Unchanged filters |
-| Workers / concurrency | Retarget worker payload to `{ path, text }` → `ncloc` **or** main-thread `Promise` pool with concurrency; **remove** ts-morph Project reuse | Prefer delete `project.ts` McCabe adapter; keep pool only if parallel file I/O remains valuable |
-| Public analyzer API | `createComplexityAnalyzer` may rename conceptually to size analyzer but **path rename optional** (YAGNI — avoid mass import churn); result type field `ncloc` | `cyclomaticComplexity` / `functionCount` / `parseFailed` removed from happy path |
+| Piece                                | Location                                                                                                                                                      | Notes                                                                                           |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `countNcloc(source: string): number` | `src/complexity/ncloc.ts` (or rename package folder later — keep `src/complexity/` path to limit blast)                                                       | Pure; heavily unit-tested                                                                       |
+| File analyze                         | Replace `analyze-file.ts` McCabe path with read text → `countNcloc`                                                                                           | No ts-morph `Project`                                                                           |
+| Discovery                            | Keep `discover.ts` + PathScope + eligible extensions                                                                                                          | Unchanged filters                                                                               |
+| Workers / concurrency                | Retarget worker payload to `{ path, text }` → `ncloc` **or** main-thread `Promise` pool with concurrency; **remove** ts-morph Project reuse                   | Prefer delete `project.ts` McCabe adapter; keep pool only if parallel file I/O remains valuable |
+| Public analyzer API                  | `createComplexityAnalyzer` may rename conceptually to size analyzer but **path rename optional** (YAGNI — avoid mass import churn); result type field `ncloc` | `cyclomaticComplexity` / `functionCount` / `parseFailed` removed from happy path                |
 
 ### Dependency
 
@@ -98,32 +98,32 @@ When no file under `src/` imports `ts-morph`, **remove** it from `package.json` 
 
 ### Existing patterns to leverage
 
-| Pattern | Location | How to use |
-| ------- | -------- | ---------- |
-| Hard-cut breaking change | M56 remove-coupling-analysis | Same order: contract → producers → delete → docs |
-| Baseline reject + re-scan | `src/compare/load-baseline.ts` | Extend for `"3.0"`; reject `"2.0"`/`"1.0"`, `cyclomaticComplexity`, top-level `functions` |
-| Contract tests | `tests/contract/json-schema.test.ts` | Retarget to 3.0 + `ncloc` |
-| Harmonic + normalize | `src/scoring/normalize.ts`, `hotspot-scorer.ts` | Swap input field only |
-| Unknown config keys | M55 | Leftover `granularity` → warn-only |
-| CSV bundle | `src/report/csv.ts` | Drop functions keys |
-| `--only` validation | `src/report/only.ts` | `hotspots` only |
-| File-mode pipeline overlap | `src/scan.ts` M34 | Keep git ∥ size analysis; remove function branch |
+| Pattern                    | Location                                        | How to use                                                                                |
+| -------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Hard-cut breaking change   | M56 remove-coupling-analysis                    | Same order: contract → producers → delete → docs                                          |
+| Baseline reject + re-scan  | `src/compare/load-baseline.ts`                  | Extend for `"3.0"`; reject `"2.0"`/`"1.0"`, `cyclomaticComplexity`, top-level `functions` |
+| Contract tests             | `tests/contract/json-schema.test.ts`            | Retarget to 3.0 + `ncloc`                                                                 |
+| Harmonic + normalize       | `src/scoring/normalize.ts`, `hotspot-scorer.ts` | Swap input field only                                                                     |
+| Unknown config keys        | M55                                             | Leftover `granularity` → warn-only                                                        |
+| CSV bundle                 | `src/report/csv.ts`                             | Drop functions keys                                                                       |
+| `--only` validation        | `src/report/only.ts`                            | `hotspots` only                                                                           |
+| File-mode pipeline overlap | `src/scan.ts` M34                               | Keep git ∥ size analysis; remove function branch                                          |
 
 ### Integration points
 
-| System | Change |
-| ------ | ------ |
-| `schemas/*.json` | `"3.0"`; `ncloc`; drop `functions` / McCabe fields |
-| `src/types/domain.ts` | `ncloc`; remove function types / granularity |
-| `src/complexity/**` | NCLOC scanner; retire McCabe + function collection |
-| `src/scoring/**` | File scorer only; delete function scorer |
-| `src/git/function-churn/**` | Delete entire tree |
-| `src/scan.ts` | File-only pipeline; no granularity branch |
-| `src/compare/**` | Hotspots-only compare; baseline 3.0 |
-| `src/report/**` | NLOC columns; no function CSV/explain/triage |
-| `src/config/**`, `bin/**` | Remove granularity; completion; `--only` |
-| `src/index.ts` | Drop function exports |
-| Docs / skills / STATE ADR | NCLOC vision; ADR-2026-019 supersession |
+| System                      | Change                                             |
+| --------------------------- | -------------------------------------------------- |
+| `schemas/*.json`            | `"3.0"`; `ncloc`; drop `functions` / McCabe fields |
+| `src/types/domain.ts`       | `ncloc`; remove function types / granularity       |
+| `src/complexity/**`         | NCLOC scanner; retire McCabe + function collection |
+| `src/scoring/**`            | File scorer only; delete function scorer           |
+| `src/git/function-churn/**` | Delete entire tree                                 |
+| `src/scan.ts`               | File-only pipeline; no granularity branch          |
+| `src/compare/**`            | Hotspots-only compare; baseline 3.0                |
+| `src/report/**`             | NLOC columns; no function CSV/explain/triage       |
+| `src/config/**`, `bin/**`   | Remove granularity; completion; `--only`           |
+| `src/index.ts`              | Drop function exports                              |
+| Docs / skills / STATE ADR   | NCLOC vision; ADR-2026-019 supersession            |
 
 ---
 
@@ -215,47 +215,47 @@ interface CompareResultV3 {
 
 ## Error Handling Strategy
 
-| Scenario | Handling | User impact |
-| -------- | -------- | ----------- |
-| Baseline `version` ≠ `"3.0"` | `BaselineError` + re-scan | Exit ≠ 0 |
-| Baseline has `cyclomaticComplexity` or `functions` | `BaselineError` + re-scan | Exit ≠ 0 |
-| Unknown CLI `--granularity` | Commander unknown option | Exit ≠ 0 |
-| `--only functions` | Validation error → `hotspots` | Exit ≠ 0 |
-| Config `granularity` leftover | Warn-only unknown key; not applied | Scan continues |
-| Unreadable source file | Warning + skip (omit hotspot row) | Partial scan |
-| `--explain` with `path:function` | `CliUsageError` — file path only | Exit ≠ 0 |
+| Scenario                                           | Handling                           | User impact    |
+| -------------------------------------------------- | ---------------------------------- | -------------- |
+| Baseline `version` ≠ `"3.0"`                       | `BaselineError` + re-scan          | Exit ≠ 0       |
+| Baseline has `cyclomaticComplexity` or `functions` | `BaselineError` + re-scan          | Exit ≠ 0       |
+| Unknown CLI `--granularity`                        | Commander unknown option           | Exit ≠ 0       |
+| `--only functions`                                 | Validation error → `hotspots`      | Exit ≠ 0       |
+| Config `granularity` leftover                      | Warn-only unknown key; not applied | Scan continues |
+| Unreadable source file                             | Warning + skip (omit hotspot row)  | Partial scan   |
+| `--explain` with `path:function`                   | `CliUsageError` — file path only   | Exit ≠ 0       |
 
 ---
 
 ## Risks (from CONCERNS.md)
 
-| Fragile area | M57 mitigation |
-| ------------ | -------------- |
-| RT-005 McCabe decision nodes | **Retire** — replace CONCERNS row with NCLOC definition + fixture discipline |
-| ts-morph / workers | Remove or retarget; INTEGRATIONS update mandatory |
-| JSON schemas / baseline | Strong reject of 2.0 + legacy fields; contract tests in T1 |
-| Scoring formulas | Do not change harmonic/normalize — only input field |
-| Function-churn / pathspec / ARG_MAX | Delete with function mode — remove related CONCERNS rows |
-| CSV / explain consumers | Document breaking change |
-| Coverage per-file | Deleting modules removes thresholds; ensure no orphan imports |
-| NCLOC string/comment accuracy | Fixture matrix mandatory (blank, `//`, block, JSDoc, string with `//`, code+trailing comment) |
+| Fragile area                        | M57 mitigation                                                                                |
+| ----------------------------------- | --------------------------------------------------------------------------------------------- |
+| RT-005 McCabe decision nodes        | **Retire** — replace CONCERNS row with NCLOC definition + fixture discipline                  |
+| ts-morph / workers                  | Remove or retarget; INTEGRATIONS update mandatory                                             |
+| JSON schemas / baseline             | Strong reject of 2.0 + legacy fields; contract tests in T1                                    |
+| Scoring formulas                    | Do not change harmonic/normalize — only input field                                           |
+| Function-churn / pathspec / ARG_MAX | Delete with function mode — remove related CONCERNS rows                                      |
+| CSV / explain consumers             | Document breaking change                                                                      |
+| Coverage per-file                   | Deleting modules removes thresholds; ensure no orphan imports                                 |
+| NCLOC string/comment accuracy       | Fixture matrix mandatory (blank, `//`, block, JSDoc, string with `//`, code+trailing comment) |
 
 ---
 
 ## Check 5 — Path ownership (task planning)
 
-| Owner prefix | Tasks that may edit |
-| ------------ | ------------------- |
-| `schemas/` + `src/types/` + `src/compare/load-baseline.ts` + `tests/contract/` | T1 |
-| `src/complexity/` (NCLOC scanner + analyzer retarget; not yet delete all McCabe if staged) | T2 |
-| `src/scoring/` (file scorer + delete function scorer wiring) | T3 |
-| `src/scan.ts` (+ integration) | T4 |
-| `src/compare/` (except load-baseline already done) | T5 |
-| `src/report/` | T6 |
-| `src/config/` + `bin/` + `src/index.ts` | T7 |
-| Delete function-churn + McCabe leftovers + fixtures + drop ts-morph | T8 |
-| Docs / skills / rules / PROJECT / STATE ADR | T9 |
-| Gate only | T10 |
+| Owner prefix                                                                               | Tasks that may edit |
+| ------------------------------------------------------------------------------------------ | ------------------- |
+| `schemas/` + `src/types/` + `src/compare/load-baseline.ts` + `tests/contract/`             | T1                  |
+| `src/complexity/` (NCLOC scanner + analyzer retarget; not yet delete all McCabe if staged) | T2                  |
+| `src/scoring/` (file scorer + delete function scorer wiring)                               | T3                  |
+| `src/scan.ts` (+ integration)                                                              | T4                  |
+| `src/compare/` (except load-baseline already done)                                         | T5                  |
+| `src/report/`                                                                              | T6                  |
+| `src/config/` + `bin/` + `src/index.ts`                                                    | T7                  |
+| Delete function-churn + McCabe leftovers + fixtures + drop ts-morph                        | T8                  |
+| Docs / skills / rules / PROJECT / STATE ADR                                                | T9                  |
+| Gate only                                                                                  | T10                 |
 
 No `[P]` across overlapping producers — sequential hard cut is safer (same as M56).
 

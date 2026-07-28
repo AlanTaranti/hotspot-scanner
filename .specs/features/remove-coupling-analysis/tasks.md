@@ -63,45 +63,45 @@ flowchart TD
 
 | Task | Depends on (declared) | Diagram shows | Match |
 | ---- | --------------------- | ------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1→T2 | ✅ |
-| T3 | T2 | T2→T3 | ✅ |
-| T4 | T3 | T3→T4 | ✅ |
-| T5 | T4 | T4→T5 | ✅ |
-| T6 | T5 | T5→T6 | ✅ |
-| T7 | T6 | T6→T7 | ✅ |
-| T8 | T7 | T7→T8 | ✅ |
-| T9 | T8 | T8→T9 | ✅ |
+| T1   | None                  | Root          | ✅    |
+| T2   | T1                    | T1→T2         | ✅    |
+| T3   | T2                    | T2→T3         | ✅    |
+| T4   | T3                    | T3→T4         | ✅    |
+| T5   | T4                    | T4→T5         | ✅    |
+| T6   | T5                    | T5→T6         | ✅    |
+| T7   | T6                    | T6→T7         | ✅    |
+| T8   | T7                    | T7→T8         | ✅    |
+| T9   | T8                    | T8→T9         | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths (primary) | Conflict with parallel peers |
-| ---- | ------------ | --------------- | ---------------------------- |
-| T1 | schemas + types + compare/load-baseline + contract | `schemas/*.json`, `src/types/domain.ts`, `src/compare/load-baseline.ts` (+test), `tests/contract/**` | Sole — sequential |
-| T2 | scan + scoring index | `src/scan.ts` (+integration as needed), `src/scoring/index.ts` | After T1; do not delete scorer files yet |
-| T3 | compare | `src/compare/compare.ts`, `keys.ts` (+tests); **not** re-open load-baseline except import fix | After T2 |
-| T4 | report | `src/report/**` (table, md, json, csv, slice, summary, glossary, triage, only, color, compare-*, coupling-format) | After T3 |
-| T5 | config + bin + index | `src/config/**`, `bin/**`, `src/index.ts` | After T4 |
-| T6 | git + paths | `src/git/**`, `src/paths/filter-git.ts` | After T5 |
-| T7 | scoring delete + fixtures | Delete coupling scoring/enrich/map modules + tests; fixture trees; sample JSON coupling fields | After T6; no imports remain |
-| T8 | docs / skills | `.specs/codebase/*`, PROJECT, README, AGENTS, CONTRIBUTING, `docs/*`, pipeline-domain skill, fragile-areas, package.json keyword, STATE ADR | After T7 |
-| T9 | gate | none (run only) | After T8 |
+| Task | Module owner                                       | Paths (primary)                                                                                                                             | Conflict with parallel peers             |
+| ---- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| T1   | schemas + types + compare/load-baseline + contract | `schemas/*.json`, `src/types/domain.ts`, `src/compare/load-baseline.ts` (+test), `tests/contract/**`                                        | Sole — sequential                        |
+| T2   | scan + scoring index                               | `src/scan.ts` (+integration as needed), `src/scoring/index.ts`                                                                              | After T1; do not delete scorer files yet |
+| T3   | compare                                            | `src/compare/compare.ts`, `keys.ts` (+tests); **not** re-open load-baseline except import fix                                               | After T2                                 |
+| T4   | report                                             | `src/report/**` (table, md, json, csv, slice, summary, glossary, triage, only, color, compare-*, coupling-format)                           | After T3                                 |
+| T5   | config + bin + index                               | `src/config/**`, `bin/**`, `src/index.ts`                                                                                                   | After T4                                 |
+| T6   | git + paths                                        | `src/git/**`, `src/paths/filter-git.ts`                                                                                                     | After T5                                 |
+| T7   | scoring delete + fixtures                          | Delete coupling scoring/enrich/map modules + tests; fixture trees; sample JSON coupling fields                                              | After T6; no imports remain              |
+| T8   | docs / skills                                      | `.specs/codebase/*`, PROJECT, README, AGENTS, CONTRIBUTING, `docs/*`, pipeline-domain skill, fragile-areas, package.json keyword, STATE ADR | After T7                                 |
+| T9   | gate                                               | none (run only)                                                                                                                             | After T8                                 |
 
 > **[P]**: None. Overlapping type/compile surface makes parallel unsafe for this hard cut.
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Tests in same task | Match |
-| ---- | ---------- | ---------------------- | ------------------ | ----- |
-| T1 | schemas, load-baseline, types | Unit + contract | `load-baseline.test.ts`, `tests/contract/json-schema.test.ts` | ✅ |
-| T2 | scan / scoring wire | Integration/unit as touched | Update `scan` / scoring index tests; drop coupling asserts | ✅ |
-| T3 | compare | Unit | `compare.test.ts`, `keys.test.ts` | ✅ |
-| T4 | report | Unit | Co-located report `*.test.ts` for touched files | ✅ |
-| T5 | config + bin | Unit (+ CLI) | config + `bin/*.test.ts` / completion asserts | ✅ |
-| T6 | git / filter-git | Unit | aggregate / canonicalize / mega-commit / filter-git tests | ✅ |
-| T7 | deletions | Unit/integration cleanup | Remove orphan tests; fix any remaining refs | ✅ |
-| T8 | docs | none (docs) | Grep/manual checklist in Done when | ✅ |
-| T9 | full tree | Full gate | `pnpm build && pnpm test` | ✅ |
+| Task | Code layer                    | TESTING.md expectation      | Tests in same task                                            | Match |
+| ---- | ----------------------------- | --------------------------- | ------------------------------------------------------------- | ----- |
+| T1   | schemas, load-baseline, types | Unit + contract             | `load-baseline.test.ts`, `tests/contract/json-schema.test.ts` | ✅    |
+| T2   | scan / scoring wire           | Integration/unit as touched | Update `scan` / scoring index tests; drop coupling asserts    | ✅    |
+| T3   | compare                       | Unit                        | `compare.test.ts`, `keys.test.ts`                             | ✅    |
+| T4   | report                        | Unit                        | Co-located report `*.test.ts` for touched files               | ✅    |
+| T5   | config + bin                  | Unit (+ CLI)                | config + `bin/*.test.ts` / completion asserts                 | ✅    |
+| T6   | git / filter-git              | Unit                        | aggregate / canonicalize / mega-commit / filter-git tests     | ✅    |
+| T7   | deletions                     | Unit/integration cleanup    | Remove orphan tests; fix any remaining refs                   | ✅    |
+| T8   | docs                          | none (docs)                 | Grep/manual checklist in Done when                            | ✅    |
+| T9   | full tree                     | Full gate                   | `pnpm build && pnpm test`                                     | ✅    |
 
 ---
 
@@ -387,29 +387,29 @@ flowchart TD
 
 | Requirement | Task(s) |
 | ----------- | ------- |
-| HOTSPOT-890 | T1 |
-| HOTSPOT-891 | T1 |
-| HOTSPOT-892 | T1 |
-| HOTSPOT-893 | T1 |
-| HOTSPOT-894 | T1 |
-| HOTSPOT-895 | T1 |
-| HOTSPOT-896 | T1 |
-| HOTSPOT-897 | T2 |
-| HOTSPOT-898 | T3 |
-| HOTSPOT-899 | T4 |
-| HOTSPOT-900 | T4 |
-| HOTSPOT-901 | T4 |
-| HOTSPOT-902 | T5 |
-| HOTSPOT-903 | T5 |
-| HOTSPOT-904 | T6 |
-| HOTSPOT-905 | T7 |
-| HOTSPOT-906 | T7 |
-| HOTSPOT-907 | T5 |
-| HOTSPOT-908 | T8 |
-| HOTSPOT-909 | T8 |
-| HOTSPOT-910 | T8 |
-| HOTSPOT-911 | T6 |
-| HOTSPOT-912 | T5 |
+| HOTSPOT-890 | T1      |
+| HOTSPOT-891 | T1      |
+| HOTSPOT-892 | T1      |
+| HOTSPOT-893 | T1      |
+| HOTSPOT-894 | T1      |
+| HOTSPOT-895 | T1      |
+| HOTSPOT-896 | T1      |
+| HOTSPOT-897 | T2      |
+| HOTSPOT-898 | T3      |
+| HOTSPOT-899 | T4      |
+| HOTSPOT-900 | T4      |
+| HOTSPOT-901 | T4      |
+| HOTSPOT-902 | T5      |
+| HOTSPOT-903 | T5      |
+| HOTSPOT-904 | T6      |
+| HOTSPOT-905 | T7      |
+| HOTSPOT-906 | T7      |
+| HOTSPOT-907 | T5      |
+| HOTSPOT-908 | T8      |
+| HOTSPOT-909 | T8      |
+| HOTSPOT-910 | T8      |
+| HOTSPOT-911 | T6      |
+| HOTSPOT-912 | T5      |
 
 **Coverage:** 23/23 mapped. No unmapped P1.
 

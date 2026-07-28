@@ -32,16 +32,16 @@ flowchart TD
 
 ## Code Reuse
 
-| Component | Location | Use |
-| --------- | -------- | --- |
-| `createCliProgram` / `runCli` / `CliUsageError` | `bin/hotspot-scanner.ts` | Primary edit surface |
-| `maybeLogProgress` / `logWarning` | `src/diagnostics/logger.ts` | Wrap or gate from bin |
-| `validateGitRepository` | `src/scan.ts` | Hint text (optional) |
-| `ConfigError` missing file | `src/config/load-config.ts` | Hint text |
-| `validateBaselinePath` / `loadBaseline` | bin + `src/compare/` | Hints |
-| `package.json` `version` | package root | `--version` |
-| CLI tests | `bin/hotspot-scanner.test.ts`, `.integration.test.ts` | Co-located coverage |
-| Fixture | `tests/fixtures/repos/small-ts/` | Default-path integration |
+| Component                                       | Location                                              | Use                      |
+| ----------------------------------------------- | ----------------------------------------------------- | ------------------------ |
+| `createCliProgram` / `runCli` / `CliUsageError` | `bin/hotspot-scanner.ts`                              | Primary edit surface     |
+| `maybeLogProgress` / `logWarning`               | `src/diagnostics/logger.ts`                           | Wrap or gate from bin    |
+| `validateGitRepository`                         | `src/scan.ts`                                         | Hint text (optional)     |
+| `ConfigError` missing file                      | `src/config/load-config.ts`                           | Hint text                |
+| `validateBaselinePath` / `loadBaseline`         | bin + `src/compare/`                                  | Hints                    |
+| `package.json` `version`                        | package root                                          | `--version`              |
+| CLI tests                                       | `bin/hotspot-scanner.test.ts`, `.integration.test.ts` | Co-located coverage      |
+| Fixture                                         | `tests/fixtures/repos/small-ts/`                      | Default-path integration |
 
 ---
 
@@ -78,12 +78,12 @@ Commander `.option("-f, --format <format>", …)` (and `-o`, `-t`, `-g`). `.addH
 
 ## Test Strategy
 
-| Layer | Focus |
-| ----- | ----- |
+| Layer                              | Focus                                                                                                            |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | Unit `bin/hotspot-scanner.test.ts` | default path, version, aliases, help examples, quiet/no-progress sinks, hint strings, csv/baseline/config errors |
-| Unit `src/diagnostics/*.test.ts` | only if new helper exported |
-| Unit `src/scan` / `src/config` | only if hint text changed at throw site |
-| Integration | `scan` with no path from `small-ts` cwd; `--quiet` still exits 0 with table/json |
+| Unit `src/diagnostics/*.test.ts`   | only if new helper exported                                                                                      |
+| Unit `src/scan` / `src/config`     | only if hint text changed at throw site                                                                          |
+| Integration                        | `scan` with no path from `small-ts` cwd; `--quiet` still exits 0 with table/json                                 |
 
 No schema/contract tests. No ranking fixtures.
 
@@ -91,16 +91,16 @@ No schema/contract tests. No ranking fixtures.
 
 ## Risks
 
-| Risk | Mitigation |
-| ---- | ---------- |
+| Risk                                                    | Mitigation                                                       |
+| ------------------------------------------------------- | ---------------------------------------------------------------- |
 | Reading `package.json` from wrong path under `dist/bin` | Resolve via `import.meta.url` → package root; cover in unit test |
-| Quiet hides useful warnings | Spec keeps `warning`/`error`; only `info` + progress |
-| Path conflict on `bin/` across tasks | Sequential bin-owning tasks; diagnostics helper in one task only |
-| Accidental config keys | Explicit out of scope; review tasks |
+| Quiet hides useful warnings                             | Spec keeps `warning`/`error`; only `info` + progress             |
+| Path conflict on `bin/` across tasks                    | Sequential bin-owning tasks; diagnostics helper in one task only |
+| Accidental config keys                                  | Explicit out of scope; review tasks                              |
 
 ---
 
 ## Out of Scope (design boundary)
 
-- `--verbose`, init/doctor/dry-run, colors, `--explain`, monorepo detect, npm publish  
+- `--verbose`, init/doctor/dry-run, colors, `--explain`, monorepo detect, npm publish
 - JSON contract / formulas / new config keys

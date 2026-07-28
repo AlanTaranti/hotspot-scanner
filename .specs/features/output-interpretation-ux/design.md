@@ -33,33 +33,33 @@ flowchart TD
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `createReporter` | `src/report/index.ts` | Extend `ReporterOptions`; compute summary pre-slice; apply `--only` then slice for table/md; filter json/csv without slice |
-| `sliceScanResult` / `sliceCompareResult` | `src/report/slice.ts`, `slice-compare.ts` | Unchanged; call after filter, after summary totals captured |
-| `renderTable` / `renderMarkdown` | `src/report/table.ts`, `markdown.ts` | Accept optional summary, triage, color, section visibility |
-| `renderJson` / `renderCsv` | `src/report/json.ts`, `csv.ts` | Apply omit-section filter only |
-| Compare renderers | `src/report/compare-*.ts` | Same pattern; no triage |
-| `CliUsageError` / `parseFormat` | `bin/hotspot-scanner.ts` | Mirror for `parseOnlySection` / collect `--only` |
-| Report fixtures | `tests/fixtures/report/` | Extend or add fixtures for triage thresholds |
-| `formatStaticDep` etc. | `src/report/coupling-format.ts` | Unchanged; color wraps formatted cells |
+| Component                                | Location                                  | How to Use                                                                                                                 |
+| ---------------------------------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `createReporter`                         | `src/report/index.ts`                     | Extend `ReporterOptions`; compute summary pre-slice; apply `--only` then slice for table/md; filter json/csv without slice |
+| `sliceScanResult` / `sliceCompareResult` | `src/report/slice.ts`, `slice-compare.ts` | Unchanged; call after filter, after summary totals captured                                                                |
+| `renderTable` / `renderMarkdown`         | `src/report/table.ts`, `markdown.ts`      | Accept optional summary, triage, color, section visibility                                                                 |
+| `renderJson` / `renderCsv`               | `src/report/json.ts`, `csv.ts`            | Apply omit-section filter only                                                                                             |
+| Compare renderers                        | `src/report/compare-*.ts`                 | Same pattern; no triage                                                                                                    |
+| `CliUsageError` / `parseFormat`          | `bin/hotspot-scanner.ts`                  | Mirror for `parseOnlySection` / collect `--only`                                                                           |
+| Report fixtures                          | `tests/fixtures/report/`                  | Extend or add fixtures for triage thresholds                                                                               |
+| `formatStaticDep` etc.                   | `src/report/coupling-format.ts`           | Unchanged; color wraps formatted cells                                                                                     |
 
 ### Integration Points
 
-| System | Integration |
-| ------ | ----------- |
+| System                   | Integration                                                                       |
+| ------------------------ | --------------------------------------------------------------------------------- |
 | `bin/hotspot-scanner.ts` | New flags; `resolveTableColor(...)`; pass options into `render` / `renderCompare` |
-| `src/scan.ts` / scoring | **None** |
-| `schemas/` | **Unchanged** — filtered JSON is non-contract |
-| Diagnostics / stderr | Unchanged — legend/summary/triage on report stdout/file only |
+| `src/scan.ts` / scoring  | **None**                                                                          |
+| `schemas/`               | **Unchanged** — filtered JSON is non-contract                                     |
+| Diagnostics / stderr     | Unchanged — legend/summary/triage on report stdout/file only                      |
 
 ### CONCERNS mitigation
 
-| Concern | Mitigation |
-| ------- | ---------- |
-| Report purity (no `fs`) | Keep; TTY/`NO_COLOR` resolved in bin → `color: boolean` |
-| JSON contract / baselines | Document `--only` JSON as non-baseline; do not change schemas |
-| Padding vs ANSI | Pad on visible width or strip-ANSI in width calc; tests compare stripped strings |
+| Concern                   | Mitigation                                                                       |
+| ------------------------- | -------------------------------------------------------------------------------- |
+| Report purity (no `fs`)   | Keep; TTY/`NO_COLOR` resolved in bin → `color: boolean`                          |
+| JSON contract / baselines | Document `--only` JSON as non-baseline; do not change schemas                    |
+| Padding vs ANSI           | Pad on visible width or strip-ANSI in width calc; tests compare stripped strings |
 
 ---
 
@@ -122,7 +122,7 @@ export interface ReporterOptions {
   top?: number;
   only?: readonly ReportSection[];
   triageHints?: boolean; // default true for callers that omit — bin passes explicit
-  color?: boolean;       // table only; default false if omitted
+  color?: boolean; // table only; default false if omitted
 }
 ```
 
@@ -144,7 +144,7 @@ function resolveTableColor(opts: {
   noColor: boolean;
   envNoColor: string | undefined;
   stdoutIsTTY: boolean | undefined;
-}): boolean
+}): boolean;
 ```
 
 False unless `format === "table"` and all enable conditions pass.
@@ -157,7 +157,8 @@ False unless `format === "table"` and all enable conditions pass.
 export type ReportSection = "hotspots" | "coupling" | "functions";
 
 export interface TriageHint {
-  ruleId: "dual-signal-hotspot" | "coupled-with-static" | "coupled-without-static";
+  ruleId:
+    "dual-signal-hotspot" | "coupled-with-static" | "coupled-without-static";
   message: string;
   /** Stable display target, e.g. file path or "fileA ↔ fileB" */
   target: string;
@@ -171,47 +172,47 @@ No domain `ScanResult` schema changes.
 
 ## Error Handling Strategy
 
-| Scenario | Handling | User impact |
-| -------- | -------- | ----------- |
-| `--only bogus` | `CliUsageError` | Exit 2, message lists valid values |
-| Empty `--only` value | `CliUsageError` | Exit 2 |
+| Scenario                       | Handling               | User impact                                                 |
+| ------------------------------ | ---------------------- | ----------------------------------------------------------- |
+| `--only bogus`                 | `CliUsageError`        | Exit 2, message lists valid values                          |
+| Empty `--only` value           | `CliUsageError`        | Exit 2                                                      |
 | Filtered JSON used as baseline | Docs/help warning only | `loadBaseline` may fail schema/structural checks — expected |
-| Triage on empty scan | Omit section | Clean output |
+| Triage on empty scan           | Omit section           | Clean output                                                |
 
 ---
 
 ## Tech Decisions
 
-| Decision | Choice | Rationale |
-| -------- | ------ | --------- |
+| Decision                      | Choice                                                     | Rationale                                                                                         |
+| ----------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | Section filter representation | `only?: ReportSection[]` on options; renderers consult set | Avoid breaking `ScanResult` required keys in TS for table path; JSON omits keys at serialize time |
-| Color dependency | Manual ANSI | YAGNI; no new runtime dep |
-| Triage evaluation set | Sliced + filtered rows | Hints describe visible table |
-| Summary totals | Full pre-slice corpus | Honest window stats |
-| Compare triage | None | Absolute thresholds misleading on deltas |
-| Empty excluded sections | Omit (not header-only) | User lock; included empties keep today’s empty UI |
-| `NO_COLOR` | Non-empty env value disables | Align with no-color.org spirit |
+| Color dependency              | Manual ANSI                                                | YAGNI; no new runtime dep                                                                         |
+| Triage evaluation set         | Sliced + filtered rows                                     | Hints describe visible table                                                                      |
+| Summary totals                | Full pre-slice corpus                                      | Honest window stats                                                                               |
+| Compare triage                | None                                                       | Absolute thresholds misleading on deltas                                                          |
+| Empty excluded sections       | Omit (not header-only)                                     | User lock; included empties keep today’s empty UI                                                 |
+| `NO_COLOR`                    | Non-empty env value disables                               | Align with no-color.org spirit                                                                    |
 
 ---
 
 ## Risks
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| ANSI breaks column alignment | Visible-width padding + strip-ANSI golden tests |
-| Filtered JSON surprises CI users | Help + README warning; schemas unchanged |
+| Risk                                    | Mitigation                                                      |
+| --------------------------------------- | --------------------------------------------------------------- |
+| ANSI breaks column alignment            | Visible-width padding + strip-ANSI golden tests                 |
+| Filtered JSON surprises CI users        | Help + README warning; schemas unchanged                        |
 | Path conflicts on `src/report/index.ts` | Single fan-in task for factory after parallel helpers/renderers |
-| Compare CSV file matrix with `--only` | Explicit matrix in tests (which suffixes remain) |
+| Compare CSV file matrix with `--only`   | Explicit matrix in tests (which suffixes remain)                |
 
 ---
 
 ## Test Plan (maps to TESTING.md)
 
-| Layer | What |
-| ----- | ---- |
-| Unit | `only.ts`, `summary.ts`, `glossary.ts`, `triage.ts`, `color.ts`; table/markdown/json/csv/compare-* / `index.test.ts` |
-| CLI | `bin/hotspot-scanner.test.ts` — invalid `--only`, flags wiring, color disable via env/`--no-color`/`--output` |
-| Contract | Unfiltered JSON still validates; **no** schema change for `--only` |
-| Integration | Optional `small-ts` smoke for default table contains glossary marker |
+| Layer       | What                                                                                                                 |
+| ----------- | -------------------------------------------------------------------------------------------------------------------- |
+| Unit        | `only.ts`, `summary.ts`, `glossary.ts`, `triage.ts`, `color.ts`; table/markdown/json/csv/compare-* / `index.test.ts` |
+| CLI         | `bin/hotspot-scanner.test.ts` — invalid `--only`, flags wiring, color disable via env/`--no-color`/`--output`        |
+| Contract    | Unfiltered JSON still validates; **no** schema change for `--only`                                                   |
+| Integration | Optional `small-ts` smoke for default table contains glossary marker                                                 |
 
 Gate: per-task targeted Vitest; final `pnpm build && pnpm test`.

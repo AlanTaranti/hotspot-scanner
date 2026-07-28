@@ -11,8 +11,7 @@ const SCAN_RESULT_CONTRACT_HINT =
 
 export class ScanResultParseError extends Error {
   constructor(message: string) {
-    const withHint =
-      !message.includes("Hint:") && !message.includes("Re-scan");
+    const withHint = !message.includes("Hint:") && !message.includes("Re-scan");
     super(withHint ? `${message}${SCAN_RESULT_CONTRACT_HINT}` : message);
     this.name = "ScanResultParseError";
   }
@@ -100,10 +99,7 @@ function assertHotspot(item: unknown, index: number): HotspotScore {
       requireKey(record, "hotspotScore", path),
       `${path}.hotspotScore`,
     ),
-    ncloc: assertNumber(
-      requireKey(record, "ncloc", path),
-      `${path}.ncloc`,
-    ),
+    ncloc: assertNumber(requireKey(record, "ncloc", path), `${path}.ncloc`),
     commitCount: assertInteger(
       requireKey(record, "commitCount", path),
       `${path}.commitCount`,
@@ -131,7 +127,10 @@ function assertHotspots(value: unknown): HotspotScore[] {
 function assertScanWarning(value: unknown, index: number): ScanWarning {
   const path = `meta.warnings[${index}]`;
   const record = assertRecord(value, path);
-  const severity = assertString(requireKey(record, "severity", path), `${path}.severity`);
+  const severity = assertString(
+    requireKey(record, "severity", path),
+    `${path}.severity`,
+  );
   if (!DIAGNOSTIC_SEVERITIES.has(severity as DiagnosticSeverity)) {
     throw new ScanResultParseError(
       `Scan result ${path}.severity must be one of: info, warning, error`,
@@ -139,7 +138,10 @@ function assertScanWarning(value: unknown, index: number): ScanWarning {
   }
   const warning: ScanWarning = {
     severity: severity as DiagnosticSeverity,
-    message: assertString(requireKey(record, "message", path), `${path}.message`),
+    message: assertString(
+      requireKey(record, "message", path),
+      `${path}.message`,
+    ),
   };
   if ("code" in record) {
     warning.code = assertString(record.code, `${path}.code`);
@@ -149,7 +151,9 @@ function assertScanWarning(value: unknown, index: number): ScanWarning {
 
 function assertWarnings(value: unknown): ScanWarning[] {
   if (!Array.isArray(value)) {
-    throw new ScanResultParseError("Scan result meta.warnings must be an array");
+    throw new ScanResultParseError(
+      "Scan result meta.warnings must be an array",
+    );
   }
   return value.map((item, index) => assertScanWarning(item, index));
 }
@@ -226,7 +230,9 @@ export function parseScanResult(json: unknown): ScanResult {
   }
 
   if (typeof json.meta.scannedAt !== "string") {
-    throw new ScanResultParseError("Scan result meta.scannedAt must be a string");
+    throw new ScanResultParseError(
+      "Scan result meta.scannedAt must be a string",
+    );
   }
 
   return {

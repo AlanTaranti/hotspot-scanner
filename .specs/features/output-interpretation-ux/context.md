@@ -47,13 +47,13 @@ User-locked scope from the planning brief; remaining gray areas decided firmly b
 
 **Scan fields (required):**
 
-| Field | Source |
-| ----- | ------ |
-| Scan window | `meta.since` (+ `scannedAt` where already shown) |
-| Granularity | `meta.granularity` |
-| Rows shown vs total | Per active ranking (hotspots **or** functions) and coupling — when `--top` slices |
-| Coupling pair count | Full (pre-slice) `coupling.length` |
-| Pairs with `hasStaticDependency === false` | Count on **full** coupling array |
+| Field                                      | Source                                                                            |
+| ------------------------------------------ | --------------------------------------------------------------------------------- |
+| Scan window                                | `meta.since` (+ `scannedAt` where already shown)                                  |
+| Granularity                                | `meta.granularity`                                                                |
+| Rows shown vs total                        | Per active ranking (hotspots **or** functions) and coupling — when `--top` slices |
+| Coupling pair count                        | Full (pre-slice) `coupling.length`                                                |
+| Pairs with `hasStaticDependency === false` | Count on **full** coupling array                                                  |
 
 **Compare fields:** Delta-oriented counts (e.g. new / removed / rankChanged totals for active ranking + coupling) plus baseline/current `since` when present — no churn of scan-only static-dep false count unless cheap from current side; prefer: shown vs total on sliced delta arrays + section totals.
 
@@ -71,11 +71,11 @@ User-locked scope from the planning brief; remaining gray areas decided firmly b
 
 **Rules (exactly 3 — deterministic):**
 
-| ID | Condition | Hint text (stable) |
-| -- | --------- | ------------------ |
-| `dual-signal-hotspot` | Ranking row (file or function) with `hotspotScore ≥ 0.7` **and** `complexityNormalized ≥ 0.5` **and** `churnNormalized ≥ 0.5` | `High dual-signal hotspot — complexity and churn both elevated; prioritize review.` |
-| `coupled-with-static` | Coupling row with `couplingStrength ≥ 0.5` **and** `hasStaticDependency === true` | `Strong temporal coupling with a static dependency — candidate boundary/split review.` |
-| `coupled-without-static` | Coupling row with `couplingStrength ≥ 0.5` **and** `hasStaticDependency === false` | `Strong temporal coupling without a static edge — may be coincidence or unresolved import/alias; verify before refactoring.` |
+| ID                       | Condition                                                                                                                     | Hint text (stable)                                                                                                           |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `dual-signal-hotspot`    | Ranking row (file or function) with `hotspotScore ≥ 0.7` **and** `complexityNormalized ≥ 0.5` **and** `churnNormalized ≥ 0.5` | `High dual-signal hotspot — complexity and churn both elevated; prioritize review.`                                          |
+| `coupled-with-static`    | Coupling row with `couplingStrength ≥ 0.5` **and** `hasStaticDependency === true`                                             | `Strong temporal coupling with a static dependency — candidate boundary/split review.`                                       |
+| `coupled-without-static` | Coupling row with `couplingStrength ≥ 0.5` **and** `hasStaticDependency === false`                                            | `Strong temporal coupling without a static edge — may be coincidence or unresolved import/alias; verify before refactoring.` |
 
 **Presentation:** Section titled `Triage hints` (table) / `## Triage hints` (markdown), **after** ranking tables and **before** the table legend footer (markdown: after tables, before any trailing notes). List matching rows capped at **3 matches per rule** (highest score/strength first). If no matches: omit the section entirely (no “none” placeholder).
 
@@ -93,13 +93,13 @@ User-locked scope from the planning brief; remaining gray areas decided firmly b
 
 **Filter semantics:**
 
-| Format | Excluded section behavior |
-| ------ | ------------------------- |
-| table / markdown | **Omit** section block entirely (no header, no empty placeholder) |
-| json | **Omit** top-level key(s) for excluded sections |
-| csv | **Omit** corresponding data file(s) from the bundle; always keep `meta.json` |
+| Format           | Excluded section behavior                                                    |
+| ---------------- | ---------------------------------------------------------------------------- |
+| table / markdown | **Omit** section block entirely (no header, no empty placeholder)            |
+| json             | **Omit** top-level key(s) for excluded sections                              |
+| csv              | **Omit** corresponding data file(s) from the bundle; always keep `meta.json` |
 
-**Empty *included* section** (e.g. `--only hotspots` but zero hotspots): keep **existing** empty rendering — table `(none)`, markdown `_No results._`, JSON `[]` if key present, CSV header-only file if that section is included.
+**Empty _included_ section** (e.g. `--only hotspots` but zero hotspots): keep **existing** empty rendering — table `(none)`, markdown `_No results._`, JSON `[]` if key present, CSV header-only file if that section is included.
 
 **JSON contract:** Unfiltered JSON remains schema-complete. Filtered JSON (`--only`) is an intentional triage export — **not** a valid baseline; help/docs must say so. Do not weaken `schemas/*.json` `required` arrays.
 
@@ -130,11 +130,11 @@ User-locked scope from the planning brief; remaining gray areas decided firmly b
 
 **What gets color (minimal, deterministic):**
 
-| Element | Behavior |
-| ------- | -------- |
+| Element                                             | Behavior                                   |
+| --------------------------------------------------- | ------------------------------------------ |
 | `hotspotScore` / function Score / coupling Strength | Red ≥ 0.7, yellow ≥ 0.4, default otherwise |
-| StaticDep `yes` | Dim green |
-| StaticDep `no` | Dim yellow |
+| StaticDep `yes`                                     | Dim green                                  |
+| StaticDep `no`                                      | Dim yellow                                 |
 
 Headers/legend uncolored. Colors must not change column padding logic beyond wrapping cell text in ANSI (pad on visible width — tests assert strip-ANSI equality to plain table).
 
@@ -168,9 +168,9 @@ Headers/legend uncolored. Colors must not change column padding logic beyond wra
 
 ## Related Closed Decisions
 
-| Decision | Value | Relevance |
-| -------- | ----- | --------- |
-| `--top` table/markdown only (M16) | Full arrays for JSON/CSV | Summary shown-vs-total only meaningful for table/markdown |
-| Reporter pure / no fs (ARCHITECTURE) | Strings in / out | Color + legend stay in report string; TTY detection may be injected via options from bin |
-| Exit 0 on successful scan | No fail-on | Triage hints advisory only |
-| M42 `--explain` | Separate milestone | Do not add per-file explain here |
+| Decision                             | Value                    | Relevance                                                                                |
+| ------------------------------------ | ------------------------ | ---------------------------------------------------------------------------------------- |
+| `--top` table/markdown only (M16)    | Full arrays for JSON/CSV | Summary shown-vs-total only meaningful for table/markdown                                |
+| Reporter pure / no fs (ARCHITECTURE) | Strings in / out         | Color + legend stay in report string; TTY detection may be injected via options from bin |
+| Exit 0 on successful scan            | No fail-on               | Triage hints advisory only                                                               |
+| M42 `--explain`                      | Separate milestone       | Do not add per-file explain here                                                         |

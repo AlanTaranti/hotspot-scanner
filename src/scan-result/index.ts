@@ -1,4 +1,1 @@
-export {
-  parseScanResult,
-  ScanResultParseError,
-} from "./parse-scan-result.js";
+export { parseScanResult, ScanResultParseError } from "./parse-scan-result.js";

@@ -1,10 +1,7 @@
 /** Package entry — public API for programmatic use. */
 export const PACKAGE_NAME = "@taranti/hotspot-scanner";
 
-export {
-  parseScanResult,
-  ScanResultParseError,
-} from "./scan-result/index.js";
+export { parseScanResult, ScanResultParseError } from "./scan-result/index.js";
 export { runDoctor } from "./doctor/index.js";
 export {
   runComplexityTrend,

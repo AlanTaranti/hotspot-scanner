@@ -19,12 +19,12 @@ Hard cut — no deprecation window, no legacy flag (precedents: M18 csv-bundle, 
 
 ## Decision: Milestone / slug / depth / IDs (LOCKED)
 
-| Field | Value |
-| ----- | ----- |
-| Milestone | **M56** |
-| Slug | `remove-coupling-analysis` |
-| Depth | **Complex** |
-| IDs | **HOTSPOT-890+** (reserve gaps as needed) |
+| Field     | Value                                     |
+| --------- | ----------------------------------------- |
+| Milestone | **M56**                                   |
+| Slug      | `remove-coupling-analysis`                |
+| Depth     | **Complex**                               |
+| IDs       | **HOTSPOT-890+** (reserve gaps as needed) |
 
 **Status:** **Confirmed** — do not re-open
 
@@ -97,10 +97,10 @@ Not header-only. Compare data CSV count drops from 6 → 3 (+ meta). Supersedes 
 
 **Remove:**
 
-| Surface | Items |
-| ------- | ----- |
-| CLI flags | `--min-cochange`, `--mega-commit-threshold` |
-| `--only` | value `coupling` (keep `hotspots` \| `functions`) |
+| Surface     | Items                                                    |
+| ----------- | -------------------------------------------------------- |
+| CLI flags   | `--min-cochange`, `--mega-commit-threshold`              |
+| `--only`    | value `coupling` (keep `hotspots` \| `functions`)        |
 | Config keys | `minCochange`, `megaCommitThreshold` (loader + exemplar) |
 
 **Status:** **Confirmed** — do not re-open
@@ -154,14 +154,14 @@ Not header-only. Compare data CSV count drops from 6 → 3 (+ meta). Supersedes 
 
 ## Decision: What stays (LOCKED)
 
-| Keep | Notes |
-| ---- | ----- |
-| Churn / `FileChangeStats` | Unchanged |
-| Hotspot scoring (harmonic) | Complexity + churn only |
-| `PathAliasMap` / renames | Unchanged |
-| Complexity (McCabe) | Unchanged |
-| Compare for hotspots / functions | Unchanged |
-| `--only hotspots` \| `functions` | Unchanged |
+| Keep                             | Notes                   |
+| -------------------------------- | ----------------------- |
+| Churn / `FileChangeStats`        | Unchanged               |
+| Hotspot scoring (harmonic)       | Complexity + churn only |
+| `PathAliasMap` / renames         | Unchanged               |
+| Complexity (McCabe)              | Unchanged               |
+| Compare for hotspots / functions | Unchanged               |
+| `--only hotspots` \| `functions` | Unchanged               |
 
 **Status:** **Confirmed** — do not re-open
 
@@ -169,23 +169,23 @@ Not header-only. Compare data CSV count drops from 6 → 3 (+ meta). Supersedes 
 
 ## Out of scope (LOCKED)
 
-| Item | Reason |
-| ---- | ------ |
-| McCabe decision nodes | Unrelated |
+| Item                           | Reason    |
+| ------------------------------ | --------- |
+| McCabe decision nodes          | Unrelated |
 | Harmonic hotspot score formula | Unrelated |
-| Function churn | Unrelated |
-| npm publish | Deferred |
-| CI / SARIF | Deferred |
+| Function churn                 | Unrelated |
+| npm publish                    | Deferred  |
+| CI / SARIF                     | Deferred  |
 
 ---
 
 ## Related closed decisions (prior milestones — superseded product behavior)
 
-| Decision | Prior value | M56 effect |
-| -------- | ----------- | ---------- |
-| Default `--min-cochange`: 3 | M4/M5 | Removed |
-| Dual-stream / enriched coupling | M14/M27/M33/M44 | Removed |
-| Stream `pairCounts` + mega-commit | M32/M47 | Removed |
-| JSON `version: "1.0"` + required `coupling` | M20 | → `"2.0"`, no `coupling` |
-| CSV always emit `coupling.csv` | M18 | Omit coupling files |
-| ADR-2026-020 single stream for churn+coupling | STATE | Revisit: stream feeds churn only |
+| Decision                                      | Prior value     | M56 effect                       |
+| --------------------------------------------- | --------------- | -------------------------------- |
+| Default `--min-cochange`: 3                   | M4/M5           | Removed                          |
+| Dual-stream / enriched coupling               | M14/M27/M33/M44 | Removed                          |
+| Stream `pairCounts` + mega-commit             | M32/M47         | Removed                          |
+| JSON `version: "1.0"` + required `coupling`   | M20             | → `"2.0"`, no `coupling`         |
+| CSV always emit `coupling.csv`                | M18             | Omit coupling files              |
+| ADR-2026-020 single stream for churn+coupling | STATE           | Revisit: stream feeds churn only |

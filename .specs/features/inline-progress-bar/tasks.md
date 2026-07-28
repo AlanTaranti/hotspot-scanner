@@ -43,59 +43,59 @@ flowchart LR
 
 | Task | Depends on (declared) | Diagram shows | Match |
 | ---- | --------------------- | ------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T2 | T2 → T3 | ✅ |
-| T4 | T2 | T2 → T4 | ✅ |
-| T5 | T3, T4 | T3+T4 → T5 | ✅ |
-| T6 | T5 | T5 → T6 | ✅ |
+| T1   | None                  | Root          | ✅    |
+| T2   | T1                    | T1 → T2       | ✅    |
+| T3   | T2                    | T2 → T3       | ✅    |
+| T4   | T2                    | T2 → T4       | ✅    |
+| T5   | T3, T4                | T3+T4 → T5    | ✅    |
+| T6   | T5                    | T5 → T6       | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | types | `src/types/domain.ts` (exports via `src/types/index.ts` if needed) | Sole types owner |
-| T2 | diagnostics | `src/diagnostics/logger.ts`, `src/diagnostics/logger.test.ts`, optionally `src/diagnostics/index.ts` | After T1; sole diagnostics owner |
-| T3 | scan | `src/scan.ts`, `src/scan.test.ts` and/or `src/scan.integration.test.ts` | Disjoint from T4; after T2 — `[P]` OK with T4 |
-| T4 | bin | `bin/scan-actions.ts`, `bin/hotspot-scanner.ts`, `bin/hotspot-scanner.test.ts` (and related bin tests touching `executeScan`) | Disjoint from T3; after T2 — `[P]` OK with T3 |
-| T5 | docs | `README.md`, `.specs/codebase/ARCHITECTURE.md`, optionally `docs/recipes.md`; Execute may tick ROADMAP/STATE Done | After T3+T4; no src overlap |
-| T6 | gate | none (verify) | After T5 |
+| Task | Module owner | Paths                                                                                                                         | Conflict                                      |
+| ---- | ------------ | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| T1   | types        | `src/types/domain.ts` (exports via `src/types/index.ts` if needed)                                                            | Sole types owner                              |
+| T2   | diagnostics  | `src/diagnostics/logger.ts`, `src/diagnostics/logger.test.ts`, optionally `src/diagnostics/index.ts`                          | After T1; sole diagnostics owner              |
+| T3   | scan         | `src/scan.ts`, `src/scan.test.ts` and/or `src/scan.integration.test.ts`                                                       | Disjoint from T4; after T2 — `[P]` OK with T4 |
+| T4   | bin          | `bin/scan-actions.ts`, `bin/hotspot-scanner.ts`, `bin/hotspot-scanner.test.ts` (and related bin tests touching `executeScan`) | Disjoint from T3; after T2 — `[P]` OK with T3 |
+| T5   | docs         | `README.md`, `.specs/codebase/ARCHITECTURE.md`, optionally `docs/recipes.md`; Execute may tick ROADMAP/STATE Done             | After T3+T4; no src overlap                   |
+| T6   | gate         | none (verify)                                                                                                                 | After T5                                      |
 
 T3 and T4 may run in parallel after T2 (`[P]` on T4).
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task says | Match |
-| ---- | ---------- | ---------------------- | --------- | ----- |
-| T1 | `src/types/` | none (types excluded from coverage) | none | ✅ |
-| T2 | `src/diagnostics/` | Unit | unit in same task | ✅ |
-| T3 | `src/scan.ts` | Unit / integration | unit (and integration assert if already covering onProgress phases) | ✅ |
-| T4 | `bin/` | Unit / CLI | unit in same task | ✅ |
-| T5 | Docs | none | none | ✅ |
-| T6 | Full project | Gate | `pnpm build && pnpm test` | ✅ |
+| Task | Code layer         | TESTING.md expectation              | Task says                                                           | Match |
+| ---- | ------------------ | ----------------------------------- | ------------------------------------------------------------------- | ----- |
+| T1   | `src/types/`       | none (types excluded from coverage) | none                                                                | ✅    |
+| T2   | `src/diagnostics/` | Unit                                | unit in same task                                                   | ✅    |
+| T3   | `src/scan.ts`      | Unit / integration                  | unit (and integration assert if already covering onProgress phases) | ✅    |
+| T4   | `bin/`             | Unit / CLI                          | unit in same task                                                   | ✅    |
+| T5   | Docs               | none                                | none                                                                | ✅    |
+| T6   | Full project       | Gate                                | `pnpm build && pnpm test`                                           | ✅    |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Add `"finalize"` to phase union | ✅ Atomic |
-| T2 | Formatters + handlers + diagnostics tests | ✅ Cohesive diagnostics module |
-| T3 | One emit site in scan + tests | ✅ One orchestrator change |
-| T4 | Defer flush API + all call sites + tests | ✅ Cohesive bin lifecycle |
-| T5 | Living docs | ✅ Granular |
-| T6 | Project gate | ✅ Granular |
+| Task | Scope                                     | Status                         |
+| ---- | ----------------------------------------- | ------------------------------ |
+| T1   | Add `"finalize"` to phase union           | ✅ Atomic                      |
+| T2   | Formatters + handlers + diagnostics tests | ✅ Cohesive diagnostics module |
+| T3   | One emit site in scan + tests             | ✅ One orchestrator change     |
+| T4   | Defer flush API + all call sites + tests  | ✅ Cohesive bin lifecycle      |
+| T5   | Living docs                               | ✅ Granular                    |
+| T6   | Project gate                              | ✅ Granular                    |
 
 ### Requirement → Task Mapping
 
-| Requirement ID | Task |
-| -------------- | ---- |
-| HOTSPOT-1015 (type), HOTSPOT-1023 (no schema — verify) | T1 |
-| HOTSPOT-1010, HOTSPOT-1011, HOTSPOT-1012, HOTSPOT-1013, HOTSPOT-1014, HOTSPOT-1015 (body), HOTSPOT-1020, HOTSPOT-1021, HOTSPOT-1022, HOTSPOT-1024 | T2 |
-| HOTSPOT-1016, HOTSPOT-1017 (emit side) | T3 |
-| HOTSPOT-1017 (lifecycle), HOTSPOT-1018, HOTSPOT-1019, HOTSPOT-1023 (no flags) | T4 |
-| HOTSPOT-1025 | T5 |
-| (gate) | T6 |
-| HOTSPOT-1026–1029 | Reserved — unused |
+| Requirement ID                                                                                                                                    | Task              |
+| ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| HOTSPOT-1015 (type), HOTSPOT-1023 (no schema — verify)                                                                                            | T1                |
+| HOTSPOT-1010, HOTSPOT-1011, HOTSPOT-1012, HOTSPOT-1013, HOTSPOT-1014, HOTSPOT-1015 (body), HOTSPOT-1020, HOTSPOT-1021, HOTSPOT-1022, HOTSPOT-1024 | T2                |
+| HOTSPOT-1016, HOTSPOT-1017 (emit side)                                                                                                            | T3                |
+| HOTSPOT-1017 (lifecycle), HOTSPOT-1018, HOTSPOT-1019, HOTSPOT-1023 (no flags)                                                                     | T4                |
+| HOTSPOT-1025                                                                                                                                      | T5                |
+| (gate)                                                                                                                                            | T6                |
+| HOTSPOT-1026–1029                                                                                                                                 | Reserved — unused |
 
 ---
 

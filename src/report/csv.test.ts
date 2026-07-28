@@ -46,12 +46,8 @@ describe("renderCsv", () => {
     expect(lines[0]).toBe(
       "rank,file,score,ncloc,nclocN,churn,churnN,authors,lines",
     );
-    expect(lines[1]).toBe(
-      "1,src/hot.ts,0.8500,42,0.9000,15,0.9444,3,320",
-    );
-    expect(lines[3]).toBe(
-      "3,src/cold.ts,0.0200,3,0.1000,2,0.2000,1,15",
-    );
+    expect(lines[1]).toBe("1,src/hot.ts,0.8500,42,0.9000,15,0.9444,3,320");
+    expect(lines[3]).toBe("3,src/cold.ts,0.0200,3,0.1000,2,0.2000,1,15");
   });
 
   it("renders empty sections as header-only CSV files", () => {

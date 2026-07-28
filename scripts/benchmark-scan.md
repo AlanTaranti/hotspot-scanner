@@ -40,11 +40,11 @@ mode=overlap wall_ms=1234 commits=500 files=120
 mode=sequential wall_ms=1567 commits=500 files=120
 ```
 
-| Field     | Source                                                                 |
-| --------- | ---------------------------------------------------------------------- |
+| Field     | Source                                                                  |
+| --------- | ----------------------------------------------------------------------- |
 | `wall_ms` | Harness wall-clock around `hotspot-scanner scan` (includes CLI startup) |
-| `commits` | `git rev-list --count HEAD --since=<window>` on the target repo        |
-| `files`   | Tracked paths with eligible TS/JS extensions (`git ls-files`)          |
+| `commits` | `git rev-list --count HEAD --since=<window>` on the target repo         |
+| `files`   | Tracked paths with eligible TS/JS extensions (`git ls-files`)           |
 
 `--compare-modes` runs overlap first, then `--sequential`, reusing the same repo and `--since` window.
 
@@ -131,11 +131,11 @@ Milestone 31 replaces M15’s per-batch worker spawn and per-batch ts-morph `Pro
 
 ### Benchmark notes
 
-| Field            | Notes                                                                                                      |
-| ---------------- | ---------------------------------------------------------------------------------------------------------- |
+| Field            | Notes                                                                                                                            |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | Concurrency      | `--concurrency <n>` (CLI) or `concurrency` in `.hotspot-scanner.json` — affects **complexity stage only** (M28 wiring unchanged) |
-| Expected effect  | Lower wall time on repos with many batches (200+ source files) by avoiding per-batch worker/Project cold start |
-| Regression check | Compare wall time before/after M31 on the same large repo; record qualitative judgment; rankings should match |
+| Expected effect  | Lower wall time on repos with many batches (200+ source files) by avoiding per-batch worker/Project cold start                   |
+| Regression check | Compare wall time before/after M31 on the same large repo; record qualitative judgment; rankings should match                    |
 
 ```bash
 # Default concurrency — compare real time on a repo with 200+ source files
@@ -154,11 +154,11 @@ Milestone 36 improves out-of-box scan performance without new CLI flags:
 
 ### Benchmark notes
 
-| Field            | Notes                                                                                                      |
-| ---------------- | ---------------------------------------------------------------------------------------------------------- |
-| Discovery        | Qualitative: faster discovery on large Git monorepos vs pure walk; rankings unchanged                      |
-| Concurrency      | Default cap 8 — compare wall time and RSS vs prior cap 4 on same repo                                      |
-| Regression check | Rankings and JSON contract should match; record qualitative judgment only (no CI timing gate)                |
+| Field            | Notes                                                                                         |
+| ---------------- | --------------------------------------------------------------------------------------------- |
+| Discovery        | Qualitative: faster discovery on large Git monorepos vs pure walk; rankings unchanged         |
+| Concurrency      | Default cap 8 — compare wall time and RSS vs prior cap 4 on same repo                         |
+| Regression check | Rankings and JSON contract should match; record qualitative judgment only (no CI timing gate) |
 
 ## What this is not
 

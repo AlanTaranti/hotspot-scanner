@@ -30,23 +30,23 @@ flowchart LR
 
 ## Code Reuse Analysis
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| `GitLogError` | `src/git/spawn.ts` | Call hint helper in constructor when building `super(...)` |
-| `GitLsFilesError` | `src/git/ls-files.ts` | Same helper |
-| Function-churn spawn | `src/git/function-churn/spawn.ts` | Already `new GitLogError(...)` — inherits enrichment |
-| Mock spawn tests | `spawn.test.ts`, `ls-files.test.ts` | Extend with stderr fixtures for families |
-| M38 Hint presentation | resolve-repo / CliUsageError | Match `\nHint: …` English tone — do not copy not-a-git text |
-| Doctor since probe | M64 `probe-since` (planned) | **Do not** implement or call from M65 |
+| Component             | Location                            | How to Use                                                  |
+| --------------------- | ----------------------------------- | ----------------------------------------------------------- |
+| `GitLogError`         | `src/git/spawn.ts`                  | Call hint helper in constructor when building `super(...)`  |
+| `GitLsFilesError`     | `src/git/ls-files.ts`               | Same helper                                                 |
+| Function-churn spawn  | `src/git/function-churn/spawn.ts`   | Already `new GitLogError(...)` — inherits enrichment        |
+| Mock spawn tests      | `spawn.test.ts`, `ls-files.test.ts` | Extend with stderr fixtures for families                    |
+| M38 Hint presentation | resolve-repo / CliUsageError        | Match `\nHint: …` English tone — do not copy not-a-git text |
+| Doctor since probe    | M64 `probe-since` (planned)         | **Do not** implement or call from M65                       |
 
 ### Fragile / concerns
 
-| Concern | Mitigation |
-| ------- | ---------- |
-| Over-matching stderr (false Hint) | Narrow substring table; first-match order; unit tests for negatives |
-| Duplicate not-a-git | No dedicated pattern; resolve-repo remains SoT |
-| Doctor vs runtime | M65 only enriches hard spawn failures; empty-window soft warns unchanged |
-| INTEGRATIONS spawn ownership | Helper lives under `src/git/`; bin must not parse git stderr |
+| Concern                           | Mitigation                                                               |
+| --------------------------------- | ------------------------------------------------------------------------ |
+| Over-matching stderr (false Hint) | Narrow substring table; first-match order; unit tests for negatives      |
+| Duplicate not-a-git               | No dedicated pattern; resolve-repo remains SoT                           |
+| Doctor vs runtime                 | M65 only enriches hard spawn failures; empty-window soft warns unchanged |
+| INTEGRATIONS spawn ownership      | Helper lives under `src/git/`; bin must not parse git stderr             |
 
 ---
 
@@ -94,26 +94,26 @@ No bin edits required for happy path. Exit mapping already treats non-`CliUsageE
 
 ## Error Handling Strategy
 
-| Scenario | Handling | User impact |
-| -------- | -------- | ----------- |
-| Invalid since stderr | Hint on `GitLogError` | Exit 1 + actionable Hint |
-| Shallow stderr | Hint | Exit 1 + deepen Hint |
-| Corrupt stderr | Hint | Exit 1 + fsck/re-clone Hint |
-| Unmatched / empty stderr | No Hint | Same as today |
-| Not a git (resolve-repo) | Unchanged | Existing Hint; not M65 |
-| Doctor invalid since | M64 | Out of scope |
-| AbortSignal | Unchanged | No Hint |
+| Scenario                 | Handling              | User impact                 |
+| ------------------------ | --------------------- | --------------------------- |
+| Invalid since stderr     | Hint on `GitLogError` | Exit 1 + actionable Hint    |
+| Shallow stderr           | Hint                  | Exit 1 + deepen Hint        |
+| Corrupt stderr           | Hint                  | Exit 1 + fsck/re-clone Hint |
+| Unmatched / empty stderr | No Hint               | Same as today               |
+| Not a git (resolve-repo) | Unchanged             | Existing Hint; not M65      |
+| Doctor invalid since     | M64                   | Out of scope                |
+| AbortSignal              | Unchanged             | No Hint                     |
 
 ---
 
 ## Tech Decisions
 
-| Decision | Choice | Rationale |
-| -------- | ------ | --------- |
-| Where to enrich | Constructor / shared builder | One place; all throw sites benefit |
-| Match style | Substring / cheap includes | YAGNI regex engine; stable git phrasing |
-| Hint on `stderr` field | No — only `message` | Callers inspecting `stderr` keep raw git text |
-| Proactive shallow file check | No | Mission: stderr-detectable only |
+| Decision                     | Choice                       | Rationale                                     |
+| ---------------------------- | ---------------------------- | --------------------------------------------- |
+| Where to enrich              | Constructor / shared builder | One place; all throw sites benefit            |
+| Match style                  | Substring / cheap includes   | YAGNI regex engine; stable git phrasing       |
+| Hint on `stderr` field       | No — only `message`          | Callers inspecting `stderr` keep raw git text |
+| Proactive shallow file check | No                           | Mission: stderr-detectable only               |
 
 ---
 

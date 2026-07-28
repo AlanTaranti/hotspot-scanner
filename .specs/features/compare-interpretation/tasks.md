@@ -24,50 +24,50 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (body) | Diagram shows | Status |
-| ---- | ----------------- | ------------- | ------ |
-| T1 | None | Root parallel | ✅ Match |
-| T2 | None | Root parallel | ✅ Match |
-| T3 | T1 | T1→T3 | ✅ Match |
-| T4 | T2, T3 | T2→T4, T3→T4 | ✅ Match |
-| T5 | T4 | T4→T5 | ✅ Match |
+| Task | Depends on (body) | Diagram shows | Status   |
+| ---- | ----------------- | ------------- | -------- |
+| T1   | None              | Root parallel | ✅ Match |
+| T2   | None              | Root parallel | ✅ Match |
+| T3   | T1                | T1→T3         | ✅ Match |
+| T4   | T2, T3            | T2→T4, T3→T4  | ✅ Match |
+| T5   | T4                | T4→T5         | ✅ Match |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | `src/report/` | `compare-triage.ts` + test | Sole — new files |
-| T2 | `src/report/` | `explain-compare.ts` (+ optional `explain.ts` re-export) + test | Sole — disjoint from T1 |
-| T3 | `src/report/` | `compare-table.ts`, `compare-markdown.ts`, `index.ts` + tests | After T1; does not edit explain-compare |
-| T4 | `bin/` | `scan-actions.ts`, `hotspot-scanner.ts` + bin tests | After T2/T3; sole CLI owner |
-| T5 | docs | ARCHITECTURE, README, recipes, warning-codes, TESTING note | After T4 |
+| Task | Module owner  | Paths                                                           | Conflict                                |
+| ---- | ------------- | --------------------------------------------------------------- | --------------------------------------- |
+| T1   | `src/report/` | `compare-triage.ts` + test                                      | Sole — new files                        |
+| T2   | `src/report/` | `explain-compare.ts` (+ optional `explain.ts` re-export) + test | Sole — disjoint from T1                 |
+| T3   | `src/report/` | `compare-table.ts`, `compare-markdown.ts`, `index.ts` + tests   | After T1; does not edit explain-compare |
+| T4   | `bin/`        | `scan-actions.ts`, `hotspot-scanner.ts` + bin tests             | After T2/T3; sole CLI owner             |
+| T5   | docs          | ARCHITECTURE, README, recipes, warning-codes, TESTING note      | After T4                                |
 
 ### Test Co-location Validation
 
-| Task | Code layer | Matrix / TESTING.md | Task Tests | Status |
-| ---- | ---------- | ------------------- | ---------- | ------ |
-| T1 | `src/report/` | unit co-located | unit | ✅ OK |
-| T2 | `src/report/` | unit co-located | unit | ✅ OK |
-| T3 | `src/report/` | unit co-located | unit | ✅ OK |
-| T4 | `bin/` | unit/CLI co-located | unit + CLI | ✅ OK |
-| T5 | docs | none | none + full gate | ✅ OK |
+| Task | Code layer    | Matrix / TESTING.md | Task Tests       | Status |
+| ---- | ------------- | ------------------- | ---------------- | ------ |
+| T1   | `src/report/` | unit co-located     | unit             | ✅ OK  |
+| T2   | `src/report/` | unit co-located     | unit             | ✅ OK  |
+| T3   | `src/report/` | unit co-located     | unit             | ✅ OK  |
+| T4   | `bin/`        | unit/CLI co-located | unit + CLI       | ✅ OK  |
+| T5   | docs          | none                | none + full gate | ✅ OK  |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | One module: compare triage | ✅ Granular |
-| T2 | One module: compare explain | ✅ Granular |
-| T3 | Compare renderers + reporter dispatch (cohesive) | ✅ OK |
-| T4 | CLI wiring for explain + strict | ✅ Granular |
-| T5 | Docs + ROADMAP sync on Execute Done | ✅ Granular |
+| Task | Scope                                            | Status      |
+| ---- | ------------------------------------------------ | ----------- |
+| T1   | One module: compare triage                       | ✅ Granular |
+| T2   | One module: compare explain                      | ✅ Granular |
+| T3   | Compare renderers + reporter dispatch (cohesive) | ✅ OK       |
+| T4   | CLI wiring for explain + strict                  | ✅ Granular |
+| T5   | Docs + ROADMAP sync on Execute Done              | ✅ Granular |
 
 ### Parallelism
 
-| Task | `[P]`? | Parallel-safe? |
-| ---- | ------ | -------------- |
-| T1 / T2 | Yes | Disjoint new files under `src/report/`; unit tests parallel-safe |
-| T3–T5 | No | Shared reporter/bin/docs sequencing |
+| Task    | `[P]`? | Parallel-safe?                                                   |
+| ------- | ------ | ---------------------------------------------------------------- |
+| T1 / T2 | Yes    | Disjoint new files under `src/report/`; unit tests parallel-safe |
+| T3–T5   | No     | Shared reporter/bin/docs sequencing                              |
 
 ---
 
@@ -242,12 +242,12 @@ Phase 3 (Sequential):
 
 ## Requirement → Task map
 
-| IDs | Task |
-| --- | ---- |
-| HOTSPOT-820, 821, 823, 825, 826 | T1 |
-| HOTSPOT-828, 829, 831 | T2 |
-| HOTSPOT-822, 824, 827 | T3 |
-| HOTSPOT-830, 832–836 | T4 |
-| HOTSPOT-837–839 | T5 |
+| IDs                             | Task |
+| ------------------------------- | ---- |
+| HOTSPOT-820, 821, 823, 825, 826 | T1   |
+| HOTSPOT-828, 829, 831           | T2   |
+| HOTSPOT-822, 824, 827           | T3   |
+| HOTSPOT-830, 832–836            | T4   |
+| HOTSPOT-837–839                 | T5   |
 
 **Unmapped:** none (820–839 covered).

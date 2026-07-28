@@ -30,33 +30,33 @@ flowchart TD
 
 ### Existing Components to Leverage
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| Scan triage constants / dual-signal predicate | `src/report/triage.ts` | Reuse thresholds; do **not** call `buildTriageHints(ScanResult)` on compare |
-| `renderTable` / `renderMarkdown` triage section format | `src/report/table.ts`, `markdown.ts` | Mirror section title + list layout for compare |
-| Compare renderers | `src/report/compare-table.ts`, `compare-markdown.ts` | Insert triage after sections, before glossary |
-| `createReporter` / `ReporterOptions.triageHints` | `src/report/index.ts` | Pass triage into compare table/md path (today ignored for compare) |
-| `parseExplainTarget` / path normalize | `src/report/explain.ts` | Reuse grammar; add compare formatter sibling |
-| `executeCompareAndRender` | `bin/scan-actions.ts` | Return `CompareResult` (or both); apply explain + strict |
-| `formatScanWarning` / stderr `onWarning` | diagnostics + report | Unchanged warning emission |
-| M41 `--no-triage-hints` CLI | `bin/hotspot-scanner.ts` | Already on compare; make effective |
+| Component                                              | Location                                             | How to Use                                                                  |
+| ------------------------------------------------------ | ---------------------------------------------------- | --------------------------------------------------------------------------- |
+| Scan triage constants / dual-signal predicate          | `src/report/triage.ts`                               | Reuse thresholds; do **not** call `buildTriageHints(ScanResult)` on compare |
+| `renderTable` / `renderMarkdown` triage section format | `src/report/table.ts`, `markdown.ts`                 | Mirror section title + list layout for compare                              |
+| Compare renderers                                      | `src/report/compare-table.ts`, `compare-markdown.ts` | Insert triage after sections, before glossary                               |
+| `createReporter` / `ReporterOptions.triageHints`       | `src/report/index.ts`                                | Pass triage into compare table/md path (today ignored for compare)          |
+| `parseExplainTarget` / path normalize                  | `src/report/explain.ts`                              | Reuse grammar; add compare formatter sibling                                |
+| `executeCompareAndRender`                              | `bin/scan-actions.ts`                                | Return `CompareResult` (or both); apply explain + strict                    |
+| `formatScanWarning` / stderr `onWarning`               | diagnostics + report                                 | Unchanged warning emission                                                  |
+| M41 `--no-triage-hints` CLI                            | `bin/hotspot-scanner.ts`                             | Already on compare; make effective                                          |
 
 ### Integration Points
 
-| System | Integration Method |
-| ------ | ------------------ |
-| `scan --baseline` | After `executeCompareAndRender`, compare explain + strict |
-| `compare` command | Add `--explain` + `--strict`; same execute path |
-| JSON schemas | **No** change |
-| `compareScanResults` | **No** behavior change |
+| System               | Integration Method                                        |
+| -------------------- | --------------------------------------------------------- |
+| `scan --baseline`    | After `executeCompareAndRender`, compare explain + strict |
+| `compare` command    | Add `--explain` + `--strict`; same execute path           |
+| JSON schemas         | **No** change                                             |
+| `compareScanResults` | **No** behavior change                                    |
 
 ### Fragile areas (CONCERNS)
 
-| Concern | Mitigation |
-| ------- | ---------- |
-| Warning code stability | Keep `COMPARE_SINCE_MISMATCH`; `--strict` only changes exit code |
-| Scores scan-relative | Triage uses delta classification + locked thresholds; docs warn compare is paired-run only |
-| Baseline/compare contract | No schema edit; explain/triage are presentation |
+| Concern                   | Mitigation                                                                                 |
+| ------------------------- | ------------------------------------------------------------------------------------------ |
+| Warning code stability    | Keep `COMPARE_SINCE_MISMATCH`; `--strict` only changes exit code                           |
+| Scores scan-relative      | Triage uses delta classification + locked thresholds; docs warn compare is paired-run only |
+| Baseline/compare contract | No schema edit; explain/triage are presentation                                            |
 
 ---
 
@@ -127,9 +127,7 @@ interface CompareExplainMatch {
 }
 
 type CompareTriageRuleId =
-  | "new-dual-signal"
-  | "rank-worsened"
-  | "new-coupled-with-static";
+  "new-dual-signal" | "rank-worsened" | "new-coupled-with-static";
 ```
 
 `TriageHint.ruleId` may widen to include compare IDs, or compare module uses its own hint type with identical render shape — prefer **separate compare rule id union** to avoid breaking scan triage types.
@@ -138,36 +136,36 @@ type CompareTriageRuleId =
 
 ## Error Handling Strategy
 
-| Error Scenario | Handling | User Impact |
-| -------------- | -------- | ----------- |
-| `COMPARE_SINCE_MISMATCH` without `--strict` | Warning stderr + meta; exit 0 | Unchanged (M13) |
-| `COMPARE_SINCE_MISMATCH` with `--strict` | Same warning + report; then exit 1 | CI fails |
-| Explain target not in deltas | stderr not-found; exit 0 (unless strict) | Clear message |
-| `:function` in file granularity | `CliUsageError` exit 2 | Before scan (M42) |
-| Granularity mismatch | `CompareError` (unchanged) | Non-zero; no report |
+| Error Scenario                              | Handling                                 | User Impact         |
+| ------------------------------------------- | ---------------------------------------- | ------------------- |
+| `COMPARE_SINCE_MISMATCH` without `--strict` | Warning stderr + meta; exit 0            | Unchanged (M13)     |
+| `COMPARE_SINCE_MISMATCH` with `--strict`    | Same warning + report; then exit 1       | CI fails            |
+| Explain target not in deltas                | stderr not-found; exit 0 (unless strict) | Clear message       |
+| `:function` in file granularity             | `CliUsageError` exit 2                   | Before scan (M42)   |
+| Granularity mismatch                        | `CompareError` (unchanged)               | Non-zero; no report |
 
 ---
 
 ## Tech Decisions
 
-| Decision | Choice | Rationale |
-| -------- | ------ | --------- |
-| Where to put compare triage | New `compare-triage.ts` | Keeps scan `triage.ts` absolute; avoids M41 regression |
-| Strict enforcement | CLI after render | Keeps compare engine pure; report artifact available |
-| Explain module split | `explain-compare.ts` (or clearly named exports) | Avoid overloading scan explain with CompareResult branches |
-| Return type of execute | Include `CompareResult` | Needed for explain + strict without re-compare |
-| Rank worsen threshold | `rankDelta ≥ 5` | Filters noise one-rank jitter; locked in context |
-| Removed / coupling rankChanged triage | Out of scope | YAGNI |
+| Decision                              | Choice                                          | Rationale                                                  |
+| ------------------------------------- | ----------------------------------------------- | ---------------------------------------------------------- |
+| Where to put compare triage           | New `compare-triage.ts`                         | Keeps scan `triage.ts` absolute; avoids M41 regression     |
+| Strict enforcement                    | CLI after render                                | Keeps compare engine pure; report artifact available       |
+| Explain module split                  | `explain-compare.ts` (or clearly named exports) | Avoid overloading scan explain with CompareResult branches |
+| Return type of execute                | Include `CompareResult`                         | Needed for explain + strict without re-compare             |
+| Rank worsen threshold                 | `rankDelta ≥ 5`                                 | Filters noise one-rank jitter; locked in context           |
+| Removed / coupling rankChanged triage | Out of scope                                    | YAGNI                                                      |
 
 ---
 
 ## Testing Notes
 
-| Layer | Surface |
-| ----- | ------- |
-| Unit | `compare-triage.test.ts`; explain-compare tests; compare-table/markdown assert triage presence/absence |
-| Unit/CLI | `bin/hotspot-scanner.test.ts` — `--strict` exit; `--explain` stderr vs JSON; `compare --explain` |
-| Regression | Scan triage tests still pass; since-mismatch without `--strict` exit 0 |
-| Contract | No schema change — contract suite unchanged |
+| Layer      | Surface                                                                                                |
+| ---------- | ------------------------------------------------------------------------------------------------------ |
+| Unit       | `compare-triage.test.ts`; explain-compare tests; compare-table/markdown assert triage presence/absence |
+| Unit/CLI   | `bin/hotspot-scanner.test.ts` — `--strict` exit; `--explain` stderr vs JSON; `compare --explain`       |
+| Regression | Scan triage tests still pass; since-mismatch without `--strict` exit 0                                 |
+| Contract   | No schema change — contract suite unchanged                                                            |
 
 **Gate:** per-task targeted Vitest; feature Done → `pnpm build && pnpm test`

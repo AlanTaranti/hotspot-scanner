@@ -22,39 +22,39 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (body) | Diagram shows | Status |
-| ---- | ----------------- | ------------- | ------ |
-| T1 | None | Root | ✅ Match |
-| T2 | T1 | T1→T2 | ✅ Match |
-| T3 | T2 | T2→T3 | ✅ Match |
-| T4 | T3 | T3→T4 | ✅ Match |
+| Task | Depends on (body) | Diagram shows | Status   |
+| ---- | ----------------- | ------------- | -------- |
+| T1   | None              | Root          | ✅ Match |
+| T2   | T1                | T1→T2         | ✅ Match |
+| T3   | T2                | T2→T3         | ✅ Match |
+| T4   | T3                | T3→T4         | ✅ Match |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | `src/scan.ts` + `src/scan-preview.ts` | shared helper + call sites | Sole owner of PathScope wiring |
-| T2 | `src/doctor/` | `index.ts` + doctor tests | After T1; does not edit scan PathScope sites |
-| T3 | `src/doctor/` + `bin/` tests | doctor tests, `bin/hotspot-scanner.test.ts` (+ CLI flag if M46) | After T2; may touch bin only for doctor flag / assertions |
-| T4 | docs | ARCHITECTURE, STRUCTURE, README | After T3 |
+| Task | Module owner                          | Paths                                                           | Conflict                                                  |
+| ---- | ------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------- |
+| T1   | `src/scan.ts` + `src/scan-preview.ts` | shared helper + call sites                                      | Sole owner of PathScope wiring                            |
+| T2   | `src/doctor/`                         | `index.ts` + doctor tests                                       | After T1; does not edit scan PathScope sites              |
+| T3   | `src/doctor/` + `bin/` tests          | doctor tests, `bin/hotspot-scanner.test.ts` (+ CLI flag if M46) | After T2; may touch bin only for doctor flag / assertions |
+| T4   | docs                                  | ARCHITECTURE, STRUCTURE, README                                 | After T3                                                  |
 
 ### Test Co-location Validation
 
-| Task | Code layer | Matrix / TESTING.md | Task Tests | Status |
-| ---- | ---------- | ------------------- | ---------- | ------ |
-| T1 | `src/scan.ts` / `src/scan-preview.ts` | unit co-located | unit | ✅ OK |
-| T2 | `src/doctor/` | unit co-located | unit | ✅ OK |
-| T3 | doctor + CLI | unit + CLI | unit + CLI | ✅ OK |
-| T4 | docs | none | none + full gate | ✅ OK |
+| Task | Code layer                            | Matrix / TESTING.md | Task Tests       | Status |
+| ---- | ------------------------------------- | ------------------- | ---------------- | ------ |
+| T1   | `src/scan.ts` / `src/scan-preview.ts` | unit co-located     | unit             | ✅ OK  |
+| T2   | `src/doctor/`                         | unit co-located     | unit             | ✅ OK  |
+| T3   | doctor + CLI                          | unit + CLI          | unit + CLI       | ✅ OK  |
+| T4   | docs                                  | none                | none + full gate | ✅ OK  |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | One helper + wire two call sites | ✅ Granular |
-| T2 | Doctor prelude + `scope` finding | ✅ Cohesive doctor slice |
-| T3 | Parity / fixture / CLI assertions | ✅ Granular |
-| T4 | Docs + project gate | ✅ Granular |
+| Task | Scope                             | Status                   |
+| ---- | --------------------------------- | ------------------------ |
+| T1   | One helper + wire two call sites  | ✅ Granular              |
+| T2   | Doctor prelude + `scope` finding  | ✅ Cohesive doctor slice |
+| T3   | Parity / fixture / CLI assertions | ✅ Granular              |
+| T4   | Docs + project gate               | ✅ Granular              |
 
 ---
 
@@ -232,24 +232,24 @@ No `[P]` tasks — T1–T2 share prelude semantics; T3 depends on doctor behavio
 
 ## Requirement → Task Mapping
 
-| Requirement ID | Task(s) |
-| -------------- | ------- |
-| HOTSPOT-800 | T2 |
-| HOTSPOT-801 | T2, T3 |
-| HOTSPOT-802 | T2 |
-| HOTSPOT-803 | T2 |
-| HOTSPOT-804 | T1 |
-| HOTSPOT-805 | T2 |
-| HOTSPOT-806 | T2, T3 |
-| HOTSPOT-807 | T1 |
-| HOTSPOT-808 | T2 |
-| HOTSPOT-809 | T2 |
-| HOTSPOT-810 | T2 |
-| HOTSPOT-811 | T4 |
-| HOTSPOT-812 | T4 |
-| HOTSPOT-813 | T3 |
-| HOTSPOT-814 | T1 |
-| HOTSPOT-815 | T3 |
+| Requirement ID  | Task(s)  |
+| --------------- | -------- |
+| HOTSPOT-800     | T2       |
+| HOTSPOT-801     | T2, T3   |
+| HOTSPOT-802     | T2       |
+| HOTSPOT-803     | T2       |
+| HOTSPOT-804     | T1       |
+| HOTSPOT-805     | T2       |
+| HOTSPOT-806     | T2, T3   |
+| HOTSPOT-807     | T1       |
+| HOTSPOT-808     | T2       |
+| HOTSPOT-809     | T2       |
+| HOTSPOT-810     | T2       |
+| HOTSPOT-811     | T4       |
+| HOTSPOT-812     | T4       |
+| HOTSPOT-813     | T3       |
+| HOTSPOT-814     | T1       |
+| HOTSPOT-815     | T3       |
 | HOTSPOT-816–819 | Reserved |
 
 **Unmapped P1:** none.

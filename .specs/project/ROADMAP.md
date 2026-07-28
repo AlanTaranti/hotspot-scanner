@@ -2,11 +2,11 @@
 
 ## Current
 
-| Field | Value |
-| ----- | ----- |
-| **Status** | **M79 + M80 Done** — package scope `@taranti`; GitHub identity `AlanTaranti` |
-| **Open milestones** | _None_ |
-| **Deferred** | [STATE.md](STATE.md) § Deferred |
+| Field               | Value                                                                        |
+| ------------------- | ---------------------------------------------------------------------------- |
+| **Status**          | **M79 + M80 Done** — package scope `@taranti`; GitHub identity `AlanTaranti` |
+| **Open milestones** | _None_                                                                       |
+| **Deferred**        | [STATE.md](STATE.md) § Deferred                                              |
 
 Archive below is historical (feature links stay valid). Prefer this table + Done summary for “what’s next”; deferred ideas live only in STATE. Detail for any milestone: `.specs/features/<slug>/`.
 
@@ -14,17 +14,17 @@ Archive below is historical (feature links stay valid). Prefer this table + Done
 
 ### Done summary
 
-| Band | Scope |
-| ---- | ----- |
-| M1–M6 | v1 scaffold → git miner → complexity → scoring → reporter/CLI → integration |
-| M7–M24 | Path scope, harmonic score, rich/export formats, function granularity, compare, coupling, workers, CSV bundle, JSON contract, config, function AST/churn, package DX |
-| M25–M36 | Product docs, rename confidence, coupling enrichment, diagnostics, AST+, path/config DX, scan performance |
-| M37–M45 | README adoption, CLI polish, init/doctor/dry-run, workflows, interpretation UX, explain, monorepo remount, package exports enrich, adoption docs |
+| Band    | Scope                                                                                                                                                                                        |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| M1–M6   | v1 scaffold → git miner → complexity → scoring → reporter/CLI → integration                                                                                                                  |
+| M7–M24  | Path scope, harmonic score, rich/export formats, function granularity, compare, coupling, workers, CSV bundle, JSON contract, config, function AST/churn, package DX                         |
+| M25–M36 | Product docs, rename confidence, coupling enrichment, diagnostics, AST+, path/config DX, scan performance                                                                                    |
+| M37–M45 | README adoption, CLI polish, init/doctor/dry-run, workflows, interpretation UX, explain, monorepo remount, package exports enrich, adoption docs                                             |
 | M46–M55 | Exclude tests by default, git pathspecs, scope extensions, ranking accuracy+, observability, doctor scope parity, perf controls, API trust docs, compare interpretation, CLI adoption extras |
-| M56–M65 | Remove coupling; NCLOC metric (retire McCabe/function mode); warnings UX; TTY progress; table path UX; progress bar; feedback/copy UX; CLI surface parity; config/doctor DX; git error UX |
-| M66–M72 | Contract enrich, scope+, warnings bookend, write confirm, table Lines parity; **remove compare/baseline (scan-only)**; complexity trend CLI |
-| M73–M78 | Top-only rollups; doctor/trend/assess color UX; growth-pattern bridge; hotspot assess |
-| M79–M80 | Package scope rename (`@taranti`); GitHub repo identity (`AlanTaranti`) |
+| M56–M65 | Remove coupling; NCLOC metric (retire McCabe/function mode); warnings UX; TTY progress; table path UX; progress bar; feedback/copy UX; CLI surface parity; config/doctor DX; git error UX    |
+| M66–M72 | Contract enrich, scope+, warnings bookend, write confirm, table Lines parity; **remove compare/baseline (scan-only)**; complexity trend CLI                                                  |
+| M73–M78 | Top-only rollups; doctor/trend/assess color UX; growth-pattern bridge; hotspot assess                                                                                                        |
+| M79–M80 | Package scope rename (`@taranti`); GitHub repo identity (`AlanTaranti`)                                                                                                                      |
 
 ---
 

@@ -28,12 +28,12 @@ Close two related PathScope / eligibility gaps left after M46 + M48:
 
 **Choice — at minimum the full ESM/CJS parity quartet** (mission floor + symmetry):
 
-| Pattern | Intent |
-| ------- | ------ |
+| Pattern         | Intent               |
+| --------------- | -------------------- |
 | `**/*.test.mjs` | Co-located ESM tests |
 | `**/*.test.cjs` | Co-located CJS tests |
-| `**/*.spec.mjs` | Spec-suffix ESM |
-| `**/*.spec.cjs` | Spec-suffix CJS |
+| `**/*.spec.mjs` | Spec-suffix ESM      |
+| `**/*.spec.cjs` | Spec-suffix CJS      |
 
 **Status:** **Confirmed — mission lock**
 
@@ -45,12 +45,12 @@ Close two related PathScope / eligibility gaps left after M46 + M48:
 
 **Choice:** **Yes** — append the TypeScript-module quartet so M67 does not recreate the M48 residual:
 
-| Pattern | Intent |
-| ------- | ------ |
+| Pattern         | Intent                  |
+| --------------- | ----------------------- |
 | `**/*.test.mts` | Co-located TS ESM tests |
 | `**/*.test.cts` | Co-located TS CJS tests |
-| `**/*.spec.mts` | Spec-suffix TS ESM |
-| `**/*.spec.cts` | Spec-suffix TS CJS |
+| `**/*.spec.mts` | Spec-suffix TS ESM      |
+| `**/*.spec.cts` | Spec-suffix TS CJS      |
 
 **Rationale:** Same product class as the mjs/cjs residual documented in CONCERNS; closing eligibility without test globs would leave an identical gap for dual-package TypeScript sources.
 
@@ -77,7 +77,7 @@ Close two related PathScope / eligibility gaps left after M46 + M48:
   "**/*.test.cts",
   "**/*.spec.mts",
   "**/*.spec.cts",
-]
+];
 ```
 
 **Status:** **Confirmed — planner locked**
@@ -93,26 +93,26 @@ Close two related PathScope / eligibility gaps left after M46 + M48:
 **Resulting set (order locked):**
 
 ```ts
-[".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".mts", ".cts"]
+[".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".mts", ".cts"];
 ```
 
 **Applies to:**
 
-| Surface | How |
-| ------- | --- |
-| Discovery | `discoverSourceFiles` / `hasEligibleExtension` via constant |
-| NCLOC | Analyzer walks discovered eligible paths — no separate extension list |
-| Scoring ∩ git | Hotspots keyed from complexity results ∩ PathScope-filtered git stats |
+| Surface          | How                                                                                                                                                             |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Discovery        | `discoverSourceFiles` / `hasEligibleExtension` via constant                                                                                                     |
+| NCLOC            | Analyzer walks discovered eligible paths — no separate extension list                                                                                           |
+| Scoring ∩ git    | Hotspots keyed from complexity results ∩ PathScope-filtered git stats                                                                                           |
 | Rename heuristic | Local `ELIGIBLE_EXTENSIONS` Set in `src/git/rename-warnings.ts` **must** stay in sync (prefer import of shared constant if cheap; else update Set in same task) |
 
 **Forbidden:**
 
-| Item | Why |
-| ---- | --- |
+| Item                       | Why                           |
+| -------------------------- | ----------------------------- |
 | `.d.ts` / declaration-only | Not source complexity targets |
-| Extensionless / `.json` | Out of product scope |
-| New artifact exclude dirs | Mission out of scope |
-| `.hotspotignore` | Mission out of scope |
+| Extensionless / `.json`    | Out of product scope          |
+| New artifact exclude dirs  | Mission out of scope          |
+| `.hotspotignore`           | Mission out of scope          |
 
 **Status:** **Confirmed — mission lock**
 
@@ -120,13 +120,13 @@ Close two related PathScope / eligibility gaps left after M46 + M48:
 
 ## Decision: No new fixture repo / no CLI / no schema (LOCKED)
 
-| Item | Choice |
-| ---- | ------ |
+| Item                             | Choice                                                                                             |
+| -------------------------------- | -------------------------------------------------------------------------------------------------- |
 | New `tests/fixtures/repos/` slug | **No** — unit tests on `scope.test.ts` + `discover.test.ts` (+ rename-warnings if touched) suffice |
-| New CLI flags | **No** — `--include-tests` already lifts test defaults |
-| Config keys | **No** |
-| JSON Schema / `version` bump | **No** — population may grow; contract shape unchanged |
-| Artifact exclude edits | **No** |
+| New CLI flags                    | **No** — `--include-tests` already lifts test defaults                                             |
+| Config keys                      | **No**                                                                                             |
+| JSON Schema / `version` bump     | **No** — population may grow; contract shape unchanged                                             |
+| Artifact exclude edits           | **No**                                                                                             |
 
 **Status:** **Confirmed**
 
@@ -148,12 +148,12 @@ ROADMAP/STATE updates belong to Execute Done — **this planning session does no
 
 ## Related closed decisions (do not reopen)
 
-| Source | Decision |
-| ------ | -------- |
-| M7 | Default excludes always on; exclude additive; include narrows; no `--no-default-excludes` |
-| M46 | Test vs artifact split; `--include-tests` CLI-only lifts test patterns |
-| M48 | `.mjs`/`.cjs` eligible; artifact YAGNI dirs; deferred `.mts`/`.cts` and test.mjs residual |
-| AGENTS.md | Gate `pnpm build && pnpm test` |
+| Source    | Decision                                                                                  |
+| --------- | ----------------------------------------------------------------------------------------- |
+| M7        | Default excludes always on; exclude additive; include narrows; no `--no-default-excludes` |
+| M46       | Test vs artifact split; `--include-tests` CLI-only lifts test patterns                    |
+| M48       | `.mjs`/`.cjs` eligible; artifact YAGNI dirs; deferred `.mts`/`.cts` and test.mjs residual |
+| AGENTS.md | Gate `pnpm build && pnpm test`                                                            |
 
 ---
 

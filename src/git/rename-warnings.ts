@@ -64,8 +64,7 @@ export function createEmptyBlindSpotSignals(): RenameBlindSpotSignals {
 
 export function formatAmbiguousRenameWarnings(paths: string[]): string[] {
   return paths.map(
-    (path) =>
-      `${RENAME_AMBIGUOUS_PREFIX} ${path}${NEXT_STEP_AMBIGUOUS}`,
+    (path) => `${RENAME_AMBIGUOUS_PREFIX} ${path}${NEXT_STEP_AMBIGUOUS}`,
   );
 }
 

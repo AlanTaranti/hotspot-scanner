@@ -27,33 +27,33 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (body) | Diagram shows | Status |
-| ---- | ----------------- | ------------- | ------ |
-| T1 | None | Root | ✅ Match |
-| T2 | T1 | T1→T2 | ✅ Match |
+| Task | Depends on (body) | Diagram shows | Status   |
+| ---- | ----------------- | ------------- | -------- |
+| T1   | None              | Root          | ✅ Match |
+| T2   | T1                | T1→T2         | ✅ Match |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | bin | `bin/scan-actions.ts`, `bin/hotspot-scanner.test.ts` (confirm cases); touch `bin/hotspot-scanner.ts` only if wiring needed (prefer keep logic in `writeRenderedOutput`) | Sole bin write-confirm owner |
-| T2 | gate | none | After T1 |
+| Task | Module owner | Paths                                                                                                                                                                   | Conflict                     |
+| ---- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| T1   | bin          | `bin/scan-actions.ts`, `bin/hotspot-scanner.test.ts` (confirm cases); touch `bin/hotspot-scanner.ts` only if wiring needed (prefer keep logic in `writeRenderedOutput`) | Sole bin write-confirm owner |
+| T2   | gate         | none                                                                                                                                                                    | After T1                     |
 
 No `[P]` — single sequential owner.
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task Tests | Status |
-| ---- | ---------- | ---------------------- | ---------- | ------ |
-| T1 | `bin/` | unit | unit | ✅ OK |
-| T2 | full project | gate | `pnpm build && pnpm test` | ✅ OK |
+| Task | Code layer   | TESTING.md expectation | Task Tests                | Status |
+| ---- | ------------ | ---------------------- | ------------------------- | ------ |
+| T1   | `bin/`       | unit                   | unit                      | ✅ OK  |
+| T2   | full project | gate                   | `pnpm build && pnpm test` | ✅ OK  |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Confirm emissions + quiet/stdout/bundle cases + tests | ✅ Cohesive bin |
-| T2 | Project gate | ✅ Granular |
+| Task | Scope                                                 | Status          |
+| ---- | ----------------------------------------------------- | --------------- |
+| T1   | Confirm emissions + quiet/stdout/bundle cases + tests | ✅ Cohesive bin |
+| T2   | Project gate                                          | ✅ Granular     |
 
 ---
 
@@ -115,8 +115,8 @@ No `[P]` — single sequential owner.
 
 | Requirement ID | Task |
 | -------------- | ---- |
-| HOTSPOT-1260 | T1 |
-| HOTSPOT-1261 | T1 |
-| HOTSPOT-1262 | T1 |
-| HOTSPOT-1263 | T1 |
-| HOTSPOT-1264 | T1 |
+| HOTSPOT-1260   | T1   |
+| HOTSPOT-1261   | T1   |
+| HOTSPOT-1262   | T1   |
+| HOTSPOT-1263   | T1   |
+| HOTSPOT-1264   | T1   |

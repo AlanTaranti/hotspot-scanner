@@ -29,9 +29,9 @@ Extend static coupling enrichment so that Node/TS `package.json` **`exports`** a
 
 For each static specifier in `buildStaticEdgeGraph` / `resolutionBases`:
 
-1. **Relative** (`./` / `../`) — existing M14 candidates  
-2. **Tsconfig / jsconfig** `paths` / `baseUrl` — existing M27 `TsconfigPathMap`  
-3. **Package `imports`** — if specifier starts with `#`, resolve against the **importer’s** nearest `package.json` `"imports"`  
+1. **Relative** (`./` / `../`) — existing M14 candidates
+2. **Tsconfig / jsconfig** `paths` / `baseUrl` — existing M27 `TsconfigPathMap`
+3. **Package `imports`** — if specifier starts with `#`, resolve against the **importer’s** nearest `package.json` `"imports"`
 4. **Package `exports` / workspace name** — if specifier is non-relative and not `#`:
    - If it matches a peer-indexed package `"name"` or `name/subpath`, resolve via that package’s `"exports"` (or `"main"` fallback)
    - Self-package references (importer’s own `"name"`) are in scope when the target lands on a peer
@@ -42,21 +42,21 @@ First existing candidate that equals the peer path wins (same match rule as M14/
 
 ### `exports` / `imports` shape support (locked)
 
-| Supported | Behavior |
-| --------- | -------- |
-| String `exports` / `main` | Treat as `"."` entry target |
-| Object `exports` keys | Exact subpath (`.`, `./foo`) and single-`*` patterns (`./features/*`) |
-| Conditional objects | Expand targets under conditions listed below |
-| Array targets | Try each element in order |
-| `imports` keys | Must start with `#`; exact and single-`*` patterns |
+| Supported                 | Behavior                                                              |
+| ------------------------- | --------------------------------------------------------------------- |
+| String `exports` / `main` | Treat as `"."` entry target                                           |
+| Object `exports` keys     | Exact subpath (`.`, `./foo`) and single-`*` patterns (`./features/*`) |
+| Conditional objects       | Expand targets under conditions listed below                          |
+| Array targets             | Try each element in order                                             |
+| `imports` keys            | Must start with `#`; exact and single-`*` patterns                    |
 
-| Explicitly out of scope | Reason |
-| ----------------------- | ------ |
-| Full Node ESM_RESOLVE / PACKAGE_EXPORTS_RESOLVE parity | YAGNI — couple peers only |
-| `node_modules` package lookup | Locked boundary |
-| Source↔dist inventing (map `dist/*.js` → `src/*.ts`) | Extension/index candidates only; document residual false negatives |
-| Multiple `*` wildcards / regex patterns | Match M27 single-`*` rule |
-| `exports` blocking semantics for non-listed subpaths beyond miss | Miss is enough for labeling |
+| Explicitly out of scope                                          | Reason                                                             |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Full Node ESM_RESOLVE / PACKAGE_EXPORTS_RESOLVE parity           | YAGNI — couple peers only                                          |
+| `node_modules` package lookup                                    | Locked boundary                                                    |
+| Source↔dist inventing (map `dist/*.js` → `src/*.ts`)             | Extension/index candidates only; document residual false negatives |
+| Multiple `*` wildcards / regex patterns                          | Match M27 single-`*` rule                                          |
+| `exports` blocking semantics for non-listed subpaths beyond miss | Miss is enough for labeling                                        |
 
 **Applies to:** HOTSPOT-597, HOTSPOT-610, HOTSPOT-612.
 

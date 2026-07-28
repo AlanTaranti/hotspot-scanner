@@ -42,54 +42,54 @@ flowchart LR
 
 | Task | Depends on (declared) | Diagram shows | Match |
 | ---- | --------------------- | ------------- | ----- |
-| T1 | None | Root | ✅ |
-| T2 | T1 | T1 → T2 | ✅ |
-| T3 | T1 | T1 → T3 | ✅ |
-| T4 | T2, T3 | T2+T3 → T4 | ✅ |
-| T5 | T4 | T4 → T5 | ✅ |
+| T1   | None                  | Root          | ✅    |
+| T2   | T1                    | T1 → T2       | ✅    |
+| T3   | T1                    | T1 → T3       | ✅    |
+| T4   | T2, T3                | T2+T3 → T4    | ✅    |
+| T5   | T4                    | T4 → T5       | ✅    |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | report (helper) | `src/report/path-column.ts`, `src/report/path-column.test.ts` | Sole owner of new helper |
-| T2 | report (scan table) | `src/report/table.ts`, `src/report/table.test.ts` | Disjoint from T3 files; after T1 |
-| T3 | report (compare table) | `src/report/compare-table.ts`, `src/report/compare-table.test.ts` | Disjoint from T2; after T1 — `[P]` OK with T2 |
-| T4 | docs | `README.md`, `.specs/codebase/ARCHITECTURE.md`, optionally `STRUCTURE.md`; Execute may tick ROADMAP/STATE Done | After T2+T3; no src overlap |
-| T5 | gate | none (verify) | After T4 |
+| Task | Module owner           | Paths                                                                                                          | Conflict                                      |
+| ---- | ---------------------- | -------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| T1   | report (helper)        | `src/report/path-column.ts`, `src/report/path-column.test.ts`                                                  | Sole owner of new helper                      |
+| T2   | report (scan table)    | `src/report/table.ts`, `src/report/table.test.ts`                                                              | Disjoint from T3 files; after T1              |
+| T3   | report (compare table) | `src/report/compare-table.ts`, `src/report/compare-table.test.ts`                                              | Disjoint from T2; after T1 — `[P]` OK with T2 |
+| T4   | docs                   | `README.md`, `.specs/codebase/ARCHITECTURE.md`, optionally `STRUCTURE.md`; Execute may tick ROADMAP/STATE Done | After T2+T3; no src overlap                   |
+| T5   | gate                   | none (verify)                                                                                                  | After T4                                      |
 
 T2 and T3 may run in parallel after T1 (`[P]` on T3).
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task says | Match |
-| ---- | ---------- | ---------------------- | --------- | ----- |
-| T1 | `src/report/` helper | Unit | unit in same task | ✅ |
-| T2 | `src/report/table.ts` | Unit | unit in same task | ✅ |
-| T3 | `src/report/compare-table.ts` | Unit | unit in same task | ✅ |
-| T4 | Docs | none | none | ✅ |
-| T5 | Full project | Gate | `pnpm build && pnpm test` | ✅ |
+| Task | Code layer                    | TESTING.md expectation | Task says                 | Match |
+| ---- | ----------------------------- | ---------------------- | ------------------------- | ----- |
+| T1   | `src/report/` helper          | Unit                   | unit in same task         | ✅    |
+| T2   | `src/report/table.ts`         | Unit                   | unit in same task         | ✅    |
+| T3   | `src/report/compare-table.ts` | Unit                   | unit in same task         | ✅    |
+| T4   | Docs                          | none                   | none                      | ✅    |
+| T5   | Full project                  | Gate                   | `pnpm build && pnpm test` | ✅    |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Width + middle-ellipsis helper + tests | ✅ Atomic module |
-| T2 | Wire scan table + update truncation test | ✅ One renderer |
-| T3 | Wire compare table + tests | ✅ One renderer |
-| T4 | Living docs | ✅ Granular |
-| T5 | Project gate | ✅ Granular |
+| Task | Scope                                    | Status           |
+| ---- | ---------------------------------------- | ---------------- |
+| T1   | Width + middle-ellipsis helper + tests   | ✅ Atomic module |
+| T2   | Wire scan table + update truncation test | ✅ One renderer  |
+| T3   | Wire compare table + tests               | ✅ One renderer  |
+| T4   | Living docs                              | ✅ Granular      |
+| T5   | Project gate                             | ✅ Granular      |
 
 ### Requirement → Task Mapping
 
-| Requirement ID | Task |
-| -------------- | ---- |
-| HOTSPOT-991, HOTSPOT-992, HOTSPOT-993, HOTSPOT-995, HOTSPOT-997, HOTSPOT-998 | T1 |
-| HOTSPOT-990, HOTSPOT-996 (scan), HOTSPOT-999 (no surface — verify) | T2 |
-| HOTSPOT-994, HOTSPOT-996 (compare), HOTSPOT-999 (parity / no surface) | T3 |
-| HOTSPOT-1000 | T4 |
-| (gate) | T5 |
-| HOTSPOT-1001–1009 | Reserved — unused |
+| Requirement ID                                                               | Task              |
+| ---------------------------------------------------------------------------- | ----------------- |
+| HOTSPOT-991, HOTSPOT-992, HOTSPOT-993, HOTSPOT-995, HOTSPOT-997, HOTSPOT-998 | T1                |
+| HOTSPOT-990, HOTSPOT-996 (scan), HOTSPOT-999 (no surface — verify)           | T2                |
+| HOTSPOT-994, HOTSPOT-996 (compare), HOTSPOT-999 (parity / no surface)        | T3                |
+| HOTSPOT-1000                                                                 | T4                |
+| (gate)                                                                       | T5                |
+| HOTSPOT-1001–1009                                                            | Reserved — unused |
 
 ---
 

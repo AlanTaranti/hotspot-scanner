@@ -4,10 +4,7 @@ import {
   mergeScanOptions,
   type HotspotScannerConfig,
 } from "#config";
-import {
-  createCliDiagnosticHandlers,
-  type WarningsMode,
-} from "#diagnostics";
+import { createCliDiagnosticHandlers, type WarningsMode } from "#diagnostics";
 import {
   renderAssessJson,
   renderAssessMarkdown,
@@ -151,7 +148,11 @@ export async function executeAssess(options: {
 
   clearLiveProgress();
 
-  const body = renderAssessOutput(result, options.format, options.color ?? false);
+  const body = renderAssessOutput(
+    result,
+    options.format,
+    options.color ?? false,
+  );
   if (options.outputPath !== undefined) {
     await validateOutputPath(options.outputPath);
     await writeFile(options.outputPath, ensureTrailingNewline(body), "utf8");

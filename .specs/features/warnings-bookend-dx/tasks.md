@@ -40,45 +40,45 @@ flowchart LR
 
 ### Diagram-Definition Cross-Check
 
-| Task | Depends on (body) | Diagram shows | Status |
-| ---- | ----------------- | ------------- | ------ |
-| T1 | None | Root parallel | ✅ Match |
-| T2 | None | Root parallel | ✅ Match |
-| T3 | T1, T2 | T1→T3, T2→T3 | ✅ Match |
-| T4 | T3 | T3→T4 | ✅ Match |
-| T5 | T4 | T4→T5 | ✅ Match |
+| Task | Depends on (body) | Diagram shows | Status   |
+| ---- | ----------------- | ------------- | -------- |
+| T1   | None              | Root parallel | ✅ Match |
+| T2   | None              | Root parallel | ✅ Match |
+| T3   | T1, T2            | T1→T3, T2→T3  | ✅ Match |
+| T4   | T3                | T3→T4         | ✅ Match |
+| T5   | T4                | T4→T5         | ✅ Match |
 
 ### Path Conflict Check (Check 5)
 
-| Task | Module owner | Paths | Conflict |
-| ---- | ------------ | ----- | -------- |
-| T1 | diagnostics | `src/diagnostics/logger.ts`, `warning-summary.ts` (if needed), `index.ts` exports, `*.test.ts`; may add thin shared rollup import from `src/report/summary.ts` **or** local helper — avoid cycles | Sole diagnostics owner |
-| T2 | report | `src/report/compare-table.ts`, `compare-markdown.ts`, `compare-table.test.ts`, `compare-markdown.test.ts` | Sole report owner; **do not** edit bin/diagnostics |
-| T3 | bin | `bin/hotspot-scanner.ts`, `bin/scan-actions.ts`, `bin/hotspot-scanner.test.ts` | After T1; only bin owner for lifecycle |
-| T4 | docs | `docs/warning-codes.md`, `AGENTS.md`, `.specs/project/ROADMAP.md` (M58 prose + M68 notes as needed), optional `README.md` / `.specs/codebase/ARCHITECTURE.md` | After T3 |
-| T5 | gate | none | After T4 |
+| Task | Module owner | Paths                                                                                                                                                                                             | Conflict                                           |
+| ---- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| T1   | diagnostics  | `src/diagnostics/logger.ts`, `warning-summary.ts` (if needed), `index.ts` exports, `*.test.ts`; may add thin shared rollup import from `src/report/summary.ts` **or** local helper — avoid cycles | Sole diagnostics owner                             |
+| T2   | report       | `src/report/compare-table.ts`, `compare-markdown.ts`, `compare-table.test.ts`, `compare-markdown.test.ts`                                                                                         | Sole report owner; **do not** edit bin/diagnostics |
+| T3   | bin          | `bin/hotspot-scanner.ts`, `bin/scan-actions.ts`, `bin/hotspot-scanner.test.ts`                                                                                                                    | After T1; only bin owner for lifecycle             |
+| T4   | docs         | `docs/warning-codes.md`, `AGENTS.md`, `.specs/project/ROADMAP.md` (M58 prose + M68 notes as needed), optional `README.md` / `.specs/codebase/ARCHITECTURE.md`                                     | After T3                                           |
+| T5   | gate         | none                                                                                                                                                                                              | After T4                                           |
 
 T1 `[P]` with T2 — disjoint `src/diagnostics/` vs `src/report/`. No other `[P]`.
 
 ### Test Co-location Validation
 
-| Task | Code layer | TESTING.md expectation | Task Tests | Status |
-| ---- | ---------- | ---------------------- | ---------- | ------ |
-| T1 | `src/diagnostics/` | unit | unit | ✅ OK |
-| T2 | `src/report/` | unit | unit | ✅ OK |
-| T3 | `bin/` | unit | unit | ✅ OK |
-| T4 | docs | none | none | ✅ OK |
-| T5 | full project | gate | `pnpm build && pnpm test` | ✅ OK |
+| Task | Code layer         | TESTING.md expectation | Task Tests                | Status |
+| ---- | ------------------ | ---------------------- | ------------------------- | ------ |
+| T1   | `src/diagnostics/` | unit                   | unit                      | ✅ OK  |
+| T2   | `src/report/`      | unit                   | unit                      | ✅ OK  |
+| T3   | `bin/`             | unit                   | unit                      | ✅ OK  |
+| T4   | docs               | none                   | none                      | ✅ OK  |
+| T5   | full project       | gate                   | `pnpm build && pnpm test` | ✅ OK  |
 
 ### Granularity Check
 
-| Task | Scope | Status |
-| ---- | ----- | ------ |
-| T1 | Teaser API + mode matrix tests | ✅ Cohesive diagnostics |
-| T2 | Remove compare loops + tests | ✅ Granular report |
-| T3 | Wire bookend on all flush paths + order tests | ✅ Cohesive bin |
-| T4 | Docs A+G+L+E | ✅ Cohesive docs |
-| T5 | Project gate | ✅ Granular |
+| Task | Scope                                         | Status                  |
+| ---- | --------------------------------------------- | ----------------------- |
+| T1   | Teaser API + mode matrix tests                | ✅ Cohesive diagnostics |
+| T2   | Remove compare loops + tests                  | ✅ Granular report      |
+| T3   | Wire bookend on all flush paths + order tests | ✅ Cohesive bin         |
+| T4   | Docs A+G+L+E                                  | ✅ Cohesive docs        |
+| T5   | Project gate                                  | ✅ Granular             |
 
 ---
 
@@ -237,21 +237,21 @@ T1 `[P]` with T2 — disjoint `src/diagnostics/` vs `src/report/`. No other `[P]
 
 | Requirement ID | Task |
 | -------------- | ---- |
-| HOTSPOT-1230 | T1 |
-| HOTSPOT-1231 | T3 |
-| HOTSPOT-1232 | T1 |
-| HOTSPOT-1233 | T1 |
-| HOTSPOT-1234 | T1 |
-| HOTSPOT-1235 | T1 |
-| HOTSPOT-1236 | T3 |
-| HOTSPOT-1237 | T2 |
-| HOTSPOT-1238 | T2 |
-| HOTSPOT-1239 | T4 |
-| HOTSPOT-1240 | T4 |
-| HOTSPOT-1241 | T4 |
-| HOTSPOT-1242 | T4 |
-| HOTSPOT-1243 | T4 |
-| HOTSPOT-1244 | T3 |
+| HOTSPOT-1230   | T1   |
+| HOTSPOT-1231   | T3   |
+| HOTSPOT-1232   | T1   |
+| HOTSPOT-1233   | T1   |
+| HOTSPOT-1234   | T1   |
+| HOTSPOT-1235   | T1   |
+| HOTSPOT-1236   | T3   |
+| HOTSPOT-1237   | T2   |
+| HOTSPOT-1238   | T2   |
+| HOTSPOT-1239   | T4   |
+| HOTSPOT-1240   | T4   |
+| HOTSPOT-1241   | T4   |
+| HOTSPOT-1242   | T4   |
+| HOTSPOT-1243   | T4   |
+| HOTSPOT-1244   | T3   |
 
 ---
 

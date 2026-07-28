@@ -22,14 +22,14 @@ Compare reports already show new / removed / rank-changed tables (M13) plus exec
 
 ## Out of Scope
 
-| Feature | Reason |
-| ------- | ------ |
+| Feature                                              | Reason                                                  |
+| ---------------------------------------------------- | ------------------------------------------------------- |
 | Absolute M41 dual-signal rules on `rankChanged` rows | Misleading on deltas — context locked delta-aware rules |
-| Fail-on hotspotScore / rank thresholds | Deferred CI recipes; M12 removed |
-| Coupling-pair `--explain` | YAGNI |
-| JSON schema / `version` change | stderr + human report only |
-| Promoting all warning codes under `--strict` | Only `COMPARE_SINCE_MISMATCH` |
-| Changing default since-mismatch to hard fail | Opt-in via `--strict` only |
+| Fail-on hotspotScore / rank thresholds               | Deferred CI recipes; M12 removed                        |
+| Coupling-pair `--explain`                            | YAGNI                                                   |
+| JSON schema / `version` change                       | stderr + human report only                              |
+| Promoting all warning codes under `--strict`         | Only `COMPARE_SINCE_MISMATCH`                           |
+| Changing default since-mismatch to hard fail         | Opt-in via `--strict` only                              |
 
 ---
 
@@ -133,28 +133,28 @@ Compare reports already show new / removed / rank-changed tables (M13) plus exec
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| -------------- | ----- | ----- | ------ |
-| HOTSPOT-820 | P1: Compare triage — three delta rules | Tasks | Pending |
-| HOTSPOT-821 | P1: Compare triage — default ON | Tasks | Pending |
-| HOTSPOT-822 | P1: Compare triage — `--no-triage-hints` | Tasks | Pending |
-| HOTSPOT-823 | P1: Compare triage — omit when empty | Tasks | Pending |
-| HOTSPOT-824 | P1: Compare triage — table/md only (not json/csv) | Tasks | Pending |
-| HOTSPOT-825 | P1: Compare triage — sliced evaluation | Tasks | Pending |
-| HOTSPOT-826 | P1: Compare triage — no score/JSON mutation | Tasks | Pending |
-| HOTSPOT-827 | P1: Compare triage — wire into compare-table/markdown + reporter | Tasks | Pending |
-| HOTSPOT-828 | P1: Explain — compare-mode lookup on CompareResult | Tasks | Pending |
-| HOTSPOT-829 | P1: Explain — new / removed / rank-changed fields | Tasks | Pending |
-| HOTSPOT-830 | P1: Explain — stderr after report | Tasks | Pending |
-| HOTSPOT-831 | P1: Explain — not-found message; exit 0 | Tasks | Pending |
-| HOTSPOT-832 | P1: Explain — `compare` command gains `--explain` | Tasks | Pending |
-| HOTSPOT-833 | P1: Explain — scan-without-baseline unchanged | Tasks | Pending |
-| HOTSPOT-834 | P1: Strict — default warn-and-continue preserved | Tasks | Pending |
-| HOTSPOT-835 | P1: Strict — exit 1 on COMPARE_SINCE_MISMATCH | Tasks | Pending |
-| HOTSPOT-836 | P1: Strict — CLI flag on scan + compare | Tasks | Pending |
-| HOTSPOT-837 | P1: Docs — ARCHITECTURE | Tasks | Pending |
-| HOTSPOT-838 | P1: Docs — README / recipes | Tasks | Pending |
-| HOTSPOT-839 | P1: Docs — warning-codes `--strict` note | Tasks | Pending |
+| Requirement ID | Story                                                            | Phase | Status  |
+| -------------- | ---------------------------------------------------------------- | ----- | ------- |
+| HOTSPOT-820    | P1: Compare triage — three delta rules                           | Tasks | Pending |
+| HOTSPOT-821    | P1: Compare triage — default ON                                  | Tasks | Pending |
+| HOTSPOT-822    | P1: Compare triage — `--no-triage-hints`                         | Tasks | Pending |
+| HOTSPOT-823    | P1: Compare triage — omit when empty                             | Tasks | Pending |
+| HOTSPOT-824    | P1: Compare triage — table/md only (not json/csv)                | Tasks | Pending |
+| HOTSPOT-825    | P1: Compare triage — sliced evaluation                           | Tasks | Pending |
+| HOTSPOT-826    | P1: Compare triage — no score/JSON mutation                      | Tasks | Pending |
+| HOTSPOT-827    | P1: Compare triage — wire into compare-table/markdown + reporter | Tasks | Pending |
+| HOTSPOT-828    | P1: Explain — compare-mode lookup on CompareResult               | Tasks | Pending |
+| HOTSPOT-829    | P1: Explain — new / removed / rank-changed fields                | Tasks | Pending |
+| HOTSPOT-830    | P1: Explain — stderr after report                                | Tasks | Pending |
+| HOTSPOT-831    | P1: Explain — not-found message; exit 0                          | Tasks | Pending |
+| HOTSPOT-832    | P1: Explain — `compare` command gains `--explain`                | Tasks | Pending |
+| HOTSPOT-833    | P1: Explain — scan-without-baseline unchanged                    | Tasks | Pending |
+| HOTSPOT-834    | P1: Strict — default warn-and-continue preserved                 | Tasks | Pending |
+| HOTSPOT-835    | P1: Strict — exit 1 on COMPARE_SINCE_MISMATCH                    | Tasks | Pending |
+| HOTSPOT-836    | P1: Strict — CLI flag on scan + compare                          | Tasks | Pending |
+| HOTSPOT-837    | P1: Docs — ARCHITECTURE                                          | Tasks | Pending |
+| HOTSPOT-838    | P1: Docs — README / recipes                                      | Tasks | Pending |
+| HOTSPOT-839    | P1: Docs — warning-codes `--strict` note                         | Tasks | Pending |
 
 **Coverage:** 20 total (HOTSPOT-820–839), mapped in tasks.md.
 

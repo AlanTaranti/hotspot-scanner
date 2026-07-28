@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/cli-surface-parity/spec.md`](./spec.md)  
 **Context**: [`.specs/features/cli-surface-parity/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Planned
 
 ---
 
@@ -32,25 +32,25 @@ flowchart TD
 
 ## Code Reuse Analysis
 
-| Component | Location | How to Use |
-| --------- | -------- | ---------- |
-| Diagnostic handlers | `src/diagnostics/logger.ts`, `warning-summary.ts` | Extend `WarningsMode` with `"json"`; flush JSON document |
-| Explain formatters | `src/report/explain.ts`, compare explain helpers | Add miss boolean / structured result for fail-on |
-| Scan/compare actions | `bin/scan-actions.ts` | Pass quiet/verbose/warnings; optional single-file write branch |
-| CLI program | `bin/hotspot-scanner.ts` | Flags, argv rewrite, parseWarningsMode, baseline options |
-| Completions | `bin/completion-scripts.ts` | Align zsh/fish to bash; add new flags |
-| CSV render | `src/report/csv.ts` / compare CSV | Reuse hotspots / hotspots.new string content; bin chooses write path |
-| M38 quiet wiring | existing `executeScan` options | Baseline save adopts same options object |
+| Component            | Location                                          | How to Use                                                           |
+| -------------------- | ------------------------------------------------- | -------------------------------------------------------------------- |
+| Diagnostic handlers  | `src/diagnostics/logger.ts`, `warning-summary.ts` | Extend `WarningsMode` with `"json"`; flush JSON document             |
+| Explain formatters   | `src/report/explain.ts`, compare explain helpers  | Add miss boolean / structured result for fail-on                     |
+| Scan/compare actions | `bin/scan-actions.ts`                             | Pass quiet/verbose/warnings; optional single-file write branch       |
+| CLI program          | `bin/hotspot-scanner.ts`                          | Flags, argv rewrite, parseWarningsMode, baseline options             |
+| Completions          | `bin/completion-scripts.ts`                       | Align zsh/fish to bash; add new flags                                |
+| CSV render           | `src/report/csv.ts` / compare CSV                 | Reuse hotspots / hotspots.new string content; bin chooses write path |
+| M38 quiet wiring     | existing `executeScan` options                    | Baseline save adopts same options object                             |
 
 ### Fragile / concerns
 
-| Concern | Mitigation |
-| ------- | ---------- |
+| Concern                        | Mitigation                                                                |
+| ------------------------------ | ------------------------------------------------------------------------- |
 | Argv rewrite stealing commands | Allowlist subcommands + path heuristics only ([context.md](./context.md)) |
-| `meta.warnings` thinning | JSON mode stderr-only; never filter collected warnings |
-| CSV default break | Opt-in flag; default path untouched |
-| Explain miss false positives | Pure helper from report layer, not brittle stderr sniff alone |
-| Completion drift | Tests across three shells |
+| `meta.warnings` thinning       | JSON mode stderr-only; never filter collected warnings                    |
+| CSV default break              | Opt-in flag; default path untouched                                       |
+| Explain miss false positives   | Pure helper from report layer, not brittle stderr sniff alone             |
+| Completion drift               | Tests across three shells                                                 |
 
 ---
 
@@ -62,7 +62,12 @@ flowchart TD
 
 ```ts
 const KNOWN_COMMANDS = new Set([
-  "init", "doctor", "scan", "baseline", "compare", "completion",
+  "init",
+  "doctor",
+  "scan",
+  "baseline",
+  "compare",
+  "completion",
 ]);
 
 function looksLikePathToken(token: string): boolean {
@@ -80,7 +85,12 @@ function maybeRewritePathToScan(argv: string[]): string[] {
   if (argv.length <= 2) return argv;
   const first = argv[2]!;
   if (KNOWN_COMMANDS.has(first)) return argv;
-  if (first === "-h" || first === "--help" || first === "-V" || first === "--version") {
+  if (
+    first === "-h" ||
+    first === "--help" ||
+    first === "-V" ||
+    first === "--version"
+  ) {
     return argv;
   }
   if (first.startsWith("-")) return argv;
@@ -133,11 +143,11 @@ Validate: if `failOnExplainMiss && explainTarget === undefined` → `CliUsageErr
 export type WarningsMode = "summary" | "full" | "json";
 ```
 
-| Mode | Behavior |
-| ---- | -------- |
-| `summary` | Existing aggregate text flush |
-| `full` | Immediate text lines |
-| `json` | Buffer → `flushWarnings` writes `JSON.stringify({ warnings: ScanWarning[] }) + "\n"` |
+| Mode      | Behavior                                                                             |
+| --------- | ------------------------------------------------------------------------------------ |
+| `summary` | Existing aggregate text flush                                                        |
+| `full`    | Immediate text lines                                                                 |
+| `json`    | Buffer → `flushWarnings` writes `JSON.stringify({ warnings: ScanWarning[] }) + "\n"` |
 
 Empty buffer → `{"warnings":[]}`. Quiet skips info before buffer. Update `parseWarningsMode` error string.
 
@@ -185,26 +195,26 @@ interface WarningsJsonPayload {
 
 ## Error Handling
 
-| Case | Exit | Type |
-| ---- | ---- | ---- |
-| Bare CLI | 2 | `CliUsageError` (help text) |
-| Invalid `--warnings` | 2 | `CliUsageError` |
-| `--csv-single-file` without csv / missing output | 2 | `CliUsageError` |
-| `--fail-on-explain-miss` without `--explain` | 2 | `CliUsageError` |
-| Explain miss + fail-on | 1 | `CliExitError` |
-| Scan/git failures | 1 | existing |
+| Case                                             | Exit | Type                        |
+| ------------------------------------------------ | ---- | --------------------------- |
+| Bare CLI                                         | 2    | `CliUsageError` (help text) |
+| Invalid `--warnings`                             | 2    | `CliUsageError`             |
+| `--csv-single-file` without csv / missing output | 2    | `CliUsageError`             |
+| `--fail-on-explain-miss` without `--explain`     | 2    | `CliUsageError`             |
+| Explain miss + fail-on                           | 1    | `CliExitError`              |
+| Scan/git failures                                | 1    | existing                    |
 
 ---
 
 ## Testing Strategy
 
-| Layer | Focus |
-| ----- | ----- |
-| Unit `bin/` | Argv rewrite matrix; baseline flags; fail-on; csv single-file; parseWarningsMode |
-| Unit `src/diagnostics/` | json flush payload + empty array + quiet/info |
-| Unit `src/report/explain` | found vs miss helper |
-| Unit completions | bash/zsh/fish flag substrings |
-| Integration (optional) | Fixture scan with `--csv-single-file` writes one file |
+| Layer                     | Focus                                                                            |
+| ------------------------- | -------------------------------------------------------------------------------- |
+| Unit `bin/`               | Argv rewrite matrix; baseline flags; fail-on; csv single-file; parseWarningsMode |
+| Unit `src/diagnostics/`   | json flush payload + empty array + quiet/info                                    |
+| Unit `src/report/explain` | found vs miss helper                                                             |
+| Unit completions          | bash/zsh/fish flag substrings                                                    |
+| Integration (optional)    | Fixture scan with `--csv-single-file` writes one file                            |
 
 Gate: `pnpm build && pnpm test`
 
