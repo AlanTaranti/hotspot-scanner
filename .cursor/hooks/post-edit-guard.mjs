@@ -12,10 +12,14 @@ import {
 import {
   ARCHITECTURE_REL_PATH,
   ARCHITECTURE_SOT_CONTEXT,
+  CONCERNS_REL_PATH,
+  CONCERNS_SOT_CONTEXT,
   isArchitectureDocPath,
+  isConcernsDocPath,
   LINE_WARN,
   lintArchitectureDoc,
-} from "./lib/architecture-doc.mjs";
+  lintConcernsDoc,
+} from "./lib/living-sot-doc.mjs";
 import {
   getWorkspaceRoot,
   loadState,
@@ -70,6 +74,21 @@ if (isArchitectureDocPath(relPath) && workspaceRoot) {
     if (overSize) {
       messages.push(
         `[${ARCHITECTURE_REL_PATH}] Soft size warning: ${lineCount} lines (warn at ${LINE_WARN}). Slim UX/history; keep modules/pipelines/contracts only.`,
+      );
+    }
+  } catch {
+    // File missing mid-edit — skip
+  }
+}
+
+if (isConcernsDocPath(relPath) && workspaceRoot) {
+  const abs = path.join(workspaceRoot, CONCERNS_REL_PATH);
+  try {
+    const text = fs.readFileSync(abs, "utf8");
+    const { bannedMatches } = lintConcernsDoc(text);
+    if (bannedMatches.length > 0) {
+      messages.push(
+        `[${CONCERNS_REL_PATH}] Forbidden tags still present: ${bannedMatches.join(", ")}. ${CONCERNS_SOT_CONTEXT}`,
       );
     }
   } catch {

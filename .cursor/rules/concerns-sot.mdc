@@ -1,0 +1,41 @@
+---
+description: Keep CONCERNS.md as present-tense fragile-risk SoT — no milestone changelog
+globs: .specs/codebase/CONCERNS.md
+alwaysApply: false
+---
+
+# Concerns Fragile-Risk SoT
+
+[`.specs/codebase/CONCERNS.md`](../../.specs/codebase/CONCERNS.md) is the **fragile-risk SoT**: current risks, mitigations, and test expectations for scanner hotspots.
+
+It is **not** a changelog, milestone tracker, or feature history log.
+
+## Ownership matrix
+
+| Change type | Destination |
+| ----------- | ----------- |
+| Fragile risks / RT / mitigations / unmitigated backlog | **CONCERNS.md** |
+| Modules, pipeline, contracts, constraints | **ARCHITECTURE.md** |
+| Milestone status, decisions, feature history | **ROADMAP.md** / **STATE.md** / `.specs/features/` |
+| Warning code catalog | **docs/warning-codes.md** |
+
+## Forbidden in CONCERNS.md
+
+- Milestone tags: `\bM\d+\b` (e.g. `M71`, `M77`)
+- Requirement IDs: `HOTSPOT-*`
+- Changelog voice: “Removed in M…”, “superseded M…”, “shipped in M…”, Execute ownership by milestone number
+
+## Allowed
+
+- `RT-*`
+- Present-tense risk → mitigation → test expectation
+- Anti-regression constraints (“do not reintroduce McCabe without a feature spec”)
+- Links to ARCHITECTURE, README, recipes, `docs/warning-codes.md`, fixtures, module paths
+
+## Sync rule
+
+When living docs change after Execute:
+
+1. Update CONCERNS only for **live** risks or mitigations — do not append provenance.
+2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → wrong file (use ROADMAP/STATE/feature specs).
+3. Feature `design.md` / `tasks.md` may keep M##; extract only lasting risks into CONCERNS.

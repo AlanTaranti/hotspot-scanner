@@ -9,8 +9,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   ARCHITECTURE_REL_PATH,
+  CONCERNS_REL_PATH,
   lintArchitectureDoc,
-} from "./lib/architecture-doc.mjs";
+  lintConcernsDoc,
+} from "./lib/living-sot-doc.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const hooksDir = path.join(root, ".cursor/hooks");
@@ -444,6 +446,63 @@ const tests = [
       assertIncludes(stdout, '"permission":"ask"', "architecture ask");
       assertIncludes(stdout, "M78", "architecture ask mentions M78");
       cleanupState("smoke-arch");
+    },
+  },
+  {
+    name: "concerns lint flags M## and HOTSPOT-*",
+    run() {
+      const dirty = lintConcernsDoc(
+        "# CONCERNS\n\nSuperseded in M71. See HOTSPOT-1042.\n",
+      );
+      if (!dirty.bannedMatches.includes("M71")) {
+        throw new Error(
+          `expected M71 in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+        );
+      }
+      if (!dirty.bannedMatches.some((m) => /^HOTSPOT-1042$/i.test(m))) {
+        throw new Error(
+          `expected HOTSPOT-1042 in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+        );
+      }
+      const clean = lintConcernsDoc(
+        "# CONCERNS\n\nFragile risks. RT-001. RT-005.\n",
+      );
+      if (clean.bannedMatches.length !== 0) {
+        throw new Error(
+          `expected clean sample, got ${JSON.stringify(clean.bannedMatches)}`,
+        );
+      }
+    },
+  },
+  {
+    name: "live CONCERNS.md has no banned milestone tags",
+    run() {
+      const text = fs.readFileSync(path.join(root, CONCERNS_REL_PATH), "utf8");
+      const { bannedMatches } = lintConcernsDoc(text);
+      if (bannedMatches.length > 0) {
+        throw new Error(
+          `CONCERNS.md contains forbidden tags: ${bannedMatches.join(", ")}`,
+        );
+      }
+    },
+  },
+  {
+    name: "pre-edit ask on CONCERNS Write with M78",
+    run() {
+      cleanupState("smoke-concerns");
+      const { stdout } = runHook("pre-edit-guard.mjs", {
+        hook_event_name: "preToolUse",
+        tool_name: "Write",
+        tool_input: {
+          path: path.join(root, ".specs/codebase/CONCERNS.md"),
+          contents: "## Hotspot assess (M78)\n",
+        },
+        conversation_id: "smoke-concerns",
+        workspace_roots: [root],
+      });
+      assertIncludes(stdout, '"permission":"ask"', "concerns ask");
+      assertIncludes(stdout, "M78", "concerns ask mentions M78");
+      cleanupState("smoke-concerns");
     },
   },
 ];

@@ -1,0 +1,89 @@
+/**
+ * Lint helpers for living SoT docs under .specs/codebase/
+ * (ARCHITECTURE Design SoT + CONCERNS fragile-risk SoT).
+ * @see .cursor/rules/architecture-sot.mdc
+ * @see .cursor/rules/concerns-sot.mdc
+ */
+
+export const ARCHITECTURE_REL_PATH = ".specs/codebase/ARCHITECTURE.md";
+export const CONCERNS_REL_PATH = ".specs/codebase/CONCERNS.md";
+
+/** Soft size warning for ARCHITECTURE (~context-limits warning band). Smoke does not fail on size. */
+export const LINE_WARN = 450;
+
+const MILESTONE_RE = /\bM\d+\b/g;
+const HOTSPOT_RE = /HOTSPOT-\d+/gi;
+
+/**
+ * @param {string} text
+ * @returns {{ bannedMatches: string[] }}
+ */
+export function lintBannedTags(text) {
+  const source = typeof text === "string" ? text : "";
+  const banned = new Set();
+
+  for (const re of [MILESTONE_RE, HOTSPOT_RE]) {
+    re.lastIndex = 0;
+    let match;
+    while ((match = re.exec(source)) !== null) {
+      banned.add(match[0]);
+    }
+  }
+
+  return { bannedMatches: [...banned].sort() };
+}
+
+/**
+ * @param {string} text
+ * @returns {{ bannedMatches: string[], lineCount: number, overSize: boolean }}
+ */
+export function lintArchitectureDoc(text) {
+  const source = typeof text === "string" ? text : "";
+  const { bannedMatches } = lintBannedTags(source);
+  const lineCount = source.length === 0 ? 0 : source.split(/\r?\n/).length;
+  return {
+    bannedMatches,
+    lineCount,
+    overSize: lineCount > LINE_WARN,
+  };
+}
+
+/**
+ * @param {string} text
+ * @returns {{ bannedMatches: string[] }}
+ */
+export function lintConcernsDoc(text) {
+  return lintBannedTags(text);
+}
+
+/**
+ * @param {string | null | undefined} relPath
+ * @param {string} fileName
+ * @param {string} relCanonical
+ * @returns {boolean}
+ */
+function isCodebaseDocPath(relPath, fileName, relCanonical) {
+  if (!relPath || typeof relPath !== "string") return false;
+  const n = relPath.replace(/\\/g, "/");
+  return n === relCanonical || n.endsWith(`/${fileName}`) || n === fileName;
+}
+
+/**
+ * @param {string | null | undefined} relPath
+ * @returns {boolean}
+ */
+export function isArchitectureDocPath(relPath) {
+  return isCodebaseDocPath(relPath, "ARCHITECTURE.md", ARCHITECTURE_REL_PATH);
+}
+
+/**
+ * @param {string | null | undefined} relPath
+ * @returns {boolean}
+ */
+export function isConcernsDocPath(relPath) {
+  return isCodebaseDocPath(relPath, "CONCERNS.md", CONCERNS_REL_PATH);
+}
+
+export const ARCHITECTURE_SOT_CONTEXT = `ARCHITECTURE.md is the Design SoT (.cursor/rules/architecture-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/sister-milestone voice. Allowed: ADR-*, RT-*, present-tense modules/pipelines/contracts. Milestone history → ROADMAP/STATE/features.`;
+
+export const CONCERNS_SOT_CONTEXT = `CONCERNS.md is the fragile-risk SoT (.cursor/rules/concerns-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/superseded voice. Allowed: RT-*, present-tense risk→mitigation→test expectations. Milestone history → ROADMAP/STATE/features.`;
