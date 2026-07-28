@@ -142,6 +142,8 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-27 | **M73 lock — top-only rollups** | Supersedes M68 teaser half and M62 dual-surface brief stderr timing for default human UX. Reject bottom-only and dropping detail flush. Historical M68/M62 Done specs stay historical. |
 | 2026-07-27 | **M74 doctor-color-ux Specs Planned (Medium)** | Color doctor text status prefixes only (`pass`/`warn`/`fail` → green/yellow/red); reuse M41 gates (TTY, `--no-color`, `NO_COLOR`); no FORCE_COLOR; JSON plain; no new color deps. IDs HOTSPOT-1520–1539. Specs: `.specs/features/doctor-color-ux/` (`Status: Planned`). M73 already taken by `top-only-rollups`. |
 | 2026-07-27 | **M74 lock — doctor prefix color only** | Do not color message bodies/paths/numbers; do not hoist `--no-color` to program-global; doctor subcommand flag only; keep `status: message` shape (M51). |
+| 2026-07-27 | **M75 growth-pattern-trend-bridge Specs Planned (Large)** | Always-on Tornhill growth Pattern on `trend` (`meta.growthPattern` + table line); complexity-trend JSON `2.0`→`3.0`; explain hit stderr `next: hotspot-scanner trend <path>`; recipes glossary. No `--classify` flag (user lock 2A). IDs HOTSPOT-1540–1599. Specs: `.specs/features/growth-pattern-trend-bridge/` (`Status: Planned`). Planning chat said “M73” — **M75** because M73/M74 already assigned. |
+| 2026-07-27 | **M75 lock — always-on classify + explain bridge** | Single milestone (1A). Supersedes M72 deferred `--classify` YAGNI and deferred explain→trend hint. Heuristics: MIN_POINTS=5, STABLE_REL_RANGE=0.08, REFACTOR_DROP=0.18, DETERIORATE_RISE=0.10; CSV unchanged; no fail-on. |
 
 ## Architecture decisions (ADRs)
 
@@ -178,7 +180,7 @@ _None._
 
 ## Active
 
-**M73–M74 Specs Planned** — `top-only-rollups` (HOTSPOT-1500–1519); `doctor-color-ux` (HOTSPOT-1520–1539). Artifacts under `.specs/features/top-only-rollups/` and `.specs/features/doctor-color-ux/` (`Status: Planned`). Promote Status → Execute via `orchestrator-implementer` in a new session (one feature per Execute session preferred). M7–M72 Done. Deferred horizon: npm publish; CI/SARIF; historical AST; item C (scan body full warnings); fail-on-warning.
+**M73–M75 Specs Planned** — `top-only-rollups` (HOTSPOT-1500–1519); `doctor-color-ux` (HOTSPOT-1520–1539); `growth-pattern-trend-bridge` (HOTSPOT-1540–1599). Artifacts under `.specs/features/top-only-rollups/`, `.specs/features/doctor-color-ux/`, and `.specs/features/growth-pattern-trend-bridge/` (`Status: Planned`). Promote Status → Execute via `orchestrator-implementer` in a new session (one feature per Execute session preferred). M7–M72 Done. Deferred horizon: npm publish; CI/SARIF; historical AST; item C (scan body full warnings); fail-on-warning.
 
 ## Deferred
 
