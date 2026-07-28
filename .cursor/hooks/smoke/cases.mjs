@@ -201,6 +201,49 @@ export const manualCases = [
     },
   },
   {
+    name: "gate allow when deleted code path remains in touchedPaths",
+    run() {
+      cleanupState("smoke-deleted");
+      const ghost = "scripts/__smoke_deleted_gate__.mjs";
+      runHook("track-edit.mjs", {
+        hook_event_name: "afterFileEdit",
+        file_path: ghost,
+        conversation_id: "smoke-deleted",
+        workspace_roots: [root],
+      });
+      const real = path.join(root, "scripts/invalidate-stale-tsbuildinfo.mjs");
+      runHook("track-edit.mjs", {
+        hook_event_name: "afterFileEdit",
+        file_path: real,
+        conversation_id: "smoke-deleted",
+        workspace_roots: [root],
+      });
+      const afterEdit = Date.now();
+      while (Date.now() <= afterEdit) {
+        /* spin ~1ms */
+      }
+      runHook("record-gate-pass.mjs", {
+        hook_event_name: "afterShellExecution",
+        command: "pnpm build && pnpm test",
+        exit_code: 0,
+        conversation_id: "smoke-deleted",
+        workspace_roots: [root],
+      });
+      const { stdout } = runHook("gate-before-commit.mjs", {
+        hook_event_name: "beforeShellExecution",
+        command: "git commit -m x",
+        conversation_id: "smoke-deleted",
+        workspace_roots: [root],
+      });
+      assertIncludes(
+        stdout,
+        '"permission":"allow"',
+        "gate allow with deleted touched path",
+      );
+      cleanupState("smoke-deleted");
+    },
+  },
+  {
     name: "failed pnpm test clears testPassedAt",
     run() {
       cleanupState("smoke-test-fail");

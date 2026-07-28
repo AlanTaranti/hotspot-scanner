@@ -168,7 +168,8 @@ function gateTimestampsCurrent(workspaceRoot, state) {
     try {
       mtimeMs = fs.statSync(abs).mtimeMs;
     } catch {
-      return false;
+      // Deleted/moved paths stay in touchedPaths; they must not poison gate freshness.
+      continue;
     }
 
     let covered = false;

@@ -45,7 +45,8 @@
     "url": "git+https://github.com/taranti/hotspot-scanner.git"
   },
   "scripts": {
-    "build": "tsc && tsc -p tsconfig.bin.json",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "build": "node scripts/invalidate-stale-tsbuildinfo.mjs && tsc -b tsconfig.bin.json",
     "test": "vitest run --coverage",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.bin.json",
     "lint": "eslint .",

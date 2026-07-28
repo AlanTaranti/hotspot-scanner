@@ -52,6 +52,7 @@ Glob-scoped `*-sot.mdc` rules are the full editorial guidance. Hooks enforce a *
 - Edit tracking runs on `postToolUse` (Write/StrReplace/Delete/EditNotebook) and `afterFileEdit` (fallback).
 - Gate accepts `pnpm build && pnpm test` in one command **or** separate `pnpm build` and `pnpm test` (both exit 0).
 - Paths from Cursor are often absolute; hooks strip `workspace_roots[0]` before classifying code/fragile paths.
+- Deleted files that remain in `touchedPaths` are skipped when checking gate freshness (missing `stat` must not keep the gate stale forever).
 
 ## Smoke tests
 

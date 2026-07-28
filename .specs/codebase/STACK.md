@@ -43,8 +43,8 @@ Git log invocation uses `child_process.spawn` in `src/git/` (no `simple-git`).
 
 ## Build
 
-- `tsc` compiles `src/**` → `dist/`
-- `bin/hotspot-scanner.ts` compiled via `tsc -p tsconfig.bin.json` → `dist/bin/`
+- `pnpm build` → invalidate stale `tsconfig.tsbuildinfo` if `dist/` missing, then `tsc -b tsconfig.bin.json` (lib `src/**` → `dist/`, then `bin/` → `dist/bin/` via project references)
+- `pnpm clean` → removes `dist/` and `tsconfig.tsbuildinfo` (deleting only `dist/` leaves a stale incremental cache and breaks the next build with TS6305)
 - `pnpm typecheck` mirrors dual-tsconfig layout with `--noEmit`
 
 ## Not in stack

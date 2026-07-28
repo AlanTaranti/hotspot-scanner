@@ -20,7 +20,8 @@ SoT: [`.specs/codebase/CONVENTIONS.md`](../../.specs/codebase/CONVENTIONS.md) §
 - **Forbidden:** adding `bin/` to `tsconfig.json` `include` without reconciling `tsconfig.bin.json` — causes duplicate or conflicting output.
 - **Runtime imports from `src/`:** use `#` aliases only (`#scan`, `#trend`, `#types`, …) — see `package.json` `imports` and `tsconfig.bin.json` `paths`. Do **not** use `../src/...` value imports: from `dist/bin/` they resolve to non-existent `dist/src/...` at runtime.
 - **Internal bin modules:** use `.js` extension for sibling imports (`./scan-actions.js`).
-- `pnpm build` = `tsc && tsc -p tsconfig.bin.json`
+- `pnpm build` = stale-`tsbuildinfo` guard + `tsc -b tsconfig.bin.json` (see STACK.md § Build)
+- Prefer `pnpm clean` over `rm -rf dist` alone (must also drop `tsconfig.tsbuildinfo`)
 - After changes to `bin/`, `tsconfig.bin.json`, or `tsconfig.json`: run `pnpm build && pnpm test` (includes `tests/compiled-cli.smoke.test.ts` against `dist/bin/`).
 
 ## Hook coverage
