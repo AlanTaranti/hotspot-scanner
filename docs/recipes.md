@@ -257,6 +257,8 @@ pnpm exec hotspot-scanner assess tests/fixtures/repos/small-ts --min-hotspot-sco
 
 ## Tornhill growth curves (trend Pattern)
 
+Why NCLOC + indentation as proxies (and how they differ for `scan` vs `trend`): [methodology.md](methodology.md).
+
 Every successful `trend` run classifies the sampled series into one of four **growth patterns** (Adam Tornhill framing). Labels appear as `Pattern: <kind> — <summary>` in table output and in JSON `meta.growthPattern`.
 
 | Kind | Meaning | Typical signal |

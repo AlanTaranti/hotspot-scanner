@@ -24,6 +24,8 @@ Tech leads need to prioritize refactoring work but struggle to see which TypeScr
 - [Use this when…](#use-this-when)
 - [Recipes](docs/recipes.md)
 - [How it works](#how-it-works)
+  - [Why these metrics?](#why-these-metrics)
+- [Methodology](docs/methodology.md)
 - [Essential flags](#essential-flags)
 - [Requirements](#requirements)
 - [Installation](#installation)
@@ -141,8 +143,20 @@ git log (streaming) → NCLOC size analysis → scoring (hotspot) → report (ta
 3. **Scoring** — harmonic mean of normalized NCLOC and churn
 4. **Reporter** — table, JSON, markdown, or CSV bundle
 
-`trend` is a separate per-file history command; `assess` orchestrates scan then sequential trends. See [Advanced](#advanced) for concurrency, rename confidence, assess details, and the full flag reference.
+`trend` is a separate per-file history command; `assess` orchestrates scan then sequential trends.
 
+### Why these metrics?
+
+Colleagues often ask whether **NCLOC** and **indentation** are “real” complexity. They are **proxies for prioritization**, not substitutes for AST or McCabe:
+
+- A **hotspot** is the intersection of structural weight and **change frequency** — complexity alone (especially in rarely touched files) is low-interest debt.
+- **`scan` ranks with NCLOC × Git churn** — NCLOC is a simple, stakeholder-friendly size signal (not cyclomatic complexity); churn is where the team actually edits.
+- **Indentation is for `trend` / `assess` only** — whitespace nesting over Git history (Tornhill-style), to see whether a hotspot is deteriorating, not to score the main ranking.
+- Focus the small slice of files that absorb most commits (**high-interest** debt); leave the long tail alone until it moves.
+
+**Full write-up:** [docs/methodology.md](docs/methodology.md). Growth-pattern labels: [Tornhill growth curves](docs/recipes.md#tornhill-growth-curves-trend-pattern).
+
+See [Advanced](#advanced) for concurrency, rename confidence, assess details, and the full flag reference.
 ## Essential flags
 
 | Flag | Default | Description |
@@ -639,6 +653,7 @@ hotspot-scanner assess . --format markdown --output assess.md --min-hotspot-scor
 - **Commit-count churn** — churn is measured as raw commit count per file, not relative lines-of-code changed
 - **Node.js 22+** — older Node versions are not supported (`engines.node >= 22`)
 - **Git required** — the scanner shells out to `git log` at scan time; non-git trees use filesystem walk only for discovery
+- **Metric rationale** — NCLOC and indentation are deliberate proxies; see [docs/methodology.md](docs/methodology.md)
 
 ## Contributing
 
