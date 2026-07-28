@@ -41,14 +41,56 @@ Follow [execute-orchestration-playbook.md](../skills/vitals-spec-driven/referenc
 
 **Phase summary:**
 
-| Phase | Action                                                                            |
-| ----- | --------------------------------------------------------------------------------- |
-| A     | Intake, validate Status/format, parse task graph                                  |
-| B     | Execute waves — delegate to `implementer`; `deferred_project_gate` → Phase E only |
-| C     | `code-reviewer` (readonly) — **mandatory**; Changes needed blocks Phase D         |
-| D     | `verifier-implementation` (readonly) — acceptance criteria + Done when            |
-| E     | `verifier-quality-gates` — `pnpm build && pnpm test`                              |
-| F     | Sync `tasks.md`, ROADMAP; report                                                  |
+| Phase | Action                                                                                              |
+| ----- | --------------------------------------------------------------------------------------------------- |
+| A     | Intake, validate Status/format, parse task graph, compute wave schedule                             |
+| B     | Execute **parallel waves** — delegate to `implementer` / `fixture-builder`; gate-final → Phase E only |
+| C     | `code-reviewer` (readonly) — **mandatory**; parallel per feature in batch; Changes needed blocks D  |
+| D     | `verifier-implementation` (readonly) — acceptance criteria + Done when; parallel per feature in batch |
+| E     | `verifier-quality-gates` — single project gate `pnpm build && pnpm test`                            |
+| F     | Sync `tasks.md`, ROADMAP; report                                                                    |
+
+## Wave scheduling
+
+**Principle:** Always prefer parallel waves when safe. You do not implement code — you **delegate** and **await** each wave before starting the next.
+
+Canonical algorithm: [execute-orchestration-playbook.md](../skills/vitals-spec-driven/references/execute-orchestration-playbook.md) § Phase B — Execute by waves. Conflict rules: [implementer-routing.md](../skills/vitals-spec-driven/references/implementer-routing.md).
+
+**Operational summary:**
+
+1. **Build graph** — per feature: `Depends on`, Execution Plan, `[P]`, `Where` paths; in batch: merge graphs respecting explicit cross-feature deps (ROADMAP, `design.md`, or `tasks.md` mentions).
+2. **Compute current wave** — tasks with all dependencies satisfied and not `deferred_project_gate`.
+3. **Filter conflicts** — two tasks in the same wave only when paths are disjoint (module map + `Path Conflict Check` in `tasks.md` when present), tests are parallel-safe per TESTING.md, and neither touches shared wiring (`src/scan.ts`, `bin/hotspot-scanner.ts`).
+4. **Delegate wave** — one `Task` call per task, **all in a single message** (true parallelism). Await structured returns before the next wave.
+5. **Update state** — mark `tasks.md` checkboxes after each wave (orchestrator-owned).
+
+**Subagent routing (prefer the right subagent):**
+
+| Work                           | Subagent                  | When                                                                                  |
+| ------------------------------ | ------------------------- | ------------------------------------------------------------------------------------- |
+| Implement task Tn              | `implementer`               | Default Phase B (`orchestrated: true`)                                                |
+| Create/update fixture          | `fixture-builder`           | Task `Where` is `tests/fixtures/` only, or implementer reports Blocked (missing fixture) |
+| Code review                    | `code-reviewer`             | Phase C (readonly)                                                                    |
+| Acceptance vs spec             | `verifier-implementation`   | Phase D (readonly)                                                                    |
+| Gate `pnpm build && pnpm test` | `verifier-quality-gates`    | Phase E only                                                                          |
+
+**Batch multi-spec example:**
+
+```
+Feature A: T1 [P] src/git/     (no deps)
+Feature B: T1 [P] src/report/  (no deps)
+→ Wave 1: delegate A-T1 + B-T1 in parallel (2× implementer)
+
+Feature A: T2 → src/scan.ts
+Feature B: T2 → src/scan.ts
+→ Wave 2: A-T2 then B-T2 sequential (same wiring owner)
+```
+
+**Anti-patterns:**
+
+- Do not parallelize tasks in the same wave that edit the same file.
+- Do not advance to wave N+1 while a task in wave N is `Blocked`/`Partial` without reporting it in Open items.
+- Do not use `generalPurpose` for implementation when `implementer` or `fixture-builder` applies.
 
 ## Hard constraints
 
@@ -57,7 +99,7 @@ Follow [execute-orchestration-playbook.md](../skills/vitals-spec-driven/referenc
 - Do not mark Done with failing Phase E gate, Phase D NOT_READY, or Phase C Changes needed.
 - Maximum **1 remediation round** after Phase C, D, or E failure.
 - Do not conduct AskQuestion / user discussion — return open items in the report.
-- Respect parallelism only when `[P]` **and** tests are parallel-safe per TESTING.md.
+- **Default to wave parallelism** when path-disjoint and test-safe; `[P]` is a planner signal, not the only gate — infer safety via Path Conflict Check / module map when `[P]` is absent.
 
 ## Main agent handoff
 

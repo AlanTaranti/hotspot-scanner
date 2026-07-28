@@ -20,6 +20,16 @@ Canonical module ownership for `tasks.md` path assignment and implementer delega
 - `[P]` only when tasks touch **disjoint** path prefixes and tests are parallel-safe
 - Do not parallelize tasks that both modify `src/scan.ts` wiring
 
+## Cross-feature parallelism
+
+When the orchestrator runs **batch mode** (multiple features), apply the same path-disjoint rules across feature boundaries:
+
+1. **Primary source:** `Path Conflict Check` table in each feature's `tasks.md` (when present).
+2. **Fallback:** Compare `Where` paths against the module map above — tasks in different prefix rows are parallel-safe unless they share a specific file.
+3. **Always serialize** tasks that touch `src/scan.ts`, `bin/hotspot-scanner.ts`, or JSON schema files — even across features.
+4. **Fixtures:** `tests/fixtures/repos/<slug>` with different slugs are parallel-safe; same slug or shared fixture file is not.
+5. **Explicit cross-feature deps** (ROADMAP, `design.md`, `Depends on` mentioning another feature) override parallelism — complete the upstream feature/task first.
+
 ## Mock boundaries
 
 - Mock **git** only at `GitMiner` boundary — not in scorers.

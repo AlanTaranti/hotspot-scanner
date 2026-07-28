@@ -32,27 +32,43 @@ For each feature in scope:
 3. Detect format:
    - **Granular** (T1, T2, Execution Plan) → proceed
    - **Legacy checkbox** → report `REFRESH_REQUIRED` via `planner-feature`; do not execute
-4. Parse task graph: `Depends on`, `[P]` flags, Execution Plan.
+4. Parse task graph: `Depends on`, `[P]` flags, Execution Plan, `Where` paths.
 5. Filter to requested task IDs (if subset provided).
 6. Build routing table (Phase B) for all tasks in scope.
+7. **Batch only:** merge per-feature graphs into a **unified task graph** and compute the **wave schedule** before delegating any task. Order by cross-feature dependencies (ROADMAP, `design.md`, explicit `tasks.md` mentions) — not alphabetically by slug.
 
 Set feature Status to `In Progress` in `tasks.md` when starting first task (if not already).
 
 ---
 
-## Phase B — Execute tasks
+## Phase B — Execute by waves
 
 **Routing:** [implementer-routing.md](implementer-routing.md).
 
-**Delegation:** `implementer` subagent (`subagent_type: implementer`) with `orchestrated: true` and minimum prompt below. Skill: [task-implementer/SKILL.md](../../task-implementer/SKILL.md). Contract: [orchestrated-implementer.md](orchestrated-implementer.md).
+**Delegation:** `implementer` subagent (`subagent_type: implementer`) with `orchestrated: true` and minimum prompt below. Use `fixture-builder` when the task is fixture-only or an implementer reports Blocked (missing fixture). Skill: [task-implementer/SKILL.md](../../task-implementer/SKILL.md). Contract: [orchestrated-implementer.md](orchestrated-implementer.md).
+
+**Wave algorithm:**
+
+```
+waves = computeWaves(taskGraph)          // deps satisfied per wave
+for wave in waves:
+  batch = filterParallelSafe(wave.tasks) // disjoint paths + test-safe
+  launch Task(implementer|fixture-builder) for each task in batch  // single message, N calls
+  await all
+  update tasks.md checkboxes
+  if any Blocked or Partial → stop or report under Open items
+```
 
 **Rules:**
 
-- One task per delegation (unless user explicitly batches trivial tasks).
+- **One task per subagent invocation**; multiple invocations in the same wave run **in parallel** (one `Task` call per task, all launched in a single message).
 - Gate-final tasks (`deferred_project_gate`: project-wide `pnpm build && pnpm test`) → **exclude from Phase B**; execute only in Phase E.
-- Respect `[P]` only when parallel-safe per TESTING.md.
+- **Default to wave parallelism** when path-disjoint and test-safe per TESTING.md; `[P]` is a planner signal — the orchestrator may infer safety via Path Conflict Check / module map when `[P]` is absent.
+- Do not parallelize tasks that edit the same file or both touch `src/scan.ts` / `bin/hotspot-scanner.ts` wiring.
 - On `Blocked` or `SPLIT_REQUIRED` → report under Open items; do not mark Complete.
-- Update `tasks.md` checkboxes as tasks complete.
+- Update `tasks.md` checkboxes after each wave completes.
+
+**Batch mode:** Independent features share the same wave pool. A task from feature A and a task from feature B may run in the same wave when their paths are disjoint and dependencies are satisfied — e.g. `doctor-color-ux` T1 (`src/report/`) + `growth-pattern-trend-bridge` T1 (`src/trend/`) in Wave 1.
 
 **Minimum prompt to implementer:**
 
@@ -72,6 +88,8 @@ Do NOT edit tasks.md or ROADMAP.md
 ## Phase C — Code review (mandatory)
 
 Delegate to `code-reviewer` (`readonly: true`) with consolidated file list from Phase B.
+
+**Batch mode:** When Phase B is complete for multiple independent features, delegate one `code-reviewer` per feature **in parallel** (single message, N calls). Await all before Phase D.
 
 **Minimum prompt:**
 
@@ -97,6 +115,8 @@ Delegate to `verifier-implementation` (`readonly: true`) with:
 - Tasks implemented (T1–Tn)
 - Consolidated file list from Phase B returns
 
+**Batch mode:** When Phase C passed for multiple features, delegate one `verifier-implementation` per feature **in parallel** (single message, N calls). Await all before Phase E.
+
 **Block Phase E if verdict = NOT_READY.**
 
 Optional remediation: **max 1 round** — re-delegate failed tasks, then re-run Phase D.
@@ -104,6 +124,8 @@ Optional remediation: **max 1 round** — re-delegate failed tasks, then re-run 
 ---
 
 ## Phase E — Quality gate
+
+**Single project gate** — run once for the whole batch, not per feature.
 
 1. Invoke `verifier-quality-gates` (or run directly):
 
