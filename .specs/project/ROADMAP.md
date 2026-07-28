@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M77 Done**. **M76** Specs Planned (trend-color-ux). Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
+Status: **M7–M77 Done**. **M76** Specs Planned (trend-color-ux). **M78** Specs Planned (assess-color-ux). Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
 
 **M12** intentionally absent (CI fail-on-score removed — see STATE).
 
@@ -19,6 +19,7 @@ Status: **M7–M77 Done**. **M76** Specs Planned (trend-color-ux). Deferred hori
 ### Open
 
 - **M76** trend-color-ux — Specs Planned
+- **M78** assess-color-ux — Specs Planned
 
 Deferred horizon in [STATE.md](STATE.md).
 
@@ -1126,7 +1127,26 @@ Dedicated `hotspot-scanner assess [path]`: `runScan` → filter `hotspotScore >=
 - [x] Living docs + recipes (formatter-cliff caveat)
 - [x] Final gate `pnpm build && pnpm test`
 
-**Out of scope:** `--fail-on-deteriorating` / SARIF / exit 1 for deteriorating; CSV; assess config keys; McCabe/AST; compare; `scan --trend-top`; assess color (do not block on M76); parallel trend pool.
+**Out of scope:** `--fail-on-deteriorating` / SARIF / exit 1 for deteriorating; CSV; assess config keys; McCabe/AST; compare; `scan --trend-top`; assess color (do not block on M76 — delivered by M78); parallel trend pool.
+
+---
+
+## Milestone 78 — Assess Color UX — Specs Planned
+
+→ [`.specs/features/assess-color-ux/spec.md`](../features/assess-color-ux/spec.md)  
+**Slug:** `assess-color-ux` | **Priority:** Medium | **Specs:** Planned  
+**IDs:** HOTSPOT-1680–1699 (1695–1699 reserved; active 1680–1693) | **Depth:** Medium  
+**Sisters:** hotspot-assess (M77), trend-color-ux (M76), doctor-color-ux (M74), output-interpretation-ux (M41)  
+**Artifacts:** [context.md](../features/assess-color-ux/context.md) · [spec.md](../features/assess-color-ux/spec.md) · [design.md](../features/assess-color-ux/design.md) · [tasks.md](../features/assess-color-ux/tasks.md) (`Status: Planned`)
+
+TTY-aware ANSI on `assess` **table**: bold title + `Deteriorating` section; color summary Pattern-count kinds and detail Pattern kinds (`paintGrowthPattern`); color detail scores (`paintScore`). Disable via assess `--no-color`, non-empty `NO_COLOR`, non-TTY, `--output`, or non-table formats. Reuse raw ANSI helpers (no new color dependency). JSON/markdown and assess schema unchanged. Prefer Execute after M76 for shared `paintGrowthPattern`.
+
+- [ ] `paintBold` (+ `paintGrowthPattern` if missing) + `renderAssessTable({ color })`
+- [ ] `resolveAssessColor` + assess `--no-color` + assess-actions wire + CLI tests
+- [ ] README / ARCHITECTURE notes
+- [ ] Final gate `pnpm build && pnpm test`
+
+**Out of scope:** Path/summary/meta coloring; stderr warning prefixes; `FORCE_COLOR`; JSON/markdown color; chalk; scan/doctor/trend behavior changes; hoisting `--no-color` global; assess schema/selection changes; `--fail-on-deteriorating` / SARIF.
 
 ---
 

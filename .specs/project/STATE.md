@@ -152,6 +152,9 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-27 | **M77 lock — dedicated assess (not scan --trend-top)** | Supersedes M75 YAGNI deferral of batch trend as scan flag; own CLI + schema; scan `3.0` / complexity-trend `3.0` untouched; no compare reopen. |
 | 2026-07-27 | **M77 lock — sequential trends + soft-continue** | Bound git history cost; per-file progress; per-candidate trend failures do not abort; exit 0 on partial errors; no `--fail-on-deteriorating` in MVP. |
 | 2026-07-27 | **M77 lock — `--min-hotspot-score` naming** | Long name required (not `--min-score`); help states threshold is hotspotScore; CLI-only (no assess config keys). |
+| 2026-07-27 | **M78 assess-color-ux Specs Planned (Medium)** | Assess table TTY emphasis: bold title + `Deteriorating` section; color summary/detail Pattern kinds (`paintGrowthPattern`) + detail scores (`paintScore`); reuse M41 gates (TTY, `--no-color`, `NO_COLOR`, `--output`); no FORCE_COLOR; JSON/markdown plain; no new color deps. IDs HOTSPOT-1680–1699. Specs: `.specs/features/assess-color-ux/` (`Status: Planned`). Prefer Execute after M76. |
+| 2026-07-27 | **M78 lock — bold structure + semantic color** | Bold title/section only; color kinds + scores; do not bold colored kind tokens; do not color paths/summaries/meta/stderr warnings. |
+| 2026-07-27 | **M78 lock — assess `--no-color` subcommand-only** | Do not hoist `--no-color` to program-global; assess flag independent of scan/doctor/trend. |
 
 ## Architecture decisions (ADRs)
 
@@ -188,7 +191,7 @@ _None._
 
 ## Active
 
-**M76 trend-color-ux Specs Planned** — Next open milestone. **M77** hotspot-assess Done (2026-07-27). M7–M77 Done. Deferred horizon: npm publish; CI/SARIF; historical AST; item C (scan body full warnings); fail-on-warning; `--fail-on-deteriorating` / SARIF for assess.
+**M76 trend-color-ux Specs Planned** + **M78 assess-color-ux Specs Planned**. Prefer Execute M76 then M78 (shared `paintGrowthPattern`). **M77** hotspot-assess Done (2026-07-27). M7–M77 Done. Deferred horizon: npm publish; CI/SARIF; historical AST; item C (scan body full warnings); fail-on-warning; `--fail-on-deteriorating` / SARIF for assess.
 
 ## Deferred
 
