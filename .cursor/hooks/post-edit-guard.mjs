@@ -22,12 +22,15 @@ import {
   STACK_SOT_CONTEXT,
   STRUCTURE_REL_PATH,
   STRUCTURE_SOT_CONTEXT,
+  TESTING_REL_PATH,
+  TESTING_SOT_CONTEXT,
   isArchitectureDocPath,
   isConcernsDocPath,
   isConventionsDocPath,
   isIntegrationsDocPath,
   isStackDocPath,
   isStructureDocPath,
+  isTestingDocPath,
   LINE_WARN,
   lintArchitectureDoc,
   lintConcernsDoc,
@@ -35,6 +38,7 @@ import {
   lintIntegrationsDoc,
   lintStackDoc,
   lintStructureDoc,
+  lintTestingDoc,
 } from "./lib/living-sot-doc.mjs";
 import {
   getWorkspaceRoot,
@@ -150,6 +154,21 @@ if (isStructureDocPath(relPath) && workspaceRoot) {
     if (bannedMatches.length > 0) {
       messages.push(
         `[${STRUCTURE_REL_PATH}] Forbidden tags still present: ${bannedMatches.join(", ")}. ${STRUCTURE_SOT_CONTEXT}`,
+      );
+    }
+  } catch {
+    // File missing mid-edit — skip
+  }
+}
+
+if (isTestingDocPath(relPath) && workspaceRoot) {
+  const abs = path.join(workspaceRoot, TESTING_REL_PATH);
+  try {
+    const text = fs.readFileSync(abs, "utf8");
+    const { bannedMatches } = lintTestingDoc(text);
+    if (bannedMatches.length > 0) {
+      messages.push(
+        `[${TESTING_REL_PATH}] Forbidden tags still present: ${bannedMatches.join(", ")}. ${TESTING_SOT_CONTEXT}`,
       );
     }
   } catch {

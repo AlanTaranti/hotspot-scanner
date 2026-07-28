@@ -14,12 +14,14 @@ import {
   INTEGRATIONS_REL_PATH,
   STACK_REL_PATH,
   STRUCTURE_REL_PATH,
+  TESTING_REL_PATH,
   lintArchitectureDoc,
   lintConcernsDoc,
   lintConventionsDoc,
   lintIntegrationsDoc,
   lintStackDoc,
   lintStructureDoc,
+  lintTestingDoc,
 } from "./lib/living-sot-doc.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -685,6 +687,63 @@ const tests = [
       assertIncludes(stdout, '"permission":"ask"', "structure ask");
       assertIncludes(stdout, "M78", "structure ask mentions M78");
       cleanupState("smoke-structure");
+    },
+  },
+  {
+    name: "testing lint flags M## and HOTSPOT-*",
+    run() {
+      const dirty = lintTestingDoc(
+        "# TESTING\n\n## NCLOC regressions (M57). See HOTSPOT-1042.\n",
+      );
+      if (!dirty.bannedMatches.includes("M57")) {
+        throw new Error(
+          `expected M57 in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+        );
+      }
+      if (!dirty.bannedMatches.some((m) => /^HOTSPOT-1042$/i.test(m))) {
+        throw new Error(
+          `expected HOTSPOT-1042 in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+        );
+      }
+      const clean = lintTestingDoc(
+        "# TESTING\n\nQuality gate and Vitest coverage thresholds.\n",
+      );
+      if (clean.bannedMatches.length !== 0) {
+        throw new Error(
+          `expected clean sample, got ${JSON.stringify(clean.bannedMatches)}`,
+        );
+      }
+    },
+  },
+  {
+    name: "live TESTING.md has no banned milestone tags",
+    run() {
+      const text = fs.readFileSync(path.join(root, TESTING_REL_PATH), "utf8");
+      const { bannedMatches } = lintTestingDoc(text);
+      if (bannedMatches.length > 0) {
+        throw new Error(
+          `TESTING.md contains forbidden tags: ${bannedMatches.join(", ")}`,
+        );
+      }
+    },
+  },
+  {
+    name: "pre-edit ask on TESTING Write with M57",
+    run() {
+      cleanupState("smoke-testing");
+      const { stdout } = runHook("pre-edit-guard.mjs", {
+        hook_event_name: "preToolUse",
+        tool_name: "Write",
+        tool_input: {
+          path: path.join(root, ".specs/codebase/TESTING.md"),
+          contents: "## NCLOC regressions (M57)\n",
+        },
+        conversation_id: "smoke-testing",
+        workspace_roots: [root],
+      });
+      assertIncludes(stdout, '"permission":"ask"', "testing ask");
+      assertIncludes(stdout, "M57", "testing ask mentions M57");
+      cleanupState("smoke-testing");
     },
   },
   {

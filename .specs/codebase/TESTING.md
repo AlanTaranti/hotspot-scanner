@@ -1,5 +1,7 @@
 # TESTING — @vitals/hotspot-scanner
 
+Testing infrastructure and patterns SoT. Product contracts: [ARCHITECTURE.md](ARCHITECTURE.md). Fragile risks: [CONCERNS.md](CONCERNS.md). Exit codes: [AGENTS.md](../../AGENTS.md).
+
 ## Quality gate
 
 ```bash
@@ -8,15 +10,26 @@ pnpm build && pnpm test
 
 Required before marking any task Complete. Agents: use `verifier-quality-gates` or run inline. Run `pnpm lint` when changing `bin/` or ESLint config.
 
+`pnpm hooks:smoke` validates Cursor hooks under `.cursor/hooks/` — **not** part of the product gate.
+
 ## Test runner
 
-**Vitest** (documented in [STATE.md](../project/STATE.md)).
-
-Config: `vitest.config.ts` at repo root.
+**Vitest.** Config: `vitest.config.ts` at repo root.
 
 - `pnpm test` runs `vitest run --coverage` (coverage is not optional)
-- Vitest resolves `#scan`, `#report`, `#diagnostics`, `#scoring`, and `#types` aliases to **source** modules under `src/` during tests; other `#` aliases resolve via `package.json` `imports` to **dist/** (run `pnpm build` first)
+- Vitest resolves these `#` aliases to **source** modules under `src/` during tests: `#scan`, `#report`, `#diagnostics`, `#scoring`, `#types`, `#config`, `#doctor`, `#git`, `#trend`, `#assess`
 - **`tests/compiled-cli.smoke.test.ts`** exercises the **compiled** CLI at `dist/bin/hotspot-scanner.js` (`trend`/`scan`/`doctor --help`); run `pnpm build` before `pnpm test` (gate order: build then test)
+
+## Test organization
+
+| Kind | Location pattern | Notes |
+| ---- | ---------------- | ----- |
+| Unit / module | `src/**/*.test.ts`, `bin/**/*.test.ts` | Prefer co-located next to the module under test |
+| Integration | `src/**/*.integration.test.ts`, `bin/**/*.integration.test.ts`, `tests/*.integration.test.ts` | Fixture repos under `tests/fixtures/repos/` |
+| Contract | `tests/contract/**/*.test.ts` | JSON Schema validation |
+| Compiled smoke | `tests/compiled-cli.smoke.test.ts` | Requires `dist/` from `pnpm build` |
+
+`vitest.config.ts` `include`: the four patterns above. `exclude`: `tests/fixtures/**`, `node_modules/**`, `dist/**`.
 
 ## Coverage
 
@@ -71,11 +84,27 @@ coverage: {
 | Git Miner      | Rename, merge, delete cases                          | Vitest + `tests/fixtures/git-log/`                                                           |
 | Size / NCLOC   | Known NCLOC counts (comments, strings, blank lines)  | Vitest + `src/complexity/ncloc.test.ts` + fixture sources                                    |
 | CLI            | Flag defaults, `--concurrency`, `completion <shell>`, `doctor --format json`, invalid args | Vitest; mock `process.exit`                                                                  |
-| Integration    | Full scan / trend on fixture repos                   | Vitest + `tests/fixtures/repos/small-ts/` (primary E2E); `with-renames/` (M26); `merge-heavy/` (M55); `trend-indent/` (M72 trend) |
+| Integration    | Full scan / trend on fixture repos                   | Vitest + `tests/fixtures/repos/small-ts/` (primary E2E); `with-renames/` (renames); `merge-heavy/` (merges); `trend-indent/` (trend) |
 | Contract       | JSON schemas: scan `3.0`, complexity-trend `3.0`, hotspot-assess `1.0`, config | `tests/contract/json-schema.test.ts`                                                         |
 | Performance    | Large repo timing; overlap vs sequential A/B         | Manual `pnpm bench` (`scripts/bench-scan.mjs`) — **not** part of `pnpm test` / CI            |
 
-## Git Miner fixtures (`tests/fixtures/git-log/`)
+## Test coverage matrix
+
+| Code Layer | Required Test Type | Location Pattern | Run Command |
+| ---------- | ------------------ | ---------------- | ----------- |
+| `src/git/` | Unit + git-log fixtures | `src/git/*.test.ts` | `pnpm test` |
+| `src/complexity/` | Unit + NCLOC fixtures | `src/complexity/*.test.ts` | `pnpm test` |
+| `src/scoring/` | Unit | `src/scoring/*.test.ts` | `pnpm test` |
+| `src/scan.ts` / pipeline | Unit + integration | `src/scan.test.ts`, `src/scan*.integration.test.ts` | `pnpm test` |
+| `src/report/` | Unit | `src/report/*.test.ts` | `pnpm test` |
+| `src/scan-result/` | Unit (parse) | `src/scan-result/*.test.ts` | `pnpm test` |
+| `src/trend/`, `src/assess/` | Unit + integration | `src/{trend,assess}/*.test.ts`, `tests/trend.integration.test.ts` | `pnpm test` |
+| `bin/` | Unit + integration + compiled smoke | `bin/*.test.ts`, `tests/compiled-cli.smoke.test.ts` | `pnpm build && pnpm test` |
+| `schemas/` | Contract | `tests/contract/**/*.test.ts` | `pnpm test` |
+
+## Fixtures
+
+### Git Miner (`tests/fixtures/git-log/`)
 
 Hand-crafted `git log --numstat --name-only` line streams injected at the miner spawn boundary.
 
@@ -83,19 +112,38 @@ Hand-crafted `git log --numstat --name-only` line streams injected at the miner 
 | ------- | ------- |
 | `basic.txt` | Baseline numstat parse |
 | `rename-multi.txt` | Linked rename chain |
-| `rename-unlinked.txt` | M50 heuristic `link()` |
+| `rename-unlinked.txt` | Heuristic `link()` for unlinked delete+add |
+| `rename-unlinked-stem.txt` | Stem-based unlinked rename heuristic |
 | `rename-since-truncation.txt` | `--since` truncation warning |
 | `merge-delete.txt` | Merge commits and deletes |
 | `binary.txt` | Binary file numstat edge cases |
 | `large-synthetic.txt` | Streaming / memory regression |
 
-**Repo fixtures:** `small-ts/`, `with-renames/`, `merge-heavy/`, `trend-indent/` under `tests/fixtures/repos/`.
+### Repo fixtures (`tests/fixtures/repos/`)
+
+| Fixture | Purpose |
+| ------- | ------- |
+| `small-ts/` | Primary E2E scan |
+| `with-renames/` | Rename identity across history |
+| `merge-heavy/` | Merge-commit churn |
+| `trend-indent/` | Complexity trend on a single file |
 
 **Bootstrap:** each fixture has `bootstrap-repo.mjs` + `ensureFixtureRepo()`. Vitest `globalSetup` (`tests/fixtures/repos/global-setup.ts`) runs bootstrap for **`small-ts`** and **`merge-heavy` only**. `with-renames/` and `trend-indent/` are bootstrapped by their owning tests or manually (`node bootstrap-repo.mjs` in the fixture dir) before CLI validation.
 
-Integration wiring: scan fixtures in `src/scan.integration.test.ts`; trend in `tests/trend.integration.test.ts`.
+**Integration wiring:** `src/scan.integration.test.ts`, `src/scan.path-scoping.integration.test.ts`, `tests/trend.integration.test.ts`, `bin/hotspot-scanner.integration.test.ts`.
 
-## NCLOC regressions (M57)
+### Other fixture trees
+
+| Path | Use |
+| ---- | --- |
+| `tests/fixtures/complexity/` | NCLOC / size analyzer source snippets |
+| `tests/fixtures/report/` | Sample scan / trend / assess JSON for renderers and contract |
+| `tests/fixtures/scoring/` | Ranking / score golden inputs |
+| `tests/fixtures/workers/` | Worker-pool edge workers (error, exit, slow, bad message) |
+
+## Domain regression surfaces
+
+### NCLOC
 
 | Assertion | Test surface |
 | --------- | ------------ |
@@ -105,7 +153,7 @@ Integration wiring: scan fixtures in `src/scan.integration.test.ts`; trend in `t
 | Unreadable file → `READ_FAILED` + omit hotspot | `analyze-batch.test.ts`, `index.test.ts` |
 | Worker vs inline equivalence | `pool.test.ts`, `index.test.ts` |
 
-## Pipeline overlap (M34) and sequential opt-out (M49)
+### Pipeline overlap / sequential
 
 Structural overlap proven in `src/scan.test.ts` with injected delayed `mine` / `analyze` mocks. Integration equivalence on `small-ts/` (default overlap vs `sequential: true`) in `src/scan.integration.test.ts`.
 
@@ -116,6 +164,18 @@ Structural overlap proven in `src/scan.test.ts` with injected delayed `mine` / `
 - Mock **git** at `GitMiner` adapter boundary — not in scorers or reporter
 - Mock **size analyzer** at `ComplexityAnalyzer` / `createWorkerPool` boundary
 - Pipeline integration tests use real fixtures where practical
+
+## Contract test surfaces
+
+Schema field semantics: [ARCHITECTURE.md](ARCHITECTURE.md). Tests below keep contracts green:
+
+| Surface | Where |
+| ------- | ----- |
+| Scan / config / trend / assess JSON Schema | `tests/contract/json-schema.test.ts` |
+| `ScanWarning` `$defs` | contract tests |
+| `parseScanResult` accept `3.0` / reject legacy shapes | `src/scan-result/parse-scan-result.test.ts` |
+| Fresh scan JSON `$schema` / `meta.scannerVersion` | `src/report/json.test.ts` |
+| Scan interpretation (`triage`, `--explain`, `--fail-on-explain-miss`) | `src/report/triage.test.ts`, `src/report/explain.test.ts`, `bin/` tests |
 
 ## CLI validation
 
@@ -128,15 +188,27 @@ pnpm exec hotspot-scanner assess tests/fixtures/repos/small-ts --format json
 
 See skill `vitals-cli-validation` for exit codes and flag matrix. Canonical exit-code table: [AGENTS.md](../../AGENTS.md) § Validation (CLI).
 
-**M28 diagnostics:** `meta.warnings` as `ScanWarning[]`; contract tests validate `$defs.ScanWarning`.
+## Parallelism assessment
 
-**M53 scan interpretation:** `triage.test.ts`, `explain.test.ts`, bin tests for scan `--explain` / `--fail-on-explain-miss`.
+| Test Type | Parallel-Safe? | Isolation Model | Evidence |
+| --------- | -------------- | --------------- | -------- |
+| Unit (co-located) | Yes | No shared mutable fixture repos; mocks local to file | `src/**/*.test.ts`, `bin/**/*.test.ts` |
+| Contract | Yes | Read-only schema + sample JSON fixtures | `tests/contract/` |
+| Integration (fixture repos) | Yes | Per-fixture dirs; `globalSetup` / `ensureFixtureRepo()` bootstrap | `*.integration.test.ts` |
+| Compiled CLI smoke | Yes (after build) | Spawns `dist/bin/`; requires prior `pnpm build` | `tests/compiled-cli.smoke.test.ts` |
 
-**Scan-result parse (M71):** `src/scan-result/parse-scan-result.test.ts` — accepts valid `3.0` scan JSON; rejects `2.0`, `cyclomaticComplexity`, `functions`.
+Vitest runs files in parallel by default. Do not share writable state across test files without isolation.
 
-**Additive contract (M66):** `version` stays `"3.0"`; contract tests assert optional `scannerVersion` / root `$schema` on scan schema. Fresh scan JSON from `json.test.ts` asserts `$schema` URL and `meta.scannerVersion`.
+## Gate check commands
 
-**Trend / assess contracts (M72 + M75 + M77):** `tests/contract/json-schema.test.ts` validates `complexity-trend.json` (`version: "3.0"`, required `meta.growthPattern`) and `hotspot-assess.json` (`version: "1.0"`, `kind: "hotspot-assess"`).
+This project uses a **single** product gate (no Quick/Full tiers):
+
+| Gate Level | When to Use | Command |
+| ---------- | ----------- | ------- |
+| Build | Before marking any implementation task Complete | `pnpm build && pnpm test` |
+| Lint (supplemental) | When changing `bin/` or ESLint config | `pnpm lint` |
+| Hooks smoke (out-of-band) | After changing `.cursor/hooks/` | `pnpm hooks:smoke` |
+
 ## Integrity rules
 
 - Do not weaken assertions or remove cases to pass the gate
