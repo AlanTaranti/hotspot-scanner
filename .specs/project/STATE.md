@@ -148,6 +148,10 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-27 | **M75 growth-pattern-trend-bridge Done** | Execute complete: always-on `classifyGrowthPattern` + trend JSON `3.0` + table Pattern line; explain hit stderr `next: hotspot-scanner trend <path>`; recipes/README glossary. Scan JSON `3.0` unchanged. Gate green. Specs: `.specs/features/growth-pattern-trend-bridge/` (Done). |
 | 2026-07-27 | **M76 trend-color-ux Specs Planned (Medium)** | Color trend table Pattern **kind** only (`deteriorating`/`refactored`/`inconclusive`/`stable` → red/green/yellow/plain); reuse M41 gates (TTY, `--no-color`, `NO_COLOR`, `--output`); no FORCE_COLOR; JSON/CSV plain; no new color deps. IDs HOTSPOT-1600–1619. Specs: `.specs/features/trend-color-ux/` (`Status: Planned`). |
 | 2026-07-27 | **M76 lock — Pattern kind color only** | Do not color summary/sparklines/headers/rows; do not hoist `--no-color` to program-global; trend subcommand flag only; keep `Pattern: <kind> — <summary>` shape (M75). |
+| 2026-07-27 | **M77 hotspot-assess Specs Planned (Large)** | Batch triage: `assess [path]` → `runScan` → filter `hotspotScore >= --min-hotspot-score` (default 0.7) → `--top` 20 → sequential `runComplexityTrend` → summary + deteriorating-only detail; JSON `kind: "hotspot-assess"` / `version: "1.0"`; export `runAssess`. IDs HOTSPOT-1620–1679. Specs: `.specs/features/hotspot-assess/` (`Status: Planned`). |
+| 2026-07-27 | **M77 lock — dedicated assess (not scan --trend-top)** | Supersedes M75 YAGNI deferral of batch trend as scan flag; own CLI + schema; scan `3.0` / complexity-trend `3.0` untouched; no compare reopen. |
+| 2026-07-27 | **M77 lock — sequential trends + soft-continue** | Bound git history cost; per-file progress; per-candidate trend failures do not abort; exit 0 on partial errors; no `--fail-on-deteriorating` in MVP. |
+| 2026-07-27 | **M77 lock — `--min-hotspot-score` naming** | Long name required (not `--min-score`); help states threshold is hotspotScore; CLI-only (no assess config keys). |
 
 ## Architecture decisions (ADRs)
 
@@ -184,7 +188,7 @@ _None._
 
 ## Active
 
-**M76 trend-color-ux Specs Planned** — Execute via `orchestrator-implementer` after Status promotion. M7–M75 Done. Deferred horizon: npm publish; CI/SARIF; historical AST; item C (scan body full warnings); fail-on-warning.
+**M77 hotspot-assess Specs Planned** — Promote `tasks.md` Status to Approved/Ready for Execute, then `orchestrator-implementer` in a **new** session. **M76** trend-color-ux also Specs Planned (independent; assess must not block on color). M7–M75 Done. Deferred horizon: npm publish; CI/SARIF; historical AST; item C (scan body full warnings); fail-on-warning; `--fail-on-deteriorating` / SARIF for assess.
 
 ## Deferred
 
