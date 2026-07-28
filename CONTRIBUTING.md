@@ -1,11 +1,10 @@
 # Contributing to @vitals/hotspot-scanner
 
-Thank you for your interest in contributing. This document explains how to set up the project locally, verify your changes, and where to find the technical details you need before coding.
+Thank you for your interest in contributing. This guide covers local setup, the quality gate, and how to open a pull request.
 
-**@vitals/hotspot-scanner** is a local CLI that ranks TypeScript/JavaScript maintenance hotspots by combining **NCLOC** (non-commented lines of code) and Git churn at file level. It runs entirely on your machine — no network services or databases.
+**Audience:** human contributors. For AI agent policies, skills, and exit-code detail, see [AGENTS.md](AGENTS.md). Do not mirror STRUCTURE, TESTING, INTEGRATIONS, CONCERNS, or the AGENTS exit-code table here — link those SoTs instead.
 
-- **Design source of truth:** [.specs/codebase/ARCHITECTURE.md](.specs/codebase/ARCHITECTURE.md)
-- **License:** MIT (see [package.json](package.json))
+**@vitals/hotspot-scanner** is a local CLI that ranks TypeScript/JavaScript maintenance hotspots from NCLOC and Git churn (file-level). Design source of truth: [.specs/codebase/ARCHITECTURE.md](.specs/codebase/ARCHITECTURE.md).
 
 ## Prerequisites
 
@@ -25,11 +24,11 @@ pnpm build
 pnpm test
 ```
 
-`pnpm test` runs Vitest with **mandatory per-file coverage**. Every included source file must meet the thresholds defined in [vitest.config.ts](vitest.config.ts) and documented in [.specs/codebase/TESTING.md](.specs/codebase/TESTING.md).
+`pnpm build && pnpm test` is the project quality gate (see below). `pnpm test` runs Vitest with mandatory per-file coverage; thresholds and include/exclude rules live in [.specs/codebase/TESTING.md](.specs/codebase/TESTING.md).
 
 ## Quality gate
 
-Before opening a pull request, run:
+Before opening a pull request, re-run:
 
 ```bash
 pnpm build && pnpm test
@@ -47,18 +46,7 @@ pnpm lint         # ESLint (flat config at eslint.config.mjs)
 pnpm format:check # Prettier verification (use pnpm format to fix)
 ```
 
-### Coverage thresholds
-
-Per-file coverage applies to all `src/**` and `bin/**` files, except `src/types/**`:
-
-| Metric     | Minimum |
-| ---------- | ------- |
-| Lines      | 90%     |
-| Functions  | 90%     |
-| Branches   | 80%     |
-| Statements | 80%     |
-
-Do not lower thresholds, skip tests, or weaken assertions to pass the gate. A falling test count is a potential regression — investigate before merging.
+Do not lower coverage thresholds, skip tests, or weaken assertions to pass the gate. A falling test count is a potential regression — investigate before merging. Coverage SoT: [.specs/codebase/TESTING.md](.specs/codebase/TESTING.md).
 
 ## Manual CLI validation
 
@@ -69,10 +57,7 @@ pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts
 pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts --since "12 months ago" --format json
 ```
 
-| Exit code | Meaning                                                |
-| --------- | ------------------------------------------------------ |
-| `0`       | Scan completed successfully                            |
-| `!= 0`    | Invalid repo/path, git error, or invalid CLI arguments |
+Exit codes: see [AGENTS.md](AGENTS.md) § Validation (CLI).
 
 ## How to contribute
 
@@ -84,6 +69,8 @@ flowchart LR
   implement --> gate
   gate --> pr[Open PR with description and test plan]
 ```
+
+Work on a focused branch (fork or branch off the default branch), then open a PR with what changed, why, and a test plan.
 
 ### Small changes
 
@@ -109,55 +96,25 @@ For new CLI flags, scanner modules, or scoring changes:
 
 ## Code conventions
 
-Summary of [.specs/codebase/CONVENTIONS.md](.specs/codebase/CONVENTIONS.md) and [.specs/codebase/STRUCTURE.md](.specs/codebase/STRUCTURE.md):
+Summary of [.specs/codebase/CONVENTIONS.md](.specs/codebase/CONVENTIONS.md). Directory layout: [.specs/codebase/STRUCTURE.md](.specs/codebase/STRUCTURE.md).
 
 - **ESM only** — import internal modules with `.js` extension in TypeScript source
-- **Domain logic in `src/`** — `bin/` is for commander flag parsing and `runScan()` invocation only
+- **Domain logic in `src/`** — `bin/` is CLI wiring (commander flags and command actions); keep domain logic out of `bin/`
 - **Co-locate tests** — `*.test.ts` next to the module; fixtures live in `tests/fixtures/`
-- **Separate build** — `src/**` via root `tsc`; `bin/hotspot-scanner.ts` via `tsconfig.bin.json`
+- **Separate build** — `src/**` via root `tsc`; `bin/` via `tsconfig.bin.json`
 
-```
-hotspot-scanner/
-├── bin/              # CLI entry (flags only)
-├── src/
-│   ├── git/          # Git Change Miner
-│   ├── complexity/   # NCLOC size analyzer (file-level)
-│   ├── scoring/      # HotspotScorer (file hotspots)
-│   ├── paths/        # Path scoping (--include, --exclude)
-│   ├── diagnostics/  # stderr warnings + progress
-│   ├── report/       # CLI table + JSON output
-│   ├── scan.ts       # Pipeline orchestration
-│   └── types/        # Domain types (no runtime logic)
-└── tests/fixtures/   # Git repos, git-log samples, complexity fixtures
-```
+## Boundaries and risks
 
-## Architecture boundaries
+External adapters and spawn/deps ownership: [.specs/codebase/INTEGRATIONS.md](.specs/codebase/INTEGRATIONS.md). Mock at adapter boundaries — not in scorers, reporter, or `scan.ts`. New runtime dependencies need design justification and an entry in `INTEGRATIONS.md`.
 
-External dependencies must stay inside their adapter modules (see [.specs/codebase/INTEGRATIONS.md](.specs/codebase/INTEGRATIONS.md)):
-
-| Dependency       | Allowed location              |
-| ---------------- | ----------------------------- |
-| `git` subprocess | `src/git/` only               |
-| `picomatch`      | `src/paths/` only             |
-| `commander`      | `bin/hotspot-scanner.ts` only |
-
-In tests, mock at adapter boundaries — not in scorers, reporter, or `scan.ts`. New runtime dependencies require design justification and an entry in `INTEGRATIONS.md`.
-
-## Fragile areas
-
-Changes to these modules need extra care and targeted fixtures (see [.specs/codebase/CONCERNS.md](.specs/codebase/CONCERNS.md)):
-
-| Module            | Risk                                                                                 |
-| ----------------- | ------------------------------------------------------------------------------------ |
-| `src/git/`        | Streaming parse, renames, merges — incorrect parsing distorts all downstream scores  |
-| `src/complexity/` | NCLOC definition — miscounts silently change rankings |
-| `src/scoring/`    | Normalization and formula changes — ranking order can shift without obvious failures |
+Fragile modules (git mining, NCLOC, scoring) need extra care and targeted fixtures: [.specs/codebase/CONCERNS.md](.specs/codebase/CONCERNS.md).
 
 ## Commits and pull requests
 
 - Use **Conventional Commits** (e.g. `feat:`, `fix:`, `test:`, `docs:`)
 - PR description should include: what changed, why, and a test plan (commands you ran)
-- Local quality gate is the acceptance bar — no CI in v1
+- Bug reports and feature requests: [GitHub Issues](https://github.com/taranti/hotspot-scanner/issues)
+- Security vulnerabilities: follow [SECURITY.md](SECURITY.md) — do not open a public issue
 
 ## Documentation map
 

@@ -17,6 +17,9 @@ import {
   ARCHITECTURE_SOT_CONTEXT,
   CONCERNS_REL_PATH,
   CONCERNS_SOT_CONTEXT,
+  CONTRIBUTING_LINE_WARN,
+  CONTRIBUTING_REL_PATH,
+  CONTRIBUTING_SOT_CONTEXT,
   CONVENTIONS_REL_PATH,
   CONVENTIONS_SOT_CONTEXT,
   INTEGRATIONS_REL_PATH,
@@ -36,6 +39,7 @@ import {
   isAgentsDocPath,
   isArchitectureDocPath,
   isConcernsDocPath,
+  isContributingDocPath,
   isConventionsDocPath,
   isIntegrationsDocPath,
   isProjectDocPath,
@@ -50,6 +54,7 @@ import {
   lintAgentsDoc,
   lintArchitectureDoc,
   lintConcernsDoc,
+  lintContributingDoc,
   lintConventionsDoc,
   lintIntegrationsDoc,
   lintProjectDoc,
@@ -278,6 +283,26 @@ if (isAgentsDocPath(relPath) && workspaceRoot) {
     if (overSize) {
       messages.push(
         `[${AGENTS_REL_PATH}] Soft size warning: ${lineCount} lines (warn at ${AGENTS_LINE_WARN}). Keep lean index/policies only (agents-sot); detail → vitals-project / ARCHITECTURE / README.`,
+      );
+    }
+  } catch {
+    // File missing mid-edit — skip
+  }
+}
+
+if (isContributingDocPath(relPath) && workspaceRoot) {
+  const abs = path.join(workspaceRoot, CONTRIBUTING_REL_PATH);
+  try {
+    const text = fs.readFileSync(abs, "utf8");
+    const { bannedMatches, lineCount, overSize } = lintContributingDoc(text);
+    if (bannedMatches.length > 0) {
+      messages.push(
+        `[${CONTRIBUTING_REL_PATH}] Forbidden SoT-mirror content still present: ${bannedMatches.join(", ")}. ${CONTRIBUTING_SOT_CONTEXT}`,
+      );
+    }
+    if (overSize) {
+      messages.push(
+        `[${CONTRIBUTING_REL_PATH}] Soft size warning: ${lineCount} lines (warn at ${CONTRIBUTING_LINE_WARN}). Keep thin contribute guide only (contributing-sot); detail → STRUCTURE / TESTING / INTEGRATIONS / CONCERNS / AGENTS.`,
       );
     }
   } catch {

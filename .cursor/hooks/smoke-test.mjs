@@ -11,6 +11,7 @@ import {
   AGENTS_REL_PATH,
   ARCHITECTURE_REL_PATH,
   CONCERNS_REL_PATH,
+  CONTRIBUTING_REL_PATH,
   CONVENTIONS_REL_PATH,
   INTEGRATIONS_REL_PATH,
   PROJECT_REL_PATH,
@@ -22,6 +23,7 @@ import {
   lintAgentsDoc,
   lintArchitectureDoc,
   lintConcernsDoc,
+  lintContributingDoc,
   lintConventionsDoc,
   lintIntegrationsDoc,
   lintProjectDoc,
@@ -859,6 +861,94 @@ const tests = [
       assertIncludes(stdout, '"permission":"ask"', "agents ask");
       assertIncludes(stdout, "M78", "agents ask mentions M78");
       cleanupState("smoke-agents");
+    },
+  },
+  {
+    name: "contributing lint flags SoT-mirror dumps (HOTSPOT naming allowed)",
+    run() {
+      const dirty = lintContributingDoc(`# Contributing
+
+## Coverage thresholds
+
+| Exit code | Meaning |
+| --------- | ------- |
+| \`0\` | ok |
+| \`!= 0\` | fail |
+
+## Architecture boundaries
+
+## Fragile areas
+
+\`\`\`
+hotspot-scanner/
+├── bin/
+└── src/
+\`\`\`
+
+Shipped in M71.
+`);
+      const expected = [
+        "!= 0 exit",
+        "Architecture boundaries",
+        "Coverage thresholds",
+        "Exit code table",
+        "Fragile areas",
+        "M71",
+        "directory tree",
+      ];
+      for (const label of expected) {
+        if (!dirty.bannedMatches.includes(label)) {
+          throw new Error(
+            `expected ${label} in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+          );
+        }
+      }
+      const clean = lintContributingDoc(
+        "# Contributing\n\nUse `HOTSPOT-*` IDs in spec.md. Exit codes: see AGENTS.md.\n\n| Fragile areas | CONCERNS.md |\n",
+      );
+      if (clean.bannedMatches.length !== 0) {
+        throw new Error(
+          `expected clean sample (HOTSPOT naming + map row allowed), got ${JSON.stringify(clean.bannedMatches)}`,
+        );
+      }
+    },
+  },
+  {
+    name: "live CONTRIBUTING.md has no banned SoT-mirror content",
+    run() {
+      const text = fs.readFileSync(
+        path.join(root, CONTRIBUTING_REL_PATH),
+        "utf8",
+      );
+      const { bannedMatches } = lintContributingDoc(text);
+      if (bannedMatches.length > 0) {
+        throw new Error(
+          `CONTRIBUTING.md contains forbidden content: ${bannedMatches.join(", ")}`,
+        );
+      }
+    },
+  },
+  {
+    name: "pre-edit ask on CONTRIBUTING Write with Architecture boundaries",
+    run() {
+      cleanupState("smoke-contributing");
+      const { stdout } = runHook("pre-edit-guard.mjs", {
+        hook_event_name: "preToolUse",
+        tool_name: "Write",
+        tool_input: {
+          path: path.join(root, "CONTRIBUTING.md"),
+          contents: "## Architecture boundaries\n\n",
+        },
+        conversation_id: "smoke-contributing",
+        workspace_roots: [root],
+      });
+      assertIncludes(stdout, '"permission":"ask"', "contributing ask");
+      assertIncludes(
+        stdout,
+        "Architecture boundaries",
+        "contributing ask mentions Architecture boundaries",
+      );
+      cleanupState("smoke-contributing");
     },
   },
   {

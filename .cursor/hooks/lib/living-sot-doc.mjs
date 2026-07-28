@@ -4,7 +4,7 @@
  * + INTEGRATIONS adapter SoT + STACK inventory SoT + STRUCTURE layout SoT
  * + TESTING infrastructure SoT + PROJECT product-vision SoT
  * + ROADMAP milestone-tracker SoT + STATE session-memory SoT
- * + AGENTS index/policies SoT).
+ * + AGENTS index/policies SoT + CONTRIBUTING contribute-guide SoT).
  * @see .cursor/rules/architecture-sot.mdc
  * @see .cursor/rules/concerns-sot.mdc
  * @see .cursor/rules/conventions-sot.mdc
@@ -16,6 +16,7 @@
  * @see .cursor/rules/roadmap-sot.mdc
  * @see .cursor/rules/state-sot.mdc
  * @see .cursor/rules/agents-sot.mdc
+ * @see .cursor/rules/contributing-sot.mdc
  */
 
 export const ARCHITECTURE_REL_PATH = ".specs/codebase/ARCHITECTURE.md";
@@ -29,6 +30,7 @@ export const PROJECT_REL_PATH = ".specs/project/PROJECT.md";
 export const ROADMAP_REL_PATH = ".specs/project/ROADMAP.md";
 export const STATE_REL_PATH = ".specs/project/STATE.md";
 export const AGENTS_REL_PATH = "AGENTS.md";
+export const CONTRIBUTING_REL_PATH = "CONTRIBUTING.md";
 
 /** Soft size warning for ARCHITECTURE (~context-limits warning band). Smoke does not fail on size. */
 export const LINE_WARN = 450;
@@ -41,6 +43,9 @@ export const STATE_LINE_WARN = 200;
 
 /** Soft size warning for AGENTS. Smoke does not fail on size. */
 export const AGENTS_LINE_WARN = 100;
+
+/** Soft size warning for CONTRIBUTING. Smoke does not fail on size. */
+export const CONTRIBUTING_LINE_WARN = 160;
 
 const MILESTONE_RE = /\bM\d+\b/g;
 const HOTSPOT_RE = /HOTSPOT-\d+/gi;
@@ -260,6 +265,52 @@ export function lintAgentsDoc(text) {
 }
 
 /**
+ * CONTRIBUTING bans SoT-mirror dumps + milestone tags — HOTSPOT-* naming allowed (contributing-sot.mdc).
+ * @param {string} text
+ * @returns {{ bannedMatches: string[], lineCount: number, overSize: boolean }}
+ */
+export function lintContributingDoc(text) {
+  const source = typeof text === "string" ? text : "";
+  const banned = new Set();
+
+  MILESTONE_RE.lastIndex = 0;
+  let match;
+  while ((match = MILESTONE_RE.exec(source)) !== null) {
+    banned.add(match[0]);
+  }
+
+  /** @type {{ re: RegExp, label: string }[]} */
+  const patterns = [
+    { re: /[├└]──/, label: "directory tree" },
+    {
+      re: /^#{2,3} Coverage thresholds\b/m,
+      label: "Coverage thresholds",
+    },
+    { re: /^\|\s*Exit code\s*\|/m, label: "Exit code table" },
+    { re: /!=\s*0/, label: "!= 0 exit" },
+    {
+      re: /^## Architecture boundaries\b/m,
+      label: "Architecture boundaries",
+    },
+    { re: /^## Fragile areas\b/m, label: "Fragile areas" },
+  ];
+
+  for (const { re, label } of patterns) {
+    re.lastIndex = 0;
+    if (re.test(source)) {
+      banned.add(label);
+    }
+  }
+
+  const lineCount = source.length === 0 ? 0 : source.split(/\r?\n/).length;
+  return {
+    bannedMatches: [...banned].sort(),
+    lineCount,
+    overSize: lineCount > CONTRIBUTING_LINE_WARN,
+  };
+}
+
+/**
  * @param {string | null | undefined} relPath
  * @param {string} fileName
  * @param {string} relCanonical
@@ -365,6 +416,14 @@ export function isAgentsDocPath(relPath) {
   return isCodebaseDocPath(relPath, "AGENTS.md", AGENTS_REL_PATH);
 }
 
+/**
+ * @param {string | null | undefined} relPath
+ * @returns {boolean}
+ */
+export function isContributingDocPath(relPath) {
+  return isCodebaseDocPath(relPath, "CONTRIBUTING.md", CONTRIBUTING_REL_PATH);
+}
+
 export const ARCHITECTURE_SOT_CONTEXT = `ARCHITECTURE.md is the Design SoT (.cursor/rules/architecture-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/sister-milestone voice. Allowed: ADR-*, RT-*, present-tense modules/pipelines/contracts. Milestone history → ROADMAP + .specs/features/; decisions/deferred/blockers → STATE.`;
 
 export const CONCERNS_SOT_CONTEXT = `CONCERNS.md is the fragile-risk SoT (.cursor/rules/concerns-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/superseded voice. Allowed: RT-*, present-tense risk→mitigation→test expectations. Milestone history → ROADMAP + .specs/features/; decisions/deferred/blockers → STATE.`;
@@ -386,3 +445,5 @@ export const ROADMAP_SOT_CONTEXT = `ROADMAP.md is the milestone-tracker SoT (.cu
 export const STATE_SOT_CONTEXT = `STATE.md is the session-memory SoT (.cursor/rules/state-sot.mdc). Forbidden: Execute complete / Specs Planned / Gate green / Next: M## / Superseded by M## Done / HOTSPOT-* laundry / Deferred M## Done leftovers. Allowed: lasting locks (M## ok), ADRs, open Deferred, short Active, Lessons. Milestone status → ROADMAP + .specs/features/; archive dumps → STATE-ARCHIVE.`;
 
 export const AGENTS_SOT_CONTEXT = `AGENTS.md is the agent index/policies SoT (.cursor/rules/agents-sot.mdc). Forbidden: milestone tags (M##), changelog voice, CLI example dumps, Design SoT / fragile catalogs. Allowed: HOTSPOT-* naming prefix, present-tense policies, exit-code table, skills/agents inventory, short pointers. Module map → vitals-project/STRUCTURE; milestones → ROADMAP + .specs/features/.`;
+
+export const CONTRIBUTING_SOT_CONTEXT = `CONTRIBUTING.md is the human contribute-guide SoT (.cursor/rules/contributing-sot.mdc). Forbidden: milestone tags (M##), directory trees, Coverage thresholds sections, exit-code tables / != 0 shorthand, ## Architecture boundaries, ## Fragile areas risk dumps. Allowed: setup/gate/DX, contribute workflow, HOTSPOT-* naming in feature guidance, Documentation map of links. Detail → STRUCTURE/TESTING/INTEGRATIONS/CONCERNS/AGENTS.`;

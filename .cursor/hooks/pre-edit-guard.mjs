@@ -14,6 +14,7 @@ import {
   AGENTS_SOT_CONTEXT,
   ARCHITECTURE_SOT_CONTEXT,
   CONCERNS_SOT_CONTEXT,
+  CONTRIBUTING_SOT_CONTEXT,
   CONVENTIONS_SOT_CONTEXT,
   INTEGRATIONS_SOT_CONTEXT,
   PROJECT_SOT_CONTEXT,
@@ -25,6 +26,7 @@ import {
   isAgentsDocPath,
   isArchitectureDocPath,
   isConcernsDocPath,
+  isContributingDocPath,
   isConventionsDocPath,
   isIntegrationsDocPath,
   isProjectDocPath,
@@ -36,6 +38,7 @@ import {
   lintAgentsDoc,
   lintArchitectureDoc,
   lintConcernsDoc,
+  lintContributingDoc,
   lintConventionsDoc,
   lintIntegrationsDoc,
   lintProjectDoc,
@@ -215,6 +218,18 @@ if (isAgentsDocPath(relPath)) {
     ask(
       `AGENTS.md edit introduces forbidden tags (${bannedMatches.join(", ")}). Remove milestone changelog voice or confirm intentional exception.`,
       `${AGENTS_SOT_CONTEXT} Matches: ${bannedMatches.join(", ")}`,
+    );
+    process.exit(0);
+  }
+}
+
+if (isContributingDocPath(relPath)) {
+  const content = extractEditContent(input.tool_input);
+  const { bannedMatches } = lintContributingDoc(content);
+  if (bannedMatches.length > 0) {
+    ask(
+      `CONTRIBUTING.md edit introduces forbidden SoT-mirror content (${bannedMatches.join(", ")}). Link STRUCTURE/TESTING/INTEGRATIONS/CONCERNS/AGENTS instead or confirm intentional exception.`,
+      `${CONTRIBUTING_SOT_CONTEXT} Matches: ${bannedMatches.join(", ")}`,
     );
     process.exit(0);
   }

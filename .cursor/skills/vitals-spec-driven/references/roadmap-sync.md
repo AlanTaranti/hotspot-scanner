@@ -59,6 +59,7 @@ Use status suffix `PLANNED` / `IN PROGRESS` / `DONE` as appropriate.
 - [ ] STACK.md: if runtime / deps / `files` / `engines` / `exports` / build inventory changed → sync present tense (no M## / HOTSPOT-*; see stack-sot.mdc); else skip
 - [ ] STRUCTURE.md: if directory layout / module paths / public API changed → sync present tense (no M## / HOTSPOT-*; see structure-sot.mdc); else skip
 - [ ] AGENTS.md: if exit codes / agent policies / skills-agents inventory changed → sync lean index (no M##; see agents-sot.mdc); else skip — do not dump CLI examples or Design SoT
+- [ ] CONTRIBUTING.md: if gate / DX scripts / prerequisites / contribute workflow changed → sync thin guide (contributing-sot + `lintContributingDoc`); else skip — **do not** mirror STRUCTURE/TESTING/INTEGRATIONS/CONCERNS or the AGENTS exit-code table
 - [ ] Self-check: any sentence that needs a milestone number → wrong doc for present-tense SoTs (use ROADMAP/features; lasting locks → STATE; not ARCHITECTURE/CONCERNS/…)
 - [ ] Optional verify: `pnpm hooks:smoke` (living SoT lint via Cursor hooks; not part of `pnpm build && pnpm test`)
 ```
