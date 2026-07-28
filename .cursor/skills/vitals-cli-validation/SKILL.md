@@ -7,15 +7,18 @@ description: CLI validation workflow for hotspot-scanner — exit codes, fixture
 
 Automated validation for `@vitals/hotspot-scanner` CLI. No interactive UI UAT.
 
-**Fixtures:** `tests/fixtures/` (repos, git-log samples, complexity files).
+## Ownership (SoT map)
 
-**SoTs:** Flag encyclopedia + exit codes → [docs/cli-reference.md](../../../docs/cli-reference.md). Pipeline design → [ARCHITECTURE.md](../../../.specs/codebase/ARCHITECTURE.md). Fixture methodology → [TESTING.md](../../../.specs/codebase/TESTING.md).
+| Concern | Owner |
+| ------- | ----- |
+| Fixture **listing / methodology** (which trees exist, what each proves) | [TESTING.md](../../../.specs/codebase/TESTING.md) |
+| Fixture **layout** | [STRUCTURE.md](../../../.specs/codebase/STRUCTURE.md) |
+| Flags / exit codes | [docs/cli-reference.md](../../../docs/cli-reference.md) |
+| Pipeline design | [ARCHITECTURE.md](../../../.specs/codebase/ARCHITECTURE.md) |
+| **CLI assertions** (what to check per command) | **This skill** § CLI assertions |
+| **Fixture authoring** (how to create/update a tree) | **This skill** § Fixture authoring + agent `fixture-builder` |
 
-## Commands
-
-Base `scan` / `trend` / `assess` invocations against fixture repos: [TESTING.md](../../../.specs/codebase/TESTING.md) § CLI validation — do not restate them here. Flags and exit codes: [docs/cli-reference.md](../../../docs/cli-reference.md). Add `--format json|markdown|csv` (with `--output <path>`) to any of them when checking a renderer.
-
-This skill owns what to **assert** for each command, plus fixture authoring.
+Base `scan` / `trend` / `assess` invocations against fixture repos: TESTING.md § CLI validation — do not restate them here. Add `--format json|markdown|csv` (with `--output <path>`) when checking a renderer.
 
 ## When to validate
 
@@ -23,7 +26,11 @@ This skill owns what to **assert** for each command, plus fixture authoring.
 - `src/scan.ts` / trend / assess wiring — end-to-end changes
 - New or updated fixtures in `tests/fixtures/`
 
-## Assess validation
+---
+
+## CLI assertions
+
+### Assess
 
 Run `assess` with `--min-hotspot-score 0.5 --top 5`, once as table and once with `--format json`. Checks:
 
@@ -32,7 +39,7 @@ Run `assess` with `--min-hotspot-score 0.5 --top 5`, once as table and once with
 - JSON `version` is `"1.0"`, `kind` is `"hotspot-assess"`; candidates have no `points` arrays
 - `--min-hotspot-score` outside `[0, 1]` or `--top` `0` → exit `2`
 
-## Trend validation
+### Trend
 
 Run `trend` on `trend-indent/src/trend.ts` with a wide `--since`, once as table and once with `--format json`. Checks:
 
@@ -47,27 +54,14 @@ Drill-down bridge:
 pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts --explain src/high.ts 2>&1 | grep '^next:'
 ```
 
-## Fixture authoring
-
-Used by `fixture-builder`. Methodology SoT: [TESTING.md](../../../.specs/codebase/TESTING.md); layout: [STRUCTURE.md](../../../.specs/codebase/STRUCTURE.md).
-
-1. **Define purpose** — what the fixture must prove (e.g. rename chain → churn preserved with `--follow`).
-2. **Minimal tree** — smallest set of files/commits; version Git repos in `tests/fixtures/repos/<slug>/`.
-3. **Git log samples** — raw `git log --numstat` output in `tests/fixtures/git-log/` for unit tests.
-4. **Complexity samples** — TS/JS files with known NCLOC (and indentation when needed) in `tests/fixtures/complexity/`.
-5. **README.md** — in fixture folder: purpose, expected scan highlights, CLI command to validate.
-6. **Validate** — scan the fixture path and check: path exists, it is a valid git repository (integration scans), exit `0`, JSON matches the schema with `--format json`, and the output reports the `--since` window used.
-
-Fixture source is excluded from Vitest include — validation is via CLI or dedicated integration tests.
-
-## JSON output checks (scan)
+### JSON output checks (scan)
 
 - Top-level `version` is `"3.0"`
 - `hotspots` array sorted by score descending; each item includes `ncloc`
 - No top-level `functions`, `coupling`, or `granularity` keys
 - `meta.scannerVersion` present on fresh scans
 
-## Negative CLI checks
+### Negative CLI checks
 
 Removed surface must fail with exit `2`:
 
@@ -78,13 +72,30 @@ pnpm exec hotspot-scanner scan . --baseline ./x.json      # unknown option
 pnpm exec hotspot-scanner scan . --strict                 # unknown option
 ```
 
+---
+
+## Fixture authoring
+
+Used by `fixture-builder`. Listing/methodology SoT remains [TESTING.md](../../../.specs/codebase/TESTING.md); layout: [STRUCTURE.md](../../../.specs/codebase/STRUCTURE.md).
+
+1. **Define purpose** — what the fixture must prove (e.g. rename chain → churn preserved with `--follow`).
+2. **Minimal tree** — smallest set of files/commits; version Git repos in `tests/fixtures/repos/<slug>/`.
+3. **Git log samples** — raw `git log --numstat` output in `tests/fixtures/git-log/` for unit tests.
+4. **Complexity samples** — TS/JS files with known NCLOC (and indentation when needed) in `tests/fixtures/complexity/`.
+5. **README.md** — in fixture folder: purpose, expected scan highlights, CLI command to validate.
+6. **Validate** — scan the fixture path and check: path exists, it is a valid git repository (integration scans), exit `0`, JSON matches the schema with `--format json`, and the output reports the `--since` window used.
+
+Fixture source is excluded from Vitest include — validation is via CLI or dedicated integration tests.
+
+---
+
 ## Related agents
 
 | Agent                     | When                                    |
 | ------------------------- | --------------------------------------- |
 | `fixture-builder`         | Create/update fixture repos and samples |
 | `verifier-implementation` | Spec acceptance after CLI changes       |
-| `verifier-quality-gates`  | `pnpm build && pnpm test`               |
+| `verifier-quality-gates`  | Project gate per [quality-gates.mdc](../../rules/quality-gates.mdc) |
 
 ## References
 

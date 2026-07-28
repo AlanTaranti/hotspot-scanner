@@ -15,16 +15,13 @@
 
 ## Domain focus (hotspot-scanner)
 
-Prefer evidence in these areas (not generic web-app checklists):
+Prefer evidence in fragile scanner areas — do not restate watchlists here:
 
-| Area | Watch for |
-| ---- | --------- |
-| `src/git/` | Full-log buffering; rename/merge/delete parse drift; incomplete `PathAliasMap` |
-| `src/complexity/` | NCLOC rule changes (RT-005) without fixtures; worker pool boundary leaks |
-| `src/scoring/` | Formula / normalization changes without fixed-input ordering tests |
-| `src/scan-result/` / `schemas/` | Silent legacy JSON acceptance; compare/coupling fields reintroduced |
-| `src/scan.ts` / `bin/` | Pipeline stage order / CLI domain logic in bin |
-| Adapters | git spawn or `worker_threads` outside owned modules ([INTEGRATIONS.md](../../../../.specs/codebase/INTEGRATIONS.md)) |
+- Risk / formula SoT: [CONCERNS.md](../../../../.specs/codebase/CONCERNS.md)
+- Coding guardrails: [fragile-areas.mdc](../../../rules/fragile-areas.mdc)
+- Module pointers: [vitals-pipeline-domain](../../vitals-pipeline-domain/SKILL.md)
+
+Skip generic web-app checklists (auth, N+1 SQL, etc.).
 
 ## Process
 

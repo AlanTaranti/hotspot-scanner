@@ -10,7 +10,8 @@ State files older than **14 days** are pruned on `sessionStart`.
 
 | Priority | Event | Script | Behavior |
 |----------|--------|--------|----------|
-| Critical | `beforeShellExecution` | `commit-policy.mjs` | Deny `git commit` without a user keyword (`commit`, `commite`, `comitar`, `versionar`); flag is sticky until a commit is allowed — `failClosed` |
+| Critical | `beforeSubmitPrompt` | `commit-policy.mjs` | If the user prompt matches a commit keyword (`commit`, `commite`, `comitar`, `versionar`), set sticky `userAllowedCommit` |
+| Critical | `beforeShellExecution` | `commit-policy.mjs` | Deny `git commit` when `userAllowedCommit` is unset; on allow, clear the flag — `failClosed` |
 | Critical | `beforeShellExecution` | `gate-before-commit.mjs` | Deny `git commit` if code changed without a recent gate (`src/`, `bin/`, `scripts/`, `schemas/`, `vitest.config.ts` — not `tests/`-only) — `failClosed` |
 | Critical | `afterShellExecution` | `record-gate-pass.mjs` | Record `gatePassedAt` / `buildPassedAt` + `testPassedAt` after build and test (matcher `pnpm (build\|test)`) |
 | Critical | `subagentStop` | `subagent-stop.mjs` | Clear subagent state (no matcher — runs for **every** subagent); follow-up for Phase E (quality gate) |
@@ -28,8 +29,11 @@ State files older than **14 days** are pruned on `sessionStart`.
 | `lib/paths.mjs` | Path classification (code / fragile / planner-blocked) + edit-payload extraction |
 | `lib/state.mjs` | Per-conversation session state + gate freshness |
 | `lib/feature-status.mjs` | `tasks.md` **header** Status parsing and feature scans (shared by `session-context`, `subagent-start`, `pre-edit-guard`) |
-| `lib/living-sot-doc.mjs` | Pure living-doc lint helpers + the `LIVING_SOT_ENTRIES` registry |
+| `lib/living-sot-doc.mjs` | Barrel: living-doc lint API + `LIVING_SOT_ENTRIES` (impl in `living-sot-paths.mjs`, `living-sot-lints.mjs`, `living-sot-registry.mjs`) |
 | `lib/live-sot-files.mjs` | Which live repo files each registry entry lints (used by smoke + Vitest) |
+| `smoke/harness.mjs` | Smoke helpers (`runHook`, assert, feature fixtures) |
+| `smoke/sot-samples.mjs` | Dirty/clean samples for living-doc lint cases |
+| `smoke/cases.mjs` | Hand-written hook behavior cases |
 
 ## Wiring notes
 

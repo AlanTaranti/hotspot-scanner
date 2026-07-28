@@ -17,6 +17,7 @@ alwaysApply: false
 
 - **Critical denies** — `commit-policy.mjs` and `gate-before-commit.mjs` keep `"failClosed": true` in `hooks.json`; a crashed guard must not silently allow `git commit`
 - Hooks enforce a **regex subset** of `*-sot.mdc` editorial prose — do not migrate editorial rules into hooks, or hook internals into rules
-- Shared path / lint helpers live in `.cursor/hooks/lib/`; register new living-doc checks in `LIVING_SOT_ENTRIES` (`lib/living-sot-doc.mjs`) rather than hand-rolling per-guard logic
+- Shared path / lint helpers live in `.cursor/hooks/lib/` (`living-sot-doc.mjs` is a barrel over `living-sot-paths` / `living-sot-lints` / `living-sot-registry`). Register new living-doc checks in `LIVING_SOT_ENTRIES` rather than hand-rolling per-guard logic
+- Smoke cases live under `.cursor/hooks/smoke/` (`harness.mjs`, `cases.mjs`, `sot-samples.mjs`); entrypoint remains `smoke-test.mjs`
 - Policy text stays in [commit-policy.mdc](commit-policy.mdc) and [quality-gates.mdc](quality-gates.mdc) — hooks reference it, never redefine it
 - Paths arriving from Cursor may be absolute — normalize against the workspace root before classifying (see `lib/track-path.mjs`)

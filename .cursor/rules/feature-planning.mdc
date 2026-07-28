@@ -15,16 +15,12 @@ Medium/large features: **Specify → Design → Tasks → Execute**.
 
 ## Session boundary
 
-Planning stops at Tasks with `tasks.md` **Status: `Planned`** — no Execute in the same session.
+Prose SoT: [planning-session-boundary.md](../skills/vitals-spec-driven/references/planning-session-boundary.md). Quick mode: [quick-mode.md](../skills/vitals-spec-driven/references/quick-mode.md).
 
 | Actor | While Status is `Draft` / `Planned` | Hook |
 | ----- | ---------------------------------- | ---- |
 | `planner-feature` | Never edits `src/`, `bin/`, `tests/` | `deny` |
 | Main agent | Does not implement under `src/`, `bin/`, `tests/` without explicit user confirmation | `ask` |
-
-Neither starts `orchestrator-implementer` nor runs Execute phases while Status is `Draft`/`Planned` — promote Status in a **new** session, then Execute. After the user confirms, quick mode (**≤3 files**) stays the only in-session implementation escape hatch.
-
-Details: [planning-session-boundary.md](../skills/vitals-spec-driven/references/planning-session-boundary.md); quick mode: [quick-mode.md](../skills/vitals-spec-driven/references/quick-mode.md).
 
 ## Execute
 

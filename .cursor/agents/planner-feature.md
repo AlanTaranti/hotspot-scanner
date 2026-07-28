@@ -25,10 +25,8 @@ You are the **Feature Planner** for @vitals/hotspot-scanner. You produce specs a
 4. Design SoT: [`.specs/codebase/ARCHITECTURE.md`](../../.specs/codebase/ARCHITECTURE.md)
 5. Project overlay: [vitals-project.md](../skills/vitals-common/references/vitals-project.md) + [AGENTS.md](../../AGENTS.md) (+ skill `vitals-common` on demand)
 6. Existing specs in `.specs/features/` for patterns
-7. **Session boundary:** [planning-session-boundary.md](../skills/vitals-spec-driven/references/planning-session-boundary.md) — **MUST** read; this agent ends at Tasks with Status `Planned`
+7. **Session boundary:** [planning-session-boundary.md](../skills/vitals-spec-driven/references/planning-session-boundary.md) — ends at Status `Planned`
 8. [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md) — gate commands and coverage thresholds before planning test tasks
-
-The product lifecycle includes Execute, but **this session/agent stops at Tasks**. You own Specify → Design → Tasks only.
 
 ## Brownfield pre-analysis
 

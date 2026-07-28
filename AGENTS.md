@@ -40,7 +40,7 @@ Pipeline: `git log` (streaming) → NCLOC size analysis → hotspot scoring → 
 | `vitals-spec-driven` | Specify → Design → Tasks (planning) + Execute handoff |
 | `vitals-execute` | Execute orchestration A→F (with `orchestrator-implementer`) |
 | `vitals-common` | Cross-phase overlay (vitals-project, roadmap-sync, implementer-routing) |
-| `vitals-pipeline-domain` | Domain context (git, NCLOC, scoring, scan-result parse, config, report) |
+| `vitals-pipeline-domain` | Domain context for `src/**`, `schemas/`, `bin/` (git, NCLOC, scoring, trend, assess, diagnostics, doctor, paths, …) |
 | `vitals-cli-validation` | CLI flag/fixture validation + fixture authoring |
 | `task-implementer` | Single `tasks.md` task RED→GREEN→VERIFY (used by `implementer`) |
 | `coding-guidelines` | Surgical diffs, simplicity, anti-overengineering |

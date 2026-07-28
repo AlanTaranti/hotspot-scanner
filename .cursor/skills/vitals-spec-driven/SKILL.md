@@ -24,7 +24,7 @@ Adapted for this repository. Always read [vitals-project.md](../vitals-common/re
 
 **Pointers:** Gate → [quality-gates.mdc](../../rules/quality-gates.mdc) + TESTING § Coverage · IDs → [feature-planning.mdc](../../rules/feature-planning.mdc) (`HOTSPOT-*`) · Commits → [commit-policy.mdc](../../rules/commit-policy.mdc) · Exit codes → [docs/cli-reference.md](../../../docs/cli-reference.md#exit-codes) + `vitals-cli-validation`
 
-**Execute boundary:** This skill owns Specify → Design → Tasks (and handoff). **Do not implement application code here** except the **single** escape hatch [quick-mode.md](references/quick-mode.md) (≤3 files). Medium+ features → Status `Planned` and hand off to a new session with `orchestrator-implementer` + [`vitals-execute`](../vitals-execute/SKILL.md). See [planning-session-boundary.md](references/planning-session-boundary.md).
+**Execute boundary:** Specify → Design → Tasks (+ handoff) only. No application code except [quick-mode.md](references/quick-mode.md). Session rules: [planning-session-boundary.md](references/planning-session-boundary.md).
 
 ## Progressive disclosure
 
@@ -97,4 +97,4 @@ Base: AGENTS + vitals-project + PROJECT / ROADMAP / STATE. On demand: codebase d
 
 ## Code analysis
 
-See [code-analysis.md](references/code-analysis.md).
+Prefer workspace tools already available (Grep/Glob/Read, or `rg` in Shell). Use `ast-grep` (`sg`) when structural patterns help and the binary is installed. No hotspot-scanner-specific analysis pipeline — stay evidence-based against `.specs/codebase/` and the target `src/` modules.

@@ -1,6 +1,6 @@
 ---
 name: vitals-pipeline-domain
-description: Pipeline domain context for hotspot-scanner — Git Miner, NCLOC, scoring, scan-result, config, report, trend, assess. Use when implementing or reviewing src/git/, src/complexity/, src/scoring/, src/scan-result/, src/config/, src/report/, src/trend/, src/assess/, src/scan.ts, schemas/, or bin/ wiring. Do NOT use for planning specs (vitals-spec-driven / planner-feature) or Execute orchestration (vitals-execute / orchestrator-implementer).
+description: Pipeline domain context for hotspot-scanner — Git Miner, NCLOC, scoring, scan-result, config, report, trend, assess, diagnostics, doctor, paths, types, scan-preview, package-meta, schemas, bin. Use when implementing or reviewing src/**, schemas/, or bin/ wiring. Do NOT use for planning specs (vitals-spec-driven / planner-feature) or Execute orchestration (vitals-execute / orchestrator-implementer).
 ---
 
 # Hotspot Scanner Pipeline Domain
@@ -12,6 +12,7 @@ Concise domain pointers for `@vitals/hotspot-scanner`. **Do not treat this skill
 | Modules / pipelines / contracts | [ARCHITECTURE.md](../../../.specs/codebase/ARCHITECTURE.md) |
 | Path \| Role layout | [STRUCTURE.md](../../../.specs/codebase/STRUCTURE.md) |
 | Formulas / fragile risks | [CONCERNS.md](../../../.specs/codebase/CONCERNS.md) |
+| Fragile coding guardrails | [fragile-areas.mdc](../../rules/fragile-areas.mdc) |
 | Adapters / mocks | [INTEGRATIONS.md](../../../.specs/codebase/INTEGRATIONS.md) |
 | Flags / exit codes | [docs/cli-reference.md](../../../docs/cli-reference.md) |
 | Task path ownership | [implementer-routing.md](../vitals-common/references/implementer-routing.md) |
@@ -22,7 +23,11 @@ Concise domain pointers for `@vitals/hotspot-scanner`. **Do not treat this skill
 git log (stream) → NCLOC size analysis → hotspot scoring → report
 ```
 
-Also: `trend` (`src/trend/`), `assess` (`src/assess/`), CLI wiring in `bin/`. Module paths: STRUCTURE.md + implementer-routing.
+Also: `trend` (`src/trend/`), `assess` (`src/assess/`), CLI wiring in `bin/`. Full module prefixes: STRUCTURE.md + implementer-routing.
+
+## Module prefixes → routing
+
+Path ownership for `tasks.md` assignment lives only in [implementer-routing.md](../vitals-common/references/implementer-routing.md). Covered prefixes: `src/git/`, `src/complexity/`, `src/trend/`, `src/assess/`, `src/scoring/`, `src/diagnostics/`, `src/doctor/`, `src/scan-result/`, `src/report/`, `src/config/`, `src/paths/`, `src/scan.ts`, `src/scan-preview.ts`, `src/package-meta.ts`, `src/types/`, `bin/`, `schemas/`, `tests/fixtures/`.
 
 ## Domain reminders (pointers only)
 

@@ -8,6 +8,9 @@ alwaysApply: true
 - After verification, **propose** a Conventional Commit message.
 - **Do not commit** unless the user explicitly asks (keywords such as commit / commite / comitar / versionar).
 
-Enforcement: project hook `commit-policy.mjs` on `git commit` — see [`.cursor/hooks/README.md`](../hooks/README.md).
+Enforcement: project hook `commit-policy.mjs` — see [`.cursor/hooks/README.md`](../hooks/README.md).
+
+1. **`beforeSubmitPrompt`** — if the user message matches a commit keyword, sets sticky `userAllowedCommit` for the session.
+2. **`beforeShellExecution`** on `git commit` (`failClosed`) — allows only when that flag is set, then clears it.
 
 Index pointer: [AGENTS.md](../../AGENTS.md).

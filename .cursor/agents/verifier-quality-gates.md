@@ -17,16 +17,10 @@ You are the **Quality Gates Verifier** for @vitals/hotspot-scanner. Your job is 
 
 1. [quality-gates-report.md](../skills/vitals-execute/references/quality-gates-report.md) — **canonical process + report template** (follow it; do not invent a parallel format)
 2. [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md) — gate definitions and coverage thresholds (SoT)
-3. Rule [`.cursor/rules/quality-gates.mdc`](../rules/quality-gates.mdc)
+3. Rule [`.cursor/rules/quality-gates.mdc`](../rules/quality-gates.mdc) — required gate policy
 4. [AGENTS.md](../../AGENTS.md)
 
-## Gate command
-
-```bash
-pnpm build && pnpm test
-```
-
-Run both sequentially and report. Additionally run `pnpm lint` **only** when the change touches `bin/` or ESLint config — see [TESTING.md](../../.specs/codebase/TESTING.md) § Gate check commands. Do **not** fix source code — return failures to the parent/`implementer` for remediation, then re-run when asked. Coverage thresholds: TESTING.md § Coverage (do not restate numbers here).
+Run and report per `quality-gates-report.md` (gate command + conditional `pnpm lint`). Do **not** fix source code — return failures to the parent/`implementer` for remediation, then re-run when asked. Coverage thresholds: TESTING.md § Coverage (do not restate numbers here).
 
 ## Hard constraints
 

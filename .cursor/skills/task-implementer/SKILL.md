@@ -21,7 +21,7 @@ Execute **one** `tasks.md` task at a time. Workflow detail lives in linked refer
 1. `coding-guidelines` skill
 2. [AGENTS.md](../../../AGENTS.md) + [vitals-project.md](../vitals-common/references/vitals-project.md)
 3. `.specs/codebase/CONVENTIONS.md`, `TESTING.md` — and `CONCERNS.md` when the task touches fragile areas
-4. When the task touches `src/git/`, `src/complexity/`, `src/scoring/`, `src/report/`, or `src/scan.ts` → read [vitals-pipeline-domain](../vitals-pipeline-domain/SKILL.md)
+4. When the task touches `src/`, `bin/`, or `schemas/` → read [vitals-pipeline-domain](../vitals-pipeline-domain/SKILL.md) (module map: [implementer-routing.md](../vitals-common/references/implementer-routing.md))
 5. Only the spec/design/context paths supplied in the prompt (not sibling tasks)
 
 ## Implementation cycle
