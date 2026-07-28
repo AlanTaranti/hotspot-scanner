@@ -59,6 +59,8 @@ pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts --since "12 months 
 
 Exit codes: see [AGENTS.md](AGENTS.md) § Validation (CLI).
 
+When adding or renaming long flags, keep the bash, zsh, and fish scripts from `hotspot-scanner completion` aligned (same coverage across all three shells) and update related tests.
+
 ## How to contribute
 
 ```mermaid
@@ -127,5 +129,8 @@ Fragile modules (git mining, NCLOC, scoring) need extra care and targeted fixtur
 | Fragile areas         | [.specs/codebase/CONCERNS.md](.specs/codebase/CONCERNS.md)         |
 | Conventions           | [.specs/codebase/CONVENTIONS.md](.specs/codebase/CONVENTIONS.md)   |
 | Decisions             | [.specs/project/STATE.md](.specs/project/STATE.md)                 |
+| User CLI reference    | [docs/cli-reference.md](docs/cli-reference.md)                     |
 | Roadmap               | [.specs/project/ROADMAP.md](.specs/project/ROADMAP.md)             |
 | AI/agent workflow     | [AGENTS.md](AGENTS.md)                                             |
+
+**README** is first-run / adoption only. New flags → [docs/cli-reference.md](docs/cli-reference.md) (plus one Essential flags row in README when user-facing). Workflows → [docs/recipes.md](docs/recipes.md).

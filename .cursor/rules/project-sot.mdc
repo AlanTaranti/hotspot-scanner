@@ -19,7 +19,9 @@ It is **not** a changelog, milestone tracker, CLI flag encyclopedia, or deferred
 | Decisions, deferred ideas, blockers | **STATE.md** |
 | Runtime / deps inventory | **STACK.md** |
 | Modules, pipelines, contract field detail | **ARCHITECTURE.md** |
-| CLI flags, UX copy, recipes | **README** / `docs/recipes.md` |
+| Adoption pitch, essential flags, short API | **README** |
+| Flag encyclopedia, pipeline internals, progress/TTY | **`docs/cli-reference.md`** |
+| Cookbooks / workflows | **`docs/recipes.md`** |
 
 ## Forbidden in PROJECT.md
 

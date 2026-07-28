@@ -15,6 +15,7 @@ import {
   CONVENTIONS_REL_PATH,
   INTEGRATIONS_REL_PATH,
   PROJECT_REL_PATH,
+  README_REL_PATH,
   ROADMAP_REL_PATH,
   STATE_REL_PATH,
   STACK_REL_PATH,
@@ -27,6 +28,7 @@ import {
   lintConventionsDoc,
   lintIntegrationsDoc,
   lintProjectDoc,
+  lintReadmeDoc,
   lintRoadmapDoc,
   lintStateDoc,
   lintStackDoc,
@@ -949,6 +951,82 @@ Shipped in M71.
         "contributing ask mentions Architecture boundaries",
       );
       cleanupState("smoke-contributing");
+    },
+  },
+  {
+    name: "readme lint flags Advanced / Features / encyclopedia headings (HOTSPOT naming allowed)",
+    run() {
+      const dirty = lintReadmeDoc(`# hotspot-scanner
+
+## Advanced
+
+## Features
+
+### Pipeline detail
+
+### Performance and diagnostics
+
+### Rename confidence
+
+### Command synopsis and flags
+
+Shipped in M71. HOTSPOT-999 is fine to mention.
+`);
+      const expected = [
+        "## Advanced",
+        "## Features",
+        "Command synopsis",
+        "M71",
+        "Performance and diagnostics",
+        "Pipeline detail",
+        "Rename confidence",
+      ];
+      for (const label of expected) {
+        if (!dirty.bannedMatches.includes(label)) {
+          throw new Error(
+            `expected ${label} in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+          );
+        }
+      }
+      const clean = lintReadmeDoc(
+        "# hotspot-scanner\n\n## Essential flags\n\nSee docs/cli-reference.md. Requirement IDs use `HOTSPOT-*` in specs.\n",
+      );
+      if (clean.bannedMatches.length !== 0) {
+        throw new Error(
+          `expected clean sample (HOTSPOT naming + Essential flags allowed), got ${JSON.stringify(clean.bannedMatches)}`,
+        );
+      }
+    },
+  },
+  {
+    name: "live README.md has no banned adoption-SoT drift",
+    run() {
+      const text = fs.readFileSync(path.join(root, README_REL_PATH), "utf8");
+      const { bannedMatches } = lintReadmeDoc(text);
+      if (bannedMatches.length > 0) {
+        throw new Error(
+          `README.md contains forbidden content: ${bannedMatches.join(", ")}`,
+        );
+      }
+    },
+  },
+  {
+    name: "pre-edit ask on README Write with ## Advanced",
+    run() {
+      cleanupState("smoke-readme");
+      const { stdout } = runHook("pre-edit-guard.mjs", {
+        hook_event_name: "preToolUse",
+        tool_name: "Write",
+        tool_input: {
+          path: path.join(root, "README.md"),
+          contents: "## Advanced\n\n",
+        },
+        conversation_id: "smoke-readme",
+        workspace_roots: [root],
+      });
+      assertIncludes(stdout, '"permission":"ask"', "readme ask");
+      assertIncludes(stdout, "## Advanced", "readme ask mentions ## Advanced");
+      cleanupState("smoke-readme");
     },
   },
   {

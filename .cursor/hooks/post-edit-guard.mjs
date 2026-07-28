@@ -26,6 +26,9 @@ import {
   INTEGRATIONS_SOT_CONTEXT,
   PROJECT_REL_PATH,
   PROJECT_SOT_CONTEXT,
+  README_LINE_WARN,
+  README_REL_PATH,
+  README_SOT_CONTEXT,
   ROADMAP_REL_PATH,
   ROADMAP_SOT_CONTEXT,
   STATE_REL_PATH,
@@ -43,6 +46,7 @@ import {
   isConventionsDocPath,
   isIntegrationsDocPath,
   isProjectDocPath,
+  isReadmeDocPath,
   isRoadmapDocPath,
   isStateDocPath,
   isStackDocPath,
@@ -58,6 +62,7 @@ import {
   lintConventionsDoc,
   lintIntegrationsDoc,
   lintProjectDoc,
+  lintReadmeDoc,
   lintRoadmapDoc,
   lintStateDoc,
   lintStackDoc,
@@ -282,7 +287,7 @@ if (isAgentsDocPath(relPath) && workspaceRoot) {
     }
     if (overSize) {
       messages.push(
-        `[${AGENTS_REL_PATH}] Soft size warning: ${lineCount} lines (warn at ${AGENTS_LINE_WARN}). Keep lean index/policies only (agents-sot); detail → vitals-project / ARCHITECTURE / README.`,
+        `[${AGENTS_REL_PATH}] Soft size warning: ${lineCount} lines (warn at ${AGENTS_LINE_WARN}). Keep lean index/policies only (agents-sot); detail → vitals-project / ARCHITECTURE / docs/cli-reference.md.`,
       );
     }
   } catch {
@@ -303,6 +308,26 @@ if (isContributingDocPath(relPath) && workspaceRoot) {
     if (overSize) {
       messages.push(
         `[${CONTRIBUTING_REL_PATH}] Soft size warning: ${lineCount} lines (warn at ${CONTRIBUTING_LINE_WARN}). Keep thin contribute guide only (contributing-sot); detail → STRUCTURE / TESTING / INTEGRATIONS / CONCERNS / AGENTS.`,
+      );
+    }
+  } catch {
+    // File missing mid-edit — skip
+  }
+}
+
+if (isReadmeDocPath(relPath) && workspaceRoot) {
+  const abs = path.join(workspaceRoot, README_REL_PATH);
+  try {
+    const text = fs.readFileSync(abs, "utf8");
+    const { bannedMatches, lineCount, overSize } = lintReadmeDoc(text);
+    if (bannedMatches.length > 0) {
+      messages.push(
+        `[${README_REL_PATH}] Forbidden adoption-SoT drift still present: ${bannedMatches.join(", ")}. ${README_SOT_CONTEXT}`,
+      );
+    }
+    if (overSize) {
+      messages.push(
+        `[${README_REL_PATH}] Soft size warning: ${lineCount} lines (warn at ${README_LINE_WARN}). Keep adoption/first-run only (readme-sot); encyclopedias → docs/cli-reference.md; cookbooks → docs/recipes.md.`,
       );
     }
   } catch {

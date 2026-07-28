@@ -1,6 +1,6 @@
 # Recipes
 
-Short copy-paste cookbooks for common **hotspot-scanner** workflows. Commands assume you have built the CLI from a clone (`pnpm install && pnpm build`); use `pnpm exec hotspot-scanner` from the repo root, or `hotspot-scanner` when the bin is on your `PATH`.
+Short copy-paste cookbooks for common **hotspot-scanner** workflows. Commands assume you have built the CLI from a clone (`pnpm install && pnpm build`); use `pnpm exec hotspot-scanner` from the repo root, or `hotspot-scanner` when the bin is on your `PATH`. Full flag and pipeline reference: [cli-reference.md](cli-reference.md).
 
 Try any recipe against the bundled fixture:
 

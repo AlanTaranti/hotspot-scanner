@@ -11,6 +11,7 @@ import {
   TSCONFIG_RE,
 } from "./lib/paths.mjs";
 import {
+  README_SOT_CONTEXT,
   AGENTS_SOT_CONTEXT,
   ARCHITECTURE_SOT_CONTEXT,
   CONCERNS_SOT_CONTEXT,
@@ -30,6 +31,7 @@ import {
   isConventionsDocPath,
   isIntegrationsDocPath,
   isProjectDocPath,
+  isReadmeDocPath,
   isRoadmapDocPath,
   isStateDocPath,
   isStackDocPath,
@@ -42,6 +44,7 @@ import {
   lintConventionsDoc,
   lintIntegrationsDoc,
   lintProjectDoc,
+  lintReadmeDoc,
   lintRoadmapDoc,
   lintStateDoc,
   lintStackDoc,
@@ -230,6 +233,18 @@ if (isContributingDocPath(relPath)) {
     ask(
       `CONTRIBUTING.md edit introduces forbidden SoT-mirror content (${bannedMatches.join(", ")}). Link STRUCTURE/TESTING/INTEGRATIONS/CONCERNS/AGENTS instead or confirm intentional exception.`,
       `${CONTRIBUTING_SOT_CONTEXT} Matches: ${bannedMatches.join(", ")}`,
+    );
+    process.exit(0);
+  }
+}
+
+if (isReadmeDocPath(relPath)) {
+  const content = extractEditContent(input.tool_input);
+  const { bannedMatches } = lintReadmeDoc(content);
+  if (bannedMatches.length > 0) {
+    ask(
+      `README.md edit introduces forbidden adoption-SoT drift (${bannedMatches.join(", ")}). Put encyclopedias in docs/cli-reference.md (workflows in docs/recipes.md) or confirm intentional exception.`,
+      `${README_SOT_CONTEXT} Matches: ${bannedMatches.join(", ")}`,
     );
     process.exit(0);
   }

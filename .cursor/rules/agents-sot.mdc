@@ -18,7 +18,9 @@ It is **not** a Design SoT, module map, UX cookbook, flag encyclopedia, fragile-
 | Module map / CLI surface detail | `vitals-project.md` / **STRUCTURE.md** |
 | Modules, pipelines, contracts | **ARCHITECTURE.md** |
 | Fragile risks / RT / mitigations | **CONCERNS.md** |
-| CLI UX copy, recipes, flag encyclopedias | **README** / `docs/recipes.md` |
+| Adoption pitch, essential flags, exit codes, short API | **README** |
+| Flag encyclopedia, pipeline internals, progress/TTY, assess/explain long | **`docs/cli-reference.md`** |
+| Cookbooks / workflows | **`docs/recipes.md`** |
 | Warning code catalog | `docs/warning-codes.md` |
 | Milestone status, feature history | **ROADMAP.md** / `.specs/features/` |
 | Decisions, deferred ideas, blockers | **STATE.md** |

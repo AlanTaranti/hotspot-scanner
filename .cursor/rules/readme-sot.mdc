@@ -1,0 +1,52 @@
+---
+description: Keep README.md as adoption / first-run SoT — no flag encyclopedias or Advanced dumps
+globs: README.md
+alwaysApply: false
+---
+
+# README Adoption SoT
+
+[`README.md`](../../README.md) is the **adoption / first-run SoT**: problem/solution, quick start, commands at a glance, essential flags, short config, output formats + exit codes, short programmatic API, documentation hub, limitations, and pointers to CONTRIBUTING / SECURITY / License.
+
+It is **not** a CLI flag encyclopedia, pipeline internals guide, progress/TTY cookbook, or milestone tracker.
+
+## Ownership matrix
+
+| Change type | Destination |
+| ----------- | ----------- |
+| Adoption pitch, essential flags, exit codes, short API | **README.md** |
+| Flag encyclopedia, pipeline internals, progress/TTY, assess/explain long | **`docs/cli-reference.md`** |
+| Cookbooks / workflows | **`docs/recipes.md`** |
+| Why NCLOC / indentation | **`docs/methodology.md`** |
+| Warning code catalog | **`docs/warning-codes.md`** |
+| Exit-code policy for agents | **AGENTS.md** |
+| Milestone status, feature history | **ROADMAP.md** / `.specs/features/` |
+| Decisions, deferred ideas, blockers | **STATE.md** |
+
+## Forbidden in README.md
+
+- `## Advanced`, `## Features` marketing dumps
+- Encyclopedia headings: Pipeline detail, Performance and diagnostics, Rename confidence, Command synopsis and flags
+- Full flag laundry lists (keep essential flags only; full list → cli-reference / `--help`)
+- Milestone tags: `\bM\d+\b` (e.g. `M71`)
+- Changelog voice: “shipped in M…”, Execute ownership by milestone number
+
+## Allowed
+
+- Problem / solution / zero-network callout
+- Quick start, commands table, use-this-when, how-it-works (short) + methodology link
+- Essential flags (~8), requirements, shell completion install one-liners
+- Configuration summary + recipes/monorepo links
+- Output formats overview + exit-code table; short Programmatic API sample
+- Documentation hub linking recipes, methodology, warning-codes, cli-reference
+
+## Sync rule
+
+When living docs change after Execute:
+
+1. New **essential** user-facing flag → one row in README Essential flags **and** full entry in `docs/cli-reference.md`.
+2. Power-user / internals / progress / assess detail → **`docs/cli-reference.md` only** (optional one-line README pointer).
+3. Workflows / copy-paste → **`docs/recipes.md`**.
+4. Self-check: *Would a first-time adopter need this on the first screen?* If no → wrong file (cli-reference or recipes).
+
+Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintReadmeDoc` (hooks + `pnpm hooks:smoke`).

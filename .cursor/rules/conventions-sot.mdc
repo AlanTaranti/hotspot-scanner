@@ -17,7 +17,9 @@ It is **not** a changelog, stack/publish inventory, UX cookbook, or milestone tr
 | Naming, ESM, `#` imports, bin import rule, build dual-tsconfig, lint/format scripts, commits | **CONVENTIONS.md** |
 | Package `files` / `engines` / exports / dependency inventory | **STACK.md** |
 | Color ownership / pipelines / contracts | **ARCHITECTURE.md** |
-| CLI UX copy, colors detail, recipes | **README** / `docs/recipes.md` |
+| Adoption pitch, essential flags | **README** |
+| Flag encyclopedia, colors / progress detail | **`docs/cli-reference.md`** |
+| Cookbooks / workflows | **`docs/recipes.md`** |
 | Coverage / Vitest patterns | **TESTING.md** |
 | Milestone status, feature history | **ROADMAP.md** / `.specs/features/` |
 | Decisions, deferred ideas, blockers | **STATE.md** |

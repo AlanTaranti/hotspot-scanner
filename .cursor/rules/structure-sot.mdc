@@ -28,7 +28,7 @@ It is **not** a changelog, milestone tracker, CLI flag encyclopedia, testing met
 - Milestone tags: `\bM\d+\b` (e.g. `M54`, `M71`)
 - Requirement IDs: `HOTSPOT-*`
 - Changelog voice: “Removed in M…”, “shipped in M…”, Execute ownership by milestone number
-- CLI flag laundry lists (belong in ARCHITECTURE / README)
+- CLI flag laundry lists (belong in `docs/cli-reference.md`; adoption essentials in README)
 - Fixture bootstrap / methodology detail (belong in TESTING)
 - Pipeline/data-flow encyclopedias (belong in ARCHITECTURE)
 
