@@ -15,6 +15,7 @@ import {
   CONCERNS_SOT_CONTEXT,
   CONVENTIONS_SOT_CONTEXT,
   INTEGRATIONS_SOT_CONTEXT,
+  PROJECT_SOT_CONTEXT,
   STACK_SOT_CONTEXT,
   STRUCTURE_SOT_CONTEXT,
   TESTING_SOT_CONTEXT,
@@ -22,6 +23,7 @@ import {
   isConcernsDocPath,
   isConventionsDocPath,
   isIntegrationsDocPath,
+  isProjectDocPath,
   isStackDocPath,
   isStructureDocPath,
   isTestingDocPath,
@@ -29,6 +31,7 @@ import {
   lintConcernsDoc,
   lintConventionsDoc,
   lintIntegrationsDoc,
+  lintProjectDoc,
   lintStackDoc,
   lintStructureDoc,
   lintTestingDoc,
@@ -155,6 +158,18 @@ if (isConventionsDocPath(relPath)) {
     ask(
       `CONVENTIONS.md edit introduces forbidden tags (${bannedMatches.join(", ")}). Remove milestone changelog voice or confirm intentional exception.`,
       `${CONVENTIONS_SOT_CONTEXT} Matches: ${bannedMatches.join(", ")}`,
+    );
+    process.exit(0);
+  }
+}
+
+if (isProjectDocPath(relPath)) {
+  const content = extractEditContent(input.tool_input);
+  const { bannedMatches } = lintProjectDoc(content);
+  if (bannedMatches.length > 0) {
+    ask(
+      `PROJECT.md edit introduces forbidden tags (${bannedMatches.join(", ")}). Remove milestone/HOTSPOT changelog voice or confirm intentional exception.`,
+      `${PROJECT_SOT_CONTEXT} Matches: ${bannedMatches.join(", ")}`,
     );
     process.exit(0);
   }

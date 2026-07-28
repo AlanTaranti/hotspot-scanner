@@ -12,6 +12,7 @@ import {
   CONCERNS_REL_PATH,
   CONVENTIONS_REL_PATH,
   INTEGRATIONS_REL_PATH,
+  PROJECT_REL_PATH,
   STACK_REL_PATH,
   STRUCTURE_REL_PATH,
   TESTING_REL_PATH,
@@ -19,6 +20,7 @@ import {
   lintConcernsDoc,
   lintConventionsDoc,
   lintIntegrationsDoc,
+  lintProjectDoc,
   lintStackDoc,
   lintStructureDoc,
   lintTestingDoc,
@@ -799,6 +801,63 @@ const tests = [
       assertIncludes(stdout, '"permission":"ask"', "conventions ask");
       assertIncludes(stdout, "M24", "conventions ask mentions M24");
       cleanupState("smoke-conventions");
+    },
+  },
+  {
+    name: "project lint flags M## and HOTSPOT-*",
+    run() {
+      const dirty = lintProjectDoc(
+        "# PROJECT\n\nShipped through M78. See HOTSPOT-1042.\n",
+      );
+      if (!dirty.bannedMatches.includes("M78")) {
+        throw new Error(
+          `expected M78 in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+        );
+      }
+      if (!dirty.bannedMatches.some((m) => /^HOTSPOT-1042$/i.test(m))) {
+        throw new Error(
+          `expected HOTSPOT-1042 in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+        );
+      }
+      const clean = lintProjectDoc(
+        "# PROJECT\n\nVision: local CLI. See ROADMAP.md.\n",
+      );
+      if (clean.bannedMatches.length !== 0) {
+        throw new Error(
+          `expected clean sample, got ${JSON.stringify(clean.bannedMatches)}`,
+        );
+      }
+    },
+  },
+  {
+    name: "live PROJECT.md has no banned milestone tags",
+    run() {
+      const text = fs.readFileSync(path.join(root, PROJECT_REL_PATH), "utf8");
+      const { bannedMatches } = lintProjectDoc(text);
+      if (bannedMatches.length > 0) {
+        throw new Error(
+          `PROJECT.md contains forbidden tags: ${bannedMatches.join(", ")}`,
+        );
+      }
+    },
+  },
+  {
+    name: "pre-edit ask on PROJECT Write with M78",
+    run() {
+      cleanupState("smoke-project");
+      const { stdout } = runHook("pre-edit-guard.mjs", {
+        hook_event_name: "preToolUse",
+        tool_name: "Write",
+        tool_input: {
+          path: path.join(root, ".specs/project/PROJECT.md"),
+          contents: "## Scope (through M78)\n",
+        },
+        conversation_id: "smoke-project",
+        workspace_roots: [root],
+      });
+      assertIncludes(stdout, '"permission":"ask"', "project ask");
+      assertIncludes(stdout, "M78", "project ask mentions M78");
+      cleanupState("smoke-project");
     },
   },
 ];

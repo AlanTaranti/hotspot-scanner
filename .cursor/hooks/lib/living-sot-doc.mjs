@@ -1,8 +1,8 @@
 /**
- * Lint helpers for living SoT docs under .specs/codebase/
+ * Lint helpers for living SoT docs under .specs/codebase/ and .specs/project/
  * (ARCHITECTURE Design SoT + CONCERNS fragile-risk SoT + CONVENTIONS coding SoT
  * + INTEGRATIONS adapter SoT + STACK inventory SoT + STRUCTURE layout SoT
- * + TESTING infrastructure SoT).
+ * + TESTING infrastructure SoT + PROJECT product-vision SoT).
  * @see .cursor/rules/architecture-sot.mdc
  * @see .cursor/rules/concerns-sot.mdc
  * @see .cursor/rules/conventions-sot.mdc
@@ -10,6 +10,7 @@
  * @see .cursor/rules/stack-sot.mdc
  * @see .cursor/rules/structure-sot.mdc
  * @see .cursor/rules/testing-sot.mdc
+ * @see .cursor/rules/project-sot.mdc
  */
 
 export const ARCHITECTURE_REL_PATH = ".specs/codebase/ARCHITECTURE.md";
@@ -19,6 +20,7 @@ export const INTEGRATIONS_REL_PATH = ".specs/codebase/INTEGRATIONS.md";
 export const STACK_REL_PATH = ".specs/codebase/STACK.md";
 export const STRUCTURE_REL_PATH = ".specs/codebase/STRUCTURE.md";
 export const TESTING_REL_PATH = ".specs/codebase/TESTING.md";
+export const PROJECT_REL_PATH = ".specs/project/PROJECT.md";
 
 /** Soft size warning for ARCHITECTURE (~context-limits warning band). Smoke does not fail on size. */
 export const LINE_WARN = 450;
@@ -97,6 +99,14 @@ export function lintStructureDoc(text) {
  * @returns {{ bannedMatches: string[] }}
  */
 export function lintTestingDoc(text) {
+  return lintBannedTags(text);
+}
+
+/**
+ * @param {string} text
+ * @returns {{ bannedMatches: string[] }}
+ */
+export function lintProjectDoc(text) {
   return lintBannedTags(text);
 }
 
@@ -184,6 +194,14 @@ export function isConventionsDocPath(relPath) {
   return isCodebaseDocPath(relPath, "CONVENTIONS.md", CONVENTIONS_REL_PATH);
 }
 
+/**
+ * @param {string | null | undefined} relPath
+ * @returns {boolean}
+ */
+export function isProjectDocPath(relPath) {
+  return isCodebaseDocPath(relPath, "PROJECT.md", PROJECT_REL_PATH);
+}
+
 export const ARCHITECTURE_SOT_CONTEXT = `ARCHITECTURE.md is the Design SoT (.cursor/rules/architecture-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/sister-milestone voice. Allowed: ADR-*, RT-*, present-tense modules/pipelines/contracts. Milestone history → ROADMAP/STATE/features.`;
 
 export const CONCERNS_SOT_CONTEXT = `CONCERNS.md is the fragile-risk SoT (.cursor/rules/concerns-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/superseded voice. Allowed: RT-*, present-tense risk→mitigation→test expectations. Milestone history → ROADMAP/STATE/features.`;
@@ -197,3 +215,5 @@ export const STRUCTURE_SOT_CONTEXT = `STRUCTURE.md is the directory-layout / pub
 export const TESTING_SOT_CONTEXT = `TESTING.md is the testing-infrastructure SoT (.cursor/rules/testing-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/provenance voice, schema encyclopedias, fragile-risk catalogs, exit-code tables. Allowed: present-tense runner/fixtures/coverage/gates/mock boundaries; short pointers. Milestone history → ROADMAP/STATE/features.`;
 
 export const CONVENTIONS_SOT_CONTEXT = `CONVENTIONS.md is the coding-conventions SoT (.cursor/rules/conventions-sot.mdc). Forbidden: milestone tags (M##), changelog/STATE provenance voice. Allowed: HOTSPOT-* as naming prefix, ADR-*, present-tense naming/imports/build/lint. Milestone history → ROADMAP/STATE/features. Package publish facts → STACK.`;
+
+export const PROJECT_SOT_CONTEXT = `PROJECT.md is the product-vision SoT (.cursor/rules/project-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/through-M voice, CLI flag laundry lists, deferred inventories. Allowed: present-tense vision/goals/constraints/capability scope; JSON version table; short pointers. Milestone history → ROADMAP/STATE/features; deferred → STATE.`;

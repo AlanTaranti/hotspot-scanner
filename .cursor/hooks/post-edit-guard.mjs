@@ -18,6 +18,8 @@ import {
   CONVENTIONS_SOT_CONTEXT,
   INTEGRATIONS_REL_PATH,
   INTEGRATIONS_SOT_CONTEXT,
+  PROJECT_REL_PATH,
+  PROJECT_SOT_CONTEXT,
   STACK_REL_PATH,
   STACK_SOT_CONTEXT,
   STRUCTURE_REL_PATH,
@@ -28,6 +30,7 @@ import {
   isConcernsDocPath,
   isConventionsDocPath,
   isIntegrationsDocPath,
+  isProjectDocPath,
   isStackDocPath,
   isStructureDocPath,
   isTestingDocPath,
@@ -36,6 +39,7 @@ import {
   lintConcernsDoc,
   lintConventionsDoc,
   lintIntegrationsDoc,
+  lintProjectDoc,
   lintStackDoc,
   lintStructureDoc,
   lintTestingDoc,
@@ -184,6 +188,21 @@ if (isConventionsDocPath(relPath) && workspaceRoot) {
     if (bannedMatches.length > 0) {
       messages.push(
         `[${CONVENTIONS_REL_PATH}] Forbidden tags still present: ${bannedMatches.join(", ")}. ${CONVENTIONS_SOT_CONTEXT}`,
+      );
+    }
+  } catch {
+    // File missing mid-edit — skip
+  }
+}
+
+if (isProjectDocPath(relPath) && workspaceRoot) {
+  const abs = path.join(workspaceRoot, PROJECT_REL_PATH);
+  try {
+    const text = fs.readFileSync(abs, "utf8");
+    const { bannedMatches } = lintProjectDoc(text);
+    if (bannedMatches.length > 0) {
+      messages.push(
+        `[${PROJECT_REL_PATH}] Forbidden tags still present: ${bannedMatches.join(", ")}. ${PROJECT_SOT_CONTEXT}`,
       );
     }
   } catch {
