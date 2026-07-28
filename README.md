@@ -73,8 +73,6 @@ Rank  File                      Score     NLOC  NLOCN     Churn  ChurnN  Authors
    3  src/low.ts                  0.0000     1    0.0000      4  0.0000        1
 ```
 
-![CLI table output from fixture small-ts](docs/assets/cli-table-small-ts.png)
-
 ## Commands at a glance
 
 | Command | Question it answers | Example |
