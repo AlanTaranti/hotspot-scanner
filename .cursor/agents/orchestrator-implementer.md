@@ -26,54 +26,28 @@ You do **not** plan specs (`planner-feature`). You do **not** implement applicat
 
 1. Target `tasks.md` + `design.md` + `spec.md` + `context.md` (when they exist) for each feature
 2. Skill [`.cursor/skills/vitals-execute/SKILL.md`](../skills/vitals-execute/SKILL.md) + playbook [execute-orchestration-playbook.md](../skills/vitals-execute/references/execute-orchestration-playbook.md) — **follow phases A→F**
-3. [`.cursor/skills/task-implementer/references/implement.md`](../skills/task-implementer/references/implement.md) — RED→GREEN→VERIFY cycle for implementers
-4. [`.cursor/skills/task-implementer/references/orchestrated-implementer.md`](../skills/task-implementer/references/orchestrated-implementer.md) — minimum prompt contract
-5. [`.cursor/skills/vitals-common/references/implementer-routing.md`](../skills/vitals-common/references/implementer-routing.md) — module routing (canonical)
-6. [`.cursor/skills/vitals-common/references/roadmap-sync.md`](../skills/vitals-common/references/roadmap-sync.md) — sync ROADMAP on Done (lean template per [roadmap-sot.mdc](../rules/roadmap-sot.mdc); do not paste tasks/Artifacts/`HOTSPOT-*`)
-7. [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md) — gate commands
-8. [`.specs/codebase/CONVENTIONS.md`](../../.specs/codebase/CONVENTIONS.md) — pass to implementers
-9. [`.cursor/skills/task-implementer/SKILL.md`](../skills/task-implementer/SKILL.md) — include in minimum prompt to `implementer`
-10. [AGENTS.md](../../AGENTS.md) + [vitals-project.md](../skills/vitals-common/references/vitals-project.md)
+3. [`.cursor/skills/task-implementer/SKILL.md`](../skills/task-implementer/SKILL.md) — include in minimum prompt to `implementer`
+4. [orchestrated-implementer.md](../skills/task-implementer/references/orchestrated-implementer.md) — minimum prompt contract
+5. [implementer-routing.md](../skills/vitals-common/references/implementer-routing.md) — module routing
+6. [roadmap-sync.md](../skills/vitals-common/references/roadmap-sync.md) — sync ROADMAP on Done
+7. [TESTING.md](../../.specs/codebase/TESTING.md) — gate commands
+8. [AGENTS.md](../../AGENTS.md) + [vitals-project.md](../skills/vitals-common/references/vitals-project.md)
 
 ## Playbook
 
-Follow [execute-orchestration-playbook.md](../skills/vitals-execute/references/execute-orchestration-playbook.md) phases A→F. Do not restate routing tables, minimum prompts, or report templates inline — apply the reference.
+Follow [execute-orchestration-playbook.md](../skills/vitals-execute/references/execute-orchestration-playbook.md) phases **A→F** end-to-end. Do not restate phase tables, wave algorithms, minimum prompts, or report templates here.
 
-**Phase summary:**
-
-| Phase | Action                                                                                              |
-| ----- | --------------------------------------------------------------------------------------------------- |
-| A     | Intake, validate Status/format, parse task graph, compute wave schedule                             |
-| B     | Execute **parallel waves** — delegate to `implementer` / `fixture-builder`; gate-final → Phase E only |
-| C     | `code-reviewer` (readonly) — **mandatory**; parallel per feature in batch; Changes needed blocks D  |
-| D     | `verifier-implementation` (readonly) — acceptance criteria + Done when; parallel per feature in batch |
-| E     | `verifier-quality-gates` — single project gate `pnpm build && pnpm test`                            |
-| F     | Sync `tasks.md`, ROADMAP (roadmap-sot template); report                                                 |
-
-## Wave scheduling
-
-**Principle:** Prefer parallel waves when safe. Delegate and await each wave; do not implement application code here.
-
-Canonical algorithm: [execute-orchestration-playbook.md](../skills/vitals-execute/references/execute-orchestration-playbook.md) § Phase B. Conflicts: [implementer-routing.md](../skills/vitals-common/references/implementer-routing.md).
-
-**Operational bullets:**
-
-1. Build the dependency graph (`Depends on`, `[P]`, `Where`, cross-feature deps).
-2. Wave = tasks with deps satisfied and not `deferred_project_gate`.
-3. Same wave only if paths are disjoint and tests are parallel-safe; serialize shared wiring (`src/scan.ts`, `bin/hotspot-scanner.ts`, schemas).
-4. One `Task` call per task in a **single message**; await structured returns before the next wave.
-5. Orchestrator owns `tasks.md` checkbox updates after each wave.
-
-**Subagent routing:** `implementer` (Phase B) · `fixture-builder` (fixtures) · `code-reviewer` (C) · `verifier-implementation` (D) · `verifier-quality-gates` (E). Do not use `generalPurpose` for implementation when those apply.
+**Subagent routing:** `implementer` (B) · `fixture-builder` (fixtures) · `code-reviewer` (C) · `verifier-implementation` (D) · `verifier-quality-gates` (E).
 
 ## Hard constraints
 
 - Do not write implementation code directly except for unblocker fixes during Phase F remediation (max 1 round).
-- Follow alwaysApply `commit-policy` / `quality-gates` / `coding-guidelines`; index [AGENTS.md](../../AGENTS.md).
+- Follow [agent-hard-constraints.md](../skills/vitals-common/references/agent-hard-constraints.md).
 - Do not mark Done with failing Phase E gate, Phase D NOT_READY, or Phase C Changes needed.
 - Maximum **1 remediation round** after Phase C, D, or E failure.
 - Do not conduct AskQuestion / user discussion — return open items in the report.
 - **Default to wave parallelism** when path-disjoint and test-safe; `[P]` is a planner signal, not the only gate.
+- Orchestrator owns `tasks.md` checkbox updates after each wave.
 
 ## Main agent handoff
 

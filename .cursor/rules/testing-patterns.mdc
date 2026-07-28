@@ -6,28 +6,12 @@ alwaysApply: false
 
 # Testing Patterns
 
-SoT: [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md). Required gate: [quality-gates.mdc](quality-gates.mdc).
+SoT: [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md). Mock SoT: [INTEGRATIONS.md](../../.specs/codebase/INTEGRATIONS.md) + TESTING.md § Mock boundaries. Required gate: [quality-gates.mdc](quality-gates.mdc).
 
-## Coverage
+## Enforcement
 
-Per-file thresholds enforced on every included `src/**` and `bin/**` file. See [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md) § Coverage (90% lines/functions, 80% branches/statements).
-
-## Mock boundaries
-
-SoT: [INTEGRATIONS.md](../../.specs/codebase/INTEGRATIONS.md) + TESTING.md § Mock boundaries.
-
-- Mock **git** only at `GitMiner` — not in scorers, reporter, or `scan.ts`
-- Mock **`createWorkerPool`** / file I/O at the ComplexityAnalyzer boundary — not in scoring
-- Parse tests use fixtures under `tests/fixtures/git-log/` and `tests/fixtures/complexity/`
-
-## CLI tests (`bin/*.test.ts`)
-
-- `vi.resetModules()` before dynamic `import()` of the CLI
-- Mock `process.stdout.write` and `process.exit`
-- Short `setTimeout` for async CLI init when needed
-
-## Integrity
-
-- Prefer co-located `*.test.ts` next to the module under test
-- Do not weaken coverage thresholds to greenwash a change
+- Follow TESTING.md § Coverage — do not weaken thresholds to greenwash a change
+- Mock at adapter boundaries only (git → `GitMiner`; worker pool / file I/O → ComplexityAnalyzer) — see INTEGRATIONS.md
+- Prefer co-located `*.test.ts`; parse tests use `tests/fixtures/git-log/` and `tests/fixtures/complexity/`
+- CLI tests (`bin/*.test.ts`): `vi.resetModules()` before dynamic `import()`; mock `process.stdout.write` / `process.exit` as needed
 - Contract tests must stay green after schema edits

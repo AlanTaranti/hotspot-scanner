@@ -84,9 +84,8 @@ Report [type of expected result]:
 
 ## Hard constraints (hotspot-scanner)
 
-- Gate: `pnpm build && pnpm test`
+- Shared constraints: [agent-hard-constraints.md](../vitals-common/references/agent-hard-constraints.md)
 - Requirement IDs: `HOTSPOT-*`
-- Do not commit unless the user explicitly asks
 - Planning agents end at `tasks.md` Status `Planned` (no Execute in the same session)
 
 ## Further reading

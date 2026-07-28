@@ -16,32 +16,18 @@ Concise domain pointers for `@vitals/hotspot-scanner`. **Do not treat this skill
 | Flags / exit codes | [docs/cli-reference.md](../../../docs/cli-reference.md) |
 | Task path ownership | [implementer-routing.md](../vitals-common/references/implementer-routing.md) |
 
-## Pipeline stages (paths only)
+## Pipeline stages
 
 ```
 git log (stream) → NCLOC size analysis → hotspot scoring → report
 ```
 
-Also: `trend` (`src/trend/`), `assess` (`src/assess/`), CLI wiring in `bin/`.
+Also: `trend` (`src/trend/`), `assess` (`src/assess/`), CLI wiring in `bin/`. Module paths: STRUCTURE.md + implementer-routing.
 
-| Stage | Module |
-| ----- | ------ |
-| Git | `src/git/` |
-| Size / NCLOC | `src/complexity/` |
-| Scoring | `src/scoring/` |
-| Config | `src/config/` |
-| Scan-result parse | `src/scan-result/` |
-| Report | `src/report/` |
-| Trend / Assess | `src/trend/`, `src/assess/` |
-| Orchestration | `src/scan.ts` |
-| CLI | `bin/` |
-| Schemas | `schemas/` |
+## Domain reminders (pointers only)
 
-## Domain reminders
-
-- **hotspotScore** — formula in CONCERNS.md (`2ch / (c + h)` with `c` from normalized NCLOC)
-- **NCLOC (RT-005)** — state machine in `ncloc.ts`; not AST/McCabe
-- **JSON scan contract** — `schemas/scan-result.json` (`version: "3.0"`); `parseScanResult` rejects legacy fields (`coupling`, `functions`, `cyclomaticComplexity`)
+- **hotspotScore / NCLOC (RT-005)** — CONCERNS.md (do not restate formulas here)
+- **JSON scan contract** — `schemas/scan-result.json` + ARCHITECTURE.md; `parseScanResult` rejects legacy fields
 - **Superseded** — compare/baseline CLI and coupling analysis are gone; do not reintroduce without a new feature spec
 
 ## Related skills

@@ -22,3 +22,7 @@ SoT: [`.specs/codebase/CONVENTIONS.md`](../../.specs/codebase/CONVENTIONS.md) §
 - **Internal bin modules:** use `.js` extension for sibling imports (`./scan-actions.js`).
 - `pnpm build` = `tsc && tsc -p tsconfig.bin.json`
 - After changes to `bin/`, `tsconfig.bin.json`, or `tsconfig.json`: run `pnpm build && pnpm test` (includes `tests/compiled-cli.smoke.test.ts` against `dist/bin/`).
+
+## Hook coverage
+
+`pre-edit-guard` may **ask** when editing `tsconfig.json` to add `bin/` to `include`. Alias / `../src` import rules above are CONVENTIONS discipline — not fully hook-enforced.

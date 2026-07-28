@@ -26,6 +26,8 @@ import {
   lintConcernsDoc,
   lintContributingDoc,
   lintConventionsDoc,
+  lintDocOwnershipDoc,
+  lintDocsUserDoc,
   lintIntegrationsDoc,
   lintProjectDoc,
   lintReadmeDoc,
@@ -34,6 +36,8 @@ import {
   lintStackDoc,
   lintStructureDoc,
   lintTestingDoc,
+  DOC_OWNERSHIP_REL_PATH,
+  DOCS_CLI_REFERENCE_REL_PATH,
 } from "./lib/living-sot-doc.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -1203,6 +1207,63 @@ Shipped in M71. HOTSPOT-999 is fine to mention.
       assertIncludes(stdout, '"permission":"ask"', "state ask");
       assertIncludes(stdout, "Execute complete", "state ask mentions Execute complete");
       cleanupState("smoke-state");
+    },
+  },
+  {
+    name: "doc-ownership lint flags M##",
+    run() {
+      const dirty = lintDocOwnershipDoc(
+        "# DOC-OWNERSHIP\n\nUpdated after M12 delivery.\n",
+      );
+      if (!dirty.bannedMatches.includes("M12")) {
+        throw new Error(
+          `expected M12 in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+        );
+      }
+      const clean = lintDocOwnershipDoc(
+        "# DOC-OWNERSHIP\n\n| Change type | Destination |\n| --- | --- |\n| Modules | ARCHITECTURE.md |\n",
+      );
+      if (clean.bannedMatches.length !== 0) {
+        throw new Error(
+          `expected clean DOC-OWNERSHIP sample, got ${JSON.stringify(clean.bannedMatches)}`,
+        );
+      }
+    },
+  },
+  {
+    name: "live DOC-OWNERSHIP.md has no banned milestone tags",
+    run() {
+      const text = fs.readFileSync(
+        path.join(root, DOC_OWNERSHIP_REL_PATH),
+        "utf8",
+      );
+      const { bannedMatches } = lintDocOwnershipDoc(text);
+      if (bannedMatches.length > 0) {
+        throw new Error(
+          `DOC-OWNERSHIP.md contains forbidden tags: ${bannedMatches.join(", ")}`,
+        );
+      }
+    },
+  },
+  {
+    name: "docs lint flags M## (cli-reference sample + live file)",
+    run() {
+      const dirty = lintDocsUserDoc("# CLI\n\nChanged in M5.\n");
+      if (!dirty.bannedMatches.includes("M5")) {
+        throw new Error(
+          `expected M5 in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+        );
+      }
+      const livePath = path.join(root, DOCS_CLI_REFERENCE_REL_PATH);
+      if (!fs.existsSync(livePath)) {
+        throw new Error(`missing ${DOCS_CLI_REFERENCE_REL_PATH}`);
+      }
+      const live = lintDocsUserDoc(fs.readFileSync(livePath, "utf8"));
+      if (live.bannedMatches.length > 0) {
+        throw new Error(
+          `docs/cli-reference.md contains forbidden tags: ${live.bannedMatches.join(", ")}`,
+        );
+      }
     },
   },
 ];

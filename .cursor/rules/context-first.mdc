@@ -5,20 +5,12 @@ alwaysApply: true
 
 # Context First
 
-Before planning or implementing, read the relevant living docs. **Full destination matrix:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). **Skills/agents inventory:** [AGENTS.md](../../AGENTS.md).
+Before planning or implementing, read the relevant living docs.
 
-| Change type | Start here |
-| ----- | ----- |
-| General code | `CONVENTIONS.md`, `STRUCTURE.md` |
-| Scanner modules | `ARCHITECTURE.md`, `CONCERNS.md`, `INTEGRATIONS.md` |
-| Progress / milestones | `ROADMAP.md`, `.specs/features/` |
-| Decisions / deferred | `STATE.md` |
-| Tests / gates | `TESTING.md`, `quality-gates.mdc` |
-| Exit codes / flags | `docs/cli-reference.md` |
+- **Where content goes:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md)
+- **Skills/agents inventory:** [AGENTS.md](../../AGENTS.md)
 
-## Living documentation
-
-Significant changes (modules, domain types, CLI flags) must land in the DOC-OWNERSHIP destination — do not mirror the same table into multiple SoTs. Feature complete → ROADMAP per [roadmap-sync.md](../skills/vitals-common/references/roadmap-sync.md). Editing a living doc → its glob-scoped `*-sot.mdc` (or `docs-sot.mdc`).
+Do not mirror DOC-OWNERSHIP tables into other SoTs. Feature complete → ROADMAP per [roadmap-sync.md](../skills/vitals-common/references/roadmap-sync.md). Editing a living doc → its glob-scoped `*-sot.mdc` (or `docs-sot.mdc` / `doc-ownership-sot.mdc`).
 
 ## YAGNI
 

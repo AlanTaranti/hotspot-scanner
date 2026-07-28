@@ -71,6 +71,19 @@ Drill-down bridge:
 pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts --explain src/high.ts 2>&1 | grep '^next:'
 ```
 
+## Fixture authoring
+
+Used by `fixture-builder`. Methodology SoT: [TESTING.md](../../../.specs/codebase/TESTING.md); layout: [STRUCTURE.md](../../../.specs/codebase/STRUCTURE.md).
+
+1. **Define purpose** — what the fixture must prove (e.g. rename chain → churn preserved with `--follow`).
+2. **Minimal tree** — smallest set of files/commits; version Git repos in `tests/fixtures/repos/<slug>/`.
+3. **Git log samples** — raw `git log --numstat` output in `tests/fixtures/git-log/` for unit tests.
+4. **Complexity samples** — TS/JS files with known NCLOC (and indentation when needed) in `tests/fixtures/complexity/`.
+5. **README.md** — in fixture folder: purpose, expected scan highlights, CLI command to validate.
+6. **Validate** — `pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug>` (exit 0 for repo fixtures).
+
+Fixture source is excluded from Vitest include — validation is via CLI or dedicated integration tests.
+
 ## Fixture validation checklist
 
 1. Path exists (`tests/fixtures/repos/<slug>/`)

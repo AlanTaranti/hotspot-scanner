@@ -1,10 +1,52 @@
 # ROADMAP Sync
 
-**Canonical source** for keeping [.specs/project/ROADMAP.md](../../../../.specs/project/ROADMAP.md) aligned with delivered features.
+**Canonical source** for creating and keeping [.specs/project/ROADMAP.md](../../../../.specs/project/ROADMAP.md) aligned with delivered features.
 
 **Editorial contract:** [.cursor/rules/roadmap-sot.mdc](../../../rules/roadmap-sot.mdc) — lean milestone tracker only. STATE edits follow [.cursor/rules/state-sot.mdc](../../../rules/state-sot.mdc) — lasting locks only (never Execute-complete changelog).
 
-**Used by:** `planner-feature` (on planning complete), `orchestrator-implementer` (on Execute Done), direct-mode implementers.
+**Used by:** `planner-feature` (on planning complete / initial creation), `orchestrator-implementer` (on Execute Done), direct-mode implementers.
+
+---
+
+## Initial creation
+
+**Trigger:** "Create roadmap", "Plan features", "Map project phases" (when ROADMAP.md is missing or empty).
+
+From PROJECT.md, decompose vision into milestones (shippable increments) and features (user-facing capabilities).
+
+```markdown
+# ROADMAP — @vitals/hotspot-scanner
+
+## Current
+
+| Field | Value |
+| ----- | ----- |
+| **Status** | … |
+| **Open milestones** | … |
+| **Deferred** | [STATE.md](STATE.md) § Deferred |
+
+### Done summary
+
+| Band | Scope |
+| ---- | ----- |
+| … | … |
+
+## Archive
+
+## Milestone N — Name — PLANNED
+
+→ [`.specs/features/<slug>/spec.md`](../features/<slug>/spec.md)
+
+One-line outcome / goal.
+
+- Up to 3–5 capability bullets (not tasks)
+```
+
+**Status values:** PLANNED | IN PROGRESS | DONE.
+
+**Size:** soft hook warn at 900 lines — see roadmap-sot. Soft target ~3,000 tokens.
+
+**Forbidden drift** (roadmap-sot): Artifacts / HOTSPOT-* / Out of scope / Final gate / task checkboxes / Further horizon Deferred lists / Post-* backlog headers for Done work.
 
 ---
 

@@ -1,0 +1,27 @@
+---
+description: Keep DOC-OWNERSHIP.md as the ownership-matrix SoT — present-tense destination rows only
+globs: .specs/codebase/DOC-OWNERSHIP.md
+alwaysApply: false
+---
+
+# DOC-OWNERSHIP Matrix SoT
+
+**Role:** canonical map of where documentation content belongs. **Not:** Design SoT, milestone tracker, or flag encyclopedia.
+
+Ownership: this file **is** the matrix. Lint: `lintDocOwnershipDoc`.
+
+## Forbidden
+
+- `\bM\d+\b` / milestone changelog voice
+- Mirroring full living-doc tables into this file beyond destination rows
+- Policy prose that belongs in quality-gates, commit-policy, or skills
+
+## Allowed
+
+- Destination rows (Change type → Document)
+- Sync rule for Execute → living docs
+- Pointers to rules/skills that own procedures
+
+## Sync
+
+Update when a new living-doc destination or ownership row is introduced. Keep present tense.

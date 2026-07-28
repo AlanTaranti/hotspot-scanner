@@ -11,25 +11,30 @@ State files older than **14 days** are pruned on `sessionStart`.
 | Priority | Event | Script | Behavior |
 |----------|--------|--------|----------|
 | Critical | `beforeShellExecution` | `commit-policy.mjs` | Deny `git commit` without a user keyword (`commit`, `commite`, `comitar`, `versionar`); flag is sticky until a commit is allowed |
-| Critical | `beforeShellExecution` | `gate-before-commit.mjs` | Deny `git commit` if code changed without a recent gate |
+| Critical | `beforeShellExecution` | `gate-before-commit.mjs` | Deny `git commit` if code changed without a recent gate (`src/`, `bin/`, `scripts/`, `schemas/`, `vitest.config.ts` — not `tests/`-only) |
 | Critical | `afterShellExecution` | `record-gate-pass.mjs` | Record `gatePassedAt` / `buildPassedAt` + `testPassedAt` after build and test |
 | Critical | `subagentStop` | `subagent-stop.mjs` | Clear subagent state; follow-up for Phase E (quality gate) |
 | High | `subagentStart` | `subagent-start.mjs` | Subagent state; **deny** orchestrator when Status is Draft/Planned |
 | High | `preToolUse` | `pre-edit-guard.mjs` | Planner boundary; fragile `ask`; orchestrated ownership; living-doc SoT `ask` via `LIVING_SOT_ENTRIES` (ARCHITECTURE/CONCERNS/…/`docs/**`/`DOC-OWNERSHIP`); AGENTS index bans `M##` + exit-code tables; CONTRIBUTING SoT-mirror dumps; README adoption drift; ROADMAP/STATE drift patterns |
-| High | `postToolUse` | `post-edit-guard.mjs` | Track edits + fragile / scoring / ARCHITECTURE/CONCERNS/INTEGRATIONS/STACK/STRUCTURE/TESTING/CONVENTIONS/PROJECT/ROADMAP/STATE/AGENTS/CONTRIBUTING/README SoT alerts |
+| High | `postToolUse` | `post-edit-guard.mjs` | Track edits + fragile / scoring / living-doc SoT alerts |
 | High | `afterFileEdit` | `track-edit.mjs` | Path tracking (fallback); absolute paths normalized to repo-relative |
 | High | `stop` | `stop-gate-reminder.mjs` | Gate reminder when the agent stops |
-| Medium | `sessionStart` | `session-context.mjs` | Inject ROADMAP + gate context; prune stale state |
-| Medium | `beforeShellExecution` | `shell-guards.mjs` | Validate path on `hotspot-scanner scan` |
-| Medium | `afterShellExecution` | `shell-guards.mjs` | Context on `pnpm test` failure |
+| Medium | `sessionStart` | `session-context.mjs` | Inject ROADMAP + Planned/In Progress features + gate context; prune stale state |
+| Medium | `beforeShellExecution` | `shell-guards.mjs` | `scanPathGuard` — validate path on `hotspot-scanner scan` |
+| Medium | `afterShellExecution` | `shell-guards.mjs` | `testFailureHints` — heuristic coverage lines after failed `pnpm test` (not a SoT) |
 | Medium | `preCompact` | `pre-compact.mjs` | Checkpoint at `.specs/.hooks-checkpoint.json` |
+
+## SoT prose vs hook lint
+
+Glob-scoped `*-sot.mdc` rules are the full editorial guidance. Hooks enforce a **regex subset** (e.g. `M##`, `HOTSPOT-*` where banned, ROADMAP/STATE/CONTRIBUTING/README drift patterns). Prose-only violations without a matching tag are **not** machine-checked — rely on agent discipline + review.
 
 ## Known limitations
 
-- `sessionStart` / `postToolUse` `additional_context` may not reach the model on some Cursor versions. Primary enforcement: `preToolUse` (`deny`/`ask`) and `beforeShellExecution`.
+- `sessionStart` / `postToolUse` `additional_context` may not reach the model on some Cursor versions. Primary enforcement: `preToolUse` (`deny`/`ask`) and `beforeShellExecution`. Soft session reminders (including Planned-feature warnings) are best-effort.
 - Edit tracking runs on `postToolUse` (Write/StrReplace/Delete/EditNotebook) and `afterFileEdit` (fallback).
 - Gate accepts `pnpm build && pnpm test` in one command **or** separate `pnpm build` and `pnpm test` (both exit 0).
 - Paths from Cursor are often absolute; hooks strip `workspace_roots[0]` before classifying code/fragile paths.
+- Coverage hints after `pnpm test` failure are heuristic (`<80%` line scan) — confirm against [TESTING.md](../../.specs/codebase/TESTING.md); do not treat hints as the coverage SoT.
 
 ## Smoke tests
 

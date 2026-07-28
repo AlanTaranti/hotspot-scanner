@@ -16,3 +16,9 @@ pnpm build && pnpm test
 `pnpm test` runs Vitest with coverage (`vitest run --coverage`). Thresholds and include/exclude rules: [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md) § Coverage.
 
 To run and report: agent `verifier-quality-gates` or inline after implementation.
+
+## Commit hook scope (gate-before-commit)
+
+Cursor hook tracking for “code changed → need recent gate” covers: `src/`, `bin/`, `scripts/`, `schemas/`, `vitest.config.ts`.
+
+Edits **only** under `tests/` do **not** require a recent gate for `git commit` via that hook. The project gate above is still required before marking work **Done**.

@@ -35,6 +35,8 @@ Required before marking any task Complete. Agents: use `verifier-quality-gates` 
 
 `vitest.config.ts` enforces thresholds; this section documents that config.
 
+**Commit hook note:** Cursor `gate-before-commit` tracks code paths under `src/`, `bin/`, `scripts/`, `schemas/`, and `vitest.config.ts`. Edits only under `tests/` do not require a recent gate for commit via that hook; the project gate (`pnpm build && pnpm test`) is still required before Done — see [quality-gates.mdc](../../.cursor/rules/quality-gates.mdc).
+
 ### Provider and output
 
 | Setting    | Value                        |

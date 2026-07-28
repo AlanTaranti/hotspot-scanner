@@ -11,7 +11,7 @@ metadata:
 
 Behavioral guidelines to reduce common LLM coding mistakes. These principles bias toward caution over speed—for trivial tasks, use judgment.
 
-> **Canonical source:** `.cursor/skills/coding-guidelines/SKILL.md`. The file `vitals-common/references/coding-principles.md` is a redirect only — do not duplicate rules there.
+> **Canonical source:** `.cursor/skills/coding-guidelines/SKILL.md`.
 
 ## 1. Think Before Coding
 

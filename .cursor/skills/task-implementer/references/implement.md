@@ -144,75 +144,9 @@ After the gate check passes:
 
 ### 7. Git Commit (on request)
 
-**@vitals/hotspot-scanner:** Do not commit unless the user explicitly asks (see AGENTS.md). After verification passes, propose a commit message. Commit only when requested.
+Do not commit unless the user explicitly asks — [commit-policy.mdc](../../../rules/commit-policy.mdc) + [agent-hard-constraints.md](../../vitals-common/references/agent-hard-constraints.md). After verification passes, **propose** a Conventional Commit message. Commit only when requested.
 
-When committing: one task = one commit. Never batch multiple tasks into one commit.
-
-**Format ([Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/)):**
-
-```
-<type>(<scope>): <description>
-
-[optional body]
-
-[optional footer(s)]
-```
-
-**Types:**
-
-| Type       | When to use                                             |
-| ---------- | ------------------------------------------------------- |
-| `feat`     | New feature or capability                               |
-| `fix`      | Bug fix                                                 |
-| `refactor` | Code change that neither fixes a bug nor adds a feature |
-| `docs`     | Documentation only                                      |
-| `test`     | Adding or correcting tests                              |
-| `style`    | Formatting, missing semicolons, etc. (no code change)   |
-| `perf`     | Performance improvement                                 |
-| `build`    | Build system or external dependencies                   |
-| `ci`       | CI configuration files and scripts                      |
-| `chore`    | Maintenance tasks that don't modify src or test files   |
-
-**Scope:** Feature name or module area, lowercase, e.g., `auth`, `cart`, `api`
-
-**Description rules:**
-
-- Imperative mood ("add", not "added" or "adds")
-- Lowercase first letter
-- No period at the end
-- Complete the sentence: "If applied, this commit will _[your description]_"
-
-**Breaking changes:** Append `!` after type/scope AND add `BREAKING CHANGE:` footer:
-
-```
-feat(api)!: change authentication endpoint response format
-
-BREAKING CHANGE: login endpoint now returns JWT in body instead of cookie
-```
-
-**Examples:**
-
-```
-feat(auth): add email validation to login form
-```
-
-```
-fix(cart): prevent negative quantity on item decrement
-```
-
-```
-refactor(api): extract token refresh logic into service
-
-Move token refresh from inline handler to dedicated AuthTokenService
-for reuse across multiple endpoints.
-```
-
-**Rules:**
-
-- One task = one commit
-- Description references what was DONE, not what was planned
-- Include only files listed in the task — never sneak in "while I'm here" changes
-- If tests are part of the task, include them in the same commit
+When committing: one task = one commit. Never batch multiple tasks. Include only files listed in the task — no "while I'm here" changes. If tests are part of the task, include them in the same commit.
 
 ### 8. Scope Guardrail
 

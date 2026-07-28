@@ -1,10 +1,15 @@
 # Execute: Validate & Verify
 
-**Goal:** Verify implementation meets `spec.md` / `tasks.md` and coding guidelines. Used by `verifier-implementation` (Phase D).
+**Goal:** Verify implementation meets `spec.md` / `tasks.md`. Used by `verifier-implementation` (Phase D).
 
-**No interactive UI UAT** for this CLI/library project — automated gates and CLI checks only.
+**No interactive UI UAT** for this CLI/library project — automated checks and CLI validation only.
 
 **Trigger:** "Validate", "verify work", "acceptance check", post-Execute Phase D.
+
+**Out of scope for this agent:**
+
+- Full project gate `pnpm build && pnpm test` → Phase E / `verifier-quality-gates`
+- Style / maintainability review → Phase C / `code-reviewer` + [coding-guidelines](../../coding-guidelines/SKILL.md)
 
 ---
 
@@ -37,34 +42,28 @@ From `spec.md` edge cases:
 - [ ] [Edge case 1] handled correctly
 - [ ] [Edge case 2] handled correctly
 
-### 4. Run build-level gate check (mandatory)
+### 4. Per-task Gate evidence (not the project gate)
 
-Project gate: [quality-gates.mdc](../../../rules/quality-gates.mdc) + TESTING.md § Coverage.
+**Do not** run the full project gate here — that is Phase E / [`verifier-quality-gates`](../../../agents/verifier-quality-gates.md).
 
-1. Run: `pnpm build && pnpm test` (or the task's narrower Gate when Phase D is scoped to a single task)
-2. Non-zero exit → STOP. Do not mark READY.
-3. Record: passed / failed / skipped (each skip justified)
+Audit evidence that each claimed-Complete task met its **task Gate** / Verify steps:
+
+1. Confirm co-located or listed tests exist for touched modules.
+2. Confirm implementer (or task notes) recorded Gate pass for that task when the task defines a Gate.
+3. Flag missing evidence as ISSUES or NOT_READY — do not invent a green project gate.
+
+**Direct mode** (no orchestrator): still do not run the project gate in this checklist; the caller or `verifier-quality-gates` owns `pnpm build && pnpm test`.
 
 **Test integrity:**
 
 - If test count decreased vs pre-feature: investigate
 - If assertions were weakened: flag as potential regression
 
-### 5. Code quality check (mandatory)
+### 5. Residual quality (do not re-do Phase C)
 
-Against [coding-guidelines](../../coding-guidelines/SKILL.md):
+Style and YAGNI belong to Phase C (`code-reviewer`) and [coding-guidelines](../../coding-guidelines/SKILL.md).
 
-| Check                                | Pass? |
-| ------------------------------------ | ----- |
-| No features beyond what was asked    |       |
-| No abstractions for single-use code  |       |
-| No unnecessary "flexibility" added   |       |
-| Only touched files required for task |       |
-| Didn't "improve" unrelated code      |       |
-| Matches existing patterns/style      |       |
-| Would senior engineer approve?       |       |
-
-Any "No"? → Fix before marking complete (or verdict NOT_READY / ISSUES).
+In Phase D: flag only **obvious residual** violations that block acceptance (e.g. clearly unrelated files changed with no task link). Do not re-run a full code-quality checklist.
 
 ### 6. CLI validation
 
@@ -72,8 +71,8 @@ Any "No"? → Fix before marking complete (or verdict NOT_READY / ISSUES).
 
 When `bin/`, scan wiring, or fixtures changed:
 
-- [ ] `pnpm build && pnpm test` passes
-- [ ] `pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo>` exits 0
+- [ ] Targeted CLI / fixture checks per vitals-cli-validation (not a substitute for Phase E)
+- [ ] `pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo>` exits 0 when repo fixtures changed
 - [ ] `--format json` produces valid JSON with `version`, `hotspots`, `meta` (no `coupling` / `functions` / `cyclomaticComplexity`)
 - [ ] Exit codes match cli-reference SoT
 - [ ] New/changed behavior covered by co-located `*.test.ts`
@@ -90,7 +89,7 @@ For each issue:
 
 ### 8. Report
 
-Use the template below. Verdicts for this agent: **READY** | **ISSUES** | **NOT_READY**.
+Use the template below. Verdicts: **READY** | **ISSUES** | **NOT_READY**.
 
 ---
 
@@ -125,14 +124,9 @@ Use the template below. Verdicts for this agent: **READY** | **ISSUES** | **NOT_
 
 ---
 
-## Code Quality
+## Residual quality
 
-| Principle        | Status |
-| ---------------- | ------ |
-| Minimum code     |        |
-| Surgical changes |        |
-| No scope creep   |        |
-| Matches patterns |        |
+Phase C owns style review. Note only obvious residual blockers (or N/A).
 
 ---
 
@@ -143,10 +137,11 @@ Use the template below. Verdicts for this agent: **READY** | **ISSUES** | **NOT_
 
 ---
 
-## Tests / CLI
+## Per-task Gate evidence / CLI
 
-- **Gate**: `pnpm build && pnpm test` — [PASS/FAIL]
+- **Task Gate evidence**: [summary — not project gate]
 - **CLI checks**: [summary or N/A]
+- **Project gate**: deferred to Phase E / verifier-quality-gates
 - **Failures**: [list]
 
 ---
@@ -167,5 +162,5 @@ Use the template below. Verdicts for this agent: **READY** | **ISSUES** | **NOT_
 - P1/MVP must pass before READY
 - WHEN/THEN criteria are the acceptance tests
 - Recommend fixes — do not only list problems
-- Quality check is mandatory
+- Do not run or claim the full project gate in Phase D
 - Update requirement traceability in `spec.md` when statuses change

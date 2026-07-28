@@ -1,6 +1,6 @@
 # Quick Mode
 
-**Exception to the planning session boundary:** Quick mode may implement **in-session** for ≤3 files / one-sentence scope. It is **not** formal Specify→Tasks→Execute. If scope grows (>3 files, design decisions, unclear deps) → stop and create `tasks.md`, then hand off to an Execute session (`orchestrator-implementer` + `vitals-execute`). See [planning-session-boundary.md](planning-session-boundary.md).
+**Only exception** where the planning skill may implement code: ≤3 files / one-sentence scope, **in-session**. It is **not** formal Specify→Tasks→Execute. Medium+ or growing scope → stop, create `tasks.md`, hand off to an Execute session (`orchestrator-implementer` + `vitals-execute`). See [planning-session-boundary.md](planning-session-boundary.md).
 
 **Goal:** Small ad-hoc tasks with the same quality principles but without full pipeline ceremony.
 

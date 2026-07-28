@@ -1,10 +1,10 @@
 # Planning Session Boundary
 
-**Applies to:** `planner-feature` and any agent invoked for spec/design/tasks creation.
+**Applies to:** `planner-feature`, the **main agent** during planning, and any agent invoked for spec/design/tasks creation.
 
 **Goal:** Planning sessions end at **Tasks** with `tasks.md` in Status `Planned`. Implementation happens in a **separate development session**.
 
-**See also:** [tasks.md](tasks.md) § Status, [feature-spec-checklist.md](feature-spec-checklist.md).
+**See also:** [tasks.md](tasks.md) § Status, [feature-spec-checklist.md](feature-spec-checklist.md), [feature-planning.mdc](../../../rules/feature-planning.mdc).
 
 ---
 
@@ -12,10 +12,12 @@
 
 | Session         | Agents / skills                                                | Ends when                                         |
 | --------------- | -------------------------------------------------------------- | ------------------------------------------------- |
-| **Planning**    | `planner-feature`, `vitals-spec-driven` (Specify/Design/Tasks) | `tasks.md` **Status: Planned**; handoff delivered |
+| **Planning**    | `planner-feature`, main agent + `vitals-spec-driven`           | `tasks.md` **Status: Planned**; handoff delivered |
 | **Development** | User promotes Status → `orchestrator-implementer`              | Gates pass; tasks marked Complete; ROADMAP synced |
 
-The product lifecycle includes Execute — but **not in the same session** as planning agents.
+The product lifecycle includes Execute — but **not in the same session** as planning.
+
+**Main agent:** While any active feature `tasks.md` is `Draft` or `Planned`, do **not** start Execute, edit application code under `src/`/`bin/`/`tests/`, or invoke `orchestrator-implementer`. Quick mode (≤3 files) is the only in-session implementation exception — see [quick-mode.md](quick-mode.md).
 
 ---
 
@@ -28,10 +30,10 @@ The product lifecycle includes Execute — but **not in the same session** as pl
 
 ---
 
-## Prohibited (planning agents)
+## Prohibited (planning agents **and** main agent in a planning session)
 
-- Edit `src/`, `bin/`, `tests/` implementation files (paths may appear in task definitions as _targets_, not as edits)
-- Invoke `orchestrator-implementer` or run Execute
+- Edit `src/`, `bin/`, `tests/` implementation files (paths may appear in task definitions as _targets_, not as edits) — except [quick-mode.md](quick-mode.md)
+- Invoke `orchestrator-implementer` or run Execute while Status is `Draft` / `Planned`
 - Run project gate (`pnpm build && pnpm test`) except to validate planning assumptions when explicitly asked
 - Set `tasks.md` Status to `Done` or `In Progress`
 

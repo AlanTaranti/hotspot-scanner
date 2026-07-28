@@ -1,4 +1,10 @@
 #!/usr/bin/env node
+/**
+ * Shell guards for hotspot-scanner Cursor hooks.
+ * Two concerns in one script (matched separately in hooks.json):
+ *   - beforeShellExecution + hotspot-scanner → scanPathGuard
+ *   - afterShellExecution + pnpm test → testFailureHints (heuristic only)
+ */
 import fs from "node:fs";
 import path from "node:path";
 import { allow, deny, additionalContext, emptyOk } from "./lib/respond.mjs";
@@ -8,13 +14,30 @@ const input = await readStdinJson();
 const event = input.hook_event_name;
 
 if (event === "beforeShellExecution") {
+  scanPathGuard(input);
+  process.exit(0);
+}
+
+if (event === "afterShellExecution") {
+  testFailureHints(input);
+  process.exit(0);
+}
+
+emptyOk();
+process.exit(0);
+
+/**
+ * Deny `hotspot-scanner scan <path>` when the path does not exist.
+ * @param {Record<string, unknown>} input
+ */
+function scanPathGuard(input) {
   const command = typeof input.command === "string" ? input.command : "";
   const scanMatch = command.match(
     /(?:pnpm\s+(?:exec\s+)?)?hotspot-scanner\s+scan\s+(\S+)/,
   );
   if (!scanMatch) {
     allow();
-    process.exit(0);
+    return;
   }
 
   const pathArg = scanMatch[1].replace(/^['"]|['"]$/g, "");
@@ -28,18 +51,22 @@ if (event === "beforeShellExecution") {
       `Invalid fixture/path: ${pathArg} does not exist. Use tests/fixtures/repos/<slug> or invoke fixture-builder.`,
       `CLI validation (vitals-cli-validation): scan path must point to an existing directory. Tried: ${absPath}`,
     );
-    process.exit(0);
+    return;
   }
 
   allow();
-  process.exit(0);
 }
 
-if (event === "afterShellExecution") {
+/**
+ * Soft coverage hints after failed `pnpm test`. Heuristic only — not a SoT;
+ * thresholds live in TESTING.md / vitest.config.ts.
+ * @param {Record<string, unknown>} input
+ */
+function testFailureHints(input) {
   const command = typeof input.command === "string" ? input.command : "";
   if (!/\bpnpm\s+test\b/.test(command) || /\bpnpm\s+build\b/.test(command)) {
     emptyOk();
-    process.exit(0);
+    return;
   }
 
   const exitCode =
@@ -51,7 +78,7 @@ if (event === "afterShellExecution") {
 
   if (exitCode === 0) {
     emptyOk();
-    process.exit(0);
+    return;
   }
 
   const output =
@@ -64,14 +91,13 @@ if (event === "afterShellExecution") {
   const hints = parseCoverageHints(output);
   if (hints.length > 0) {
     additionalContext(
-      `pnpm test failed (exit ${exitCode}). Possible coverage below threshold:\n${hints.join("\n")}`,
+      `pnpm test failed (exit ${exitCode}). Possible coverage below threshold (heuristic — confirm against TESTING.md):\n${hints.join("\n")}`,
     );
-    process.exit(0);
+    return;
   }
-}
 
-emptyOk();
-process.exit(0);
+  emptyOk();
+}
 
 /**
  * @param {string} text

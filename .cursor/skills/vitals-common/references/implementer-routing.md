@@ -44,11 +44,7 @@ When the orchestrator runs **batch mode** (multiple features), apply the same pa
 
 ## Mock boundaries
 
-SoT: [INTEGRATIONS.md](../../../../.specs/codebase/INTEGRATIONS.md) + [testing-patterns.mdc](../../../rules/testing-patterns.mdc).
-
-- Mock **git** only at `GitMiner` boundary — not in scorers or reporter.
-- Mock **`createWorkerPool`** at the ComplexityAnalyzer boundary — not in scoring.
-- No ts-morph / AST McCabe in this codebase (NCLOC state machine).
+SoT only — do not duplicate lists here: [INTEGRATIONS.md](../../../../.specs/codebase/INTEGRATIONS.md) + [TESTING.md](../../../../.specs/codebase/TESTING.md) § Mock boundaries (+ [testing-patterns.mdc](../../../rules/testing-patterns.mdc) when editing tests).
 
 ## Blocked conditions
 

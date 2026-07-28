@@ -46,11 +46,17 @@ const parts = [
 const roadmapPath = path.join(root, ".specs/project/ROADMAP.md");
 if (fs.existsSync(roadmapPath)) {
   const roadmap = fs.readFileSync(roadmapPath, "utf8");
-  const inProgress = findInProgressFeatures(root);
+  const inProgress = findFeaturesByStatus(root, /Status:\s*`?In Progress`?/i);
+  const planned = findFeaturesByStatus(root, /Status:\s*`?Planned`?/i);
   const milestone = extractCurrentMilestone(roadmap, inProgress);
   if (milestone) parts.push(`ROADMAP active milestone: ${milestone}`);
   if (inProgress.length > 0) {
     parts.push(`Features In Progress: ${inProgress.join(", ")}`);
+  }
+  if (planned.length > 0) {
+    parts.push(
+      `Features Status Planned (no Execute / no src|bin|tests impl in this session until Status promoted): ${planned.join(", ")}`,
+    );
   }
 }
 
@@ -98,9 +104,10 @@ function extractCurrentMilestone(roadmap, inProgress) {
 
 /**
  * @param {string} root
+ * @param {RegExp} statusRe
  * @returns {string[]}
  */
-function findInProgressFeatures(root) {
+function findFeaturesByStatus(root, statusRe) {
   const featuresDir = path.join(root, ".specs/features");
   if (!fs.existsSync(featuresDir)) return [];
 
@@ -110,7 +117,7 @@ function findInProgressFeatures(root) {
     const tasksPath = path.join(featuresDir, entry.name, "tasks.md");
     if (!fs.existsSync(tasksPath)) continue;
     const text = fs.readFileSync(tasksPath, "utf8");
-    if (/Status:\s*`?In Progress`?/i.test(text)) {
+    if (statusRe.test(text)) {
       slugs.push(entry.name);
     }
   }

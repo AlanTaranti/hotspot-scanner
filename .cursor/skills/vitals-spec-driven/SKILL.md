@@ -24,7 +24,7 @@ Adapted for this repository. Always read [vitals-project.md](../vitals-common/re
 
 **Pointers:** Gate → [quality-gates.mdc](../../rules/quality-gates.mdc) + TESTING § Coverage · IDs → [feature-planning.mdc](../../rules/feature-planning.mdc) (`HOTSPOT-*`) · Commits → [commit-policy.mdc](../../rules/commit-policy.mdc) · Exit codes → [docs/cli-reference.md](../../../docs/cli-reference.md#exit-codes) + `vitals-cli-validation`
 
-**Execute boundary:** This skill owns Specify → Design → Tasks (and Quick / handoff). **Do not implement application code here** (except [quick-mode.md](references/quick-mode.md)). If `tasks.md` Status is `Draft` or `Planned`, do **not** start Execute — hand off to a new session with `orchestrator-implementer` + [`vitals-execute`](../vitals-execute/SKILL.md). See [planning-session-boundary.md](references/planning-session-boundary.md).
+**Execute boundary:** This skill owns Specify → Design → Tasks (and handoff). **Do not implement application code here** except the **single** escape hatch [quick-mode.md](references/quick-mode.md) (≤3 files). Medium+ features → Status `Planned` and hand off to a new session with `orchestrator-implementer` + [`vitals-execute`](../vitals-execute/SKILL.md). See [planning-session-boundary.md](references/planning-session-boundary.md).
 
 ## Progressive disclosure
 
@@ -34,7 +34,7 @@ Load **only** the refs for the current phase. Never preload the entire `referenc
 | ------------ | ---- |
 | Specify | [specify.md](references/specify.md); [discuss.md](references/discuss.md) if gray areas |
 | Design | [design.md](references/design.md); [brownfield-mapping.md](references/brownfield-mapping.md) if Large/Complex |
-| Tasks | [tasks.md](references/tasks.md); [feature-spec-checklist.md](references/feature-spec-checklist.md); [implementer-routing.md](../vitals-common/references/implementer-routing.md); [planning-session-boundary.md](references/planning-session-boundary.md) |
+| Tasks | [tasks.md](references/tasks.md); [task-validation.md](references/task-validation.md); [feature-spec-checklist.md](references/feature-spec-checklist.md); [implementer-routing.md](../vitals-common/references/implementer-routing.md); [planning-session-boundary.md](references/planning-session-boundary.md) |
 | Execute handoff | Stop planning; user promotes Status → new session: `orchestrator-implementer` + [`vitals-execute`](../vitals-execute/SKILL.md) |
 | Quick | [quick-mode.md](references/quick-mode.md) |
 | Session handoff | [session-handoff.md](references/session-handoff.md); [state-management.md](references/state-management.md) |
@@ -82,7 +82,7 @@ Base: AGENTS + vitals-project + PROJECT / ROADMAP / STATE. On demand: codebase d
 | Trigger | Reference |
 | ------- | --------- |
 | Initialize project | [project-init.md](references/project-init.md) |
-| Create roadmap | [roadmap.md](references/roadmap.md) |
+| Create roadmap | [roadmap-sync.md](../vitals-common/references/roadmap-sync.md) (§ Initial creation) |
 | Map codebase | [brownfield-mapping.md](references/brownfield-mapping.md) |
 | Document concerns | [concerns.md](references/concerns.md) |
 | Record decision / blocker | [state-management.md](references/state-management.md) |
