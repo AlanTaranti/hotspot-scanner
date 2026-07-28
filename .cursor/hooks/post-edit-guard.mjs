@@ -10,6 +10,9 @@ import {
   SCORING_FORMULA_CONTEXT,
 } from "./lib/paths.mjs";
 import {
+  AGENTS_LINE_WARN,
+  AGENTS_REL_PATH,
+  AGENTS_SOT_CONTEXT,
   ARCHITECTURE_REL_PATH,
   ARCHITECTURE_SOT_CONTEXT,
   CONCERNS_REL_PATH,
@@ -30,6 +33,7 @@ import {
   STRUCTURE_SOT_CONTEXT,
   TESTING_REL_PATH,
   TESTING_SOT_CONTEXT,
+  isAgentsDocPath,
   isArchitectureDocPath,
   isConcernsDocPath,
   isConventionsDocPath,
@@ -43,6 +47,7 @@ import {
   LINE_WARN,
   ROADMAP_LINE_WARN,
   STATE_LINE_WARN,
+  lintAgentsDoc,
   lintArchitectureDoc,
   lintConcernsDoc,
   lintConventionsDoc,
@@ -253,6 +258,26 @@ if (isStateDocPath(relPath) && workspaceRoot) {
     if (overSize) {
       messages.push(
         `[${STATE_REL_PATH}] Soft size warning: ${lineCount} lines (warn at ${STATE_LINE_WARN}). Keep lasting locks only (state-sot); Execute dumps → STATE-ARCHIVE.`,
+      );
+    }
+  } catch {
+    // File missing mid-edit — skip
+  }
+}
+
+if (isAgentsDocPath(relPath) && workspaceRoot) {
+  const abs = path.join(workspaceRoot, AGENTS_REL_PATH);
+  try {
+    const text = fs.readFileSync(abs, "utf8");
+    const { bannedMatches, lineCount, overSize } = lintAgentsDoc(text);
+    if (bannedMatches.length > 0) {
+      messages.push(
+        `[${AGENTS_REL_PATH}] Forbidden tags still present: ${bannedMatches.join(", ")}. ${AGENTS_SOT_CONTEXT}`,
+      );
+    }
+    if (overSize) {
+      messages.push(
+        `[${AGENTS_REL_PATH}] Soft size warning: ${lineCount} lines (warn at ${AGENTS_LINE_WARN}). Keep lean index/policies only (agents-sot); detail → vitals-project / ARCHITECTURE / README.`,
       );
     }
   } catch {

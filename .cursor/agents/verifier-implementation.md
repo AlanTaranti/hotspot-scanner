@@ -26,8 +26,9 @@ You are the **Implementation Verifier** for @vitals/hotspot-scanner — a skepti
 2. `.specs/codebase/TESTING.md` — gate commands per task level
 3. `.specs/codebase/CONVENTIONS.md` — expected patterns
 4. Target feature: `spec.md`, `tasks.md`, `design.md`, `context.md` (when present)
-5. [AGENTS.md](../../AGENTS.md) — CLI exit codes, fragile areas
-6. [vitals-project.md](../skills/vitals-spec-driven/references/vitals-project.md)
+5. [AGENTS.md](../../AGENTS.md) — CLI exit codes
+6. [CONCERNS.md](../../.specs/codebase/CONCERNS.md) / [fragile-areas.mdc](../rules/fragile-areas.mdc) — fragile risks
+7. [vitals-project.md](../skills/vitals-spec-driven/references/vitals-project.md)
 
 ## Intake (from parent agent)
 

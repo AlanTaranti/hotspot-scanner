@@ -8,6 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  AGENTS_REL_PATH,
   ARCHITECTURE_REL_PATH,
   CONCERNS_REL_PATH,
   CONVENTIONS_REL_PATH,
@@ -18,6 +19,7 @@ import {
   STACK_REL_PATH,
   STRUCTURE_REL_PATH,
   TESTING_REL_PATH,
+  lintAgentsDoc,
   lintArchitectureDoc,
   lintConcernsDoc,
   lintConventionsDoc,
@@ -805,6 +807,58 @@ const tests = [
       assertIncludes(stdout, '"permission":"ask"', "conventions ask");
       assertIncludes(stdout, "M24", "conventions ask mentions M24");
       cleanupState("smoke-conventions");
+    },
+  },
+  {
+    name: "agents lint flags M## only (HOTSPOT naming allowed)",
+    run() {
+      const dirty = lintAgentsDoc(
+        "# AGENTS\n\nCompare/baseline removed in M71.\n",
+      );
+      if (!dirty.bannedMatches.includes("M71")) {
+        throw new Error(
+          `expected M71 in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+        );
+      }
+      const clean = lintAgentsDoc(
+        "# AGENTS\n\nPrefix **`HOTSPOT-*`** (e.g. `HOTSPOT-01`).\n",
+      );
+      if (clean.bannedMatches.length !== 0) {
+        throw new Error(
+          `expected clean sample (HOTSPOT naming allowed), got ${JSON.stringify(clean.bannedMatches)}`,
+        );
+      }
+    },
+  },
+  {
+    name: "live AGENTS.md has no banned milestone tags",
+    run() {
+      const text = fs.readFileSync(path.join(root, AGENTS_REL_PATH), "utf8");
+      const { bannedMatches } = lintAgentsDoc(text);
+      if (bannedMatches.length > 0) {
+        throw new Error(
+          `AGENTS.md contains forbidden tags: ${bannedMatches.join(", ")}`,
+        );
+      }
+    },
+  },
+  {
+    name: "pre-edit ask on AGENTS Write with M78",
+    run() {
+      cleanupState("smoke-agents");
+      const { stdout } = runHook("pre-edit-guard.mjs", {
+        hook_event_name: "preToolUse",
+        tool_name: "Write",
+        tool_input: {
+          path: path.join(root, "AGENTS.md"),
+          contents: "## Quality gate (M78)\n",
+        },
+        conversation_id: "smoke-agents",
+        workspace_roots: [root],
+      });
+      assertIncludes(stdout, '"permission":"ask"', "agents ask");
+      assertIncludes(stdout, "M78", "agents ask mentions M78");
+      cleanupState("smoke-agents");
     },
   },
   {

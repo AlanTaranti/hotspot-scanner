@@ -3,7 +3,8 @@
  * (ARCHITECTURE Design SoT + CONCERNS fragile-risk SoT + CONVENTIONS coding SoT
  * + INTEGRATIONS adapter SoT + STACK inventory SoT + STRUCTURE layout SoT
  * + TESTING infrastructure SoT + PROJECT product-vision SoT
- * + ROADMAP milestone-tracker SoT + STATE session-memory SoT).
+ * + ROADMAP milestone-tracker SoT + STATE session-memory SoT
+ * + AGENTS index/policies SoT).
  * @see .cursor/rules/architecture-sot.mdc
  * @see .cursor/rules/concerns-sot.mdc
  * @see .cursor/rules/conventions-sot.mdc
@@ -14,6 +15,7 @@
  * @see .cursor/rules/project-sot.mdc
  * @see .cursor/rules/roadmap-sot.mdc
  * @see .cursor/rules/state-sot.mdc
+ * @see .cursor/rules/agents-sot.mdc
  */
 
 export const ARCHITECTURE_REL_PATH = ".specs/codebase/ARCHITECTURE.md";
@@ -26,6 +28,7 @@ export const TESTING_REL_PATH = ".specs/codebase/TESTING.md";
 export const PROJECT_REL_PATH = ".specs/project/PROJECT.md";
 export const ROADMAP_REL_PATH = ".specs/project/ROADMAP.md";
 export const STATE_REL_PATH = ".specs/project/STATE.md";
+export const AGENTS_REL_PATH = "AGENTS.md";
 
 /** Soft size warning for ARCHITECTURE (~context-limits warning band). Smoke does not fail on size. */
 export const LINE_WARN = 450;
@@ -35,6 +38,9 @@ export const ROADMAP_LINE_WARN = 900;
 
 /** Soft size warning for STATE. Smoke does not fail on size. */
 export const STATE_LINE_WARN = 200;
+
+/** Soft size warning for AGENTS. Smoke does not fail on size. */
+export const AGENTS_LINE_WARN = 100;
 
 const MILESTONE_RE = /\bM\d+\b/g;
 const HOTSPOT_RE = /HOTSPOT-\d+/gi;
@@ -233,6 +239,27 @@ export function lintConventionsDoc(text) {
 }
 
 /**
+ * AGENTS bans milestone tags only — HOTSPOT-* naming prefix is allowed (agents-sot.mdc).
+ * @param {string} text
+ * @returns {{ bannedMatches: string[], lineCount: number, overSize: boolean }}
+ */
+export function lintAgentsDoc(text) {
+  const source = typeof text === "string" ? text : "";
+  const banned = new Set();
+  MILESTONE_RE.lastIndex = 0;
+  let match;
+  while ((match = MILESTONE_RE.exec(source)) !== null) {
+    banned.add(match[0]);
+  }
+  const lineCount = source.length === 0 ? 0 : source.split(/\r?\n/).length;
+  return {
+    bannedMatches: [...banned].sort(),
+    lineCount,
+    overSize: lineCount > AGENTS_LINE_WARN,
+  };
+}
+
+/**
  * @param {string | null | undefined} relPath
  * @param {string} fileName
  * @param {string} relCanonical
@@ -330,6 +357,14 @@ export function isStateDocPath(relPath) {
   );
 }
 
+/**
+ * @param {string | null | undefined} relPath
+ * @returns {boolean}
+ */
+export function isAgentsDocPath(relPath) {
+  return isCodebaseDocPath(relPath, "AGENTS.md", AGENTS_REL_PATH);
+}
+
 export const ARCHITECTURE_SOT_CONTEXT = `ARCHITECTURE.md is the Design SoT (.cursor/rules/architecture-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/sister-milestone voice. Allowed: ADR-*, RT-*, present-tense modules/pipelines/contracts. Milestone history → ROADMAP + .specs/features/; decisions/deferred/blockers → STATE.`;
 
 export const CONCERNS_SOT_CONTEXT = `CONCERNS.md is the fragile-risk SoT (.cursor/rules/concerns-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/superseded voice. Allowed: RT-*, present-tense risk→mitigation→test expectations. Milestone history → ROADMAP + .specs/features/; decisions/deferred/blockers → STATE.`;
@@ -349,3 +384,5 @@ export const PROJECT_SOT_CONTEXT = `PROJECT.md is the product-vision SoT (.curso
 export const ROADMAP_SOT_CONTEXT = `ROADMAP.md is the milestone-tracker SoT (.cursor/rules/roadmap-sot.mdc). Forbidden: Artifacts/Sisters/HOTSPOT-*/Out of scope/Final gate/Suggested execution order/Further horizon Deferred lists/task checkboxes/Post-* backlog dumps. Allowed: M##, Current table, Done summary, lean Archive entries (link + outcome + ≤5 bullets). Detail → .specs/features/; deferred → STATE.`;
 
 export const STATE_SOT_CONTEXT = `STATE.md is the session-memory SoT (.cursor/rules/state-sot.mdc). Forbidden: Execute complete / Specs Planned / Gate green / Next: M## / Superseded by M## Done / HOTSPOT-* laundry / Deferred M## Done leftovers. Allowed: lasting locks (M## ok), ADRs, open Deferred, short Active, Lessons. Milestone status → ROADMAP + .specs/features/; archive dumps → STATE-ARCHIVE.`;
+
+export const AGENTS_SOT_CONTEXT = `AGENTS.md is the agent index/policies SoT (.cursor/rules/agents-sot.mdc). Forbidden: milestone tags (M##), changelog voice, CLI example dumps, Design SoT / fragile catalogs. Allowed: HOTSPOT-* naming prefix, present-tense policies, exit-code table, skills/agents inventory, short pointers. Module map → vitals-project/STRUCTURE; milestones → ROADMAP + .specs/features/.`;

@@ -11,6 +11,7 @@ import {
   TSCONFIG_RE,
 } from "./lib/paths.mjs";
 import {
+  AGENTS_SOT_CONTEXT,
   ARCHITECTURE_SOT_CONTEXT,
   CONCERNS_SOT_CONTEXT,
   CONVENTIONS_SOT_CONTEXT,
@@ -21,6 +22,7 @@ import {
   STACK_SOT_CONTEXT,
   STRUCTURE_SOT_CONTEXT,
   TESTING_SOT_CONTEXT,
+  isAgentsDocPath,
   isArchitectureDocPath,
   isConcernsDocPath,
   isConventionsDocPath,
@@ -31,6 +33,7 @@ import {
   isStackDocPath,
   isStructureDocPath,
   isTestingDocPath,
+  lintAgentsDoc,
   lintArchitectureDoc,
   lintConcernsDoc,
   lintConventionsDoc,
@@ -200,6 +203,18 @@ if (isStateDocPath(relPath)) {
     ask(
       `STATE.md edit introduces forbidden execute-log drift (${bannedMatches.join(", ")}). Keep lasting locks only (state-sot) or confirm intentional exception.`,
       `${STATE_SOT_CONTEXT} Matches: ${bannedMatches.join(", ")}`,
+    );
+    process.exit(0);
+  }
+}
+
+if (isAgentsDocPath(relPath)) {
+  const content = extractEditContent(input.tool_input);
+  const { bannedMatches } = lintAgentsDoc(content);
+  if (bannedMatches.length > 0) {
+    ask(
+      `AGENTS.md edit introduces forbidden tags (${bannedMatches.join(", ")}). Remove milestone changelog voice or confirm intentional exception.`,
+      `${AGENTS_SOT_CONTEXT} Matches: ${bannedMatches.join(", ")}`,
     );
     process.exit(0);
   }

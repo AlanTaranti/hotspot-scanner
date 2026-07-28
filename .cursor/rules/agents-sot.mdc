@@ -1,0 +1,47 @@
+---
+description: Keep AGENTS.md as lean agent index/policies SoT — no milestone changelog or product dumps
+globs: AGENTS.md
+alwaysApply: false
+---
+
+# AGENTS Index / Policies SoT
+
+[`AGENTS.md`](../../AGENTS.md) is the **agent index and policies SoT**: quality gate, commit policy, YAGNI, `HOTSPOT-*` naming prefix, exit-code table, and skills/agents inventory.
+
+It is **not** a Design SoT, module map, UX cookbook, flag encyclopedia, fragile-risk catalog, or milestone tracker.
+
+## Ownership matrix
+
+| Change type | Destination |
+| ----------- | ----------- |
+| Agent policies, exit codes, skills/agents inventory | **AGENTS.md** |
+| Module map / CLI surface detail | `vitals-project.md` / **STRUCTURE.md** |
+| Modules, pipelines, contracts | **ARCHITECTURE.md** |
+| Fragile risks / RT / mitigations | **CONCERNS.md** |
+| CLI UX copy, recipes, flag encyclopedias | **README** / `docs/recipes.md` |
+| Warning code catalog | `docs/warning-codes.md` |
+| Milestone status, feature history | **ROADMAP.md** / `.specs/features/` |
+| Decisions, deferred ideas, blockers | **STATE.md** |
+
+## Forbidden in AGENTS.md
+
+- Milestone tags: `\bM\d+\b` (e.g. `M71`, `M39–M78`)
+- Changelog voice: “Removed in M…”, “Sister: M…”, Execute ownership by milestone number
+- Long CLI fixture example dumps (point to skill `vitals-cli-validation`)
+- Design SoT detail, fragile-risk catalogs, UX/flag laundry lists
+
+## Allowed
+
+- `HOTSPOT-*` as a **naming convention** (prefix pattern for requirement IDs)
+- Present-tense policies and exit-code table
+- Short pointers to ARCHITECTURE, CONCERNS, TESTING, ROADMAP/STATE, `vitals-project.md`, hooks README
+
+## Sync rule
+
+When living docs change after Execute:
+
+1. Update AGENTS **only** when exit codes, agent policies, or skills/agents inventory changed — otherwise skip.
+2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → wrong file (use ROADMAP/STATE/feature specs).
+3. Feature `design.md` / `tasks.md` may keep M##; extract only lasting agent-facing policies into AGENTS.
+
+Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintAgentsDoc` (hooks + `pnpm hooks:smoke`).
