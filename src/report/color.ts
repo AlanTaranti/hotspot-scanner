@@ -10,6 +10,8 @@ const SCORE_DECIMALS = 4;
 const SCORE_BAND_HIGH = 0.7;
 const SCORE_BAND_MEDIUM = 0.4;
 
+// ANSI CSI sequences intentionally include ESC (\x1b)
+// eslint-disable-next-line no-control-regex -- strip ANSI SGR for plain-text width
 const ANSI_PATTERN = /\x1b\[[0-9;]*m/g;
 
 /** Format a score/strength value with optional ANSI band color (red ≥0.7, yellow ≥0.4). */

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://vitals.dev/hotspot-scanner/schemas/hotspot-assess.json",
+  "$id": "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/hotspot-assess.json",
   "title": "AssessResult",
   "description": "Hotspot assess output from hotspot-scanner assess command.",
   "type": "object",

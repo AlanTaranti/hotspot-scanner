@@ -1,4 +1,4 @@
-# DOC-OWNERSHIP — @vitals/hotspot-scanner
+# DOC-OWNERSHIP — @taranti/hotspot-scanner
 
 Canonical map of **where documentation content belongs**. Editorial rules under `.cursor/rules/*-sot.mdc` and hook lint in `living-sot-doc.mjs` enforce per-file Forbidden patterns; this file is the single ownership matrix.
 

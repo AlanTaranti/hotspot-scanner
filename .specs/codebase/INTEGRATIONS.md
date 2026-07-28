@@ -1,4 +1,4 @@
-# INTEGRATIONS — @vitals/hotspot-scanner
+# INTEGRATIONS — @taranti/hotspot-scanner
 
 External dependencies and adapter boundaries. No network integrations (zero-network product policy).
 

@@ -85,16 +85,16 @@ flowchart TB
 
 ### Existing components to leverage
 
-| Component                                                | Location                             | How to use                                                 |
-| -------------------------------------------------------- | ------------------------------------ | ---------------------------------------------------------- |
-| `parseHotspotScannerConfig` / `loadHotspotScannerConfig` | `src/config/load-config.ts`          | Extend with reserved meta + `path`                         |
-| `mergeScanOptions`                                       | `src/config/merge-options.ts`        | Keep for scan; add provenance sibling or return tags       |
-| `writeInitConfig` / `formatExemplarConfig`               | `src/config/exemplar.ts`             | Replace locked exemplar body                               |
-| `resolveScanPipelineContext`                             | `src/scan.ts`                        | Already returns remount + unknownKeys; thread `configPath` |
-| `previewScanScope` / `formatScanScopePreview`            | `src/scan-preview.ts`                | Extend preview DTO + formatter                             |
-| `runDoctor` / `aggregateExitCode`                        | `src/doctor/index.ts`                | Add `since` finding; enrich config check                   |
-| Ajv contract pattern                                     | `tests/contract/json-schema.test.ts` | Add config schema `$id`                                    |
-| Scan/compare `$id` family                                | `schemas/*.json`                     | Mirror `https://vitals.dev/hotspot-scanner/schemas/…`      |
+| Component                                                | Location                             | How to use                                                                            |
+| -------------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------- |
+| `parseHotspotScannerConfig` / `loadHotspotScannerConfig` | `src/config/load-config.ts`          | Extend with reserved meta + `path`                                                    |
+| `mergeScanOptions`                                       | `src/config/merge-options.ts`        | Keep for scan; add provenance sibling or return tags                                  |
+| `writeInitConfig` / `formatExemplarConfig`               | `src/config/exemplar.ts`             | Replace locked exemplar body                                                          |
+| `resolveScanPipelineContext`                             | `src/scan.ts`                        | Already returns remount + unknownKeys; thread `configPath`                            |
+| `previewScanScope` / `formatScanScopePreview`            | `src/scan-preview.ts`                | Extend preview DTO + formatter                                                        |
+| `runDoctor` / `aggregateExitCode`                        | `src/doctor/index.ts`                | Add `since` finding; enrich config check                                              |
+| Ajv contract pattern                                     | `tests/contract/json-schema.test.ts` | Add config schema `$id`                                                               |
+| Scan/compare `$id` family                                | `schemas/*.json`                     | Mirror `https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/…` |
 
 ### Integration points
 
@@ -208,7 +208,7 @@ function probeSinceWindow(options: {
 
 - **Purpose**: Publish config contract; expose all schemas
 - **File**: `schemas/hotspot-scanner-config.json`
-- **`$id`**: `https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json`
+- **`$id`**: `https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/hotspot-scanner-config.json`
 - **Shape guidance**:
   - `type: object`
   - properties for known keys matching runtime

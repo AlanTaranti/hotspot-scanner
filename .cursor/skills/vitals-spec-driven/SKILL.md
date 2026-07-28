@@ -1,6 +1,6 @@
 ---
 name: vitals-spec-driven
-description: Project-specific spec-driven planning for @vitals/hotspot-scanner. Adaptive Specify → Design → Tasks (and handoff to Execute). Creates atomic tasks with verification criteria, HOTSPOT-* IDs, and session memory. Use when planning features, writing spec/design/tasks, quick-mode ad-hoc tasks, or pause/resume handoff. Triggers on "initialize project", "map codebase", "specify feature", "discuss feature", "design", "tasks", "quick fix", "quick task", "pause work", "resume work". Do NOT use for code implementation (orchestrator-implementer / implementer), acceptance checks (verifier-implementation), quality gates (verifier-quality-gates), or pipeline domain detail alone (vitals-pipeline-domain).
+description: Project-specific spec-driven planning for @taranti/hotspot-scanner. Adaptive Specify → Design → Tasks (and handoff to Execute). Creates atomic tasks with verification criteria, HOTSPOT-* IDs, and session memory. Use when planning features, writing spec/design/tasks, quick-mode ad-hoc tasks, or pause/resume handoff. Triggers on "initialize project", "map codebase", "specify feature", "discuss feature", "design", "tasks", "quick fix", "quick task", "pause work", "resume work". Do NOT use for code implementation (orchestrator-implementer / implementer), acceptance checks (verifier-implementation), quality gates (verifier-quality-gates), or pipeline domain detail alone (vitals-pipeline-domain).
 license: CC-BY-4.0
 metadata:
   author: Vitals
@@ -12,7 +12,7 @@ metadata:
 
 Plan features with precision. Granular tasks. Clear dependencies. Right tools. Zero ceremony.
 
-## Project: @vitals/hotspot-scanner
+## Project: @taranti/hotspot-scanner
 
 Adapted for this repository. Always read [vitals-project.md](../vitals-common/references/vitals-project.md) (`vitals-common`) and [AGENTS.md](../../../AGENTS.md).
 

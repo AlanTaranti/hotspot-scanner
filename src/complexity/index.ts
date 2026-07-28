@@ -6,7 +6,6 @@ import type {
   ScanWarning,
 } from "../types/index.js";
 import {
-  analyzeBatch,
   DEFAULT_BATCH_SIZE,
   type BatchAnalysisOutput,
 } from "./analyze-batch.js";

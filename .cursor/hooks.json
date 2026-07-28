@@ -57,7 +57,7 @@
     "afterShellExecution": [
       {
         "command": "node .cursor/hooks/record-gate-pass.mjs",
-        "matcher": "pnpm (build|test)",
+        "matcher": "pnpm (build|test|verify|lint|format:check)",
         "timeout": 10
       }
     ],

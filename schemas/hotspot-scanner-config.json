@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json",
+  "$id": "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/hotspot-scanner-config.json",
   "title": "HotspotScannerConfig",
   "description": "Configuration for hotspot-scanner (.hotspot-scanner.json). Reserved meta keys ($schema, $comment, $comments) are for IDE hints only — not scan options.",
   "type": "object",

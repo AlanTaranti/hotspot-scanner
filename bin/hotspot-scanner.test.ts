@@ -170,7 +170,7 @@ function createAssessValidator(): (value: unknown) => boolean {
     ),
   );
   return ajv.getSchema(
-    "https://vitals.dev/hotspot-scanner/schemas/hotspot-assess.json",
+    "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/hotspot-assess.json",
   )!;
 }
 

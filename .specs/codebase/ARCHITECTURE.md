@@ -1,4 +1,4 @@
-# ARCHITECTURE — @vitals/hotspot-scanner
+# ARCHITECTURE — @taranti/hotspot-scanner
 
 Design SoT for modules, pipelines, contracts, and ownership boundaries. Fragile risks: [CONCERNS.md](CONCERNS.md). External adapters: [INTEGRATIONS.md](INTEGRATIONS.md).
 
@@ -284,7 +284,7 @@ JSON `version` is **`"3.0"`**. Field name `complexityNormalized` retained for no
 | `meta.scannerVersion` | `ScanMeta`       | Always on fresh scan (`getPackageVersion()`); optional in schema; preserved when string on parse            |
 | Top-level `$schema`   | JSON render only | `renderJson` injects URL matching schema `$id`; not on in-memory domain types; ignored on `parseScanResult` |
 
-**`$schema` URL** (`src/report/schema-urls.ts`): `https://vitals.dev/hotspot-scanner/schemas/scan-result.json`
+**`$schema` URL** (`src/report/schema-urls.ts`): `https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/scan-result.json`
 
 **Parse tolerance:** `parseScanResult` accepts `3.0` scans without `scannerVersion` or top-level `$schema`; preserves string `scannerVersion` when present. Non-string `scannerVersion` → `ScanResultParseError`. Rejects `1.0`/`2.0`, `coupling`, `functions`, `cyclomaticComplexity`.
 

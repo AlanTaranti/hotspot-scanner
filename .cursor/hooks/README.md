@@ -13,7 +13,7 @@ State files older than **14 days** are pruned on `sessionStart`.
 | Critical | `beforeSubmitPrompt` | `commit-policy.mjs` | If the user prompt matches a commit keyword (`commit`, `commite`, `comitar`, `versionar`), set sticky `userAllowedCommit` |
 | Critical | `beforeShellExecution` | `commit-policy.mjs` | Deny `git commit` when `userAllowedCommit` is unset; on allow, clear the flag — `failClosed` |
 | Critical | `beforeShellExecution` | `gate-before-commit.mjs` | Deny `git commit` if code changed without a recent gate (`src/`, `bin/`, `scripts/`, `schemas/`, `vitest.config.ts` — not `tests/`-only) — `failClosed` |
-| Critical | `afterShellExecution` | `record-gate-pass.mjs` | Record `gatePassedAt` / `buildPassedAt` + `testPassedAt` after build and test (matcher `pnpm (build\|test)`) |
+| Critical | `afterShellExecution` | `record-gate-pass.mjs` | Record `gatePassedAt` after `pnpm verify` (or full build+test+lint+format:check); split stamps for each step (matcher `pnpm (build\|test\|verify\|lint\|format:check)`) |
 | Critical | `subagentStop` | `subagent-stop.mjs` | Clear subagent state (no matcher — runs for **every** subagent); follow-up for Phase E (quality gate) |
 | High | `subagentStart` | `subagent-start.mjs` | Subagent state; **deny** orchestrator when header Status is Draft/Planned |
 | High | `preToolUse` | `pre-edit-guard.mjs` | Planner boundary (`deny` for `planner-feature`, `ask` for the main agent while a feature is Draft/Planned); fragile `ask`; orchestrated ownership; living-doc SoT `ask` via `LIVING_SOT_ENTRIES` (`.specs/codebase/*`, `.specs/project/*`, `AGENTS.md`, `CONTRIBUTING.md`, `README.md`, `docs/**`, `.cursor/skills/**`, `.cursor/agents/**`) |
@@ -50,7 +50,7 @@ Glob-scoped `*-sot.mdc` rules are the full editorial guidance. Hooks enforce a *
 
 - `sessionStart` / `postToolUse` `additional_context` may not reach the model on some Cursor versions. Primary enforcement: `preToolUse` (`deny`/`ask`) and `beforeShellExecution`. Soft session reminders (including Planned-feature warnings) are best-effort.
 - Edit tracking runs on `postToolUse` (Write/StrReplace/Delete/EditNotebook) and `afterFileEdit` (fallback).
-- Gate accepts `pnpm build && pnpm test` in one command **or** separate `pnpm build` and `pnpm test` (both exit 0).
+- Gate accepts `pnpm verify` **or** the full `pnpm build && pnpm test && pnpm lint && pnpm format:check` chain (sets `gatePassedAt`), **or** separate successful runs of all four steps (`buildPassedAt` ∧ `testPassedAt` ∧ `lintPassedAt` ∧ `formatCheckPassedAt`).
 - Paths from Cursor are often absolute; hooks strip `workspace_roots[0]` before classifying code/fragile paths.
 - Deleted files that remain in `touchedPaths` are skipped when checking gate freshness (missing `stat` must not keep the gate stale forever).
 

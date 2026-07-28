@@ -1,6 +1,6 @@
-# @vitals/hotspot-scanner
+# @taranti/hotspot-scanner
 
-**Package:** `@vitals/hotspot-scanner` · **CLI bin:** `hotspot-scanner`
+**Package:** `@taranti/hotspot-scanner` · **CLI bin:** `hotspot-scanner`
 
 **Vision:** Standalone local CLI that identifies maintenance hotspots in TypeScript/JavaScript repositories by combining **NCLOC** (non-commented lines of code) and Git churn at **file** granularity.
 

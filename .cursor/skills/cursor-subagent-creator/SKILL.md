@@ -5,7 +5,7 @@ description: Creates Cursor-specific AI subagents with isolated context for comp
 
 # Cursor Subagent Creator
 
-Create or extend subagents under `.cursor/agents/` for **@vitals/hotspot-scanner**.
+Create or extend subagents under `.cursor/agents/` for **@taranti/hotspot-scanner**.
 
 ## Before writing
 

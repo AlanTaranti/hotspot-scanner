@@ -5,7 +5,7 @@ model: inherit
 readonly: true
 ---
 
-You are the **Code Reviewer** for @vitals/hotspot-scanner — a read-only reviewer focused on code quality, project conventions, and maintainability. You do **not** verify spec acceptance or run project gates.
+You are the **Code Reviewer** for @taranti/hotspot-scanner — a read-only reviewer focused on code quality, project conventions, and maintainability. You do **not** verify spec acceptance or run project gates.
 
 ## When to invoke
 

@@ -20,30 +20,30 @@ Thank you for your interest in contributing. This guide covers local setup, the 
 git clone https://github.com/AlanTaranti/hotspot-scanner.git
 cd hotspot-scanner
 pnpm install
-pnpm build
-pnpm test
+pnpm verify
 ```
 
-`pnpm build && pnpm test` is the project quality gate (see below). `pnpm test` runs Vitest with mandatory per-file coverage; thresholds and include/exclude rules live in [.specs/codebase/TESTING.md](.specs/codebase/TESTING.md).
+`pnpm verify` is the project quality gate (see below). `pnpm test` runs Vitest with mandatory per-file coverage; thresholds and include/exclude rules live in [.specs/codebase/TESTING.md](.specs/codebase/TESTING.md).
 
 ## Quality gate
 
 Before opening a pull request, re-run:
 
 ```bash
-pnpm build && pnpm test
+pnpm verify
 ```
 
-This is the required acceptance bar for all contributions. There is no CI pipeline in v1 — local verification is what reviewers expect.
+Equivalent to `pnpm build && pnpm test && pnpm lint && pnpm format:check` in that order. This is the single required acceptance bar for all contributions (local and CI) — see [quality-gates.mdc](.cursor/rules/quality-gates.mdc).
+
+Unit iteration without a prior build is OK: when `dist/` is missing, compiled CLI smoke skips instead of failing. Done and CI still run build before test via `pnpm verify`, so smoke always executes there.
 
 ### Recommended local checks (optional)
 
-These scripts help catch issues earlier; they are **not** part of the required Done gate in [quality-gates.mdc](.cursor/rules/quality-gates.mdc):
+These scripts help catch issues earlier; they are **not** part of the required Done gate:
 
 ```bash
-pnpm typecheck    # TypeScript for src/ and bin/ without emit
-pnpm lint         # ESLint (flat config at eslint.config.mjs)
-pnpm format:check # Prettier verification (use pnpm format to fix)
+pnpm typecheck    # TypeScript for src/ and bin/ without emit (build already emits)
+pnpm format       # Prettier write (use format:check via verify)
 ```
 
 Do not lower coverage thresholds, skip tests, or weaken assertions to pass the gate. A falling test count is a potential regression — investigate before merging. Coverage SoT: [.specs/codebase/TESTING.md](.specs/codebase/TESTING.md).
@@ -65,7 +65,7 @@ When adding or renaming long flags, keep the bash, zsh, and fish scripts from `h
 
 ```mermaid
 flowchart LR
-  smallFix[Small fix or tweak] --> gate[pnpm build && pnpm test]
+  smallFix[Small fix or tweak] --> gate[pnpm verify]
   feature[New feature or behavior change] --> specs[Specify in .specs/features/]
   specs --> implement[Implement with tests]
   implement --> gate

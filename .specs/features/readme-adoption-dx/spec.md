@@ -81,7 +81,7 @@ The README is accurate enough for maintainers but weak for first-time adoption: 
 
 1. WHEN the first screenful (before deep Features laundry) is read THEN it SHALL state the problem (prioritize refactoring / find hard-to-maintain TS/JS code and hidden co-change pairs) then the solution (local CLI combining complexity + churn + temporal coupling)
 2. WHEN the opening is compared to PROJECT.md vision THEN tone SHALL match (tech-lead, no marketing fluff, no commercial SaaS pitch as primary identity)
-3. WHEN the cover title/H1 area is read THEN package `@vitals/hotspot-scanner` vs bin `hotspot-scanner` SHALL be distinguished clearly (see HOTSPOT-425)
+3. WHEN the cover title/H1 area is read THEN package `@taranti/hotspot-scanner` vs bin `hotspot-scanner` SHALL be distinguished clearly (see HOTSPOT-425)
 
 **Independent Test**: Manual read of first ~40 lines against PROJECT.md Goals/Vision.
 
@@ -163,7 +163,7 @@ The README is accurate enough for maintainers but weak for first-time adoption: 
 
 ### P1: Package vs bin name on cover ⭐ MVP
 
-**User Story**: As a reader, I want clear naming — npm-scoped package `@vitals/hotspot-scanner` vs CLI bin `hotspot-scanner` — so that I know what to run after build.
+**User Story**: As a reader, I want clear naming — npm-scoped package `@taranti/hotspot-scanner` vs CLI bin `hotspot-scanner` — so that I know what to run after build.
 
 **Why P1**: High #8.
 

@@ -43,7 +43,7 @@ pruneStaleStateFiles();
 const root = getWorkspaceRoot(input);
 
 const parts = [
-  "@vitals/hotspot-scanner — required gate: pnpm build && pnpm test",
+  "@taranti/hotspot-scanner — required gate: pnpm verify",
   "Before implementing: .specs/codebase/CONVENTIONS.md, TESTING.md; features under .specs/features/",
   "Pipeline: git → complexity → scoring → report",
 ];

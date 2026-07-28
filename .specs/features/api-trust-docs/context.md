@@ -11,7 +11,7 @@
 
 ## Intent
 
-Adopters who use the package programmatically still cannot import `previewScanScope` / `runDoctor` from `@vitals/hotspot-scanner` — those live behind `#` imports / deep paths. Config silently drops unknown keys (M21), which hides typos and CLI-only keys pasted into `.hotspot-scanner.json`. The `merge-heavy` fixture exists but is not in the integration suite. Trust docs (zero-network, security reporting, baseline placement, `--only` baseline trap) are scattered or missing (`SECURITY.md` absent).
+Adopters who use the package programmatically still cannot import `previewScanScope` / `runDoctor` from `@taranti/hotspot-scanner` — those live behind `#` imports / deep paths. Config silently drops unknown keys (M21), which hides typos and CLI-only keys pasted into `.hotspot-scanner.json`. The `merge-heavy` fixture exists but is not in the integration suite. Trust docs (zero-network, security reporting, baseline placement, `--only` baseline trap) are scattered or missing (`SECURITY.md` absent).
 
 M55 closes that gap without pipeline/ranking/schema changes.
 

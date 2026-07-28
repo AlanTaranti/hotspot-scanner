@@ -2,7 +2,7 @@
 
 **Trigger:** "Initialize project", "Setup project", "Start new project"
 
-`@vitals/hotspot-scanner` is already initialized — [PROJECT.md](../../../../.specs/project/PROJECT.md) exists. Treat this trigger as a **refresh** request, and confirm with the user before editing.
+`@taranti/hotspot-scanner` is already initialized — [PROJECT.md](../../../../.specs/project/PROJECT.md) exists. Treat this trigger as a **refresh** request, and confirm with the user before editing.
 
 ## Refresh procedure
 

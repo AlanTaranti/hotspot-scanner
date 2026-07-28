@@ -65,7 +65,7 @@ Adopters get a minimal empty-array init exemplar, no machine-readable config sch
 
 **Acceptance Criteria**:
 
-1. WHEN `init` succeeds THEN the written file SHALL include `"$schema": "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json"`
+1. WHEN `init` succeeds THEN the written file SHALL include `"$schema": "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/hotspot-scanner-config.json"`
 2. WHEN `init` succeeds THEN the file SHALL include a `$comments` string array with human hints (per context.md)
 3. WHEN `init` succeeds THEN `include` and `exclude` SHALL be non-empty realistic example arrays (not both empty-only)
 4. WHEN `init` succeeds THEN `since` and `top` SHALL match locked defaults; `concurrency` SHALL be omitted
@@ -86,7 +86,7 @@ Adopters get a minimal empty-array init exemplar, no machine-readable config sch
 
 **Acceptance Criteria**:
 
-1. WHEN `schemas/hotspot-scanner-config.json` is read THEN it SHALL declare `$id` `https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json`
+1. WHEN `schemas/hotspot-scanner-config.json` is read THEN it SHALL declare `$id` `https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/hotspot-scanner-config.json`
 2. WHEN the schema is applied THEN known keys (`since`, `include`, `exclude`, `top`, `concurrency`) SHALL have types/constraints aligned with runtime parse rules
 3. WHEN the schema documents reserved meta THEN `$schema`, `$comment`, `$comments` SHALL be allowed without treating them as scan options
 4. WHEN `package.json` `"exports"` is read THEN it SHALL include `./schemas/scan-result.json`, `./schemas/compare-result.json`, and `./schemas/hotspot-scanner-config.json`
@@ -94,7 +94,7 @@ Adopters get a minimal empty-array init exemplar, no machine-readable config sch
 
 **Requirements:** HOTSPOT-1107, HOTSPOT-1108, HOTSPOT-1109, HOTSPOT-1110
 
-**Independent Test**: Contract test + `node -e "import('@vitals/hotspot-scanner/schemas/hotspot-scanner-config.json', { assert: { type: 'json' } })"` style resolution via exports (or package exports map assertion in test).
+**Independent Test**: Contract test + `node -e "import('@taranti/hotspot-scanner/schemas/hotspot-scanner-config.json', { assert: { type: 'json' } })"` style resolution via exports (or package exports map assertion in test).
 
 ---
 

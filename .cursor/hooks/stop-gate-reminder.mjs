@@ -17,7 +17,7 @@ if (
   gateStaleAfterEdits(workspaceRoot, state)
 ) {
   followup(
-    "Pending gate before stopping: run `pnpm build && pnpm test` or invoke verifier-quality-gates. No task is Done with a failing gate (quality-gates.mdc).",
+    "Pending gate before stopping: run `pnpm verify` or invoke verifier-quality-gates. No task is Done with a failing gate (quality-gates.mdc).",
   );
   process.exit(0);
 }

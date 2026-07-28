@@ -2,11 +2,11 @@
 
 ## Current
 
-| Field               | Value                                                                        |
-| ------------------- | ---------------------------------------------------------------------------- |
-| **Status**          | **M79 + M80 Done** — package scope `@taranti`; GitHub identity `AlanTaranti` |
-| **Open milestones** | _None_                                                                       |
-| **Deferred**        | [STATE.md](STATE.md) § Deferred                                              |
+| Field               | Value                             |
+| ------------------- | --------------------------------- |
+| **Status**          | **M81 Done** — no open milestones |
+| **Open milestones** | —                                 |
+| **Deferred**        | [STATE.md](STATE.md) § Deferred   |
 
 Archive below is historical (feature links stay valid). Prefer this table + Done summary for “what’s next”; deferred ideas live only in STATE. Detail for any milestone: `.specs/features/<slug>/`.
 
@@ -25,6 +25,17 @@ Archive below is historical (feature links stay valid). Prefer this table + Done
 | M66–M72 | Contract enrich, scope+, warnings bookend, write confirm, table Lines parity; **remove compare/baseline (scan-only)**; complexity trend CLI                                                  |
 | M73–M78 | Top-only rollups; doctor/trend/assess color UX; growth-pattern bridge; hotspot assess                                                                                                        |
 | M79–M80 | Package scope rename (`@taranti`); GitHub repo identity (`AlanTaranti`)                                                                                                                      |
+| M81     | Contributor DX: toolchain pins, schema URL host, live `@taranti` sweep, `pnpm verify`, soft smoke, GHA CI                                                                                    |
+
+## Milestone 81 — Contributor DX — DONE
+
+→ [`.specs/features/contributor-dx-ci/spec.md`](../features/contributor-dx-ci/spec.md)
+
+Minimal CI, toolchain pins, post-M79 identity finish, expanded verify gate, and softer local smoke.
+
+- GitHub Actions on push/PR (Node 22, frozen lockfile, `pnpm verify`)
+- `.nvmrc` / `packageManager` / `.editorconfig`; schema URLs → GitHub raw host
+- Live `@taranti` package sweep; soft skip compiled CLI smoke when `dist/` missing
 
 ---
 

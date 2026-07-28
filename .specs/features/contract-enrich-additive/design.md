@@ -105,8 +105,8 @@ flowchart LR
 - **Purpose**: Emit schema URLs on serialized JSON only.
 - **Location**: `src/report/json.ts`, `src/report/compare-json.ts`; optional shared constants `src/report/schema-urls.ts`.
 - **Constants**:
-  - `SCAN_RESULT_SCHEMA_URL = "https://vitals.dev/hotspot-scanner/schemas/scan-result.json"`
-  - `COMPARE_RESULT_SCHEMA_URL = "https://vitals.dev/hotspot-scanner/schemas/compare-result.json"`
+  - `SCAN_RESULT_SCHEMA_URL = "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/scan-result.json"`
+  - `COMPARE_RESULT_SCHEMA_URL = "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/compare-result.json"`
 
 ### 6. Human + CSV + explain surfaces
 
@@ -168,7 +168,7 @@ interface RankChange<HotspotScore> {
 
 ```json
 {
-  "$schema": "https://vitals.dev/hotspot-scanner/schemas/scan-result.json",
+  "$schema": "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/scan-result.json",
   "version": "3.0",
   "meta": { "scannerVersion": "1.0.0", "...": "..." },
   "hotspots": []

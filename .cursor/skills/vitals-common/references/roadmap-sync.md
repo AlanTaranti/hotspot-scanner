@@ -15,7 +15,7 @@
 From PROJECT.md, decompose vision into milestones (shippable increments) and features (user-facing capabilities).
 
 ```markdown
-# ROADMAP — @vitals/hotspot-scanner
+# ROADMAP — @taranti/hotspot-scanner
 
 ## Current
 

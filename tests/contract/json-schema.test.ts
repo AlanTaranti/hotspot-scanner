@@ -10,13 +10,13 @@ const schemasDir = join(repoRoot, "schemas");
 const fixturesDir = join(repoRoot, "tests/fixtures/report");
 
 const SCAN_SCHEMA_ID =
-  "https://vitals.dev/hotspot-scanner/schemas/scan-result.json";
+  "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/scan-result.json";
 const CONFIG_SCHEMA_ID =
-  "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json";
+  "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/hotspot-scanner-config.json";
 const TREND_SCHEMA_ID =
-  "https://vitals.dev/hotspot-scanner/schemas/complexity-trend.json";
+  "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/complexity-trend.json";
 const ASSESS_SCHEMA_ID =
-  "https://vitals.dev/hotspot-scanner/schemas/hotspot-assess.json";
+  "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/hotspot-assess.json";
 
 const LOCKED_CONFIG_EXEMPLAR = {
   $schema: CONFIG_SCHEMA_ID,

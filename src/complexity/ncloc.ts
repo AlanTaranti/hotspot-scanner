@@ -154,6 +154,5 @@ export function countNcloc(source: string): number {
     }
   }
 
-  ({ lineHasCode, ncloc } = finishLine(lineHasCode, ncloc));
-  return ncloc;
+  return finishLine(lineHasCode, ncloc).ncloc;
 }

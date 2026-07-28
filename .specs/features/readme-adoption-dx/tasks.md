@@ -167,7 +167,7 @@ rg -n 'github.com/taranti/hotspot-scanner' README.md CONTRIBUTING.md
 
 **Done when**:
 
-- [x] Cover distinguishes `@vitals/hotspot-scanner` (package) vs `hotspot-scanner` (bin)
+- [x] Cover distinguishes `@taranti/hotspot-scanner` (package) vs `hotspot-scanner` (bin)
 - [x] Badges present without npm version/downloads badge
 - [x] Opening is problem → solution + short local/TS-JS positioning
 - [x] Privacy / 100% local callout near top

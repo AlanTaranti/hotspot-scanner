@@ -85,7 +85,7 @@ export function buildGitShowFileArgv(
 
 function parseFileLogOutput(
   output: string,
-  fallbackPath: string,
+  _fallbackPath: string,
 ): FileRevisionRef[] {
   const revisions: FileRevisionRef[] = [];
   let pending: { rev: string; date?: string } | undefined;

@@ -1,4 +1,4 @@
-# @vitals/hotspot-scanner — Project Overlay
+# @taranti/hotspot-scanner — Project Overlay
 
 **Operational overlay** for agents and skills (not a layout SoT, not the inventory index).
 
@@ -16,7 +16,7 @@
 **Full gate:** [quality-gates.mdc](../../../../.cursor/rules/quality-gates.mdc) + [TESTING.md](../../../../.specs/codebase/TESTING.md) § Coverage.
 
 ```bash
-pnpm build && pnpm test
+pnpm verify
 ```
 
 ## Domain concepts (pointers)

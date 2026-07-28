@@ -171,7 +171,7 @@ describe("parseHotspotScannerConfig", () => {
     expect(
       parseHotspotScannerConfig({
         $schema:
-          "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json",
+          "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/hotspot-scanner-config.json",
         $comment: "single-line hint",
         $comments: ["array hint"],
       }),
@@ -197,7 +197,7 @@ describe("parseHotspotScannerConfig", () => {
     expect(
       parseHotspotScannerConfig({
         $schema:
-          "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json",
+          "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/hotspot-scanner-config.json",
         since: "1 year ago",
         typoKey: true,
       }),
@@ -439,7 +439,7 @@ describe("loadHotspotScannerConfig", () => {
       {
         [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({
           $schema:
-            "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json",
+            "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/hotspot-scanner-config.json",
           $comments: ["hint"],
         }),
       },
@@ -458,7 +458,7 @@ describe("loadHotspotScannerConfig", () => {
       {
         [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({
           $schema:
-            "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json",
+            "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/hotspot-scanner-config.json",
           typoKey: true,
         }),
       },

@@ -1,4 +1,4 @@
-# STATE-ARCHIVE — @vitals/hotspot-scanner
+# STATE-ARCHIVE — @taranti/hotspot-scanner
 
 Chronological Execute / decision log moved out of live [STATE.md](STATE.md) on 2026-07-28.
 

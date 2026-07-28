@@ -1,5 +1,5 @@
 ---
-description: Required quality gate when finishing tasks (pnpm build && pnpm test)
+description: Required quality gate when finishing tasks (pnpm verify)
 alwaysApply: true
 ---
 
@@ -10,8 +10,10 @@ No task is "Done" without documented automated verification.
 **Required gate:**
 
 ```bash
-pnpm build && pnpm test
+pnpm verify
 ```
+
+Equivalent to `pnpm build && pnpm test && pnpm lint && pnpm format:check` (that order). Still **one** required gate — no Quick/Full/Build tiers.
 
 `pnpm test` runs Vitest with coverage (`vitest run --coverage`). Thresholds and include/exclude rules: [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md) § Coverage.
 

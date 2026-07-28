@@ -1,4 +1,4 @@
-# CONVENTIONS — @vitals/hotspot-scanner
+# CONVENTIONS — @taranti/hotspot-scanner
 
 ## Language and modules
 
@@ -10,7 +10,7 @@
 
 ## Naming
 
-- Package: `@vitals/hotspot-scanner`
+- Package: `@taranti/hotspot-scanner`
 - CLI binary: `hotspot-scanner` (unscoped, per ADR-2026-021)
 - Requirement IDs: `HOTSPOT-*`
 - Source files: kebab-case (`analyze-file.ts`, `run-assess.ts`)
@@ -34,13 +34,14 @@
 
 ## Lint and format
 
-| Script         | Command              | Notes                                                                             |
-| -------------- | -------------------- | --------------------------------------------------------------------------------- |
-| `lint`         | `eslint .`           | Flat config: `eslint.config.mjs`; ignores `dist/`, `coverage/`, `tests/fixtures/` |
-| `format`       | `prettier --write .` | Mutates tree                                                                      |
-| `format:check` | `prettier --check .` | CI-style check                                                                    |
+| Script         | Command                                                     | Notes                                                                                            |
+| -------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `lint`         | `eslint .`                                                  | Flat config: `eslint.config.mjs`; ignores `dist/`, `coverage/`, `coverage-*/`, `tests/fixtures/` |
+| `format`       | `prettier --write .`                                        | Mutates tree                                                                                     |
+| `format:check` | `prettier --check .`                                        | CI-style check                                                                                   |
+| `verify`       | `pnpm build && pnpm test && pnpm lint && pnpm format:check` | Required Done/CI gate (see AGENTS.md / quality-gates.mdc)                                        |
 
-Project **Done gate** remains `pnpm build && pnpm test` only (see AGENTS.md). Lint/format are recommended locally (CONTRIBUTING).
+Project **Done gate** is `pnpm verify` (build → test → lint → format:check).
 
 ## CLI conventions
 

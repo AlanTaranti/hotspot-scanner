@@ -71,8 +71,8 @@ JSON `version: "3.0"` baselines and compare reports are valid but lean for tooli
 
 **Acceptance Criteria:**
 
-1. WHEN `renderJson` emits scan JSON THEN the payload SHALL include top-level `"$schema": "https://vitals.dev/hotspot-scanner/schemas/scan-result.json"`.
-2. WHEN `renderCompareJson` emits compare JSON THEN the payload SHALL include top-level `"$schema": "https://vitals.dev/hotspot-scanner/schemas/compare-result.json"`.
+1. WHEN `renderJson` emits scan JSON THEN the payload SHALL include top-level `"$schema": "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/scan-result.json"`.
+2. WHEN `renderCompareJson` emits compare JSON THEN the payload SHALL include top-level `"$schema": "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/compare-result.json"`.
 3. WHEN root schemas are updated THEN optional top-level `$schema` (`type: string`) SHALL be declared.
 4. WHEN a baseline file includes top-level `$schema` THEN `loadBaseline` / `parseScanResult` SHALL NOT reject solely because of that key.
 5. WHEN in-memory domain `ScanResult` / `CompareResult` types are used THEN `$schema` SHALL NOT be required on those TypeScript interfaces (render-layer only).

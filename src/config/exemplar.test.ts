@@ -15,7 +15,7 @@ import {
 } from "./load-config.js";
 
 const LOCKED_EXEMPLAR_JSON = `{
-  "$schema": "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json",
+  "$schema": "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/hotspot-scanner-config.json",
   "$comments": [
     "include: extra globs added to PathScope beyond defaults.",
     "exclude: additional patterns; built-in excludes always apply.",

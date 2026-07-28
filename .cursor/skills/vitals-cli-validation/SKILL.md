@@ -5,7 +5,7 @@ description: CLI validation workflow for hotspot-scanner — exit codes, fixture
 
 # Hotspot Scanner CLI Validation
 
-Automated validation for `@vitals/hotspot-scanner` CLI. No interactive UI UAT.
+Automated validation for `@taranti/hotspot-scanner` CLI. No interactive UI UAT.
 
 ## Ownership (SoT map)
 

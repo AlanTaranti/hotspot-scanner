@@ -252,7 +252,7 @@ flowchart TD
 **Reuses:** Existing `#trend` / complexity-trend schema export pattern  
 **Done when:**
 
-- [x] `import { runAssess } from "@vitals/hotspot-scanner"` (or package entry) works in index test
+- [x] `import { runAssess } from "@taranti/hotspot-scanner"` (or package entry) works in index test
 - [x] Schema path export present
 - [x] `pnpm build` succeeds with new assess module
 

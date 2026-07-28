@@ -54,7 +54,7 @@ Domain logic stays in `src/config/`, `src/scan-preview.ts`, `src/doctor/`, `src/
 
 | Field         | Value                                                                                                                                                                    |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `$schema`     | `"https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json"` (same `$id` family as scan/compare schemas)                                                   |
+| `$schema`     | `"https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/hotspot-scanner-config.json"` (same `$id` family as scan/compare schemas)                   |
 | `$comments`   | string array with short human hints (include/exclude semantics, omit concurrency, CLI > config > defaults) — **prefer array** over single `$comment` in the written file |
 | `since`       | `"12 months ago"` (`DEFAULT_SINCE`)                                                                                                                                      |
 | `include`     | **Non-empty realistic example** — e.g. `["src/**"]` (not `[]`-only)                                                                                                      |
@@ -79,7 +79,7 @@ Pretty-print: 2-space indent + trailing newline. Overwrite rules unchanged (refu
 **Choice:**
 
 1. New file: `schemas/hotspot-scanner-config.json`
-2. `$id`: `https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json`
+2. `$id`: `https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/hotspot-scanner-config.json`
 3. Describes known scan keys (`since`, `include`, `exclude`, `top`, `concurrency`) with types/constraints aligned to `parseHotspotScannerConfig`
 4. Documents reserved meta (`$schema`, `$comment`, `$comments`) as optional; `additionalProperties: true` (or equivalent) so forward-compat unknown keys remain schema-valid while runtime still warns via M55
 5. Add `package.json` `"exports"` subpaths for **all three** schemas:

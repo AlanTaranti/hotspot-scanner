@@ -1,14 +1,14 @@
-# TESTING — @vitals/hotspot-scanner
+# TESTING — @taranti/hotspot-scanner
 
 Testing infrastructure and patterns SoT. Product contracts: [ARCHITECTURE.md](ARCHITECTURE.md). Fragile risks: [CONCERNS.md](CONCERNS.md). Exit codes: [docs/cli-reference.md](../../docs/cli-reference.md#exit-codes). Doc ownership: [DOC-OWNERSHIP.md](DOC-OWNERSHIP.md).
 
 ## Quality gate
 
 ```bash
-pnpm build && pnpm test
+pnpm verify
 ```
 
-Required before marking any task Complete. Agents: use `verifier-quality-gates` or run inline. Run `pnpm lint` when changing `bin/` or ESLint config.
+Equivalent to `pnpm build && pnpm test && pnpm lint && pnpm format:check` (that order). Required before marking any task Complete. Agents: use `verifier-quality-gates` or run inline. Still **one** gate — no Quick/Full/Build tiers.
 
 `pnpm hooks:smoke` validates Cursor hooks under `.cursor/hooks/` — **not** part of the product gate.
 
@@ -18,16 +18,16 @@ Required before marking any task Complete. Agents: use `verifier-quality-gates` 
 
 - `pnpm test` runs `vitest run --coverage` (coverage is not optional)
 - Vitest resolves these `#` aliases to **source** modules under `src/` during tests: `#scan`, `#report`, `#diagnostics`, `#scoring`, `#types`, `#config`, `#doctor`, `#git`, `#trend`, `#assess`
-- **`tests/compiled-cli.smoke.test.ts`** exercises the **compiled** CLI at `dist/bin/hotspot-scanner.js` (`trend`/`scan`/`doctor --help`); run `pnpm build` before `pnpm test` (gate order: build then test)
+- **`tests/compiled-cli.smoke.test.ts`** exercises the **compiled** CLI at `dist/bin/hotspot-scanner.js` (`trend`/`scan`/`assess`/`doctor --help`). Unit iteration without build is OK: missing `dist/` skips the suite. Done/CI still run build before test via `pnpm verify`, so smoke always executes there.
 
 ## Test organization
 
-| Kind           | Location pattern                                                                              | Notes                                           |
-| -------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| Unit / module  | `src/**/*.test.ts`, `bin/**/*.test.ts`                                                        | Prefer co-located next to the module under test |
-| Integration    | `src/**/*.integration.test.ts`, `bin/**/*.integration.test.ts`, `tests/*.integration.test.ts` | Fixture repos under `tests/fixtures/repos/`     |
-| Contract       | `tests/contract/**/*.test.ts`                                                                 | JSON Schema validation                          |
-| Compiled smoke | `tests/compiled-cli.smoke.test.ts`                                                            | Requires `dist/` from `pnpm build`              |
+| Kind           | Location pattern                                                                              | Notes                                             |
+| -------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| Unit / module  | `src/**/*.test.ts`, `bin/**/*.test.ts`                                                        | Prefer co-located next to the module under test   |
+| Integration    | `src/**/*.integration.test.ts`, `bin/**/*.integration.test.ts`, `tests/*.integration.test.ts` | Fixture repos under `tests/fixtures/repos/`       |
+| Contract       | `tests/contract/**/*.test.ts`                                                                 | JSON Schema validation                            |
+| Compiled smoke | `tests/compiled-cli.smoke.test.ts`                                                            | Skips if `dist/` missing; runs after `pnpm build` |
 
 `vitest.config.ts` `include`: the four patterns above. `exclude`: `tests/fixtures/**`, `node_modules/**`, `dist/**`.
 
@@ -35,7 +35,7 @@ Required before marking any task Complete. Agents: use `verifier-quality-gates` 
 
 `vitest.config.ts` enforces thresholds; this section documents that config.
 
-**Commit hook note:** the Cursor `gate-before-commit` hook can allow a commit for `tests/`-only edits, but the project gate (`pnpm build && pnpm test`) is still required before Done — see [quality-gates.mdc](../../.cursor/rules/quality-gates.mdc). Tracked code paths are defined by `CODE_PATH_RE` in `.cursor/hooks/lib/paths.mjs` — see [hooks/README.md](../../.cursor/hooks/README.md).
+**Commit hook note:** the Cursor `gate-before-commit` hook can allow a commit for `tests/`-only edits, but the project gate (`pnpm verify`) is still required before Done — see [quality-gates.mdc](../../.cursor/rules/quality-gates.mdc). Tracked code paths are defined by `CODE_PATH_RE` in `.cursor/hooks/lib/paths.mjs` — see [hooks/README.md](../../.cursor/hooks/README.md).
 
 ### Provider and output
 
@@ -92,17 +92,17 @@ coverage: {
 
 ## Test coverage matrix
 
-| Code Layer                  | Required Test Type                  | Location Pattern                                                  | Run Command               |
-| --------------------------- | ----------------------------------- | ----------------------------------------------------------------- | ------------------------- |
-| `src/git/`                  | Unit + git-log fixtures             | `src/git/*.test.ts`                                               | `pnpm test`               |
-| `src/complexity/`           | Unit + NCLOC fixtures               | `src/complexity/*.test.ts`                                        | `pnpm test`               |
-| `src/scoring/`              | Unit                                | `src/scoring/*.test.ts`                                           | `pnpm test`               |
-| `src/scan.ts` / pipeline    | Unit + integration                  | `src/scan.test.ts`, `src/scan*.integration.test.ts`               | `pnpm test`               |
-| `src/report/`               | Unit                                | `src/report/*.test.ts`                                            | `pnpm test`               |
-| `src/scan-result/`          | Unit (parse)                        | `src/scan-result/*.test.ts`                                       | `pnpm test`               |
-| `src/trend/`, `src/assess/` | Unit + integration                  | `src/{trend,assess}/*.test.ts`, `tests/trend.integration.test.ts` | `pnpm test`               |
-| `bin/`                      | Unit + integration + compiled smoke | `bin/*.test.ts`, `tests/compiled-cli.smoke.test.ts`               | `pnpm build && pnpm test` |
-| `schemas/`                  | Contract                            | `tests/contract/**/*.test.ts`                                     | `pnpm test`               |
+| Code Layer                  | Required Test Type                  | Location Pattern                                                  | Run Command   |
+| --------------------------- | ----------------------------------- | ----------------------------------------------------------------- | ------------- |
+| `src/git/`                  | Unit + git-log fixtures             | `src/git/*.test.ts`                                               | `pnpm test`   |
+| `src/complexity/`           | Unit + NCLOC fixtures               | `src/complexity/*.test.ts`                                        | `pnpm test`   |
+| `src/scoring/`              | Unit                                | `src/scoring/*.test.ts`                                           | `pnpm test`   |
+| `src/scan.ts` / pipeline    | Unit + integration                  | `src/scan.test.ts`, `src/scan*.integration.test.ts`               | `pnpm test`   |
+| `src/report/`               | Unit                                | `src/report/*.test.ts`                                            | `pnpm test`   |
+| `src/scan-result/`          | Unit (parse)                        | `src/scan-result/*.test.ts`                                       | `pnpm test`   |
+| `src/trend/`, `src/assess/` | Unit + integration                  | `src/{trend,assess}/*.test.ts`, `tests/trend.integration.test.ts` | `pnpm test`   |
+| `bin/`                      | Unit + integration + compiled smoke | `bin/*.test.ts`, `tests/compiled-cli.smoke.test.ts`               | `pnpm verify` |
+| `schemas/`                  | Contract                            | `tests/contract/**/*.test.ts`                                     | `pnpm test`   |
 
 ## Fixtures
 
@@ -192,24 +192,23 @@ Run workflow and flag matrix: skill `vitals-cli-validation`. Canonical exit-code
 
 ## Parallelism assessment
 
-| Test Type                   | Parallel-Safe?    | Isolation Model                                                   | Evidence                               |
-| --------------------------- | ----------------- | ----------------------------------------------------------------- | -------------------------------------- |
-| Unit (co-located)           | Yes               | No shared mutable fixture repos; mocks local to file              | `src/**/*.test.ts`, `bin/**/*.test.ts` |
-| Contract                    | Yes               | Read-only schema + sample JSON fixtures                           | `tests/contract/`                      |
-| Integration (fixture repos) | Yes               | Per-fixture dirs; `globalSetup` / `ensureFixtureRepo()` bootstrap | `*.integration.test.ts`                |
-| Compiled CLI smoke          | Yes (after build) | Spawns `dist/bin/`; requires prior `pnpm build`                   | `tests/compiled-cli.smoke.test.ts`     |
+| Test Type                   | Parallel-Safe?    | Isolation Model                                                           | Evidence                               |
+| --------------------------- | ----------------- | ------------------------------------------------------------------------- | -------------------------------------- |
+| Unit (co-located)           | Yes               | No shared mutable fixture repos; mocks local to file                      | `src/**/*.test.ts`, `bin/**/*.test.ts` |
+| Contract                    | Yes               | Read-only schema + sample JSON fixtures                                   | `tests/contract/`                      |
+| Integration (fixture repos) | Yes               | Per-fixture dirs; `globalSetup` / `ensureFixtureRepo()` bootstrap         | `*.integration.test.ts`                |
+| Compiled CLI smoke          | Yes (after build) | Spawns `dist/bin/`; skips when missing; `pnpm verify` always builds first | `tests/compiled-cli.smoke.test.ts`     |
 
 Vitest runs files in parallel by default. Do not share writable state across test files without isolation.
 
 ## Gate check commands
 
-This project uses a **single** product gate (no Quick/Full tiers):
+This project uses a **single** product gate (no Quick/Full/Build tiers):
 
-| Gate                      | When to Use                                     | Command                   |
-| ------------------------- | ----------------------------------------------- | ------------------------- |
-| Product                   | Before marking any implementation task Complete | `pnpm build && pnpm test` |
-| Lint (supplemental)       | When changing `bin/` or ESLint config           | `pnpm lint`               |
-| Hooks smoke (out-of-band) | After changing `.cursor/hooks/`                 | `pnpm hooks:smoke`        |
+| Gate                      | When to Use                                     | Command            |
+| ------------------------- | ----------------------------------------------- | ------------------ |
+| Product                   | Before marking any implementation task Complete | `pnpm verify`      |
+| Hooks smoke (out-of-band) | After changing `.cursor/hooks/`                 | `pnpm hooks:smoke` |
 
 ## Integrity rules
 

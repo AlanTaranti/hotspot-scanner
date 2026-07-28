@@ -1,4 +1,4 @@
-# STRUCTURE — @vitals/hotspot-scanner
+# STRUCTURE — @taranti/hotspot-scanner
 
 Directory layout and public API map SoT. Pipelines, contracts, and ownership boundaries: [ARCHITECTURE.md](ARCHITECTURE.md). Fixture methodology and Vitest patterns: [TESTING.md](TESTING.md). Runtime/deps inventory: [STACK.md](STACK.md). Where documentation content belongs: [DOC-OWNERSHIP.md](DOC-OWNERSHIP.md).
 

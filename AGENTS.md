@@ -55,7 +55,7 @@ Pipeline: `git log` (streaming) → NCLOC size analysis → hotspot scoring → 
 | `implementer`              | One task from `tasks.md` (Phase B)                  |
 | `code-reviewer`            | Conventions / maintainability review (Phase C)      |
 | `verifier-implementation`  | Spec acceptance vs `spec.md` / `tasks.md` (Phase D) |
-| `verifier-quality-gates`   | Run `pnpm build && pnpm test` and report (Phase E)  |
+| `verifier-quality-gates`   | Run `pnpm verify` and report (Phase E)              |
 | `fixture-builder`          | Create/update trees under `tests/fixtures/`         |
 
 ## Hooks

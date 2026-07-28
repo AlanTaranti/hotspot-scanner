@@ -12,12 +12,14 @@ const exitCode =
       ? input.exitCode
       : 0;
 
-const isFullGate =
-  /pnpm\s+build\s*&&\s*pnpm\s+test/.test(command) ||
-  (/\bpnpm\s+build\b/.test(command) && /\bpnpm\s+test\b/.test(command));
+const isVerify = /\bpnpm\s+verify\b/.test(command);
+const hasBuild = /\bpnpm\s+build\b/.test(command);
+const hasTest = /\bpnpm\s+test\b/.test(command);
+const hasLint = /\bpnpm\s+lint\b/.test(command);
+const hasFormatCheck = /\bpnpm\s+format:check\b/.test(command);
 
-const isBuildOnly = /\bpnpm\s+build\b/.test(command) && !/\bpnpm\s+test\b/.test(command);
-const isTestOnly = /\bpnpm\s+test\b/.test(command) && !/\bpnpm\s+build\b/.test(command);
+const isFullGate =
+  isVerify || (hasBuild && hasTest && hasLint && hasFormatCheck);
 
 if (event === "afterShellExecution") {
   const now = new Date().toISOString();
@@ -27,17 +29,22 @@ if (event === "afterShellExecution") {
       gatePassedAt: now,
       buildPassedAt: now,
       testPassedAt: now,
+      lintPassedAt: now,
+      formatCheckPassedAt: now,
     });
     emptyOk();
     process.exit(0);
   }
 
-  if (isBuildOnly && exitCode === 0) {
-    saveState(input, { buildPassedAt: now });
-  }
+  /** @type {Record<string, string | null>} */
+  const patch = {};
+  if (hasBuild && exitCode === 0) patch.buildPassedAt = now;
+  if (hasTest) patch.testPassedAt = exitCode === 0 ? now : null;
+  if (hasLint) patch.lintPassedAt = exitCode === 0 ? now : null;
+  if (hasFormatCheck) patch.formatCheckPassedAt = exitCode === 0 ? now : null;
 
-  if (isTestOnly) {
-    saveState(input, { testPassedAt: exitCode === 0 ? now : null });
+  if (Object.keys(patch).length > 0) {
+    saveState(input, patch);
   }
 }
 

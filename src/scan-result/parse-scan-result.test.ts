@@ -67,7 +67,8 @@ describe("parseScanResult", () => {
     const raw = loadFixture();
     const result = parseScanResult({
       ...raw,
-      $schema: "https://vitals.dev/hotspot-scanner/schemas/scan-result.json",
+      $schema:
+        "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/scan-result.json",
     });
 
     expect(result.version).toBe("3.0");

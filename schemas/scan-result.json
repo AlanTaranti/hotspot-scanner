@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://vitals.dev/hotspot-scanner/schemas/scan-result.json",
+  "$id": "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/scan-result.json",
   "title": "ScanResult",
   "description": "Full scan output from hotspot-scanner (JSON format).",
   "type": "object",

@@ -8,14 +8,7 @@ import { describe, expect, it } from "vitest";
 const execFileAsync = promisify(execFile);
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const compiledCli = join(repoRoot, "dist/bin/hotspot-scanner.js");
-
-function assertCompiledCliExists(): void {
-  if (!existsSync(compiledCli)) {
-    throw new Error(
-      `Compiled CLI not found at ${compiledCli}. Run pnpm build before pnpm test.`,
-    );
-  }
-}
+const compiledCliMissing = !existsSync(compiledCli);
 
 async function runCompiledHelp(subcommand: string): Promise<string> {
   const { stdout } = await execFileAsync(
@@ -26,30 +19,29 @@ async function runCompiledHelp(subcommand: string): Promise<string> {
   return stdout;
 }
 
-describe("compiled CLI smoke", () => {
-  it("loads trend --help via dist/bin (exercises #trend)", async () => {
-    assertCompiledCliExists();
-    const stdout = await runCompiledHelp("trend");
-    expect(stdout).toContain("indentation complexity");
-    expect(stdout).toContain("meta.metricLegend");
-  });
+describe.skipIf(compiledCliMissing)(
+  `compiled CLI smoke (skipped when ${compiledCli} is missing — run pnpm build)`,
+  () => {
+    it("loads trend --help via dist/bin (exercises #trend)", async () => {
+      const stdout = await runCompiledHelp("trend");
+      expect(stdout).toContain("indentation complexity");
+      expect(stdout).toContain("meta.metricLegend");
+    });
 
-  it("loads scan --help via dist/bin (exercises #scan)", async () => {
-    assertCompiledCliExists();
-    const stdout = await runCompiledHelp("scan");
-    expect(stdout).toContain("hotspot analysis");
-  });
+    it("loads scan --help via dist/bin (exercises #scan)", async () => {
+      const stdout = await runCompiledHelp("scan");
+      expect(stdout).toContain("hotspot analysis");
+    });
 
-  it("loads assess --help via dist/bin (exercises #assess)", async () => {
-    assertCompiledCliExists();
-    const stdout = await runCompiledHelp("assess");
-    expect(stdout).toContain("--min-hotspot-score");
-    expect(stdout).toMatch(/hotspotScore/i);
-  });
+    it("loads assess --help via dist/bin (exercises #assess)", async () => {
+      const stdout = await runCompiledHelp("assess");
+      expect(stdout).toContain("--min-hotspot-score");
+      expect(stdout).toMatch(/hotspotScore/i);
+    });
 
-  it("loads doctor --help via dist/bin (exercises #doctor)", async () => {
-    assertCompiledCliExists();
-    const stdout = await runCompiledHelp("doctor");
-    expect(stdout.length).toBeGreaterThan(0);
-  });
-});
+    it("loads doctor --help via dist/bin (exercises #doctor)", async () => {
+      const stdout = await runCompiledHelp("doctor");
+      expect(stdout.length).toBeGreaterThan(0);
+    });
+  },
+);

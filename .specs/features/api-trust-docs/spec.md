@@ -38,7 +38,7 @@ Package consumers cannot import dry-run preview or doctor from the public entry.
 
 ### P1: Public preview + doctor exports ⭐ MVP
 
-**User Story**: As a library consumer, I want to `import { previewScanScope, runDoctor } from '@vitals/hotspot-scanner'` so that I can script dry-run scope checks and doctor without deep imports.
+**User Story**: As a library consumer, I want to `import { previewScanScope, runDoctor } from '@taranti/hotspot-scanner'` so that I can script dry-run scope checks and doctor without deep imports.
 
 **Why P1**: ROADMAP M55 item 1; closes M45 “do not expand API” deferral for these two already-shipped surfaces.
 
@@ -166,7 +166,7 @@ Package consumers cannot import dry-run preview or doctor from the public entry.
 
 ## Success Criteria
 
-- [ ] `import { previewScanScope, runDoctor } from '@vitals/hotspot-scanner'` works after `pnpm build`
+- [ ] `import { previewScanScope, runDoctor } from '@taranti/hotspot-scanner'` works after `pnpm build`
 - [ ] Unknown config keys warn with `UNKNOWN_CONFIG_KEY` and never fail the scan alone
 - [ ] `merge-heavy` integration tests green in CI gate
 - [ ] `SECURITY.md` + README/recipes trust docs present and consistent with M41 baseline rules

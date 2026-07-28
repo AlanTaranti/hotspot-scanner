@@ -5,7 +5,7 @@ description: Pipeline domain context for hotspot-scanner — Git Miner, NCLOC, s
 
 # Hotspot Scanner Pipeline Domain
 
-Concise domain pointers for `@vitals/hotspot-scanner`. **Do not treat this skill as a Design SoT.**
+Concise domain pointers for `@taranti/hotspot-scanner`. **Do not treat this skill as a Design SoT.**
 
 | Topic | SoT |
 | ----- | --- |

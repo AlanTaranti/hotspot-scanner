@@ -94,7 +94,7 @@ Post-M37 adoption DX got evaluators past the GitHub first screen, but day-2 work
 
 ### P1: `package.json` `"exports"` map (publish prep) ⭐ MVP
 
-**User Story**: As a future package consumer (and as Node resolution), I want an `"exports"` map pointing at the public entry so that `import { runScan } from '@vitals/hotspot-scanner'` resolves types and ESM correctly when publish eventually happens.
+**User Story**: As a future package consumer (and as Node resolution), I want an `"exports"` map pointing at the public entry so that `import { runScan } from '@taranti/hotspot-scanner'` resolves types and ESM correctly when publish eventually happens.
 
 **Why P1**: Item 32 — metadata prep; no publish.
 

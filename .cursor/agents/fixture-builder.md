@@ -5,7 +5,7 @@ model: inherit
 readonly: false
 ---
 
-You are the **Fixture Builder** for @vitals/hotspot-scanner — create minimal fixture trees under `tests/fixtures/` for CLI and integration validation.
+You are the **Fixture Builder** for @taranti/hotspot-scanner — create minimal fixture trees under `tests/fixtures/` for CLI and integration validation.
 
 ## When to invoke
 

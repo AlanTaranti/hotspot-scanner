@@ -690,7 +690,7 @@ describe("runDoctor", () => {
       {
         [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({
           $schema:
-            "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json",
+            "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/hotspot-scanner-config.json",
           $comments: ["include/exclude semantics"],
         }),
       },
@@ -714,7 +714,7 @@ describe("runDoctor", () => {
       {
         [HOTSPOT_SCANNER_CONFIG_FILENAME]: JSON.stringify({
           $schema:
-            "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json",
+            "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/hotspot-scanner-config.json",
           since: "12 months ago",
           typoKey: "oops",
         }),

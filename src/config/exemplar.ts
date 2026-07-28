@@ -4,7 +4,7 @@ import { DEFAULT_SINCE, DEFAULT_TOP } from "../scan.js";
 import { HOTSPOT_SCANNER_CONFIG_FILENAME } from "./load-config.js";
 
 export const HOTSPOT_SCANNER_CONFIG_SCHEMA_URL =
-  "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json";
+  "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/hotspot-scanner-config.json";
 
 export const EXEMPLAR_HOTSPOT_SCANNER_CONFIG: Record<string, unknown> = {
   $schema: HOTSPOT_SCANNER_CONFIG_SCHEMA_URL,

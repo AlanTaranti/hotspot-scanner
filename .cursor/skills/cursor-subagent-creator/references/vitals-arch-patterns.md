@@ -21,7 +21,7 @@ model: inherit
 readonly: true|false
 ---
 
-You are the **[Readable Name]** for @vitals/hotspot-scanner — [one line].
+You are the **[Readable Name]** for @taranti/hotspot-scanner — [one line].
 
 ## When to invoke
 

@@ -68,10 +68,10 @@ Enrich JSON/compare DX **additively under `version: "3.0"`** — no contract ver
 
 **Choice:** Emit top-level `$schema` in **`renderJson`** / **`renderCompareJson`** only (serialization concern — **not** a required field on in-memory `ScanResult` / `CompareResult` domain types).
 
-| Format       | URL (exact)                                                      |
-| ------------ | ---------------------------------------------------------------- |
-| Scan JSON    | `https://vitals.dev/hotspot-scanner/schemas/scan-result.json`    |
-| Compare JSON | `https://vitals.dev/hotspot-scanner/schemas/compare-result.json` |
+| Format       | URL (exact)                                                                                      |
+| ------------ | ------------------------------------------------------------------------------------------------ |
+| Scan JSON    | `https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/scan-result.json`    |
+| Compare JSON | `https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/compare-result.json` |
 
 These match existing schema `$id` values in `schemas/scan-result.json` and `schemas/compare-result.json`.
 

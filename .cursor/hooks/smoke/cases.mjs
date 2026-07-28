@@ -152,7 +152,7 @@ export const manualCases = [
     },
   },
   {
-    name: "gate allow after separate pnpm build and pnpm test",
+    name: "gate allow after separate pnpm build, test, lint, format:check",
     run() {
       cleanupState("smoke-2b");
       const touchPath = path.join(root, "src/index.ts");
@@ -171,20 +171,20 @@ export const manualCases = [
       while (Date.now() <= afterEdit) {
         /* spin ~1ms */
       }
-      runHook("record-gate-pass.mjs", {
-        hook_event_name: "afterShellExecution",
-        command: "pnpm build",
-        exit_code: 0,
-        conversation_id: "smoke-2b",
-        workspace_roots: [root],
-      });
-      runHook("record-gate-pass.mjs", {
-        hook_event_name: "afterShellExecution",
-        command: "pnpm test",
-        exit_code: 0,
-        conversation_id: "smoke-2b",
-        workspace_roots: [root],
-      });
+      for (const command of [
+        "pnpm build",
+        "pnpm test",
+        "pnpm lint",
+        "pnpm format:check",
+      ]) {
+        runHook("record-gate-pass.mjs", {
+          hook_event_name: "afterShellExecution",
+          command,
+          exit_code: 0,
+          conversation_id: "smoke-2b",
+          workspace_roots: [root],
+        });
+      }
       runHook("commit-policy.mjs", {
         hook_event_name: "beforeSubmitPrompt",
         prompt: "commit changes",
@@ -198,6 +198,54 @@ export const manualCases = [
       });
       assertIncludes(stdout, '"permission":"allow"', `gate allow split (${rel})`);
       cleanupState("smoke-2b");
+    },
+  },
+  {
+    name: "gate allow after pnpm verify",
+    run() {
+      cleanupState("smoke-verify");
+      const touchPath = path.join(root, "src/index.ts");
+      const realTouch = fs.existsSync(touchPath)
+        ? touchPath
+        : path.join(root, "src/scan.ts");
+      runHook("post-edit-guard.mjs", {
+        hook_event_name: "postToolUse",
+        tool_input: { path: realTouch },
+        conversation_id: "smoke-verify",
+        workspace_roots: [root],
+      });
+      const afterEdit = Date.now();
+      while (Date.now() <= afterEdit) {
+        /* spin ~1ms */
+      }
+      runHook("record-gate-pass.mjs", {
+        hook_event_name: "afterShellExecution",
+        command: "pnpm verify",
+        exit_code: 0,
+        conversation_id: "smoke-verify",
+        workspace_roots: [root],
+      });
+      const state = JSON.parse(
+        fs.readFileSync(path.join(stateDir, "smoke-verify.json"), "utf8"),
+      );
+      if (!state.gatePassedAt) {
+        throw new Error(
+          `expected gatePassedAt after pnpm verify, got ${JSON.stringify(state)}`,
+        );
+      }
+      runHook("commit-policy.mjs", {
+        hook_event_name: "beforeSubmitPrompt",
+        prompt: "commit changes",
+        conversation_id: "smoke-verify",
+      });
+      const { stdout } = runHook("gate-before-commit.mjs", {
+        hook_event_name: "beforeShellExecution",
+        command: "git commit -m x",
+        conversation_id: "smoke-verify",
+        workspace_roots: [root],
+      });
+      assertIncludes(stdout, '"permission":"allow"', "gate allow after verify");
+      cleanupState("smoke-verify");
     },
   },
   {
@@ -224,7 +272,7 @@ export const manualCases = [
       }
       runHook("record-gate-pass.mjs", {
         hook_event_name: "afterShellExecution",
-        command: "pnpm build && pnpm test",
+        command: "pnpm verify",
         exit_code: 0,
         conversation_id: "smoke-deleted",
         workspace_roots: [root],
@@ -517,7 +565,7 @@ export const manualCases = [
     },
   },
   {
-    name: "hooks.json wiring: record-gate-pass filtered to pnpm build/test with short timeout",
+    name: "hooks.json wiring: record-gate-pass filtered to pnpm gate commands with short timeout",
     run() {
       const config = readHooksConfig();
       const entry = (config.hooks?.afterShellExecution ?? []).find(
@@ -534,7 +582,14 @@ export const manualCases = [
           "wiring: record-gate-pass must set a matcher so it only runs for gate commands",
         );
       }
-      for (const command of ["pnpm build", "pnpm test", "pnpm build && pnpm test"]) {
+      for (const command of [
+        "pnpm build",
+        "pnpm test",
+        "pnpm verify",
+        "pnpm lint",
+        "pnpm format:check",
+        "pnpm build && pnpm test && pnpm lint && pnpm format:check",
+      ]) {
         if (!new RegExp(matcher).test(command)) {
           throw new Error(
             `wiring: record-gate-pass matcher ${JSON.stringify(matcher)} must match ${JSON.stringify(command)}`,

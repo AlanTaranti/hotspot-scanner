@@ -1,14 +1,15 @@
-# STACK — @vitals/hotspot-scanner
+# STACK — @taranti/hotspot-scanner
 
-Package `@vitals/hotspot-scanner`, CLI bin `hotspot-scanner`, license MIT.
+Package `@taranti/hotspot-scanner`, CLI bin `hotspot-scanner`, license MIT.
 
 ## Runtime
 
-| Component       | Version / choice              |
-| --------------- | ----------------------------- |
-| Node.js         | 22+ (`@tsconfig/node22`)      |
-| TypeScript      | 6.x (ESM, `"type": "module"`) |
-| Package manager | pnpm                          |
+| Component       | Version / choice                                               |
+| --------------- | -------------------------------------------------------------- |
+| Node.js         | 22+ (`.nvmrc` `22`, `engines.node` `>=22`, `@tsconfig/node22`) |
+| TypeScript      | 6.x (ESM, `"type": "module"`)                                  |
+| Package manager | pnpm (`package.json` `"packageManager": "pnpm@11.9.0"`)        |
+| Editor defaults | `.editorconfig` (utf-8, lf, 2-space indent)                    |
 
 ## Dependencies
 
@@ -46,6 +47,11 @@ Git log invocation uses `child_process.spawn` in `src/git/` (no `simple-git`).
 - `pnpm build` → invalidate stale `tsconfig.tsbuildinfo` if `dist/` missing, then `tsc -b tsconfig.bin.json` (lib `src/**` → `dist/`, then `bin/` → `dist/bin/` via project references)
 - `pnpm clean` → removes `dist/` and `tsconfig.tsbuildinfo` (deleting only `dist/` leaves a stale incremental cache and breaks the next build with TS6305)
 - `pnpm typecheck` mirrors dual-tsconfig layout with `--noEmit`
+- `pnpm verify` → `pnpm build && pnpm test && pnpm lint && pnpm format:check` (required Done/CI gate)
+
+## CI
+
+- GitHub Actions workflow `.github/workflows/ci.yml` on push/PR to `main`: Node from `.nvmrc`, pnpm via `packageManager`, `pnpm install --frozen-lockfile`, then `pnpm verify`
 
 ## Not in stack
 

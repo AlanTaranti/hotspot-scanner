@@ -17,7 +17,7 @@ Ownership: [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). Lint: `li
 
 ## Allowed
 
-- `HOTSPOT-*` naming when describing specs; gate `pnpm build && pnpm test`; DX scripts; link-only documentation map
+- `HOTSPOT-*` naming when describing specs; gate `pnpm verify`; DX scripts; link-only documentation map
 
 ## Sync
 

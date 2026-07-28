@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://vitals.dev/hotspot-scanner/schemas/complexity-trend.json",
+  "$id": "https://raw.githubusercontent.com/AlanTaranti/hotspot-scanner/main/schemas/complexity-trend.json",
   "title": "ComplexityTrendResult",
   "description": "Complexity trend output from hotspot-scanner trend command.",
   "type": "object",

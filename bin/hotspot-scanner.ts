@@ -867,7 +867,6 @@ Examples:
         );
       }
 
-      let result: ScanResult;
       const scanOutcome = await runWithScanCancelSignals((signal) =>
         executeScan({
           repoPath,
@@ -882,7 +881,7 @@ Examples:
           signal,
         }),
       );
-      result = scanOutcome.result;
+      const result = scanOutcome.result;
 
       const reporter = createReporter();
       const output = reporter.render(result, reporterOptions);

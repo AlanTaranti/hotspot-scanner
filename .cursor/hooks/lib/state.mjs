@@ -22,6 +22,8 @@ export function defaultState() {
     gatePassedAt: null,
     buildPassedAt: null,
     testPassedAt: null,
+    lintPassedAt: null,
+    formatCheckPassedAt: null,
     fragileAckPaths: [],
     touchedFragile: [],
     touchedFragileScoring: false,
@@ -39,6 +41,8 @@ export function defaultState() {
  * @property {string | null} gatePassedAt
  * @property {string | null} buildPassedAt
  * @property {string | null} testPassedAt
+ * @property {string | null} lintPassedAt
+ * @property {string | null} formatCheckPassedAt
  * @property {string[]} fragileAckPaths
  * @property {string[]} touchedFragile
  * @property {boolean} touchedFragileScoring
@@ -159,7 +163,11 @@ function gateTimestampsCurrent(workspaceRoot, state) {
   if (codePaths.length === 0) return false;
 
   const hasCombined = Boolean(state.gatePassedAt);
-  const hasSplit = Boolean(state.buildPassedAt) && Boolean(state.testPassedAt);
+  const hasSplit =
+    Boolean(state.buildPassedAt) &&
+    Boolean(state.testPassedAt) &&
+    Boolean(state.lintPassedAt) &&
+    Boolean(state.formatCheckPassedAt);
   if (!hasCombined && !hasSplit) return false;
 
   for (const rel of codePaths) {
@@ -180,11 +188,17 @@ function gateTimestampsCurrent(workspaceRoot, state) {
     if (!covered && hasSplit) {
       const buildTime = Date.parse(state.buildPassedAt);
       const testTime = Date.parse(state.testPassedAt);
+      const lintTime = Date.parse(state.lintPassedAt);
+      const formatTime = Date.parse(state.formatCheckPassedAt);
       covered =
         !Number.isNaN(buildTime) &&
         !Number.isNaN(testTime) &&
+        !Number.isNaN(lintTime) &&
+        !Number.isNaN(formatTime) &&
         buildTime >= mtimeMs &&
-        testTime >= mtimeMs;
+        testTime >= mtimeMs &&
+        lintTime >= mtimeMs &&
+        formatTime >= mtimeMs;
     }
     if (!covered) return false;
   }

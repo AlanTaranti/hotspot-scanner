@@ -174,7 +174,7 @@
 
 **Acceptance Criteria**:
 
-1. WHEN importing `@vitals/hotspot-scanner` THEN `runComplexityTrend` and trend types SHALL be available from the public entry
+1. WHEN importing `@taranti/hotspot-scanner` THEN `runComplexityTrend` and trend types SHALL be available from the public entry
 2. WHEN README / recipes are updated THEN they SHALL show scan → trend → CSV chart workflow and note Prettier false cliffs
 3. WHEN ARCHITECTURE / STRUCTURE / INTEGRATIONS / CONCERNS / AGENTS / skills are updated THEN they SHALL document the trend command, historical blob reads (scan remains working-tree NCLOC), and that `--follow` is trend-only
 

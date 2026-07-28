@@ -29,7 +29,7 @@ function parseNumstatLine(line: string): ParsedFileChange | null {
 
   const additionsRaw = line.slice(0, tab1);
   const deletionsRaw = line.slice(tab1 + 1, tab2);
-  let path = line.slice(tab2 + 1);
+  const path = line.slice(tab2 + 1);
 
   const additions = additionsRaw === "-" ? null : Number(additionsRaw);
   const deletions = deletionsRaw === "-" ? null : Number(deletionsRaw);
