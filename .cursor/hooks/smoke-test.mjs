@@ -12,10 +12,12 @@ import {
   CONCERNS_REL_PATH,
   CONVENTIONS_REL_PATH,
   INTEGRATIONS_REL_PATH,
+  STACK_REL_PATH,
   lintArchitectureDoc,
   lintConcernsDoc,
   lintConventionsDoc,
   lintIntegrationsDoc,
+  lintStackDoc,
 } from "./lib/living-sot-doc.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -567,6 +569,63 @@ const tests = [
       assertIncludes(stdout, '"permission":"ask"', "integrations ask");
       assertIncludes(stdout, "M78", "integrations ask mentions M78");
       cleanupState("smoke-integrations");
+    },
+  },
+  {
+    name: "stack lint flags M## and HOTSPOT-*",
+    run() {
+      const dirty = lintStackDoc(
+        "# STACK\n\nPackage publish prep (M71). See HOTSPOT-1042.\n",
+      );
+      if (!dirty.bannedMatches.includes("M71")) {
+        throw new Error(
+          `expected M71 in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+        );
+      }
+      if (!dirty.bannedMatches.some((m) => /^HOTSPOT-1042$/i.test(m))) {
+        throw new Error(
+          `expected HOTSPOT-1042 in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+        );
+      }
+      const clean = lintStackDoc(
+        "# STACK\n\nNode.js 22+. commander. picomatch.\n",
+      );
+      if (clean.bannedMatches.length !== 0) {
+        throw new Error(
+          `expected clean sample, got ${JSON.stringify(clean.bannedMatches)}`,
+        );
+      }
+    },
+  },
+  {
+    name: "live STACK.md has no banned milestone tags",
+    run() {
+      const text = fs.readFileSync(path.join(root, STACK_REL_PATH), "utf8");
+      const { bannedMatches } = lintStackDoc(text);
+      if (bannedMatches.length > 0) {
+        throw new Error(
+          `STACK.md contains forbidden tags: ${bannedMatches.join(", ")}`,
+        );
+      }
+    },
+  },
+  {
+    name: "pre-edit ask on STACK Write with M78",
+    run() {
+      cleanupState("smoke-stack");
+      const { stdout } = runHook("pre-edit-guard.mjs", {
+        hook_event_name: "preToolUse",
+        tool_name: "Write",
+        tool_input: {
+          path: path.join(root, ".specs/codebase/STACK.md"),
+          contents: "## Package publish (M78)\n",
+        },
+        conversation_id: "smoke-stack",
+        workspace_roots: [root],
+      });
+      assertIncludes(stdout, '"permission":"ask"', "stack ask");
+      assertIncludes(stdout, "M78", "stack ask mentions M78");
+      cleanupState("smoke-stack");
     },
   },
   {

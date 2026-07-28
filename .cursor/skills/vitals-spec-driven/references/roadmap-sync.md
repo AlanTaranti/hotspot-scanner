@@ -35,7 +35,10 @@
 - [ ] ARCHITECTURE.md: if pipeline / module / contract / constraint changed → sync present-tense design (no M## / HOTSPOT-*); else skip — do not append UX/flag encyclopedias
 - [ ] CONCERNS.md: if fragile risks / mitigations changed → sync present-tense risk tables (no M## / HOTSPOT-*; see concerns-sot.mdc); else skip
 - [ ] CONVENTIONS.md: if naming / imports / build / lint conventions changed → sync present-tense conventions (no M##; see conventions-sot.mdc); else skip
-- [ ] Self-check: any sentence that needs a milestone number → wrong doc (ROADMAP/STATE/features, not ARCHITECTURE/CONCERNS/CONVENTIONS)
+- [ ] INTEGRATIONS.md: if spawn / runtime deps / `node:fs` adapter ownership changed → sync present tense (no M## / HOTSPOT-*; see integrations-sot.mdc); else skip
+- [ ] STACK.md: if runtime / deps / `files` / `engines` / `exports` / build inventory changed → sync present tense (no M## / HOTSPOT-*; see stack-sot.mdc); else skip
+- [ ] Self-check: any sentence that needs a milestone number → wrong doc (ROADMAP/STATE/features, not ARCHITECTURE/CONCERNS/CONVENTIONS/INTEGRATIONS/STACK)
+- [ ] Optional verify: `pnpm hooks:smoke` (living SoT lint via Cursor hooks; not part of `pnpm build && pnpm test`)
 ```
 
 ---

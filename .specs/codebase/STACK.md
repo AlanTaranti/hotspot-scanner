@@ -1,5 +1,7 @@
 # STACK — @vitals/hotspot-scanner
 
+Package `@vitals/hotspot-scanner`, CLI bin `hotspot-scanner`, license MIT.
+
 ## Runtime
 
 | Component       | Version / choice              |
@@ -21,17 +23,19 @@ Git log invocation uses `child_process.spawn` in `src/git/` (no `simple-git`).
 
 ## Dev dependencies
 
-| Library                                     | Role                                        |
-| ------------------------------------------- | ------------------------------------------- |
-| `vitest`                                    | Unit and integration tests                  |
-| `@vitest/coverage-v8`                       | Coverage reporting                          |
-| `@types/node`                               | Node type definitions                       |
-| `eslint`, `typescript-eslint`, `@eslint/js` | Lint (`pnpm lint`)                          |
-| `prettier`, `eslint-config-prettier`        | Format (`pnpm format`, `pnpm format:check`) |
-| `globals`                                   | ESLint Node globals for flat config         |
-| `ajv`                                       | JSON Schema contract tests (M20)            |
+| Library                                     | Role                                                              |
+| ------------------------------------------- | ----------------------------------------------------------------- |
+| `@tsconfig/node22`                          | Shared TypeScript base config for Node 22                         |
+| `vitest`                                    | Unit and integration tests                                        |
+| `@vitest/coverage-v8`                       | Coverage reporting                                                |
+| `@types/node`                               | Node type definitions                                             |
+| `@types/picomatch`                          | Type definitions for `picomatch`                                  |
+| `eslint`, `typescript-eslint`, `@eslint/js` | Lint (`pnpm lint`)                                                |
+| `prettier`, `eslint-config-prettier`        | Format (`pnpm format`, `pnpm format:check`)                       |
+| `globals`                                   | ESLint Node globals for flat config                               |
+| `ajv`                                       | JSON Schema contract tests only (not runtime CLI validation)      |
 
-## Package publish prep (M24 + M55 + M72 + M77)
+## Package publish
 
 - `package.json` `files` includes `dist/`, `schemas/`, `LICENSE`, `README.md`, `SECURITY.md`
 - `engines.node` is `>=22`; `repository` points at the git remote URL
@@ -46,4 +50,5 @@ Git log invocation uses `child_process.spawn` in `src/git/` (no `simple-git`).
 ## Not in stack
 
 - skott, graphology, Louvain — vitals-arch only; not used here
+- ts-morph / AST McCabe — NCLOC is plain file read + state machine
 - Network services, databases, dashboards
