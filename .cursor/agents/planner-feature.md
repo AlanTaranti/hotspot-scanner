@@ -44,7 +44,7 @@ For **Large** or **Complex** features (per vitals-spec-driven auto-sizing):
 - YAGNI / IDs / commit: [AGENTS.md](../../AGENTS.md) (`HOTSPOT-*`).
 - Every medium/large feature task must have clear acceptance criteria, **Done when**, **Tests**, and **Gate** (`pnpm build && pnpm test` or a narrower per-task gate).
 - Run **Check 5: Path Conflict** per [tasks.md](../skills/vitals-spec-driven/references/tasks.md) § Validate Before Presenting — one task = one module owner when possible ([implementer-routing.md](../skills/vitals-spec-driven/references/implementer-routing.md)).
-- Sync [ROADMAP.md](../../.specs/project/ROADMAP.md) and [STATE.md](../../.specs/project/STATE.md) when planning completes.
+- Sync [ROADMAP.md](../../.specs/project/ROADMAP.md) and [STATE.md](../../.specs/project/STATE.md) when planning completes — ROADMAP entry must follow [roadmap-sot.mdc](../rules/roadmap-sot.mdc) / [roadmap-sync.md](../skills/vitals-spec-driven/references/roadmap-sync.md) (lean template: link + outcome + ≤5 bullets; **no** Artifacts / `HOTSPOT-*` / Out of scope / task checkboxes).
 
 ## Hard stop — end of planning session
 

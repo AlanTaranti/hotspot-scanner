@@ -29,7 +29,7 @@ You do **not** plan specs (`planner-feature`). You do **not** implement applicat
 3. [`.cursor/skills/vitals-spec-driven/references/implement.md`](../skills/vitals-spec-driven/references/implement.md) — RED→GREEN→VERIFY cycle for implementers
 4. [`.cursor/skills/vitals-spec-driven/references/orchestrated-implementer.md`](../skills/vitals-spec-driven/references/orchestrated-implementer.md) — minimum prompt contract
 5. [`.cursor/skills/vitals-spec-driven/references/implementer-routing.md`](../skills/vitals-spec-driven/references/implementer-routing.md) — module routing (canonical)
-6. [`.cursor/skills/vitals-spec-driven/references/roadmap-sync.md`](../skills/vitals-spec-driven/references/roadmap-sync.md) — sync ROADMAP on Done
+6. [`.cursor/skills/vitals-spec-driven/references/roadmap-sync.md`](../skills/vitals-spec-driven/references/roadmap-sync.md) — sync ROADMAP on Done (lean template per [roadmap-sot.mdc](../rules/roadmap-sot.mdc); do not paste tasks/Artifacts/`HOTSPOT-*`)
 7. [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md) — gate commands
 8. [`.specs/codebase/CONVENTIONS.md`](../../.specs/codebase/CONVENTIONS.md) — pass to implementers
 9. [`.cursor/skills/task-implementer/SKILL.md`](../skills/task-implementer/SKILL.md) — include in minimum prompt to `implementer`
@@ -48,7 +48,7 @@ Follow [execute-orchestration-playbook.md](../skills/vitals-spec-driven/referenc
 | C     | `code-reviewer` (readonly) — **mandatory**; parallel per feature in batch; Changes needed blocks D  |
 | D     | `verifier-implementation` (readonly) — acceptance criteria + Done when; parallel per feature in batch |
 | E     | `verifier-quality-gates` — single project gate `pnpm build && pnpm test`                            |
-| F     | Sync `tasks.md`, ROADMAP; report                                                                    |
+| F     | Sync `tasks.md`, ROADMAP (roadmap-sot template); report                                                 |
 
 ## Wave scheduling
 

@@ -16,6 +16,7 @@ import {
   CONVENTIONS_SOT_CONTEXT,
   INTEGRATIONS_SOT_CONTEXT,
   PROJECT_SOT_CONTEXT,
+  ROADMAP_SOT_CONTEXT,
   STACK_SOT_CONTEXT,
   STRUCTURE_SOT_CONTEXT,
   TESTING_SOT_CONTEXT,
@@ -24,6 +25,7 @@ import {
   isConventionsDocPath,
   isIntegrationsDocPath,
   isProjectDocPath,
+  isRoadmapDocPath,
   isStackDocPath,
   isStructureDocPath,
   isTestingDocPath,
@@ -32,6 +34,7 @@ import {
   lintConventionsDoc,
   lintIntegrationsDoc,
   lintProjectDoc,
+  lintRoadmapDoc,
   lintStackDoc,
   lintStructureDoc,
   lintTestingDoc,
@@ -170,6 +173,18 @@ if (isProjectDocPath(relPath)) {
     ask(
       `PROJECT.md edit introduces forbidden tags (${bannedMatches.join(", ")}). Remove milestone/HOTSPOT changelog voice or confirm intentional exception.`,
       `${PROJECT_SOT_CONTEXT} Matches: ${bannedMatches.join(", ")}`,
+    );
+    process.exit(0);
+  }
+}
+
+if (isRoadmapDocPath(relPath)) {
+  const content = extractEditContent(input.tool_input);
+  const { bannedMatches } = lintRoadmapDoc(content);
+  if (bannedMatches.length > 0) {
+    ask(
+      `ROADMAP.md edit introduces forbidden drift patterns (${bannedMatches.join(", ")}). Use lean milestone template (roadmap-sot) or confirm intentional exception.`,
+      `${ROADMAP_SOT_CONTEXT} Matches: ${bannedMatches.join(", ")}`,
     );
     process.exit(0);
   }

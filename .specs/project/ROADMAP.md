@@ -6,9 +6,9 @@
 | ----- | ----- |
 | **Status** | **M7–M78 Done** |
 | **Open milestones** | _None_ |
-| **Deferred** | [STATE.md](STATE.md) § Deferred (npm publish, CI recipes/SARIF, historical AST do-not-prioritize, item C, fail-on-warning, assess `--fail-on-deteriorating`) |
+| **Deferred** | [STATE.md](STATE.md) § Deferred |
 
-Milestone sections below are a **historical archive** (feature links stay valid). Prefer this Current table + STATE Active/Deferred for “what’s next.”
+Archive below is historical (feature links stay valid). Prefer this table + Done summary for “what’s next”; deferred ideas live only in STATE. Detail for any milestone: `.specs/features/<slug>/`.
 
 **M12** intentionally absent (CI fail-on-score removed — see STATE).
 
@@ -18,1156 +18,729 @@ Milestone sections below are a **historical archive** (feature links stay valid)
 | ---- | ----- |
 | M1–M6 | v1 scaffold → git miner → complexity → scoring → reporter/CLI → integration |
 | M7–M24 | Path scope, harmonic score, rich/export formats, function granularity, compare, coupling, workers, CSV bundle, JSON contract, config, function AST/churn, package DX |
-| M25–M36 | Product docs, rename confidence, coupling enrichment, diagnostics, AST+, path/config DX, scan performance (workers, stream aggregate, enrich cache, overlap, function I/O, discovery) |
+| M25–M36 | Product docs, rename confidence, coupling enrichment, diagnostics, AST+, path/config DX, scan performance |
 | M37–M45 | README adoption, CLI polish, init/doctor/dry-run, workflows, interpretation UX, explain, monorepo remount, package exports enrich, adoption docs |
 | M46–M55 | Exclude tests by default, git pathspecs, scope extensions, ranking accuracy+, observability, doctor scope parity, perf controls, API trust docs, compare interpretation, CLI adoption extras |
-| M56–M65 | Remove coupling; NCLOC metric (retire McCabe/function mode); CLI `--warnings summary|full|json` stderr aggregation; ephemeral TTY scan progress; table path column UX; inline progress bar; feedback/copy UX; CLI surface parity; config/doctor DX; git error UX |
-| M66–M72 | DX batch: contract enrich, scope+, warnings bookend, write confirm, table Lines parity; **remove compare/baseline (scan-only)**; complexity trend CLI |
+| M56–M65 | Remove coupling; NCLOC metric (retire McCabe/function mode); warnings UX; TTY progress; table path UX; progress bar; feedback/copy UX; CLI surface parity; config/doctor DX; git error UX |
+| M66–M72 | Contract enrich, scope+, warnings bookend, write confirm, table Lines parity; **remove compare/baseline (scan-only)**; complexity trend CLI |
 | M73–M78 | Top-only rollups; doctor/trend/assess color UX; growth-pattern bridge; hotspot assess |
-
-### Open
-
-_None — M7–M78 Done._
-
-### Done
-
-M7–M78 Done. M73–M78 Execute complete (2026-07-27). Deferred horizon in [STATE.md](STATE.md).
 
 ---
 
-## Historical archive
+## Archive
 
-Status note (superseded by **Current** above): M7–M78 Done. Deferred horizon in [STATE.md](STATE.md).
+### M1–M6 — v1 foundation
 
-## Milestone 1 — Scaffold
+## Milestone 1 — Scaffold — DONE
 
 → [`.specs/features/scaffold/spec.md`](../features/scaffold/spec.md)
 
-- [x] Package scripts (`build`, `test`), `vitest.config.ts`
-- [x] Module layout under `src/` and `bin/hotspot-scanner.ts` stub
-- [x] Domain types in `src/types/`
-- [x] Placeholder integration test wiring
+Package scripts, `src/` + CLI stub, domain types, placeholder integration wiring.
 
-## Milestone 2 — Git Change Miner
+- Build/test scripts and Vitest config
+- Module layout under `src/` and `bin/`
+- Domain types in `src/types/`
+
+## Milestone 2 — Git Change Miner — DONE
 
 → [`.specs/features/git-change-miner/spec.md`](../features/git-change-miner/spec.md)
 
-- [x] Streaming parse of `git log --numstat --name-only`
-- [x] `FileChangeStats` aggregation
-- [x] `CoChangeEvent[]` extraction per commit
-- [x] Rename handling (`old => new` + `PathAliasMap`)
-- [x] Fixtures: real `git log` samples (merges, renames, deletes)
+Streaming `git log` parse into file churn stats, co-change events, and rename aliases.
 
-## Milestone 3 — Complexity Analyzer
+- Numstat/`name-only` streaming aggregation
+- Rename handling (`old => new` + `PathAliasMap`)
+- Fixtures for merges, renames, deletes
+
+## Milestone 3 — Complexity Analyzer — DONE
 
 → [`.specs/features/complexity-analyzer/spec.md`](../features/complexity-analyzer/spec.md)
 
-- [x] ts-morph adapter for `.ts`/`.tsx`/`.js`/`.jsx`
-- [x] McCabe cyclomatic complexity (project-owned decision nodes)
-- [x] Invalid syntax: warn and skip file
-- [x] Fixture TS files with manually verified complexity values
+File-level McCabe via ts-morph for TS/JS (superseded later by M57 NCLOC).
 
-## Milestone 4 — Scoring
+- ts-morph adapter for eligible extensions
+- Invalid syntax: warn and skip
+- Verified fixture complexity values
+
+## Milestone 4 — Scoring — DONE
 
 → [`.specs/features/scoring/spec.md`](../features/scoring/spec.md)
 
-- [x] HotspotScorer: log-scale normalize complexity + churn, compute `hotspotScore`
-- [x] TemporalCouplingScorer: `couplingStrength = coChangeCount / min(commitsA, commitsB)`
-- [x] `DEFAULT_MIN_COCHANGE = 3` + minCochange threshold in scorer
+Hotspot and temporal-coupling scorers (coupling later removed in M56).
 
-## Milestone 5 — Reporter + CLI
+- Log-scale normalize + product combiner (later harmonic in M8)
+- Coupling strength from co-change counts
+- Default min-cochange threshold
+
+## Milestone 5 — Reporter + CLI — DONE
 
 → [`.specs/features/reporter-cli/spec.md`](../features/reporter-cli/spec.md)
 
-- [x] CLI table output (top hotspots + top coupling pairs)
-- [x] JSON output (`version`, `hotspots`, `coupling`, `meta`)
-- [x] Flags: `--since`, `--format`, `--top`, `--min-cochange`
-- [x] Progress/warning logs for large repos (`src/diagnostics/`)
-- [x] `commander` CLI parsing; `runScan()` defaults + hooks (no full pipeline — M6)
+Table/JSON CLI surface and scan entry wiring.
 
-## Milestone 6 — Integration
+- Table + JSON report formats
+- Flags: `--since`, `--format`, `--top`, `--min-cochange`
+- Commander parsing; `runScan()` hooks
+
+## Milestone 6 — Integration — DONE
 
 → [`.specs/features/integration/spec.md`](../features/integration/spec.md)
 
-- [x] Full scan on versioned Git fixture repo (`tests/fixtures/repos/small-ts/`)
-- [x] `runScan()` pipeline wiring (git → complexity → scoring)
-- [x] Integration + CLI tests on fixture repo
-- [x] Manual performance benchmark on large synthetic repo (`scripts/benchmark-scan.md`)
-- [x] Coverage gate (`vitest.config.ts` per-file thresholds)
+End-to-end scan on versioned fixture repo with coverage gate.
 
----
+- Full pipeline: git → complexity → scoring
+- Integration + CLI tests on `small-ts`
+- Coverage thresholds in Vitest config
 
-## Post-v1 backlog
+### M7–M24 — post-v1 core
 
-Próximos milestones priorizados para adoção real. Specs em `.specs/features/<slug>/` serão criadas via `planner-feature` antes do Execute.
+## Milestone 7 — Path Scoping — DONE
 
-### Milestone 7 — Path Scoping
+→ [`.specs/features/path-scoping/spec.md`](../features/path-scoping/spec.md)
 
-→ [`.specs/features/path-scoping/spec.md`](../features/path-scoping/spec.md)  
-**Slug:** `path-scoping` | **Priority:** Critical + High | **Specs:** Done
+Default excludes, git-repo validation, and include/exclude globs.
 
-- [x] Default exclude: `node_modules`, `.git`, `dist`, `coverage`, `build` (complexity discovery + git stats intersection)
-- [x] Validate `repoPath` is a Git repository (`.git` exists) before scan
-- [x] CLI flags `--include <glob>` and `--exclude <glob>` (repeatable)
+- Default artifact excludes (`node_modules`, `.git`, `dist`, …)
+- Validate `repoPath` is a Git repository
+- Repeatable `--include` / `--exclude`
 
-### Milestone 8 — Harmonic Hotspot Score
+## Milestone 8 — Harmonic Hotspot Score — DONE
 
-→ [`.specs/features/harmonic-hotspot-score/spec.md`](../features/harmonic-hotspot-score/spec.md)  
-**Slug:** `harmonic-hotspot-score` | **Priority:** High | **Specs:** Done
+→ [`.specs/features/harmonic-hotspot-score/spec.md`](../features/harmonic-hotspot-score/spec.md)
 
-Prefer balanced dual-signal files (actively complex + churned) over spiky one-axis outliers. Same normalization; only combiner changes.
+Replaced product combiner with harmonic mean of normalized complexity and churn.
 
-- [x] Replace `hotspotScore = c × h` with `hotspotScore = 2ch / (c + h)` (harmonic mean of normalized complexity and churn)
-- [x] Zero guard: when `c + h === 0`, score is `0` (covers zero churn, missing stats, degenerate normalization)
-- [x] Update scoring fixtures and unit tests with new expected rankings (order may change vs product)
-- [x] Record decision in STATE.md; sync CONCERNS.md, README, fragile-areas rule, pipeline-domain skill
+- `hotspotScore = 2ch / (c + h)` with zero guard
+- Ranking fixtures updated for new order
 
-### Milestone 9 — Rich Output
+## Milestone 9 — Rich Output — DONE
 
-→ [`.specs/features/rich-output/spec.md`](../features/rich-output/spec.md)  
-**Slug:** `rich-output` | **Priority:** Critical + High | **Specs:** Done
+→ [`.specs/features/rich-output/spec.md`](../features/rich-output/spec.md)
 
-- [x] JSON hotspots include raw `cyclomaticComplexity`, `commitCount`, `linesChanged`, `functionCount`
-- [x] Table output shows raw metrics alongside normalized scores
-- [x] Expose bus factor: `authorCount` (from existing `authors` Set in `FileChangeStats`)
+Raw metrics and bus factor in JSON/table hotspot rows.
 
-### Milestone 10 — Export Formats
+- Raw complexity/churn/function counts in output
+- `authorCount` from author set size
 
-→ [`.specs/features/export-formats/spec.md`](../features/export-formats/spec.md)  
-**Slug:** `export-formats` | **Priority:** High | **Specs:** Done
+## Milestone 10 — Export Formats — DONE
 
-- [x] `--output <path>` writes report to file (table/json/markdown)
-- [x] `--format markdown` for PR-friendly report
+→ [`.specs/features/export-formats/spec.md`](../features/export-formats/spec.md)
 
-### Milestone 11 — Function Granularity
+File output transport and markdown report format.
 
-→ [`.specs/features/function-granularity/spec.md`](../features/function-granularity/spec.md)  
-**Slug:** `function-granularity` | **Priority:** High | **Specs:** Done
+- `--output <path>` for table/json/markdown
+- `--format markdown`
 
-- [x] Per-function McCabe in output (`functionName`, `line`, `complexity`)
-- [x] `--granularity file|function` (default `file`; function mode ranks top functions)
+## Milestone 11 — Function Granularity — DONE
 
-### Milestone 13 — Scan Compare
+→ [`.specs/features/function-granularity/spec.md`](../features/function-granularity/spec.md)
 
-→ [`.specs/features/scan-compare/spec.md`](../features/scan-compare/spec.md)  
-**Slug:** `scan-compare` | **Priority:** High | **Specs:** Done
+Per-function McCabe ranking mode (removed end-to-end in M57).
 
-- [x] `hotspot-scanner scan <path> --baseline <file>`
-- [x] Delta report: new/removed/rank-changed hotspots, functions, and coupling pairs
+- Function rows with name/line/complexity
+- `--granularity file|function`
 
-### Milestone 14 — Enriched Coupling
+## Milestone 13 — Scan Compare — DONE
 
-→ [`.specs/features/enriched-coupling/spec.md`](../features/enriched-coupling/spec.md)  
-**Slug:** `enriched-coupling` | **Priority:** High | **Specs:** Done
+→ [`.specs/features/scan-compare/spec.md`](../features/scan-compare/spec.md)
 
-- [x] Static import analysis between coupled file pairs
-- [x] Output field `hasStaticDependency: boolean` on `CouplingPair`
+Baseline delta reports (removed in M71).
 
-### Milestone 15 — AST Parallelization
+- `scan --baseline <file>`
+- New/removed/rank-changed deltas
 
-→ [`.specs/features/ast-parallelization/spec.md`](../features/ast-parallelization/spec.md)  
-**Slug:** `ast-parallelization` | **Priority:** High | **Specs:** Done
+## Milestone 14 — Enriched Coupling — DONE
 
-- [x] Worker-thread batch processing in `src/complexity/` (RT-001)
-- [x] Remove entry from STATE.md §Deferred when Done
+→ [`.specs/features/enriched-coupling/spec.md`](../features/enriched-coupling/spec.md)
 
-### Milestone 16 — Format-Scoped Top Limit
+Static import flag on coupling pairs (coupling removed in M56).
 
-→ [`.specs/features/format-scoped-top/spec.md`](../features/format-scoped-top/spec.md)  
-**Slug:** `format-scoped-top` | **Priority:** Medium | **Specs:** Done
+- Relative import analysis between pairs
+- `hasStaticDependency` on coupling items
 
-- [x] `--top` limits output only for `--format table`, `--format markdown`
-- [x] `--format json` (scan and compare) outputs full ranked arrays; `--top` is ignored
-- [x] Compare: classification still uses full rankings; slicing applies only to table/markdown delta display
+## Milestone 15 — AST Parallelization — DONE
 
-### Milestone 17 — CSV Export
+→ [`.specs/features/ast-parallelization/spec.md`](../features/ast-parallelization/spec.md)
 
-→ [`.specs/features/csv-export/spec.md`](../features/csv-export/spec.md)  
-**Slug:** `csv-export` | **Priority:** Medium | **Specs:** Done
+Worker-thread batch complexity analysis.
 
-> **Note:** Multi-block single-file CSV layout is **superseded by Milestone 18** (`csv-bundle`). Leave M17 historical; do not reopen.
+- Worker pool in complexity module
+- Batch processing for large trees
 
-- [x] `--format csv` CLI option (scan + compare)
-- [x] `renderCsv()` / `renderCompareCsv()` in `src/report/` — tabular hotspots, functions (`--granularity function`), and coupling sections
-- [x] RFC 4180 escaping (commas, quotes, newlines in file paths)
-- [x] Works with `--output <path>` (same transport rules as M10)
-- [x] `--top` ignored for CSV (full rankings, parity with JSON; M16 scopes `--top` to table/markdown only)
+## Milestone 16 — Format-Scoped Top Limit — DONE
 
-### Milestone 18 — CSV Bundle Export
+→ [`.specs/features/format-scoped-top/spec.md`](../features/format-scoped-top/spec.md)
 
-→ [`.specs/features/csv-bundle/spec.md`](../features/csv-bundle/spec.md)  
-**Slug:** `csv-bundle` | **Priority:** Medium | **Specs:** Done
+`--top` applies only to human table/markdown; JSON/CSV stay full rankings.
 
-Breaking redesign of `--format csv`: multi-file stem bundle + `{stem}.meta.json` sidecar (replaces M17 multi-block single file).
+- Table/markdown slicing only
+- Machine formats ignore `--top`
 
-- [x] `CsvBundle` return type from `renderCsv()` / `renderCompareCsv()`; reporter stays pure (no `fs`)
-- [x] Scan bundle: `{stem}.meta.json` + `{stem}.hotspots.csv`|`{stem}.functions.csv` + `{stem}.coupling.csv`
-- [x] Compare bundle: always 6 data CSVs + meta (empty = header-only); hierarchical names
-- [x] `--format csv` requires `--output` (`CliUsageError` otherwise); CLI stem expansion + multi-write
-- [x] No title rows; reuse M17 column sets + `csv-utils`; `--top` ignored; no legacy multi-block flag
+## Milestone 17 — CSV Export — DONE
 
-### Milestone 19 — Documentation Sync
+→ [`.specs/features/csv-export/spec.md`](../features/csv-export/spec.md)
 
-→ [`.specs/features/docs-sync/spec.md`](../features/docs-sync/spec.md)  
-**Slug:** `docs-sync` | **Priority:** Medium | **Specs:** Done
+Single-file multi-block CSV (superseded by M18 bundle).
 
-- [x] Sync [PROJECT.md](PROJECT.md) with post-v1 reality (no simple-git, commander implemented, features M7–M18)
-- [x] Fix stale status in ROADMAP header and `design.md`/`spec.md` for Done milestones (e.g. csv-bundle `Status: Planned`)
-- [x] Update [README.md](../../README.md): full JSON (M9/M11), compare JSON, programmatic API, markdown/csv formats
-- [x] Fix [INTEGRATIONS.md](../codebase/INTEGRATIONS.md): `child_process.spawn` only (remove `simple-git` mention)
+- `--format csv` with RFC 4180 escaping
+- Historical layout only — do not reopen
 
-### Milestone 20 — JSON Contract
+## Milestone 18 — CSV Bundle Export — DONE
 
-→ [`.specs/features/json-contract/spec.md`](../features/json-contract/spec.md)  
-**Slug:** `json-contract` | **Priority:** High | **Specs:** Done
+→ [`.specs/features/csv-bundle/spec.md`](../features/csv-bundle/spec.md)
 
-- [x] Publish JSON Schema for `ScanResult` and `CompareResult` (`schemas/scan-result.json`, `schemas/compare-result.json`)
-- [x] Strong validation in `loadBaseline()` (`src/compare/load-baseline.ts`) — reject malformed JSON with clear error
-- [x] Contract tests: CLI `--format json` output and compare match schema
-- [x] Schemas require M14 `hasStaticDependency` on coupling items
+Multi-file CSV stem bundle + meta sidecar; requires `--output`.
 
-### Milestone 21 — Config File
+- Pure reporter `CsvBundle`; CLI multi-write
+- Meta + ranking CSVs; no legacy multi-block
 
-→ [`.specs/features/config-file/spec.md`](../features/config-file/spec.md)  
-**Slug:** `config-file` | **Priority:** High | **Specs:** Done
+## Milestone 19 — Documentation Sync — DONE
 
-- [x] Support **only** `.hotspot-scanner.json` (not `.hotspotrc`, not dual lookup) with keys: `since`, `include`, `exclude`, `granularity`, `minCochange`, `top`
-- [x] Precedence: CLI flags > config file > defaults
-- [x] Document in README and ARCHITECTURE
+→ [`.specs/features/docs-sync/spec.md`](../features/docs-sync/spec.md)
 
-### Milestone 22 — Function AST Coverage — DONE
+Living docs and README aligned with post-v1 shipped surface.
 
-→ [`.specs/features/function-ast-coverage/spec.md`](../features/function-ast-coverage/spec.md)  
-**Slug:** `function-ast-coverage` | **Priority:** Medium | **Specs:** Done
+- PROJECT / README / INTEGRATIONS sync
+- Stale milestone status cleanup
 
-Extended `collectFunctionsInScope` / `resolveFunctionName` for getters, setters, class field arrows, and object-literal methods; McCabe decision-node definition unchanged; naming and fixtures locked per [function-ast-coverage/context.md](../features/function-ast-coverage/context.md).
+## Milestone 20 — JSON Contract — DONE
 
-- [x] Extend `src/complexity/analyze-file.ts` for getters/setters, class field arrows, object-literal methods
-- [x] McCabe fixtures per construct; do not change existing decision-node definition
+→ [`.specs/features/json-contract/spec.md`](../features/json-contract/spec.md)
 
-### Milestone 23 — Per-Function Git Churn — DONE
+Published schemas and baseline validation for scan/compare JSON.
 
-→ [`.specs/features/per-function-churn/spec.md`](../features/per-function-churn/spec.md)  
-**Slug:** `per-function-churn` | **Priority:** Medium | **Specs:** Done
+- `schemas/scan-result.json` (+ compare, later removed)
+- Contract tests against CLI JSON
 
-Hunk-overlap attribution on `git log` patch stream (`--unified=0`) in `--granularity function` only; replaces M11 inherited file churn. Locked decisions: [per-function-churn/context.md](../features/per-function-churn/context.md). Out of scope: historical AST per commit. IDs: HOTSPOT-181–193.
+## Milestone 21 — Config File — DONE
 
-- [x] Emit `endLine` on `FunctionComplexityResult`; function-mode hunk-overlap miner under `src/git/function-churn/`
-- [x] `scoreFunctionHotspots` uses per-function churn map (stop inheriting `FileChangeStats`); wire in `runScan` function branch only
-- [x] Living docs (ARCHITECTURE / CONCERNS / TESTING) + `pnpm build && pnpm test`
+→ [`.specs/features/config-file/spec.md`](../features/config-file/spec.md)
 
-### Milestone 24 — Package DX — DONE
+`.hotspot-scanner.json` only; CLI > config > defaults.
 
-→ [`.specs/features/package-dx/spec.md`](../features/package-dx/spec.md)  
-**Slug:** `package-dx` | **Priority:** Medium | **Specs:** Done
+- Scan parameter keys in config
+- Documented precedence
 
-Publish-prep + contributor DX only (no `npm publish`, no CI, no `dev` script). Locked decisions: [package-dx/context.md](../features/package-dx/context.md). Scope B: `files` allowlist **includes `schemas/`** (closes M20 json-contract thread). IDs: HOTSPOT-194–202. Project gate remains `pnpm build && pnpm test`.
+## Milestone 22 — Function AST Coverage — DONE
 
-- [x] Scripts: `typecheck`, `lint`, `format` + `format:check` (Prettier; ESLint flat config)
-- [x] `package.json`: `engines.node >= 22`, `repository`, `files` including `dist/`, `schemas/`, LICENSE, README
-- [x] Document typecheck/lint/format in CONTRIBUTING alongside gate; keep “no CI in v1”; sync STACK/CONVENTIONS
+→ [`.specs/features/function-ast-coverage/spec.md`](../features/function-ast-coverage/spec.md)
 
-### Suggested execution order (historical — M14–M24)
+Broader function collection (getters/setters, field arrows, object methods).
 
-M14 → M19 → M20 → M21 → M22 → M23 → M24
+- Extended collect/resolve naming
+- McCabe decision nodes unchanged
 
----
+## Milestone 23 — Per-Function Git Churn — DONE
 
-## Post-M24 backlog
+→ [`.specs/features/per-function-churn/spec.md`](../features/per-function-churn/spec.md)
 
-Specs and Execute for M25–M30 are **Done** (2026-07-23). M12 (CI fail-on-score) remains intentionally absent (see STATE.md).
+Hunk-overlap function churn (removed with function mode in M57).
 
-### Milestone 25 — Product docs sync — DONE
+- Patch-stream attribution in function mode
+- Stop inheriting file churn for function scores
 
-→ [`.specs/features/product-docs-sync/spec.md`](../features/product-docs-sync/spec.md)  
-**Slug:** `product-docs-sync` | **Priority:** High | **Specs:** Done
+## Milestone 24 — Package DX — DONE
 
-Align living product docs with shipped M19–M24 reality.
+→ [`.specs/features/package-dx/spec.md`](../features/package-dx/spec.md)
 
-- [x] Sync [PROJECT.md](PROJECT.md) (shipped through M24; remove stale “M20–M22 planned” backlog)
-- [x] Fix remaining rename/`--follow` drift in README / ARCHITECTURE Key constraints if still present
-- [x] Confirm ROADMAP header and STATE Active match delivered + backlog stubs
+Publish-prep scripts and package metadata (no npm publish).
 
-### Milestone 26 — Rename confidence (RT-003) — DONE
+- `typecheck` / `lint` / `format` scripts
+- `engines`, `repository`, `files` allowlist incl. `schemas/`
 
-→ [`.specs/features/rename-confidence/spec.md`](../features/rename-confidence/spec.md)  
-**Slug:** `rename-confidence` | **Priority:** High | **Specs:** Done
+### M25–M36 — docs, accuracy, performance
 
-Improve trust of file- and function-mode rankings after renames/moves. Ordered scope (avisos only — no historical AST). Tracked gaps: [CONCERNS.md](../codebase/CONCERNS.md) (Git miner rename blind spots + function churn pós-rename).
+## Milestone 25 — Product docs sync — DONE
 
-- [x] **Rename blind spots** — actionable warnings when history may be incomplete (copy-paste, pre-`--since`, no `old => new`); stronger file-miner fixtures
-- [x] **Function-mode pós-rename (avisos)** — document + emit warning/confidence when hunk overlap uses current `[line, endLine]` vs historical hunks / mis-attribution after moves (**do not** invent historical AST)
+→ [`.specs/features/product-docs-sync/spec.md`](../features/product-docs-sync/spec.md)
 
-**Boundary:** M26 owns RT-003 / function-rename warnings. M28 keeps generic `--concurrency` / progress / warning-severity consolidation (do not duplicate RT-003 scope here). Paths/`exports` enrichment stays **M27**.
+Product docs aligned through M24 shipping reality.
 
-### Milestone 27 — Coupling enrichment — DONE
+- PROJECT / README / ARCHITECTURE sync
+- ROADMAP/STATE status parity
 
-→ [`.specs/features/coupling-enrichment/spec.md`](../features/coupling-enrichment/spec.md)  
-**Slug:** `coupling-enrichment` | **Priority:** High | **Specs:** Done | **Execute:** Done
+## Milestone 26 — Rename confidence — DONE
 
-Richer `hasStaticDependency` signal for monorepos and refactor triage.
+→ [`.specs/features/rename-confidence/spec.md`](../features/rename-confidence/spec.md)
 
-- [x] Resolve tsconfig `paths` (and related aliases) when flagging static edges
-- [x] Direction of dependency (A→B / B→A / both)
-- [x] Distinguish `import type` vs runtime edges; handle re-exports explicitly
+Actionable rename-history warnings (no historical AST).
 
-### Milestone 28 — Performance & diagnostics UX — DONE
+- Blind-spot warnings for incomplete rename history
+- Function-mode pós-rename confidence avisos (pre-M57)
 
-→ [`.specs/features/perf-diagnostics-ux/spec.md`](../features/perf-diagnostics-ux/spec.md)  
-**Slug:** `perf-diagnostics-ux` | **Priority:** Medium | **Specs:** Done
+## Milestone 27 — Coupling enrichment — DONE
 
-Operator control and clearer scan feedback on large repos.
+→ [`.specs/features/coupling-enrichment/spec.md`](../features/coupling-enrichment/spec.md)
 
-- [x] CLI `--concurrency` (complexity worker pool; document default)
-- [x] Progress reporting in function mode (patch-stream phase)
-- [x] Consolidate warning UX / `meta.warnings` severity and interpretation docs
+Richer static coupling labels (paths, direction, type vs runtime).
 
-### Milestone 29 — Function AST coverage+
+- tsconfig `paths` resolution
+- Direction and import-kind flags
 
-→ [`.specs/features/function-ast-coverage-plus/spec.md`](../features/function-ast-coverage-plus/spec.md)  
-**Slug:** `function-ast-coverage-plus` | **Priority:** Medium | **Specs:** Done | **Execute:** Done
+## Milestone 28 — Performance & diagnostics UX — DONE
 
-Extend function collection beyond M22 without changing McCabe decision nodes. Locked constructs: [function-ast-coverage-plus/context.md](../features/function-ast-coverage-plus/context.md).
+→ [`.specs/features/perf-diagnostics-ux/spec.md`](../features/perf-diagnostics-ux/spec.md)
 
-- [x] Additional constructs (ClassExpression members, object-literal get/set, assignment RHS callables, skip body-less overload stubs — not constructors/namespaces as “new”)
-- [x] Naming table + McCabe fixtures per construct; no decision-node drift (RT-005)
+Operator concurrency control and clearer scan warnings/progress.
 
-### Milestone 30 — Path & config DX
+- CLI `--concurrency`
+- Structured warning severity / progress phases
 
-→ [`.specs/features/path-config-dx/spec.md`](../features/path-config-dx/spec.md)  
-**Slug:** `path-config-dx` | **Priority:** Medium | **Specs:** Done | **Execute:** Done
+## Milestone 29 — Function AST coverage+ — DONE
 
-Better defaults and config discovery for real monorepos. Locked decisions: [path-config-dx/context.md](../features/path-config-dx/context.md).
+→ [`.specs/features/function-ast-coverage-plus/spec.md`](../features/function-ast-coverage-plus/spec.md)
 
-- [x] Extra default excludes (`.next`, `out`, `vendor`, `storybook-static`, `__snapshots__`)
-- [x] Config parent-directory walk and `--config <path>` (preserve CLI > config > defaults)
+Additional callable constructs without McCabe node drift.
 
-### Suggested execution order (M27–M30)
+- ClassExpression / object get-set / assignment RHS callables
+- Overload stub skip; naming fixtures
 
-M27 → M28 → M30 → M29
+## Milestone 30 — Path & config DX — DONE
 
----
+→ [`.specs/features/path-config-dx/spec.md`](../features/path-config-dx/spec.md)
 
-## Post-M30 backlog — scan performance
+Broader default excludes and config discovery walk.
 
-RT-001 follow-ups: high- and medium-impact wall-time / memory wins identified after M15/M28. Specs and Execute **Done** (2026-07-23). Rankings / formulas / JSON contract unchanged except documented `MEGA_COMMIT_SKIPPED` warning. No historical AST. Gate remains `pnpm build && pnpm test`; timing stays manual (`scripts/benchmark-scan.md`).
+- Extra artifact excludes (`.next`, `out`, …)
+- Parent-directory config walk + `--config`
 
-### Milestone 31 — Persistent AST workers — DONE
+## Milestone 31 — Persistent AST workers — DONE
 
-→ [`.specs/features/persistent-ast-workers/spec.md`](../features/persistent-ast-workers/spec.md)  
-**Slug:** `persistent-ast-workers` | **Priority:** High | **Specs:** Done | **Execute:** Done
+→ [`.specs/features/persistent-ast-workers/spec.md`](../features/persistent-ast-workers/spec.md)
 
-Reduce worker spawn and ts-morph cold-start cost on large file trees. IDs: HOTSPOT-300–313.
+Persistent worker pool and Project reuse across batches.
 
-- [x] Persistent worker pool (N live workers + batch queue) instead of `new Worker()` per batch — `src/complexity/pool.ts`
-- [x] Reuse ts-morph `Project` across batches in the worker — `src/complexity/project.ts` / `analyze-batch.ts`
-- [x] Cheaper syntactic diagnostics path (`getSyntacticDiagnostics` / `getProgram()` per file) without changing McCabe decision nodes (RT-005)
-- [x] Keep `concurrency === 1` / single-batch inline fallback; `--concurrency` semantics unchanged
-- [x] After Execute: update `scripts/benchmark-scan.md`, CONCERNS, ARCHITECTURE
+- Live workers + batch queue
+- Cheaper syntactic diagnostics path
 
-### Milestone 32 — Coupling stream aggregation — DONE
+## Milestone 32 — Coupling stream aggregation — DONE
 
-→ [`.specs/features/coupling-stream-aggregate/spec.md`](../features/coupling-stream-aggregate/spec.md)  
-**Slug:** `coupling-stream-aggregate` | **Priority:** High | **Specs:** Done
+→ [`.specs/features/coupling-stream-aggregate/spec.md`](../features/coupling-stream-aggregate/spec.md)
 
-Lower memory and avoid a second full pass over co-change events on large histories. IDs: HOTSPOT-320–334.
+Stream-time pair aggregation and mega-commit guard (pre-M56).
 
-- [x] Aggregate `pair → coChangeCount` during the numstat stream (avoid retaining full `coChangeEvents[]`) — `src/git/aggregate.ts` + `src/scoring/coupling-scorer.ts`
-- [x] Preserve ranking / `couplingStrength` for commits below the mega-commit guard
-- [x] Guard commits with too many unique in-scope files (skip + `MEGA_COMMIT_SKIPPED` `ScanWarning` at threshold 100); document in CONCERNS
-- [x] Path scope filters before/during aggregation (`isPathInScope` callback into miner)
+- Aggregate pair counts during numstat stream
+- Mega-commit skip + warning
 
-### Milestone 33 — Static enrich graph cache — DONE
+## Milestone 33 — Static enrich graph cache — DONE
 
-→ [`.specs/features/static-enrich-cache/spec.md`](../features/static-enrich-cache/spec.md)  
-**Slug:** `static-enrich-cache` | **Priority:** High | **Specs:** Done
+→ [`.specs/features/static-enrich-cache/spec.md`](../features/static-enrich-cache/spec.md)
 
-Eliminate repeated source reads/regex when labeling coupling pairs. IDs: HOTSPOT-340–348, 351.
+One-read peer graph cache for static coupling labels.
 
-- [x] One read/parse per file in enrich; cache resolved edges; O(1) pair lookup — `src/scoring/enrich-coupling-static.ts`
-- [x] No ranking change; same `hasStaticDependency` / direction / kind fields
-- [x] `package.json` `exports`/`imports` remain deferred (CONCERNS)
+- Cached resolved edges; O(1) pair lookup
+- No ranking change
 
-### Milestone 34 — Pipeline stage overlap — DONE
+## Milestone 34 — Pipeline stage overlap — DONE
 
-→ [`.specs/features/pipeline-stage-overlap/spec.md`](../features/pipeline-stage-overlap/spec.md)  
-**Slug:** `pipeline-stage-overlap` | **Priority:** High | **Specs:** Done
+→ [`.specs/features/pipeline-stage-overlap/spec.md`](../features/pipeline-stage-overlap/spec.md)
 
-Overlap I/O-bound git mining with CPU-bound complexity analysis. IDs: HOTSPOT-360–379.
+Overlap git mining with complexity analysis in file mode.
 
-- [x] Overlap git miner and complexity in `src/scan.ts` with coherent cancel/error handling
-- [x] File mode: coupling/scoring only after both complete; function mode: function-churn after complexity (needs ranges)
-- [x] Document peak-memory trade-off; progress phases unchanged or carefully extended
-- [x] Boundary: do **not** parallelize function-churn with numstat in this milestone (rename/alias complexity)
+- Concurrent mine ∥ analyze with shared cancel
+- Scoring after both complete
 
-### Milestone 35 — Function-mode scan efficiency — DONE
+## Milestone 35 — Function-mode scan efficiency — DONE
 
-→ [`.specs/features/function-mode-scan-efficiency/spec.md`](../features/function-mode-scan-efficiency/spec.md)  
-**Slug:** `function-mode-scan-efficiency` | **Priority:** High | **Specs:** Done
+→ [`.specs/features/function-mode-scan-efficiency/spec.md`](../features/function-mode-scan-efficiency/spec.md)
 
-Cut function-mode wall time (patch stream + AST + hunk overlap). IDs: HOTSPOT-380–399.
+Faster function-mode patch/AST/overlap path (pre-M57).
 
-- [x] Restrict patch stream (pathspec / only paths with churn or functions) — `src/git/function-churn/`
-- [x] In function mode, limit AST to relevant files (churn ∩ scope) without worsening expected rankings
-- [x] Interval index for function×hunk overlap (sort/sweep) — `src/git/function-churn/aggregate.ts`
-- [x] File mode: zero patch spawn (regression test)
+- Pathspec-restricted patch stream
+- Interval index for hunk overlap
 
-### Milestone 36 — Discovery & concurrency defaults
+## Milestone 36 — Discovery & concurrency defaults — DONE
 
-→ [`.specs/features/discovery-concurrency-defaults/spec.md`](../features/discovery-concurrency-defaults/spec.md)  
-**Slug:** `discovery-concurrency-defaults` | **Priority:** Medium | **Specs:** Done | **Execute:** Done
+→ [`.specs/features/discovery-concurrency-defaults/spec.md`](../features/discovery-concurrency-defaults/spec.md)
 
-Faster source discovery and better out-of-box concurrency on multi-core machines. IDs: HOTSPOT-400–413.
+`git ls-files` discovery preference and higher default concurrency cap.
 
-- [x] Prefer `git ls-files` + `PathScope` filter for discovery, with filesystem walk fallback — `src/complexity/discover.ts`
-- [x] Revisit `DEFAULT_WORKER_CONCURRENCY` (`min(availableParallelism(), 8)`); document memory vs `--concurrency`
-- [x] Update README / M28 docs / benchmark notes
+- Prefer tracked-file listing with walk fallback
+- Revisit default worker concurrency
 
-### Suggested execution order (M31–M36)
+### M37–M45 — adoption / user DX
 
-M31 → M32 → M33 → M35 → M34 → M36
+## Milestone 37 — README Adoption DX — DONE
 
-Workers and coupling/enrich first (isolated wins); function-mode I/O next; stage overlap later among the highs (more fragile); discovery/defaults last (polish).
+→ [`.specs/features/readme-adoption-dx/spec.md`](../features/readme-adoption-dx/spec.md)
 
----
+GitHub-facing README adoption without npm publish.
 
-## Post-M36 backlog — adoption / distribution
+- Problem→solution opening, TOC, sample output
+- Real clone URL; jargon cleanup
 
-### Milestone 37 — README Adoption DX — DONE
+## Milestone 38 — CLI Surface Polish — DONE
 
-→ [`.specs/features/readme-adoption-dx/spec.md`](../features/readme-adoption-dx/spec.md)  
-**Slug:** `readme-adoption-dx` | **Priority:** High | **Specs:** Done | **Execute:** Done  
-**IDs:** HOTSPOT-420–440 | **Sister:** [product-docs-sync](../features/product-docs-sync/spec.md) (M25)
+→ [`.specs/features/cli-surface-polish/spec.md`](../features/cli-surface-polish/spec.md)
 
-Improve GitHub-facing adoption DX without npm publish. Official install remains `git clone` + `pnpm install` + `pnpm build` using the real GitHub URL. **npm / npx / publish install path is future backlog (not M37).**
+Default scan path, version, quiet/progress, hints, aliases.
 
-- [x] Fix duplicate Markdown fence; restore rendering of following sections
-- [x] Opening: problem → solution; package vs bin naming; TOC; badges (no npm version)
-- [x] Sample CLI table + real `docs/assets/` screenshot from fixture `small-ts` in first ~60 lines
-- [x] Short top + Advanced detail; slim How it works; workflows; privacy; Limitations
-- [x] Remove user-facing M26/M28/M32/RT-003 jargon and “v1” framing; keep stable warning `code`s
-- [x] Real clone URL; CONTRIBUTING pointer/dedupe; expand `package.json` keywords (no publish)
+- Default `scan` path `.`; `--version`
+- `--quiet` / `--no-progress`; short aliases
 
----
+## Milestone 39 — CLI Init / Doctor / Dry-run — DONE
 
-## Post-M37 backlog — user DX
+→ [`.specs/features/cli-init-doctor-dry-run/spec.md`](../features/cli-init-doctor-dry-run/spec.md)
 
-CLI ergonomics, interpretation UX, monorepo heuristics, coupling `exports`/`imports`, and adoption docs. **No npm publish.** **M38–M45 Execute complete.**
+Adoption commands: init, doctor, scan dry-run preview.
 
-### Milestone 38 — CLI Surface Polish
+- `init` exemplar config (no overwrite without `--force`)
+- `doctor` hard/soft checks; `scan --dry-run` scope preview
 
-→ [`.specs/features/cli-surface-polish/spec.md`](../features/cli-surface-polish/spec.md)  
-**Slug:** `cli-surface-polish` | **Priority:** High | **Specs:** Done  
-**IDs:** HOTSPOT-450–461 (range 450–469; 462–469 reserved) | **Items:** 5, 6, 8, 9, 10, 11  
-**Artifacts:** [spec.md](../features/cli-surface-polish/spec.md), [context.md](../features/cli-surface-polish/context.md), [design.md](../features/cli-surface-polish/design.md), [tasks.md](../features/cli-surface-polish/tasks.md) (`Status: Done`)
+## Milestone 40 — Workflow Subcommands — DONE
 
-Default scan path, `--version`, `--quiet` / `--no-progress`, guided errors, help examples, short aliases. **`--verbose` omitted** (not useful beyond default diagnostics — see context.md).
+→ [`.specs/features/workflow-subcommands/spec.md`](../features/workflow-subcommands/spec.md)
 
-- [x] Default `scan` path = `.` when argument omitted (still validate `.git`)
-- [x] `--version` / `-V` from `package.json`
-- [x] `--quiet` (suppress progress + `info`; keep report + warning/error) and `--no-progress`
-- [x] Common errors with next-step hints (non-git, csv without `--output`, baseline, missing `--config`)
-- [x] Examples in `scan --help`
-- [x] Short aliases: `-f` format, `-o` output, `-t` top, `-g` granularity (long flags remain)
+`baseline save` / `compare` verbs (removed in M71).
 
-### Milestone 39 — CLI Init / Doctor / Dry-run
+- Explicit save/compare wrappers over scan JSON
+- `scan --baseline` retained until M71
 
-→ [`.specs/features/cli-init-doctor-dry-run/spec.md`](../features/cli-init-doctor-dry-run/spec.md) — **DONE**  
-**Slug:** `cli-init-doctor-dry-run` | **Priority:** High | **Specs:** Done  
-**IDs:** HOTSPOT-470–489 | **Items:** 3, 4, 26  
-**Depth:** Large | **Sisters:** config-file (M21), path-config-dx (M30), path-scoping (M7)  
-**Artifacts:** [context.md](../features/cli-init-doctor-dry-run/context.md) · [spec.md](../features/cli-init-doctor-dry-run/spec.md) · [design.md](../features/cli-init-doctor-dry-run/design.md) · [tasks.md](../features/cli-init-doctor-dry-run/tasks.md) (Status: **Done**)
+## Milestone 41 — Output Interpretation UX — DONE
 
-`init` / `doctor` / `scan --dry-run` for adoption DX. Domain in `src/config/` (exemplar), `src/doctor/`, `src/scan-preview.ts`; bin wires only. **Out of scope:** M38 polish aliases, M40 workflow subcommands, PathScope default changes, npm publish.
+→ [`.specs/features/output-interpretation-ux/spec.md`](../features/output-interpretation-ux/spec.md)
 
-**Locked (context.md):** Doctor hard-fail = Node engines / git PATH / non-repo / invalid config (`1` or `2`); soft = missing config + missing tsconfig/jsconfig (exit `0`). Init writes `<cwd|dir>/.hotspot-scanner.json`, no overwrite without `--force`; exemplar omits `concurrency`. Dry-run = text preview (since/include/exclude/count/concurrency); no mine/AST/scoring; reject `--baseline`.
+Human table/markdown glossary, summary, triage, filters, TTY colors.
 
-- [x] `hotspot-scanner init [dir]` writes exemplar `.hotspot-scanner.json` (no overwrite without `--force`)
-- [x] `hotspot-scanner doctor [path]` — Node engines, git on PATH, git repo, config discovery/validity, tsconfig/jsconfig info (exit policy locked)
-- [x] `scan --dry-run` scope preview (effective since/include/exclude, eligible file count, concurrency) without mine/AST/scoring
+- Glossary + executive summary
+- Triage hints; `--only`; TTY table colors
 
-### Milestone 40 — Workflow Subcommands — DONE
+## Milestone 42 — Explain & Scan Feedback — DONE
 
-→ [`.specs/features/workflow-subcommands/spec.md`](../features/workflow-subcommands/spec.md) — **DONE**
-**Slug:** `workflow-subcommands` | **Priority:** Medium | **Specs:** Done
-**IDs:** HOTSPOT-490–509 | **Items:** 7
-**Artifacts:** [context.md](../features/workflow-subcommands/context.md) · [design.md](../features/workflow-subcommands/design.md) · [tasks.md](../features/workflow-subcommands/tasks.md) (Status: **Done**)
+→ [`.specs/features/explain-and-scan-feedback/spec.md`](../features/explain-and-scan-feedback/spec.md)
 
-Explicit save/compare verbs wrapping existing scan/compare JSON flows. Domain stays in `src/`; bin wires via `bin/scan-actions.ts`. **No** fail-on thresholds, CI action packaging, or CompareResult schema changes.
+`--explain` breakdown on stderr plus richer complexity progress.
 
-- [x] `hotspot-scanner baseline save <repoPath>` — `runScan` + ScanResult JSON; `--output` or default `./hotspot-baseline.json`
-- [x] `hotspot-scanner compare <repoPath> --baseline <file>` — thin wrapper; same path as `scan --baseline`
-- [x] Keep `scan --baseline` working (no removal); JSON files only (no DB)
+- File (and historical function) explain targets
+- Rename next-step copy; complexity-phase progress
 
-### Milestone 41 — Output Interpretation UX — DONE
+## Milestone 43 — Monorepo Path Detect — DONE
 
-→ [`.specs/features/output-interpretation-ux/spec.md`](../features/output-interpretation-ux/spec.md)  
-**Slug:** `output-interpretation-ux` | **Priority:** High | **Specs:** Done  
-**IDs:** HOTSPOT-510–539 | **Items:** 13, 14, 15, 16, 17, 19  
-**Artifacts:** [context.md](../features/output-interpretation-ux/context.md) · [design.md](../features/output-interpretation-ux/design.md) · [tasks.md](../features/output-interpretation-ux/tasks.md) (Status: Done)
+→ [`.specs/features/monorepo-path-detect/spec.md`](../features/monorepo-path-detect/spec.md)
 
-Human interpretation UX for table/markdown (reporter + CLI only). No scoring/formula/schema changes. Locked decisions in context.md.
+Nested package path remounts to git root with auto-include prefix.
 
-- [x] Table glossary footer (stdout/file after tables); markdown `## How to read this` (shared SoT)
-- [x] Executive summary at top of table + markdown (scan + compare; shown vs total; coupling + static-dep-false counts)
-- [x] Conservative triage hints — 3 deterministic rules; default ON for scan table/markdown; `--no-triage-hints`; no compare hints; no ML; rankings/JSON scores unchanged
-- [x] Repeatable `--only hotspots|coupling|functions`; invalid → `CliUsageError`; omit excluded sections (JSON keys / CSV files); filtered JSON not a baseline
-- [x] TTY-aware table colors only; honor `--no-color`, `NO_COLOR`, non-TTY, `--output`; no new color dependency; no markdown/JSON/CSV color
+- `rev-parse --show-toplevel` remount
+- Auto `--include {prefix}/**` unless CLI include set
 
-### Milestone 42 — Explain & Scan Feedback
+## Milestone 44 — Coupling Package Exports — DONE
 
-→ [`.specs/features/explain-and-scan-feedback/spec.md`](../features/explain-and-scan-feedback/spec.md)  
-**Slug:** `explain-and-scan-feedback` | **Priority:** High | **Specs:** Done  
-**IDs:** HOTSPOT-540–569 | **Items:** 18, 25, 27  
-**Artifacts:** [context.md](../features/explain-and-scan-feedback/context.md) · [design.md](../features/explain-and-scan-feedback/design.md) · [tasks.md](../features/explain-and-scan-feedback/tasks.md) (`Status: Done`)  
-**Sister:** M38 `--no-progress` (honor via shared `onProgress`; implementable independently — default progress on)
+→ [`.specs/features/coupling-package-exports/spec.md`](../features/coupling-package-exports/spec.md)
 
-Full scan always, then explain block on **stderr**. Grammar: `<path>` | `<path>:<functionName>` (see context). Lookup uses full `ScanResult` arrays (ignores `--top` truncation). Rename: append next-step text only — **no** new/changed warning `code`s. Progress: `phase: "complexity"` with file/batch counters.
+In-repo `exports`/`imports` resolution for static coupling (pre-M56).
 
-- [x] `--explain <target>` breakdown after full scan (raw + normalized c/h + harmonic score; not-found message; file vs `path:function` grammar)
-- [x] Actionable next-steps on rename warnings (stable M26/M28 codes — `RENAME_HISTORY_INCOMPLETE` / `EMPTY_SINCE_WINDOW`)
-- [x] Complexity-phase progress via `onProgress` (`phase: "complexity"`; beyond git / function-churn)
+- Package map in enrich path
+- Ranking unchanged; better true positives
 
-### Milestone 43 — Monorepo Path Detect — DONE
+## Milestone 45 — Adoption Docs & Package Exports Map — DONE
 
-→ [`.specs/features/monorepo-path-detect/spec.md`](../features/monorepo-path-detect/spec.md)  
-**Slug:** `monorepo-path-detect` | **Priority:** Medium | **Specs:** Done  
-**IDs:** HOTSPOT-570–589 | **Items:** 12 | **Sisters:** path-scoping (M7), path-config-dx (M30)  
-**Artifacts:** [context.md](../features/monorepo-path-detect/context.md) · [design.md](../features/monorepo-path-detect/design.md) · [tasks.md](../features/monorepo-path-detect/tasks.md) (`Status: Done`)
+→ [`.specs/features/adoption-docs-package-exports/spec.md`](../features/adoption-docs-package-exports/spec.md)
 
-When scan path is a subdirectory of a git workspace (e.g. `packages/api`): remount pipeline `repoPath` to `git rev-parse --show-toplevel`; auto-apply `--include {prefix}/**` unless CLI `--include` was passed. Config discovery stays on the original request path (M30). Git-root paths unchanged. YAGNI: no workspace-yaml / nx parsers. See [context.md](../features/monorepo-path-detect/context.md).
+Recipes, warning-codes cheatsheet, and package `exports` map.
 
-- [x] Remount nested scan path to git root (`rev-parse --show-toplevel`); validate `.git` on root
-- [x] Auto-include `{packagePrefix}/**` unless CLI `--include`; beats config `include`; `MONOREPO_PATH_REMOUNT` info warning
-- [x] Config walk / `--config` from original request path; CLI > config > defaults unchanged; git-root scans unchanged
-- [x] Document heuristic (README + ARCHITECTURE); no pnpm-workspace / nx special cases
+- `docs/recipes.md` + `docs/warning-codes.md`
+- Public entry `exports` (no npm publish)
 
-### Milestone 44 — Coupling Package Exports — DONE
+### M46–M55 — scale, accuracy, observability
 
-→ [`.specs/features/coupling-package-exports/spec.md`](../features/coupling-package-exports/spec.md) — **DONE**  
-**Slug:** `coupling-package-exports` | **Priority:** High | **Specs:** Done  
-**IDs:** HOTSPOT-590–619 | **Items:** 24 | **Depth:** Complex | **Sister:** coupling-enrichment (M27), static-enrich-cache (M33)  
-**Artifacts:** [context.md](../features/coupling-package-exports/context.md) · [design.md](../features/coupling-package-exports/design.md) · [tasks.md](../features/coupling-package-exports/tasks.md) (Status: **Done**)
+## Milestone 46 — Exclude Tests by Default — DONE
 
-- [x] Resolve in-repo `package.json` `exports` / `imports` when labeling static coupling edges (close CONCERNS gap)
-- [x] Ranking (`couplingStrength`, order) unchanged; existing static fields only — improve true-positive rate
-- [x] Keep M33 peer-scoped graph cache; extend resolution caches (no per-pair source re-read)
-- [x] Contract regression + fixtures for exports/imports; no JSON version bump / no `node_modules` full resolve
-- [x] No PathAliasMap rewrite / no historical AST; Execute removes CONCERNS unmitigated `exports`/`imports` row
+→ [`.specs/features/exclude-tests-by-default/spec.md`](../features/exclude-tests-by-default/spec.md)
 
-### Milestone 45 — Adoption Docs & Package Exports Map
+Breaking default: test globs excluded; opt-in `--include-tests`.
 
-→ [`.specs/features/adoption-docs-package-exports/spec.md`](../features/adoption-docs-package-exports/spec.md)  
-**Slug:** `adoption-docs-package-exports` | **Priority:** Medium | **Specs:** Done  
-**IDs:** HOTSPOT-620–639 | **Items:** 29, 30, 31, 32 | **Sister:** readme-adoption-dx (M37)  
-**Artifacts:** `spec.md`, `context.md`, `design.md` (thin), `tasks.md` (**Status: Done**)
+- Split artifact vs test exclude constants
+- CLI/API `includeTests` through scan/preview
 
-- [x] `docs/recipes.md` — weekly triage, PR markdown, monorepo config, baseline/compare
-- [x] Sync README sample tables (Quick start + Output formats → Table) with real `small-ts` CLI output; refresh PNG if stale
-- [x] `docs/warning-codes.md` cheatsheet + README link (stable codes only; no new codes)
-- [x] `package.json` `"exports"` map for public entry (`./dist/index.js` + types); keep `main`/`types`/`bin` — **no npm publish**
-
-### Suggested execution order (M38–M45)
-
-M38 → M45 → M39 → M41 → M42 → M40 → M43 → M44
-
----
-
-## Post-M45 backlog — path-scope defaults
-
-### Milestone 46 — Exclude Tests by Default
-
-→ [`.specs/features/exclude-tests-by-default/spec.md`](../features/exclude-tests-by-default/spec.md)  
-**Slug:** `exclude-tests-by-default` | **Priority:** High | **Specs:** Done  
-**IDs:** HOTSPOT-640–657 (658–659 reserved) | **Depth:** Large  
-**Sisters:** path-scoping (M7), path-config-dx (M30), cli-init-doctor-dry-run (M39 dry-run)  
-**Artifacts:** [context.md](../features/exclude-tests-by-default/context.md) · [spec.md](../features/exclude-tests-by-default/spec.md) · [design.md](../features/exclude-tests-by-default/design.md) · [tasks.md](../features/exclude-tests-by-default/tasks.md) (`Status: Done`)
-
-Intentional breaking default: test globs / `__tests__/**` excluded from PathScope (git + complexity + eligible counts). Opt-in `--include-tests` (CLI/API only — no config key) lifts **only** built-in test patterns; artifact defaults and user `--exclude` stay. JSON contract unchanged.
-
-- [x] Split `DEFAULT_EXCLUDE_PATTERNS` → artifact + test constants; `createPathScope({ includeTests? })`
-- [x] Wire `ScanOptions.includeTests` through `runScan`, `previewScanScope` (dry-run line), `scan` / `baseline save` / `compare`
-- [x] Docs: ARCHITECTURE, README, `docs/recipes.md` (drop redundant `--exclude "**/*.test.ts"`); STATE decision log
-- [x] Unit/CLI tests on scope + preview + flag forward; no new fixture repo; gate `pnpm build && pnpm test`
-
----
-
-## Post-M46 backlog — scale, accuracy, observability, DX (historical — all Done)
-
-Depth A thematic milestones **M46–M55** — Execute complete; **no open milestones**.
-
-**Rejected (not a milestone):** `format` / `output` in `.hotspot-scanner.json` — M21 CLI-only lock (see STATE).  
-**Deferred (no milestone):** Historical AST post-rename — do not prioritize (CONCERNS / STATE).
-
-### Suggested execution order (M46–M55) — completed
-
-M46 → M47 → M52 → M48 → M50 → M51 → M49 → M55 → M53 → M54
-
-### Milestone 47 — Git Scale Pathspecs
+## Milestone 47 — Git Scale Pathspecs — DONE
 
 → [`.specs/features/git-scale-pathspecs/spec.md`](../features/git-scale-pathspecs/spec.md)
-**Slug:** `git-scale-pathspecs` | **Priority:** High | **Specs:** Done
-**IDs:** HOTSPOT-660–689 (687–689 reserved) | **Depth:** Large
-**Sisters:** function-mode-scan-efficiency (M35), coupling-stream-aggregate (M32), cli-init-doctor-dry-run (M39 dry-run)
-**Artifacts:** [context.md](../features/git-scale-pathspecs/context.md) · [spec.md](../features/git-scale-pathspecs/spec.md) · [design.md](../features/git-scale-pathspecs/design.md) · [tasks.md](../features/git-scale-pathspecs/tasks.md) (`Status: Done`)
 
-Replace M35 count-based unrestricted patch fallback with sequential pathspec batches (patch stream only; numstat unchanged). Configurable mega-commit threshold (default 100, skip+warn unchanged). Dry-run warns when eligible files > 1000.
+Batched pathspecs for large patch streams; configurable mega-commit threshold.
 
-- [x] Batch git pathspecs when allowlist > `PATCH_PATHSPEC_FALLBACK_THRESHOLD` (1000); avoid unrestricted fallback except documented emergency path
-- [x] Configurable mega-commit unique-file threshold (CLI + optional config key; default 100); document over-threshold policy
-- [x] Dry-run / `previewScanScope` warns when eligible path count exceeds pathspec threshold
+- Sequential pathspec batches above threshold
+- Dry-run scale warning when eligible files large
 
-### Milestone 48 — Scope Extensions & Artifact Excludes
+## Milestone 48 — Scope Extensions & Artifact Excludes — DONE
 
 → [`.specs/features/scope-extensions-excludes/spec.md`](../features/scope-extensions-excludes/spec.md)
-**Slug:** `scope-extensions-excludes` | **Priority:** Medium | **Specs:** Done
-**IDs:** HOTSPOT-690–709 (701–709 reserved) | **Depth:** Small
-**Sisters:** path-scoping (M7), path-config-dx (M30), exclude-tests-by-default (M46)
-**Artifacts:** [context.md](../features/scope-extensions-excludes/context.md) · [spec.md](../features/scope-extensions-excludes/spec.md) · [design.md](../features/scope-extensions-excludes/design.md) · [tasks.md](../features/scope-extensions-excludes/tasks.md) (`Status: Done`)
 
-Add `.mjs`/`.cjs` to eligible sources; expand artifact default excludes with full M30 YAGNI-cut set. **Do not** change M46 test globs. Prefer Execute after M46.
+`.mjs`/`.cjs` eligibility and expanded artifact excludes.
 
-- [x] Add `.mjs` / `.cjs` to eligible source extensions (discovery, complexity, git intersection, enrich SoT)
-- [x] Expand default artifact excludes (`.turbo`, `.vercel`, `.cache`, `.nuxt`, `.output`, `.parcel-cache`, `tmp`)
+- Eligible extensions += `.mjs` / `.cjs`
+- Extra default artifact dirs (`.turbo`, `.vercel`, …)
 
-### Milestone 49 — Pipeline Perf Controls — DONE
+## Milestone 49 — Pipeline Perf Controls — DONE
 
-→ [`.specs/features/pipeline-perf-controls/spec.md`](../features/pipeline-perf-controls/spec.md)  
-**Slug:** `pipeline-perf-controls` | **Priority:** Medium | **Specs:** Done  
-**IDs:** HOTSPOT-710–729 | **Depth:** Medium  
-**Sisters:** pipeline-stage-overlap (M34), ast-parallelization (M15), scripts/benchmark-scan.md; note M51 excludes bench harness  
+→ [`.specs/features/pipeline-perf-controls/spec.md`](../features/pipeline-perf-controls/spec.md)
 
-**Artifacts:** [context.md](../features/pipeline-perf-controls/context.md) · [spec.md](../features/pipeline-perf-controls/spec.md) · [design.md](../features/pipeline-perf-controls/design.md) · [tasks.md](../features/pipeline-perf-controls/tasks.md) (`Status: Done`)
+Opt-out of stage overlap and automated bench harness.
 
-- [x] `--sequential` (primary) / `--no-overlap` (alias) disables M34 file-mode git∥complexity overlap; CLI-only `ScanOptions.sequential`
-- [x] Automated benchmark harness (`pnpm bench`); wall-clock + counts; optional A/B vs sequential; **not** part of `pnpm test` gate / no CI timing thresholds
+- `--sequential` / `--no-overlap`
+- `pnpm bench` outside test gate
 
-### Milestone 50 — Ranking Accuracy Plus — DONE
+## Milestone 50 — Ranking Accuracy Plus — DONE
 
-→ [`.specs/features/ranking-accuracy-plus/spec.md`](../features/ranking-accuracy-plus/spec.md)  
-**Slug:** `ranking-accuracy-plus` | **Priority:** High | **Specs:** Done  
-**IDs:** HOTSPOT-730–769 | **Depth:** Large  
-**Sisters:** rename-confidence (M26), coupling-enrichment (M27), function-ast-coverage-plus (M29), function-mode-scan-efficiency (M35)
+→ [`.specs/features/ranking-accuracy-plus/spec.md`](../features/ranking-accuracy-plus/spec.md)
 
-**Artifacts:** [context.md](../features/ranking-accuracy-plus/context.md) · [spec.md](../features/ranking-accuracy-plus/spec.md) · [design.md](../features/ranking-accuracy-plus/design.md) · [tasks.md](../features/ranking-accuracy-plus/tasks.md) (`Status: Done`)
+Stronger rename linking, enrich alias use, PARSE_FAILED stubs, broader AST callables.
 
-- [x] Stronger unlinked-rename linking in git miner (RT-003; prefer stable warning `code`s)
-- [x] Apply `PathAliasMap` in static coupling enrich (rename-aware peer paths)
-- [x] Include `PARSE_FAILED` files in hotspot ranking (flagged; score 0)
-- [x] Function AST: collect callbacks / IIFEs / related callables (extends M29; McCabe decision nodes unchanged — RT-005)
-- [x] Function-mode: include zero-churn-file functions (intentional revisit of M35 D6)
+- Unlinked-rename heuristics; PathAliasMap in enrich
+- PARSE_FAILED flagged score-0 hotspots
 
-### Milestone 51 — Scan Observability — DONE
+## Milestone 51 — Scan Observability — DONE
 
-→ [`.specs/features/scan-observability/spec.md`](../features/scan-observability/spec.md)  
-**Slug:** `scan-observability` | **Priority:** High | **Specs:** Done  
-**IDs:** HOTSPOT-770–799 | **Depth:** Large (schema + CLI + SIGINT + function-churn abort)  
-**Sisters:** perf-diagnostics-ux (M28), pipeline-stage-overlap (M34 — SIGINT was out of scope), cli-surface-polish (M38 — general `--verbose` omitted), output-interpretation-ux (M41)  
-**Artifacts:** [context.md](../features/scan-observability/context.md) · [spec.md](../features/scan-observability/spec.md) · [design.md](../features/scan-observability/design.md) · [tasks.md](../features/scan-observability/tasks.md) (`Status: Done`)
+→ [`.specs/features/scan-observability/spec.md`](../features/scan-observability/spec.md)
 
-- [x] SIGINT/SIGTERM → shared `AbortController`; clean cancel; no zombie git children/workers (exit 130/143)
-- [x] Additive `meta.timings` per pipeline stage under JSON `version: "1.0"`
-- [x] Warning count/code summary in table + markdown executive summary (scan + compare)
-- [x] `doctor --format json` (structured findings; text default)
-- [x] `--verbose` scoped to git spawn argv trace only (narrow reopen of M38 omit; `--quiet` wins)
+Cancel signals, timings, warning rollups, doctor JSON, narrow `--verbose`.
 
-### Milestone 52 — Doctor Scope Parity — DONE
+- SIGINT/SIGTERM → clean cancel (130/143)
+- Additive `meta.timings`; `doctor --format json`
 
-→ [`.specs/features/doctor-scope-parity/spec.md`](../features/doctor-scope-parity/spec.md)  
-**Slug:** `doctor-scope-parity` | **Priority:** Medium | **Specs:** Done  
-**IDs:** HOTSPOT-800–819 | **Depth:** Medium  
-**Sisters:** cli-init-doctor-dry-run (M39), monorepo-path-detect (M43), exclude-tests-by-default (M46); note M51 `doctor --format json` (additive `scope` finding)
+## Milestone 52 — Doctor Scope Parity — DONE
 
-**Artifacts:** [context.md](../features/doctor-scope-parity/context.md) · [spec.md](../features/doctor-scope-parity/spec.md) · [design.md](../features/doctor-scope-parity/design.md) · [tasks.md](../features/doctor-scope-parity/tasks.md) (Status: **Done**)
+→ [`.specs/features/doctor-scope-parity/spec.md`](../features/doctor-scope-parity/spec.md)
 
-Doctor remount + PathScope / eligible-count parity with dry-run and `runScan`. Shared `createScanPathScope` + `previewScanScope` for inventory. Forward-compat with M46 `includeTests`. **Out of scope:** doctor JSON (M51), PathScope default changes (M46), workspace yaml.
+Doctor shares remount/PathScope/eligible-count prelude with scan and dry-run.
 
-- [x] `runDoctor` uses `resolveScanPipelineContext` (M43 remount, M46 test-exclude defaults when applicable)
-- [x] Doctor, dry-run, and `runScan` share one prelude chain (config merge, path scope, eligible-count semantics)
-- [x] Doctor `scope` finding — eligible count matches `previewScanScope`
-- [x] Optional doctor `--include-tests` when M46 Done
+- Shared pipeline context + scope finding
+- Optional doctor `--include-tests`
 
-### Milestone 53 — Compare Interpretation
+## Milestone 53 — Compare Interpretation — DONE
 
-→ [`.specs/features/compare-interpretation/spec.md`](../features/compare-interpretation/spec.md)  
-**Slug:** `compare-interpretation` | **Priority:** Medium | **Specs:** Done  
-**IDs:** HOTSPOT-820–839 | **Depth:** Medium  
-**Sisters:** output-interpretation-ux (M41), explain-and-scan-feedback (M42), scan-compare (M13)  
-**Artifacts:** [context.md](../features/compare-interpretation/context.md) · [spec.md](../features/compare-interpretation/spec.md) · [design.md](../features/compare-interpretation/design.md) · [tasks.md](../features/compare-interpretation/tasks.md) (`Status: Done`)
+→ [`.specs/features/compare-interpretation/spec.md`](../features/compare-interpretation/spec.md)
 
-- [x] Compare table/markdown triage hints (delta-aware; **intentional override** of M41 “no compare triage”)
-- [x] `--explain` for compare targets (rank delta / new-removed on stderr)
-- [x] `--strict` treats `COMPARE_SINCE_MISMATCH` as hard error (exit ≠ 0)
+Compare triage, explain, and `--strict` (removed with compare in M71).
 
-### Milestone 54 — CLI Adoption Extras — DONE
+- Delta-aware triage hints
+- Compare `--explain`; `--strict` on since mismatch
+
+## Milestone 54 — CLI Adoption Extras — DONE
 
 → [`.specs/features/cli-adoption-extras/spec.md`](../features/cli-adoption-extras/spec.md)
-**Slug:** `cli-adoption-extras` | **Priority:** Low | **Specs:** Done
-**IDs:** HOTSPOT-840–859 | **Depth:** Small
-**Sisters:** cli-surface-polish (M38), path-config-dx (M30)
 
-**Artifacts:** [context.md](../features/cli-adoption-extras/context.md) · [spec.md](../features/cli-adoption-extras/spec.md) · [design.md](../features/cli-adoption-extras/design.md) · [tasks.md](../features/cli-adoption-extras/tasks.md) (`Status: Done`)
+Shell completion subcommand; reject `.hotspotignore`.
 
-- [x] Shell completion (bash/zsh/fish) via static scripts + `completion <shell>` (no new deps)
-- [x] Prefer recipes / config `exclude` over `.hotspotignore` — **Rejected** (documented; not implemented)
+- `completion <shell>` static scripts
+- Prefer config/`--exclude` over ignore file
 
-### Milestone 55 — API Trust Docs — DONE
+## Milestone 55 — API Trust Docs — DONE
 
-→ [`.specs/features/api-trust-docs/spec.md`](../features/api-trust-docs/spec.md)  
-**Slug:** `api-trust-docs` | **Priority:** Medium | **Specs:** Done  
-**IDs:** HOTSPOT-860–882 (883–889 reserved) | **Depth:** Small  
-**Sisters:** adoption-docs-package-exports (M45), config-file (M21), package-dx (M24); cross-link output-interpretation-ux (M41)  
-**Artifacts:** [context.md](../features/api-trust-docs/context.md) · [spec.md](../features/api-trust-docs/spec.md) · [design.md](../features/api-trust-docs/design.md) · [tasks.md](../features/api-trust-docs/tasks.md) (`Status: Done`)
+→ [`.specs/features/api-trust-docs/spec.md`](../features/api-trust-docs/spec.md)
 
-Export preview/doctor from package entry; warn-only unknown config keys; wire `merge-heavy` integration; trust docs (zero-network, `SECURITY.md`, baseline-in-artifacts, `--only` JSON ≠ baseline).
+Public preview/doctor exports, unknown-key warn, trust docs.
 
-- [x] Export `previewScanScope`, `runDoctor` (+ types) from package entry
-- [x] Warn on unknown config keys (warn-only; keep forward-compat)
-- [x] Wire `tests/fixtures/repos/merge-heavy` into integration suite
-- [x] Docs: README “zero network” callout; `SECURITY.md`; baseline-in-artifacts; `--only` filtered JSON ≠ baseline
+- Export `previewScanScope` / `runDoctor`
+- Warn-only unknown config keys; SECURITY.md
 
----
+### M56–M65 — hard cuts and CLI UX
 
-## Milestone 56 — Remove coupling analysis — Done
+## Milestone 56 — Remove coupling analysis — DONE
 
-→ [`.specs/features/remove-coupling-analysis/spec.md`](../features/remove-coupling-analysis/spec.md)  
-**Slug:** `remove-coupling-analysis` | **Priority:** High | **Specs:** Done  
-**IDs:** HOTSPOT-890+ (913–919 reserved) | **Depth:** Complex  
-**Sisters / inverse:** enriched-coupling (M14), coupling-enrichment (M27), coupling-stream-aggregate (M32), static-enrich-cache (M33), coupling-package-exports (M44), csv-bundle (M18), json-contract (M20), scan-compare (M13), output-interpretation-ux (M41)
+→ [`.specs/features/remove-coupling-analysis/spec.md`](../features/remove-coupling-analysis/spec.md)
 
-**Artifacts:** [context.md](../features/remove-coupling-analysis/context.md) · [spec.md](../features/remove-coupling-analysis/spec.md) · [design.md](../features/remove-coupling-analysis/design.md) · [tasks.md](../features/remove-coupling-analysis/tasks.md) (Status: **Done**)
+Hard cut: temporal coupling removed; scan JSON `"2.0"` without `coupling`.
 
-Hard cut — completely removed temporal coupling analysis (co-change pairs, coupling scoring, static enrich) from pipeline, CLI/config, JSON (`version` → `"2.0"`, no `coupling` array), CSV (omit coupling files), tests, fixtures, and living docs. Historical Done coupling specs stay historical; M56 documents supersession. **Kept:** churn, hotspot scoring, PathAliasMap, complexity, compare for hotspots/functions, `--only hotspots|functions`.
+- Pipeline/CLI/config/reporters stop emitting coupling
+- Historical coupling specs stay Done; M56 supersedes
 
-- [x] JSON schemas + types `"2.0"` without top-level `coupling`; baseline reject `1.0` / leftover `coupling`
-- [x] Pipeline / compare / reporters / CLI / config stop emitting or configuring coupling
-- [x] Git miner: remove `pairCounts`, mega-commit coupling skip, `MEGA_COMMIT_SKIPPED`
-- [x] Delete coupling-only modules, tests, and fixtures
-- [x] Living docs / skills / PROJECT vision (hotspots = complexity + churn); revisit ADR-2026-020
-- [x] Final gate `pnpm build && pnpm test`
+## Milestone 57 — NCLOC metric — DONE
 
-**Out of scope:** McCabe nodes, harmonic formula, function churn, npm publish, CI/SARIF.
+→ [`.specs/features/ncloc-metric/spec.md`](../features/ncloc-metric/spec.md)
 
----
+Hard cut: NCLOC replaces McCabe; function mode removed; JSON `"3.0"`.
 
-## Milestone 57 — NCLOC metric — Done
+- File NCLOC as axis `c`; drop ts-morph/function mode
+- Baselines reject legacy complexity/functions fields
 
-→ [`.specs/features/ncloc-metric/spec.md`](../features/ncloc-metric/spec.md)  
-**Slug:** `ncloc-metric` | **Priority:** High | **Specs:** Done  
-**IDs:** HOTSPOT-920+ (913–919 reserved from M56) | **Depth:** Complex  
-**Sisters / inverse:** remove-coupling-analysis (M56 hard-cut exemplar), complexity-analyzer (M3), harmonic-hotspot-score (M8), rich-output (M9), function-granularity (M11), per-function-churn (M23), function-mode-scan-efficiency (M35), explain-and-scan-feedback (M42), ranking-accuracy-plus (M50), json-contract (M20), csv-bundle (M18)
+## Milestone 58 — CLI Warnings Mode — DONE
 
-**Artifacts:** [context.md](../features/ncloc-metric/context.md) · [spec.md](../features/ncloc-metric/spec.md) · [design.md](../features/ncloc-metric/design.md) · [tasks.md](../features/ncloc-metric/tasks.md) (Status: **Done**)
+→ [`.specs/features/cli-warnings-mode/spec.md`](../features/cli-warnings-mode/spec.md)
 
-Product hard cut: replace McCabe cyclomatic complexity with **NCLOC** as axis `c` in `hotspotScore = 2ch/(c+h)` (log1p + min-max + harmonic unchanged); remove **function mode** end-to-end; bump JSON to **`"3.0"`** (`cyclomaticComplexity` → `ncloc`; no `functions` array); reject baselines `2.0` / legacy fields with re-scan `BaselineError`; revisit **ADR-2026-019**. Historical Done McCabe/function specs stay historical; M57 documents supersession.
+Stderr `--warnings summary|full` (default summary); meta stays full.
 
-- [x] NCLOC file analyzer (lighter scanner; drop ts-morph) + scoring feeds `ncloc` as `c`
-- [x] JSON schemas + types `"3.0"` with `ncloc`; baseline reject `2.0` / `cyclomaticComplexity` / `functions`
-- [x] Remove function mode (CLI/config `granularity`, function-churn miner, function scorers, CSV/compare/explain)
-- [x] Reporters: NLOC columns; glossary / triage / `--explain` file-only
-- [x] Living docs / skills / CONCERNS RT-005 / INTEGRATIONS; ADR-2026-019 supersession
-- [x] Final gate `pnpm build && pnpm test`
+- Aggregate repeated same-code stderr lines
+- CLI-only; no config key; no schema bump
 
-**Out of scope:** npm publish, CI/SARIF, historical AST, reintroducing coupling, metrics beyond NCLOC.
+## Milestone 59 — Ephemeral TTY Scan Progress — DONE
 
----
+→ [`.specs/features/tty-ephemeral-progress/spec.md`](../features/tty-ephemeral-progress/spec.md)
 
-## Milestone 58 — CLI Warnings Mode — Done
+TTY live overwrite progress line for git/complexity; clears cleanly.
 
-→ [`.specs/features/cli-warnings-mode/spec.md`](../features/cli-warnings-mode/spec.md)  
-**Slug:** `cli-warnings-mode` | **Priority:** High | **Specs:** Done  
-**IDs:** HOTSPOT-950–969 (963–969 reserved) | **Depth:** Large  
-**Sisters:** cli-surface-polish (M38 quiet), scan-observability (M51 `--verbose` git-argv lock + exec warning summary), explain-and-scan-feedback (M42 next-step copy), rename-confidence (M26), adoption-docs (M45 warning-codes), cli-adoption-extras (M54 completion)  
-**Artifacts:** [context.md](../features/cli-warnings-mode/context.md) · [spec.md](../features/cli-warnings-mode/spec.md) · [design.md](../features/cli-warnings-mode/design.md) · [tasks.md](../features/cli-warnings-mode/tasks.md) (Status: **Done**)
+- `\r` + clear-to-EOL on TTY; `\n` off-TTY
+- Compose with warnings flush; quiet/no-progress unchanged
 
-Intentional breaking **stderr** default: `--warnings summary|full` (default **`summary`**) collapses repeated same-code / rename sub-kind lines. **M68 bookend:** short rollup teaser immediately before report write, then full aggregated lines after write (see [warnings-bookend-dx](../features/warnings-bookend-dx/)). **`meta.warnings` and programmatic `onWarning` stay full** (no JSON contract change). Do **not** overload `--verbose` (M51). CLI-only — no config key (M38 quiet parity). File-mode git miner SoT post-M57; do not revive function-mode claims.
+## Milestone 60 — Table Path Column UX — DONE
 
-- [x] `--warnings summary|full` on `scan` / `compare` / `baseline save`; default `summary`; invalid → `CliUsageError` exit 2
-- [x] CLI diagnostic sink aggregates stderr (`RENAME_HISTORY_INCOMPLETE` sub-kinds + other multi-code spam); `full` restores per-path/per-pair detail (unlinked may keep 5 + remainder)
-- [x] `flushWarnings()` after scan/compare warning emission; quiet/verbose interaction documented
-- [x] Help, completion, README, `docs/warning-codes.md`, recipes, ARCHITECTURE
-- [x] Final gate `pnpm build && pnpm test`
+→ [`.specs/features/table-path-column-ux/spec.md`](../features/table-path-column-ux/spec.md)
 
-**Out of scope:** config key; schema bump; expanding unlinked pairs in JSON beyond today’s formatter; executive-summary redesign; function-churn revival; fail-on-warning CI.
+Middle-ellipsis File column with dynamic terminal width.
 
----
-
-## Milestone 59 — Ephemeral TTY Scan Progress — Done
-
-→ [`.specs/features/tty-ephemeral-progress/spec.md`](../features/tty-ephemeral-progress/spec.md)  
-**Slug:** `tty-ephemeral-progress` | **Priority:** High | **Specs:** Done  
-**IDs:** HOTSPOT-970–989 (981–989 reserved) | **Depth:** Large  
-**Sisters:** perf-diagnostics-ux (M28), cli-surface-polish (M38 quiet/no-progress), explain-and-scan-feedback (M42 complexity progress format), cli-warnings-mode (M58)  
-**Artifacts:** [context.md](../features/tty-ephemeral-progress/context.md) · [spec.md](../features/tty-ephemeral-progress/spec.md) · [design.md](../features/tty-ephemeral-progress/design.md) · [tasks.md](../features/tty-ephemeral-progress/tasks.md) (Status: **Done**)
-
-While a scan runs on a TTY, stderr progress for `git` and `complexity` updates **one live line** (`\r` + clear-to-EOL; no bars/ETA/spinners) and **clears** on teardown, before diagnostic stderr lines, and on phase switch. Non-TTY/CI keeps `\n` lines. `--quiet` / `--no-progress` unchanged. Compose with M58: clear at `flushWarnings()` (summary) and before each `logWarning` (full). No new flags, config, or JSON/schema changes.
-
-- [x] TTY live overwrite for `git` + `complexity`; non-TTY `\n` unchanged; injectable `stderrIsTTY` for tests
-- [x] Clear on flush/teardown, before warning/error/info stderr, and on phase switch; quiet/no-progress unchanged
-- [x] M58 compose (`warnings=summary` / `full`); throttle intervals and message wording unchanged
-- [x] README + ARCHITECTURE (recipes if progress UX mentioned)
-- [x] Final gate `pnpm build && pnpm test`
-
-**Out of scope:** bars/ETA/spinners; new flags/config; schema bump; throttle changes; function-churn progress revival; wrapping `--verbose` argv writers.
-
----
-
-## Milestone 60 — Table Path Column UX — Done
-
-→ [`.specs/features/table-path-column-ux/spec.md`](../features/table-path-column-ux/spec.md)  
-**Slug:** `table-path-column-ux` | **Priority:** Medium | **Specs:** Done  
-**IDs:** HOTSPOT-990–1009 (1001–1009 reserved) | **Depth:** Medium  
-**Sisters:** rich-output (M9), export-formats (M10), output-interpretation-ux (M41), compare-interpretation (M53), tty-ephemeral-progress (M59)  
-**Artifacts:** [context.md](../features/table-path-column-ux/context.md) · [spec.md](../features/table-path-column-ux/spec.md) · [design.md](../features/table-path-column-ux/design.md) · [tasks.md](../features/table-path-column-ux/tasks.md) (Status: **Done**)
-
-Default table/compare-table File column: replace hard-coded width **24** + left `slice(0, width)` with **middle-ellipsis** (prefix + basename, Unicode `…`) and File width derived from `process.stdout.columns` (injectable for tests), min/max clamp, fallback **24** when columns missing, capped so scan numeric columns still fit on ~80-col terminals. Shared helper for scan + compare parity. **No** new flags, config keys, or JSON schema bumps.
-
-- [x] Shared `src/report/` helper: `resolveFileColumnWidth` + `formatFileColumn` (middle-ellipsis) + unit tests
-- [x] Wire `table.ts` + `compare-table.ts` (dynamic File header width; injectable `stdoutColumns`)
-- [x] Update truncation tests (replace left-slice assertions); compare parity
-- [x] Living docs (ARCHITECTURE / README if table layout mentioned)
-- [x] Final gate `pnpm build && pnpm test` (Execute session)
-
-**Out of scope:** markdown/JSON/CSV paths; `--full-paths`; end-ellipsis/basename-only; triage/explain changes.
-
----
+- Shared path-column helper for scan tables
+- Fallback width 24 when columns unknown
 
 ## Milestone 61 — Inline Progress Bar — DONE
 
-→ [`.specs/features/inline-progress-bar/spec.md`](../features/inline-progress-bar/spec.md)  
-**Slug:** `inline-progress-bar` | **Priority:** Medium | **Specs:** Done  
-**IDs:** HOTSPOT-1010–1029 (1026–1029 reserved) | **Depth:** Large  
-**Sisters:** tty-ephemeral-progress (M59), cli-warnings-mode (M58), explain-and-scan-feedback (M42), cli-surface-polish (M38 quiet/no-progress)  
-**Artifacts:** [context.md](../features/inline-progress-bar/context.md) · [spec.md](../features/inline-progress-bar/spec.md) · [design.md](../features/inline-progress-bar/design.md) · [tasks.md](../features/inline-progress-bar/tasks.md) (Status: **Done**)
+→ [`.specs/features/inline-progress-bar/spec.md`](../features/inline-progress-bar/spec.md)
 
-Homegrown complexity fill bar (TTY `█░` / non-TTY `#-`) with honest `filesProcessed/totalFiles` (+ batch when known); git indeterminate counter only; post-barrier `Finalizing…` live line through score/compare/render/write; defer `flushWarnings` until after write. **No** new flags, config, schema, or progress libraries.
+Honesty-oriented complexity fill bar + finalize phase; defer warning flush until after write.
 
-- [x] Domain `"finalize"` phase + diagnostics formatters/handlers + unit tests
-- [x] Emit finalize once at post-barrier in `src/scan.ts`
-- [x] Defer `flushWarnings` after write (scan / compare / baseline)
-- [x] Living docs (README + ARCHITECTURE)
-- [x] Final gate `pnpm build && pnpm test` (Execute session)
+- TTY/non-TTY fill glyphs; git indeterminate counter
+- `Finalizing…` after mine+analyze barrier
 
-**Out of scope:** ora/cli-progress; ETA/spinners; fake overall % / 99% freeze; doctor/init/dry-run/completion progress; schema/ranking changes; multi-bar; throttle interval changes (except finalize always emits once).
+## Milestone 62 — Feedback and copy UX — DONE
 
----
+→ [`.specs/features/feedback-copy-ux/spec.md`](../features/feedback-copy-ux/spec.md)
 
-## Post-M61 backlog — DX batch (M62–M67) — DONE
+CSV write confirm, timings in summary, de-jargon help/README, clearer errors.
 
-Specs and Execute **Done** (2026-07-26). Locked decisions in each feature `context.md`. Completed Execute order: M62 → M63 → M64 → M65 → M66 → M67.
-### Milestone 62 — Feedback and copy UX — DONE
+- Timings + write confirm on stderr where useful
+- Help/README without milestone jargon
 
-→ [`.specs/features/feedback-copy-ux/spec.md`](../features/feedback-copy-ux/spec.md)  
-**Slug:** `feedback-copy-ux` | **Priority:** High | **Specs:** Done  
-**IDs:** HOTSPOT-1030–1059 (1046–1059 reserved) | **Depth:** Large  
-**Sisters:** csv-bundle (M18), cli-surface-polish (M38), workflow-subcommands (M40), scan-observability (M51), compare-interpretation (M53), cli-warnings-mode (M58), tty-ephemeral-progress (M59), inline-progress-bar (M61)  
-**Artifacts:** [context.md](../features/feedback-copy-ux/context.md) · [spec.md](../features/feedback-copy-ux/spec.md) · [design.md](../features/feedback-copy-ux/design.md) · [tasks.md](../features/feedback-copy-ux/tasks.md) (Status: **Done**)
-
-CSV write confirmation on stderr; timings in summary + stderr; help/README without milestone jargon; `since=` on first progress line; compare empty-state copy; `BaselineError` → exit 2; baseline hint mentions `baseline save`.
-
-- [x] Report + diagnostics (CSV confirm, timings, since= prefix, empty compare copy)
-- [x] Bin exit mapping + baseline hint + help de-jargon
-- [x] README user-facing milestone ID cleanup
-- [x] Final gate `pnpm build && pnpm test` (Execute session)
-
-### Milestone 63 — CLI surface parity — DONE
+## Milestone 63 — CLI surface parity — DONE
 
 → [`.specs/features/cli-surface-parity/spec.md`](../features/cli-surface-parity/spec.md)
-**Slug:** `cli-surface-parity` | **Priority:** High | **Specs:** Done
-**IDs:** HOTSPOT-1060–1099 (1096–1099 reserved) | **Depth:** Large
-**Sisters:** csv-bundle (M18), cli-surface-polish (M38), workflow-subcommands (M40), explain-and-scan-feedback (M42), cli-adoption-extras (M54), cli-warnings-mode (M58)
-**Artifacts:** [context.md](../features/cli-surface-parity/context.md) · [spec.md](../features/cli-surface-parity/spec.md) · [design.md](../features/cli-surface-parity/design.md) · [tasks.md](../features/cli-surface-parity/tasks.md) (Status: **Done**)
 
-`baseline save` quiet/progress/verbose parity; zsh/fish completions ↔ bash; path-looking argv → `scan`; `--fail-on-explain-miss`; `--warnings=json`; `--csv-single-file` opt-in (default bundle intact).
+Flag/completion parity and opt-in explain-miss / warnings-json / csv-single-file.
 
-- [x] Baseline save flag parity + path→scan rewrite
-- [x] `--fail-on-explain-miss` + `--warnings=json` + `--csv-single-file`
-- [x] Completions + docs
-- [x] Final gate `pnpm build && pnpm test` (Execute session)
+- Path-looking argv → `scan`
+- `--fail-on-explain-miss`; `--warnings=json`; `--csv-single-file`
 
-### Milestone 64 — Config and doctor DX — DONE
+## Milestone 64 — Config and doctor DX — DONE
 
-→ [`.specs/features/config-doctor-dx/spec.md`](../features/config-doctor-dx/spec.md)  
-**Slug:** `config-doctor-dx` | **Priority:** High | **Status:** DONE  
-**IDs:** HOTSPOT-1100–1139 (1136–1139 reserved) | **Depth:** Large  
-**Sisters:** config-file (M21), path-config-dx (M30), cli-init-doctor-dry-run (M39), doctor-scope-parity (M52), api-trust-docs (M55)  
-**Artifacts:** [context.md](../features/config-doctor-dx/context.md) · [spec.md](../features/config-doctor-dx/spec.md) · [design.md](../features/config-doctor-dx/design.md) · [tasks.md](../features/config-doctor-dx/tasks.md) (Status: **Done**)
+→ [`.specs/features/config-doctor-dx/spec.md`](../features/config-doctor-dx/spec.md)
 
-Richer init (`$schema`, `$comments`, realistic globs); `schemas/hotspot-scanner-config.json` + package `exports`; `config validate` / `config print`; dry-run prelude context; doctor `--since` preflight.
+Richer init, config schema, `config validate`/`print`, doctor since preflight.
 
-- [x] Config schema + reserved meta keys + rich exemplar
-- [x] `config validate` / `config print` subcommands
-- [x] Dry-run + doctor since preflight
-- [x] Final gate `pnpm build && pnpm test` (Execute session)
+- Config JSON Schema + package exports
+- Dry-run prelude enrichment
 
-### Milestone 65 — Git error UX — DONE
+## Milestone 65 — Git error UX — DONE
 
-→ [`.specs/features/git-error-ux/spec.md`](../features/git-error-ux/spec.md)  
-**Slug:** `git-error-ux` | **Priority:** Medium | **Specs:** Done  
-**IDs:** HOTSPOT-1140–1159 (1151–1159 reserved) | **Depth:** Medium  
-**Sisters:** cli-surface-polish (M38 hints), config-doctor-dx (M64 since preflight — do not duplicate)  
-**Artifacts:** [context.md](../features/git-error-ux/context.md) · [spec.md](../features/git-error-ux/spec.md) · [design.md](../features/git-error-ux/design.md) · [tasks.md](../features/git-error-ux/tasks.md) (Status: **Done**)
+→ [`.specs/features/git-error-ux/spec.md`](../features/git-error-ux/spec.md)
 
-Runtime `GitLogError` / related hints for invalid `--since`, shallow clone, corrupt repo stderr patterns.
+Actionable hints for invalid since, shallow clone, corrupt repo patterns.
 
-- [x] Hint helper + wire constructors
-- [x] Living docs
-- [x] Final gate `pnpm build && pnpm test` (Execute session)
+- Shared git-stderr hint helper
+- Wired into git error constructors
 
-### Milestone 66 — Contract enrich (additive 3.0) — DONE
+### M66–M72 — contract, report DX, scan-only, trend
 
-→ [`.specs/features/contract-enrich-additive/spec.md`](../features/contract-enrich-additive/spec.md)  
-**Slug:** `contract-enrich-additive` | **Priority:** High | **Specs:** Done  
-**IDs:** HOTSPOT-1160–1199 (1185–1199 reserved) | **Depth:** Large  
-**Sisters:** scan-compare (M13), json-contract (M20), compare-interpretation (M53), ncloc-metric (M57)  
-**Artifacts:** [context.md](../features/contract-enrich-additive/context.md) · [spec.md](../features/contract-enrich-additive/spec.md) · [design.md](../features/contract-enrich-additive/design.md) · [tasks.md](../features/contract-enrich-additive/tasks.md) (Status: **Done**)
+## Milestone 66 — Contract enrich (additive 3.0) — DONE
 
-Additive under `version: "3.0"` (no bump): `meta.scannerVersion`; JSON `$schema`; compare `rankChanged` deltas (`scoreDelta`, `nclocDelta`, `commitCountDelta`). Old baselines remain valid.
+→ [`.specs/features/contract-enrich-additive/spec.md`](../features/contract-enrich-additive/spec.md)
 
-- [x] Types/schemas + emit scannerVersion / `$schema`
-- [x] Compare deltas + reporters (table/md/json/csv) + explain
-- [x] Contract tests + living docs
-- [x] Final gate `pnpm build && pnpm test` (Execute session)
+Additive scan/compare fields under `"3.0"` (compare later removed in M71).
 
-### Milestone 67 — Scope extensions plus — DONE
+- `meta.scannerVersion`; JSON `$schema`
+- Compare rank deltas while compare existed
 
-→ [`.specs/features/scope-extensions-plus/spec.md`](../features/scope-extensions-plus/spec.md)  
-**Slug:** `scope-extensions-plus` | **Priority:** Medium | **Specs:** Done  
-**IDs:** HOTSPOT-1200–1229 (1213–1229 reserved) | **Depth:** Medium  
-**Sisters:** exclude-tests-by-default (M46), scope-extensions-excludes (M48)  
-**Artifacts:** [context.md](../features/scope-extensions-plus/context.md) · [spec.md](../features/scope-extensions-plus/spec.md) · [design.md](../features/scope-extensions-plus/design.md) · [tasks.md](../features/scope-extensions-plus/tasks.md) (Status: **Done**)
+## Milestone 67 — Scope extensions plus — DONE
 
-Close residual test-glob gap (`*.test/spec` × mjs/cjs/mts/cts); add `.mts` / `.cts` to `ELIGIBLE_EXTENSIONS`.
+→ [`.specs/features/scope-extensions-plus/spec.md`](../features/scope-extensions-plus/spec.md)
 
-- [x] Test exclude patterns + eligible extensions
-- [x] Living docs / clear CONCERNS residual
-- [x] Final gate `pnpm build && pnpm test` (Execute session)
+Close residual test-glob gaps; add `.mts`/`.cts`.
 
----
+- Broader test exclude patterns
+- Eligible extensions += `.mts` / `.cts`
 
-## Post-M67 backlog — Warnings & report DX (M68–M70) — DONE
+## Milestone 68 — Warnings presentation DX — DONE
 
-Execute complete (2026-07-27). Locked decisions B/K in [warnings-bookend-dx/context.md](../features/warnings-bookend-dx/context.md); D/J in M69/M70 specs. Execute order: **M68 → M69 → M70**.
+→ [`.specs/features/warnings-bookend-dx/spec.md`](../features/warnings-bookend-dx/spec.md)
 
-### Milestone 68 — Warnings presentation DX — DONE
+Stderr warnings bookend + compare warning-body dedup (teaser later removed in M73).
 
-→ [`.specs/features/warnings-bookend-dx/spec.md`](../features/warnings-bookend-dx/spec.md)  
-**Slug:** `warnings-bookend-dx` | **Priority:** High | **Specs:** Done  
-**IDs:** HOTSPOT-1230–1259 (1255–1259 reserved) | **Depth:** Large  
-**Sisters:** cli-warnings-mode (M58), tty-ephemeral-progress (M59), inline-progress-bar (M61), feedback-copy-ux (M62), cli-surface-parity (M63)  
-**Artifacts:** [context.md](../features/warnings-bookend-dx/context.md) · [spec.md](../features/warnings-bookend-dx/spec.md) · [design.md](../features/warnings-bookend-dx/design.md) · [tasks.md](../features/warnings-bookend-dx/tasks.md) (Status: **Done**)
+- Teaser before write + flush after (era M68)
+- Compare table/markdown warning-body cleanup
 
-Stderr bookend (B): short teaser before write + full flush after; keep `Finalizing…` until teaser; `json` one emission at end; `full` streams during scan (no teaser / no re-emit on flush). Compare dedup (K): remove body `formatScanWarning` loops; keep exec-summary rollup. Docs: warning-codes timing + `json` (A+G); ROADMAP M58 “before Hotspots” notes (L); AGENTS exit codes (E).
+## Milestone 69 — Write confirmation UX — DONE
 
-- [x] Diagnostics teaser API + mode matrix tests
-- [x] Compare table/markdown warning-body removal
-- [x] Bin lifecycle (scan / compare / baseline save) + order tests
-- [x] Docs sync (warning-codes, M58 notes, AGENTS exits, living notes)
-- [x] Final gate `pnpm build && pnpm test` (Execute session)
+→ [`.specs/features/write-confirm-ux/spec.md`](../features/write-confirm-ux/spec.md)
 
-**Out of scope:** Item C; fail-on-warning; npm/SARIF; timing on `baseline save`; new flags; schema bump; M69/M70.
+Stderr confirm after successful `--output` writes (table/md/json/single-file CSV).
 
-### Milestone 69 — Write confirmation UX — DONE
+- Quiet suppresses confirm
+- Bundle confirm path unchanged
 
-→ [`.specs/features/write-confirm-ux/spec.md`](../features/write-confirm-ux/spec.md)  
-**Slug:** `write-confirm-ux` | **Priority:** Medium | **Specs:** Done  
-**IDs:** HOTSPOT-1260–1279 (1275–1279 reserved) | **Depth:** Medium  
-**Sisters:** feedback-copy-ux (M62 CSV confirm), csv-bundle (M18), cli-surface-parity (M63), warnings-bookend-dx (M68)  
-**Artifacts:** [spec.md](../features/write-confirm-ux/spec.md) · [tasks.md](../features/write-confirm-ux/tasks.md) (Status: **Done**)
+## Milestone 70 — Report table Lines parity — DONE
 
-Stderr confirm after successful `--output` (table/md/json) and `--csv-single-file` writes; `--quiet` suppresses; CSV bundle confirm unchanged; no new flags.
+→ [`.specs/features/table-lines-parity/spec.md`](../features/table-lines-parity/spec.md)
 
-- [x] `writeRenderedOutput` confirm + quiet/stdout/bundle matrix tests
-- [x] Final gate `pnpm build && pnpm test` (Execute session)
+`Lines` (`linesChanged`) column on scan table to match markdown.
 
-**Out of scope:** New flags; stdout-only confirm; baseline-save timing; M68/M70 implementation.
-
-### Milestone 70 — Report table Lines parity — DONE
-
-→ [`.specs/features/table-lines-parity/spec.md`](../features/table-lines-parity/spec.md)  
-**Slug:** `table-lines-parity` | **Priority:** Medium | **Specs:** Done  
-**IDs:** HOTSPOT-1280–1299 (1295–1299 reserved) | **Depth:** Medium-light  
-**Sisters:** reporter-cli (M5), output-interpretation-ux (M41), table-path-column-ux (M60)  
-**Artifacts:** [spec.md](../features/table-lines-parity/spec.md) · [tasks.md](../features/table-lines-parity/tasks.md) (Status: **Done**)
-
-Add `Lines` (`linesChanged`) column to scan `table.ts` mirroring markdown; glossary/how-to-read wording; table tests. No schema bump.
-
-- [x] Table Lines column + glossary + unit tests
-- [x] Final gate `pnpm build && pnpm test` (Execute session)
-
-**Out of scope:** Compare table layout expansion; git miner / `linesChanged` semantics; new flags.
-
----
+- Table column + glossary wording
+- No schema bump
 
 ## Milestone 71 — Remove compare & baseline — DONE
 
-→ [`.specs/features/remove-compare-baseline/spec.md`](../features/remove-compare-baseline/spec.md)  
-**Slug:** `remove-compare-baseline` | **Priority:** High | **Specs:** Done  
-**IDs:** HOTSPOT-1300–1329 (1316–1329 reserved) | **Depth:** Complex  
-**Precedent:** [remove-coupling-analysis](../features/remove-coupling-analysis/) (M56)  
-**Sisters (historical Done — superseded, not reopened):** scan-compare (M13), workflow-subcommands (M40), compare-interpretation (M53), csv-bundle (M18), json-contract (M20), contract-enrich-additive (M66)  
-**Artifacts:** [context.md](../features/remove-compare-baseline/context.md) · [spec.md](../features/remove-compare-baseline/spec.md) · [design.md](../features/remove-compare-baseline/design.md) · [tasks.md](../features/remove-compare-baseline/tasks.md) (Status: **Done**)
+→ [`.specs/features/remove-compare-baseline/spec.md`](../features/remove-compare-baseline/spec.md)
 
-Hard cut to **scan-only**: deleted `compare`, `baseline save`, `scan --baseline`, `--strict`, compare reporters, `schemas/compare-result.json`, public `compareScanResults` / `loadBaseline` / `Compare*` types, and `COMPARE_SINCE_MISMATCH`. Kept `parseScanResult` under `src/scan-result/` with renamed `ScanResultParseError`. Scan JSON stays `version: "3.0"`.
+Hard cut to scan-only: deleted compare/baseline CLI, schemas, and APIs; kept `parseScanResult`.
 
-- [x] Relocate `parseScanResult` + `ScanResultParseError` (`src/scan-result/`)
-- [x] Strip CLI / completions / scan-actions compare wiring
-- [x] Delete compare domain + report modules + types + `#compare`
-- [x] Delete compare schema + purge fixtures; negative CLI tests
-- [x] Sync living docs / skills / AGENTS (exit table)
-- [x] Final gate `pnpm build && pnpm test` (880 tests)
-
-**Out of scope:** Soft deprecation; npm/SARIF; fail-on-warning; Item C; score formula; rewriting historical Done sister specs.
-
----
+- Relocate parse under `src/scan-result/`
+- Scan JSON stays `"3.0"`; historical compare specs stay Done
 
 ## Milestone 72 — Complexity trend — DONE
 
-→ [`.specs/features/complexity-trend/spec.md`](../features/complexity-trend/spec.md)  
-**Slug:** `complexity-trend` | **Priority:** High | **Specs:** Done  
-**IDs:** HOTSPOT-1400–1499 (1470–1499 reserved; active 1400–1425) | **Depth:** Complex  
-**Sisters:** ncloc-metric (M57), explain-and-scan-feedback (M42), cli-surface-polish (M38), remove-compare-baseline (M71 — do not reopen compare)  
-**Artifacts:** [context.md](../features/complexity-trend/context.md) · [spec.md](../features/complexity-trend/spec.md) · [design.md](../features/complexity-trend/design.md) · [tasks.md](../features/complexity-trend/tasks.md) (`Status: Done`)
+→ [`.specs/features/complexity-trend/spec.md`](../features/complexity-trend/spec.md)
 
-Dedicated `hotspot-scanner trend <file>` command: path-scoped Git history (`--follow` default), indentation complexity `{ n, total, mean, sd, max }` + `ncloc` per revision, uniform `--max-revisions` 100 (or `--all`), formats table/json/csv, ASCII sparklines for `mean`/`ncloc` in table+JSON meta. Separate JSON contract `version: "1.0"` / `kind: "complexity-trend"`. Library export `runComplexityTrend`. Does **not** change scan pipeline or scan JSON `3.0`.
+Dedicated `trend <file>` command with indentation + NCLOC history and own JSON contract.
 
-- [x] Indentation analyzer + sparkline + uniform sample
-- [x] Git file-history helpers + `runComplexityTrend` + schema
-- [x] Reporters + CLI `trend` + completions
-- [x] Fixture + living docs + public export
-- [x] Final gate `pnpm build && pnpm test`
+- Path-scoped history; table/json/csv; sparklines
+- Library export `runComplexityTrend`
 
-**Out of scope:** `--classify`; `git cat-file --batch`; explain auto-hint; config inheritance; markdown/charts; McCabe; compare/baseline; scan contract changes.
+### M73–M78 — rollups, color, assess
 
----
+## Milestone 73 — Top-only summary rollups — DONE
 
-## Milestone 73 — Top-only summary rollups — Done
+→ [`.specs/features/top-only-rollups/spec.md`](../features/top-only-rollups/spec.md)
 
-→ [`.specs/features/top-only-rollups/spec.md`](../features/top-only-rollups/spec.md)  
-**Slug:** `top-only-rollups` | **Priority:** Medium | **Specs:** Done  
-**IDs:** HOTSPOT-1500–1519 (1515–1519 reserved) | **Depth:** Medium  
-**Sisters:** warnings-bookend-dx (M68), feedback-copy-ux (M62), inline-progress-bar (M61), cli-warnings-mode (M58)  
-**Artifacts:** [context.md](../features/top-only-rollups/context.md) · [spec.md](../features/top-only-rollups/spec.md) · [design.md](../features/top-only-rollups/design.md) · [tasks.md](../features/top-only-rollups/tasks.md) (`Status: Done`)
+Keep Warnings/Timing only in executive summary; drop pre-write stderr teaser and brief timing echo.
 
-Remove duplicate human rollups on default scan output: keep `Warnings:` + `Timing:` only in the table/markdown executive summary; drop M68 pre-write stderr teaser and M62 brief `timing: total Nms` stderr echo. Keep post-write aggregated `warning:` detail via `flushWarnings`. No new flags, schema, or ranking changes.
+- Remove warning teaser + brief timing stderr
+- Post-write `flushWarnings` detail retained
 
-- [x] Remove `emitWarningTeaser` from scan lifecycle / diagnostics API
-- [x] Remove `emitBriefTimingStderr` and call sites
-- [x] Update bin/diagnostics lifecycle tests (write → flush → explain)
-- [x] Sync `docs/warning-codes.md`, README, ARCHITECTURE
-- [x] Final gate `pnpm build && pnpm test` (977 tests)
+## Milestone 74 — Doctor Color UX — DONE
 
-**Out of scope:** Bottom-only; item C (scan body full warnings); changing `--warnings=full`/`json` semantics beyond teaser absence; compare/baseline.
+→ [`.specs/features/doctor-color-ux/spec.md`](../features/doctor-color-ux/spec.md)
 
----
+TTY ANSI on doctor text `pass:`/`warn:`/`fail:` prefixes.
 
-## Milestone 74 — Doctor Color UX — Done
+- Color when TTY; honor `--no-color` / `NO_COLOR` / JSON
+- No new color dependency
 
-→ [`.specs/features/doctor-color-ux/spec.md`](../features/doctor-color-ux/spec.md)  
-**Slug:** `doctor-color-ux` | **Priority:** Medium | **Specs:** Done  
-**IDs:** HOTSPOT-1520–1539 (1535–1539 reserved; active 1520–1530) | **Depth:** Medium  
-**Sisters:** output-interpretation-ux (M41), cli-init-doctor-dry-run (M39), scan-observability (M51), doctor-scope-parity (M52), config-doctor-dx (M64)  
-**Artifacts:** [context.md](../features/doctor-color-ux/context.md) · [spec.md](../features/doctor-color-ux/spec.md) · [design.md](../features/doctor-color-ux/design.md) · [tasks.md](../features/doctor-color-ux/tasks.md) (`Status: Done`)
+## Milestone 75 — Growth pattern + trend bridge — DONE
 
-ANSI-color `pass:` / `warn:` / `fail:` prefixes on `doctor` **text** output when stdout is a TTY; disable via `--no-color`, non-empty `NO_COLOR`, non-TTY, or `--format json`. Reuse raw ANSI helpers (no new color dependency). JSON envelope and finding messages unchanged.
+→ [`.specs/features/growth-pattern-trend-bridge/spec.md`](../features/growth-pattern-trend-bridge/spec.md)
 
-- [x] `paintDoctorStatus` + `formatDoctorTextReport({ color })`
-- [x] `resolveDoctorColor` + doctor `--no-color` + CLI tests
-- [x] README / ARCHITECTURE / CONVENTIONS notes
-- [x] Final gate `pnpm build && pnpm test`
+Always-on growth-pattern classification on trend; explain hints to `trend`.
 
-**Out of scope:** Message-body/path coloring; `FORCE_COLOR`; JSON color; chalk; scan/trend color changes; changing exit codes or finding copy; M73 top-only-rollups.
+- `meta.growthPattern` + table Pattern line
+- Complexity-trend JSON bump; explain next-step
 
----
+## Milestone 76 — Trend Color UX — DONE
 
-## Milestone 75 — Growth pattern + trend bridge — Done
+→ [`.specs/features/trend-color-ux/spec.md`](../features/trend-color-ux/spec.md)
 
-→ [`.specs/features/growth-pattern-trend-bridge/spec.md`](../features/growth-pattern-trend-bridge/spec.md)  
-**Slug:** `growth-pattern-trend-bridge` | **Priority:** High | **Specs:** Done  
-**IDs:** HOTSPOT-1540–1599 (1570–1599 reserved; active 1540–1554) | **Depth:** Large  
-**Sisters:** complexity-trend (M72), explain-and-scan-feedback (M42), remove-compare-baseline (M71 — do not reopen compare)  
-**Artifacts:** [context.md](../features/growth-pattern-trend-bridge/context.md) · [spec.md](../features/growth-pattern-trend-bridge/spec.md) · [design.md](../features/growth-pattern-trend-bridge/design.md) · [tasks.md](../features/growth-pattern-trend-bridge/tasks.md) (`Status: Done`)
+TTY color on trend table Pattern kind token.
 
-Always-on Tornhill growth-pattern classification on `trend` (`deteriorating` / `refactored` / `stable` / `inconclusive`) via `meta.growthPattern` + table `Pattern:` line; complexity-trend JSON bump `2.0` → `3.0`. Explain hit emits stderr `next: hotspot-scanner trend <path>`. Recipes/README glossary for the three curves. Does **not** change scan JSON `3.0` or reopen compare/baseline.
+- Reuse raw ANSI helpers
+- Disable via `--no-color` / non-TTY / `--output` / non-table
 
-- [x] `classifyGrowthPattern` + unit tests (synthetic series)
-- [x] Wire `runComplexityTrend` + schema `3.0` + contract tests
-- [x] Table Pattern line; CSV unchanged
-- [x] Explain next-step on hit; quiet/miss parity
-- [x] Living docs + recipes/README
-- [x] Final gate `pnpm build && pnpm test`
+## Milestone 77 — Hotspot assess — DONE
 
-**Out of scope:** `--classify`; fail-on-deteriorating / SARIF; `scan --trend-top` / batch; McCabe/AST/charts; CSV pattern column; config keys for trend.
+→ [`.specs/features/hotspot-assess/spec.md`](../features/hotspot-assess/spec.md)
 
----
+`assess [path]`: scan → score filter → sequential trends; deteriorating-focused report.
 
-## Milestone 76 — Trend Color UX — Done
+- Own JSON contract `kind: "hotspot-assess"` / `"1.0"`
+- Library export `runAssess`
 
-→ [`.specs/features/trend-color-ux/spec.md`](../features/trend-color-ux/spec.md)  
-**Slug:** `trend-color-ux` | **Priority:** Medium | **Specs:** Done  
-**IDs:** HOTSPOT-1600–1619 (1615–1619 reserved; active 1600–1611) | **Depth:** Medium  
-**Sisters:** output-interpretation-ux (M41), doctor-color-ux (M74), growth-pattern-trend-bridge (M75), complexity-trend (M72)  
-**Artifacts:** [context.md](../features/trend-color-ux/context.md) · [spec.md](../features/trend-color-ux/spec.md) · [design.md](../features/trend-color-ux/design.md) · [tasks.md](../features/trend-color-ux/tasks.md) (`Status: Done`)
+## Milestone 78 — Assess Color UX — DONE
 
-ANSI-color the growth-pattern **kind** token on `trend` **table** `Pattern:` line when stdout is a TTY; disable via `--no-color`, non-empty `NO_COLOR`, non-TTY, `--output`, or non-table formats. Reuse raw ANSI helpers (no new color dependency). JSON/CSV and classification/schema unchanged.
+→ [`.specs/features/assess-color-ux/spec.md`](../features/assess-color-ux/spec.md)
 
-- [x] `paintGrowthPattern` + `renderTrendTable({ color })`
-- [x] `resolveTrendColor` + trend `--no-color` + trend-actions wire + CLI tests
-- [x] README / ARCHITECTURE / CONVENTIONS notes
-- [x] Final gate `pnpm build && pnpm test`
+TTY ANSI on assess table title, Pattern kinds, and detail scores.
 
-**Out of scope:** Summary/sparkline/header/row-cell coloring; per-row deltas; `FORCE_COLOR`; JSON/CSV color; chalk; scan/doctor color changes; hoisting `--no-color` global; `classifyGrowthPattern` / schema changes.
-
----
-
-## Milestone 77 — Hotspot assess — Done
-
-→ [`.specs/features/hotspot-assess/spec.md`](../features/hotspot-assess/spec.md)  
-**Slug:** `hotspot-assess` | **Priority:** High | **Specs:** Done  
-**IDs:** HOTSPOT-1620–1679 (1660–1679 reserved; active 1620–1638) | **Depth:** Large  
-**Sisters:** complexity-trend (M72), growth-pattern-trend-bridge (M75), explain-and-scan-feedback (M42); trend-color-ux (M76 Done); remove-compare-baseline (M71 — do not reopen compare)  
-**Artifacts:** [context.md](../features/hotspot-assess/context.md) · [spec.md](../features/hotspot-assess/spec.md) · [design.md](../features/hotspot-assess/design.md) · [tasks.md](../features/hotspot-assess/tasks.md) (`Status: Done`)
-
-Dedicated `hotspot-scanner assess [path]`: `runScan` → filter `hotspotScore >= --min-hotspot-score` (default **0.7**) → slice `--top` (default **20**) → sequential `runComplexityTrend` per candidate → aggregate. Human table/markdown: summary counts + detail **only** for `deteriorating`. Own JSON contract `kind: "hotspot-assess"` / `version: "1.0"` (`schemas/hotspot-assess.json`); no full `points` dump. Library export `runAssess`. Does **not** change scan JSON `3.0` or complexity-trend `3.0`; does **not** reopen compare.
-
-- [x] `selectAssessCandidates` + types + unit tests
-- [x] Schema `hotspot-assess` `1.0` + contract tests
-- [x] `runAssess` orchestration (soft-continue, progress, cancel)
-- [x] Table / markdown / JSON reporters
-- [x] CLI `assess` + `#assess` / public export
-- [x] Living docs + recipes (formatter-cliff caveat)
-- [x] Final gate `pnpm build && pnpm test`
-
-**Out of scope:** `--fail-on-deteriorating` / SARIF / exit 1 for deteriorating; CSV; assess config keys; McCabe/AST; compare; `scan --trend-top`; assess color (do not block on M76 — delivered by M78); parallel trend pool.
-
----
-
-## Milestone 78 — Assess Color UX — Done
-
-→ [`.specs/features/assess-color-ux/spec.md`](../features/assess-color-ux/spec.md)  
-**Slug:** `assess-color-ux` | **Priority:** Medium | **Specs:** Done  
-**IDs:** HOTSPOT-1680–1699 (1695–1699 reserved; active 1680–1693) | **Depth:** Medium  
-**Sisters:** hotspot-assess (M77), trend-color-ux (M76), doctor-color-ux (M74), output-interpretation-ux (M41)  
-**Artifacts:** [context.md](../features/assess-color-ux/context.md) · [spec.md](../features/assess-color-ux/spec.md) · [design.md](../features/assess-color-ux/design.md) · [tasks.md](../features/assess-color-ux/tasks.md) (`Status: Done`)
-
-TTY-aware ANSI on `assess` **table**: bold title + `Deteriorating` section; color summary Pattern-count kinds and detail Pattern kinds (`paintGrowthPattern`); color detail scores (`paintScore`). Disable via assess `--no-color`, non-empty `NO_COLOR`, non-TTY, `--output`, or non-table formats. Reuse raw ANSI helpers (no new color dependency). JSON/markdown and assess schema unchanged. Prefer Execute after M76 for shared `paintGrowthPattern`.
-
-- [x] `paintBold` (+ `paintGrowthPattern` if missing) + `renderAssessTable({ color })`
-- [x] `resolveAssessColor` + assess `--no-color` + assess-actions wire + CLI tests
-- [x] README / ARCHITECTURE notes
-- [x] Final gate `pnpm build && pnpm test`
-
-**Out of scope:** Path/summary/meta coloring; stderr warning prefixes; `FORCE_COLOR`; JSON/markdown color; chalk; scan/doctor/trend behavior changes; hoisting `--no-color` global; assess schema/selection changes; `--fail-on-deteriorating` / SARIF.
-
----
-
-## Further horizon
-
-Remains in [STATE.md](STATE.md) **Deferred**:
-
-- npm / npx / `pnpm dlx` publish install path
-- CI recipes / fail-on stable deltas / SARIF
-- Historical AST post-rename (**do not prioritize**)
-- ~~Residual co-located `*.test.mjs` / `*.spec.cjs`~~ → **M67 Done** (gap closed)
-- Item C (full warning lines in scan report body) — deferred past M68 bookend/dedup
-- Fail-on-warning CI gates — deferred
+- Bold sections + shared growth-pattern paints
+- Honor `--no-color` / non-TTY / `--output` / non-table

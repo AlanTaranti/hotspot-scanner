@@ -2,6 +2,8 @@
 
 **Trigger:** "Create roadmap", "Plan features", "Map project phases"
 
+**Editorial contract:** [.cursor/rules/roadmap-sot.mdc](../../../rules/roadmap-sot.mdc). Sync on Done: [roadmap-sync.md](roadmap-sync.md).
+
 ## Process
 
 Based on PROJECT.md, decompose vision into:
@@ -15,62 +17,47 @@ Based on PROJECT.md, decompose vision into:
 **Structure:**
 
 ```markdown
-# Roadmap
+# ROADMAP — @vitals/hotspot-scanner
 
-**Current Milestone:** [milestone name]
-**Status:** Planning | In Progress | Complete
+## Current
 
----
+| Field | Value |
+| ----- | ----- |
+| **Status** | … |
+| **Open milestones** | … |
+| **Deferred** | [STATE.md](STATE.md) § Deferred |
 
-## [Milestone 1 Name]
+### Done summary
 
-**Goal:** [What makes this milestone shippable]
-**Target:** [Date or completion criteria]
+| Band | Scope |
+| ---- | ----- |
+| … | … |
 
-### Features
+## Archive
 
-**[Feature Name]** - STATUS
+## Milestone N — Name — PLANNED
 
-- [Capability 1]
-- [Capability 2]
-- [Capability 3]
+→ [`.specs/features/<slug>/spec.md`](../features/<slug>/spec.md)
 
-**[Feature Name]** - STATUS
+One-line outcome / goal.
 
-- [Capability 1]
-- [Capability 2]
-
----
-
-## [Milestone 2 Name]
-
-**Goal:** [What this milestone adds]
-
-### Features
-
-**[Feature Name]** - PLANNED
-**[Feature Name]** - PLANNED
-
----
-
-## Future Considerations
-
-- [Potential future capability]
-- [Potential future capability]
+- Up to 3–5 capability bullets (not tasks)
 ```
 
 **Status values:**
 
 - PLANNED: Not started
 - IN PROGRESS: Currently implementing
-- COMPLETE: Shipped and verified
+- DONE: Shipped and verified
 
-**Size limit:** 3,000 tokens (~1,800 words)
+**Size limit:** 3,000 tokens (~1,800 words). Soft hook warn at 900 lines — see roadmap-sot.
+
+**Forbidden drift** (see roadmap-sot): Artifacts / HOTSPOT-* / Out of scope / Final gate / task checkboxes / Further horizon Deferred lists / Post-* backlog headers for Done work.
 
 **Update strategy:**
 
 - Mark features PLANNED → IN PROGRESS when starting
-- Mark IN PROGRESS → COMPLETE when verified
+- Mark IN PROGRESS → DONE when verified (template only — do not paste tasks.md)
 - Add new milestones as project evolves
 
 **Validation:**
@@ -78,3 +65,4 @@ Based on PROJECT.md, decompose vision into:
 - Each milestone has clear shippable outcome?
 - Features are user-facing capabilities?
 - Status reflects current reality?
+- Entry matches roadmap-sot template?

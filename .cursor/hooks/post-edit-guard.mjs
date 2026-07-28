@@ -20,6 +20,8 @@ import {
   INTEGRATIONS_SOT_CONTEXT,
   PROJECT_REL_PATH,
   PROJECT_SOT_CONTEXT,
+  ROADMAP_REL_PATH,
+  ROADMAP_SOT_CONTEXT,
   STACK_REL_PATH,
   STACK_SOT_CONTEXT,
   STRUCTURE_REL_PATH,
@@ -31,15 +33,18 @@ import {
   isConventionsDocPath,
   isIntegrationsDocPath,
   isProjectDocPath,
+  isRoadmapDocPath,
   isStackDocPath,
   isStructureDocPath,
   isTestingDocPath,
   LINE_WARN,
+  ROADMAP_LINE_WARN,
   lintArchitectureDoc,
   lintConcernsDoc,
   lintConventionsDoc,
   lintIntegrationsDoc,
   lintProjectDoc,
+  lintRoadmapDoc,
   lintStackDoc,
   lintStructureDoc,
   lintTestingDoc,
@@ -203,6 +208,26 @@ if (isProjectDocPath(relPath) && workspaceRoot) {
     if (bannedMatches.length > 0) {
       messages.push(
         `[${PROJECT_REL_PATH}] Forbidden tags still present: ${bannedMatches.join(", ")}. ${PROJECT_SOT_CONTEXT}`,
+      );
+    }
+  } catch {
+    // File missing mid-edit — skip
+  }
+}
+
+if (isRoadmapDocPath(relPath) && workspaceRoot) {
+  const abs = path.join(workspaceRoot, ROADMAP_REL_PATH);
+  try {
+    const text = fs.readFileSync(abs, "utf8");
+    const { bannedMatches, lineCount, overSize } = lintRoadmapDoc(text);
+    if (bannedMatches.length > 0) {
+      messages.push(
+        `[${ROADMAP_REL_PATH}] Forbidden drift patterns still present: ${bannedMatches.join(", ")}. ${ROADMAP_SOT_CONTEXT}`,
+      );
+    }
+    if (overSize) {
+      messages.push(
+        `[${ROADMAP_REL_PATH}] Soft size warning: ${lineCount} lines (warn at ${ROADMAP_LINE_WARN}). Keep lean Archive entries (roadmap-sot); detail stays in .specs/features/.`,
       );
     }
   } catch {

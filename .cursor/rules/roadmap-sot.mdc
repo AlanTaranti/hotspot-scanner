@@ -1,0 +1,63 @@
+---
+description: Keep ROADMAP.md as lean milestone tracker — no task/spec/Deferred dump
+globs: .specs/project/ROADMAP.md
+alwaysApply: false
+---
+
+# Roadmap SoT
+
+[`.specs/project/ROADMAP.md`](../../.specs/project/ROADMAP.md) is the **milestone status SoT**: current status, done-summary index, and a compact historical archive with links to feature specs.
+
+It is **not** a `tasks.md` mirror, feature `context.md` dump, CLI/flag encyclopedia, or deferred-backlog inventory.
+
+## Ownership matrix
+
+| Change type | Destination |
+| ----------- | ----------- |
+| Milestone status, compact archive, Done summary | **ROADMAP.md** |
+| Spec detail, locked decisions, task checklists | `.specs/features/<slug>/` |
+| Decisions, deferred ideas, blockers | **STATE.md** |
+| Present-tense product vision / boundaries | **PROJECT.md** |
+| Present-tense design / conventions / stack | `.specs/codebase/` |
+
+## Forbidden in ROADMAP.md
+
+- Planning metadata blocks: `Artifacts:`, `Sisters`, `IDs:` / `HOTSPOT-*`, `Depth:`, `Priority:` laundry in archive entries
+- `Out of scope:` sections (belong in feature `context.md` / `spec.md`)
+- `Final gate` / repeated `pnpm build && pnpm test` process noise
+- `Suggested execution order` for completed bands
+- `Further horizon` Deferred lists (pointer to STATE only)
+- Task checklists (`- [ ]` / `- [x]`) that mirror `tasks.md`
+- Headers framed as `Post-* backlog` for already-Done work
+- Dense implementation paths / locked-decision prose copied from Execute
+
+Milestone tags (`M##`) **are allowed** — this file is the milestone tracker.
+
+## Allowed
+
+- **Current** table (Status / Open / Deferred→STATE pointer)
+- **Done summary** band table
+- **Archive** entries in the minimal template below
+- One-line supersession notes for hard cuts (detail stays in the feature spec)
+
+## Entry template
+
+```markdown
+## Milestone N — Name — DONE
+
+→ [`.specs/features/<slug>/spec.md`](../features/<slug>/spec.md)
+
+One-line outcome.
+
+- Up to 3–5 capability bullets (not tasks)
+```
+
+Same shape for **PLANNED** / **IN PROGRESS** (status suffix only). Sync rules: [roadmap-sync.md](../skills/vitals-spec-driven/references/roadmap-sync.md).
+
+## Sync rule
+
+When planning or Execute Done:
+
+1. Add or mark the milestone entry using the template — link `spec.md`; do not paste Artifacts / HOTSPOT / Out of scope / gate / tasks.
+2. Update **Current** + Done summary when the open set changes.
+3. Self-check: *Is this already in `context.md`, `tasks.md`, or STATE?* If yes → do not put it in ROADMAP.

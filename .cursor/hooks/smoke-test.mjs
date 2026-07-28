@@ -13,6 +13,7 @@ import {
   CONVENTIONS_REL_PATH,
   INTEGRATIONS_REL_PATH,
   PROJECT_REL_PATH,
+  ROADMAP_REL_PATH,
   STACK_REL_PATH,
   STRUCTURE_REL_PATH,
   TESTING_REL_PATH,
@@ -21,6 +22,7 @@ import {
   lintConventionsDoc,
   lintIntegrationsDoc,
   lintProjectDoc,
+  lintRoadmapDoc,
   lintStackDoc,
   lintStructureDoc,
   lintTestingDoc,
@@ -858,6 +860,60 @@ const tests = [
       assertIncludes(stdout, '"permission":"ask"', "project ask");
       assertIncludes(stdout, "M78", "project ask mentions M78");
       cleanupState("smoke-project");
+    },
+  },
+  {
+    name: "roadmap lint flags drift patterns but allows M##",
+    run() {
+      const dirty = lintRoadmapDoc(
+        "# ROADMAP\n\n## Milestone 1 — DONE\n\n**Artifacts:** [spec.md](x)\n\n- [x] task\n\nSee HOTSPOT-1. Final gate `pnpm test`.\n",
+      );
+      for (const label of ["Artifacts:", "HOTSPOT-*", "Final gate", "task checkbox"]) {
+        if (!dirty.bannedMatches.includes(label)) {
+          throw new Error(
+            `expected ${label} in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+          );
+        }
+      }
+      const clean = lintRoadmapDoc(
+        "# ROADMAP\n\n## Current\n\n**Status** | **M78 Done**\n\n## Milestone 1 — Scaffold — DONE\n\n→ [spec.md](../features/scaffold/spec.md)\n\nPackage stub.\n\n- Build scripts\n",
+      );
+      if (clean.bannedMatches.length !== 0) {
+        throw new Error(
+          `expected clean ROADMAP sample (M## allowed), got ${JSON.stringify(clean.bannedMatches)}`,
+        );
+      }
+    },
+  },
+  {
+    name: "live ROADMAP.md has no forbidden drift patterns",
+    run() {
+      const text = fs.readFileSync(path.join(root, ROADMAP_REL_PATH), "utf8");
+      const { bannedMatches } = lintRoadmapDoc(text);
+      if (bannedMatches.length > 0) {
+        throw new Error(
+          `ROADMAP.md contains forbidden drift patterns: ${bannedMatches.join(", ")}`,
+        );
+      }
+    },
+  },
+  {
+    name: "pre-edit ask on ROADMAP Write with Artifacts",
+    run() {
+      cleanupState("smoke-roadmap");
+      const { stdout } = runHook("pre-edit-guard.mjs", {
+        hook_event_name: "preToolUse",
+        tool_name: "Write",
+        tool_input: {
+          path: path.join(root, ".specs/project/ROADMAP.md"),
+          contents: "## Milestone 99 — X — DONE\n\n**Artifacts:** [spec.md](x)\n",
+        },
+        conversation_id: "smoke-roadmap",
+        workspace_roots: [root],
+      });
+      assertIncludes(stdout, '"permission":"ask"', "roadmap ask");
+      assertIncludes(stdout, "Artifacts:", "roadmap ask mentions Artifacts");
+      cleanupState("smoke-roadmap");
     },
   },
 ];

@@ -2,6 +2,8 @@
 
 **Canonical source** for keeping [.specs/project/ROADMAP.md](../../../../.specs/project/ROADMAP.md) aligned with delivered features.
 
+**Editorial contract:** [.cursor/rules/roadmap-sot.mdc](../../../rules/roadmap-sot.mdc) — lean milestone tracker only.
+
 **Used by:** `planner-feature` (on planning complete), `orchestrator-implementer` (on Execute Done), direct-mode implementers.
 
 ---
@@ -12,16 +14,34 @@
 | ------------------ | ---------------------------------------------------- | --------------------------- |
 | Planning complete  | Add/update feature under milestone (status: planned) | Optional: log decisions     |
 | Execute Done       | Mark feature **DONE** under milestone                | Log blockers/lessons if any |
-| Milestone complete | Update **Current Milestone** header                  | Record milestone decision   |
+| Milestone complete | Update **Current** table + Done summary              | Record milestone decision   |
+
+---
+
+## Entry template (Planned or Done)
+
+```markdown
+## Milestone N — Name — DONE
+
+→ [`.specs/features/<slug>/spec.md`](../features/<slug>/spec.md)
+
+One-line outcome.
+
+- Up to 3–5 capability bullets (not tasks)
+```
+
+Use status suffix `PLANNED` / `IN PROGRESS` / `DONE` as appropriate.
+
+**Do not** copy into ROADMAP: `Artifacts:`, `Sisters`, `HOTSPOT-*` / `IDs:`, `Depth:`, `Out of scope:`, `Final gate`, task checkboxes (`- [ ]` / `- [x]`), Deferred lists, or `Suggested execution order` for completed bands. Detail stays in `.specs/features/<slug>/`; deferred ideas stay in STATE.
 
 ---
 
 ## What to update on Done
 
 1. Find the feature entry under its milestone in ROADMAP.md.
-2. Set status to **DONE** (match existing convention: `- DONE` suffix or `**Feature** - DONE`).
-3. Ensure link to `.specs/features/<slug>/spec.md` exists.
-4. If milestone is fully complete, advance **Current Milestone** to next per ROADMAP structure.
+2. Set status to **DONE** (match template: `## Milestone N — Name — DONE`).
+3. Ensure link to `.specs/features/<slug>/spec.md` exists; keep outcome + ≤5 capability bullets (trim any Execute dump).
+4. If milestone is fully complete, update **Current** + Done summary per ROADMAP structure.
 
 ---
 
@@ -29,7 +49,7 @@
 
 ```
 - [ ] tasks.md Status → Done
-- [ ] ROADMAP.md feature entry → DONE
+- [ ] ROADMAP.md feature entry → DONE (roadmap-sot template; no Artifacts/HOTSPOT/tasks dump)
 - [ ] ROADMAP.md link to spec.md valid
 - [ ] STATE.md updated if decisions/blockers emerged during Execute
 - [ ] ARCHITECTURE.md: if pipeline / module / contract / constraint changed → sync present-tense design (no M## / HOTSPOT-*); else skip — do not append UX/flag encyclopedias
