@@ -19,6 +19,8 @@ Tech leads need to prioritize refactoring work but struggle to see which TypeScr
 ## Table of contents
 
 - [Quick start](#quick-start)
+- [Commands at a glance](#commands-at-a-glance)
+- [Typical workflow](#typical-workflow)
 - [Use this when…](#use-this-when)
 - [Recipes](docs/recipes.md)
 - [How it works](#how-it-works)
@@ -55,23 +57,19 @@ Try the bundled fixture:
 pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts
 ```
 
-### Adoption path
+### Setup
 
-Before your first full scan, use the onboarding commands:
+Before your first full scan:
 
 ```bash
 hotspot-scanner init              # write schema-linked exemplar .hotspot-scanner.json (use --force to overwrite)
 hotspot-scanner config validate   # CI-check config parse without a full scan
 hotspot-scanner config print      # show effective options with cli/config/default source tags
 hotspot-scanner doctor .          # check Node, git, repo, config, since window, and scope
-hotspot-scanner trend src/foo.ts  # indentation complexity vs NCLOC size for one file (after scan drill-down)
-hotspot-scanner assess .          # scan → filter by hotspotScore → sequential trends on top candidates
 hotspot-scanner scan . --dry-run  # preview config path, remount, unknown keys, and eligible file count
 ```
 
-**Trend metrics:** Indentation stats (`indentMean`, `indentSd`, `indentMax`, `indentTotal`) are a Tornhill-style whitespace proxy (not AST/cyclomatic complexity). `ncloc` is file size. Table output includes a **Pattern** line (`deteriorating` / `refactored` / `stable` / `inconclusive`) above sparklines plus a metric legend; on an interactive TTY the pattern **kind** is ANSI-colored (see **Colors** below). JSON (`--format json`) uses contract `version: "3.0"` with required `meta.growthPattern` and `meta.metricLegend`. After `scan --explain` finds a hotspot, stderr prints `next: hotspot-scanner trend <path>` — see [docs/recipes.md → Hotspot drill-down](docs/recipes.md#hotspot-drill-down-scan--explain--trend).
-
-`init` creates a valid config with `$schema`, `$comments`, and realistic `include`/`exclude` examples; `config validate` exits `0` when the file parses and `2` on invalid or missing config; `config print` shows merged precedence without git mining; `doctor` surfaces setup problems early (including a **`since`** preflight and unknown-config-key soft warns) and prints a **`scope`** line with the same eligible-file count `scan --dry-run` would use (shared remount/config prelude — a nested package directory does not need a local `.git`); `scan --dry-run` validates scope and config prelude metadata without mining git history or running NCLOC analysis.
+`init` writes a schema-linked exemplar config; `config validate` / `config print` check or show merged options without git mining; `doctor` and `scan --dry-run` surface setup and scope issues early. See [Configuration](#configuration) for discovery and precedence.
 
 **Example output** (fixture `small-ts`, truncated):
 
@@ -88,19 +86,51 @@ Rank  File                      Score     NLOC  NLOCN     Churn  ChurnN  Authors
 
 ![CLI table output from fixture small-ts](docs/assets/cli-table-small-ts.png)
 
+## Commands at a glance
+
+| Command | Question it answers | Example |
+| ------- | ------------------- | ------- |
+| `scan` | Which files are maintenance hotspots? | `hotspot-scanner scan . --top 10` |
+| `trend` | How did this file’s complexity evolve? | `hotspot-scanner trend src/foo.ts` |
+| `assess` | Are the top hotspots getting worse? | `hotspot-scanner assess .` |
+
+- **scan** — ranks files by NCLOC × Git churn
+- **trend** — samples one file’s history and labels a growth pattern (`deteriorating` / `refactored` / `stable` / `inconclusive`)
+- **assess** — runs scan, then sequential trend on the highest-scoring files
+
+Drill-down and batch recipes: [Hotspot drill-down](docs/recipes.md#hotspot-drill-down-scan--explain--trend) · [Scan → assess](docs/recipes.md#scan--assess-batch-deteriorating-hotspots). Pattern semantics: [Tornhill growth curves](docs/recipes.md#tornhill-growth-curves-trend-pattern). Assess orchestration detail: [Advanced → Scan → assess](#scan--assess).
+
+## Typical workflow
+
+```bash
+hotspot-scanner scan . --top 20
+hotspot-scanner scan . --explain src/hot.ts   # stderr may suggest: trend <path>
+hotspot-scanner assess .                      # or batch trends on top hotspots
+```
+
 ## Use this when…
 
-| Workflow | When to run | Example |
-| -------- | ----------- | ------- |
-| **Weekly triage** | You want a ranked list of files to refactor this sprint | `hotspot-scanner scan . --since "3 months ago" --top 10` |
-| **Markdown in a PR** | You want a shareable report attached to a review | `hotspot-scanner scan . --format markdown --output report.md` |
-| **JSON for tooling** | You want machine-readable output for scripts or dashboards | `hotspot-scanner scan . --format json --output scan.json` |
-| **Hotspot drill-down** | You want score context then historical complexity trend | `scan --explain <path>` → `trend <path>` (Pattern label on trend) |
-| **Batch deteriorating check** | You want which top hotspots look deteriorating without N manual trends | `assess . --min-hotspot-score 0.7 --top 10` |
+| You want… | When to run | Example |
+| --------- | ----------- | ------- |
+| A ranked list for this sprint | Weekly triage of files to refactor | `hotspot-scanner scan . --since "3 months ago" --top 10` |
+| A shareable report in a PR | Attach markdown output to a review | `hotspot-scanner scan . --format markdown --output report.md` |
+| Machine-readable output | Scripts, dashboards, or CI artifacts | `hotspot-scanner scan . --format json --output scan.json` |
+| Score context, then history for one file | Drill down after a hotspot catches your eye | `scan --explain <path>` → `trend <path>` |
+| Which top hotspots look like they’re getting worse | Batch check without N manual trends | `assess . --min-hotspot-score 0.7 --top 10` |
 
-Copy-paste cookbooks for these workflows (and monorepo scoping): [docs/recipes.md](docs/recipes.md). Scan → assess recipe: [docs/recipes.md → Scan → assess](docs/recipes.md#scan--assess-batch-deteriorating-hotspots).
+Copy-paste cookbooks for these workflows (and monorepo scoping): [docs/recipes.md](docs/recipes.md).
 
 ## How it works
+
+Product flow:
+
+```
+scan   → find hotspots
+trend  → inspect one file over time
+assess → scan + trend on top hotspots
+```
+
+`scan` pipeline (file hotspots):
 
 ```
 git log (streaming) → NCLOC size analysis → scoring (hotspot) → report (table / JSON / markdown / CSV)
@@ -111,7 +141,7 @@ git log (streaming) → NCLOC size analysis → scoring (hotspot) → report (ta
 3. **Scoring** — harmonic mean of normalized NCLOC and churn
 4. **Reporter** — table, JSON, markdown, or CSV bundle
 
-See [Advanced](#advanced) for concurrency, rename confidence, and the full flag reference.
+`trend` is a separate per-file history command; `assess` orchestrates scan then sequential trends. See [Advanced](#advanced) for concurrency, rename confidence, assess details, and the full flag reference.
 
 ## Essential flags
 
