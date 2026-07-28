@@ -18,7 +18,8 @@ It is **not** a changelog, milestone tracker, feature history log, or JSON-contr
 | Modules, pipeline, contracts, constraints | **ARCHITECTURE.md** |
 | Fragile risks / RT / mitigations | **CONCERNS.md** |
 | Mock patterns and coverage thresholds | **TESTING.md** |
-| Milestone status, decisions, feature history | **ROADMAP.md** / **STATE.md** / `.specs/features/` |
+| Milestone status, feature history | **ROADMAP.md** / `.specs/features/` |
+| Decisions, deferred ideas, blockers | **STATE.md** |
 
 ## Forbidden in INTEGRATIONS.md
 

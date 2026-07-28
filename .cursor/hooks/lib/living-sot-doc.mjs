@@ -3,7 +3,7 @@
  * (ARCHITECTURE Design SoT + CONCERNS fragile-risk SoT + CONVENTIONS coding SoT
  * + INTEGRATIONS adapter SoT + STACK inventory SoT + STRUCTURE layout SoT
  * + TESTING infrastructure SoT + PROJECT product-vision SoT
- * + ROADMAP milestone-tracker SoT).
+ * + ROADMAP milestone-tracker SoT + STATE session-memory SoT).
  * @see .cursor/rules/architecture-sot.mdc
  * @see .cursor/rules/concerns-sot.mdc
  * @see .cursor/rules/conventions-sot.mdc
@@ -13,6 +13,7 @@
  * @see .cursor/rules/testing-sot.mdc
  * @see .cursor/rules/project-sot.mdc
  * @see .cursor/rules/roadmap-sot.mdc
+ * @see .cursor/rules/state-sot.mdc
  */
 
 export const ARCHITECTURE_REL_PATH = ".specs/codebase/ARCHITECTURE.md";
@@ -24,12 +25,16 @@ export const STRUCTURE_REL_PATH = ".specs/codebase/STRUCTURE.md";
 export const TESTING_REL_PATH = ".specs/codebase/TESTING.md";
 export const PROJECT_REL_PATH = ".specs/project/PROJECT.md";
 export const ROADMAP_REL_PATH = ".specs/project/ROADMAP.md";
+export const STATE_REL_PATH = ".specs/project/STATE.md";
 
 /** Soft size warning for ARCHITECTURE (~context-limits warning band). Smoke does not fail on size. */
 export const LINE_WARN = 450;
 
 /** Soft size warning for ROADMAP. Smoke does not fail on size. */
 export const ROADMAP_LINE_WARN = 900;
+
+/** Soft size warning for STATE. Smoke does not fail on size. */
+export const STATE_LINE_WARN = 200;
 
 const MILESTONE_RE = /\bM\d+\b/g;
 const HOTSPOT_RE = /HOTSPOT-\d+/gi;
@@ -155,6 +160,63 @@ export function lintRoadmapDoc(text) {
 }
 
 /**
+ * Extract body of `## Deferred` through the next `## ` heading (exclusive).
+ * @param {string} source
+ * @returns {string}
+ */
+function extractDeferredSection(source) {
+  const lines = source.split(/\r?\n/);
+  const start = lines.findIndex((line) => /^## Deferred\b/.test(line));
+  if (start < 0) return "";
+  const body = [];
+  for (let i = start + 1; i < lines.length; i++) {
+    if (/^## /.test(lines[i])) break;
+    body.push(lines[i]);
+  }
+  return body.join("\n");
+}
+
+/**
+ * STATE allows M##; bans execute-log / Done-leftover patterns (state-sot.mdc).
+ * Does not apply to STATE-ARCHIVE.md.
+ * @param {string} text
+ * @returns {{ bannedMatches: string[], lineCount: number, overSize: boolean }}
+ */
+export function lintStateDoc(text) {
+  const source = typeof text === "string" ? text : "";
+  const banned = new Set();
+
+  /** @type {{ re: RegExp, label: string }[]} */
+  const patterns = [
+    { re: /Execute complete/gi, label: "Execute complete" },
+    { re: /Specs Planned/gi, label: "Specs Planned" },
+    { re: /Gate green/gi, label: "Gate green" },
+    { re: /Next:\s*M\d+/gi, label: "Next: M##" },
+    { re: /Superseded by M\d+\s+Done/gi, label: "Superseded by M## Done" },
+    { re: /HOTSPOT-\d+/gi, label: "HOTSPOT-*" },
+  ];
+
+  for (const { re, label } of patterns) {
+    re.lastIndex = 0;
+    if (re.test(source)) {
+      banned.add(label);
+    }
+  }
+
+  const deferred = extractDeferredSection(source);
+  if (/\bM\d+\s+Done\b/i.test(deferred)) {
+    banned.add("Deferred M## Done leftover");
+  }
+
+  const lineCount = source.length === 0 ? 0 : source.split(/\r?\n/).length;
+  return {
+    bannedMatches: [...banned].sort(),
+    lineCount,
+    overSize: lineCount > STATE_LINE_WARN,
+  };
+}
+
+/**
  * CONVENTIONS bans milestone tags only — HOTSPOT-* naming convention is allowed.
  * @param {string} text
  * @returns {{ bannedMatches: string[] }}
@@ -254,20 +316,36 @@ export function isRoadmapDocPath(relPath) {
   return isCodebaseDocPath(relPath, "ROADMAP.md", ROADMAP_REL_PATH);
 }
 
-export const ARCHITECTURE_SOT_CONTEXT = `ARCHITECTURE.md is the Design SoT (.cursor/rules/architecture-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/sister-milestone voice. Allowed: ADR-*, RT-*, present-tense modules/pipelines/contracts. Milestone history → ROADMAP/STATE/features.`;
+/**
+ * Live STATE only — excludes STATE-ARCHIVE.md.
+ * @param {string | null | undefined} relPath
+ * @returns {boolean}
+ */
+export function isStateDocPath(relPath) {
+  if (!relPath || typeof relPath !== "string") return false;
+  const n = relPath.replace(/\\/g, "/");
+  if (n.endsWith("STATE-ARCHIVE.md") || n === "STATE-ARCHIVE.md") return false;
+  return (
+    n === STATE_REL_PATH || n.endsWith("/STATE.md") || n === "STATE.md"
+  );
+}
 
-export const CONCERNS_SOT_CONTEXT = `CONCERNS.md is the fragile-risk SoT (.cursor/rules/concerns-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/superseded voice. Allowed: RT-*, present-tense risk→mitigation→test expectations. Milestone history → ROADMAP/STATE/features.`;
+export const ARCHITECTURE_SOT_CONTEXT = `ARCHITECTURE.md is the Design SoT (.cursor/rules/architecture-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/sister-milestone voice. Allowed: ADR-*, RT-*, present-tense modules/pipelines/contracts. Milestone history → ROADMAP + .specs/features/; decisions/deferred/blockers → STATE.`;
 
-export const INTEGRATIONS_SOT_CONTEXT = `INTEGRATIONS.md is the external-adapter SoT (.cursor/rules/integrations-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/removed-in voice. Allowed: present-tense Role/Adapter/Rule/Failure/Tests; links to ARCHITECTURE/CONCERNS/TESTING. Milestone history → ROADMAP/STATE/features.`;
+export const CONCERNS_SOT_CONTEXT = `CONCERNS.md is the fragile-risk SoT (.cursor/rules/concerns-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/superseded voice. Allowed: RT-*, present-tense risk→mitigation→test expectations. Milestone history → ROADMAP + .specs/features/; decisions/deferred/blockers → STATE.`;
 
-export const STACK_SOT_CONTEXT = `STACK.md is the technology-stack SoT (.cursor/rules/stack-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/provenance voice, adapter encyclopedias. Allowed: present-tense runtime/deps/publish inventory; negative “not in stack”; short pointers. Milestone history → ROADMAP/STATE/features.`;
+export const INTEGRATIONS_SOT_CONTEXT = `INTEGRATIONS.md is the external-adapter SoT (.cursor/rules/integrations-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/removed-in voice. Allowed: present-tense Role/Adapter/Rule/Failure/Tests; links to ARCHITECTURE/CONCERNS/TESTING. Milestone history → ROADMAP + .specs/features/; decisions/deferred/blockers → STATE.`;
 
-export const STRUCTURE_SOT_CONTEXT = `STRUCTURE.md is the directory-layout / public-API map SoT (.cursor/rules/structure-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/provenance voice, CLI flag laundry lists, fixture methodology. Allowed: present-tense trees, Path|Role map, where-things-live, public exports; short pointers. Milestone history → ROADMAP/STATE/features.`;
+export const STACK_SOT_CONTEXT = `STACK.md is the technology-stack SoT (.cursor/rules/stack-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/provenance voice, adapter encyclopedias. Allowed: present-tense runtime/deps/publish inventory; negative “not in stack”; short pointers. Milestone history → ROADMAP + .specs/features/; decisions/deferred/blockers → STATE.`;
 
-export const TESTING_SOT_CONTEXT = `TESTING.md is the testing-infrastructure SoT (.cursor/rules/testing-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/provenance voice, schema encyclopedias, fragile-risk catalogs, exit-code tables. Allowed: present-tense runner/fixtures/coverage/gates/mock boundaries; short pointers. Milestone history → ROADMAP/STATE/features.`;
+export const STRUCTURE_SOT_CONTEXT = `STRUCTURE.md is the directory-layout / public-API map SoT (.cursor/rules/structure-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/provenance voice, CLI flag laundry lists, fixture methodology. Allowed: present-tense trees, Path|Role map, where-things-live, public exports; short pointers. Milestone history → ROADMAP + .specs/features/; decisions/deferred/blockers → STATE.`;
 
-export const CONVENTIONS_SOT_CONTEXT = `CONVENTIONS.md is the coding-conventions SoT (.cursor/rules/conventions-sot.mdc). Forbidden: milestone tags (M##), changelog/STATE provenance voice. Allowed: HOTSPOT-* as naming prefix, ADR-*, present-tense naming/imports/build/lint. Milestone history → ROADMAP/STATE/features. Package publish facts → STACK.`;
+export const TESTING_SOT_CONTEXT = `TESTING.md is the testing-infrastructure SoT (.cursor/rules/testing-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/provenance voice, schema encyclopedias, fragile-risk catalogs, exit-code tables. Allowed: present-tense runner/fixtures/coverage/gates/mock boundaries; short pointers. Milestone history → ROADMAP + .specs/features/; decisions/deferred/blockers → STATE.`;
 
-export const PROJECT_SOT_CONTEXT = `PROJECT.md is the product-vision SoT (.cursor/rules/project-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/through-M voice, CLI flag laundry lists, deferred inventories. Allowed: present-tense vision/goals/constraints/capability scope; JSON version table; short pointers. Milestone history → ROADMAP/STATE/features; deferred → STATE.`;
+export const CONVENTIONS_SOT_CONTEXT = `CONVENTIONS.md is the coding-conventions SoT (.cursor/rules/conventions-sot.mdc). Forbidden: milestone tags (M##), changelog/STATE provenance voice. Allowed: HOTSPOT-* as naming prefix, ADR-*, present-tense naming/imports/build/lint. Milestone history → ROADMAP + .specs/features/; decisions/deferred/blockers → STATE. Package publish facts → STACK.`;
+
+export const PROJECT_SOT_CONTEXT = `PROJECT.md is the product-vision SoT (.cursor/rules/project-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/through-M voice, CLI flag laundry lists, deferred inventories. Allowed: present-tense vision/goals/constraints/capability scope; JSON version table; short pointers. Milestone history → ROADMAP + .specs/features/; decisions/deferred/blockers → STATE.`;
 
 export const ROADMAP_SOT_CONTEXT = `ROADMAP.md is the milestone-tracker SoT (.cursor/rules/roadmap-sot.mdc). Forbidden: Artifacts/Sisters/HOTSPOT-*/Out of scope/Final gate/Suggested execution order/Further horizon Deferred lists/task checkboxes/Post-* backlog dumps. Allowed: M##, Current table, Done summary, lean Archive entries (link + outcome + ≤5 bullets). Detail → .specs/features/; deferred → STATE.`;
+
+export const STATE_SOT_CONTEXT = `STATE.md is the session-memory SoT (.cursor/rules/state-sot.mdc). Forbidden: Execute complete / Specs Planned / Gate green / Next: M## / Superseded by M## Done / HOTSPOT-* laundry / Deferred M## Done leftovers. Allowed: lasting locks (M## ok), ADRs, open Deferred, short Active, Lessons. Milestone status → ROADMAP + .specs/features/; archive dumps → STATE-ARCHIVE.`;

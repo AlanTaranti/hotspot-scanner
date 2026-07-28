@@ -19,7 +19,8 @@ It is **not** a changelog, stack/publish inventory, UX cookbook, or milestone tr
 | Color ownership / pipelines / contracts | **ARCHITECTURE.md** |
 | CLI UX copy, colors detail, recipes | **README** / `docs/recipes.md` |
 | Coverage / Vitest patterns | **TESTING.md** |
-| Milestone status, decisions, feature history | **ROADMAP.md** / **STATE.md** / `.specs/features/` |
+| Milestone status, feature history | **ROADMAP.md** / `.specs/features/` |
+| Decisions, deferred ideas, blockers | **STATE.md** |
 
 ## Forbidden in CONVENTIONS.md
 

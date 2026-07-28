@@ -1,0 +1,52 @@
+---
+description: Keep STATE.md as lasting session memory — no Execute/milestone changelog dump
+globs: .specs/project/STATE.md
+alwaysApply: false
+---
+
+# State SoT
+
+[`.specs/project/STATE.md`](../../.specs/project/STATE.md) is the **persistent session-memory SoT**: lasting product locks, blockers, lessons, open deferred ideas, and a short Active pointer.
+
+It is **not** a milestone Done/Planned changelog, Execute diary, gate log, or `tasks.md` mirror.
+
+Chronological Execute dumps belong in [STATE-ARCHIVE.md](../../.specs/project/STATE-ARCHIVE.md) only when archiving — not in live STATE.
+
+## Ownership matrix
+
+| Change type | Destination |
+| ----------- | ----------- |
+| Lasting locks, blockers, lessons, open deferred, short Active | **STATE.md** |
+| Milestone status, Done summary, archive | **ROADMAP.md** |
+| Spec detail, locked decisions, task checklists | `.specs/features/<slug>/` |
+| Present-tense product vision / boundaries | **PROJECT.md** |
+| Present-tense design / conventions / stack | `.specs/codebase/` |
+
+## Forbidden in STATE.md
+
+- Execute-log rows: `Execute complete`, `Specs Planned`, `Gate green`, `Next: M##`, `Superseded by M## Done`
+- HOTSPOT-* requirement-ID laundry (belongs in feature specs)
+- Deferred bullets that mark work already Done (e.g. `M67 Done`)
+- Test-count / gate-pass noise (`N tests`, final-gate chatter)
+- Dense implementation paths copied from Execute that already live in `context.md` / `design.md`
+
+Milestone tags (`M##`) **are allowed** when citing a lasting lock or Active status — this is not a blanket M## ban.
+
+## Allowed
+
+- **Active** — 1–3 lines; pointer to ROADMAP Current
+- **Blockers** — open only (or `_None._`)
+- **Deferred** — open backlog only
+- **Decisions** — lasting product locks (one row per lock; may cite M##)
+- **ADRs** + Alternatives considered and rejected
+- **Lessons** — actionable only
+
+## Sync rule
+
+When planning or Execute Done:
+
+1. Update ROADMAP for milestone status — do **not** append `M## Done` / Execute-complete rows to STATE.
+2. Touch STATE **only if** a lasting lock, blocker, lesson, or deferred item changed; update Active when the open set changes.
+3. Self-check: *Does a future agent need this to avoid reopening a choice?* If no → ROADMAP, feature spec, or STATE-ARCHIVE — not live STATE.
+
+Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintStateDoc` (hooks + `pnpm hooks:smoke`).

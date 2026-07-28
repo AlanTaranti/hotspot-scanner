@@ -22,6 +22,8 @@ import {
   PROJECT_SOT_CONTEXT,
   ROADMAP_REL_PATH,
   ROADMAP_SOT_CONTEXT,
+  STATE_REL_PATH,
+  STATE_SOT_CONTEXT,
   STACK_REL_PATH,
   STACK_SOT_CONTEXT,
   STRUCTURE_REL_PATH,
@@ -34,17 +36,20 @@ import {
   isIntegrationsDocPath,
   isProjectDocPath,
   isRoadmapDocPath,
+  isStateDocPath,
   isStackDocPath,
   isStructureDocPath,
   isTestingDocPath,
   LINE_WARN,
   ROADMAP_LINE_WARN,
+  STATE_LINE_WARN,
   lintArchitectureDoc,
   lintConcernsDoc,
   lintConventionsDoc,
   lintIntegrationsDoc,
   lintProjectDoc,
   lintRoadmapDoc,
+  lintStateDoc,
   lintStackDoc,
   lintStructureDoc,
   lintTestingDoc,
@@ -228,6 +233,26 @@ if (isRoadmapDocPath(relPath) && workspaceRoot) {
     if (overSize) {
       messages.push(
         `[${ROADMAP_REL_PATH}] Soft size warning: ${lineCount} lines (warn at ${ROADMAP_LINE_WARN}). Keep lean Archive entries (roadmap-sot); detail stays in .specs/features/.`,
+      );
+    }
+  } catch {
+    // File missing mid-edit — skip
+  }
+}
+
+if (isStateDocPath(relPath) && workspaceRoot) {
+  const abs = path.join(workspaceRoot, STATE_REL_PATH);
+  try {
+    const text = fs.readFileSync(abs, "utf8");
+    const { bannedMatches, lineCount, overSize } = lintStateDoc(text);
+    if (bannedMatches.length > 0) {
+      messages.push(
+        `[${STATE_REL_PATH}] Forbidden execute-log drift still present: ${bannedMatches.join(", ")}. ${STATE_SOT_CONTEXT}`,
+      );
+    }
+    if (overSize) {
+      messages.push(
+        `[${STATE_REL_PATH}] Soft size warning: ${lineCount} lines (warn at ${STATE_LINE_WARN}). Keep lasting locks only (state-sot); Execute dumps → STATE-ARCHIVE.`,
       );
     }
   } catch {

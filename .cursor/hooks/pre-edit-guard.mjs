@@ -17,6 +17,7 @@ import {
   INTEGRATIONS_SOT_CONTEXT,
   PROJECT_SOT_CONTEXT,
   ROADMAP_SOT_CONTEXT,
+  STATE_SOT_CONTEXT,
   STACK_SOT_CONTEXT,
   STRUCTURE_SOT_CONTEXT,
   TESTING_SOT_CONTEXT,
@@ -26,6 +27,7 @@ import {
   isIntegrationsDocPath,
   isProjectDocPath,
   isRoadmapDocPath,
+  isStateDocPath,
   isStackDocPath,
   isStructureDocPath,
   isTestingDocPath,
@@ -35,6 +37,7 @@ import {
   lintIntegrationsDoc,
   lintProjectDoc,
   lintRoadmapDoc,
+  lintStateDoc,
   lintStackDoc,
   lintStructureDoc,
   lintTestingDoc,
@@ -185,6 +188,18 @@ if (isRoadmapDocPath(relPath)) {
     ask(
       `ROADMAP.md edit introduces forbidden drift patterns (${bannedMatches.join(", ")}). Use lean milestone template (roadmap-sot) or confirm intentional exception.`,
       `${ROADMAP_SOT_CONTEXT} Matches: ${bannedMatches.join(", ")}`,
+    );
+    process.exit(0);
+  }
+}
+
+if (isStateDocPath(relPath)) {
+  const content = extractEditContent(input.tool_input);
+  const { bannedMatches } = lintStateDoc(content);
+  if (bannedMatches.length > 0) {
+    ask(
+      `STATE.md edit introduces forbidden execute-log drift (${bannedMatches.join(", ")}). Keep lasting locks only (state-sot) or confirm intentional exception.`,
+      `${STATE_SOT_CONTEXT} Matches: ${bannedMatches.join(", ")}`,
     );
     process.exit(0);
   }

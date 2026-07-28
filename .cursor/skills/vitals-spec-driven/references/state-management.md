@@ -1,6 +1,10 @@
 # State Management
 
-**Purpose:** Persistent memory across sessions - decisions, blockers, learnings.
+**Purpose:** Persistent memory across sessions — decisions, blockers, learnings, open deferred.
+
+**Editorial contract:** [.cursor/rules/state-sot.mdc](../../../rules/state-sot.mdc) — lasting locks only; never append Execute-complete / Specs Planned / gate-count changelog rows. Chronological dumps → [STATE-ARCHIVE.md](../../../../.specs/project/STATE-ARCHIVE.md).
+
+**Live shape (this repo):** header (`Last Updated` / `Current Work`) → Active → Blockers → Deferred → Decisions (table of lasting locks) → ADRs → Alternatives → Lessons. See [STATE.md](../../../../.specs/project/STATE.md).
 
 ## Structure
 
@@ -80,13 +84,14 @@ Capture in-progress thoughts and action items that don't fit in active tasks.
 
 | Event                            | Action                                 |
 | -------------------------------- | -------------------------------------- |
-| Significant architectural choice | Add AD-[NNN]                           |
-| Implementation blocked           | Add B-[NNN]                            |
-| Important discovery/learning     | Add L-[NNN]                            |
-| Quick task completed             | Add row to Quick Tasks table           |
-| Scope creep captured             | Add to Deferred Ideas                  |
-| In-progress thought              | Add to Todos                           |
-| Session end                      | Update "Last Updated" + "Current Work" |
+| Significant architectural choice | Add lasting Decision / ADR row (not `M## Execute complete`) |
+| Implementation blocked           | Add blocker                            |
+| Important discovery/learning     | Add Lesson                             |
+| Quick task completed             | Add row to Quick Tasks table (if used) |
+| Scope creep captured             | Add to Deferred (open items only)      |
+| In-progress thought              | Add to Todos (if used)                 |
+| Session end                      | Update "Last Updated" + "Current Work" / Active |
+| Milestone Done with no new lock  | **Do not** append STATUS rows — ROADMAP only |
 
 ## Size Management (Hybrid Strategy)
 
@@ -98,8 +103,8 @@ Capture in-progress thoughts and action items that don't fit in active tasks.
 
 **Cleanup process:**
 
-- Move decisions >60 days to STATE-ARCHIVE.md
-- Keep only active blockers
+- Move chronological execute/decision dumps to STATE-ARCHIVE.md
+- Keep only active blockers and open Deferred
 - Preserve recent learnings (<60 days)
 
 **Validation:**
@@ -107,6 +112,7 @@ Capture in-progress thoughts and action items that don't fit in active tasks.
 - Decisions have clear rationale?
 - Blockers include resolution path?
 - Learnings are actionable?
+- No execute-log voice (state-sot / `lintStateDoc`)?
 
 ---
 

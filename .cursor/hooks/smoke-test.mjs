@@ -14,6 +14,7 @@ import {
   INTEGRATIONS_REL_PATH,
   PROJECT_REL_PATH,
   ROADMAP_REL_PATH,
+  STATE_REL_PATH,
   STACK_REL_PATH,
   STRUCTURE_REL_PATH,
   TESTING_REL_PATH,
@@ -23,6 +24,7 @@ import {
   lintIntegrationsDoc,
   lintProjectDoc,
   lintRoadmapDoc,
+  lintStateDoc,
   lintStackDoc,
   lintStructureDoc,
   lintTestingDoc,
@@ -914,6 +916,69 @@ const tests = [
       assertIncludes(stdout, '"permission":"ask"', "roadmap ask");
       assertIncludes(stdout, "Artifacts:", "roadmap ask mentions Artifacts");
       cleanupState("smoke-roadmap");
+    },
+  },
+  {
+    name: "state lint flags execute-log drift but allows M## locks",
+    run() {
+      const dirty = lintStateDoc(
+        "# STATE\n\n## Active\n\n**M7–M78 Done**.\n\n## Deferred\n\n- Residual — **M67 Done**\n\n## Decisions\n\n| Date | Decision | Rationale |\n| --- | --- | --- |\n| 2026-07-26 | M58 Execute complete | Gate green (795 tests). Next: M59. HOTSPOT-950. Specs Planned. Superseded by M58 Done. |\n",
+      );
+      for (const label of [
+        "Execute complete",
+        "Specs Planned",
+        "Gate green",
+        "Next: M##",
+        "Superseded by M## Done",
+        "HOTSPOT-*",
+        "Deferred M## Done leftover",
+      ]) {
+        if (!dirty.bannedMatches.includes(label)) {
+          throw new Error(
+            `expected ${label} in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+          );
+        }
+      }
+      const clean = lintStateDoc(
+        "# STATE\n\n## Active\n\n**M7–M78 Done**. See ROADMAP Current.\n\n## Deferred\n\n- npm publish — future backlog\n\n## Decisions\n\n| Date | Decision | Rationale |\n| --- | --- | --- |\n| 2026-07-26 | Hard cut: remove temporal coupling (M56) | No coupling in product |\n",
+      );
+      if (clean.bannedMatches.length !== 0) {
+        throw new Error(
+          `expected clean STATE sample (M## locks + Active Done allowed), got ${JSON.stringify(clean.bannedMatches)}`,
+        );
+      }
+    },
+  },
+  {
+    name: "live STATE.md has no forbidden execute-log drift",
+    run() {
+      const text = fs.readFileSync(path.join(root, STATE_REL_PATH), "utf8");
+      const { bannedMatches } = lintStateDoc(text);
+      if (bannedMatches.length > 0) {
+        throw new Error(
+          `STATE.md contains forbidden execute-log drift: ${bannedMatches.join(", ")}`,
+        );
+      }
+    },
+  },
+  {
+    name: "pre-edit ask on STATE Write with Execute complete",
+    run() {
+      cleanupState("smoke-state");
+      const { stdout } = runHook("pre-edit-guard.mjs", {
+        hook_event_name: "preToolUse",
+        tool_name: "Write",
+        tool_input: {
+          path: path.join(root, ".specs/project/STATE.md"),
+          contents:
+            "# STATE\n\n## Decisions\n\n| Date | Decision | Rationale |\n| --- | --- | --- |\n| 2026-07-28 | M99 Execute complete | shipped |\n",
+        },
+        conversation_id: "smoke-state",
+        workspace_roots: [root],
+      });
+      assertIncludes(stdout, '"permission":"ask"', "state ask");
+      assertIncludes(stdout, "Execute complete", "state ask mentions Execute complete");
+      cleanupState("smoke-state");
     },
   },
 ];

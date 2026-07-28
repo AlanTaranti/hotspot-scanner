@@ -16,7 +16,8 @@ It is **not** a changelog, milestone tracker, or feature history log.
 | ----------- | ----------- |
 | Fragile risks / RT / mitigations / unmitigated backlog | **CONCERNS.md** |
 | Modules, pipeline, contracts, constraints | **ARCHITECTURE.md** |
-| Milestone status, decisions, feature history | **ROADMAP.md** / **STATE.md** / `.specs/features/` |
+| Milestone status, feature history | **ROADMAP.md** / `.specs/features/` |
+| Decisions, deferred ideas, blockers | **STATE.md** |
 | Warning code catalog | **docs/warning-codes.md** |
 
 ## Forbidden in CONCERNS.md
