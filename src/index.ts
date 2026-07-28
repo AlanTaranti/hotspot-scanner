@@ -14,6 +14,7 @@ export {
 } from "./trend/index.js";
 export { previewScanScope } from "./scan-preview.js";
 export { runScan } from "./scan.js";
+export { runAssess } from "./assess/index.js";
 
 export type {
   DoctorFinding,
@@ -29,6 +30,13 @@ export type {
   ComplexityTrendWarning,
 } from "./trend/index.js";
 export type { ScanScopePreview } from "./scan-preview.js";
+export type {
+  AssessCandidate,
+  AssessCandidateStatus,
+  AssessOptions,
+  AssessPatternCounts,
+  AssessResult,
+} from "./assess/index.js";
 export type {
   FileChangeStats,
   HotspotScore,

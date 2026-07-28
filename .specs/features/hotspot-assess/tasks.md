@@ -3,7 +3,7 @@
 **Design**: [design.md](./design.md)  
 **Spec**: [spec.md](./spec.md)  
 **Context**: [context.md](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Large feature — STOP at Planned; Execute in a separate session via `orchestrator-implementer` after Status promotion. Do **not** change scan JSON `3.0`, complexity-trend `3.0`, or reopen compare. Do **not** block on M76.
 
 ---
@@ -141,9 +141,9 @@ flowchart TD
 **Reuses:** `HotspotScore` from `#types`; scorer sort comparator semantics  
 **Done when:**
 
-- [ ] Filter excludes scores below min; top caps length; empty input → `[]`
-- [ ] Sort stable with scan: score desc, `filePath` asc on ties
-- [ ] Types export `version`/`kind` string consts for later schema parity
+- [x] Filter excludes scores below min; top caps length; empty input → `[]`
+- [x] Sort stable with scan: score desc, `filePath` asc on ties
+- [x] Types export `version`/`kind` string consts for later schema parity
 
 **Tests:** `src/assess/select-candidates.test.ts`  
 **Gate:** `pnpm test -- src/assess/select-candidates.test.ts`  
@@ -159,9 +159,9 @@ flowchart TD
 **Reuses:** Existing Ajv contract harness; GrowthPattern-shaped `$defs` may mirror complexity-trend subset  
 **Done when:**
 
-- [ ] Valid assess fixture accepts; invalid version/kind rejects
-- [ ] Scan `3.0` and complexity-trend `3.0` contract tests still green
-- [ ] Schema forbids requiring `points` on candidates (property absent / not in required shape)
+- [x] Valid assess fixture accepts; invalid version/kind rejects
+- [x] Scan `3.0` and complexity-trend `3.0` contract tests still green
+- [x] Schema forbids requiring `points` on candidates (property absent / not in required shape)
 
 **Tests:** contract suite  
 **Gate:** `pnpm test -- tests/contract`  
@@ -177,10 +177,10 @@ flowchart TD
 **Reuses:** `runScan`, `runComplexityTrend`, `classify` via trend meta, `getPackageVersion`  
 **Done when:**
 
-- [ ] Mocked scan+trend: candidates match filter/top; growthPattern copied without `points`
-- [ ] Mid-batch trend rejection → error/skipped row + remaining still invoked
-- [ ] Progress callback invoked once per candidate in order
-- [ ] AbortSignal forwarded to scan and each trend call
+- [x] Mocked scan+trend: candidates match filter/top; growthPattern copied without `points`
+- [x] Mid-batch trend rejection → error/skipped row + remaining still invoked
+- [x] Progress callback invoked once per candidate in order
+- [x] AbortSignal forwarded to scan and each trend call
 
 **Tests:** `run-assess.test.ts` (injectable deps or module mocks at scan/trend boundary)  
 **Gate:** `pnpm test -- src/assess/`  
@@ -196,9 +196,9 @@ flowchart TD
 **Reuses:** Existing summary/glossary tone; path display helpers if useful  
 **Done when:**
 
-- [ ] Non-deteriorating kinds appear in counts only
-- [ ] Deteriorating detail includes path + score + pattern summary
-- [ ] Empty deteriorating case has explicit empty messaging
+- [x] Non-deteriorating kinds appear in counts only
+- [x] Deteriorating detail includes path + score + pattern summary
+- [x] Empty deteriorating case has explicit empty messaging
 
 **Tests:** report unit tests  
 **Gate:** `pnpm test -- src/report/assess`  
@@ -214,9 +214,9 @@ flowchart TD
 **Reuses:** Trend/scan JSON stringify style; optional `$schema` constant pattern from M66 if trivial  
 **Done when:**
 
-- [ ] Output parses to `kind`/`version` locked values
-- [ ] Unit asserts candidates lack `points`
-- [ ] Same candidate list as input (no extra table-only slice)
+- [x] Output parses to `kind`/`version` locked values
+- [x] Unit asserts candidates lack `points`
+- [x] Same candidate list as input (no extra table-only slice)
 
 **Tests:** `assess-json` unit (+ schema validate optional)  
 **Gate:** `pnpm test -- src/report/assess-json`  
@@ -232,11 +232,11 @@ flowchart TD
 **Reuses:** `runWithScanCancelSignals`, scan option parsing patterns, trend-actions structure  
 **Done when:**
 
-- [ ] `assess --help` shows `--min-hotspot-score` and hotspotScore wording
-- [ ] Default min 0.7 / top 20; invalid min/top → exit 2
-- [ ] JSON format validates against assess schema in CLI test
-- [ ] Cancel mapping preserved (130/143)
-- [ ] `#` alias imports only from bin (no `../src` value imports)
+- [x] `assess --help` shows `--min-hotspot-score` and hotspotScore wording
+- [x] Default min 0.7 / top 20; invalid min/top → exit 2
+- [x] JSON format validates against assess schema in CLI test
+- [x] Cancel mapping preserved (130/143)
+- [x] `#` alias imports only from bin (no `../src` value imports)
 
 **Tests:** CLI / bin tests  
 **Gate:** `pnpm test -- bin/hotspot-scanner.test.ts` (and assess-actions if separate)  
@@ -252,9 +252,9 @@ flowchart TD
 **Reuses:** Existing `#trend` / complexity-trend schema export pattern  
 **Done when:**
 
-- [ ] `import { runAssess } from "@vitals/hotspot-scanner"` (or package entry) works in index test
-- [ ] Schema path export present
-- [ ] `pnpm build` succeeds with new assess module
+- [x] `import { runAssess } from "@vitals/hotspot-scanner"` (or package entry) works in index test
+- [x] Schema path export present
+- [x] `pnpm build` succeeds with new assess module
 
 **Tests:** `src/index.test.ts`  
 **Gate:** `pnpm build && pnpm test -- src/index.test.ts`  
@@ -270,10 +270,10 @@ flowchart TD
 **Reuses:** M75 glossary / cliff wording  
 **Done when:**
 
-- [ ] Recipes include assess example with `--min-hotspot-score` / `--top`
-- [ ] ARCHITECTURE lists `assess` command row
-- [ ] CONCERNS notes batch trend cost + false cliffs
-- [ ] STRUCTURE lists `src/assess/` and `bin/assess-actions.ts`
+- [x] Recipes include assess example with `--min-hotspot-score` / `--top`
+- [x] ARCHITECTURE lists `assess` command row
+- [x] CONCERNS notes batch trend cost + false cliffs
+- [x] STRUCTURE lists `src/assess/` and `bin/assess-actions.ts`
 
 **Tests:** none  
 **Gate:** docs review (no test gate beyond T9)  
@@ -289,9 +289,9 @@ flowchart TD
 **Reuses:** project gate  
 **Done when:**
 
-- [ ] `pnpm build && pnpm test` passes
-- [ ] Coverage thresholds met for new `src/assess/**` and report/bin files
-- [ ] No silent test deletions
+- [x] `pnpm build && pnpm test` passes
+- [x] Coverage thresholds met for new `src/assess/**` and report/bin files
+- [x] No silent test deletions
 
 **Tests:** full suite  
 **Gate:** `pnpm build && pnpm test`  

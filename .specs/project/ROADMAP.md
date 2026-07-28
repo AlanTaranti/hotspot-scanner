@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M75 Done**. **M76** Specs Planned (trend-color-ux). **M77** Specs Planned (hotspot-assess). Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
+Status: **M7–M77 Done**. **M76** Specs Planned (trend-color-ux). Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
 
 **M12** intentionally absent (CI fail-on-score removed — see STATE).
 
@@ -19,13 +19,12 @@ Status: **M7–M75 Done**. **M76** Specs Planned (trend-color-ux). **M77** Specs
 ### Open
 
 - **M76** trend-color-ux — Specs Planned
-- **M77** hotspot-assess — Specs Planned
 
 Deferred horizon in [STATE.md](STATE.md).
 
 ### Done
 
-M7–M75 Done. M73–M75 Execute complete (2026-07-27). Deferred horizon in [STATE.md](STATE.md).
+M7–M77 Done. M73–M77 Execute complete (2026-07-27). Deferred horizon in [STATE.md](STATE.md).
 
 ## Milestone 1 — Scaffold
 
@@ -1109,23 +1108,23 @@ ANSI-color the growth-pattern **kind** token on `trend` **table** `Pattern:` lin
 
 ---
 
-## Milestone 77 — Hotspot assess — Specs Planned
+## Milestone 77 — Hotspot assess — Done
 
 → [`.specs/features/hotspot-assess/spec.md`](../features/hotspot-assess/spec.md)  
-**Slug:** `hotspot-assess` | **Priority:** High | **Specs:** Planned  
+**Slug:** `hotspot-assess` | **Priority:** High | **Specs:** Done  
 **IDs:** HOTSPOT-1620–1679 (1660–1679 reserved; active 1620–1638) | **Depth:** Large  
 **Sisters:** complexity-trend (M72), growth-pattern-trend-bridge (M75), explain-and-scan-feedback (M42); trend-color-ux (M76 Planned — do not block); remove-compare-baseline (M71 — do not reopen compare)  
-**Artifacts:** [context.md](../features/hotspot-assess/context.md) · [spec.md](../features/hotspot-assess/spec.md) · [design.md](../features/hotspot-assess/design.md) · [tasks.md](../features/hotspot-assess/tasks.md) (`Status: Planned`)
+**Artifacts:** [context.md](../features/hotspot-assess/context.md) · [spec.md](../features/hotspot-assess/spec.md) · [design.md](../features/hotspot-assess/design.md) · [tasks.md](../features/hotspot-assess/tasks.md) (`Status: Done`)
 
 Dedicated `hotspot-scanner assess [path]`: `runScan` → filter `hotspotScore >= --min-hotspot-score` (default **0.7**) → slice `--top` (default **20**) → sequential `runComplexityTrend` per candidate → aggregate. Human table/markdown: summary counts + detail **only** for `deteriorating`. Own JSON contract `kind: "hotspot-assess"` / `version: "1.0"` (`schemas/hotspot-assess.json`); no full `points` dump. Library export `runAssess`. Does **not** change scan JSON `3.0` or complexity-trend `3.0`; does **not** reopen compare.
 
-- [ ] `selectAssessCandidates` + types + unit tests
-- [ ] Schema `hotspot-assess` `1.0` + contract tests
-- [ ] `runAssess` orchestration (soft-continue, progress, cancel)
-- [ ] Table / markdown / JSON reporters
-- [ ] CLI `assess` + `#assess` / public export
-- [ ] Living docs + recipes (formatter-cliff caveat)
-- [ ] Final gate `pnpm build && pnpm test`
+- [x] `selectAssessCandidates` + types + unit tests
+- [x] Schema `hotspot-assess` `1.0` + contract tests
+- [x] `runAssess` orchestration (soft-continue, progress, cancel)
+- [x] Table / markdown / JSON reporters
+- [x] CLI `assess` + `#assess` / public export
+- [x] Living docs + recipes (formatter-cliff caveat)
+- [x] Final gate `pnpm build && pnpm test`
 
 **Out of scope:** `--fail-on-deteriorating` / SARIF / exit 1 for deteriorating; CSV; assess config keys; McCabe/AST; compare; `scan --trend-top`; assess color (do not block on M76); parallel trend pool.
 

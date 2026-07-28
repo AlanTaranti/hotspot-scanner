@@ -51,6 +51,12 @@ import {
   mapTrendError,
   parseTrendFormat,
 } from "./trend-actions.js";
+import {
+  executeAssess,
+  mapAssessError,
+  parseAssessFormat,
+  parseMinHotspotScore,
+} from "./assess-actions.js";
 
 export {
   CliUsageError,
@@ -551,6 +557,106 @@ export function createCliProgram(): Command {
     });
 
   program
+    .command("assess")
+    .description(
+      "Run hotspot scan then sequential complexity trends on top candidates",
+    )
+    .argument("[path]", "Repository path (default: .)", ".")
+    .option(
+      "--min-hotspot-score <n>",
+      "Minimum hotspotScore (0–1) to include as assess candidate",
+      "0.7",
+    )
+    .option("--since <period>", "Git history window", DEFAULT_SINCE)
+    .option(
+      "-f, --format <format>",
+      "Output format: table|json|markdown",
+      "table",
+    )
+    .option("-o, --output <path>", "Write report to file instead of stdout")
+    .option(
+      "-t, --top <n>",
+      "Maximum assess candidates after hotspotScore filter",
+      String(DEFAULT_TOP),
+    )
+    .option(
+      "--concurrency <n>",
+      "Complexity worker pool size (positive integer)",
+    )
+    .option("--sequential", SEQUENTIAL_OPTION_HELP)
+    .option("--no-overlap", NO_OVERLAP_OPTION_HELP)
+    .option(
+      "--include <glob>",
+      "Include only paths matching glob (repeatable)",
+      collectGlob,
+      [] as string[],
+    )
+    .option(
+      "--exclude <glob>",
+      "Exclude paths matching glob (repeatable)",
+      collectGlob,
+      [] as string[],
+    )
+    .option(
+      "--include-tests",
+      "Include test files in scan scope (lift built-in test excludes)",
+    )
+    .option(
+      "--config <path>",
+      "Load config from explicit file (skip parent walk)",
+    )
+    .option(
+      "--quiet",
+      "Suppress progress and info-level diagnostics (warnings/errors remain)",
+    )
+    .option("--verbose", "Trace git spawn argv on stderr")
+    .option("--no-progress", "Suppress progress lines on stderr")
+    .option("--warnings <mode>", WARNINGS_OPTION_HELP, "summary")
+    .action(async function (repoPath: string, options) {
+      const cmd = this as Command;
+      try {
+        const format = parseAssessFormat(options.format as string);
+        const configPath = isExplicitCliOption(cmd, "config")
+          ? (options.config as string)
+          : undefined;
+        const cliOverrides = buildCliConfigOverrides(cmd, options);
+        const minHotspotScore = isExplicitCliOption(cmd, "minHotspotScore")
+          ? parseMinHotspotScore(options.minHotspotScore as string)
+          : 0.7;
+        const { config: fileConfig } = await loadHotspotScannerConfig(repoPath, {
+          configPath,
+        });
+        const merged = mergeScanOptions({
+          config: fileConfig,
+          cli: cliOverrides,
+        });
+        const top = merged.top;
+        const warningsMode = parseWarningsMode(options.warnings as string);
+        const sequential = resolveSequentialCliOption(options);
+
+        await executeAssess({
+          repoPath,
+          cliOverrides,
+          configPath,
+          minHotspotScore,
+          top,
+          format,
+          outputPath: isExplicitCliOption(cmd, "output")
+            ? (options.output as string)
+            : undefined,
+          quiet: options.quiet as boolean,
+          noProgress: options.progress === false,
+          includeTests: options.includeTests as boolean | undefined,
+          sequential,
+          verbose: options.verbose as boolean,
+          warningsMode,
+        });
+      } catch (error) {
+        mapAssessError(error);
+      }
+    });
+
+  program
     .command("scan")
     .description(
       "Run hotspot analysis on a repository (discovers .hotspot-scanner.json upward; use --config for explicit path)",
@@ -773,6 +879,7 @@ const KNOWN_COMMANDS = new Set([
   "config",
   "doctor",
   "trend",
+  "assess",
   "scan",
   "completion",
 ]);

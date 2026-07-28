@@ -15,6 +15,8 @@ const CONFIG_SCHEMA_ID =
   "https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json";
 const TREND_SCHEMA_ID =
   "https://vitals.dev/hotspot-scanner/schemas/complexity-trend.json";
+const ASSESS_SCHEMA_ID =
+  "https://vitals.dev/hotspot-scanner/schemas/hotspot-assess.json";
 
 const LOCKED_CONFIG_EXEMPLAR = {
   $schema: CONFIG_SCHEMA_ID,
@@ -42,16 +44,20 @@ function createValidators() {
   ajv.addSchema(
     JSON.parse(readFileSync(join(schemasDir, "complexity-trend.json"), "utf8")),
   );
+  ajv.addSchema(
+    JSON.parse(readFileSync(join(schemasDir, "hotspot-assess.json"), "utf8")),
+  );
 
   const validateScan = ajv.getSchema(SCAN_SCHEMA_ID);
   const validateConfig = ajv.getSchema(CONFIG_SCHEMA_ID);
   const validateTrend = ajv.getSchema(TREND_SCHEMA_ID);
+  const validateAssess = ajv.getSchema(ASSESS_SCHEMA_ID);
 
-  if (!validateScan || !validateConfig || !validateTrend) {
+  if (!validateScan || !validateConfig || !validateTrend || !validateAssess) {
     throw new Error("Failed to compile JSON schemas");
   }
 
-  return { validateScan, validateConfig, validateTrend, ajv };
+  return { validateScan, validateConfig, validateTrend, validateAssess, ajv };
 }
 
 function loadScanFixture(name: string): ScanResult {
@@ -320,6 +326,77 @@ describe("complexity-trend.json schema", () => {
   });
 });
 
+describe("hotspot-assess.json schema", () => {
+  const { validateAssess } = createValidators();
+
+  function loadAssessFixture(): Record<string, unknown> {
+    return JSON.parse(
+      readFileSync(join(fixturesDir, "sample-assess-result.json"), "utf8"),
+    ) as Record<string, unknown>;
+  }
+
+  it("compiles with locked $id", () => {
+    const raw = loadSchemaFile("hotspot-assess.json") as { $id?: string };
+
+    expect(raw.$id).toBe(ASSESS_SCHEMA_ID);
+    expect(validateAssess).toBeTypeOf("function");
+  });
+
+  it("validates sample assess fixture", () => {
+    const json = loadAssessFixture();
+
+    expect(json.version).toBe("1.0");
+    expect(json.kind).toBe("hotspot-assess");
+    expect(validateAssess(json)).toBe(true);
+  });
+
+  it("rejects wrong kind", () => {
+    const json = loadAssessFixture();
+    json.kind = "complexity-trend";
+    expect(validateAssess(json)).toBe(false);
+  });
+
+  it("rejects version 3.0", () => {
+    const json = loadAssessFixture();
+    json.version = "3.0";
+    expect(validateAssess(json)).toBe(false);
+  });
+
+  it("rejects version 2.0", () => {
+    const json = loadAssessFixture();
+    json.version = "2.0";
+    expect(validateAssess(json)).toBe(false);
+  });
+
+  it("rejects missing meta.patternCounts", () => {
+    const json = loadAssessFixture();
+    const meta = json.meta as Record<string, unknown>;
+    delete meta.patternCounts;
+    expect(validateAssess(json)).toBe(false);
+  });
+
+  it("does not require or define points on candidates", () => {
+    const schema = loadSchemaFile("hotspot-assess.json");
+    const assessCandidate = (schema.$defs as Record<string, unknown>)
+      .AssessCandidate as Record<string, unknown>;
+    const required = assessCandidate.required as string[] | undefined;
+    const properties = assessCandidate.properties as
+      | Record<string, unknown>
+      | undefined;
+
+    expect(required ?? []).not.toContain("points");
+    expect(properties ?? {}).not.toHaveProperty("points");
+  });
+
+  it("accepts assess JSON with top-level $schema", () => {
+    const json = {
+      $schema: ASSESS_SCHEMA_ID,
+      ...loadAssessFixture(),
+    };
+    expect(validateAssess(json)).toBe(true);
+  });
+});
+
 describe("hotspot-scanner-config.json schema", () => {
   const { validateConfig } = createValidators();
 
@@ -379,6 +456,7 @@ describe("package.json schema exports", () => {
     "./schemas/scan-result.json",
     "./schemas/hotspot-scanner-config.json",
     "./schemas/complexity-trend.json",
+    "./schemas/hotspot-assess.json",
   ] as const;
 
   it.each(schemaExportPaths)(

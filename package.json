@@ -12,7 +12,8 @@
     },
     "./schemas/scan-result.json": "./schemas/scan-result.json",
     "./schemas/hotspot-scanner-config.json": "./schemas/hotspot-scanner-config.json",
-    "./schemas/complexity-trend.json": "./schemas/complexity-trend.json"
+    "./schemas/complexity-trend.json": "./schemas/complexity-trend.json",
+    "./schemas/hotspot-assess.json": "./schemas/hotspot-assess.json"
   },
   "bin": {
     "hotspot-scanner": "./dist/bin/hotspot-scanner.js"
@@ -26,6 +27,7 @@
     "#doctor": "./dist/doctor/index.js",
     "#git": "./dist/git/index.js",
     "#trend": "./dist/trend/index.js",
+    "#assess": "./dist/assess/index.js",
     "#types": "./dist/types/index.js"
   },
   "files": [

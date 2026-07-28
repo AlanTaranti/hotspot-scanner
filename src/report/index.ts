@@ -65,6 +65,9 @@ export function createReporter(): Reporter {
   };
 }
 
+export { renderAssessJson } from "./assess-json.js";
+export { renderAssessMarkdown } from "./assess-markdown.js";
+export { renderAssessTable } from "./assess-table.js";
 export { renderTrendCsv } from "./trend-csv.js";
 export { renderTrendJson } from "./trend-json.js";
 export { renderTrendTable } from "./trend-table.js";

@@ -65,6 +65,7 @@ hotspot-scanner config validate   # CI-check config parse without a full scan
 hotspot-scanner config print      # show effective options with cli/config/default source tags
 hotspot-scanner doctor .          # check Node, git, repo, config, since window, and scope
 hotspot-scanner trend src/foo.ts  # indentation complexity vs NCLOC size for one file (after scan drill-down)
+hotspot-scanner assess .          # scan → filter by hotspotScore → sequential trends on top candidates
 hotspot-scanner scan . --dry-run  # preview config path, remount, unknown keys, and eligible file count
 ```
 
@@ -95,8 +96,9 @@ Rank  File                      Score     NLOC  NLOCN     Churn  ChurnN  Authors
 | **Markdown in a PR** | You want a shareable report attached to a review | `hotspot-scanner scan . --format markdown --output report.md` |
 | **JSON for tooling** | You want machine-readable output for scripts or dashboards | `hotspot-scanner scan . --format json --output scan.json` |
 | **Hotspot drill-down** | You want score context then historical complexity trend | `scan --explain <path>` → `trend <path>` (Pattern label on trend) |
+| **Batch deteriorating check** | You want which top hotspots look deteriorating without N manual trends | `assess . --min-hotspot-score 0.7 --top 10` |
 
-Copy-paste cookbooks for these workflows (and monorepo scoping): [docs/recipes.md](docs/recipes.md).
+Copy-paste cookbooks for these workflows (and monorepo scoping): [docs/recipes.md](docs/recipes.md). Scan → assess recipe: [docs/recipes.md → Scan → assess](docs/recipes.md#scan--assess-batch-deteriorating-hotspots).
 
 ## How it works
 
@@ -286,6 +288,7 @@ Published JSON Schema files live under [`schemas/`](schemas/) and are exported f
 | ------ | ---------------- |
 | [`schemas/scan-result.json`](schemas/scan-result.json) | `ScanResult` |
 | [`schemas/hotspot-scanner-config.json`](schemas/hotspot-scanner-config.json) | `.hotspot-scanner.json` config |
+| [`schemas/hotspot-assess.json`](schemas/hotspot-assess.json) | `AssessResult` from `assess` (`kind: "hotspot-assess"`, `version: "1.0"`) |
 
 Import in Node (JSON module):
 
@@ -365,6 +368,7 @@ Import from the package entry point. After `pnpm build`, the public entry resolv
 ```typescript
 import {
   runScan,
+  runAssess,
   parseScanResult,
   ScanResultParseError,
   previewScanScope,
@@ -373,6 +377,8 @@ import {
 import type {
   ScanOptions,
   ScanResult,
+  AssessResult,
+  AssessOptions,
   ScanScopePreview,
   DoctorResult,
   RunDoctorOptions,
@@ -383,6 +389,13 @@ const result: ScanResult = await runScan({
   since: "12 months ago",
   onWarning: (warning) =>
     console.warn(`[${warning.code ?? "warning"}] ${warning.message}`),
+});
+
+const assess: AssessResult = await runAssess({
+  repoPath: "/path/to/repo",
+  since: "12 months ago",
+  minHotspotScore: 0.7,
+  top: 10,
 });
 
 // Validate saved scan JSON programmatically
@@ -400,7 +413,7 @@ const doctor: DoctorResult = await runDoctor({
 } satisfies RunDoctorOptions);
 ```
 
-`runScan()` returns a typed `ScanResult` with full ranked arrays (no `--top` slicing). The CLI applies `--top` only when rendering table or markdown. `previewScanScope()` mirrors `scan --dry-run`; `runDoctor()` mirrors `doctor`. Public exports also include domain types (`HotspotScore`, `ScanMeta`, `DoctorFinding`, etc.) — see `src/index.ts`.
+`runScan()` returns a typed `ScanResult` with full ranked arrays (no `--top` slicing). The CLI applies `--top` only when rendering table or markdown. `runAssess()` runs scan → score filter → sequential per-file trends and returns `AssessResult` (`kind: "hotspot-assess"`, `version: "1.0"`) — a separate JSON contract from scan `3.0`. `previewScanScope()` mirrors `scan --dry-run`; `runDoctor()` mirrors `doctor`. Public exports also include domain types (`HotspotScore`, `ScanMeta`, `AssessCandidate`, `DoctorFinding`, etc.) — see `src/index.ts`.
 
 ## Advanced
 
@@ -475,6 +488,20 @@ Rename blind-spot messages use `code: "RENAME_HISTORY_INCOMPLETE"` (ambiguous ch
 - **Repo config file** — `.hotspot-scanner.json` with CLI > config > defaults
 - **Flexible output** — table, JSON, markdown, or CSV bundle
 - **Score explain** — `--explain <path>` prints a file breakdown to stderr
+- **Hotspot assess** — `assess` batches scan + sequential trends on filtered top candidates; summary counts + deteriorating detail (see [Scan → assess](#scan--assess))
+
+### Scan → assess
+
+`hotspot-scanner assess [path]` runs the full scan, keeps hotspots with `hotspotScore >= --min-hotspot-score` (default **0.7**), caps to `--top` (default **20**), then runs **sequential** `runComplexityTrend` per candidate. Table and markdown show summary pattern counts and a detail section **only for deteriorating** files. JSON uses `kind: "hotspot-assess"` / `version: "1.0"` — isolated from scan JSON `3.0`; candidates include `growthPattern` without full revision `points`.
+
+```bash
+hotspot-scanner assess . --min-hotspot-score 0.7 --top 10
+hotspot-scanner assess . --since "6 months ago" --include "src/**" --format json -o assess.json
+```
+
+`--min-hotspot-score` is **CLI-only** (not in `.hotspot-scanner.json`). Scan-backed flags (`--since`, `--include`, `--exclude`, `--config`, `--concurrency`, `--sequential`, `--include-tests`) follow scan semantics. Per-file trend failures are recorded and the batch continues (exit `0` unless usage/cancel). Expect **scan time + N× per-file trend cost** — cap candidates with `--top` and raise `--min-hotspot-score` on large repos.
+
+**Formatter cliffs:** mass re-indent or Prettier can false-label **deteriorating** (same M75 classifier as `trend`). Treat Pattern as indicative — not CI truth. See [docs/recipes.md → Tornhill growth curves](docs/recipes.md#tornhill-growth-curves-trend-pattern).
 
 ### `--explain` (stderr)
 
@@ -494,6 +521,7 @@ hotspot-scanner init [directory] [--force]
 hotspot-scanner config validate [path]
 hotspot-scanner config print [path] [--since <period>] [--include <glob>] [--exclude <glob>] [-t|--top <n>] [--concurrency <n>] [--config <path>] [-f|--format text|json]
 hotspot-scanner doctor [path] [--config <path>] [--include-tests] [--no-color] [-f|--format text|json]
+hotspot-scanner assess [path] [options]
 hotspot-scanner scan [path] [options]
 hotspot-scanner completion <bash|zsh|fish>
 hotspot-scanner <path>   # path-first shorthand → scan <path> (., ./dir, absolute, or existing directory)
@@ -571,6 +599,8 @@ hotspot-scanner scan . --warnings=json   # machine-readable warnings on stderr
 hotspot-scanner .                        # path-first shorthand (same as scan .)
 hotspot-scanner scan . --format csv --output hotspots.csv --csv-single-file
 hotspot-scanner scan . --explain src/missing.ts --fail-on-explain-miss   # CI: exit 1 on miss
+hotspot-scanner assess . --min-hotspot-score 0.7 --top 10
+hotspot-scanner assess . --format markdown --output assess.md --min-hotspot-score 0.75 --top 5
 ```
 
 ## Limitations

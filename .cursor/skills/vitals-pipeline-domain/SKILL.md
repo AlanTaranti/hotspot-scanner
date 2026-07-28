@@ -22,9 +22,10 @@ git log (stream) → NCLOC size analysis → hotspot scoring → report
 | Scan-result   | `src/scan-result/`       | `parseScanResult`, `ScanResultParseError` — programmatic JSON validation (library only)        |
 | Report        | `src/report/`            | table, JSON, markdown, CSV bundle; trend table (`trend-table.ts`); explain + `formatTrendNextStep` |
 | Trend         | `src/trend/`             | `runComplexityTrend` — per-file revision history; `classifyGrowthPattern` → `meta.growthPattern` (always-on; table `Pattern:` line) |
+| Assess        | `src/assess/`            | `runAssess` — scan → `selectAssessCandidates` → sequential `runComplexityTrend`; `AssessResult` (`version: "1.0"`, `kind: "hotspot-assess"`) |
 | Orchestration | `src/scan.ts`            | `runScan()` — file-only pipeline                                                               |
 | CLI           | `bin/hotspot-scanner.ts` | commander — flags only, no domain logic                                                        |
-| Schemas       | `schemas/`               | `scan-result.json`, `hotspot-scanner-config.json`, `complexity-trend.json` (`version: "3.0"`) |
+| Schemas       | `schemas/`               | `scan-result.json`, `hotspot-scanner-config.json`, `complexity-trend.json` (`version: "3.0"`), `hotspot-assess.json` (`version: "1.0"`) |
 
 **Superseded (M71):** `src/compare/`, compare report modules, `schemas/compare-result.json`, CLI compare/baseline — see Done spec `.specs/features/remove-compare-baseline/`.
 
@@ -64,8 +65,9 @@ SoT: [CONCERNS.md](../../../.specs/codebase/CONCERNS.md) / `src/complexity/ncloc
 | `--explain <path>`        | File-path score breakdown on stderr after report; hit appends `next: hotspot-scanner trend <path>` |
 | `--fail-on-explain-miss`  | Exit `1` when `--explain` target missing (requires `--explain`)  |
 | `trend <file>`            | Per-file indentation/NCLOC history; always-on `Pattern:` / `meta.growthPattern` (`deteriorating` \| `refactored` \| `stable` \| `inconclusive`) |
+| `assess [path]`           | Scan + sequential trends on filtered candidates; `--min-hotspot-score` (CLI-only, default `0.7`); `--top` caps after filter (all formats) |
 
-Config file: `.hotspot-scanner.json` (`since`, `include`, `exclude`, `top`, `concurrency`). CLI-only: `format`, `output`. Legacy `granularity` → `UNKNOWN_CONFIG_KEY`.
+Config file: `.hotspot-scanner.json` (`since`, `include`, `exclude`, `top`, `concurrency`). CLI-only: `format`, `output`, assess `--min-hotspot-score`. Legacy `granularity` → `UNKNOWN_CONFIG_KEY`.
 
 ## Failure modes
 

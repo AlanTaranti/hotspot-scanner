@@ -35,6 +35,17 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 | Growth-pattern false cliffs | `classifyGrowthPattern` thresholds (`REFACTOR_DROP`, `DETERIORATE_RISE`, `MIN_POINTS`) are locked constants — unit tests in `classify.test.ts`; do not special-case blame/format commits without a new milestone |
 | Trend JSON vs scan `3.0` | Separate `schemas/complexity-trend.json` (`version: "3.0"`); `kind: complexity-trend`; required `meta.growthPattern` |
 
+## Hotspot assess (`src/assess/`, M77)
+
+**Risk:** Batch trend cost on large candidate sets; false cliffs inherited from M75 classifier.
+
+| Concern | Mitigation |
+| ------- | ---------- |
+| N× sequential `runComplexityTrend` after full scan | Document cost in README/recipes/ARCHITECTURE — scan time + per-candidate trend; no parallel pool in MVP; operator caps with `--top` and `--min-hotspot-score` |
+| Prettier / mass-indent cliffs on assess rows | Same `classifyGrowthPattern` as `trend`; false **deteriorating** possible — warn in recipes/README/CONCERNS; no formatter detector in M77 |
+| Schema isolation | `schemas/hotspot-assess.json` (`version: "1.0"`, `kind: "hotspot-assess"`); no trend `points` on candidates; scan `3.0` and complexity-trend `3.0` unchanged |
+| Per-file trend failure mid-batch | Soft-continue — `skipped` / `error` candidate row; exit `0` unless usage/cancel |
+
 ## Size analyzer / NCLOC (`src/complexity/`)
 
 **Risk:** NCLOC miscounts (RT-005) silently change rankings — comment/string edge cases.

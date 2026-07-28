@@ -40,6 +40,13 @@ describe("compiled CLI smoke", () => {
     expect(stdout).toContain("hotspot analysis");
   });
 
+  it("loads assess --help via dist/bin (exercises #assess)", async () => {
+    assertCompiledCliExists();
+    const stdout = await runCompiledHelp("assess");
+    expect(stdout).toContain("--min-hotspot-score");
+    expect(stdout).toMatch(/hotspotScore/i);
+  });
+
   it("loads doctor --help via dist/bin (exercises #doctor)", async () => {
     assertCompiledCliExists();
     const stdout = await runCompiledHelp("doctor");

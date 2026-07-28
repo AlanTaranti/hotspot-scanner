@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { PACKAGE_NAME, runComplexityTrend, runScan } from "./index.js";
+import {
+  PACKAGE_NAME,
+  runAssess,
+  runComplexityTrend,
+  runScan,
+} from "./index.js";
 
 describe("package", () => {
   it("exports package name", () => {
@@ -12,5 +17,9 @@ describe("package", () => {
 
   it("exports runComplexityTrend", () => {
     expect(typeof runComplexityTrend).toBe("function");
+  });
+
+  it("exports runAssess", () => {
+    expect(typeof runAssess).toBe("function");
   });
 });

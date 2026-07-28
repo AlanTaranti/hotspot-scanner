@@ -8,7 +8,7 @@ flowchart TB
   CLI[hotspot-scanner CLI]
   Repo[(Local Git repo)]
 
-  Dev -->|"init / doctor / scan / completion"| CLI
+  Dev -->|"init / doctor / scan / assess / trend / completion"| CLI
   CLI -->|"git log stream"| Repo
   CLI -->|"file read + NCLOC"| Repo
   CLI -->|"stdout / file"| Dev
@@ -50,6 +50,7 @@ Multi-command CLI via Commander in `bin/hotspot-scanner.ts` with shared wiring i
 | `config print [path]` | `src/config/print-config.ts` + `merge-options.ts` (`loadMergedScanConfigWithSources`) | Effective merged `since`/`include`/`exclude`/`top`/`concurrency` with per-field `cli` \| `config` \| `default` source tags; `-f, --format text\|json`; scan-like CLI overrides (`--since`, `--include`, `--exclude`, `--top`, `--concurrency`, `--config`); **does not** require git or invoke pipeline stages |
 | `doctor [path]` | `src/doctor/` (`runDoctor`, `formatDoctorTextReport`, `formatDoctorJsonReport`) | Pre-flight checks: Node `engines`, git on PATH, git repo via shared `resolveScanPipelineContext`, config discovery/validity (unknown keys soft-warn), **`since`** preflight via `probeSinceWindow` (pass / empty warn / git-reject fail), **`scope`** inventory (`previewScanScope` — eligible count parity with `scan --dry-run`), tsconfig/jsconfig info; optional `--include-tests`; `-f, --format text\|json`; `--no-color` (CLI-only, subcommand flag); text output colors `pass:`/`warn:`/`fail:` prefixes via `paintDoctorStatus` when `resolveDoctorColor` allows; aggregate exit policy; **does not** invoke Git Change Miner, size analyzer, scorers, or Reporter |
 | `trend <file>` | `src/trend/` (`runComplexityTrend`, `classifyGrowthPattern`) via `bin/trend-actions.ts` | Per-file Git history (`listFileRevisions` / `showFileAtRevision`; `--follow` default, not echoed in output); indentation metrics (`indentMean`, etc.) + NCLOC per revision; uniform `--max-revisions` sample; always-on `classifyGrowthPattern` → `meta.growthPattern` + table `Pattern:` line above sparklines; ASCII sparklines; `table` \| `json` \| `csv`; separate JSON contract `version: "3.0"` / `kind: "complexity-trend"` with required `meta.growthPattern` + `meta.metricLegend` (CSV metric-only — no pattern column); **does not** load config or invoke scan pipeline |
+| `assess [path]` | `src/assess/` (`runAssess`, `selectAssessCandidates`) via `bin/assess-actions.ts` | `runScan` → filter `hotspotScore >= --min-hotspot-score` (default `0.7`) → slice `--top` (default `20`) → **sequential** `runComplexityTrend` per candidate with per-file stderr progress; soft-continue on per-file trend failure; table/markdown: summary pattern counts + detail **only** for `deteriorating`; JSON `kind: "hotspot-assess"` / `version: "1.0"` (no per-candidate `points`); scan-backed flags (`--since`, `--include`, `--exclude`, `--config`, `--concurrency`, `--sequential`, `--include-tests`) follow scan merge; `--min-hotspot-score` CLI-only; **does not** embed assess in scan JSON `3.0` |
 | `scan [path]` | `src/scan.ts` (`runScan`) via `bin/scan-actions.ts` | Full pipeline (see [Data flow (scan)](#data-flow-scan)) |
 | `scan --dry-run` | `src/scan-preview.ts` (`previewScanScope`) | Merges config, validates repo + git, builds `PathScope`, counts via `discoverSourceFiles`; prints config file path (or `none`), remount message when present, unknown config keys when present — **does not** mine git or run NCLOC |
 | `completion <shell>` | `bin/completion-scripts.ts` (`getCompletionScript`) | Static bash/zsh/fish completion script to stdout |
@@ -239,6 +240,25 @@ Separate from scan pipeline. `runComplexityTrend` (`src/trend/run-trend.ts`) sam
 
 Priority: refactored (peak-then-drop) before deteriorating before stable. Classifier runs on the **sampled** series; truncated history may append `(sampled history)` to `summary`. Table: `renderTrendTable` prints `Pattern: <kind> — <summary>` above sparklines. JSON: `meta.growthPattern` required under `version: "3.0"`. Mass reformat / Prettier cliffs can mislabel — documented in CONCERNS + recipes; no special detector.
 
+### Hotspot assess (M77)
+
+Separate orchestration from scan and trend. `runAssess` (`src/assess/run-assess.ts`):
+
+```
+runScan → selectAssessCandidates(minHotspotScore, top) → sequential runComplexityTrend per candidate
+```
+
+| Step | Module | Notes |
+| ---- | ------ | ----- |
+| Scan | `runScan` | Full file-hotspot pipeline; scan warnings preserved on `AssessResult.meta.warnings` |
+| Select | `selectAssessCandidates` | Filter `hotspotScore >= minHotspotScore`, sort desc (scan order / `filePath` tie-break), slice `top` |
+| Trend batch | `runComplexityTrend` | **Sequential** (one file at a time); per-file `onAssessProgress` on stderr (`assess: [i/N] path`); `TrendNotTrackedError` → `skipped`, other failures → `error` row; batch continues |
+| Report | `src/report/assess-*.ts` | Table/markdown: summary counts + deteriorating detail only; JSON via `renderAssessJson` |
+
+**Schema isolation:** `schemas/hotspot-assess.json` — `version: "1.0"`, `kind: "hotspot-assess"`. Candidates carry `growthPattern` (M75 shape) without embedding trend `points`. Scan `3.0` and complexity-trend `3.0` contracts unchanged.
+
+**CLI:** `assess [path]` via `bin/assess-actions.ts` (`executeAssess`); formats `table` \| `json` \| `markdown` (no CSV). Cancel `SIGINT`/`SIGTERM` → exit `130`/`143` (parity with scan/trend). Partial candidate errors → exit `0`.
+
 ### CSV single-file write path (M63)
 
 `--csv-single-file` with `--format csv` and `--output` is a **bin write-path** choice in `writeRenderedOutput` (not a new `renderCsv` layout): scan writes `hotspots.csv` bundle key to exact `--output`. Default M18 stem bundle unchanged when flag omitted.
@@ -292,6 +312,7 @@ JSON `version` is **`"3.0"`**. Field name `complexityNormalized` retained for th
 | ---- | --------- |
 | `schemas/scan-result.json` | `ScanResult` |
 | `schemas/hotspot-scanner-config.json` | `.hotspot-scanner.json` config (known keys + reserved meta) |
+| `schemas/hotspot-assess.json` | `AssessResult` (`kind: "hotspot-assess"`, `version: "1.0"`) |
 
 - **Scan `version: "3.0"`** — `hotspots` + `meta` only; no `functions`, no `granularity`, no `coupling`. **No version bump for M66** — enrichments are additive under `"3.0"` (same pattern as M51 `meta.timings`).
 - **Config schema (M64):** documents known keys and reserved meta; `additionalProperties: true` (runtime still warns unknowns); package exports both schema subpaths

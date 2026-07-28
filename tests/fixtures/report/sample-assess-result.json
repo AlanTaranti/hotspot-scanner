@@ -1,0 +1,64 @@
+{
+  "version": "1.0",
+  "kind": "hotspot-assess",
+  "meta": {
+    "repoPath": "/tmp/example-repo",
+    "since": "12 months ago",
+    "minHotspotScore": 0.7,
+    "top": 20,
+    "scannedHotspotCount": 42,
+    "candidateCount": 3,
+    "patternCounts": {
+      "deteriorating": 1,
+      "refactored": 0,
+      "stable": 1,
+      "inconclusive": 0
+    },
+    "skippedCount": 1,
+    "errorCount": 0,
+    "scannerVersion": "1.0.0",
+    "warnings": [],
+    "timings": {
+      "totalMs": 1250,
+      "scanMs": 450,
+      "trendMs": 800
+    }
+  },
+  "candidates": [
+    {
+      "filePath": "src/hot.ts",
+      "hotspotScore": 0.92,
+      "ncloc": 340,
+      "commitCount": 18,
+      "status": "ok",
+      "growthPattern": {
+        "kind": "deteriorating",
+        "summary": "indentMean +22% over history",
+        "indentMeanDeltaRel": 0.22,
+        "nclocDeltaRel": 0.05,
+        "peakRev": "abc123"
+      },
+      "revisionCount": 12,
+      "truncated": false
+    },
+    {
+      "filePath": "src/stable.ts",
+      "hotspotScore": 0.81,
+      "ncloc": 120,
+      "commitCount": 6,
+      "status": "ok",
+      "growthPattern": {
+        "kind": "stable",
+        "summary": "indentMean within ±8%"
+      },
+      "revisionCount": 8,
+      "truncated": false
+    },
+    {
+      "filePath": "src/skipped.ts",
+      "hotspotScore": 0.75,
+      "status": "skipped",
+      "message": "file not found in git history"
+    }
+  ]
+}

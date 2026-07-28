@@ -17,6 +17,7 @@
       "#doctor": ["src/doctor/index.ts"],
       "#git": ["src/git/index.ts"],
       "#trend": ["src/trend/index.ts"],
+      "#assess": ["src/assess/index.ts"],
       "#types": ["src/types/index.ts"]
     }
   },

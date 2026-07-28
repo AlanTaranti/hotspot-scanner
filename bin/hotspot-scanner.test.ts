@@ -1,8 +1,9 @@
 import { readFileSync } from "node:fs";
 import { cp, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import Ajv2020 from "ajv/dist/2020.js";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { HOTSPOT_SCANNER_CONFIG_FILENAME } from "../src/config/index.js";
 import { formatExemplarConfig } from "../src/config/exemplar.js";
@@ -142,6 +143,37 @@ function getScanHelpText(): string {
   });
   scan?.outputHelp();
   return chunks.join("");
+}
+
+function getAssessHelpText(): string {
+  const program = createCliProgram();
+  const assessCommand = program.commands.find(
+    (command) => command.name() === "assess",
+  );
+  const chunks: string[] = [];
+  assessCommand?.configureOutput({
+    writeOut: (str) => {
+      chunks.push(str);
+    },
+    writeErr: (str) => {
+      chunks.push(str);
+    },
+  });
+  assessCommand?.outputHelp();
+  return chunks.join("");
+}
+
+function createAssessValidator(): (value: unknown) => boolean {
+  const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
+  const ajv = new Ajv2020({ allErrors: true });
+  ajv.addSchema(
+    JSON.parse(
+      readFileSync(join(repoRoot, "schemas/hotspot-assess.json"), "utf8"),
+    ),
+  );
+  return ajv.getSchema(
+    "https://vitals.dev/hotspot-scanner/schemas/hotspot-assess.json",
+  )!;
 }
 
 function captureStdout(): { chunks: string[]; restore: () => void } {
@@ -428,6 +460,15 @@ describe("createCliProgram", () => {
     expect(optionLongs).toContain("--format");
   });
 
+  it("assess help lists --min-hotspot-score with hotspotScore wording", () => {
+    const help = getAssessHelpText();
+
+    expect(help).toContain("--min-hotspot-score");
+    expect(help).toMatch(/hotspotScore/i);
+    expect(help).toMatch(/default:\s*"0\.7"/);
+    expect(help).toMatch(/default:\s*"20"/);
+  });
+
   it("root help mentions init and doctor commands", () => {
     const program = createCliProgram();
 
@@ -537,6 +578,7 @@ const LOCKED_COMMANDS = [
   "init",
   "doctor",
   "trend",
+  "assess",
   "scan",
   "completion",
 ] as const;
@@ -3920,7 +3962,7 @@ describe("runCli doctor", () => {
   });
 
   it("exits 1 when effective since is rejected by git", async () => {
-    const probeModule = await import("../dist/git/probe-since.js");
+    const probeModule = await import("../src/git/probe-since.js");
     vi.spyOn(probeModule, "probeSinceWindow").mockResolvedValue({
       status: "invalid",
       message: "fatal: bad since format",
@@ -3933,7 +3975,7 @@ describe("runCli doctor", () => {
   });
 
   it("exits 0 with warn when since window is empty", async () => {
-    const probeModule = await import("../dist/git/probe-since.js");
+    const probeModule = await import("../src/git/probe-since.js");
     vi.spyOn(probeModule, "probeSinceWindow").mockResolvedValue({
       status: "empty",
     });
@@ -4678,5 +4720,107 @@ describe("deferred flushWarnings lifecycle", () => {
     ]);
 
     expect(callOrder).toEqual(["write", "flush", "explain"]);
+  });
+});
+
+describe("runCli assess", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("exits 2 for invalid --min-hotspot-score", async () => {
+    captureStdout();
+
+    await expect(
+      runCli([
+        "node",
+        "hotspot-scanner",
+        "assess",
+        smallTsFixture,
+        "--min-hotspot-score",
+        "2",
+      ]),
+    ).rejects.toThrow(CliUsageError);
+  });
+
+  it("exits 2 for invalid --top", async () => {
+    captureStdout();
+
+    await expect(
+      runCli([
+        "node",
+        "hotspot-scanner",
+        "assess",
+        smallTsFixture,
+        "--top",
+        "0",
+      ]),
+    ).rejects.toThrow(CliUsageError);
+  });
+
+  it("prints json that validates against hotspot-assess schema", async () => {
+    const fixturePath = join(
+      fileURLToPath(new URL(".", import.meta.url)),
+      "../tests/fixtures/report/sample-assess-result.json",
+    );
+    const sample = JSON.parse(readFileSync(fixturePath, "utf8"));
+    const assessModule = await import("#assess");
+    vi.spyOn(assessModule, "runAssess").mockResolvedValue(sample);
+    const { chunks } = captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "assess",
+      smallTsFixture,
+      "--format",
+      "json",
+      "--no-progress",
+      "--quiet",
+    ]);
+
+    const parsed = JSON.parse(chunks.join("")) as Record<string, unknown>;
+    const validateAssess = createAssessValidator();
+    expect(validateAssess(parsed)).toBe(true);
+    expect(parsed.kind).toBe("hotspot-assess");
+    expect(parsed.version).toBe("1.0");
+  });
+
+  it("exits 130 on SIGINT during assess without writing report", async () => {
+    const stderrSpy = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    let assessStarted = false;
+    const assessModule = await import("#assess");
+    vi.spyOn(assessModule, "runAssess").mockImplementation((options) => {
+      assessStarted = true;
+      return new Promise((_resolve, reject) => {
+        options.signal?.addEventListener("abort", () => {
+          reject(new DOMException("Aborted", "AbortError"));
+        });
+      });
+    });
+    const { chunks } = captureStdout();
+
+    const runPromise = runCli([
+      "node",
+      "hotspot-scanner",
+      "assess",
+      smallTsFixture,
+      "--format",
+      "table",
+      "--no-progress",
+      "--quiet",
+    ]);
+    await vi.waitFor(() => expect(assessStarted).toBe(true));
+    const sigintListeners = process.listeners("SIGINT") as Array<() => void>;
+    sigintListeners[sigintListeners.length - 1]?.();
+
+    await expect(runPromise).rejects.toMatchObject({
+      exitCode: 130,
+      name: "ScanCancelExit",
+    });
+    expect(stderrSpy.mock.calls.join("")).toContain("assess cancelled");
+    expect(chunks.join("")).toBe("");
   });
 });

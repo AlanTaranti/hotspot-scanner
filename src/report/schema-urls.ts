@@ -3,3 +3,6 @@ export const SCAN_RESULT_SCHEMA_URL =
 
 export const COMPLEXITY_TREND_SCHEMA_URL =
   "https://vitals.dev/hotspot-scanner/schemas/complexity-trend.json";
+
+export const HOTSPOT_ASSESS_SCHEMA_URL =
+  "https://vitals.dev/hotspot-scanner/schemas/hotspot-assess.json";

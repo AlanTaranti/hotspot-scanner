@@ -14,6 +14,7 @@ Automated validation for `@vitals/hotspot-scanner` CLI. No interactive UI UAT.
 ```bash
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo>
 pnpm exec hotspot-scanner trend tests/fixtures/repos/trend-indent/src/trend.ts --since "10 years ago"
+pnpm exec hotspot-scanner assess tests/fixtures/repos/small-ts --min-hotspot-score 0.5 --top 5
 ```
 
 With flags:
@@ -52,8 +53,23 @@ See [AGENTS.md](../../../AGENTS.md) § Validation.
 | `--explain <path>`     | File-path score breakdown on stderr after report; hit prints `next: hotspot-scanner trend <path>` | —                     |
 | `--fail-on-explain-miss` | Exit `1` when explain target missing (requires `--explain`)                       | —                     |
 | `trend <file>`         | Per-file complexity trend; table shows `Pattern:` line; JSON `meta.growthPattern` required | —                     |
+| `assess [path]`        | Scan → `hotspotScore` filter → sequential trends; `--min-hotspot-score` (default `0.7`), `--top` (default `20`); JSON `kind: "hotspot-assess"` / `version: "1.0"` | —                     |
 
 Test relevant flags when the feature scope touches CLI.
+
+## Assess validation
+
+```bash
+pnpm exec hotspot-scanner assess tests/fixtures/repos/small-ts --min-hotspot-score 0.5 --top 5
+pnpm exec hotspot-scanner assess tests/fixtures/repos/small-ts --format json --min-hotspot-score 0.5 --top 5
+```
+
+Checks:
+
+- Exit `0` on success (including partial per-file trend failures)
+- Table shows summary pattern counts; detail only for `deteriorating`
+- JSON `version` is `"1.0"`, `kind` is `"hotspot-assess"`; candidates have no `points` arrays
+- `--min-hotspot-score` outside `[0, 1]` or `--top` `0` → exit `2`
 
 ## Trend validation
 

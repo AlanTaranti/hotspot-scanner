@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vitals.dev/hotspot-scanner/schemas/hotspot-assess.json",
+  "title": "AssessResult",
+  "description": "Hotspot assess output from hotspot-scanner assess command.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["version", "kind", "meta", "candidates"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "kind": {
+      "type": "string",
+      "const": "hotspot-assess"
+    },
+    "meta": { "$ref": "#/$defs/AssessMeta" },
+    "candidates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/AssessCandidate" }
+    }
+  },
+  "$defs": {
+    "DiagnosticSeverity": {
+      "type": "string",
+      "enum": ["info", "warning", "error"]
+    },
+    "ScanWarning": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["severity", "message"],
+      "properties": {
+        "severity": { "$ref": "#/$defs/DiagnosticSeverity" },
+        "message": { "type": "string" },
+        "code": { "type": "string" }
+      }
+    },
+    "GrowthPattern": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["kind", "summary"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["deteriorating", "refactored", "stable", "inconclusive"]
+        },
+        "summary": { "type": "string" },
+        "indentMeanDeltaRel": { "type": "number" },
+        "nclocDeltaRel": { "type": "number" },
+        "peakRev": { "type": "string" }
+      }
+    },
+    "AssessCandidateStatus": {
+      "type": "string",
+      "enum": ["ok", "skipped", "error"]
+    },
+    "AssessCandidate": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["filePath", "hotspotScore", "status"],
+      "properties": {
+        "filePath": { "type": "string" },
+        "hotspotScore": { "type": "number" },
+        "ncloc": { "type": "number" },
+        "commitCount": { "type": "integer" },
+        "status": { "$ref": "#/$defs/AssessCandidateStatus" },
+        "growthPattern": { "$ref": "#/$defs/GrowthPattern" },
+        "revisionCount": { "type": "integer", "minimum": 0 },
+        "truncated": { "type": "boolean" },
+        "message": { "type": "string" }
+      }
+    },
+    "AssessPatternCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["deteriorating", "refactored", "stable", "inconclusive"],
+      "properties": {
+        "deteriorating": { "type": "integer", "minimum": 0 },
+        "refactored": { "type": "integer", "minimum": 0 },
+        "stable": { "type": "integer", "minimum": 0 },
+        "inconclusive": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "AssessTimings": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["totalMs"],
+      "properties": {
+        "totalMs": { "type": "number", "minimum": 0 },
+        "scanMs": { "type": "number", "minimum": 0 },
+        "trendMs": { "type": "number", "minimum": 0 }
+      }
+    },
+    "AssessMeta": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "repoPath",
+        "since",
+        "minHotspotScore",
+        "top",
+        "scannedHotspotCount",
+        "candidateCount",
+        "patternCounts",
+        "skippedCount",
+        "errorCount",
+        "scannerVersion"
+      ],
+      "properties": {
+        "repoPath": { "type": "string" },
+        "since": { "type": "string" },
+        "minHotspotScore": { "type": "number" },
+        "top": { "type": "integer", "minimum": 1 },
+        "scannedHotspotCount": { "type": "integer", "minimum": 0 },
+        "candidateCount": { "type": "integer", "minimum": 0 },
+        "patternCounts": { "$ref": "#/$defs/AssessPatternCounts" },
+        "skippedCount": { "type": "integer", "minimum": 0 },
+        "errorCount": { "type": "integer", "minimum": 0 },
+        "scannerVersion": { "type": "string" },
+        "warnings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ScanWarning" }
+        },
+        "timings": { "$ref": "#/$defs/AssessTimings" }
+      }
+    }
+  }
+}
