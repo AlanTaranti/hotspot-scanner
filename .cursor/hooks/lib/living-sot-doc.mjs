@@ -1,24 +1,6 @@
 /**
- * Lint helpers for living SoT docs under .specs/codebase/ and .specs/project/
- * (ARCHITECTURE Design SoT + CONCERNS fragile-risk SoT + CONVENTIONS coding SoT
- * + INTEGRATIONS adapter SoT + STACK inventory SoT + STRUCTURE layout SoT
- * + TESTING infrastructure SoT + PROJECT product-vision SoT
- * + ROADMAP milestone-tracker SoT + STATE session-memory SoT
- * + AGENTS index/policies SoT + CONTRIBUTING contribute-guide SoT
- * + README adoption SoT).
- * @see .cursor/rules/architecture-sot.mdc
- * @see .cursor/rules/concerns-sot.mdc
- * @see .cursor/rules/conventions-sot.mdc
- * @see .cursor/rules/integrations-sot.mdc
- * @see .cursor/rules/stack-sot.mdc
- * @see .cursor/rules/structure-sot.mdc
- * @see .cursor/rules/testing-sot.mdc
- * @see .cursor/rules/project-sot.mdc
- * @see .cursor/rules/roadmap-sot.mdc
- * @see .cursor/rules/state-sot.mdc
- * @see .cursor/rules/agents-sot.mdc
- * @see .cursor/rules/contributing-sot.mdc
- * @see .cursor/rules/readme-sot.mdc
+ * Lint helpers for living SoT docs. Ownership matrix SoT:
+ * `.specs/codebase/DOC-OWNERSHIP.md`. Per-file Forbidden patterns: `*-sot.mdc` / `docs-sot.mdc`.
  */
 
 export const ARCHITECTURE_REL_PATH = ".specs/codebase/ARCHITECTURE.md";
@@ -28,12 +10,17 @@ export const INTEGRATIONS_REL_PATH = ".specs/codebase/INTEGRATIONS.md";
 export const STACK_REL_PATH = ".specs/codebase/STACK.md";
 export const STRUCTURE_REL_PATH = ".specs/codebase/STRUCTURE.md";
 export const TESTING_REL_PATH = ".specs/codebase/TESTING.md";
+export const DOC_OWNERSHIP_REL_PATH = ".specs/codebase/DOC-OWNERSHIP.md";
 export const PROJECT_REL_PATH = ".specs/project/PROJECT.md";
 export const ROADMAP_REL_PATH = ".specs/project/ROADMAP.md";
 export const STATE_REL_PATH = ".specs/project/STATE.md";
 export const AGENTS_REL_PATH = "AGENTS.md";
 export const CONTRIBUTING_REL_PATH = "CONTRIBUTING.md";
 export const README_REL_PATH = "README.md";
+export const DOCS_CLI_REFERENCE_REL_PATH = "docs/cli-reference.md";
+export const DOCS_RECIPES_REL_PATH = "docs/recipes.md";
+export const DOCS_METHODOLOGY_REL_PATH = "docs/methodology.md";
+export const DOCS_WARNING_CODES_REL_PATH = "docs/warning-codes.md";
 
 /** Soft size warning for ARCHITECTURE (~context-limits warning band). Smoke does not fail on size. */
 export const LINE_WARN = 450;
@@ -250,7 +237,7 @@ export function lintConventionsDoc(text) {
 }
 
 /**
- * AGENTS bans milestone tags only — HOTSPOT-* naming prefix is allowed (agents-sot.mdc).
+ * AGENTS is index-only — bans milestone tags + normative exit-code tables (agents-sot.mdc).
  * @param {string} text
  * @returns {{ bannedMatches: string[], lineCount: number, overSize: boolean }}
  */
@@ -262,12 +249,40 @@ export function lintAgentsDoc(text) {
   while ((match = MILESTONE_RE.exec(source)) !== null) {
     banned.add(match[0]);
   }
+  if (/^\|\s*Exit code\s*\|/m.test(source)) {
+    banned.add("Exit code table");
+  }
   const lineCount = source.length === 0 ? 0 : source.split(/\r?\n/).length;
   return {
     bannedMatches: [...banned].sort(),
     lineCount,
     overSize: lineCount > AGENTS_LINE_WARN,
   };
+}
+
+/**
+ * DOC-OWNERSHIP bans milestone tags only (present-tense ownership matrix).
+ * @param {string} text
+ * @returns {{ bannedMatches: string[] }}
+ */
+export function lintDocOwnershipDoc(text) {
+  const source = typeof text === "string" ? text : "";
+  const banned = new Set();
+  MILESTONE_RE.lastIndex = 0;
+  let match;
+  while ((match = MILESTONE_RE.exec(source)) !== null) {
+    banned.add(match[0]);
+  }
+  return { bannedMatches: [...banned].sort() };
+}
+
+/**
+ * docs/* user docs — ban milestone tags / changelog voice (docs-sot.mdc).
+ * @param {string} text
+ * @returns {{ bannedMatches: string[] }}
+ */
+export function lintDocsUserDoc(text) {
+  return lintDocOwnershipDoc(text);
 }
 
 /**
@@ -485,28 +500,239 @@ export function isReadmeDocPath(relPath) {
   return isCodebaseDocPath(relPath, "README.md", README_REL_PATH);
 }
 
-export const ARCHITECTURE_SOT_CONTEXT = `ARCHITECTURE.md is the Design SoT (.cursor/rules/architecture-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/sister-milestone voice. Allowed: ADR-*, RT-*, present-tense modules/pipelines/contracts. Milestone history → ROADMAP + .specs/features/; decisions/deferred/blockers → STATE.`;
+/**
+ * @param {string | null | undefined} relPath
+ * @returns {boolean}
+ */
+export function isDocOwnershipDocPath(relPath) {
+  return isCodebaseDocPath(relPath, "DOC-OWNERSHIP.md", DOC_OWNERSHIP_REL_PATH);
+}
 
-export const CONCERNS_SOT_CONTEXT = `CONCERNS.md is the fragile-risk SoT (.cursor/rules/concerns-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/superseded voice. Allowed: RT-*, present-tense risk→mitigation→test expectations. Milestone history → ROADMAP + .specs/features/; decisions/deferred/blockers → STATE.`;
+/**
+ * Any file under docs/ (user docs).
+ * @param {string | null | undefined} relPath
+ * @returns {boolean}
+ */
+export function isDocsUserDocPath(relPath) {
+  if (!relPath || typeof relPath !== "string") return false;
+  const n = relPath.replace(/\\/g, "/");
+  return n === "docs" || n.startsWith("docs/");
+}
 
-export const INTEGRATIONS_SOT_CONTEXT = `INTEGRATIONS.md is the external-adapter SoT (.cursor/rules/integrations-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/removed-in voice. Allowed: present-tense Role/Adapter/Rule/Failure/Tests; links to ARCHITECTURE/CONCERNS/TESTING. Milestone history → ROADMAP + .specs/features/; decisions/deferred/blockers → STATE.`;
+const OWN = "Ownership → .specs/codebase/DOC-OWNERSHIP.md";
 
-export const STACK_SOT_CONTEXT = `STACK.md is the technology-stack SoT (.cursor/rules/stack-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/provenance voice, adapter encyclopedias. Allowed: present-tense runtime/deps/publish inventory; negative “not in stack”; short pointers. Milestone history → ROADMAP + .specs/features/; decisions/deferred/blockers → STATE.`;
+export const ARCHITECTURE_SOT_CONTEXT = `ARCHITECTURE.md Design SoT (.cursor/rules/architecture-sot.mdc). Forbidden: M##, HOTSPOT-*, changelog voice. ${OWN}`;
 
-export const STRUCTURE_SOT_CONTEXT = `STRUCTURE.md is the directory-layout / public-API map SoT (.cursor/rules/structure-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/provenance voice, CLI flag laundry lists, fixture methodology. Allowed: present-tense trees, Path|Role map, where-things-live, public exports; short pointers. Milestone history → ROADMAP + .specs/features/; decisions/deferred/blockers → STATE.`;
+export const CONCERNS_SOT_CONTEXT = `CONCERNS.md fragile-risk SoT (.cursor/rules/concerns-sot.mdc). Forbidden: M##, HOTSPOT-*, changelog voice. ${OWN}`;
 
-export const TESTING_SOT_CONTEXT = `TESTING.md is the testing-infrastructure SoT (.cursor/rules/testing-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/provenance voice, schema encyclopedias, fragile-risk catalogs, exit-code tables. Allowed: present-tense runner/fixtures/coverage/gates/mock boundaries; short pointers. Milestone history → ROADMAP + .specs/features/; decisions/deferred/blockers → STATE.`;
+export const INTEGRATIONS_SOT_CONTEXT = `INTEGRATIONS.md adapter SoT (.cursor/rules/integrations-sot.mdc). Forbidden: M##, HOTSPOT-*, changelog voice. ${OWN}`;
 
-export const CONVENTIONS_SOT_CONTEXT = `CONVENTIONS.md is the coding-conventions SoT (.cursor/rules/conventions-sot.mdc). Forbidden: milestone tags (M##), changelog/STATE provenance voice. Allowed: HOTSPOT-* as naming prefix, ADR-*, present-tense naming/imports/build/lint. Milestone history → ROADMAP + .specs/features/; decisions/deferred/blockers → STATE. Package publish facts → STACK.`;
+export const STACK_SOT_CONTEXT = `STACK.md technology-stack SoT (.cursor/rules/stack-sot.mdc). Forbidden: M##, HOTSPOT-*, changelog voice, adapter encyclopedias. ${OWN}`;
 
-export const PROJECT_SOT_CONTEXT = `PROJECT.md is the product-vision SoT (.cursor/rules/project-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/through-M voice, CLI flag laundry lists, deferred inventories. Allowed: present-tense vision/goals/constraints/capability scope; JSON version table; short pointers. Milestone history → ROADMAP + .specs/features/; decisions/deferred/blockers → STATE.`;
+export const STRUCTURE_SOT_CONTEXT = `STRUCTURE.md layout/API SoT (.cursor/rules/structure-sot.mdc). Forbidden: M##, HOTSPOT-*, changelog voice, CLI laundry lists. ${OWN}`;
 
-export const ROADMAP_SOT_CONTEXT = `ROADMAP.md is the milestone-tracker SoT (.cursor/rules/roadmap-sot.mdc). Forbidden: Artifacts/Sisters/HOTSPOT-*/Out of scope/Final gate/Suggested execution order/Further horizon Deferred lists/task checkboxes/Post-* backlog dumps. Allowed: M##, Current table, Done summary, lean Archive entries (link + outcome + ≤5 bullets). Detail → .specs/features/; deferred → STATE.`;
+export const TESTING_SOT_CONTEXT = `TESTING.md testing-infra SoT (.cursor/rules/testing-sot.mdc). Forbidden: M##, HOTSPOT-*, changelog voice, exit-code tables. ${OWN}`;
 
-export const STATE_SOT_CONTEXT = `STATE.md is the session-memory SoT (.cursor/rules/state-sot.mdc). Forbidden: Execute complete / Specs Planned / Gate green / Next: M## / Superseded by M## Done / HOTSPOT-* laundry / Deferred M## Done leftovers. Allowed: lasting locks (M## ok), ADRs, open Deferred, short Active, Lessons. Milestone status → ROADMAP + .specs/features/; archive dumps → STATE-ARCHIVE.`;
+export const CONVENTIONS_SOT_CONTEXT = `CONVENTIONS.md coding-conventions SoT (.cursor/rules/conventions-sot.mdc). Forbidden: M##, changelog voice. HOTSPOT-* naming prefix allowed. ${OWN}`;
 
-export const AGENTS_SOT_CONTEXT = `AGENTS.md is the agent index/policies SoT (.cursor/rules/agents-sot.mdc). Forbidden: milestone tags (M##), changelog voice, CLI example dumps, Design SoT / fragile catalogs. Allowed: HOTSPOT-* naming prefix, present-tense policies, exit-code table, skills/agents inventory, short pointers. Module map → vitals-project/STRUCTURE; flag encyclopedias → docs/cli-reference.md; adoption → README; milestones → ROADMAP + .specs/features/.`;
+export const PROJECT_SOT_CONTEXT = `PROJECT.md product-vision SoT (.cursor/rules/project-sot.mdc). Forbidden: M##, HOTSPOT-*, changelog voice, flag laundry lists. ${OWN}`;
 
-export const CONTRIBUTING_SOT_CONTEXT = `CONTRIBUTING.md is the human contribute-guide SoT (.cursor/rules/contributing-sot.mdc). Forbidden: milestone tags (M##), directory trees, Coverage thresholds sections, exit-code tables / != 0 shorthand, ## Architecture boundaries, ## Fragile areas risk dumps. Allowed: setup/gate/DX, contribute workflow, HOTSPOT-* naming in feature guidance, Documentation map of links. Detail → STRUCTURE/TESTING/INTEGRATIONS/CONCERNS/AGENTS.`;
+export const ROADMAP_SOT_CONTEXT = `ROADMAP.md milestone-tracker SoT (.cursor/rules/roadmap-sot.mdc). Forbidden: Artifacts/HOTSPOT/Out of scope/Final gate/task checkboxes. M## allowed. ${OWN}`;
 
-export const README_SOT_CONTEXT = `README.md is the adoption / first-run SoT (.cursor/rules/readme-sot.mdc). Forbidden: ## Advanced / ## Features dumps, Pipeline detail / Performance and diagnostics / Rename confidence / Command synopsis encyclopedia headings, milestone tags (M##), full flag laundry lists. Allowed: quick start, essential flags, short config/API, exit codes, Documentation hub. Flag encyclopedias → docs/cli-reference.md; cookbooks → docs/recipes.md; methodology → docs/methodology.md; warning codes → docs/warning-codes.md.`;
+export const STATE_SOT_CONTEXT = `STATE.md session-memory SoT (.cursor/rules/state-sot.mdc). Forbidden: Execute complete / Specs Planned / Gate green / Next: M##. M## ok in locks. ${OWN}`;
+
+export const AGENTS_SOT_CONTEXT = `AGENTS.md agent index only (.cursor/rules/agents-sot.mdc). Forbidden: M##, exit-code tables, normative gate/commit/YAGNI prose. Allowed: inventory + pointers to policy SoTs. ${OWN}`;
+
+export const CONTRIBUTING_SOT_CONTEXT = `CONTRIBUTING.md contribute-guide SoT (.cursor/rules/contributing-sot.mdc). Forbidden: M##, directory trees, Coverage thresholds, exit-code tables, Architecture boundaries / Fragile areas dumps. ${OWN}`;
+
+export const README_SOT_CONTEXT = `README.md adoption SoT (.cursor/rules/readme-sot.mdc). Forbidden: ## Advanced/Features, encyclopedia headings, M##, full flag lists. Exit codes SoT → docs/cli-reference.md. ${OWN}`;
+
+export const DOC_OWNERSHIP_SOT_CONTEXT = `DOC-OWNERSHIP.md is the ownership-matrix SoT. Forbidden: M## changelog voice. Keep present-tense destination rows only.`;
+
+export const DOCS_SOT_CONTEXT = `docs/* user docs (.cursor/rules/docs-sot.mdc). Forbidden: M## changelog voice. Roles: cli-reference encyclopedia + exit codes; recipes cookbooks; methodology; warning-codes. ${OWN}`;
+
+/**
+ * Shared registry for pre/post edit guards (table-driven SoT lint).
+ * @typedef {{
+ *   id: string,
+ *   isPath: (relPath: string | null | undefined) => boolean,
+ *   relPath: string,
+ *   lint: (text: string) => { bannedMatches: string[], lineCount?: number, overSize?: boolean },
+ *   sotContext: string,
+ *   bannedLabel: string,
+ *   preEditAsk: (matches: string[]) => string,
+ *   lineWarn?: number,
+ *   sizeHint?: string,
+ * }} LivingSotEntry
+ */
+
+/** @type {LivingSotEntry[]} */
+export const LIVING_SOT_ENTRIES = [
+  {
+    id: "architecture",
+    isPath: isArchitectureDocPath,
+    relPath: ARCHITECTURE_REL_PATH,
+    lint: lintArchitectureDoc,
+    sotContext: ARCHITECTURE_SOT_CONTEXT,
+    bannedLabel: "Forbidden tags still present",
+    preEditAsk: (m) =>
+      `ARCHITECTURE.md edit introduces forbidden tags (${m.join(", ")}). Remove milestone/HOTSPOT changelog voice or confirm intentional exception.`,
+    lineWarn: LINE_WARN,
+    sizeHint: "Slim UX/history; keep modules/pipelines/contracts only.",
+  },
+  {
+    id: "concerns",
+    isPath: isConcernsDocPath,
+    relPath: CONCERNS_REL_PATH,
+    lint: lintConcernsDoc,
+    sotContext: CONCERNS_SOT_CONTEXT,
+    bannedLabel: "Forbidden tags still present",
+    preEditAsk: (m) =>
+      `CONCERNS.md edit introduces forbidden tags (${m.join(", ")}). Remove milestone/HOTSPOT changelog voice or confirm intentional exception.`,
+  },
+  {
+    id: "integrations",
+    isPath: isIntegrationsDocPath,
+    relPath: INTEGRATIONS_REL_PATH,
+    lint: lintIntegrationsDoc,
+    sotContext: INTEGRATIONS_SOT_CONTEXT,
+    bannedLabel: "Forbidden tags still present",
+    preEditAsk: (m) =>
+      `INTEGRATIONS.md edit introduces forbidden tags (${m.join(", ")}). Remove milestone/HOTSPOT changelog voice or confirm intentional exception.`,
+  },
+  {
+    id: "stack",
+    isPath: isStackDocPath,
+    relPath: STACK_REL_PATH,
+    lint: lintStackDoc,
+    sotContext: STACK_SOT_CONTEXT,
+    bannedLabel: "Forbidden tags still present",
+    preEditAsk: (m) =>
+      `STACK.md edit introduces forbidden tags (${m.join(", ")}). Remove milestone/HOTSPOT changelog voice or confirm intentional exception.`,
+  },
+  {
+    id: "structure",
+    isPath: isStructureDocPath,
+    relPath: STRUCTURE_REL_PATH,
+    lint: lintStructureDoc,
+    sotContext: STRUCTURE_SOT_CONTEXT,
+    bannedLabel: "Forbidden tags still present",
+    preEditAsk: (m) =>
+      `STRUCTURE.md edit introduces forbidden tags (${m.join(", ")}). Remove milestone/HOTSPOT changelog voice or confirm intentional exception.`,
+  },
+  {
+    id: "testing",
+    isPath: isTestingDocPath,
+    relPath: TESTING_REL_PATH,
+    lint: lintTestingDoc,
+    sotContext: TESTING_SOT_CONTEXT,
+    bannedLabel: "Forbidden tags still present",
+    preEditAsk: (m) =>
+      `TESTING.md edit introduces forbidden tags (${m.join(", ")}). Remove milestone/HOTSPOT changelog voice or confirm intentional exception.`,
+  },
+  {
+    id: "conventions",
+    isPath: isConventionsDocPath,
+    relPath: CONVENTIONS_REL_PATH,
+    lint: lintConventionsDoc,
+    sotContext: CONVENTIONS_SOT_CONTEXT,
+    bannedLabel: "Forbidden tags still present",
+    preEditAsk: (m) =>
+      `CONVENTIONS.md edit introduces forbidden tags (${m.join(", ")}). Remove milestone changelog voice or confirm intentional exception.`,
+  },
+  {
+    id: "project",
+    isPath: isProjectDocPath,
+    relPath: PROJECT_REL_PATH,
+    lint: lintProjectDoc,
+    sotContext: PROJECT_SOT_CONTEXT,
+    bannedLabel: "Forbidden tags still present",
+    preEditAsk: (m) =>
+      `PROJECT.md edit introduces forbidden tags (${m.join(", ")}). Remove milestone/HOTSPOT changelog voice or confirm intentional exception.`,
+  },
+  {
+    id: "roadmap",
+    isPath: isRoadmapDocPath,
+    relPath: ROADMAP_REL_PATH,
+    lint: lintRoadmapDoc,
+    sotContext: ROADMAP_SOT_CONTEXT,
+    bannedLabel: "Forbidden drift patterns still present",
+    preEditAsk: (m) =>
+      `ROADMAP.md edit introduces forbidden drift patterns (${m.join(", ")}). Use lean milestone template (roadmap-sot) or confirm intentional exception.`,
+    lineWarn: ROADMAP_LINE_WARN,
+    sizeHint:
+      "Keep lean Archive entries (roadmap-sot); detail stays in .specs/features/.",
+  },
+  {
+    id: "state",
+    isPath: isStateDocPath,
+    relPath: STATE_REL_PATH,
+    lint: lintStateDoc,
+    sotContext: STATE_SOT_CONTEXT,
+    bannedLabel: "Forbidden execute-log drift still present",
+    preEditAsk: (m) =>
+      `STATE.md edit introduces forbidden execute-log drift (${m.join(", ")}). Keep lasting locks only (state-sot) or confirm intentional exception.`,
+    lineWarn: STATE_LINE_WARN,
+    sizeHint:
+      "Keep lasting locks only (state-sot); Execute dumps → STATE-ARCHIVE.",
+  },
+  {
+    id: "agents",
+    isPath: isAgentsDocPath,
+    relPath: AGENTS_REL_PATH,
+    lint: lintAgentsDoc,
+    sotContext: AGENTS_SOT_CONTEXT,
+    bannedLabel: "Forbidden tags still present",
+    preEditAsk: (m) =>
+      `AGENTS.md edit introduces forbidden tags (${m.join(", ")}). Keep index-only (agents-sot) or confirm intentional exception.`,
+    lineWarn: AGENTS_LINE_WARN,
+    sizeHint:
+      "Keep lean index only (agents-sot); policies → quality-gates / commit-policy / coding-guidelines / cli-reference.",
+  },
+  {
+    id: "contributing",
+    isPath: isContributingDocPath,
+    relPath: CONTRIBUTING_REL_PATH,
+    lint: lintContributingDoc,
+    sotContext: CONTRIBUTING_SOT_CONTEXT,
+    bannedLabel: "Forbidden SoT-mirror content still present",
+    preEditAsk: (m) =>
+      `CONTRIBUTING.md edit introduces forbidden SoT-mirror content (${m.join(", ")}). Link STRUCTURE/TESTING/INTEGRATIONS/CONCERNS/cli-reference instead or confirm intentional exception.`,
+    lineWarn: CONTRIBUTING_LINE_WARN,
+    sizeHint:
+      "Keep thin contribute guide only (contributing-sot); detail → STRUCTURE / TESTING / INTEGRATIONS / CONCERNS / cli-reference.",
+  },
+  {
+    id: "readme",
+    isPath: isReadmeDocPath,
+    relPath: README_REL_PATH,
+    lint: lintReadmeDoc,
+    sotContext: README_SOT_CONTEXT,
+    bannedLabel: "Forbidden adoption-SoT drift still present",
+    preEditAsk: (m) =>
+      `README.md edit introduces forbidden adoption-SoT drift (${m.join(", ")}). Put encyclopedias in docs/cli-reference.md (workflows in docs/recipes.md) or confirm intentional exception.`,
+    lineWarn: README_LINE_WARN,
+    sizeHint:
+      "Keep adoption/first-run only (readme-sot); encyclopedias → docs/cli-reference.md; cookbooks → docs/recipes.md.",
+  },
+  {
+    id: "doc-ownership",
+    isPath: isDocOwnershipDocPath,
+    relPath: DOC_OWNERSHIP_REL_PATH,
+    lint: lintDocOwnershipDoc,
+    sotContext: DOC_OWNERSHIP_SOT_CONTEXT,
+    bannedLabel: "Forbidden tags still present",
+    preEditAsk: (m) =>
+      `DOC-OWNERSHIP.md edit introduces forbidden tags (${m.join(", ")}). Keep present-tense ownership rows only or confirm intentional exception.`,
+  },
+  {
+    id: "docs",
+    isPath: isDocsUserDocPath,
+    relPath: "docs/",
+    lint: lintDocsUserDoc,
+    sotContext: DOCS_SOT_CONTEXT,
+    bannedLabel: "Forbidden tags still present",
+    preEditAsk: (m) =>
+      `docs/ edit introduces forbidden tags (${m.join(", ")}). Remove milestone changelog voice (docs-sot) or confirm intentional exception.`,
+  },
+];

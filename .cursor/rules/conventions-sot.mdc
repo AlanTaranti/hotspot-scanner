@@ -6,41 +6,26 @@ alwaysApply: false
 
 # Conventions Coding SoT
 
-[`.specs/codebase/CONVENTIONS.md`](../../.specs/codebase/CONVENTIONS.md) is the **coding-conventions SoT**: naming, ESM/import style, build dual-tsconfig rules, lint/format scripts, and agent commit policy.
+[`.specs/codebase/CONVENTIONS.md`](../../.specs/codebase/CONVENTIONS.md) is the **coding-conventions SoT**: naming, ESM/import style, dual-tsconfig, lint/format scripts.
 
-It is **not** a changelog, stack/publish inventory, UX cookbook, or milestone tracker.
+It is **not** a changelog, stack/publish inventory, or UX cookbook.
 
-## Ownership matrix
-
-| Change type | Destination |
-| ----------- | ----------- |
-| Naming, ESM, `#` imports, bin import rule, build dual-tsconfig, lint/format scripts, commits | **CONVENTIONS.md** |
-| Package `files` / `engines` / exports / dependency inventory | **STACK.md** |
-| Color ownership / pipelines / contracts | **ARCHITECTURE.md** |
-| Adoption pitch, essential flags | **README** |
-| Flag encyclopedia, colors / progress detail | **`docs/cli-reference.md`** |
-| Cookbooks / workflows | **`docs/recipes.md`** |
-| Coverage / Vitest patterns | **TESTING.md** |
-| Milestone status, feature history | **ROADMAP.md** / `.specs/features/` |
-| Decisions, deferred ideas, blockers | **STATE.md** |
+**Ownership:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md).
 
 ## Forbidden in CONVENTIONS.md
 
-- Milestone tags: `\bM\d+\b` (e.g. `M24`, `M71`)
-- Changelog / provenance voice: “shipped in M…”, “STATE decision”, Execute ownership by milestone number
-- Package publish facts that belong in STACK (`files`, `engines`)
-- UX encyclopedias (per-surface color resolvers, flag laundry lists)
+- Milestone tags: `\bM\d+\b`
+- Changelog / provenance voice (“shipped in M…”, “STATE decision”)
+- Package publish facts (→ STACK); UX encyclopedias (→ cli-reference)
 
 ## Allowed
 
-- `HOTSPOT-*` as a **naming convention** (prefix pattern for requirement IDs — not feature-trace IDs in prose)
-- `ADR-*`
-- Present-tense coding conventions and short pointers to ARCHITECTURE / AGENTS / CONTRIBUTING / STACK
+- `HOTSPOT-*` as a **naming convention** prefix pattern; `ADR-*`
+- Present-tense coding conventions; pointers to ARCHITECTURE / AGENTS / CONTRIBUTING / STACK / commit-policy
 
 ## Sync rule
 
-When living docs change after Execute:
+1. Update only when coding conventions change — do not append feature provenance.
+2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → ROADMAP/STATE/feature specs.
 
-1. Update CONVENTIONS only when **coding conventions** change (naming, imports, build, lint scripts) — do not append feature provenance.
-2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → wrong file (use ROADMAP/STATE/feature specs).
-3. Feature `design.md` / `tasks.md` may keep M##; extract only lasting conventions into CONVENTIONS.
+Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintConventionsDoc`.

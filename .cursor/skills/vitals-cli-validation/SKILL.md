@@ -29,15 +29,7 @@ pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo> --format json --outpu
 
 ## Exit codes
 
-| Code   | Meaning                                                                 |
-| ------ | ----------------------------------------------------------------------- |
-| `0`    | Scan completed successfully                                             |
-| `1`    | `--fail-on-explain-miss` with missing `--explain` target                |
-| `2`    | Invalid CLI args, config errors, or usage (including unknown removed `compare` / `baseline` / `--baseline` / `--strict`) |
-| `130`  | Cancelled by `SIGINT`                                                   |
-| `143`  | Cancelled by `SIGTERM`                                                  |
-
-See [AGENTS.md](../../../AGENTS.md) § Validation.
+Canonical table: [docs/cli-reference.md → Exit codes](../../../docs/cli-reference.md#exit-codes). Index: [AGENTS.md](../../../AGENTS.md).
 
 ## Flag matrix
 

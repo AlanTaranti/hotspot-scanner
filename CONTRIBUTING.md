@@ -2,7 +2,7 @@
 
 Thank you for your interest in contributing. This guide covers local setup, the quality gate, and how to open a pull request.
 
-**Audience:** human contributors. For AI agent policies, skills, and exit-code detail, see [AGENTS.md](AGENTS.md). Do not mirror STRUCTURE, TESTING, INTEGRATIONS, CONCERNS, or the AGENTS exit-code table here — link those SoTs instead.
+**Audience:** human contributors. For AI agent index and policy pointers, see [AGENTS.md](AGENTS.md). Exit codes: [docs/cli-reference.md](docs/cli-reference.md#exit-codes). Do not mirror STRUCTURE, TESTING, INTEGRATIONS, CONCERNS, or the exit-code table here — link those SoTs instead.
 
 **@vitals/hotspot-scanner** is a local CLI that ranks TypeScript/JavaScript maintenance hotspots from NCLOC and Git churn (file-level). Design source of truth: [.specs/codebase/ARCHITECTURE.md](.specs/codebase/ARCHITECTURE.md).
 
@@ -38,7 +38,7 @@ This is the required acceptance bar for all contributions. There is no CI pipeli
 
 ### Recommended local checks (optional)
 
-These scripts help catch issues earlier; they are **not** part of the required Done gate in AGENTS.md:
+These scripts help catch issues earlier; they are **not** part of the required Done gate in [quality-gates.mdc](.cursor/rules/quality-gates.mdc):
 
 ```bash
 pnpm typecheck    # TypeScript for src/ and bin/ without emit
@@ -57,7 +57,7 @@ pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts
 pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts --since "12 months ago" --format json
 ```
 
-Exit codes: see [AGENTS.md](AGENTS.md) § Validation (CLI).
+Exit codes: see [docs/cli-reference.md](docs/cli-reference.md#exit-codes).
 
 When adding or renaming long flags, keep the bash, zsh, and fish scripts from `hotspot-scanner completion` aligned (same coverage across all three shells) and update related tests.
 

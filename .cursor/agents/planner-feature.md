@@ -23,7 +23,7 @@ You are the **Feature Planner** for @vitals/hotspot-scanner. You produce specs a
 2. References per scope: [specify.md](../skills/vitals-spec-driven/references/specify.md) → [design.md](../skills/vitals-spec-driven/references/design.md) → [tasks.md](../skills/vitals-spec-driven/references/tasks.md)
 3. Rule [`.cursor/rules/feature-planning.mdc`](../rules/feature-planning.mdc)
 4. Design SoT: [`.specs/codebase/ARCHITECTURE.md`](../../.specs/codebase/ARCHITECTURE.md)
-5. Project overlay: [vitals-project.md](../skills/vitals-spec-driven/references/vitals-project.md) + [AGENTS.md](../../AGENTS.md)
+5. Project overlay: [vitals-project.md](../skills/vitals-common/references/vitals-project.md) + [AGENTS.md](../../AGENTS.md) (+ skill `vitals-common` on demand)
 6. Existing specs in `.specs/features/` for patterns
 7. **Session boundary:** [planning-session-boundary.md](../skills/vitals-spec-driven/references/planning-session-boundary.md) — **MUST** read; this agent ends at Tasks with Status `Planned`
 8. [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md) — gate commands and coverage thresholds before planning test tasks
@@ -41,10 +41,10 @@ For **Large** or **Complex** features (per vitals-spec-driven auto-sizing):
 ## Hard constraints
 
 - Do not write TypeScript implementation or test code — planning artifacts only.
-- YAGNI / IDs / commit: [AGENTS.md](../../AGENTS.md) (`HOTSPOT-*`).
-- Every medium/large feature task must have clear acceptance criteria, **Done when**, **Tests**, and **Gate** (`pnpm build && pnpm test` or a narrower per-task gate).
-- Run **Check 5: Path Conflict** per [tasks.md](../skills/vitals-spec-driven/references/tasks.md) § Validate Before Presenting — one task = one module owner when possible ([implementer-routing.md](../skills/vitals-spec-driven/references/implementer-routing.md)).
-- Sync [ROADMAP.md](../../.specs/project/ROADMAP.md) and [STATE.md](../../.specs/project/STATE.md) when planning completes — ROADMAP entry must follow [roadmap-sot.mdc](../rules/roadmap-sot.mdc) / [roadmap-sync.md](../skills/vitals-spec-driven/references/roadmap-sync.md) (lean template: link + outcome + ≤5 bullets; **no** Artifacts / `HOTSPOT-*` / Out of scope / task checkboxes).
+- YAGNI / commit / IDs: [coding-guidelines](../skills/coding-guidelines/SKILL.md), [commit-policy.mdc](../rules/commit-policy.mdc), [feature-planning.mdc](../rules/feature-planning.mdc) (`HOTSPOT-*`).
+- Every medium/large feature task must have clear acceptance criteria, **Done when**, **Tests**, and **Gate** (project gate per [quality-gates.mdc](../rules/quality-gates.mdc) or a narrower per-task gate).
+- Run **Check 5: Path Conflict** per [tasks.md](../skills/vitals-spec-driven/references/tasks.md) § Validate Before Presenting — one task = one module owner when possible ([implementer-routing.md](../skills/vitals-common/references/implementer-routing.md)).
+- Sync [ROADMAP.md](../../.specs/project/ROADMAP.md) and [STATE.md](../../.specs/project/STATE.md) when planning completes — ROADMAP entry must follow [roadmap-sot.mdc](../rules/roadmap-sot.mdc) / [roadmap-sync.md](../skills/vitals-common/references/roadmap-sync.md) (lean template: link + outcome + ≤5 bullets; **no** Artifacts / `HOTSPOT-*` / Out of scope / task checkboxes).
 
 ## Hard stop — end of planning session
 

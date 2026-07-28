@@ -4,7 +4,7 @@
 
 **Applies when:** invoked by `orchestrator-implementer` with `orchestrated: true` in the prompt.
 
-**Routing:** [implementer-routing.md](implementer-routing.md) — canonical; do not duplicate tables inline.
+**Routing:** [implementer-routing.md](../../vitals-common/references/implementer-routing.md) — canonical; do not duplicate tables inline.
 
 ---
 
@@ -31,13 +31,13 @@
 - `git add` / `git commit` / `git push` unless the user explicitly asked in this session.
 - Edit `tasks.md` checkboxes, feature **Status**, or `ROADMAP.md` — the orchestrator updates these.
 - Pick the next task or continue the Execution Plan.
-- Scope beyond the single task definition — see [AGENTS.md](../../../../AGENTS.md) § YAGNI.
+- Scope beyond the single task definition — see [coding-guidelines](../../coding-guidelines/SKILL.md).
 
 ---
 
 ## Blocked
 
-Use [implementer-routing.md](implementer-routing.md) § Blocked.
+Use [implementer-routing.md](../../vitals-common/references/implementer-routing.md) § Blocked.
 
 Report **Blocked** with reason — do not partially implement out-of-scope work.
 
@@ -67,6 +67,6 @@ Blockers:
 ## Direct invocation (no `orchestrated: true`)
 
 - May update `tasks.md` per [implement.md](implement.md) Step 9.
-- On Status `Done`: sync [ROADMAP.md](../../../../.specs/project/ROADMAP.md) per [roadmap-sync.md](roadmap-sync.md).
+- On Status `Done`: sync [ROADMAP.md](../../../../.specs/project/ROADMAP.md) per [roadmap-sync.md](../../vitals-common/references/roadmap-sync.md).
 - Run `pnpm build && pnpm test` before marking Done (or task-specific Gate if narrower).
 - Recommend `verifier-implementation` before final Done on large features.

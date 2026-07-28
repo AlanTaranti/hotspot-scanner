@@ -8,7 +8,7 @@
 
 **Input:** Approved `tasks.md` in `.specs/features/<slug>/` (single feature or batch).
 
-**Subagent contract:** [orchestrated-implementer.md](orchestrated-implementer.md).
+**Subagent contract:** [orchestrated-implementer.md](../../task-implementer/references/orchestrated-implementer.md).
 
 ---
 
@@ -43,9 +43,9 @@ Set feature Status to `In Progress` in `tasks.md` when starting first task (if n
 
 ## Phase B — Execute by waves
 
-**Routing:** [implementer-routing.md](implementer-routing.md).
+**Routing:** [implementer-routing.md](../../vitals-common/references/implementer-routing.md).
 
-**Delegation:** `implementer` subagent (`subagent_type: implementer`) with `orchestrated: true` and minimum prompt below. Use `fixture-builder` when the task is fixture-only or an implementer reports Blocked (missing fixture). Skill: [task-implementer/SKILL.md](../../task-implementer/SKILL.md). Contract: [orchestrated-implementer.md](orchestrated-implementer.md).
+**Delegation:** `implementer` subagent (`subagent_type: implementer`) with `orchestrated: true` and minimum prompt below. Use `fixture-builder` when the task is fixture-only or an implementer reports Blocked (missing fixture). Skill: [task-implementer/SKILL.md](../../task-implementer/SKILL.md). Contract: [orchestrated-implementer.md](../../task-implementer/references/orchestrated-implementer.md).
 
 **Wave algorithm:**
 
@@ -79,7 +79,7 @@ Task: [Tn — title]
 Read: [spec.md paths, design.md sections, context.md if needed]
 Implement per tasks.md fields: What, Where, Reuses, Done when, Tests, Gate
 Skill: .cursor/skills/task-implementer/SKILL.md
-Contract: .cursor/skills/vitals-spec-driven/references/orchestrated-implementer.md
+Contract: .cursor/skills/task-implementer/references/orchestrated-implementer.md
 Do NOT edit tasks.md or ROADMAP.md
 ```
 
@@ -140,12 +140,12 @@ pnpm build && pnpm test
 
 ## Phase F — Sync
 
-**tasks.md ownership:** only **this orchestrator** updates checkboxes, task Status, and [ROADMAP.md](../../../../.specs/project/ROADMAP.md). See [roadmap-sync.md](roadmap-sync.md).
+**tasks.md ownership:** only **this orchestrator** updates checkboxes, task Status, and [ROADMAP.md](../../../../.specs/project/ROADMAP.md). See [roadmap-sync.md](../../vitals-common/references/roadmap-sync.md).
 
 When Phase C = Approved (or Approved with caveats), Phase D = READY (or ISSUES with user approval), and Phase E = PASS:
 
 1. Set `tasks.md` Status → `Done`
-2. Sync ROADMAP milestone/feature entry per [roadmap-sync.md](roadmap-sync.md) / [roadmap-sot.mdc](../../../rules/roadmap-sot.mdc) — status + `spec.md` link + lean outcome/bullets only; **do not** copy `tasks.md` checkboxes, Artifacts, `HOTSPOT-*`, Out of scope, or Final gate
+2. Sync ROADMAP milestone/feature entry per [roadmap-sync.md](../../vitals-common/references/roadmap-sync.md) / [roadmap-sot.mdc](../../../rules/roadmap-sot.mdc) — status + `spec.md` link + lean outcome/bullets only; **do not** copy `tasks.md` checkboxes, Artifacts, `HOTSPOT-*`, Out of scope, or Final gate
 3. Living docs: if pipeline / module / contract / constraint changed → sync [ARCHITECTURE.md](../../../../.specs/codebase/ARCHITECTURE.md) in present tense (no `M##` / `HOTSPOT-*`; see [architecture-sot.mdc](../../../rules/architecture-sot.mdc)). If fragile risks / mitigations changed → sync [CONCERNS.md](../../../../.specs/codebase/CONCERNS.md) in present tense (no `M##` / `HOTSPOT-*`; see [concerns-sot.mdc](../../../rules/concerns-sot.mdc)). If naming / imports / build / lint conventions changed → sync [CONVENTIONS.md](../../../../.specs/codebase/CONVENTIONS.md) in present tense (no `M##`; see [conventions-sot.mdc](../../../rules/conventions-sot.mdc)). If spawn / runtime deps / `node:fs` adapter ownership changed → sync [INTEGRATIONS.md](../../../../.specs/codebase/INTEGRATIONS.md) in present tense (no `M##` / `HOTSPOT-*`; see [integrations-sot.mdc](../../../rules/integrations-sot.mdc)). If runtime / deps / `files` / `engines` / `exports` / build inventory changed → sync [STACK.md](../../../../.specs/codebase/STACK.md) in present tense (no `M##` / `HOTSPOT-*`; see [stack-sot.mdc](../../../rules/stack-sot.mdc)). If directory layout / module paths / public API changed → sync [STRUCTURE.md](../../../../.specs/codebase/STRUCTURE.md) in present tense (no `M##` / `HOTSPOT-*`; see [structure-sot.mdc](../../../rules/structure-sot.mdc)). If product vision / boundaries / JSON contract versions changed → sync [PROJECT.md](../../../../.specs/project/PROJECT.md) in present tense (no `M##` / `HOTSPOT-*`; see [project-sot.mdc](../../../rules/project-sot.mdc)); do not append “through Mxx”. If exit codes / agent policies / skills-agents inventory changed → sync [AGENTS.md](../../../../AGENTS.md) lean index (no `M##`; see [agents-sot.mdc](../../../rules/agents-sot.mdc)); else skip AGENTS. Else skip those files — do not append UX encyclopedias or milestone provenance. Self-check: sentence needs a milestone number → wrong doc.
 4. Return Execution Orchestration Report
 
@@ -205,4 +205,4 @@ Return the report above. The main agent:
 - Do not write implementation code directly except unblocker fixes during remediation.
 - Do not run `git commit` / `git push` unless user explicitly asks.
 - Do not mark Done with failing Phase E, Phase D NOT_READY, or Phase C Changes needed.
-- YAGNI: see [AGENTS.md](../../../../AGENTS.md) § YAGNI and [vitals-project.md](vitals-project.md).
+- YAGNI: see [coding-guidelines](../../coding-guidelines/SKILL.md) and [vitals-project.md](../../vitals-common/references/vitals-project.md).

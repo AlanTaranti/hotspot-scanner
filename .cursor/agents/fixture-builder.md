@@ -36,7 +36,7 @@ You are the **Fixture Builder** for @vitals/hotspot-scanner — create minimal f
 
 ## Hard constraints
 
-- YAGNI / commit: [AGENTS.md](../../AGENTS.md).
+- YAGNI / commit: [coding-guidelines](../skills/coding-guidelines/SKILL.md), [commit-policy.mdc](../rules/commit-policy.mdc) (index: [AGENTS.md](../../AGENTS.md)).
 - Use `tests/fixtures/` path (project convention); scan repos under `tests/fixtures/repos/<slug>`.
 - Fixture source excluded from Vitest include — validation is via CLI or dedicated integration tests.
 

@@ -814,18 +814,20 @@ const tests = [
     },
   },
   {
-    name: "agents lint flags M## only (HOTSPOT naming allowed)",
+    name: "agents lint flags M## and Exit code table (HOTSPOT naming allowed)",
     run() {
       const dirty = lintAgentsDoc(
-        "# AGENTS\n\nCompare/baseline removed in M71.\n",
+        "# AGENTS\n\nCompare/baseline removed in M71.\n\n| Exit code | Meaning |\n| ---- | ------- |\n| `0` | ok |\n",
       );
-      if (!dirty.bannedMatches.includes("M71")) {
-        throw new Error(
-          `expected M71 in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
-        );
+      for (const label of ["M71", "Exit code table"]) {
+        if (!dirty.bannedMatches.includes(label)) {
+          throw new Error(
+            `expected ${label} in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+          );
+        }
       }
       const clean = lintAgentsDoc(
-        "# AGENTS\n\nPrefix **`HOTSPOT-*`** (e.g. `HOTSPOT-01`).\n",
+        "# AGENTS\n\nPrefix **`HOTSPOT-*`** (e.g. `HOTSPOT-01`). Exit codes → docs/cli-reference.md.\n",
       );
       if (clean.bannedMatches.length !== 0) {
         throw new Error(

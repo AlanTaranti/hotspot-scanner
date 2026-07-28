@@ -6,40 +6,28 @@ alwaysApply: false
 
 # Stack Inventory SoT
 
-[`.specs/codebase/STACK.md`](../../.specs/codebase/STACK.md) is the **technology-stack SoT**: runtime, dependency inventory, package publish surface (`files` / `engines` / `exports`), and build tooling at inventory level.
+[`.specs/codebase/STACK.md`](../../.specs/codebase/STACK.md) is the **technology-stack SoT**: runtime, dependency inventory, package publish surface, and build tooling at inventory level.
 
-It is **not** a changelog, milestone tracker, adapter encyclopedia, or coding-conventions guide.
+It is **not** a changelog, adapter encyclopedia, or coding-conventions guide.
 
-## Ownership matrix
-
-| Change type | Destination |
-| ----------- | ----------- |
-| Runtime / deps inventory / publish `files` / `engines` / `exports` / “not in stack” | **STACK.md** |
-| External spawn / deps / `node:fs` adapter ownership and rules | **INTEGRATIONS.md** |
-| Naming, ESM, dual-tsconfig rules, lint/format scripts | **CONVENTIONS.md** |
-| Modules, pipeline, contracts, constraints | **ARCHITECTURE.md** |
-| Coverage / Vitest patterns | **TESTING.md** |
-| Milestone status, feature history | **ROADMAP.md** / `.specs/features/` |
-| Decisions, deferred ideas, blockers | **STATE.md** |
+**Ownership:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md).
 
 ## Forbidden in STACK.md
 
-- Milestone tags: `\bM\d+\b` (e.g. `M20`, `M72`)
+- Milestone tags: `\bM\d+\b`
 - Requirement IDs: `HOTSPOT-*`
-- Changelog voice: “shipped in M…”, “prep for M…”, Execute ownership by milestone number
-- Adapter encyclopedias (Role / Invocation / Failure / Tests tables — belong in INTEGRATIONS)
-- Coverage thresholds and mock-boundary detail (belong in TESTING)
+- Changelog / provenance voice
+- Adapter encyclopedias (→ INTEGRATIONS)
+- Coverage thresholds / mock-boundary detail (→ TESTING)
 
 ## Allowed
 
-- Present-tense inventory tables and short stack-constraint lines
-- Negative “not in stack” constraints
+- Present-tense inventory tables and “not in stack” constraints
 - Short pointers to INTEGRATIONS, CONVENTIONS, ARCHITECTURE, CONTRIBUTING
 
 ## Sync rule
 
-When living docs change after Execute:
+1. Update only for **live** runtime/deps/publish/build inventory.
+2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → ROADMAP/STATE/feature specs.
 
-1. Update STACK only for **live** runtime/deps/publish/build inventory — do not append provenance.
-2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → wrong file (use ROADMAP/STATE/feature specs).
-3. Feature `design.md` / `tasks.md` may keep M##; extract only lasting stack facts into STACK.
+Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintStackDoc`.

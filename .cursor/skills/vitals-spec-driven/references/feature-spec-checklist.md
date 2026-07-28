@@ -31,7 +31,7 @@
 
 - [ ] Each task has: What, Where, Depends on, Done when, Tests, Gate
 - [ ] Gate commands are runnable (typically `pnpm test -- <path>` or `pnpm build && pnpm test` for final task)
-- [ ] No task spans 2+ unrelated modules without `Depends on` split ([implementer-routing.md](implementer-routing.md))
+- [ ] No task spans 2+ unrelated modules without `Depends on` split ([implementer-routing.md](../../vitals-common/references/implementer-routing.md))
 - [ ] `[P]` parallel tasks are actually parallel-safe
 - [ ] Final gate task uses `deferred_project_gate` or explicit `pnpm build && pnpm test`
 

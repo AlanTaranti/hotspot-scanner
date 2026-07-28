@@ -8,35 +8,30 @@ alwaysApply: false
 
 ## Required cycle
 
-Medium/large features follow:
+Medium/large features: **Specify → Design → Tasks → Execute**.
 
-**Specify → Design → Tasks → Execute**
-
-Use the `vitals-spec-driven` skill and `planner-feature` agent for planning.
+- Planning: skill `vitals-spec-driven` + agent `planner-feature`
+- Requirement IDs: prefix **`HOTSPOT-*`** in `spec.md` / `tasks.md`
 
 ## Session boundary
 
-Planning agents stop at Tasks with `tasks.md` **Status: `Planned`** — no Execute in the same session. Details: [planning-session-boundary.md](../skills/vitals-spec-driven/references/planning-session-boundary.md).
+Planning stops at Tasks with `tasks.md` **Status: `Planned`** — no Execute in the same session.
+
+Details: [planning-session-boundary.md](../skills/vitals-spec-driven/references/planning-session-boundary.md).
 
 ## Execute
 
-- Playbook: [execute-orchestration-playbook.md](../skills/vitals-spec-driven/references/execute-orchestration-playbook.md) (phases **A→F**)
-- Agent: `orchestrator-implementer` in a separate session after promoting Status
-- Orchestrated mode: [orchestrated-implementer.md](../skills/vitals-spec-driven/references/orchestrated-implementer.md)
-- Final project gate: `verifier-quality-gates` (Phase **E**)
+- Playbook: [execute-orchestration-playbook.md](../skills/vitals-execute/references/execute-orchestration-playbook.md) (phases **A→F**); skill `vitals-execute`
+- Agent: `orchestrator-implementer` in a **separate** session after promoting Status
+- Final project gate: `verifier-quality-gates` (Phase **E**) — see [quality-gates.mdc](quality-gates.mdc)
 
 ## Requirement sources
 
 - Design SoT: `.specs/codebase/ARCHITECTURE.md`
+- Ownership: `.specs/codebase/DOC-OWNERSHIP.md`
 - Feature specs: `.specs/features/<feature>/`
-- Milestones: `.specs/project/ROADMAP.md`
-- Decisions: `.specs/project/STATE.md`
-- IDs: `HOTSPOT-*` in `spec.md` and `tasks.md`
+- Milestones / decisions: `ROADMAP.md` / `STATE.md`
 
 ## Validation (CLI)
 
-No interactive UAT. Per-task gates + final gate `pnpm build && pnpm test` + manual CLI when flags or pipeline change.
-
-```bash
-pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug>
-```
+No interactive UAT. Per-task gates + project gate + skill `vitals-cli-validation` when flags/pipeline change. Exit codes: [docs/cli-reference.md](../../docs/cli-reference.md#exit-codes).

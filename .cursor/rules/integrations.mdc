@@ -6,7 +6,9 @@ alwaysApply: false
 
 # External Integrations
 
-Follow [INTEGRATIONS.md](../../.specs/codebase/INTEGRATIONS.md) (SoT: [integrations-sot.mdc](integrations-sot.mdc)):
+**Behavioral** rule for adapter encapsulation in code (not the editorial [integrations-sot.mdc](integrations-sot.mdc) for editing INTEGRATIONS.md).
+
+Follow [INTEGRATIONS.md](../../.specs/codebase/INTEGRATIONS.md):
 
 - **git** — mining spawn in `src/git/`; documented exceptions: `resolve-repo.ts` (`rev-parse`), doctor `isGitOnPath()` (`git --version`). Do not spawn git elsewhere.
 - **worker_threads** — parallel NCLOC batches in `src/complexity/` only.

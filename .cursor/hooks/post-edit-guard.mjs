@@ -9,66 +9,7 @@ import {
   isFragileScoringPath,
   SCORING_FORMULA_CONTEXT,
 } from "./lib/paths.mjs";
-import {
-  AGENTS_LINE_WARN,
-  AGENTS_REL_PATH,
-  AGENTS_SOT_CONTEXT,
-  ARCHITECTURE_REL_PATH,
-  ARCHITECTURE_SOT_CONTEXT,
-  CONCERNS_REL_PATH,
-  CONCERNS_SOT_CONTEXT,
-  CONTRIBUTING_LINE_WARN,
-  CONTRIBUTING_REL_PATH,
-  CONTRIBUTING_SOT_CONTEXT,
-  CONVENTIONS_REL_PATH,
-  CONVENTIONS_SOT_CONTEXT,
-  INTEGRATIONS_REL_PATH,
-  INTEGRATIONS_SOT_CONTEXT,
-  PROJECT_REL_PATH,
-  PROJECT_SOT_CONTEXT,
-  README_LINE_WARN,
-  README_REL_PATH,
-  README_SOT_CONTEXT,
-  ROADMAP_REL_PATH,
-  ROADMAP_SOT_CONTEXT,
-  STATE_REL_PATH,
-  STATE_SOT_CONTEXT,
-  STACK_REL_PATH,
-  STACK_SOT_CONTEXT,
-  STRUCTURE_REL_PATH,
-  STRUCTURE_SOT_CONTEXT,
-  TESTING_REL_PATH,
-  TESTING_SOT_CONTEXT,
-  isAgentsDocPath,
-  isArchitectureDocPath,
-  isConcernsDocPath,
-  isContributingDocPath,
-  isConventionsDocPath,
-  isIntegrationsDocPath,
-  isProjectDocPath,
-  isReadmeDocPath,
-  isRoadmapDocPath,
-  isStateDocPath,
-  isStackDocPath,
-  isStructureDocPath,
-  isTestingDocPath,
-  LINE_WARN,
-  ROADMAP_LINE_WARN,
-  STATE_LINE_WARN,
-  lintAgentsDoc,
-  lintArchitectureDoc,
-  lintConcernsDoc,
-  lintContributingDoc,
-  lintConventionsDoc,
-  lintIntegrationsDoc,
-  lintProjectDoc,
-  lintReadmeDoc,
-  lintRoadmapDoc,
-  lintStateDoc,
-  lintStackDoc,
-  lintStructureDoc,
-  lintTestingDoc,
-} from "./lib/living-sot-doc.mjs";
+import { LIVING_SOT_ENTRIES } from "./lib/living-sot-doc.mjs";
 import {
   getWorkspaceRoot,
   loadState,
@@ -110,235 +51,35 @@ if (isFragileScoringPath(relPath)) {
   messages.push(`[${relPath}] ${SCORING_FORMULA_CONTEXT}`);
 }
 
-if (isArchitectureDocPath(relPath) && workspaceRoot) {
-  const abs = path.join(workspaceRoot, ARCHITECTURE_REL_PATH);
-  try {
-    const text = fs.readFileSync(abs, "utf8");
-    const { bannedMatches, lineCount, overSize } = lintArchitectureDoc(text);
-    if (bannedMatches.length > 0) {
-      messages.push(
-        `[${ARCHITECTURE_REL_PATH}] Forbidden tags still present: ${bannedMatches.join(", ")}. ${ARCHITECTURE_SOT_CONTEXT}`,
-      );
+if (workspaceRoot) {
+  for (const entry of LIVING_SOT_ENTRIES) {
+    if (!entry.isPath(relPath)) continue;
+    // docs/*: lint the edited file path; other entries use canonical relPath
+    const fileRel =
+      entry.id === "docs" ? relPath.replace(/\\/g, "/") : entry.relPath;
+    const abs = path.join(workspaceRoot, fileRel);
+    try {
+      const text = fs.readFileSync(abs, "utf8");
+      const { bannedMatches, lineCount, overSize } = entry.lint(text);
+      if (bannedMatches.length > 0) {
+        messages.push(
+          `[${fileRel}] ${entry.bannedLabel}: ${bannedMatches.join(", ")}. ${entry.sotContext}`,
+        );
+      }
+      if (overSize && entry.lineWarn != null && entry.sizeHint) {
+        messages.push(
+          `[${fileRel}] Soft size warning: ${lineCount} lines (warn at ${entry.lineWarn}). ${entry.sizeHint}`,
+        );
+      }
+    } catch {
+      // File missing mid-edit — skip
     }
-    if (overSize) {
-      messages.push(
-        `[${ARCHITECTURE_REL_PATH}] Soft size warning: ${lineCount} lines (warn at ${LINE_WARN}). Slim UX/history; keep modules/pipelines/contracts only.`,
-      );
-    }
-  } catch {
-    // File missing mid-edit — skip
-  }
-}
-
-if (isConcernsDocPath(relPath) && workspaceRoot) {
-  const abs = path.join(workspaceRoot, CONCERNS_REL_PATH);
-  try {
-    const text = fs.readFileSync(abs, "utf8");
-    const { bannedMatches } = lintConcernsDoc(text);
-    if (bannedMatches.length > 0) {
-      messages.push(
-        `[${CONCERNS_REL_PATH}] Forbidden tags still present: ${bannedMatches.join(", ")}. ${CONCERNS_SOT_CONTEXT}`,
-      );
-    }
-  } catch {
-    // File missing mid-edit — skip
-  }
-}
-
-if (isIntegrationsDocPath(relPath) && workspaceRoot) {
-  const abs = path.join(workspaceRoot, INTEGRATIONS_REL_PATH);
-  try {
-    const text = fs.readFileSync(abs, "utf8");
-    const { bannedMatches } = lintIntegrationsDoc(text);
-    if (bannedMatches.length > 0) {
-      messages.push(
-        `[${INTEGRATIONS_REL_PATH}] Forbidden tags still present: ${bannedMatches.join(", ")}. ${INTEGRATIONS_SOT_CONTEXT}`,
-      );
-    }
-  } catch {
-    // File missing mid-edit — skip
-  }
-}
-
-if (isStackDocPath(relPath) && workspaceRoot) {
-  const abs = path.join(workspaceRoot, STACK_REL_PATH);
-  try {
-    const text = fs.readFileSync(abs, "utf8");
-    const { bannedMatches } = lintStackDoc(text);
-    if (bannedMatches.length > 0) {
-      messages.push(
-        `[${STACK_REL_PATH}] Forbidden tags still present: ${bannedMatches.join(", ")}. ${STACK_SOT_CONTEXT}`,
-      );
-    }
-  } catch {
-    // File missing mid-edit — skip
-  }
-}
-
-if (isStructureDocPath(relPath) && workspaceRoot) {
-  const abs = path.join(workspaceRoot, STRUCTURE_REL_PATH);
-  try {
-    const text = fs.readFileSync(abs, "utf8");
-    const { bannedMatches } = lintStructureDoc(text);
-    if (bannedMatches.length > 0) {
-      messages.push(
-        `[${STRUCTURE_REL_PATH}] Forbidden tags still present: ${bannedMatches.join(", ")}. ${STRUCTURE_SOT_CONTEXT}`,
-      );
-    }
-  } catch {
-    // File missing mid-edit — skip
-  }
-}
-
-if (isTestingDocPath(relPath) && workspaceRoot) {
-  const abs = path.join(workspaceRoot, TESTING_REL_PATH);
-  try {
-    const text = fs.readFileSync(abs, "utf8");
-    const { bannedMatches } = lintTestingDoc(text);
-    if (bannedMatches.length > 0) {
-      messages.push(
-        `[${TESTING_REL_PATH}] Forbidden tags still present: ${bannedMatches.join(", ")}. ${TESTING_SOT_CONTEXT}`,
-      );
-    }
-  } catch {
-    // File missing mid-edit — skip
-  }
-}
-
-if (isConventionsDocPath(relPath) && workspaceRoot) {
-  const abs = path.join(workspaceRoot, CONVENTIONS_REL_PATH);
-  try {
-    const text = fs.readFileSync(abs, "utf8");
-    const { bannedMatches } = lintConventionsDoc(text);
-    if (bannedMatches.length > 0) {
-      messages.push(
-        `[${CONVENTIONS_REL_PATH}] Forbidden tags still present: ${bannedMatches.join(", ")}. ${CONVENTIONS_SOT_CONTEXT}`,
-      );
-    }
-  } catch {
-    // File missing mid-edit — skip
-  }
-}
-
-if (isProjectDocPath(relPath) && workspaceRoot) {
-  const abs = path.join(workspaceRoot, PROJECT_REL_PATH);
-  try {
-    const text = fs.readFileSync(abs, "utf8");
-    const { bannedMatches } = lintProjectDoc(text);
-    if (bannedMatches.length > 0) {
-      messages.push(
-        `[${PROJECT_REL_PATH}] Forbidden tags still present: ${bannedMatches.join(", ")}. ${PROJECT_SOT_CONTEXT}`,
-      );
-    }
-  } catch {
-    // File missing mid-edit — skip
-  }
-}
-
-if (isRoadmapDocPath(relPath) && workspaceRoot) {
-  const abs = path.join(workspaceRoot, ROADMAP_REL_PATH);
-  try {
-    const text = fs.readFileSync(abs, "utf8");
-    const { bannedMatches, lineCount, overSize } = lintRoadmapDoc(text);
-    if (bannedMatches.length > 0) {
-      messages.push(
-        `[${ROADMAP_REL_PATH}] Forbidden drift patterns still present: ${bannedMatches.join(", ")}. ${ROADMAP_SOT_CONTEXT}`,
-      );
-    }
-    if (overSize) {
-      messages.push(
-        `[${ROADMAP_REL_PATH}] Soft size warning: ${lineCount} lines (warn at ${ROADMAP_LINE_WARN}). Keep lean Archive entries (roadmap-sot); detail stays in .specs/features/.`,
-      );
-    }
-  } catch {
-    // File missing mid-edit — skip
-  }
-}
-
-if (isStateDocPath(relPath) && workspaceRoot) {
-  const abs = path.join(workspaceRoot, STATE_REL_PATH);
-  try {
-    const text = fs.readFileSync(abs, "utf8");
-    const { bannedMatches, lineCount, overSize } = lintStateDoc(text);
-    if (bannedMatches.length > 0) {
-      messages.push(
-        `[${STATE_REL_PATH}] Forbidden execute-log drift still present: ${bannedMatches.join(", ")}. ${STATE_SOT_CONTEXT}`,
-      );
-    }
-    if (overSize) {
-      messages.push(
-        `[${STATE_REL_PATH}] Soft size warning: ${lineCount} lines (warn at ${STATE_LINE_WARN}). Keep lasting locks only (state-sot); Execute dumps → STATE-ARCHIVE.`,
-      );
-    }
-  } catch {
-    // File missing mid-edit — skip
-  }
-}
-
-if (isAgentsDocPath(relPath) && workspaceRoot) {
-  const abs = path.join(workspaceRoot, AGENTS_REL_PATH);
-  try {
-    const text = fs.readFileSync(abs, "utf8");
-    const { bannedMatches, lineCount, overSize } = lintAgentsDoc(text);
-    if (bannedMatches.length > 0) {
-      messages.push(
-        `[${AGENTS_REL_PATH}] Forbidden tags still present: ${bannedMatches.join(", ")}. ${AGENTS_SOT_CONTEXT}`,
-      );
-    }
-    if (overSize) {
-      messages.push(
-        `[${AGENTS_REL_PATH}] Soft size warning: ${lineCount} lines (warn at ${AGENTS_LINE_WARN}). Keep lean index/policies only (agents-sot); detail → vitals-project / ARCHITECTURE / docs/cli-reference.md.`,
-      );
-    }
-  } catch {
-    // File missing mid-edit — skip
-  }
-}
-
-if (isContributingDocPath(relPath) && workspaceRoot) {
-  const abs = path.join(workspaceRoot, CONTRIBUTING_REL_PATH);
-  try {
-    const text = fs.readFileSync(abs, "utf8");
-    const { bannedMatches, lineCount, overSize } = lintContributingDoc(text);
-    if (bannedMatches.length > 0) {
-      messages.push(
-        `[${CONTRIBUTING_REL_PATH}] Forbidden SoT-mirror content still present: ${bannedMatches.join(", ")}. ${CONTRIBUTING_SOT_CONTEXT}`,
-      );
-    }
-    if (overSize) {
-      messages.push(
-        `[${CONTRIBUTING_REL_PATH}] Soft size warning: ${lineCount} lines (warn at ${CONTRIBUTING_LINE_WARN}). Keep thin contribute guide only (contributing-sot); detail → STRUCTURE / TESTING / INTEGRATIONS / CONCERNS / AGENTS.`,
-      );
-    }
-  } catch {
-    // File missing mid-edit — skip
-  }
-}
-
-if (isReadmeDocPath(relPath) && workspaceRoot) {
-  const abs = path.join(workspaceRoot, README_REL_PATH);
-  try {
-    const text = fs.readFileSync(abs, "utf8");
-    const { bannedMatches, lineCount, overSize } = lintReadmeDoc(text);
-    if (bannedMatches.length > 0) {
-      messages.push(
-        `[${README_REL_PATH}] Forbidden adoption-SoT drift still present: ${bannedMatches.join(", ")}. ${README_SOT_CONTEXT}`,
-      );
-    }
-    if (overSize) {
-      messages.push(
-        `[${README_REL_PATH}] Soft size warning: ${lineCount} lines (warn at ${README_LINE_WARN}). Keep adoption/first-run only (readme-sot); encyclopedias → docs/cli-reference.md; cookbooks → docs/recipes.md.`,
-      );
-    }
-  } catch {
-    // File missing mid-edit — skip
   }
 }
 
 if (messages.length > 0) {
   additionalContext(messages.join("\n\n"));
-  process.exit(0);
+} else {
+  emptyOk();
 }
-
-emptyOk();
 process.exit(0);

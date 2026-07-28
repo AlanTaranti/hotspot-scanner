@@ -10,6 +10,7 @@ Deep reference for **hotspot-scanner** flags, pipeline internals, and power-user
 - [Scan → assess](#scan--assess)
 - [`--explain` (stderr)](#explain-stderr)
 - [Command synopsis and flags](#command-synopsis-and-flags)
+- [Exit codes](#exit-codes)
 - [Examples](#examples)
 
 ## Pipeline detail
@@ -142,7 +143,19 @@ hotspot-scanner <path>   # path-first shorthand → scan <path> (., ./dir, absol
 
 **`config print`** — shows effective merged options with per-field `cli` / `config` / `default` source tags; `-f json` for machine-readable output. Does not invoke git mining, NCLOC, or scoring.
 
-**Error hints.** Common failures include a `Hint:` line with a concrete next step: non-git path, `--format csv` without `--output`, or missing explicit `--config` file. Exit `2` for usage and config errors; exit `1` for other runtime failures and `--fail-on-explain-miss`. Exit code table: [README → Exit codes](../README.md#exit-codes).
+**Error hints.** Common failures include a `Hint:` line with a concrete next step: non-git path, `--format csv` without `--output`, or missing explicit `--config` file. See [Exit codes](#exit-codes).
+
+## Exit codes
+
+Canonical exit-code table for the CLI (SoT). Adoption overview also in [README](../README.md#exit-codes).
+
+| Code | Meaning |
+| ---- | ------- |
+| `0` | Scan completed successfully (`--explain` miss without `--fail-on-explain-miss` also exits `0`) |
+| `1` | `--fail-on-explain-miss` with missing explain target |
+| `2` | Invalid CLI args, config validation, or usage errors (including unknown/removed `compare` / `baseline` / `--strict`) |
+| `130` | Cancelled by `SIGINT` (POSIX 128+2) |
+| `143` | Cancelled by `SIGTERM` (POSIX 128+15) |
 
 Run `hotspot-scanner scan --help` for copy-paste examples (cwd default, JSON output, short aliases).
 

@@ -1,6 +1,6 @@
 # TESTING — @vitals/hotspot-scanner
 
-Testing infrastructure and patterns SoT. Product contracts: [ARCHITECTURE.md](ARCHITECTURE.md). Fragile risks: [CONCERNS.md](CONCERNS.md). Exit codes: [AGENTS.md](../../AGENTS.md).
+Testing infrastructure and patterns SoT. Product contracts: [ARCHITECTURE.md](ARCHITECTURE.md). Fragile risks: [CONCERNS.md](CONCERNS.md). Exit codes: [docs/cli-reference.md](../../docs/cli-reference.md#exit-codes). Doc ownership: [DOC-OWNERSHIP.md](DOC-OWNERSHIP.md).
 
 ## Quality gate
 

@@ -228,13 +228,14 @@ GitHub-flavored report with summary, how-to-read, hotspot table, and optional tr
 
 ### Exit codes
 
+Canonical table: [docs/cli-reference.md → Exit codes](docs/cli-reference.md#exit-codes).
+
 | Code | Meaning |
 | ---- | ------- |
-| `0` | Scan completed successfully (`--explain` miss without `--fail-on-explain-miss` also exits `0`) |
-| `1` | `--fail-on-explain-miss` when `--explain` target is not found |
-| `2` | Invalid usage (missing command, bad flags), invalid config, or usage errors (including unknown removed `compare` / `baseline` / `--baseline` / `--strict`) |
-| `130` | Scan cancelled by `SIGINT` (POSIX 128+2) — no report written |
-| `143` | Scan cancelled by `SIGTERM` (POSIX 128+15) — no report written |
+| `0` | Success (`--explain` miss without `--fail-on-explain-miss` also `0`) |
+| `1` | `--fail-on-explain-miss` when explain target missing |
+| `2` | Invalid usage / config / unknown removed commands |
+| `130` / `143` | Cancelled by `SIGINT` / `SIGTERM` |
 
 ## Programmatic API
 

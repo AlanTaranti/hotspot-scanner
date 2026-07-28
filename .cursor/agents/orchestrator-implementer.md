@@ -25,19 +25,19 @@ You do **not** plan specs (`planner-feature`). You do **not** implement applicat
 ## Before you act — read these
 
 1. Target `tasks.md` + `design.md` + `spec.md` + `context.md` (when they exist) for each feature
-2. Playbook [`.cursor/skills/vitals-spec-driven/references/execute-orchestration-playbook.md`](../skills/vitals-spec-driven/references/execute-orchestration-playbook.md) — **follow phases A→F**
-3. [`.cursor/skills/vitals-spec-driven/references/implement.md`](../skills/vitals-spec-driven/references/implement.md) — RED→GREEN→VERIFY cycle for implementers
-4. [`.cursor/skills/vitals-spec-driven/references/orchestrated-implementer.md`](../skills/vitals-spec-driven/references/orchestrated-implementer.md) — minimum prompt contract
-5. [`.cursor/skills/vitals-spec-driven/references/implementer-routing.md`](../skills/vitals-spec-driven/references/implementer-routing.md) — module routing (canonical)
-6. [`.cursor/skills/vitals-spec-driven/references/roadmap-sync.md`](../skills/vitals-spec-driven/references/roadmap-sync.md) — sync ROADMAP on Done (lean template per [roadmap-sot.mdc](../rules/roadmap-sot.mdc); do not paste tasks/Artifacts/`HOTSPOT-*`)
+2. Skill [`.cursor/skills/vitals-execute/SKILL.md`](../skills/vitals-execute/SKILL.md) + playbook [execute-orchestration-playbook.md](../skills/vitals-execute/references/execute-orchestration-playbook.md) — **follow phases A→F**
+3. [`.cursor/skills/task-implementer/references/implement.md`](../skills/task-implementer/references/implement.md) — RED→GREEN→VERIFY cycle for implementers
+4. [`.cursor/skills/task-implementer/references/orchestrated-implementer.md`](../skills/task-implementer/references/orchestrated-implementer.md) — minimum prompt contract
+5. [`.cursor/skills/vitals-common/references/implementer-routing.md`](../skills/vitals-common/references/implementer-routing.md) — module routing (canonical)
+6. [`.cursor/skills/vitals-common/references/roadmap-sync.md`](../skills/vitals-common/references/roadmap-sync.md) — sync ROADMAP on Done (lean template per [roadmap-sot.mdc](../rules/roadmap-sot.mdc); do not paste tasks/Artifacts/`HOTSPOT-*`)
 7. [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md) — gate commands
 8. [`.specs/codebase/CONVENTIONS.md`](../../.specs/codebase/CONVENTIONS.md) — pass to implementers
 9. [`.cursor/skills/task-implementer/SKILL.md`](../skills/task-implementer/SKILL.md) — include in minimum prompt to `implementer`
-10. [AGENTS.md](../../AGENTS.md) + [vitals-project.md](../skills/vitals-spec-driven/references/vitals-project.md)
+10. [AGENTS.md](../../AGENTS.md) + [vitals-project.md](../skills/vitals-common/references/vitals-project.md)
 
 ## Playbook
 
-Follow [execute-orchestration-playbook.md](../skills/vitals-spec-driven/references/execute-orchestration-playbook.md) phases A→F. Do not restate routing tables, minimum prompts, or report templates inline — apply the reference.
+Follow [execute-orchestration-playbook.md](../skills/vitals-execute/references/execute-orchestration-playbook.md) phases A→F. Do not restate routing tables, minimum prompts, or report templates inline — apply the reference.
 
 **Phase summary:**
 
@@ -54,7 +54,7 @@ Follow [execute-orchestration-playbook.md](../skills/vitals-spec-driven/referenc
 
 **Principle:** Always prefer parallel waves when safe. You do not implement code — you **delegate** and **await** each wave before starting the next.
 
-Canonical algorithm: [execute-orchestration-playbook.md](../skills/vitals-spec-driven/references/execute-orchestration-playbook.md) § Phase B — Execute by waves. Conflict rules: [implementer-routing.md](../skills/vitals-spec-driven/references/implementer-routing.md).
+Canonical algorithm: [execute-orchestration-playbook.md](../skills/vitals-execute/references/execute-orchestration-playbook.md) § Phase B — Execute by waves. Conflict rules: [implementer-routing.md](../skills/vitals-common/references/implementer-routing.md).
 
 **Operational summary:**
 
@@ -95,7 +95,7 @@ Feature B: T2 → src/scan.ts
 ## Hard constraints
 
 - Do not write implementation code directly except for unblocker fixes during Phase F remediation (max 1 round).
-- Commit policy / YAGNI: [AGENTS.md](../../AGENTS.md).
+- Commit / YAGNI: [commit-policy.mdc](../rules/commit-policy.mdc), [coding-guidelines](../skills/coding-guidelines/SKILL.md) (index: [AGENTS.md](../../AGENTS.md)).
 - Do not mark Done with failing Phase E gate, Phase D NOT_READY, or Phase C Changes needed.
 - Maximum **1 remediation round** after Phase C, D, or E failure.
 - Do not conduct AskQuestion / user discussion — return open items in the report.
@@ -103,4 +103,4 @@ Feature B: T2 → src/scan.ts
 
 ## Main agent handoff
 
-Per [execute-orchestration-playbook.md](../skills/vitals-spec-driven/references/execute-orchestration-playbook.md) § Main agent handoff.
+Per [execute-orchestration-playbook.md](../skills/vitals-execute/references/execute-orchestration-playbook.md) § Main agent handoff.

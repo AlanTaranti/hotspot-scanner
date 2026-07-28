@@ -63,7 +63,7 @@ When committing, use [Conventional Commits 1.0.0](https://www.conventionalcommit
 <type>(<scope>): <description>
 ```
 
-Use imperative mood, lowercase, no period. See [implement.md](implement.md) for full types table.
+Use imperative mood, lowercase, no period. See [implement.md](../../task-implementer/references/implement.md) for full types table.
 
 Examples:
 

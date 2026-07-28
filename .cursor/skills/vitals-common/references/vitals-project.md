@@ -1,6 +1,6 @@
 # @vitals/hotspot-scanner — Project Context
 
-**Canonical project detail** for agents and skills. Index and policies: [AGENTS.md](../../../../AGENTS.md).
+**Canonical project detail** for agents and skills. Index: [AGENTS.md](../../../../AGENTS.md). Ownership: [DOC-OWNERSHIP.md](../../../../.specs/codebase/DOC-OWNERSHIP.md).
 
 ---
 
@@ -9,7 +9,7 @@
 - **Package:** `@vitals/hotspot-scanner` (npm)
 - **CLI bin:** `hotspot-scanner` (unscoped)
 - **Purpose:** Local CLI that ranks TS/JS maintenance hotspots from NCLOC and Git churn (file-level)
-- **Pipeline:** `git → NCLOC size analysis → hotspot scoring → report` (scan-only; compare/baseline removed M71)
+- **Pipeline:** `git → NCLOC size analysis → hotspot scoring → report` (scan-only; no compare/baseline CLI)
 - **Design SoT:** [`.specs/codebase/ARCHITECTURE.md`](../../../../.specs/codebase/ARCHITECTURE.md)
 - **Module map SoT:** [`.specs/codebase/STRUCTURE.md`](../../../../.specs/codebase/STRUCTURE.md)
 
@@ -32,7 +32,7 @@
 
 ## Gate check
 
-**Full gate (required before finishing any implementation):** see [AGENTS.md](../../../../AGENTS.md) § Quality gate and [TESTING.md](../../../../.specs/codebase/TESTING.md).
+**Full gate:** [quality-gates.mdc](../../../../.cursor/rules/quality-gates.mdc) + [TESTING.md](../../../../.specs/codebase/TESTING.md) § Coverage.
 
 ```bash
 pnpm build && pnpm test
@@ -48,23 +48,23 @@ pnpm build && pnpm test
 
 ## Requirement IDs / Commit / YAGNI
 
-See [AGENTS.md](../../../../AGENTS.md) — `HOTSPOT-*`, commit only when asked, YAGNI.
+Pointers (do not restate): [feature-planning.mdc](../../../../.cursor/rules/feature-planning.mdc) (`HOTSPOT-*`), [commit-policy.mdc](../../../../.cursor/rules/commit-policy.mdc), [coding-guidelines](../../../../.cursor/skills/coding-guidelines/SKILL.md). Index: [AGENTS.md](../../../../AGENTS.md).
 
 ## Validation (CLI)
 
 No interactive UI UAT. Canonical fixture path: `tests/fixtures/repos/<slug>`.
 
 1. `pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug>`
-2. Exit codes: `0` success; `1` explain-miss; `2` usage/config; `130`/`143` cancel
-3. Exercise `--since`, `--format`, `--output`, `--explain` when relevant
+2. Exit codes SoT: [docs/cli-reference.md](../../../../docs/cli-reference.md#exit-codes)
+3. Skill: `vitals-cli-validation`
 4. Co-located `*.test.ts` for unit coverage
 
 ## Fragile areas
 
-See [CONCERNS.md](../../../../.specs/codebase/CONCERNS.md) and [fragile-areas.mdc](../../../../.cursor/rules/fragile-areas.mdc) — git streaming, NCLOC definition, scoring, scan-result parse, JSON schemas.
+See [CONCERNS.md](../../../../.specs/codebase/CONCERNS.md) and [fragile-areas.mdc](../../../../.cursor/rules/fragile-areas.mdc).
 
 ## Knowledge sources
 
-1. `.specs/codebase/` (Design SoT) + [STATE.md](../../../../.specs/project/STATE.md) + [ROADMAP.md](../../../../.specs/project/ROADMAP.md)
+1. `.specs/codebase/` (Design SoT) + DOC-OWNERSHIP + STATE + ROADMAP
 2. `vitals-pipeline-domain` skill for scan pipeline context
 3. `vitals-cli-validation` for CLI/fixture checks

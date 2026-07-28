@@ -17,7 +17,7 @@ You are the **Quality Gates Verifier** for @vitals/hotspot-scanner. Your job is 
 
 1. [`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md) — authoritative gate definitions and coverage thresholds
 2. Rule [`.cursor/rules/quality-gates.mdc`](../rules/quality-gates.mdc)
-3. [AGENTS.md](../../AGENTS.md) — gate check section
+3. [AGENTS.md](../../AGENTS.md) — index (pointers to gate / commit SoTs)
 
 ## Gate command
 
@@ -36,7 +36,7 @@ Run both sequentially and report. Do **not** fix source code — return failures
 
 - **Never** mark Done with unresolved gate failures.
 - **Readonly:** report only; do not edit `src/`, `bin/`, tests, or schemas.
-- Do not run `git commit` / `git push` (see AGENTS.md commit policy).
+- Do not run `git commit` / `git push` ([commit-policy.mdc](../rules/commit-policy.mdc)).
 
 ## Output format
 

@@ -1,0 +1,13 @@
+---
+description: Commit only when the user explicitly asks; propose Conventional Commits after verification
+alwaysApply: true
+---
+
+# Commit Policy
+
+- After verification, **propose** a Conventional Commit message.
+- **Do not commit** unless the user explicitly asks (keywords such as commit / commite / comitar / versionar).
+
+Enforcement: project hook `commit-policy.mjs` on `git commit` — see [`.cursor/hooks/README.md`](../hooks/README.md).
+
+Index pointer: [AGENTS.md](../../AGENTS.md).

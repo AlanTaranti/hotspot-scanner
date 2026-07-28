@@ -10,11 +10,11 @@ metadata:
 
 # Vitals Spec-Driven
 
-Plan and implement projects with precision. Granular tasks. Clear dependencies. Right tools. Zero ceremony.
+Plan features with precision. Granular tasks. Clear dependencies. Right tools. Zero ceremony.
 
 ## Project: @vitals/hotspot-scanner
 
-This skill is adapted for the **@vitals/hotspot-scanner** repository, based on TLC Spec-Driven by Felipe Rodrigues. Always read [references/vitals-project.md](references/vitals-project.md) and [AGENTS.md](../../../AGENTS.md).
+This skill is adapted for the **@vitals/hotspot-scanner** repository, based on TLC Spec-Driven by Felipe Rodrigues. Always read [vitals-project.md](../vitals-common/references/vitals-project.md) (skill `vitals-common`) and [AGENTS.md](../../../AGENTS.md) (index).
 
 **Scope:** Project-specific — do not treat as stack-agnostic. Applies only to this repository unless explicitly forked.
 
@@ -23,37 +23,36 @@ This skill is adapted for the **@vitals/hotspot-scanner** repository, based on T
 **Base load for this repo:**
 
 - [AGENTS.md](../../../AGENTS.md)
-- [references/vitals-project.md](references/vitals-project.md)
+- [vitals-project.md](../vitals-common/references/vitals-project.md)
 - `.specs/project/PROJECT.md`, `ROADMAP.md`, `STATE.md`
 
-**Project-specific overrides:**
+**Project-specific overrides (pointers):**
 
-- Gate: `pnpm build && pnpm test`
-- Requirement IDs: `HOTSPOT-` prefix
-- Commits: propose message only — commit when user explicitly asks (see AGENTS.md)
-- Validation: CLI exit codes + fixture runs, not interactive UI UAT
+- Gate → [quality-gates.mdc](../../rules/quality-gates.mdc) + TESTING § Coverage
+- Requirement IDs → [feature-planning.mdc](../../rules/feature-planning.mdc) (`HOTSPOT-*`)
+- Commits → [commit-policy.mdc](../../rules/commit-policy.mdc)
+- Exit codes / CLI validation → [docs/cli-reference.md](../../../docs/cli-reference.md#exit-codes) + skill `vitals-cli-validation`
 
-**Execute boundary:** If `tasks.md` Status is `Draft` or `Planned`, do **not** start Execute in this session — hand off to a new session with `orchestrator-implementer` after user promotes Status.
+**Execute boundary:** This skill owns Specify → Design → Tasks (and Quick / handoff). **Do not implement application code here.** If `tasks.md` Status is `Draft` or `Planned`, do **not** start Execute in this session — hand off to a new session with `orchestrator-implementer` + skill [`vitals-execute`](../vitals-execute/SKILL.md) after the user promotes Status. See [planning-session-boundary.md](references/planning-session-boundary.md).
 
 ## Progressive disclosure (do not load all references)
 
 Load **only** the refs for the current phase. Never preload the entire `references/` tree.
 
-| Phase / mode           | Load these refs                                                                                                                                                                                                                                  |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Specify                | [specify.md](references/specify.md); [discuss.md](references/discuss.md) only if gray areas                                                                                                                                                      |
-| Design                 | [design.md](references/design.md); [brownfield-mapping.md](references/brownfield-mapping.md) if Large/Complex                                                                                                                                    |
-| Tasks                  | [tasks.md](references/tasks.md); [feature-spec-checklist.md](references/feature-spec-checklist.md); [implementer-routing.md](references/implementer-routing.md); [planning-session-boundary.md](references/planning-session-boundary.md)         |
-| Execute (orchestrated) | [execute-orchestration-playbook.md](references/execute-orchestration-playbook.md); [orchestrated-implementer.md](references/orchestrated-implementer.md); [implement.md](references/implement.md); [roadmap-sync.md](references/roadmap-sync.md) |
-| Validate               | [validate.md](references/validate.md)                                                                                                                                                                                                            |
-| Quick                  | [quick-mode.md](references/quick-mode.md)                                                                                                                                                                                                        |
-| Session handoff        | [session-handoff.md](references/session-handoff.md); [state-management.md](references/state-management.md)                                                                                                                                       |
+| Phase / mode | Load these refs |
+| ------------ | --------------- |
+| Specify | [specify.md](references/specify.md); [discuss.md](references/discuss.md) only if gray areas |
+| Design | [design.md](references/design.md); [brownfield-mapping.md](references/brownfield-mapping.md) if Large/Complex |
+| Tasks | [tasks.md](references/tasks.md); [feature-spec-checklist.md](references/feature-spec-checklist.md); [implementer-routing.md](../vitals-common/references/implementer-routing.md); [planning-session-boundary.md](references/planning-session-boundary.md) |
+| Execute handoff | Stop planning; user promotes Status → new session runs `orchestrator-implementer` with [`vitals-execute`](../vitals-execute/SKILL.md) (do not load implement refs from this skill session) |
+| Quick | [quick-mode.md](references/quick-mode.md) |
+| Session handoff | [session-handoff.md](references/session-handoff.md); [state-management.md](references/state-management.md) |
 
 ```
-┌──────────┐   ┌──────────┐   ┌─────────┐   ┌─────────┐
-│ SPECIFY  │ → │  DESIGN  │ → │  TASKS  │ → │ EXECUTE │
-└──────────┘   └──────────┘   └─────────┘   └─────────┘
-   required      optional*      optional*     required
+┌──────────┐   ┌──────────┐   ┌─────────┐   ┌─────────────────────────┐
+│ SPECIFY  │ → │  DESIGN  │ → │  TASKS  │ → │ EXECUTE (other session) │
+└──────────┘   └──────────┘   └─────────┘   └─────────────────────────┘
+   required      optional*      optional*     orchestrator-implementer
 
 * Agent auto-skips when scope doesn't need it
 ```
@@ -64,20 +63,20 @@ Load **only** the refs for the current phase. Never preload the entire `referenc
 
 | Scope       | What                     | Specify                                                 | Design                                          | Tasks                         | Execute                                        |
 | ----------- | ------------------------ | ------------------------------------------------------- | ----------------------------------------------- | ----------------------------- | ---------------------------------------------- |
-| **Small**   | ≤3 files, one sentence   | **Quick mode** — skip pipeline entirely                 | -                                               | -                             | -                                              |
-| **Medium**  | Clear feature, <10 tasks | Spec (brief)                                            | Skip — design inline                            | Skip — tasks implicit         | Implement + verify                             |
-| **Large**   | Multi-component feature  | Full spec + requirement IDs                             | Architecture + components                       | Full breakdown + dependencies | Implement + verify per task                    |
-| **Complex** | Ambiguity, new domain    | Full spec + [discuss gray areas](references/discuss.md) | [Research](references/design.md) + architecture | Breakdown + parallel plan     | Implement + [validate](references/validate.md) |
+| **Small**   | ≤3 files, one sentence   | **Quick mode** — skip pipeline entirely                 | -                                               | -                             | Quick mode implements in-session (see quick-mode.md) |
+| **Medium**  | Clear feature, <10 tasks | Spec (brief)                                            | Skip — design inline                            | Skip — tasks implicit         | Handoff → `orchestrator-implementer` or quick  |
+| **Large**   | Multi-component feature  | Full spec + requirement IDs                             | Architecture + components                       | Full breakdown + dependencies | Handoff → `orchestrator-implementer`           |
+| **Complex** | Ambiguity, new domain    | Full spec + [discuss gray areas](references/discuss.md) | [Research](references/design.md) + architecture | Breakdown + parallel plan     | Handoff → orchestrator + [`vitals-execute`](../vitals-execute/SKILL.md) / validate |
 
 **Rules:**
 
-- **Specify and Execute are always required** — you always need to know WHAT and DO it
+- **Specify is always required** for Medium+; **Execute** runs in a **separate** orchestrated session (except Quick mode)
 - **Design is skipped** when the change is straightforward (no architectural decisions, no new patterns)
-- **Tasks is skipped** when there are ≤3 obvious steps (they become implicit in Execute)
+- **Tasks is skipped** when there are ≤3 obvious steps (they become implicit in Execute / quick mode)
 - **Discuss is triggered within Specify** only when the agent detects ambiguous gray areas that need user input
 - **Quick mode** is the express lane — for bug fixes, config changes, and small tweaks
 
-**Safety valve:** Even when Tasks is skipped, Execute ALWAYS starts by listing atomic steps inline (see [implement.md](references/implement.md)). If that listing reveals >5 steps or complex dependencies, STOP and create a formal `tasks.md` — the Tasks phase was wrongly skipped.
+**Safety valve:** If informal steps exceed 5 or have complex dependencies, STOP and create a formal `tasks.md` before Execute handoff.
 
 ## Project Structure
 
@@ -154,33 +153,18 @@ Follow the progressive disclosure table above. Do **not** load all `references/*
 
 ## Sub-Agent Delegation
 
-Use sub-agents (the Task tool or equivalent) to keep the main context window lean and enable parallel execution.
+Use sub-agents to keep the main context window lean.
 
-**Orchestrated Execute:** `orchestrator-implementer` delegates each task to the `implementer` subagent with `orchestrated: true`. Implementers follow the `task-implementer` skill.
+**Planning:** research via explore / generalPurpose when needed; this skill session does **not** implement.
 
-**When to delegate to a sub-agent:**
+**Execute (other session):** `orchestrator-implementer` + [`vitals-execute`](../vitals-execute/SKILL.md) — do not load implementer procedure from this planning skill session.
 
-| Activity                                    | Delegate?          | Executor                            |
-| ------------------------------------------- | ------------------ | ----------------------------------- |
-| Research (design phase, brownfield mapping) | Yes                | explore / generalPurpose            |
-| Implementing a tasks.md task                | Yes                | `implementer`                       |
-| Parallel `[P]` tasks                        | Yes (one per task) | `implementer` (parallel Task calls) |
-| Planning, task creation, validation reports | No                 | Full context required               |
-| Quick mode tasks                            | No                 | Too small to justify overhead       |
-
-**Context each `implementer` sub-agent receives:**
-
-- The specific task definition from tasks.md (What, Where, Depends on, Reuses, Done when, Tests, Gate)
-- `task-implementer` skill → coding-guidelines, CONVENTIONS.md, TESTING.md
-- Spec/design context paths listed in the orchestrator minimum prompt
-
-**What sub-agents return:**
-
-- Status: Complete | Blocked | Partial
-- Files changed: [list]
-- Gate check result: [pass/fail + test counts]
-- SPEC_DEVIATION markers (if any)
-- Issues encountered (if any)
+| Activity | Delegate? | Executor |
+| -------- | --------- | -------- |
+| Research (design / brownfield) | Yes | explore / generalPurpose |
+| Implementing a tasks.md task | Yes (Execute session) | `implementer` via orchestrator |
+| Planning, task creation | No | Full context in planner session |
+| Quick mode | No | Main agent + quick-mode.md |
 
 ## Commands
 
@@ -204,8 +188,8 @@ Use sub-agents (the Task tool or equivalent) to keep the main context window lea
 | Discuss feature, capture context     | [discuss.md](references/discuss.md)       |
 | Design feature, architecture         | [design.md](references/design.md)         |
 | Break into tasks, create tasks       | [tasks.md](references/tasks.md)           |
-| Implement task, build, execute       | [implement.md](references/implement.md)   |
-| Validate, verify, test               | [validate.md](references/validate.md)     |
+| Implement task, build, execute       | Hand off → `orchestrator-implementer` + [`vitals-execute`](../vitals-execute/SKILL.md) |
+| Validate, verify, test               | [`validate.md`](../vitals-execute/references/validate.md) / `verifier-implementation` |
 | Quick fix, quick task, small change  | [quick-mode.md](references/quick-mode.md) |
 
 ## Knowledge Verification Chain

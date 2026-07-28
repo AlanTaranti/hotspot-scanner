@@ -24,7 +24,7 @@ You are the **Code Reviewer** for @vitals/hotspot-scanner — a read-only review
 1. [`.specs/codebase/CONVENTIONS.md`](../../.specs/codebase/CONVENTIONS.md)
 2. [`.specs/codebase/INTEGRATIONS.md`](../../.specs/codebase/INTEGRATIONS.md) — mock boundaries
 3. [`.cursor/skills/coding-guidelines/SKILL.md`](../skills/coding-guidelines/SKILL.md)
-4. [AGENTS.md](../../AGENTS.md) — YAGNI, surgical diffs
+4. [coding-guidelines](../skills/coding-guidelines/SKILL.md) — YAGNI, surgical diffs (index: [AGENTS.md](../../AGENTS.md))
 
 ## Review checklist
 

@@ -6,42 +6,28 @@ alwaysApply: false
 
 # Testing Infrastructure SoT
 
-[`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md) is the **testing infrastructure and patterns SoT**: runner, organization, fixtures, coverage, mock boundaries, gates, and parallelism.
+[`.specs/codebase/TESTING.md`](../../.specs/codebase/TESTING.md) is the **testing infrastructure and patterns SoT**: runner, fixtures, coverage, mock boundaries, gates, parallelism.
 
-It is **not** a changelog, milestone tracker, product-contract encyclopedia, fragile-risk catalog, or exit-code table.
+It is **not** a changelog, product-contract encyclopedia, fragile-risk catalog, or exit-code table.
 
-## Ownership matrix
-
-| Change type | Destination |
-| ----------- | ----------- |
-| Fixture methodology, Vitest patterns, coverage, gates, mock boundaries | **TESTING.md** |
-| Modules, pipeline, contracts, constraints | **ARCHITECTURE.md** |
-| Fragile risks / RT / mitigations | **CONCERNS.md** |
-| Exit codes | **AGENTS.md** |
-| Directory layout / public API map | **STRUCTURE.md** |
-| Milestone status, feature history | **ROADMAP.md** / `.specs/features/` |
-| Decisions, deferred ideas, blockers | **STATE.md** |
+**Ownership:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md).
 
 ## Forbidden in TESTING.md
 
-- Milestone tags: `\bM\d+\b` (e.g. `M57`, `M71`)
+- Milestone tags: `\bM\d+\b`
 - Requirement IDs: `HOTSPOT-*`
-- Changelog voice: “Removed in M…”, “shipped in M…”, Execute ownership by milestone number
-- Schema/field encyclopedias (belong in ARCHITECTURE)
-- Fragile-risk catalogs (belong in CONCERNS)
-- Canonical exit-code tables (belong in AGENTS)
+- Changelog / provenance voice
+- Schema/field encyclopedias (→ ARCHITECTURE); fragile-risk catalogs (→ CONCERNS)
+- Canonical exit-code tables (→ `docs/cli-reference.md`)
 
 ## Allowed
 
-- Present-tense runner, organization, fixtures, coverage thresholds, gates
-- Test coverage matrix and parallelism assessment
-- Mock-boundary rules and integrity rules
-- Short pointers to ARCHITECTURE, CONCERNS, AGENTS, skills
+- Present-tense runner, fixtures, coverage thresholds, gates, mock boundaries
+- Short pointers to ARCHITECTURE, CONCERNS, quality-gates rule, skills
 
 ## Sync rule
 
-When living docs change after Execute:
+1. Update only for **live** test infra / patterns / fixtures / gates.
+2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → ROADMAP/STATE/feature specs.
 
-1. Update TESTING only for **live** test infra / patterns / fixtures / gates — do not append provenance.
-2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → wrong file (use ROADMAP/STATE/feature specs).
-3. Feature `design.md` / `tasks.md` may keep M##; extract only lasting test facts into TESTING.
+Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintTestingDoc`.

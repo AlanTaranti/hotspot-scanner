@@ -10,28 +10,14 @@ alwaysApply: false
 
 It is **not** a changelog, UX cookbook, flag encyclopedia, or milestone tracker.
 
-## Ownership matrix
-
-| Change type | Destination |
-| ----------- | ----------- |
-| Modules, pipeline, contracts, constraints, adapter ownership | **ARCHITECTURE.md** |
-| Fragile risks / RT / mitigations | **CONCERNS.md** |
-| External spawn/deps adapters | **INTEGRATIONS.md** |
-| Directory layout / public API map | **STRUCTURE.md** |
-| Adoption pitch, essential flags, short UX | **README** |
-| Flag encyclopedia, pipeline internals, progress/TTY, colors detail | **`docs/cli-reference.md`** |
-| Cookbooks / workflows | **`docs/recipes.md`** |
-| Warning code catalog | **docs/warning-codes.md** |
-| Exit codes | **AGENTS.md** |
-| Milestone status, feature history | **ROADMAP.md** / `.specs/features/` |
-| Decisions, deferred ideas, blockers | **STATE.md** |
+**Ownership:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md).
 
 ## Forbidden in ARCHITECTURE.md
 
 - Milestone tags: `\bM\d+\b` (e.g. `M71`, `M39–M78`)
 - Requirement IDs: `HOTSPOT-*`
 - Changelog voice: “Removed in M…”, “Sister: M…”, Execute ownership by milestone number
-- Appending UX-only detail (glyphs, column ellipsis, flag laundry lists) that belongs in `docs/cli-reference.md` / recipes / README (adoption only)
+- UX-only detail (glyphs, column ellipsis, flag laundry lists) that belongs in `docs/cli-reference.md` / recipes / README
 
 ## Allowed
 
@@ -41,8 +27,7 @@ It is **not** a changelog, UX cookbook, flag encyclopedia, or milestone tracker.
 
 ## Sync rule
 
-When living docs change after Execute:
-
 1. Update or **slim** ARCHITECTURE — do not only append.
-2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → wrong file (use ROADMAP/STATE/feature specs).
-3. Feature `design.md` may keep M##; extract only invariants into ARCHITECTURE.
+2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → ROADMAP/STATE/feature specs.
+
+Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintArchitectureDoc`.

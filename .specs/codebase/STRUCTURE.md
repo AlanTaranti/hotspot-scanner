@@ -1,6 +1,6 @@
 # STRUCTURE — @vitals/hotspot-scanner
 
-Directory layout and public API map SoT. Pipelines, contracts, and ownership boundaries: [ARCHITECTURE.md](ARCHITECTURE.md). Fixture methodology and Vitest patterns: [TESTING.md](TESTING.md). Runtime/deps inventory: [STACK.md](STACK.md).
+Directory layout and public API map SoT. Pipelines, contracts, and ownership boundaries: [ARCHITECTURE.md](ARCHITECTURE.md). Fixture methodology and Vitest patterns: [TESTING.md](TESTING.md). Runtime/deps inventory: [STACK.md](STACK.md). Where documentation content belongs: [DOC-OWNERSHIP.md](DOC-OWNERSHIP.md).
 
 ## Directory layout
 
@@ -36,7 +36,7 @@ hotspot-scanner/
 │   ├── types/                   # Domain types (no runtime logic)
 │   └── index.ts                 # Public library API
 ├── schemas/                     # scan-result, hotspot-scanner-config, complexity-trend, hotspot-assess
-├── docs/                        # User docs (recipes, methodology, warning codes)
+├── docs/                        # User docs (cli-reference exit codes SoT, recipes, methodology, warning codes)
 ├── tests/
 │   ├── fixtures/                # Git repos, git-log samples, NCLOC, scoring, report, workers
 │   ├── contract/                # JSON schema validation against schemas/

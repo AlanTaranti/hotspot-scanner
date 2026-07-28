@@ -1,0 +1,36 @@
+---
+description: Keep docs/* as present-tense user docs — no milestone changelog
+globs: docs/**/*.md
+alwaysApply: false
+---
+
+# User Docs SoT
+
+Files under [`docs/`](../../docs/) are **user-facing reference docs**. Roles:
+
+| File | Role |
+| ---- | ---- |
+| `cli-reference.md` | Flag encyclopedia, pipeline internals, progress/TTY, **canonical exit codes** |
+| `recipes.md` | Cookbooks / copy-paste workflows |
+| `methodology.md` | Why NCLOC / indentation |
+| `warning-codes.md` | Warning code catalog |
+
+**Ownership:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md).
+
+## Forbidden
+
+- Milestone tags: `\bM\d+\b`
+- Changelog / provenance voice (“shipped in M…”)
+
+## Allowed
+
+- Present-tense encyclopedias and cookbooks
+- Exit-code table in `cli-reference.md` (SoT)
+- Links to README (adoption), ARCHITECTURE, CONTRIBUTING
+
+## Sync rule
+
+1. New power-user flag detail → `cli-reference.md`; essential first-run → README + one cli-reference entry.
+2. Workflows → `recipes.md`; codes → `warning-codes.md`.
+
+Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintDocsUserDoc`.

@@ -26,7 +26,7 @@ Under `summary`, warnings buffer during the scan; after the report is written (s
 
 **Warnings/Timing rollups** (`Warnings: N total (…)` and the Timing line) appear only in table/markdown executive summaries — not on stderr.
 
-**Severity vs exit code.** `severity` classifies diagnostics only. A successful scan exits `0` even when warnings are present. Hard failures use the exit codes in [README.md](../README.md#exit-codes) (`1` for `--fail-on-explain-miss`, `2` for usage/config errors, `130`/`143` for cancel).
+**Severity vs exit code.** `severity` classifies diagnostics only. A successful scan exits `0` even when warnings are present. Hard failures use the exit codes in [docs/cli-reference.md → Exit codes](cli-reference.md#exit-codes) (`1` for `--fail-on-explain-miss`, `2` for usage/config errors, `130`/`143` for cancel).
 
 ## Stable codes
 
@@ -36,7 +36,7 @@ Under `summary`, warnings buffer during the scan; after the report is written (s
 | `RENAME_HISTORY_INCOMPLETE` | Rename tracking incomplete for one or more paths — churn may be split; includes rename-confidence messages (ambiguous chain, unlinked delete+add, `--since` truncation) |
 | `READ_FAILED` | A source file could not be read for NCLOC — file omitted from hotspots; fix permissions or exclude the path |
 | `MONOREPO_PATH_REMOUNT` | Scan path was remounted to the git root; auto-include `{prefix}/**` applied unless CLI `--include` was set |
-| `UNKNOWN_CONFIG_KEY` | Unknown key(s) in `.hotspot-scanner.json` — ignored for merge (values not applied); includes legacy keys such as `granularity` from pre-M57 configs |
+| `UNKNOWN_CONFIG_KEY` | Unknown key(s) in `.hotspot-scanner.json` — ignored for merge (values not applied); includes legacy keys such as `granularity` from older configs |
 
 ## Removed codes
 

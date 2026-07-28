@@ -6,39 +6,23 @@ alwaysApply: false
 
 # Roadmap SoT
 
-[`.specs/project/ROADMAP.md`](../../.specs/project/ROADMAP.md) is the **milestone status SoT**: current status, done-summary index, and a compact historical archive with links to feature specs.
+[`.specs/project/ROADMAP.md`](../../.specs/project/ROADMAP.md) is the **milestone status SoT**: current status, done-summary index, compact historical archive with links to feature specs.
 
-It is **not** a `tasks.md` mirror, feature `context.md` dump, CLI/flag encyclopedia, or deferred-backlog inventory.
+It is **not** a `tasks.md` mirror, feature dump, CLI encyclopedia, or deferred-backlog inventory.
 
-## Ownership matrix
-
-| Change type | Destination |
-| ----------- | ----------- |
-| Milestone status, compact archive, Done summary | **ROADMAP.md** |
-| Spec detail, locked decisions, task checklists | `.specs/features/<slug>/` |
-| Decisions, deferred ideas, blockers | **STATE.md** |
-| Present-tense product vision / boundaries | **PROJECT.md** |
-| Present-tense design / conventions / stack | `.specs/codebase/` |
+**Ownership:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md). Milestone tags (`M##`) **are allowed**.
 
 ## Forbidden in ROADMAP.md
 
-- Planning metadata blocks: `Artifacts:`, `Sisters`, `IDs:` / `HOTSPOT-*`, `Depth:`, `Priority:` laundry in archive entries
-- `Out of scope:` sections (belong in feature `context.md` / `spec.md`)
-- `Final gate` / repeated `pnpm build && pnpm test` process noise
-- `Suggested execution order` for completed bands
+- `Artifacts:`, `Sisters`, `IDs:` / `HOTSPOT-*`, `Depth:`, `Priority:` laundry in archive entries
+- `Out of scope:`, `Final gate` / repeated gate process noise, `Suggested execution order`
 - `Further horizon` Deferred lists (pointer to STATE only)
-- Task checklists (`- [ ]` / `- [x]`) that mirror `tasks.md`
-- Headers framed as `Post-* backlog` for already-Done work
-- Dense implementation paths / locked-decision prose copied from Execute
-
-Milestone tags (`M##`) **are allowed** — this file is the milestone tracker.
+- Task checkboxes mirroring `tasks.md`; `Post-* backlog` for already-Done work
 
 ## Allowed
 
-- **Current** table (Status / Open / Deferred→STATE pointer)
-- **Done summary** band table
-- **Archive** entries in the minimal template below
-- One-line supersession notes for hard cuts (detail stays in the feature spec)
+- Current table; Done summary; Archive entries in the template below
+- One-line supersession notes (detail stays in the feature spec)
 
 ## Entry template
 
@@ -52,12 +36,11 @@ One-line outcome.
 - Up to 3–5 capability bullets (not tasks)
 ```
 
-Same shape for **PLANNED** / **IN PROGRESS** (status suffix only). Sync rules: [roadmap-sync.md](../skills/vitals-spec-driven/references/roadmap-sync.md).
+Sync rules: [roadmap-sync.md](../skills/vitals-common/references/roadmap-sync.md).
 
 ## Sync rule
 
-When planning or Execute Done:
+1. Add or mark milestones with the template — do not paste Artifacts / HOTSPOT / Out of scope / gate / tasks.
+2. Self-check: *Is this already in `context.md`, `tasks.md`, or STATE?* If yes → do not put it in ROADMAP.
 
-1. Add or mark the milestone entry using the template — link `spec.md`; do not paste Artifacts / HOTSPOT / Out of scope / gate / tasks.
-2. Update **Current** + Done summary when the open set changes.
-3. Self-check: *Is this already in `context.md`, `tasks.md`, or STATE?* If yes → do not put it in ROADMAP.
+Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintRoadmapDoc`.

@@ -11,7 +11,7 @@ You do **not** orchestrate waves, plan specs, run acceptance verification, or ru
 
 ## When to invoke
 
-- **Orchestrated (primary).** `orchestrator-implementer` delegates Phase B with `orchestrated: true` and the minimum prompt from [execute-orchestration-playbook.md](../skills/vitals-spec-driven/references/execute-orchestration-playbook.md).
+- **Orchestrated (primary).** `orchestrator-implementer` delegates Phase B with `orchestrated: true` and the minimum prompt from [execute-orchestration-playbook.md](../skills/vitals-execute/references/execute-orchestration-playbook.md).
 - **Direct.** User requests a single task: `/implementer implement T3` on an approved `tasks.md`.
 
 **Do NOT invoke when:**
@@ -27,13 +27,13 @@ You do **not** orchestrate waves, plan specs, run acceptance verification, or ru
 1. Read [`.cursor/skills/task-implementer/SKILL.md`](../skills/task-implementer/SKILL.md) and follow the mode branch.
 2. Implement **one task only** — do not read or execute sibling tasks.
 3. Run the task **Verify** or **Gate** command; non-zero exit → fix and re-run, or report Blocked/Partial.
-4. Return structured report per [orchestrated-implementer.md](../skills/vitals-spec-driven/references/orchestrated-implementer.md) § Structured return.
+4. Return structured report per [orchestrated-implementer.md](../skills/task-implementer/references/orchestrated-implementer.md) § Structured return.
 
 Do not inline routing tables or RED→GREEN→VERIFY steps — the skill and references own the workflow.
 
 ## Hard constraints
 
-- YAGNI / commit policy: [AGENTS.md](../../AGENTS.md).
-- Requirement IDs: `HOTSPOT-*` when tracing to spec.
+- YAGNI / commit: [coding-guidelines](../skills/coding-guidelines/SKILL.md), [commit-policy.mdc](../rules/commit-policy.mdc) (index: [AGENTS.md](../../AGENTS.md)).
+- Requirement IDs: `HOTSPOT-*` ([feature-planning.mdc](../rules/feature-planning.mdc)) when tracing to spec.
 - When `orchestrated: true`: do **not** edit `tasks.md`, feature Status, or `ROADMAP.md`.
-- Do not run project-wide `pnpm build && pnpm test` unless that is the task's Verify/Gate field.
+- Do not run project-wide `pnpm build && pnpm test` unless that is the task's Verify/Gate field ([quality-gates.mdc](../rules/quality-gates.mdc)).

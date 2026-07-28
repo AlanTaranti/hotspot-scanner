@@ -6,41 +6,26 @@ alwaysApply: false
 
 # Project Vision SoT
 
-[`.specs/project/PROJECT.md`](../../.specs/project/PROJECT.md) is the **product-vision SoT**: vision, goals, constraints, capability-level scope, and high-level JSON contract versions.
+[`.specs/project/PROJECT.md`](../../.specs/project/PROJECT.md) is the **product-vision SoT**: vision, goals, constraints, capability-level scope, high-level JSON contract versions.
 
 It is **not** a changelog, milestone tracker, CLI flag encyclopedia, or deferred-backlog inventory.
 
-## Ownership matrix
-
-| Change type | Destination |
-| ----------- | ----------- |
-| Vision, goals, constraints, capability-level in/out of product | **PROJECT.md** |
-| Milestone status, feature history | **ROADMAP.md** / `.specs/features/` |
-| Decisions, deferred ideas, blockers | **STATE.md** |
-| Runtime / deps inventory | **STACK.md** |
-| Modules, pipelines, contract field detail | **ARCHITECTURE.md** |
-| Adoption pitch, essential flags, short API | **README** |
-| Flag encyclopedia, pipeline internals, progress/TTY | **`docs/cli-reference.md`** |
-| Cookbooks / workflows | **`docs/recipes.md`** |
+**Ownership:** [DOC-OWNERSHIP.md](../../.specs/codebase/DOC-OWNERSHIP.md).
 
 ## Forbidden in PROJECT.md
 
-- Milestone tags: `\bM\d+\b` (e.g. `M71`, `M78`)
+- Milestone tags: `\bM\d+\b`
 - Requirement IDs: `HOTSPOT-*`
-- Changelog voice: “through M…”, “Removed (M…)”, “shipped in M…”, Execute ownership by milestone number
-- Exhaustive CLI flag laundry lists
-- Deferred backlog inventories (belong in STATE § Deferred)
+- Changelog voice; exhaustive CLI flag laundry lists; deferred inventories (→ STATE)
 
 ## Allowed
 
-- Present-tense product surface (“no compare CLI”, not “removed in M71”)
-- High-level JSON contract version table
+- Present-tense product surface; high-level JSON version table
 - Short pointers to ROADMAP, STATE, STACK, ARCHITECTURE, recipes
 
 ## Sync rule
 
-When living docs change after Execute:
+1. Update only for **live** vision / boundaries / contract versions.
+2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → ROADMAP/STATE/feature specs.
 
-1. Update PROJECT only for **live** vision / boundaries / contract versions — do not append provenance.
-2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → wrong file (use ROADMAP/STATE/feature specs).
-3. Feature `design.md` / `tasks.md` may keep M##; extract only lasting product facts into PROJECT.
+Editorial lint: [living-sot-doc.mjs](../hooks/lib/living-sot-doc.mjs) `lintProjectDoc`.

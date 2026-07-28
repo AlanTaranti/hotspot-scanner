@@ -1,6 +1,6 @@
 # AGENTS.md — @vitals/hotspot-scanner
 
-Index and policies for AI agents in this repository. Design SoT: [`.specs/codebase/ARCHITECTURE.md`](.specs/codebase/ARCHITECTURE.md). Module and CLI detail overlay: [`.cursor/skills/vitals-spec-driven/references/vitals-project.md`](.cursor/skills/vitals-spec-driven/references/vitals-project.md).
+Index for AI agents in this repository. **Policy SoTs live elsewhere** — this file points to them. Design SoT: [`.specs/codebase/ARCHITECTURE.md`](.specs/codebase/ARCHITECTURE.md). Doc ownership: [`.specs/codebase/DOC-OWNERSHIP.md`](.specs/codebase/DOC-OWNERSHIP.md). Module/CLI overlay: [`.cursor/skills/vitals-common/references/vitals-project.md`](.cursor/skills/vitals-common/references/vitals-project.md).
 
 ## Identity
 
@@ -19,40 +19,17 @@ Pipeline: `git log` (streaming) → NCLOC size analysis → hotspot scoring → 
 
 | Topic | Document |
 | ----- | -------- |
+| Doc ownership | [DOC-OWNERSHIP.md](.specs/codebase/DOC-OWNERSHIP.md) |
 | Modules / pipeline / contracts | [ARCHITECTURE.md](.specs/codebase/ARCHITECTURE.md) |
 | Fragile risks | [CONCERNS.md](.specs/codebase/CONCERNS.md) |
 | Tests / coverage | [TESTING.md](.specs/codebase/TESTING.md) |
 | Progress / decisions | [ROADMAP.md](.specs/project/ROADMAP.md), [STATE.md](.specs/project/STATE.md) |
 | Feature work | `.specs/features/<slug>/` |
-
-## Quality gate
-
-```bash
-pnpm build && pnpm test
-```
-
-Required before marking any implementation task Done. Coverage thresholds: [TESTING.md](.specs/codebase/TESTING.md) § Coverage.
-
-## Requirement IDs
-
-Prefix **`HOTSPOT-*`** in `spec.md` and `tasks.md` (e.g. `HOTSPOT-01`).
-
-## Commit policy
-
-- Propose a Conventional Commit message after verification.
-- **Do not commit** unless the user explicitly asks.
-
-## Validation (CLI)
-
-Fixtures: `tests/fixtures/repos/<slug>`. Flag matrix and fixture runs: skill `vitals-cli-validation`.
-
-| Exit code | Meaning |
-| --------- | ------- |
-| `0` | Scan completed successfully (`--explain` miss without `--fail-on-explain-miss` also exits `0`) |
-| `1` | `--fail-on-explain-miss` with missing explain target |
-| `2` | Invalid CLI args, config validation, or usage errors (including unknown/removed `compare` / `baseline` / `--strict`) |
-| `130` | Cancelled by `SIGINT` (POSIX 128+2) |
-| `143` | Cancelled by `SIGTERM` (POSIX 128+15) |
+| Exit codes | [docs/cli-reference.md](docs/cli-reference.md#exit-codes) |
+| Quality gate | [`.cursor/rules/quality-gates.mdc`](.cursor/rules/quality-gates.mdc) + TESTING § Coverage |
+| Commit policy | [`.cursor/rules/commit-policy.mdc`](.cursor/rules/commit-policy.mdc) |
+| YAGNI / surgical diffs | [coding-guidelines](.cursor/skills/coding-guidelines/SKILL.md) |
+| Requirement IDs `HOTSPOT-*` | [`.cursor/rules/feature-planning.mdc`](.cursor/rules/feature-planning.mdc) |
 
 ## Skills and agents
 
@@ -60,7 +37,9 @@ Fixtures: `tests/fixtures/repos/<slug>`. Flag matrix and fixture runs: skill `vi
 
 | Skill | Use for |
 | ----- | ------- |
-| `vitals-spec-driven` | Specify → Design → Tasks → Execute workflow |
+| `vitals-spec-driven` | Specify → Design → Tasks (planning) + Execute handoff |
+| `vitals-execute` | Execute orchestration A→F (with `orchestrator-implementer`) |
+| `vitals-common` | Shared overlay (vitals-project, roadmap-sync, implementer-routing) |
 | `vitals-pipeline-domain` | Domain context (git, NCLOC, scoring, scan-result parse, config, report) |
 | `vitals-cli-validation` | CLI flag and fixture validation |
 | `task-implementer` | Single `tasks.md` task RED→GREEN→VERIFY (used by `implementer`) |
@@ -78,10 +57,6 @@ Fixtures: `tests/fixtures/repos/<slug>`. Flag matrix and fixture runs: skill `vi
 | `verifier-implementation` | Spec acceptance vs `spec.md` / `tasks.md` (Phase D) |
 | `verifier-quality-gates` | Run `pnpm build && pnpm test` and report (Phase E) |
 | `fixture-builder` | Create/update trees under `tests/fixtures/` |
-
-## YAGNI
-
-Implement only what was asked. No extra features, flags, or abstractions beyond the current requirement.
 
 ## Hooks
 
