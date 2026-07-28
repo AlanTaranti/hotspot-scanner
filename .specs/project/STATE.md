@@ -3,13 +3,13 @@
 Persistent memory for decisions, blockers, and lessons across sessions.
 
 **Last Updated:** 2026-07-28
-**Current Work:** M79 Planned — package-scope-rename; see ROADMAP Current
+**Current Work:** M79 + M80 Planned — package-scope-rename + github-repo-identity; see ROADMAP Current
 
 Archive of chronological Execute rows: [STATE-ARCHIVE.md](STATE-ARCHIVE.md).
 
 ## Active
 
-**M79 Planned** — [package-scope-rename](../features/package-scope-rename/spec.md) (`@vitals/hotspot-scanner` → `@taranti/hotspot-scanner`). Prior band M7–M78 Done. Deferred horizon: see § Deferred. Milestone status: [ROADMAP.md](ROADMAP.md) **Current**.
+**M79 Planned** — [package-scope-rename](../features/package-scope-rename/spec.md) (`@vitals` → `@taranti`). **M80 Planned** — [github-repo-identity](../features/github-repo-identity/spec.md) (live GitHub URLs → `AlanTaranti/hotspot-scanner`). Prior band M7–M78 Done. Deferred horizon: see § Deferred. Milestone status: [ROADMAP.md](ROADMAP.md) **Current**.
 
 ## Blockers
 
@@ -30,7 +30,8 @@ Lasting product locks. Chronological Execute / Planned→Done rows: [STATE-ARCHI
 
 | Date       | Decision                                                          | Rationale                                                                                                                                                                                                 |
 | ---------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-07-28 | npm package scope **`@taranti`** (`@taranti/hotspot-scanner`)     | Match author/repo ownership; bin stays `hotspot-scanner` (ADR-2026-021); Cursor skill folders stay `vitals-*` (2026-07-21); no npm publish in M79 (Deferred)                                              |
+| 2026-07-28 | GitHub owner **`AlanTaranti`**; npm scope **`@taranti`** (distinct) | Real remote is `github.com/AlanTaranti/hotspot-scanner`; npm rename stays M79 `@taranti` — names intentionally differ; do not “fix” one to the other; live surfaces only (historical Done specs / CI out of M80) |
+| 2026-07-28 | npm package scope **`@taranti`** (`@taranti/hotspot-scanner`)     | Match author/npm ownership axis; bin stays `hotspot-scanner` (ADR-2026-021); Cursor skill folders stay `vitals-*` (2026-07-21); no npm publish in M79 (Deferred); GitHub owner is separately `AlanTaranti` |
 | 2026-07-21 | **Vitest** over Jest                                              | Already in `package.json`; no reason to switch                                                                                                                                                            |
 | 2026-07-21 | Default `--since`: **12 months**                                  | Aligns with large-repo scenario; user must see window in output                                                                                                                                           |
 | 2026-07-21 | Raw **commit count** for churn (not relative code churn)          | Moving denominator problem; aggravates rename distortion; closed (see Alternatives)                                                                                                                       |

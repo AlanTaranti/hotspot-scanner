@@ -4,8 +4,8 @@
 
 | Field | Value |
 | ----- | ----- |
-| **Status** | **M79 Planned** — package scope rename (`@taranti/hotspot-scanner`) |
-| **Open milestones** | M79 |
+| **Status** | **M79 + M80 Planned** — npm scope rename (`@taranti`); GitHub identity (`AlanTaranti`) |
+| **Open milestones** | M79, M80 |
 | **Deferred** | [STATE.md](STATE.md) § Deferred |
 
 Archive below is historical (feature links stay valid). Prefer this table + Done summary for “what’s next”; deferred ideas live only in STATE. Detail for any milestone: `.specs/features/<slug>/`.
@@ -754,3 +754,13 @@ Rename npm package identity from `@vitals/hotspot-scanner` to `@taranti/hotspot-
 - package.json + PACKAGE_NAME
 - Adoption and living docs identity sweep
 - Cursor agents/skills prose (not skill folder renames)
+
+## Milestone 80 — GitHub repo identity — PLANNED
+
+→ [`.specs/features/github-repo-identity/spec.md`](../features/github-repo-identity/spec.md)
+
+Point live GitHub citations at the real remote `AlanTaranti/hotspot-scanner`.
+
+- README badge + clone; CONTRIBUTING clone/Issues; SECURITY advisories
+- package.json `repository.url` + `homepage` + `bugs`
+- npm scope remains M79 (`@taranti`); intentionally distinct from GitHub owner
