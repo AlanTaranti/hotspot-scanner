@@ -4,6 +4,8 @@
 
 - **ESM only** — `"type": "module"` in `package.json`
 - Import internal modules with `.js` extension in TypeScript source (Node ESM resolution)
+- Cross-package imports use `#` aliases (`#scan`, `#types`, `#report`, …) from `package.json` `imports`
+- Production `bin/*.ts` must use `#` aliases only — never `../src/` (compiled bin resolves under `dist/bin/`; see CONCERNS.md)
 - `src/types/` — type definitions only; no runtime logic (excluded from coverage thresholds)
 
 ## Naming
@@ -11,6 +13,8 @@
 - Package: `@vitals/hotspot-scanner`
 - CLI binary: `hotspot-scanner` (unscoped, per ADR-2026-021)
 - Requirement IDs: `HOTSPOT-*`
+- Source files: kebab-case (`analyze-file.ts`, `run-assess.ts`)
+- Factories: `create*` (`createGitMiner`, `createHotspotScorer`, `createReporter`); orchestration entrypoints: `run*` (`runScan`, `runAssess`, `runComplexityTrend`, `runDoctor`)
 
 ## Tests
 
@@ -28,7 +32,7 @@
 - `pnpm build` runs `tsc && tsc -p tsconfig.bin.json`
 - `pnpm typecheck` runs `tsc --noEmit && tsc --noEmit -p tsconfig.bin.json`
 
-## Lint and format (M24)
+## Lint and format
 
 | Script         | Command              | Notes                                                                             |
 | -------------- | -------------------- | --------------------------------------------------------------------------------- |
@@ -38,16 +42,12 @@
 
 Project **Done gate** remains `pnpm build && pnpm test` only (see AGENTS.md). Lint/format are recommended locally (CONTRIBUTING).
 
-## Package metadata (M24)
-
-- `engines.node`: `>=22`
-- `files`: includes `dist`, `schemas`, `LICENSE`, `README.md` (schemas ship for M20 JSON contract consumers)
-
 ## CLI conventions
 
 - Domain logic stays out of `bin/` — flag parsing and wiring only; invoke domain entrypoints (`runScan`, `runComplexityTrend`, `runAssess`, `runDoctor`, config/doctor helpers)
-- Default `--since`: 12 months (STATE decision; show window in output)
-- ANSI color: resolved in `bin/` (`resolveTableColor` scan table, `resolveDoctorColor` doctor text, `resolveTrendColor` trend table, `resolveAssessColor` assess table) → `color: boolean` passed into `src/report/` formatters; TTY stdout + empty/unset `NO_COLOR` + subcommand `--no-color` gates (+ no `--output` for table surfaces); doctor colors status prefixes only; trend colors Pattern kind only; assess bolds title/section and colors pattern kinds + scores
+- Config: only `.hotspot-scanner.json`; precedence CLI > config > defaults
+- Default `--since`: 12 months (show window in output)
+- ANSI color: bin resolves `color: boolean` before pure `src/report/` formatters — see ARCHITECTURE.md § ANSI color ownership
 
 ## Commits
 
