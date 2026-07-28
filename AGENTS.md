@@ -1,4 +1,4 @@
-# AGENTS.md — @vitals/hotspot-scanner
+# AGENTS.md — @taranti/hotspot-scanner
 
 Index for AI agents in this repository. **Policy SoTs live elsewhere** — this file points to them. Design SoT: [`.specs/codebase/ARCHITECTURE.md`](.specs/codebase/ARCHITECTURE.md). Doc ownership: [`.specs/codebase/DOC-OWNERSHIP.md`](.specs/codebase/DOC-OWNERSHIP.md). Module/CLI overlay: [`.cursor/skills/vitals-common/references/vitals-project.md`](.cursor/skills/vitals-common/references/vitals-project.md).
 
@@ -6,7 +6,7 @@ Index for AI agents in this repository. **Policy SoTs live elsewhere** — this 
 
 | Field | Value |
 | ----- | ----- |
-| **Package** | `@vitals/hotspot-scanner` |
+| **Package** | `@taranti/hotspot-scanner` |
 | **CLI bin** | `hotspot-scanner` (unscoped) |
 | **Purpose** | Local CLI that ranks TS/JS maintenance hotspots from NCLOC and Git churn (file-level) |
 | **Design SoT** | [`.specs/codebase/ARCHITECTURE.md`](.specs/codebase/ARCHITECTURE.md) |

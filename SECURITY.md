@@ -20,9 +20,9 @@ Security fixes are applied to the latest release on the default branch. There is
 
 **Do not open a public GitHub issue for security vulnerabilities.**
 
-Report security issues through [GitHub Security Advisories](https://github.com/taranti/hotspot-scanner/security/advisories/new) for this repository:
+Report security issues through [GitHub Security Advisories](https://github.com/AlanTaranti/hotspot-scanner/security/advisories/new) for this repository:
 
-https://github.com/taranti/hotspot-scanner/security/advisories/new
+https://github.com/AlanTaranti/hotspot-scanner/security/advisories/new
 
 Include:
 

@@ -1,15 +1,15 @@
-# STATE — @vitals/hotspot-scanner
+# STATE — @taranti/hotspot-scanner
 
 Persistent memory for decisions, blockers, and lessons across sessions.
 
 **Last Updated:** 2026-07-28
-**Current Work:** M79 + M80 Planned — package-scope-rename + github-repo-identity; see ROADMAP Current
+**Current Work:** M79 + M80 Done — package-scope-rename + github-repo-identity; see ROADMAP Current
 
 Archive of chronological Execute rows: [STATE-ARCHIVE.md](STATE-ARCHIVE.md).
 
 ## Active
 
-**M79 Planned** — [package-scope-rename](../features/package-scope-rename/spec.md) (`@vitals` → `@taranti`). **M80 Planned** — [github-repo-identity](../features/github-repo-identity/spec.md) (live GitHub URLs → `AlanTaranti/hotspot-scanner`). Prior band M7–M78 Done. Deferred horizon: see § Deferred. Milestone status: [ROADMAP.md](ROADMAP.md) **Current**.
+**M79 Done** — [package-scope-rename](../features/package-scope-rename/spec.md) (`@taranti/hotspot-scanner`). **M80 Done** — [github-repo-identity](../features/github-repo-identity/spec.md) (live GitHub URLs → `AlanTaranti/hotspot-scanner`). Prior band M7–M78 Done. Deferred horizon: see § Deferred. Milestone status: [ROADMAP.md](ROADMAP.md) **Current**.
 
 ## Blockers
 

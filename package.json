@@ -1,5 +1,5 @@
 {
-  "name": "@vitals/hotspot-scanner",
+  "name": "@taranti/hotspot-scanner",
   "version": "1.0.0",
   "description": "Local CLI for TS/JS maintenance hotspot analysis (NCLOC + Git churn)",
   "type": "module",
@@ -42,7 +42,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/taranti/hotspot-scanner.git"
+    "url": "git+https://github.com/AlanTaranti/hotspot-scanner.git"
+  },
+  "homepage": "https://github.com/AlanTaranti/hotspot-scanner",
+  "bugs": {
+    "url": "https://github.com/AlanTaranti/hotspot-scanner/issues"
   },
   "scripts": {
     "clean": "rm -rf dist tsconfig.tsbuildinfo",

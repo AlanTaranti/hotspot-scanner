@@ -1,5 +1,5 @@
 /** Package entry — public API for programmatic use. */
-export const PACKAGE_NAME = "@vitals/hotspot-scanner";
+export const PACKAGE_NAME = "@taranti/hotspot-scanner";
 
 export {
   parseScanResult,

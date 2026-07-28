@@ -160,7 +160,7 @@ Save full `ScanResult` JSON for scripts, dashboards, or archival — not for in-
 hotspot-scanner scan . --format json --output scan.json
 ```
 
-Validate saved JSON programmatically with `parseScanResult` from `@vitals/hotspot-scanner`. **Do not use `--only`** when exporting JSON intended for downstream tools — filtered JSON omits required keys.
+Validate saved JSON programmatically with `parseScanResult` from `@taranti/hotspot-scanner`. **Do not use `--only`** when exporting JSON intended for downstream tools — filtered JSON omits required keys.
 
 ```bash
 # Partial export for triage — may omit sections

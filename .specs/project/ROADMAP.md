@@ -1,11 +1,11 @@
-# ROADMAP — @vitals/hotspot-scanner
+# ROADMAP — @taranti/hotspot-scanner
 
 ## Current
 
 | Field | Value |
 | ----- | ----- |
-| **Status** | **M79 + M80 Planned** — npm scope rename (`@taranti`); GitHub identity (`AlanTaranti`) |
-| **Open milestones** | M79, M80 |
+| **Status** | **M79 + M80 Done** — package scope `@taranti`; GitHub identity `AlanTaranti` |
+| **Open milestones** | _None_ |
 | **Deferred** | [STATE.md](STATE.md) § Deferred |
 
 Archive below is historical (feature links stay valid). Prefer this table + Done summary for “what’s next”; deferred ideas live only in STATE. Detail for any milestone: `.specs/features/<slug>/`.
@@ -24,6 +24,7 @@ Archive below is historical (feature links stay valid). Prefer this table + Done
 | M56–M65 | Remove coupling; NCLOC metric (retire McCabe/function mode); warnings UX; TTY progress; table path UX; progress bar; feedback/copy UX; CLI surface parity; config/doctor DX; git error UX |
 | M66–M72 | Contract enrich, scope+, warnings bookend, write confirm, table Lines parity; **remove compare/baseline (scan-only)**; complexity trend CLI |
 | M73–M78 | Top-only rollups; doctor/trend/assess color UX; growth-pattern bridge; hotspot assess |
+| M79–M80 | Package scope rename (`@taranti`); GitHub repo identity (`AlanTaranti`) |
 
 ---
 
@@ -745,7 +746,7 @@ TTY ANSI on assess table title, Pattern kinds, and detail scores.
 - Bold sections + shared growth-pattern paints
 - Honor `--no-color` / non-TTY / `--output` / non-table
 
-## Milestone 79 — Package scope rename — PLANNED
+## Milestone 79 — Package scope rename — DONE
 
 → [`.specs/features/package-scope-rename/spec.md`](../features/package-scope-rename/spec.md)
 
@@ -755,7 +756,7 @@ Rename npm package identity from `@vitals/hotspot-scanner` to `@taranti/hotspot-
 - Adoption and living docs identity sweep
 - Cursor agents/skills prose (not skill folder renames)
 
-## Milestone 80 — GitHub repo identity — PLANNED
+## Milestone 80 — GitHub repo identity — DONE
 
 → [`.specs/features/github-repo-identity/spec.md`](../features/github-repo-identity/spec.md)
 

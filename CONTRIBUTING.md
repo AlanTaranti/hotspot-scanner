@@ -1,10 +1,10 @@
-# Contributing to @vitals/hotspot-scanner
+# Contributing to @taranti/hotspot-scanner
 
 Thank you for your interest in contributing. This guide covers local setup, the quality gate, and how to open a pull request.
 
 **Audience:** human contributors. For AI agent index and policy pointers, see [AGENTS.md](AGENTS.md). Exit codes: [docs/cli-reference.md](docs/cli-reference.md#exit-codes). Do not mirror STRUCTURE, TESTING, INTEGRATIONS, CONCERNS, or the exit-code table here — link those SoTs instead.
 
-**@vitals/hotspot-scanner** is a local CLI that ranks TypeScript/JavaScript maintenance hotspots from NCLOC and Git churn (file-level). Design source of truth: [.specs/codebase/ARCHITECTURE.md](.specs/codebase/ARCHITECTURE.md).
+**@taranti/hotspot-scanner** is a local CLI that ranks TypeScript/JavaScript maintenance hotspots from NCLOC and Git churn (file-level). Design source of truth: [.specs/codebase/ARCHITECTURE.md](.specs/codebase/ARCHITECTURE.md).
 
 ## Prerequisites
 
@@ -17,7 +17,7 @@ Thank you for your interest in contributing. This guide covers local setup, the 
 ## Local setup
 
 ```bash
-git clone https://github.com/taranti/hotspot-scanner.git
+git clone https://github.com/AlanTaranti/hotspot-scanner.git
 cd hotspot-scanner
 pnpm install
 pnpm build
@@ -115,7 +115,7 @@ Fragile modules (git mining, NCLOC, scoring) need extra care and targeted fixtur
 
 - Use **Conventional Commits** (e.g. `feat:`, `fix:`, `test:`, `docs:`)
 - PR description should include: what changed, why, and a test plan (commands you ran)
-- Bug reports and feature requests: [GitHub Issues](https://github.com/taranti/hotspot-scanner/issues)
+- Bug reports and feature requests: [GitHub Issues](https://github.com/AlanTaranti/hotspot-scanner/issues)
 - Security vulnerabilities: follow [SECURITY.md](SECURITY.md) — do not open a public issue
 
 ## Documentation map

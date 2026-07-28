@@ -3,7 +3,7 @@
 **Design**: [design.md](./design.md)  
 **Spec**: [spec.md](./spec.md)  
 **Context**: [context.md](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Large feature — STOP at Planned; Execute in a separate session via `orchestrator-implementer` after Status promotion. Do **not** rename `vitals-*` skill folders, bin `hotspot-scanner`, or `.hotspot-scanner.json`. Do **not** npm publish. Do **not** change schemas / JSON contract versions / scan API.
 
 ---
@@ -111,10 +111,10 @@ flowchart TD
 **Reuses:** Existing `PACKAGE_NAME` export + package unit suite  
 **Done when:**
 
-- [ ] `package.json` `"name"` is `@taranti/hotspot-scanner`
-- [ ] `PACKAGE_NAME === "@taranti/hotspot-scanner"`
-- [ ] Unit test expects the new string
-- [ ] `"bin"."hotspot-scanner"` and `#` imports unchanged
+- [x] `package.json` `"name"` is `@taranti/hotspot-scanner`
+- [x] `PACKAGE_NAME === "@taranti/hotspot-scanner"`
+- [x] Unit test expects the new string
+- [x] `"bin"."hotspot-scanner"` and `#` imports unchanged
 
 **Tests:** `src/index.test.ts`  
 **Gate:** `pnpm test -- src/index.test.ts`  
@@ -130,9 +130,9 @@ flowchart TD
 **Reuses:** Exact-string replace; existing package-vs-bin wording patterns  
 **Done when:**
 
-- [ ] Listed files contain zero `@vitals/hotspot-scanner`
-- [ ] Package citations use `@taranti/hotspot-scanner`
-- [ ] Bin invocations remain `hotspot-scanner` (not scoped)
+- [x] Listed files contain zero `@vitals/hotspot-scanner`
+- [x] Package citations use `@taranti/hotspot-scanner`
+- [x] Bin invocations remain `hotspot-scanner` (not scoped)
 
 **Tests:** none  
 **Gate:** none beyond review (project gate in T5)  
@@ -148,9 +148,9 @@ flowchart TD
 **Reuses:** Exact-string replace  
 **Done when:**
 
-- [ ] T3 paths have zero `@vitals/hotspot-scanner`
-- [ ] Schemas / contract `version` values unchanged
-- [ ] No accidental edits to T2 files
+- [x] T3 paths have zero `@vitals/hotspot-scanner`
+- [x] Schemas / contract `version` values unchanged
+- [x] No accidental edits to T2 files
 
 **Tests:** none  
 **Gate:** none beyond review (project gate in T5)  
@@ -166,9 +166,9 @@ flowchart TD
 **Reuses:** Exact-string replace  
 **Done when:**
 
-- [ ] `.cursor/` has zero `@vitals/hotspot-scanner`
-- [ ] `ls .cursor/skills` still shows `vitals-*` directory names
-- [ ] `#` import map in `package.json` untouched (owned by T1; verify unchanged)
+- [x] `.cursor/` has zero `@vitals/hotspot-scanner`
+- [x] `ls .cursor/skills` still shows `vitals-*` directory names
+- [x] `#` import map in `package.json` untouched (owned by T1; verify unchanged)
 
 **Tests:** none  
 **Gate:** none beyond review (project gate in T5)  
@@ -184,9 +184,9 @@ flowchart TD
 **Reuses:** Project gate; `rg`  
 **Done when:**
 
-- [ ] `rg '@vitals/hotspot-scanner'` at repo root returns **zero** matches
-- [ ] `package.json` `"bin"` still exposes `hotspot-scanner`
-- [ ] `pnpm build && pnpm test` exits 0
+- [x] `rg '@vitals/hotspot-scanner'` at repo root returns **zero** matches
+- [x] `package.json` `"bin"` still exposes `hotspot-scanner`
+- [x] `pnpm build && pnpm test` exits 0
 
 **Tests:** full suite via project gate  
 **Gate:** `pnpm build && pnpm test`  

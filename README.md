@@ -2,9 +2,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](https://nodejs.org/)
-[![GitHub](https://img.shields.io/badge/github-taranti%2Fhotspot-scanner-181717?logo=github)](https://github.com/taranti/hotspot-scanner)
+[![GitHub](https://img.shields.io/badge/github-AlanTaranti%2Fhotspot-scanner-181717?logo=github)](https://github.com/AlanTaranti/hotspot-scanner)
 
-**Package:** `@vitals/hotspot-scanner` · **CLI command:** `hotspot-scanner`
+**Package:** `@taranti/hotspot-scanner` · **CLI command:** `hotspot-scanner`
 
 ## The problem
 
@@ -42,7 +42,7 @@ Tech leads need to prioritize refactoring work but struggle to see which TypeScr
 ## Quick start
 
 ```bash
-git clone https://github.com/taranti/hotspot-scanner.git
+git clone https://github.com/AlanTaranti/hotspot-scanner.git
 cd hotspot-scanner
 pnpm install
 pnpm build
@@ -237,7 +237,7 @@ Canonical table: [docs/cli-reference.md → Exit codes](docs/cli-reference.md#ex
 
 ## Programmatic API
 
-After `pnpm build`, import from `@vitals/hotspot-scanner` (`dist/index.js`):
+After `pnpm build`, import from `@taranti/hotspot-scanner` (`dist/index.js`):
 
 ```typescript
 import {
@@ -246,8 +246,8 @@ import {
   parseScanResult,
   previewScanScope,
   runDoctor,
-} from "@vitals/hotspot-scanner";
-import type { ScanResult, AssessResult, DoctorResult } from "@vitals/hotspot-scanner";
+} from "@taranti/hotspot-scanner";
+import type { ScanResult, AssessResult, DoctorResult } from "@taranti/hotspot-scanner";
 
 const result: ScanResult = await runScan({
   repoPath: "/path/to/repo",

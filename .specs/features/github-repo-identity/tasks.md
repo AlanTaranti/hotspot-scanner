@@ -3,7 +3,7 @@
 **Design**: [design.md](./design.md)  
 **Spec**: [spec.md](./spec.md)  
 **Context**: [context.md](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Medium feature — STOP at Planned; Execute in a separate session via `orchestrator-implementer` after Status promotion. Do **not** rewrite Done historical feature specs. Do **not** add CI workflows. Do **not** rename npm package scope (M79). Do **not** invent a tracked remotes file.
 
 ---
@@ -96,9 +96,9 @@ flowchart TD
 **Reuses:** Existing `repository.type: "git"`  
 **Done when:**
 
-- [ ] `repository.url` is `git+https://github.com/AlanTaranti/hotspot-scanner.git`
-- [ ] `homepage` and `bugs.url` match the locked AlanTaranti URLs
-- [ ] `"name"` / bin / exports untouched by this task
+- [x] `repository.url` is `git+https://github.com/AlanTaranti/hotspot-scanner.git`
+- [x] `homepage` and `bugs.url` match the locked AlanTaranti URLs
+- [x] `"name"` / bin / exports untouched by this task
 
 **Tests:** none  
 **Gate:** none beyond review (project gate in T4)  
@@ -114,8 +114,8 @@ flowchart TD
 **Reuses:** Existing badge + clone prose  
 **Done when:**
 
-- [ ] Badge label and href use AlanTaranti (no `taranti/hotspot-scanner` in README GitHub badge/clone)
-- [ ] Clone URL is `https://github.com/AlanTaranti/hotspot-scanner.git`
+- [x] Badge label and href use AlanTaranti (no `taranti/hotspot-scanner` in README GitHub badge/clone)
+- [x] Clone URL is `https://github.com/AlanTaranti/hotspot-scanner.git`
 
 **Tests:** none  
 **Gate:** none beyond review (project gate in T4)  
@@ -131,9 +131,9 @@ flowchart TD
 **Reuses:** Existing wording; exact URL replace  
 **Done when:**
 
-- [ ] CONTRIBUTING clone + Issues use AlanTaranti
-- [ ] SECURITY advisory link and bare URL use AlanTaranti
-- [ ] No `github.com/taranti/hotspot-scanner` left in those two files
+- [x] CONTRIBUTING clone + Issues use AlanTaranti
+- [x] SECURITY advisory link and bare URL use AlanTaranti
+- [x] No `github.com/taranti/hotspot-scanner` left in those two files
 
 **Tests:** none  
 **Gate:** none beyond review (project gate in T4)  
@@ -149,10 +149,10 @@ flowchart TD
 **Reuses:** Project gate; `rg`  
 **Done when:**
 
-- [ ] `rg 'github.com/taranti/hotspot-scanner' README.md CONTRIBUTING.md SECURITY.md package.json` → empty
-- [ ] `rg 'github.com/AlanTaranti/hotspot-scanner' README.md CONTRIBUTING.md SECURITY.md package.json` → hits all intended places
-- [ ] Local `git remote get-url origin` points at AlanTaranti (contributor note; not a file change)
-- [ ] `pnpm build && pnpm test` exits 0
+- [x] `rg 'github.com/taranti/hotspot-scanner' README.md CONTRIBUTING.md SECURITY.md package.json` → empty
+- [x] `rg 'github.com/AlanTaranti/hotspot-scanner' README.md CONTRIBUTING.md SECURITY.md package.json` → hits all intended places
+- [x] Local `git remote get-url origin` points at AlanTaranti (contributor note; not a file change)
+- [x] `pnpm build && pnpm test` exits 0
 
 **Tests:** full suite via project gate  
 **Gate:** `pnpm build && pnpm test`  
