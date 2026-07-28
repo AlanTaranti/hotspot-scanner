@@ -10,8 +10,10 @@ import { fileURLToPath } from "node:url";
 import {
   ARCHITECTURE_REL_PATH,
   CONCERNS_REL_PATH,
+  CONVENTIONS_REL_PATH,
   lintArchitectureDoc,
   lintConcernsDoc,
+  lintConventionsDoc,
 } from "./lib/living-sot-doc.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -503,6 +505,61 @@ const tests = [
       assertIncludes(stdout, '"permission":"ask"', "concerns ask");
       assertIncludes(stdout, "M78", "concerns ask mentions M78");
       cleanupState("smoke-concerns");
+    },
+  },
+  {
+    name: "conventions lint flags M## only (HOTSPOT naming allowed)",
+    run() {
+      const dirty = lintConventionsDoc(
+        "# CONVENTIONS\n\n## Lint and format (M24)\n",
+      );
+      if (!dirty.bannedMatches.includes("M24")) {
+        throw new Error(
+          `expected M24 in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+        );
+      }
+      const clean = lintConventionsDoc(
+        "# CONVENTIONS\n\nRequirement IDs: `HOTSPOT-*`\nADR-2026-021\n",
+      );
+      if (clean.bannedMatches.length !== 0) {
+        throw new Error(
+          `expected clean sample (HOTSPOT naming allowed), got ${JSON.stringify(clean.bannedMatches)}`,
+        );
+      }
+    },
+  },
+  {
+    name: "live CONVENTIONS.md has no banned milestone tags",
+    run() {
+      const text = fs.readFileSync(
+        path.join(root, CONVENTIONS_REL_PATH),
+        "utf8",
+      );
+      const { bannedMatches } = lintConventionsDoc(text);
+      if (bannedMatches.length > 0) {
+        throw new Error(
+          `CONVENTIONS.md contains forbidden tags: ${bannedMatches.join(", ")}`,
+        );
+      }
+    },
+  },
+  {
+    name: "pre-edit ask on CONVENTIONS Write with M24",
+    run() {
+      cleanupState("smoke-conventions");
+      const { stdout } = runHook("pre-edit-guard.mjs", {
+        hook_event_name: "preToolUse",
+        tool_name: "Write",
+        tool_input: {
+          path: path.join(root, ".specs/codebase/CONVENTIONS.md"),
+          contents: "## Lint and format (M24)\n",
+        },
+        conversation_id: "smoke-conventions",
+        workspace_roots: [root],
+      });
+      assertIncludes(stdout, '"permission":"ask"', "conventions ask");
+      assertIncludes(stdout, "M24", "conventions ask mentions M24");
+      cleanupState("smoke-conventions");
     },
   },
 ];

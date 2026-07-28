@@ -1,12 +1,14 @@
 /**
  * Lint helpers for living SoT docs under .specs/codebase/
- * (ARCHITECTURE Design SoT + CONCERNS fragile-risk SoT).
+ * (ARCHITECTURE Design SoT + CONCERNS fragile-risk SoT + CONVENTIONS coding SoT).
  * @see .cursor/rules/architecture-sot.mdc
  * @see .cursor/rules/concerns-sot.mdc
+ * @see .cursor/rules/conventions-sot.mdc
  */
 
 export const ARCHITECTURE_REL_PATH = ".specs/codebase/ARCHITECTURE.md";
 export const CONCERNS_REL_PATH = ".specs/codebase/CONCERNS.md";
+export const CONVENTIONS_REL_PATH = ".specs/codebase/CONVENTIONS.md";
 
 /** Soft size warning for ARCHITECTURE (~context-limits warning band). Smoke does not fail on size. */
 export const LINE_WARN = 450;
@@ -57,6 +59,22 @@ export function lintConcernsDoc(text) {
 }
 
 /**
+ * CONVENTIONS bans milestone tags only — HOTSPOT-* naming convention is allowed.
+ * @param {string} text
+ * @returns {{ bannedMatches: string[] }}
+ */
+export function lintConventionsDoc(text) {
+  const source = typeof text === "string" ? text : "";
+  const banned = new Set();
+  MILESTONE_RE.lastIndex = 0;
+  let match;
+  while ((match = MILESTONE_RE.exec(source)) !== null) {
+    banned.add(match[0]);
+  }
+  return { bannedMatches: [...banned].sort() };
+}
+
+/**
  * @param {string | null | undefined} relPath
  * @param {string} fileName
  * @param {string} relCanonical
@@ -84,6 +102,16 @@ export function isConcernsDocPath(relPath) {
   return isCodebaseDocPath(relPath, "CONCERNS.md", CONCERNS_REL_PATH);
 }
 
+/**
+ * @param {string | null | undefined} relPath
+ * @returns {boolean}
+ */
+export function isConventionsDocPath(relPath) {
+  return isCodebaseDocPath(relPath, "CONVENTIONS.md", CONVENTIONS_REL_PATH);
+}
+
 export const ARCHITECTURE_SOT_CONTEXT = `ARCHITECTURE.md is the Design SoT (.cursor/rules/architecture-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/sister-milestone voice. Allowed: ADR-*, RT-*, present-tense modules/pipelines/contracts. Milestone history → ROADMAP/STATE/features.`;
 
 export const CONCERNS_SOT_CONTEXT = `CONCERNS.md is the fragile-risk SoT (.cursor/rules/concerns-sot.mdc). Forbidden: milestone tags (M##), HOTSPOT-* IDs, changelog/superseded voice. Allowed: RT-*, present-tense risk→mitigation→test expectations. Milestone history → ROADMAP/STATE/features.`;
+
+export const CONVENTIONS_SOT_CONTEXT = `CONVENTIONS.md is the coding-conventions SoT (.cursor/rules/conventions-sot.mdc). Forbidden: milestone tags (M##), changelog/STATE provenance voice. Allowed: HOTSPOT-* as naming prefix, ADR-*, present-tense naming/imports/build/lint. Milestone history → ROADMAP/STATE/features. Package publish facts → STACK.`;

@@ -22,7 +22,7 @@ Before planning or implementing any change, read the relevant files under `.spec
 
 Every significant change (new scanner modules, domain types, CLI flags) must be reflected in the corresponding `.specs/codebase/` files. Feature complete → update [ROADMAP.md](../../.specs/project/ROADMAP.md) per [roadmap-sync.md](../skills/vitals-spec-driven/references/roadmap-sync.md).
 
-**Where content goes:** milestone history and Execute status → `ROADMAP.md` / `STATE.md` / `.specs/features/`; present-tense design (modules, pipelines, contracts, constraints) → [ARCHITECTURE.md](../../.specs/codebase/ARCHITECTURE.md); present-tense fragile risks → [CONCERNS.md](../../.specs/codebase/CONCERNS.md). When editing ARCHITECTURE, follow [architecture-sot.mdc](architecture-sot.mdc) (no `M##` / `HOTSPOT-*` changelog voice). When editing CONCERNS, follow [concerns-sot.mdc](concerns-sot.mdc) (same ban on milestone/changelog voice).
+**Where content goes:** milestone history and Execute status → `ROADMAP.md` / `STATE.md` / `.specs/features/`; present-tense design (modules, pipelines, contracts, constraints) → [ARCHITECTURE.md](../../.specs/codebase/ARCHITECTURE.md); present-tense fragile risks → [CONCERNS.md](../../.specs/codebase/CONCERNS.md); present-tense coding conventions → [CONVENTIONS.md](../../.specs/codebase/CONVENTIONS.md). When editing ARCHITECTURE, follow [architecture-sot.mdc](architecture-sot.mdc) (no `M##` / `HOTSPOT-*` changelog voice). When editing CONCERNS, follow [concerns-sot.mdc](concerns-sot.mdc) (same ban on milestone/changelog voice). When editing CONVENTIONS, follow [conventions-sot.mdc](conventions-sot.mdc) (no `M##` changelog voice; `HOTSPOT-*` naming prefix allowed).
 
 ## YAGNI
 

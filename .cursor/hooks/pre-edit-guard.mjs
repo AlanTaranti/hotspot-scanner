@@ -13,10 +13,13 @@ import {
 import {
   ARCHITECTURE_SOT_CONTEXT,
   CONCERNS_SOT_CONTEXT,
+  CONVENTIONS_SOT_CONTEXT,
   isArchitectureDocPath,
   isConcernsDocPath,
+  isConventionsDocPath,
   lintArchitectureDoc,
   lintConcernsDoc,
+  lintConventionsDoc,
 } from "./lib/living-sot-doc.mjs";
 import { getWorkspaceRoot, loadState, readStdinJson } from "./lib/state.mjs";
 
@@ -80,6 +83,18 @@ if (isConcernsDocPath(relPath)) {
     ask(
       `CONCERNS.md edit introduces forbidden tags (${bannedMatches.join(", ")}). Remove milestone/HOTSPOT changelog voice or confirm intentional exception.`,
       `${CONCERNS_SOT_CONTEXT} Matches: ${bannedMatches.join(", ")}`,
+    );
+    process.exit(0);
+  }
+}
+
+if (isConventionsDocPath(relPath)) {
+  const content = extractEditContent(input.tool_input);
+  const { bannedMatches } = lintConventionsDoc(content);
+  if (bannedMatches.length > 0) {
+    ask(
+      `CONVENTIONS.md edit introduces forbidden tags (${bannedMatches.join(", ")}). Remove milestone changelog voice or confirm intentional exception.`,
+      `${CONVENTIONS_SOT_CONTEXT} Matches: ${bannedMatches.join(", ")}`,
     );
     process.exit(0);
   }

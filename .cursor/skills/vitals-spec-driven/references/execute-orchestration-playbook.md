@@ -146,7 +146,7 @@ When Phase C = Approved (or Approved with caveats), Phase D = READY (or ISSUES w
 
 1. Set `tasks.md` Status → `Done`
 2. Sync ROADMAP milestone/feature entry
-3. Living docs: if pipeline / module / contract / constraint changed → sync [ARCHITECTURE.md](../../../../.specs/codebase/ARCHITECTURE.md) in present tense (no `M##` / `HOTSPOT-*`; see [architecture-sot.mdc](../../../rules/architecture-sot.mdc)). If fragile risks / mitigations changed → sync [CONCERNS.md](../../../../.specs/codebase/CONCERNS.md) in present tense (no `M##` / `HOTSPOT-*`; see [concerns-sot.mdc](../../../rules/concerns-sot.mdc)). Else skip those files — do not append UX encyclopedias or milestone provenance. Self-check: sentence needs a milestone number → wrong doc.
+3. Living docs: if pipeline / module / contract / constraint changed → sync [ARCHITECTURE.md](../../../../.specs/codebase/ARCHITECTURE.md) in present tense (no `M##` / `HOTSPOT-*`; see [architecture-sot.mdc](../../../rules/architecture-sot.mdc)). If fragile risks / mitigations changed → sync [CONCERNS.md](../../../../.specs/codebase/CONCERNS.md) in present tense (no `M##` / `HOTSPOT-*`; see [concerns-sot.mdc](../../../rules/concerns-sot.mdc)). If naming / imports / build / lint conventions changed → sync [CONVENTIONS.md](../../../../.specs/codebase/CONVENTIONS.md) in present tense (no `M##`; see [conventions-sot.mdc](../../../rules/conventions-sot.mdc)). Else skip those files — do not append UX encyclopedias or milestone provenance. Self-check: sentence needs a milestone number → wrong doc.
 4. Return Execution Orchestration Report
 
 ---
