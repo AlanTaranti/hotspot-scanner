@@ -101,8 +101,7 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 
 ## Hooks enforcement
 
-Edits to `src/git/`, `src/complexity/`, `src/scoring/`, `src/scan.ts`, `src/scan-result/`, or `schemas/` trigger fragile-area warnings. Tests must be updated before marking tasks Complete.
-
+Edits to `src/git/`, `src/complexity/`, `src/scoring/`, `src/scan.ts`, `src/scan-result/`, `src/trend/`, `src/assess/`, or `schemas/` require corresponding tests before marking tasks Complete. Cursor fragile-area globs historically cover git/complexity/scoring/scan/scan-result/schemas — treat trend/assess as equally sensitive even when hook globs lag.
 ## Unmitigated — risk × effort
 
 | Item | Risco | Esforço | Caminho | Backlog |

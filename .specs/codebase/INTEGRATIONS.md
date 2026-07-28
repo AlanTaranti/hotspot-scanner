@@ -66,13 +66,23 @@ External dependencies and adapter boundaries. No network integrations (zero-netw
 | **When**       | `discoverSourceFiles` primary path in Git repos; silent walk fallback on failure      |
 | **Tests**      | Mock `spawn` in `ls-files.test.ts`; inject `listTrackedFiles` in `discover.test.ts` |
 
+### File history (M72, complexity trend)
+
+| Aspect         | Detail                                                                                |
+| -------------- | ------------------------------------------------------------------------------------- |
+| **Role**       | Per-file revision list + blob contents for `runComplexityTrend` (indentation + NCLOC series) |
+| **Adapter**    | `listFileRevisions` / `showFileAtRevision` in `src/git/file-history.ts`              |
+| **Invocation** | `child_process.spawn` — path-scoped `git log` with **`--follow` default**; `git show <rev>:path` for historical blobs |
+| **Rule**       | Trend-only — **forbidden** to add `--follow` to scan numstat `buildGitLogArgv` in `spawn.ts` |
+| **Tests**      | Co-located `file-history` / trend tests; fixture `tests/fixtures/repos/trend-indent/` |
+
 ## commander
 
 | Aspect       | Detail                                                            |
 | ------------ | ----------------------------------------------------------------- |
 | **Role**     | CLI flag parsing                                                  |
-| **Location** | `bin/hotspot-scanner.ts` only                                     |
-| **Rule**     | No domain logic in bin — delegate to `runScan()` in `src/scan.ts` |
+| **Location** | `bin/hotspot-scanner.ts` (+ `bin/*-actions.ts` wiring)            |
+| **Rule**     | No domain logic in bin — delegate to `runScan`, `runComplexityTrend`, `runAssess`, `runDoctor`, and config helpers in `src/` |
 
 ## Scan result parse (`src/scan-result/`)
 

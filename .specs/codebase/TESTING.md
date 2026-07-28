@@ -71,8 +71,8 @@ coverage: {
 | Git Miner      | Rename, merge, delete cases                          | Vitest + `tests/fixtures/git-log/`                                                           |
 | Size / NCLOC   | Known NCLOC counts (comments, strings, blank lines)  | Vitest + `src/complexity/ncloc.test.ts` + fixture sources                                    |
 | CLI            | Flag defaults, `--concurrency`, `completion <shell>`, `doctor --format json`, invalid args | Vitest; mock `process.exit`                                                                  |
-| Integration    | Full scan on fixture repo                            | Vitest + `tests/fixtures/repos/small-ts/` (primary E2E); `with-renames/` (M26); `merge-heavy/` (M55) |
-| Contract       | JSON `version: "3.0"` schema validation              | `tests/contract/json-schema.test.ts`                                                         |
+| Integration    | Full scan / trend on fixture repos                   | Vitest + `tests/fixtures/repos/small-ts/` (primary E2E); `with-renames/` (M26); `merge-heavy/` (M55); `trend-indent/` (M72 trend) |
+| Contract       | JSON schemas: scan `3.0`, complexity-trend `3.0`, hotspot-assess `1.0`, config | `tests/contract/json-schema.test.ts`                                                         |
 | Performance    | Large repo timing; overlap vs sequential A/B         | Manual `pnpm bench` (`scripts/bench-scan.mjs`) — **not** part of `pnpm test` / CI            |
 
 ## Git Miner fixtures (`tests/fixtures/git-log/`)
@@ -89,7 +89,11 @@ Hand-crafted `git log --numstat --name-only` line streams injected at the miner 
 | `binary.txt` | Binary file numstat edge cases |
 | `large-synthetic.txt` | Streaming / memory regression |
 
-**Repo fixtures:** `with-renames/`, `merge-heavy/` — integration in `src/scan.integration.test.ts`.
+**Repo fixtures:** `small-ts/`, `with-renames/`, `merge-heavy/`, `trend-indent/` under `tests/fixtures/repos/`.
+
+**Bootstrap:** each fixture has `bootstrap-repo.mjs` + `ensureFixtureRepo()`. Vitest `globalSetup` (`tests/fixtures/repos/global-setup.ts`) runs bootstrap for **`small-ts`** and **`merge-heavy` only**. `with-renames/` and `trend-indent/` are bootstrapped by their owning tests or manually (`node bootstrap-repo.mjs` in the fixture dir) before CLI validation.
+
+Integration wiring: scan fixtures in `src/scan.integration.test.ts`; trend in `tests/trend.integration.test.ts`.
 
 ## NCLOC regressions (M57)
 
@@ -118,9 +122,11 @@ Structural overlap proven in `src/scan.test.ts` with injected delayed `mine` / `
 ```bash
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug>
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<slug> --since "12 months ago" --format json
+pnpm exec hotspot-scanner trend tests/fixtures/repos/trend-indent/src/trend.ts --since "10 years ago"
+pnpm exec hotspot-scanner assess tests/fixtures/repos/small-ts --format json
 ```
 
-See skill `vitals-cli-validation` for exit codes and flag matrix.
+See skill `vitals-cli-validation` for exit codes and flag matrix. Canonical exit-code table: [AGENTS.md](../../AGENTS.md) § Validation (CLI).
 
 **M28 diagnostics:** `meta.warnings` as `ScanWarning[]`; contract tests validate `$defs.ScanWarning`.
 
@@ -130,6 +136,7 @@ See skill `vitals-cli-validation` for exit codes and flag matrix.
 
 **Additive contract (M66):** `version` stays `"3.0"`; contract tests assert optional `scannerVersion` / root `$schema` on scan schema. Fresh scan JSON from `json.test.ts` asserts `$schema` URL and `meta.scannerVersion`.
 
+**Trend / assess contracts (M72 + M75 + M77):** `tests/contract/json-schema.test.ts` validates `complexity-trend.json` (`version: "3.0"`, required `meta.growthPattern`) and `hotspot-assess.json` (`version: "1.0"`, `kind: "hotspot-assess"`).
 ## Integrity rules
 
 - Do not weaken assertions or remove cases to pass the gate

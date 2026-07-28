@@ -1,10 +1,18 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M78 Done**. Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
+## Current
+
+| Field | Value |
+| ----- | ----- |
+| **Status** | **M7–M78 Done** |
+| **Open milestones** | _None_ |
+| **Deferred** | [STATE.md](STATE.md) § Deferred (npm publish, CI recipes/SARIF, historical AST do-not-prioritize, item C, fail-on-warning, assess `--fail-on-deteriorating`) |
+
+Milestone sections below are a **historical archive** (feature links stay valid). Prefer this Current table + STATE Active/Deferred for “what’s next.”
 
 **M12** intentionally absent (CI fail-on-score removed — see STATE).
 
-### Done summary (historical detail below)
+### Done summary
 
 | Band | Scope |
 | ---- | ----- |
@@ -15,16 +23,21 @@ Status: **M7–M78 Done**. Deferred horizon in [STATE.md](STATE.md) (npm publish
 | M46–M55 | Exclude tests by default, git pathspecs, scope extensions, ranking accuracy+, observability, doctor scope parity, perf controls, API trust docs, compare interpretation, CLI adoption extras |
 | M56–M65 | Remove coupling; NCLOC metric (retire McCabe/function mode); CLI `--warnings summary|full|json` stderr aggregation; ephemeral TTY scan progress; table path column UX; inline progress bar; feedback/copy UX; CLI surface parity; config/doctor DX; git error UX |
 | M66–M72 | DX batch: contract enrich, scope+, warnings bookend, write confirm, table Lines parity; **remove compare/baseline (scan-only)**; complexity trend CLI |
+| M73–M78 | Top-only rollups; doctor/trend/assess color UX; growth-pattern bridge; hotspot assess |
 
 ### Open
 
 _None — M7–M78 Done._
 
-Deferred horizon in [STATE.md](STATE.md).
-
 ### Done
 
 M7–M78 Done. M73–M78 Execute complete (2026-07-27). Deferred horizon in [STATE.md](STATE.md).
+
+---
+
+## Historical archive
+
+Status note (superseded by **Current** above): M7–M78 Done. Deferred horizon in [STATE.md](STATE.md).
 
 ## Milestone 1 — Scaffold
 
@@ -839,10 +852,9 @@ Homegrown complexity fill bar (TTY `█░` / non-TTY `#-`) with honest `filesPr
 
 ---
 
-## Post-M61 backlog — DX batch (M62–M67)
+## Post-M61 backlog — DX batch (M62–M67) — DONE
 
-Specs **Planned** (2026-07-26). Locked decisions in each feature `context.md`. Execute order: M62 → M63 → M64 → M65 → M66 → M67 (M61 may run in parallel; coordinate M62 `since=` progress prefix with M61 finalize if both open).
-
+Specs and Execute **Done** (2026-07-26). Locked decisions in each feature `context.md`. Completed Execute order: M62 → M63 → M64 → M65 → M66 → M67.
 ### Milestone 62 — Feedback and copy UX — DONE
 
 → [`.specs/features/feedback-copy-ux/spec.md`](../features/feedback-copy-ux/spec.md)  
@@ -1113,7 +1125,7 @@ ANSI-color the growth-pattern **kind** token on `trend` **table** `Pattern:` lin
 → [`.specs/features/hotspot-assess/spec.md`](../features/hotspot-assess/spec.md)  
 **Slug:** `hotspot-assess` | **Priority:** High | **Specs:** Done  
 **IDs:** HOTSPOT-1620–1679 (1660–1679 reserved; active 1620–1638) | **Depth:** Large  
-**Sisters:** complexity-trend (M72), growth-pattern-trend-bridge (M75), explain-and-scan-feedback (M42); trend-color-ux (M76 Planned — do not block); remove-compare-baseline (M71 — do not reopen compare)  
+**Sisters:** complexity-trend (M72), growth-pattern-trend-bridge (M75), explain-and-scan-feedback (M42); trend-color-ux (M76 Done); remove-compare-baseline (M71 — do not reopen compare)  
 **Artifacts:** [context.md](../features/hotspot-assess/context.md) · [spec.md](../features/hotspot-assess/spec.md) · [design.md](../features/hotspot-assess/design.md) · [tasks.md](../features/hotspot-assess/tasks.md) (`Status: Done`)
 
 Dedicated `hotspot-scanner assess [path]`: `runScan` → filter `hotspotScore >= --min-hotspot-score` (default **0.7**) → slice `--top` (default **20**) → sequential `runComplexityTrend` per candidate → aggregate. Human table/markdown: summary counts + detail **only** for `deteriorating`. Own JSON contract `kind: "hotspot-assess"` / `version: "1.0"` (`schemas/hotspot-assess.json`); no full `points` dump. Library export `runAssess`. Does **not** change scan JSON `3.0` or complexity-trend `3.0`; does **not** reopen compare.

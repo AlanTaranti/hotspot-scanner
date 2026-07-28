@@ -20,15 +20,22 @@ flowchart TB
     Reporter[Reporter]
     Doctor[Doctor]
     ScanPreview[Scan scope preview]
+    Trend[Complexity Trend]
+    Assess[Hotspot Assess]
   end
 
   CLI --> Doctor
   CLI --> ScanPreview
   CLI --> GitMiner
   CLI --> Size
+  CLI --> Trend
+  CLI --> Assess
   GitMiner --> Hotspot
   Size --> Hotspot
   Hotspot --> Reporter
+  Assess --> Hotspot
+  Assess --> Trend
+  Trend --> Reporter
 ```
 
 ## Pipeline (M57 + M71)
@@ -39,7 +46,7 @@ git log (streaming numstat) → NCLOC size analysis (file-level) → hotspot sco
 
 JSON contract **`version: "3.0"`** with `ncloc` on each hotspot. **File hotspots only** — no function granularity, no McCabe, no `ts-morph`. Compare/baseline removed in M71; `parseScanResult` retained under `src/scan-result/` for library consumers.
 
-## CLI commands (M39–M40, M71)
+## CLI commands (M39–M78)
 
 Multi-command CLI via Commander in `bin/hotspot-scanner.ts` with shared wiring in `bin/scan-actions.ts` (flags, I/O, exit mapping only — no domain logic):
 
@@ -82,12 +89,12 @@ Multi-command CLI via Commander in `bin/hotspot-scanner.ts` with shared wiring i
 ### Config file (M21 + M30 + M64)
 
 - **Filename:** `.hotspot-scanner.json` only
-- **Keys:** `since`, `include`, `exclude`, `top`, `concurrency` — map to CLI semantics
+- **Known keys:** `since`, `include`, `exclude`, `top`, `concurrency` — map to CLI semantics
 - **Reserved meta (M64):** `$schema`, `$comment`, `$comments` — name-based skip in `parseHotspotScannerConfig`; not merged, not listed in `unknownKeys`, never emit `UNKNOWN_CONFIG_KEY`
+- **Unknown keys (warn-only):** leftover coupling/NCLOC-era keys such as `granularity`, `minCochange`, `megaCommitThreshold` — not applied; emit `UNKNOWN_CONFIG_KEY`
 - **Load path:** `LoadedHotspotScannerConfig.path` — absolute path when discovered or explicit; `null` when none
 - **Schema:** `schemas/hotspot-scanner-config.json` (`$id` `https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json`); package export `./schemas/hotspot-scanner-config.json`; init exemplar links `$schema` to that URI
 - **CLI-only:** `format`, `output`, `--only`, `--no-triage-hints`, `--no-color`, `--explain`, `--fail-on-explain-miss`, `quiet`, `no-progress`, `verbose`, `warnings`, `csv-single-file`, `sequential`, `includeTests`, `version`
-- **Removed (M57):** `granularity` — unknown key, warn-only
 
 ### Path scoping (M7 + M30 + M43 + M46 + M67)
 
@@ -178,7 +185,7 @@ Scan **table** format uses `src/report/path-column.ts` for the File column:
 
 ### CLI ANSI colors (M41 + M74 + M76 + M78)
 
-Bin resolves color gates into a boolean before calling pure report formatters (`color: boolean`). Helpers live in `src/report/color.ts` (`paintScore`, `paintStaticDep`, `paintDoctorStatus`, `paintGrowthPattern`, `paintBold`, `stripAnsi`). No color dependency; no `FORCE_COLOR`.
+Bin resolves color gates into a boolean before calling pure report formatters (`color: boolean`). Live helpers in `src/report/color.ts`: `paintScore`, `paintDoctorStatus`, `paintGrowthPattern`, `paintBold`, `stripAnsi`. (`paintStaticDep` remains in the module as a **legacy** helper from coupling-era table coloring — unused after M56.) No color dependency; no `FORCE_COLOR`.
 
 | Surface | Resolver | Enabled when |
 | ------- | -------- | ------------ |
@@ -297,28 +304,34 @@ Each `HotspotScore` in `ScanResult.hotspots`:
 | `churnNormalized` | log1p+min-max | yes | yes (ChurnN) |
 | `ncloc` | `ComplexityResult` | yes | yes (NLOC) |
 | `commitCount` | `FileChangeStats` | yes | yes (Churn) |
-| `linesChanged` | `FileChangeStats` | yes | markdown |
+| `linesChanged` | `FileChangeStats` | yes | yes (Lines) |
 | `authorCount` | `FileChangeStats.authors.size` | yes | yes (Authors) |
 
 JSON `version` is **`"3.0"`**. Field name `complexityNormalized` retained for the normalized size axis `c` (harmonic formula unchanged).
 
-## Export formats (M10, M17, M18, M41, M53)
+## Export formats (M10, M17, M18, M41, M70)
 
-- **Scan CSV bundle:** `{stem}.meta.json` + `{stem}.hotspots.csv` only (no functions sidecar)
-- **`--only hotspots`** — only valid section (functions rejected)
+- **Scan CSV bundle:** `{stem}.meta.json` + `{stem}.hotspots.csv` only (no functions/coupling sidecars)
+- **`--only hotspots`** — only valid section (`functions` / coupling rejected)
 - **Triage:** scan rule `dual-signal-hotspot`
+- **Table Lines column (M70):** `linesChanged` parity with markdown
 
-## JSON Contract (M20 + M57 + M64 + M66 + M71)
+## Exit codes
+
+Canonical table: [AGENTS.md](../../AGENTS.md) § Validation (CLI) — `0` success, `1` explain-miss with `--fail-on-explain-miss`, `2` usage/config, `130`/`143` cancel.
+
+## JSON Contract (M20 + M57 + M64 + M66 + M71 + M72 + M75 + M77)
 
 | File | Root type |
 | ---- | --------- |
-| `schemas/scan-result.json` | `ScanResult` |
+| `schemas/scan-result.json` | `ScanResult` (`version: "3.0"`) |
 | `schemas/hotspot-scanner-config.json` | `.hotspot-scanner.json` config (known keys + reserved meta) |
+| `schemas/complexity-trend.json` | `ComplexityTrendResult` (`kind: "complexity-trend"`, `version: "3.0"`) |
 | `schemas/hotspot-assess.json` | `AssessResult` (`kind: "hotspot-assess"`, `version: "1.0"`) |
 
 - **Scan `version: "3.0"`** — `hotspots` + `meta` only; no `functions`, no `granularity`, no `coupling`. **No version bump for M66** — enrichments are additive under `"3.0"` (same pattern as M51 `meta.timings`).
-- **Config schema (M64):** documents known keys and reserved meta; `additionalProperties: true` (runtime still warns unknowns); package exports both schema subpaths
-- **Contract tests:** `tests/contract/json-schema.test.ts` (scan, config)
+- **Config schema (M64):** documents known keys and reserved meta; `additionalProperties: true` (runtime still warns unknowns); package exports schema subpaths including config, scan, trend, and assess
+- **Contract tests:** `tests/contract/json-schema.test.ts` (scan, config, complexity-trend, hotspot-assess)
 - **Removed (M71):** `schemas/compare-result.json`, compare contract tests
 
 ### Additive fields under `3.0` (M66)

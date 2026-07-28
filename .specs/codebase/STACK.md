@@ -31,10 +31,11 @@ Git log invocation uses `child_process.spawn` in `src/git/` (no `simple-git`).
 | `globals`                                   | ESLint Node globals for flat config         |
 | `ajv`                                       | JSON Schema contract tests (M20)            |
 
-## Package publish prep (M24 + M55)
+## Package publish prep (M24 + M55 + M72 + M77)
 
 - `package.json` `files` includes `dist/`, `schemas/`, `LICENSE`, `README.md`, `SECURITY.md`
 - `engines.node` is `>=22`; `repository` points at the git remote URL
+- `exports` schema subpaths: `./schemas/scan-result.json`, `./schemas/hotspot-scanner-config.json`, `./schemas/complexity-trend.json`, `./schemas/hotspot-assess.json`
 
 ## Build
 

@@ -25,17 +25,27 @@
 
 ## Scope
 
-**Shipped (v1 + post-v1 through M71):**
+**Shipped (v1 + post-v1 through M78):**
 
-- `hotspot-scanner` multi-command CLI: `init`, `config validate`, `config print`, `doctor`, `scan`, `completion`
+- `hotspot-scanner` multi-command CLI: `init`, `config validate`, `config print`, `doctor`, `scan`, `trend`, `assess`, `completion`
 - `scan` with `--since`, `--format`, `--top`, `--output`, `--include` / `--exclude`, `--include-tests`, `--config`, `--concurrency`, `--sequential` / `--no-overlap`, `--only`, `--explain`, `--fail-on-explain-miss`, `--quiet` / `--no-progress` / `--verbose`, `--dry-run`, `--warnings`, `--csv-single-file`
+- `trend <file>` — per-file indentation + NCLOC history, growth pattern (`meta.growthPattern`), table/json/csv
+- `assess [path]` — scan → filter by `--min-hotspot-score` (default `0.7`) → sequential trends; deteriorating-focused report
 - Git Change Miner: streaming numstat pass for file churn
 - Size analyzer: NCLOC over eligible TS/JS sources (worker-thread pool optional)
 - Hotspot Scorer (file hotspots only)
-- CLI table, JSON (`version: "3.0"`), markdown, and CSV bundle output; interpretation UX
+- CLI table, JSON, markdown, and CSV bundle output; interpretation UX; TTY color on scan/doctor/trend/assess tables
 - Path scoping, monorepo remount, config file, observability (`meta.warnings`, `meta.timings`, cancel, doctor JSON)
-- Package entry exports `runScan`, `previewScanScope`, `runDoctor`, `parseScanResult`, `ScanResultParseError`
-- Milestone checklist: [ROADMAP.md](ROADMAP.md) (M1–M71)
+- Package entry exports `runScan`, `runComplexityTrend`, `runAssess`, `previewScanScope`, `runDoctor`, `parseScanResult`, `ScanResultParseError` (+ related types)
+- Milestone checklist: [ROADMAP.md](ROADMAP.md) (M1–M78)
+
+### JSON contracts
+
+| Contract | `version` | Schema |
+| -------- | --------- | ------ |
+| Scan result | `"3.0"` | `schemas/scan-result.json` |
+| Complexity trend | `"3.0"` | `schemas/complexity-trend.json` (`kind: "complexity-trend"`) |
+| Hotspot assess | `"1.0"` | `schemas/hotspot-assess.json` (`kind: "hotspot-assess"`) |
 
 **Removed (M57):**
 
@@ -46,16 +56,21 @@
 - Compare/baseline CLI (`compare`, `baseline save`, `scan --baseline`, `--strict`), `compareScanResults` / `loadBaseline`, compare report modules, `schemas/compare-result.json`
 - `COMPARE_SINCE_MISMATCH` warning code
 
-**Excludes / Next:**
+**Excludes / Next (Deferred — see [STATE.md](STATE.md)):**
 
-- CI/CD gate, dashboard, persistence between runs
+- CI/CD gate, dashboard, persistence between runs; CI recipes / fail-on stable deltas / SARIF; fail-on-warning; `--fail-on-deteriorating` for assess
 - Languages beyond TS/JS
 - Relative code churn (decision closed — raw commit count only)
 - Temporal coupling analysis (removed M56)
-- npm / npx publish install path (Deferred)
-- Residual co-located `*.test.mjs` / `*.spec.cjs` not in default test excludes
+- npm / npx / `pnpm dlx` publish install path
+- Historical AST post-rename (**do not prioritize**)
+- Item C — full warning lines in scan report body
 
 ## References
 
 - Architecture: [../codebase/ARCHITECTURE.md](../codebase/ARCHITECTURE.md)
 - Decisions: [STATE.md](STATE.md)
+- Roadmap: [ROADMAP.md](ROADMAP.md)
+- Recipes: [../../docs/recipes.md](../../docs/recipes.md)
+- Warning codes: [../../docs/warning-codes.md](../../docs/warning-codes.md)
+- Security: [../../SECURITY.md](../../SECURITY.md)

@@ -11,7 +11,7 @@ hotspot-scanner/
 │   ├── trend-actions.ts         # trend CLI wiring (runComplexityTrend, formats, cancel)
 │   └── completion-scripts.ts    # Static bash/zsh/fish completion scripts (M54)
 ├── src/
-│   ├── git/                     # Git Change Miner (numstat churn only)
+│   ├── git/                     # Git Change Miner (numstat churn only) + file-history (trend)
 │   ├── complexity/              # NCLOC + indentation metrics (file-level)
 │   ├── trend/                   # Complexity trend orchestration (M72) + growth pattern classify (M75)
 │   │   ├── classify.ts          # classifyGrowthPattern — Tornhill growth curves (pure)
@@ -48,8 +48,8 @@ hotspot-scanner/
 | `bin/trend-actions.ts` | implemented | Trend CLI wiring — `runComplexityTrend`, formats, cancel signals |
 | `bin/scan-actions.ts`    | implemented | Shared CLI wiring — `executeScan`, `runWithScanCancelSignals`, `createVerboseSpawnArgvHandler`, path validators |
 | `bin/completion-scripts.ts` | implemented | `getCompletionScript(shell)` — static bash/zsh/fish scripts (M54) |
-| `src/git/`               | implemented | GitMiner — `spawn`, `parse`, `rename`, `aggregate`, `canonicalize`; `ls-files.ts` (M36); `probe-since.ts` (M64 doctor since preflight); `git-error-hint.ts` (M65 stderr→Hint helper for spawn failures) |
-| `src/complexity/`        | implemented | Size analyzer — NCLOC (`ncloc.ts`, `analyze-file`, `analyze-batch`, `discover`, `pool`, `worker`) |
+| `src/git/`               | implemented | GitMiner — `spawn`, `parse`, `rename`, `aggregate`, `canonicalize`; `ls-files.ts` (M36); `probe-since.ts` (M64 doctor since preflight); `git-error-hint.ts` (M65 stderr→Hint helper for spawn failures); `file-history.ts` (M72 trend — `listFileRevisions` / `showFileAtRevision`, `--follow` allowed here only) |
+| `src/complexity/`        | implemented | Size analyzer — NCLOC (`ncloc.ts`, `analyze-file`, `analyze-batch`, `discover`, `pool`, `worker`); indentation metrics (`indentation.ts` / `analyzeIndentation` for trend) |
 | `src/trend/`             | implemented | `classifyGrowthPattern` (`classify.ts`), `runComplexityTrend` (`run-trend.ts`), types — per-file revision trend + `meta.growthPattern` |
 | `src/assess/`            | implemented | `runAssess` (`run-assess.ts`), `selectAssessCandidates` (`select-candidates.ts`), types — scan → filter → sequential trends → `AssessResult` |
 | `src/scoring/`           | implemented | `HotspotScorer` — `normalize`, `hotspot-scorer` |
@@ -63,7 +63,7 @@ hotspot-scanner/
 | `src/scan-preview.ts`    | implemented | `previewScanScope()` — prelude + eligible file count + config path / remount / unknown keys (no mine/NCLOC) |
 | `src/scan.ts`            | implemented | `resolveScanPipelineContext`, `createScanPathScope`, `runScan()` — file-only pipeline |
 | `src/types/`             | implemented | `FileChangeStats`, `HotspotScore`, `ScanResult` (`version: "3.0"`), etc. |
-| `src/index.ts`           | implemented | Public API — `runScan`, `runAssess`, `previewScanScope`, `runDoctor`, `parseScanResult`, `ScanResultParseError` |
+| `src/index.ts`           | implemented | Public API — `runScan`, `runComplexityTrend`, `runAssess`, `previewScanScope`, `runDoctor`, `parseScanResult`, `ScanResultParseError` (+ trend/assess/doctor types) |
 
 **Removed (M71):** `src/compare/`, compare report modules (`compare-*`, `explain-compare`, `slice-compare`), `schemas/compare-result.json`.
 
@@ -72,7 +72,7 @@ hotspot-scanner/
 - Co-located `*.test.ts` next to source modules
 - `tests/fixtures/git-log/` — raw `git log` output samples
 - `tests/fixtures/repos/` — small versioned Git repositories for integration scans
-- `tests/fixtures/complexity/` — NCLOC-verified source snippets (M57)
+- `tests/fixtures/complexity/` — NCLOC-verified source snippets (M57); indentation cases co-located in `indentation.test.ts`
 - `tests/fixtures/scoring/` — fixed scoring inputs with documented expected ranking order
 - `tests/fixtures/report/` — hand-crafted `ScanResult` for reporter tests
-- `tests/contract/` — JSON schema validation against `schemas/`
+- `tests/contract/` — JSON schema validation against `schemas/` (scan, config, complexity-trend, hotspot-assess)
