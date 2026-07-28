@@ -1,0 +1,45 @@
+---
+description: Keep ARCHITECTURE.md as present-tense Design SoT — no milestone changelog or UX encyclopedias
+globs: .specs/codebase/ARCHITECTURE.md
+alwaysApply: false
+---
+
+# Architecture Design SoT
+
+[`.specs/codebase/ARCHITECTURE.md`](../../.specs/codebase/ARCHITECTURE.md) is the **Design SoT**: modules, pipelines, contracts, constraints, and ownership boundaries.
+
+It is **not** a changelog, UX cookbook, flag encyclopedia, or milestone tracker.
+
+## Ownership matrix
+
+| Change type | Destination |
+| ----------- | ----------- |
+| Modules, pipeline, contracts, constraints, adapter ownership | **ARCHITECTURE.md** |
+| Fragile risks / RT / mitigations | **CONCERNS.md** |
+| External spawn/deps adapters | **INTEGRATIONS.md** |
+| Directory layout / public API map | **STRUCTURE.md** |
+| CLI UX copy, colors, path truncation, recipes | **README** / `docs/recipes.md` |
+| Warning code catalog | **docs/warning-codes.md** |
+| Exit codes | **AGENTS.md** |
+| Milestone status, decisions, feature history | **ROADMAP.md** / **STATE.md** / `.specs/features/` |
+
+## Forbidden in ARCHITECTURE.md
+
+- Milestone tags: `\bM\d+\b` (e.g. `M71`, `M39–M78`)
+- Requirement IDs: `HOTSPOT-*`
+- Changelog voice: “Removed in M…”, “Sister: M…”, Execute ownership by milestone number
+- Appending UX-only detail (glyphs, column ellipsis, flag laundry lists) that belongs in README/recipes
+
+## Allowed
+
+- `ADR-*`, `RT-*`
+- Present-tense product surface (“no compare CLI”, not “removed in M71”)
+- Links to CONCERNS, INTEGRATIONS, AGENTS, `docs/warning-codes.md`
+
+## Sync rule
+
+When living docs change after Execute:
+
+1. Update or **slim** ARCHITECTURE — do not only append.
+2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → wrong file (use ROADMAP/STATE/feature specs).
+3. Feature `design.md` may keep M##; extract only invariants into ARCHITECTURE.

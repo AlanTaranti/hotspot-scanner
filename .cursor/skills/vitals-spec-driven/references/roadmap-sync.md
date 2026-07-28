@@ -32,6 +32,8 @@
 - [ ] ROADMAP.md feature entry → DONE
 - [ ] ROADMAP.md link to spec.md valid
 - [ ] STATE.md updated if decisions/blockers emerged during Execute
+- [ ] ARCHITECTURE.md: if pipeline / module / contract / constraint changed → sync present-tense design (no M## / HOTSPOT-*); else skip — do not append UX/flag encyclopedias
+- [ ] Self-check: any sentence that needs a milestone number → wrong doc (ROADMAP/STATE/features, not ARCHITECTURE)
 ```
 
 ---

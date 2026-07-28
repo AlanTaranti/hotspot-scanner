@@ -146,7 +146,8 @@ When Phase C = Approved (or Approved with caveats), Phase D = READY (or ISSUES w
 
 1. Set `tasks.md` Status → `Done`
 2. Sync ROADMAP milestone/feature entry
-3. Return Execution Orchestration Report
+3. Living docs: if pipeline / module / contract / constraint changed → sync [ARCHITECTURE.md](../../../../.specs/codebase/ARCHITECTURE.md) in present tense (no `M##` / `HOTSPOT-*`; see [architecture-sot.mdc](../../../rules/architecture-sot.mdc)). Else skip ARCHITECTURE — do not append UX encyclopedias. Self-check: sentence needs a milestone number → wrong doc.
+4. Return Execution Orchestration Report
 
 ---
 

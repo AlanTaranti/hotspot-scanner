@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import fs from "node:fs";
+import path from "node:path";
 import { additionalContext, emptyOk } from "./lib/respond.mjs";
 import {
   extractEditPath,
@@ -7,6 +9,13 @@ import {
   isFragileScoringPath,
   SCORING_FORMULA_CONTEXT,
 } from "./lib/paths.mjs";
+import {
+  ARCHITECTURE_REL_PATH,
+  ARCHITECTURE_SOT_CONTEXT,
+  isArchitectureDocPath,
+  LINE_WARN,
+  lintArchitectureDoc,
+} from "./lib/architecture-doc.mjs";
 import {
   getWorkspaceRoot,
   loadState,
@@ -46,6 +55,26 @@ if (isFragilePath(relPath)) {
 
 if (isFragileScoringPath(relPath)) {
   messages.push(`[${relPath}] ${SCORING_FORMULA_CONTEXT}`);
+}
+
+if (isArchitectureDocPath(relPath) && workspaceRoot) {
+  const abs = path.join(workspaceRoot, ARCHITECTURE_REL_PATH);
+  try {
+    const text = fs.readFileSync(abs, "utf8");
+    const { bannedMatches, lineCount, overSize } = lintArchitectureDoc(text);
+    if (bannedMatches.length > 0) {
+      messages.push(
+        `[${ARCHITECTURE_REL_PATH}] Forbidden tags still present: ${bannedMatches.join(", ")}. ${ARCHITECTURE_SOT_CONTEXT}`,
+      );
+    }
+    if (overSize) {
+      messages.push(
+        `[${ARCHITECTURE_REL_PATH}] Soft size warning: ${lineCount} lines (warn at ${LINE_WARN}). Slim UX/history; keep modules/pipelines/contracts only.`,
+      );
+    }
+  } catch {
+    // File missing mid-edit — skip
+  }
 }
 
 if (messages.length > 0) {

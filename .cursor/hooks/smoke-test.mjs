@@ -7,6 +7,10 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  ARCHITECTURE_REL_PATH,
+  lintArchitectureDoc,
+} from "./lib/architecture-doc.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const hooksDir = path.join(root, ".cursor/hooks");
@@ -380,6 +384,66 @@ const tests = [
           `wiring: beforeShellExecution shell-guards matcher must match hotspot-scanner/scan, got ${JSON.stringify(matcher)}`,
         );
       }
+    },
+  },
+  {
+    name: "architecture lint flags M## and HOTSPOT-*",
+    run() {
+      const dirty = lintArchitectureDoc(
+        "# ARCHITECTURE\n\nRemoved in M71. See HOTSPOT-1042.\n",
+      );
+      if (!dirty.bannedMatches.includes("M71")) {
+        throw new Error(
+          `expected M71 in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+        );
+      }
+      if (!dirty.bannedMatches.some((m) => /^HOTSPOT-1042$/i.test(m))) {
+        throw new Error(
+          `expected HOTSPOT-1042 in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+        );
+      }
+      const clean = lintArchitectureDoc(
+        "# ARCHITECTURE\n\nDesign SoT. ADR-2026-020. RT-001.\n",
+      );
+      if (clean.bannedMatches.length !== 0) {
+        throw new Error(
+          `expected clean sample, got ${JSON.stringify(clean.bannedMatches)}`,
+        );
+      }
+    },
+  },
+  {
+    name: "live ARCHITECTURE.md has no banned milestone tags",
+    run() {
+      const text = fs.readFileSync(
+        path.join(root, ARCHITECTURE_REL_PATH),
+        "utf8",
+      );
+      const { bannedMatches } = lintArchitectureDoc(text);
+      if (bannedMatches.length > 0) {
+        throw new Error(
+          `ARCHITECTURE.md contains forbidden tags: ${bannedMatches.join(", ")}`,
+        );
+      }
+    },
+  },
+  {
+    name: "pre-edit ask on ARCHITECTURE Write with M78",
+    run() {
+      cleanupState("smoke-arch");
+      const { stdout } = runHook("pre-edit-guard.mjs", {
+        hook_event_name: "preToolUse",
+        tool_name: "Write",
+        tool_input: {
+          path: path.join(root, ".specs/codebase/ARCHITECTURE.md"),
+          contents: "## Pipeline (M78)\n",
+        },
+        conversation_id: "smoke-arch",
+        workspace_roots: [root],
+      });
+      assertIncludes(stdout, '"permission":"ask"', "architecture ask");
+      assertIncludes(stdout, "M78", "architecture ask mentions M78");
+      cleanupState("smoke-arch");
     },
   },
 ];

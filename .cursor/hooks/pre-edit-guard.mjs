@@ -10,6 +10,11 @@ import {
   tsconfigAddsBinInclude,
   TSCONFIG_RE,
 } from "./lib/paths.mjs";
+import {
+  ARCHITECTURE_SOT_CONTEXT,
+  isArchitectureDocPath,
+  lintArchitectureDoc,
+} from "./lib/architecture-doc.mjs";
 import { getWorkspaceRoot, loadState, readStdinJson } from "./lib/state.mjs";
 
 const input = await readStdinJson();
@@ -48,6 +53,18 @@ if (TSCONFIG_RE.test(relPath)) {
     deny(
       "Do not add bin/ to tsconfig.json include without reconciling tsconfig.bin.json — causes duplicate output (bin-build.mdc).",
       "bin/ compiles via tsconfig.bin.json, not the root tsconfig.json.",
+    );
+    process.exit(0);
+  }
+}
+
+if (isArchitectureDocPath(relPath)) {
+  const content = extractEditContent(input.tool_input);
+  const { bannedMatches } = lintArchitectureDoc(content);
+  if (bannedMatches.length > 0) {
+    ask(
+      `ARCHITECTURE.md edit introduces forbidden tags (${bannedMatches.join(", ")}). Remove milestone/HOTSPOT changelog voice or confirm intentional exception.`,
+      `${ARCHITECTURE_SOT_CONTEXT} Matches: ${bannedMatches.join(", ")}`,
     );
     process.exit(0);
   }
