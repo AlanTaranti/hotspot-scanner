@@ -1,5 +1,6 @@
 import { TREND_TABLE_LEGEND } from "../trend/metric-legend.js";
 import type { ComplexityTrendPoint, ComplexityTrendResult } from "../trend/types.js";
+import { paintGrowthPattern } from "./color.js";
 
 function formatRange(result: ComplexityTrendResult): string {
   if (result.meta.start !== undefined && result.meta.end !== undefined) {
@@ -12,7 +13,11 @@ function shouldShowIndentLinesColumn(points: ComplexityTrendPoint[]): boolean {
   return points.some((point) => point.indentLines !== point.ncloc);
 }
 
-export function renderTrendTable(result: ComplexityTrendResult): string {
+export function renderTrendTable(
+  result: ComplexityTrendResult,
+  options?: { color?: boolean },
+): string {
+  const color = options?.color === true;
   const lines: string[] = [];
   const showIndentLines = shouldShowIndentLinesColumn(result.points);
 
@@ -20,7 +25,9 @@ export function renderTrendTable(result: ComplexityTrendResult): string {
   lines.push(`Range: ${formatRange(result)}`);
   lines.push(TREND_TABLE_LEGEND);
   const { kind, summary } = result.meta.growthPattern;
-  lines.push(`Pattern: ${kind} — ${summary}`);
+  lines.push(
+    `Pattern: ${paintGrowthPattern(kind, color)} — ${summary}`,
+  );
   lines.push(`indent_mean ${result.meta.sparklines.indentMean}`);
   lines.push(`ncloc       ${result.meta.sparklines.ncloc}`);
   lines.push("");

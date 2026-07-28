@@ -7,6 +7,7 @@ import type { ComplexityTrendResult } from "../trend/types.js";
 import { renderTrendCsv } from "./trend-csv.js";
 import { renderTrendJson } from "./trend-json.js";
 import { renderTrendTable } from "./trend-table.js";
+import { stripAnsi } from "./color.js";
 
 const fixturePath = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -92,5 +93,20 @@ describe("trend reporters", () => {
     delete withRange.meta.since;
     const output = renderTrendTable(withRange);
     expect(output).toContain("abc..def");
+  });
+
+  it("colors Pattern kind when color is enabled and stripAnsi matches plain", () => {
+    const plain = renderTrendTable(fixture, { color: false });
+    const colored = renderTrendTable(fixture, { color: true });
+    expect(stripAnsi(colored)).toBe(plain);
+    expect(colored).not.toBe(plain);
+    expect(colored).toContain("\x1b[");
+    expect(colored).toContain("inconclusive");
+  });
+
+  it("defaults to plain output when color is omitted", () => {
+    expect(renderTrendTable(fixture)).toBe(
+      renderTrendTable(fixture, { color: false }),
+    );
   });
 });

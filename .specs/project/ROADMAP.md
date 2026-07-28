@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M77 Done**. **M76** Specs Planned (trend-color-ux). **M78** Specs Planned (assess-color-ux). Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
+Status: **M7–M78 Done**. Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
 
 **M12** intentionally absent (CI fail-on-score removed — see STATE).
 
@@ -18,14 +18,13 @@ Status: **M7–M77 Done**. **M76** Specs Planned (trend-color-ux). **M78** Specs
 
 ### Open
 
-- **M76** trend-color-ux — Specs Planned
-- **M78** assess-color-ux — Specs Planned
+_None — M7–M78 Done._
 
 Deferred horizon in [STATE.md](STATE.md).
 
 ### Done
 
-M7–M77 Done. M73–M77 Execute complete (2026-07-27). Deferred horizon in [STATE.md](STATE.md).
+M7–M78 Done. M73–M78 Execute complete (2026-07-27). Deferred horizon in [STATE.md](STATE.md).
 
 ## Milestone 1 — Scaffold
 
@@ -1090,20 +1089,20 @@ Always-on Tornhill growth-pattern classification on `trend` (`deteriorating` / `
 
 ---
 
-## Milestone 76 — Trend Color UX — Specs Planned
+## Milestone 76 — Trend Color UX — Done
 
 → [`.specs/features/trend-color-ux/spec.md`](../features/trend-color-ux/spec.md)  
-**Slug:** `trend-color-ux` | **Priority:** Medium | **Specs:** Planned  
+**Slug:** `trend-color-ux` | **Priority:** Medium | **Specs:** Done  
 **IDs:** HOTSPOT-1600–1619 (1615–1619 reserved; active 1600–1611) | **Depth:** Medium  
 **Sisters:** output-interpretation-ux (M41), doctor-color-ux (M74), growth-pattern-trend-bridge (M75), complexity-trend (M72)  
-**Artifacts:** [context.md](../features/trend-color-ux/context.md) · [spec.md](../features/trend-color-ux/spec.md) · [design.md](../features/trend-color-ux/design.md) · [tasks.md](../features/trend-color-ux/tasks.md) (`Status: Planned`)
+**Artifacts:** [context.md](../features/trend-color-ux/context.md) · [spec.md](../features/trend-color-ux/spec.md) · [design.md](../features/trend-color-ux/design.md) · [tasks.md](../features/trend-color-ux/tasks.md) (`Status: Done`)
 
 ANSI-color the growth-pattern **kind** token on `trend` **table** `Pattern:` line when stdout is a TTY; disable via `--no-color`, non-empty `NO_COLOR`, non-TTY, `--output`, or non-table formats. Reuse raw ANSI helpers (no new color dependency). JSON/CSV and classification/schema unchanged.
 
-- [ ] `paintGrowthPattern` + `renderTrendTable({ color })`
-- [ ] `resolveTrendColor` + trend `--no-color` + trend-actions wire + CLI tests
-- [ ] README / ARCHITECTURE / CONVENTIONS notes
-- [ ] Final gate `pnpm build && pnpm test`
+- [x] `paintGrowthPattern` + `renderTrendTable({ color })`
+- [x] `resolveTrendColor` + trend `--no-color` + trend-actions wire + CLI tests
+- [x] README / ARCHITECTURE / CONVENTIONS notes
+- [x] Final gate `pnpm build && pnpm test`
 
 **Out of scope:** Summary/sparkline/header/row-cell coloring; per-row deltas; `FORCE_COLOR`; JSON/CSV color; chalk; scan/doctor color changes; hoisting `--no-color` global; `classifyGrowthPattern` / schema changes.
 
@@ -1131,20 +1130,20 @@ Dedicated `hotspot-scanner assess [path]`: `runScan` → filter `hotspotScore >=
 
 ---
 
-## Milestone 78 — Assess Color UX — Specs Planned
+## Milestone 78 — Assess Color UX — Done
 
 → [`.specs/features/assess-color-ux/spec.md`](../features/assess-color-ux/spec.md)  
-**Slug:** `assess-color-ux` | **Priority:** Medium | **Specs:** Planned  
+**Slug:** `assess-color-ux` | **Priority:** Medium | **Specs:** Done  
 **IDs:** HOTSPOT-1680–1699 (1695–1699 reserved; active 1680–1693) | **Depth:** Medium  
 **Sisters:** hotspot-assess (M77), trend-color-ux (M76), doctor-color-ux (M74), output-interpretation-ux (M41)  
-**Artifacts:** [context.md](../features/assess-color-ux/context.md) · [spec.md](../features/assess-color-ux/spec.md) · [design.md](../features/assess-color-ux/design.md) · [tasks.md](../features/assess-color-ux/tasks.md) (`Status: Planned`)
+**Artifacts:** [context.md](../features/assess-color-ux/context.md) · [spec.md](../features/assess-color-ux/spec.md) · [design.md](../features/assess-color-ux/design.md) · [tasks.md](../features/assess-color-ux/tasks.md) (`Status: Done`)
 
 TTY-aware ANSI on `assess` **table**: bold title + `Deteriorating` section; color summary Pattern-count kinds and detail Pattern kinds (`paintGrowthPattern`); color detail scores (`paintScore`). Disable via assess `--no-color`, non-empty `NO_COLOR`, non-TTY, `--output`, or non-table formats. Reuse raw ANSI helpers (no new color dependency). JSON/markdown and assess schema unchanged. Prefer Execute after M76 for shared `paintGrowthPattern`.
 
-- [ ] `paintBold` (+ `paintGrowthPattern` if missing) + `renderAssessTable({ color })`
-- [ ] `resolveAssessColor` + assess `--no-color` + assess-actions wire + CLI tests
-- [ ] README / ARCHITECTURE notes
-- [ ] Final gate `pnpm build && pnpm test`
+- [x] `paintBold` (+ `paintGrowthPattern` if missing) + `renderAssessTable({ color })`
+- [x] `resolveAssessColor` + assess `--no-color` + assess-actions wire + CLI tests
+- [x] README / ARCHITECTURE notes
+- [x] Final gate `pnpm build && pnpm test`
 
 **Out of scope:** Path/summary/meta coloring; stderr warning prefixes; `FORCE_COLOR`; JSON/markdown color; chalk; scan/doctor/trend behavior changes; hoisting `--no-color` global; assess schema/selection changes; `--fail-on-deteriorating` / SARIF.
 

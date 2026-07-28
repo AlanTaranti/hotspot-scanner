@@ -146,13 +146,14 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-27 | **M73 top-only-rollups Done** | Execute complete: removed M68 pre-write stderr teaser + M62 brief `timing: total Nms`; Warnings/Timing rollups exec-summary only; post-write `flushWarnings` preserved. Gate green (`pnpm build && pnpm test`, 977 tests). Specs: `.specs/features/top-only-rollups/` (Done). |
 | 2026-07-27 | **M74 doctor-color-ux Done** | Execute complete: `paintDoctorStatus` + `formatDoctorTextReport`; `resolveDoctorColor` + doctor `--no-color`; M41 gates (TTY, NO_COLOR, JSON plain). Gate green. Specs: `.specs/features/doctor-color-ux/` (Done). |
 | 2026-07-27 | **M75 growth-pattern-trend-bridge Done** | Execute complete: always-on `classifyGrowthPattern` + trend JSON `3.0` + table Pattern line; explain hit stderr `next: hotspot-scanner trend <path>`; recipes/README glossary. Scan JSON `3.0` unchanged. Gate green. Specs: `.specs/features/growth-pattern-trend-bridge/` (Done). |
-| 2026-07-27 | **M76 trend-color-ux Specs Planned (Medium)** | Color trend table Pattern **kind** only (`deteriorating`/`refactored`/`inconclusive`/`stable` → red/green/yellow/plain); reuse M41 gates (TTY, `--no-color`, `NO_COLOR`, `--output`); no FORCE_COLOR; JSON/CSV plain; no new color deps. IDs HOTSPOT-1600–1619. Specs: `.specs/features/trend-color-ux/` (`Status: Planned`). |
+| 2026-07-27 | **M76 trend-color-ux Done** | Execute complete: `paintGrowthPattern` + `renderTrendTable({ color })`; `resolveTrendColor` + trend `--no-color`; M41 gates (TTY, NO_COLOR, `--output`, json/csv plain). Gate green. Specs: `.specs/features/trend-color-ux/` (`Status: Done`). |
+| 2026-07-27 | **M78 assess-color-ux Done** | Execute complete: `paintBold` + assess table pattern/score colors; `resolveAssessColor` + assess `--no-color`; reuses M76 `paintGrowthPattern`. Gate green. Specs: `.specs/features/assess-color-ux/` (`Status: Done`). |
 | 2026-07-27 | **M76 lock — Pattern kind color only** | Do not color summary/sparklines/headers/rows; do not hoist `--no-color` to program-global; trend subcommand flag only; keep `Pattern: <kind> — <summary>` shape (M75). |
 | 2026-07-27 | **M77 hotspot-assess Done (Large)** | Execute complete: `assess [path]` CLI + `runAssess` library; scan → filter `hotspotScore >= --min-hotspot-score` (default 0.7) → `--top` 20 → sequential `runComplexityTrend`; summary + deteriorating-only detail; JSON `kind: "hotspot-assess"` / `version: "1.0"`; soft-continue; gate 1021 tests green. Specs: `.specs/features/hotspot-assess/` (`Status: Done`). |
 | 2026-07-27 | **M77 lock — dedicated assess (not scan --trend-top)** | Supersedes M75 YAGNI deferral of batch trend as scan flag; own CLI + schema; scan `3.0` / complexity-trend `3.0` untouched; no compare reopen. |
 | 2026-07-27 | **M77 lock — sequential trends + soft-continue** | Bound git history cost; per-file progress; per-candidate trend failures do not abort; exit 0 on partial errors; no `--fail-on-deteriorating` in MVP. |
 | 2026-07-27 | **M77 lock — `--min-hotspot-score` naming** | Long name required (not `--min-score`); help states threshold is hotspotScore; CLI-only (no assess config keys). |
-| 2026-07-27 | **M78 assess-color-ux Specs Planned (Medium)** | Assess table TTY emphasis: bold title + `Deteriorating` section; color summary/detail Pattern kinds (`paintGrowthPattern`) + detail scores (`paintScore`); reuse M41 gates (TTY, `--no-color`, `NO_COLOR`, `--output`); no FORCE_COLOR; JSON/markdown plain; no new color deps. IDs HOTSPOT-1680–1699. Specs: `.specs/features/assess-color-ux/` (`Status: Planned`). Prefer Execute after M76. |
+| 2026-07-27 | **M78 assess-color-ux Specs Planned (Medium)** | Superseded by M78 Done. |
 | 2026-07-27 | **M78 lock — bold structure + semantic color** | Bold title/section only; color kinds + scores; do not bold colored kind tokens; do not color paths/summaries/meta/stderr warnings. |
 | 2026-07-27 | **M78 lock — assess `--no-color` subcommand-only** | Do not hoist `--no-color` to program-global; assess flag independent of scan/doctor/trend. |
 
@@ -191,7 +192,7 @@ _None._
 
 ## Active
 
-**M76 trend-color-ux Specs Planned** + **M78 assess-color-ux Specs Planned**. Prefer Execute M76 then M78 (shared `paintGrowthPattern`). **M77** hotspot-assess Done (2026-07-27). M7–M77 Done. Deferred horizon: npm publish; CI/SARIF; historical AST; item C (scan body full warnings); fail-on-warning; `--fail-on-deteriorating` / SARIF for assess.
+**M76 trend-color-ux Done** + **M78 assess-color-ux Done** (2026-07-27). **M77** hotspot-assess Done. M7–M78 Done. Deferred horizon: npm publish; CI/SARIF; historical AST; item C (scan body full warnings); fail-on-warning; `--fail-on-deteriorating` / SARIF for assess.
 
 ## Deferred
 

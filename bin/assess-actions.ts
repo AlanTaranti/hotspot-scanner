@@ -50,6 +50,7 @@ function ensureTrailingNewline(content: string): string {
 function renderAssessOutput(
   result: AssessResult,
   format: AssessOutputFormat,
+  color: boolean,
 ): string {
   if (format === "json") {
     return renderAssessJson(result);
@@ -57,7 +58,7 @@ function renderAssessOutput(
   if (format === "markdown") {
     return renderAssessMarkdown(result);
   }
-  return renderAssessTable(result);
+  return renderAssessTable(result, { color });
 }
 
 function createAssessProgressHandler(options: {
@@ -93,6 +94,7 @@ export async function executeAssess(options: {
   sequential?: boolean;
   verbose?: boolean;
   warningsMode?: WarningsMode;
+  color?: boolean;
 }): Promise<void> {
   const { config: fileConfig } = await loadHotspotScannerConfig(
     options.repoPath,
@@ -149,7 +151,7 @@ export async function executeAssess(options: {
 
   clearLiveProgress();
 
-  const body = renderAssessOutput(result, options.format);
+  const body = renderAssessOutput(result, options.format, options.color ?? false);
   if (options.outputPath !== undefined) {
     await validateOutputPath(options.outputPath);
     await writeFile(options.outputPath, ensureTrailingNewline(body), "utf8");

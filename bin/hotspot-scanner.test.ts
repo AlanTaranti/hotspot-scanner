@@ -30,6 +30,8 @@ import {
   resolveSequentialCliOption,
   resolveDoctorColor,
   resolveTableColor,
+  resolveTrendColor,
+  resolveAssessColor,
   runCli,
   validateExplainTarget,
   validateOutputPath,
@@ -458,12 +460,14 @@ describe("createCliProgram", () => {
     expect(optionLongs).toContain("--max-revisions");
     expect(optionLongs).toContain("--all");
     expect(optionLongs).toContain("--format");
+    expect(optionLongs).toContain("--no-color");
   });
 
   it("assess help lists --min-hotspot-score with hotspotScore wording", () => {
     const help = getAssessHelpText();
 
     expect(help).toContain("--min-hotspot-score");
+    expect(help).toContain("--no-color");
     expect(help).toMatch(/hotspotScore/i);
     expect(help).toMatch(/default:\s*"0\.7"/);
     expect(help).toMatch(/default:\s*"20"/);
@@ -829,6 +833,90 @@ describe("resolveDoctorColor", () => {
 
   it("allows color when NO_COLOR is empty", () => {
     expect(resolveDoctorColor({ ...enabledBase, envNoColor: "" })).toBe(true);
+  });
+});
+
+describe("resolveTrendColor", () => {
+  const enabledBase = {
+    format: "table" as const,
+    noColor: false,
+    envNoColor: undefined,
+    stdoutIsTTY: true,
+  };
+
+  it("enables color for table stdout on a TTY", () => {
+    expect(resolveTrendColor(enabledBase)).toBe(true);
+  });
+
+  it("disables color for non-table formats", () => {
+    expect(
+      resolveTrendColor({ ...enabledBase, format: "json" }),
+    ).toBe(false);
+    expect(
+      resolveTrendColor({ ...enabledBase, format: "csv" }),
+    ).toBe(false);
+  });
+
+  it("disables color for --no-color, NO_COLOR, --output, and non-TTY", () => {
+    expect(resolveTrendColor({ ...enabledBase, noColor: true })).toBe(false);
+    expect(
+      resolveTrendColor({ ...enabledBase, envNoColor: "1" }),
+    ).toBe(false);
+    expect(
+      resolveTrendColor({ ...enabledBase, outputPath: "/tmp/out.txt" }),
+    ).toBe(false);
+    expect(
+      resolveTrendColor({ ...enabledBase, stdoutIsTTY: false }),
+    ).toBe(false);
+    expect(
+      resolveTrendColor({ ...enabledBase, stdoutIsTTY: undefined }),
+    ).toBe(false);
+  });
+
+  it("allows color when NO_COLOR is empty", () => {
+    expect(resolveTrendColor({ ...enabledBase, envNoColor: "" })).toBe(true);
+  });
+});
+
+describe("resolveAssessColor", () => {
+  const enabledBase = {
+    format: "table" as const,
+    noColor: false,
+    envNoColor: undefined,
+    stdoutIsTTY: true,
+  };
+
+  it("enables color for table stdout on a TTY", () => {
+    expect(resolveAssessColor(enabledBase)).toBe(true);
+  });
+
+  it("disables color for non-table formats", () => {
+    expect(
+      resolveAssessColor({ ...enabledBase, format: "json" }),
+    ).toBe(false);
+    expect(
+      resolveAssessColor({ ...enabledBase, format: "markdown" }),
+    ).toBe(false);
+  });
+
+  it("disables color for --no-color, NO_COLOR, --output, and non-TTY", () => {
+    expect(resolveAssessColor({ ...enabledBase, noColor: true })).toBe(false);
+    expect(
+      resolveAssessColor({ ...enabledBase, envNoColor: "1" }),
+    ).toBe(false);
+    expect(
+      resolveAssessColor({ ...enabledBase, outputPath: "/tmp/out.txt" }),
+    ).toBe(false);
+    expect(
+      resolveAssessColor({ ...enabledBase, stdoutIsTTY: false }),
+    ).toBe(false);
+    expect(
+      resolveAssessColor({ ...enabledBase, stdoutIsTTY: undefined }),
+    ).toBe(false);
+  });
+
+  it("allows color when NO_COLOR is empty", () => {
+    expect(resolveAssessColor({ ...enabledBase, envNoColor: "" })).toBe(true);
   });
 });
 
@@ -4243,6 +4331,109 @@ describe("runCli trend", () => {
     );
     await rm(outputPath, { force: true });
   });
+
+  it("colors Pattern line on TTY table output", async () => {
+    const previousIsTTY = process.stdout.isTTY;
+    const previousNoColor = process.env.NO_COLOR;
+    delete process.env.NO_COLOR;
+    Object.defineProperty(process.stdout, "isTTY", {
+      value: true,
+      configurable: true,
+    });
+    const trendFile = join(trendIndentFixture, "src/trend.ts");
+    const { chunks } = captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "trend",
+        trendFile,
+        "--since",
+        "10 years ago",
+      ]);
+
+      const output = chunks.join("");
+      expect(output).not.toBe(stripAnsi(output));
+      expect(stripAnsi(output)).toContain("Pattern:");
+    } finally {
+      Object.defineProperty(process.stdout, "isTTY", {
+        value: previousIsTTY,
+        configurable: true,
+      });
+      if (previousNoColor === undefined) {
+        delete process.env.NO_COLOR;
+      } else {
+        process.env.NO_COLOR = previousNoColor;
+      }
+    }
+  });
+
+  it("disables trend table color for --no-color", async () => {
+    const previousIsTTY = process.stdout.isTTY;
+    Object.defineProperty(process.stdout, "isTTY", {
+      value: true,
+      configurable: true,
+    });
+    const trendFile = join(trendIndentFixture, "src/trend.ts");
+    const { chunks } = captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "trend",
+        trendFile,
+        "--since",
+        "10 years ago",
+        "--no-color",
+      ]);
+
+      const output = chunks.join("");
+      expect(output).toBe(stripAnsi(output));
+    } finally {
+      Object.defineProperty(process.stdout, "isTTY", {
+        value: previousIsTTY,
+        configurable: true,
+      });
+    }
+  });
+
+  it("disables trend table color when NO_COLOR is set", async () => {
+    const previousIsTTY = process.stdout.isTTY;
+    const previousNoColor = process.env.NO_COLOR;
+    process.env.NO_COLOR = "1";
+    Object.defineProperty(process.stdout, "isTTY", {
+      value: true,
+      configurable: true,
+    });
+    const trendFile = join(trendIndentFixture, "src/trend.ts");
+    const { chunks } = captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "trend",
+        trendFile,
+        "--since",
+        "10 years ago",
+      ]);
+
+      const output = chunks.join("");
+      expect(output).toBe(stripAnsi(output));
+    } finally {
+      Object.defineProperty(process.stdout, "isTTY", {
+        value: previousIsTTY,
+        configurable: true,
+      });
+      if (previousNoColor === undefined) {
+        delete process.env.NO_COLOR;
+      } else {
+        process.env.NO_COLOR = previousNoColor;
+      }
+    }
+  });
 });
 
 describe("runCli config", () => {
@@ -4822,5 +5013,88 @@ describe("runCli assess", () => {
     });
     expect(stderrSpy.mock.calls.join("")).toContain("assess cancelled");
     expect(chunks.join("")).toBe("");
+  });
+
+  it("colors assess table on TTY stdout", async () => {
+    const previousIsTTY = process.stdout.isTTY;
+    const previousNoColor = process.env.NO_COLOR;
+    delete process.env.NO_COLOR;
+    Object.defineProperty(process.stdout, "isTTY", {
+      value: true,
+      configurable: true,
+    });
+    const fixturePath = join(
+      fileURLToPath(new URL(".", import.meta.url)),
+      "../tests/fixtures/report/sample-assess-result.json",
+    );
+    const sample = JSON.parse(readFileSync(fixturePath, "utf8"));
+    const assessModule = await import("#assess");
+    vi.spyOn(assessModule, "runAssess").mockResolvedValue(sample);
+    const { chunks } = captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "assess",
+        smallTsFixture,
+        "--format",
+        "table",
+        "--no-progress",
+        "--quiet",
+      ]);
+
+      const output = chunks.join("");
+      expect(output).not.toBe(stripAnsi(output));
+      expect(stripAnsi(output)).toContain("Hotspot assess");
+    } finally {
+      Object.defineProperty(process.stdout, "isTTY", {
+        value: previousIsTTY,
+        configurable: true,
+      });
+      if (previousNoColor === undefined) {
+        delete process.env.NO_COLOR;
+      } else {
+        process.env.NO_COLOR = previousNoColor;
+      }
+    }
+  });
+
+  it("disables assess table color for --no-color", async () => {
+    const previousIsTTY = process.stdout.isTTY;
+    Object.defineProperty(process.stdout, "isTTY", {
+      value: true,
+      configurable: true,
+    });
+    const fixturePath = join(
+      fileURLToPath(new URL(".", import.meta.url)),
+      "../tests/fixtures/report/sample-assess-result.json",
+    );
+    const sample = JSON.parse(readFileSync(fixturePath, "utf8"));
+    const assessModule = await import("#assess");
+    vi.spyOn(assessModule, "runAssess").mockResolvedValue(sample);
+    const { chunks } = captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "assess",
+        smallTsFixture,
+        "--format",
+        "table",
+        "--no-color",
+        "--no-progress",
+        "--quiet",
+      ]);
+
+      const output = chunks.join("");
+      expect(output).toBe(stripAnsi(output));
+    } finally {
+      Object.defineProperty(process.stdout, "isTTY", {
+        value: previousIsTTY,
+        configurable: true,
+      });
+    }
   });
 });

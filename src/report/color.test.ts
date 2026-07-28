@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  paintBold,
   paintDoctorStatus,
+  paintGrowthPattern,
   paintScore,
   paintStaticDep,
   stripAnsi,
@@ -11,7 +13,43 @@ const GREEN = "\x1b[32m";
 const YELLOW = "\x1b[33m";
 const DIM_GREEN = "\x1b[2;32m";
 const DIM_YELLOW = "\x1b[2;33m";
+const BOLD = "\x1b[1m";
 const RESET = "\x1b[0m";
+
+describe("paintBold", () => {
+  it("returns plain text when color is disabled", () => {
+    expect(paintBold("Hotspot assess", false)).toBe("Hotspot assess");
+  });
+
+  it("wraps text in bold when enabled", () => {
+    expect(paintBold("Deteriorating", true)).toBe(`${BOLD}Deteriorating${RESET}`);
+  });
+});
+
+describe("paintGrowthPattern", () => {
+  it("returns plain kind when color is disabled", () => {
+    expect(paintGrowthPattern("deteriorating", false)).toBe("deteriorating");
+    expect(paintGrowthPattern("refactored", false)).toBe("refactored");
+    expect(paintGrowthPattern("inconclusive", false)).toBe("inconclusive");
+    expect(paintGrowthPattern("stable", false)).toBe("stable");
+  });
+
+  it("wraps deteriorating/refactored/inconclusive in red/green/yellow when enabled", () => {
+    expect(paintGrowthPattern("deteriorating", true)).toBe(
+      `${RED}deteriorating${RESET}`,
+    );
+    expect(paintGrowthPattern("refactored", true)).toBe(
+      `${GREEN}refactored${RESET}`,
+    );
+    expect(paintGrowthPattern("inconclusive", true)).toBe(
+      `${YELLOW}inconclusive${RESET}`,
+    );
+  });
+
+  it("leaves stable plain when enabled", () => {
+    expect(paintGrowthPattern("stable", true)).toBe("stable");
+  });
+});
 
 describe("paintDoctorStatus", () => {
   it("returns plain status prefix when color is disabled", () => {
@@ -75,6 +113,9 @@ describe("stripAnsi", () => {
     expect(stripAnsi(paintDoctorStatus("pass", true))).toBe("pass:");
     expect(stripAnsi(paintDoctorStatus("warn", true))).toBe("warn:");
     expect(stripAnsi(paintDoctorStatus("fail", true))).toBe("fail:");
+    expect(stripAnsi(paintGrowthPattern("deteriorating", true))).toBe(
+      "deteriorating",
+    );
   });
 
   it("returns plain text unchanged", () => {

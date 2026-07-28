@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/trend-color-ux/design.md`](./design.md)  
 **Spec**: [`.specs/features/trend-color-ux/spec.md`](./spec.md)  
 **Context**: [`.specs/features/trend-color-ux/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Medium feature — color paint + trend table + bin gates + docs. STOP at Planned; Execute in a separate session via `orchestrator-implementer` after Status promotion. Do **not** change M75 classification heuristics or schema here.
 
 ---
@@ -94,12 +94,12 @@ No `[P]` — sequential owners.
 
 **Done when:**
 
-- [ ] `paintGrowthPattern` colors deteriorating/refactored/inconclusive when enabled; stable always plain; all plain when disabled
-- [ ] `renderTrendTable` wraps only the kind token on the `Pattern:` line
-- [ ] `stripAnsi(renderTrendTable(r, { color: true })) === renderTrendTable(r, { color: false })`
-- [ ] Default / omitted `color` remains plain (backward compatible)
-- [ ] Gate check passes: `pnpm test -- src/report/color.test.ts src/report/trend-format.test.ts`
-- [ ] Test count: no silent deletions
+- [x] `paintGrowthPattern` colors deteriorating/refactored/inconclusive when enabled; stable always plain; all plain when disabled
+- [x] `renderTrendTable` wraps only the kind token on the `Pattern:` line
+- [x] `stripAnsi(renderTrendTable(r, { color: true })) === renderTrendTable(r, { color: false })`
+- [x] Default / omitted `color` remains plain (backward compatible)
+- [x] Gate check passes: `pnpm test -- src/report/color.test.ts src/report/trend-format.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests:** unit  
 **Gate:** `pnpm test -- src/report/color.test.ts src/report/trend-format.test.ts`
@@ -126,12 +126,12 @@ No `[P]` — sequential owners.
 
 **Done when:**
 
-- [ ] `resolveTrendColor` matrix covered (table/json/csv, TTY, noColor, NO_COLOR empty vs set, outputPath)
-- [ ] Trend `--no-color` registered and disables color on TTY
-- [ ] JSON/CSV trend output has no ANSI
-- [ ] Existing trend table assertions updated with `stripAnsi` if needed
-- [ ] Gate check passes: `pnpm test -- bin/hotspot-scanner.test.ts`
-- [ ] Test count: no silent deletions
+- [x] `resolveTrendColor` matrix covered (table/json/csv, TTY, noColor, NO_COLOR empty vs set, outputPath)
+- [x] Trend `--no-color` registered and disables color on TTY
+- [x] JSON/CSV trend output has no ANSI
+- [x] Existing trend table assertions updated with `stripAnsi` if needed
+- [x] Gate check passes: `pnpm test -- bin/hotspot-scanner.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests:** unit  
 **Gate:** `pnpm test -- bin/hotspot-scanner.test.ts`
@@ -158,10 +158,10 @@ No `[P]` — sequential owners.
 
 **Done when:**
 
-- [ ] README mentions trend table Pattern colors + disable gates
-- [ ] ARCHITECTURE (and CONVENTIONS if applicable) note trend color briefly
-- [ ] No contradictory “trend never colors” claims left (e.g. M74 out-of-scope wording may stay historical)
-- [ ] Gate check: docs-only review (no code gate required beyond T4)
+- [x] README mentions trend table Pattern colors + disable gates
+- [x] ARCHITECTURE (and CONVENTIONS if applicable) note trend color briefly
+- [x] No contradictory “trend never colors” claims left (e.g. M74 out-of-scope wording may stay historical)
+- [x] Gate check: docs-only review (no code gate required beyond T4)
 
 **Tests:** none  
 **Gate:** review checklist
@@ -188,8 +188,8 @@ No `[P]` — sequential owners.
 
 **Done when:**
 
-- [ ] `pnpm build && pnpm test` passes
-- [ ] Test count: no silent deletions vs pre-milestone baseline
+- [x] `pnpm build && pnpm test` passes
+- [x] Test count: no silent deletions vs pre-milestone baseline
 
 **Tests:** full suite  
 **Gate:** `pnpm build && pnpm test`

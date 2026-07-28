@@ -61,6 +61,7 @@ const ASSESS_FLAG_DEFS: readonly FlagDef[] = [
   { long: "verbose", desc: "Trace git spawn argv on stderr" },
   { long: "no-progress", desc: "Suppress progress lines on stderr" },
   { long: "warnings", desc: WARNINGS_DESC },
+  { long: "no-color", desc: "Disable ANSI colors in assess table output" },
 ];
 
 const TREND_FLAG_DEFS: readonly FlagDef[] = [
@@ -74,6 +75,7 @@ const TREND_FLAG_DEFS: readonly FlagDef[] = [
   { long: "no-follow", desc: "Disable rename follow" },
   { long: "format", desc: "Output format" },
   { long: "output", desc: "Write report to file" },
+  { long: "no-color", desc: "Disable ANSI colors in trend table output" },
 ];
 
 function flagWordList(defs: readonly FlagDef[]): string {

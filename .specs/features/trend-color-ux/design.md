@@ -2,7 +2,7 @@
 
 **Spec**: [`.specs/features/trend-color-ux/spec.md`](./spec.md)  
 **Context**: [`.specs/features/trend-color-ux/context.md`](./context.md)  
-**Status**: Specs Planned  
+**Status**: Specs Done  
 
 ---
 

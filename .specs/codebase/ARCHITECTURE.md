@@ -176,16 +176,18 @@ Scan **table** format uses `src/report/path-column.ts` for the File column:
 - Injectable `stdoutColumns` on `renderTable` options for tests (parity with M59 `stderrIsTTY`).
 - Markdown / JSON / CSV emit full paths unchanged.
 
-### CLI ANSI colors (M41 + M74)
+### CLI ANSI colors (M41 + M74 + M76 + M78)
 
-Bin resolves color gates into a boolean before calling pure report formatters (`color: boolean`). Helpers live in `src/report/color.ts` (`paintScore`, `paintStaticDep`, `paintDoctorStatus`, `stripAnsi`). No color dependency; no `FORCE_COLOR`.
+Bin resolves color gates into a boolean before calling pure report formatters (`color: boolean`). Helpers live in `src/report/color.ts` (`paintScore`, `paintStaticDep`, `paintDoctorStatus`, `paintGrowthPattern`, `paintBold`, `stripAnsi`). No color dependency; no `FORCE_COLOR`.
 
 | Surface | Resolver | Enabled when |
 | ------- | -------- | ------------ |
 | Scan table | `resolveTableColor` | `format === "table"`, stdout TTY, no `--output`, scan `--no-color` unset, `NO_COLOR` unset or empty |
 | Doctor text | `resolveDoctorColor` | `format === "text"`, stdout TTY, doctor `--no-color` unset, `NO_COLOR` unset or empty |
+| Trend table | `resolveTrendColor` | `format === "table"`, stdout TTY, no `--output`, trend `--no-color` unset, `NO_COLOR` unset or empty |
+| Assess table | `resolveAssessColor` | `format === "table"`, stdout TTY, no `--output`, assess `--no-color` unset, `NO_COLOR` unset or empty |
 
-Markdown, JSON, and CSV (scan) and doctor JSON are always plain. Scan and doctor each expose their own `--no-color` on the subcommand (not a global parent flag, not a config key). Doctor text colors **only** the `pass:` / `warn:` / `fail:` prefix; message bodies stay plain.
+Markdown, JSON, and CSV (scan/trend/assess) and doctor JSON are always plain. Each subcommand exposes its own `--no-color` (not a global parent flag, not a config key). Doctor text colors **only** the `pass:` / `warn:` / `fail:` prefix; message bodies stay plain. Trend table colors **only** the growth-pattern kind token on the `Pattern:` line. Assess table bolds title + `Deteriorating` section; colors pattern-kind tokens and detail scores — not paths or summaries.
 
 ### Progress phases
 

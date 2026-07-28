@@ -50,12 +50,14 @@ import {
   executeTrend,
   mapTrendError,
   parseTrendFormat,
+  type TrendOutputFormat,
 } from "./trend-actions.js";
 import {
   executeAssess,
   mapAssessError,
   parseAssessFormat,
   parseMinHotspotScore,
+  type AssessOutputFormat,
 } from "./assess-actions.js";
 
 export {
@@ -265,6 +267,56 @@ export function resolveDoctorColor(opts: {
     return false;
   }
   if (opts.envNoColor !== undefined && opts.envNoColor.length > 0) {
+    return false;
+  }
+  if (opts.stdoutIsTTY !== true) {
+    return false;
+  }
+  return true;
+}
+
+export function resolveTrendColor(opts: {
+  format: TrendOutputFormat;
+  outputPath?: string;
+  noColor: boolean;
+  envNoColor: string | undefined;
+  stdoutIsTTY: boolean | undefined;
+}): boolean {
+  if (opts.format !== "table") {
+    return false;
+  }
+  if (opts.noColor) {
+    return false;
+  }
+  if (opts.envNoColor !== undefined && opts.envNoColor.length > 0) {
+    return false;
+  }
+  if (opts.outputPath !== undefined) {
+    return false;
+  }
+  if (opts.stdoutIsTTY !== true) {
+    return false;
+  }
+  return true;
+}
+
+export function resolveAssessColor(opts: {
+  format: AssessOutputFormat;
+  outputPath?: string;
+  noColor: boolean;
+  envNoColor: string | undefined;
+  stdoutIsTTY: boolean | undefined;
+}): boolean {
+  if (opts.format !== "table") {
+    return false;
+  }
+  if (opts.noColor) {
+    return false;
+  }
+  if (opts.envNoColor !== undefined && opts.envNoColor.length > 0) {
+    return false;
+  }
+  if (opts.outputPath !== undefined) {
     return false;
   }
   if (opts.stdoutIsTTY !== true) {
@@ -518,6 +570,7 @@ export function createCliProgram(): Command {
       "table",
     )
     .option("-o, --output <path>", "Write report to file instead of stdout")
+    .option("--no-color", "Disable ANSI colors in trend table output")
     .action(async function (file: string, options) {
       const cmd = this as Command;
       try {
@@ -525,6 +578,16 @@ export function createCliProgram(): Command {
         const explicitStart = isExplicitCliOption(cmd, "start");
         const explicitEnd = isExplicitCliOption(cmd, "end");
         const explicitSince = isExplicitCliOption(cmd, "since");
+        const outputPath = isExplicitCliOption(cmd, "output")
+          ? (options.output as string)
+          : undefined;
+        const color = resolveTrendColor({
+          format,
+          outputPath,
+          noColor: options.color === false,
+          envNoColor: process.env.NO_COLOR,
+          stdoutIsTTY: process.stdout.isTTY,
+        });
         await executeTrend({
           filePath: file,
           repoPath: isExplicitCliOption(cmd, "repo")
@@ -547,9 +610,8 @@ export function createCliProgram(): Command {
           all: Boolean(options.all),
           follow: options.follow as boolean,
           format,
-          outputPath: isExplicitCliOption(cmd, "output")
-            ? (options.output as string)
-            : undefined,
+          outputPath,
+          color,
         });
       } catch (error) {
         mapTrendError(error);
@@ -612,6 +674,7 @@ export function createCliProgram(): Command {
     .option("--verbose", "Trace git spawn argv on stderr")
     .option("--no-progress", "Suppress progress lines on stderr")
     .option("--warnings <mode>", WARNINGS_OPTION_HELP, "summary")
+    .option("--no-color", "Disable ANSI colors in assess table output")
     .action(async function (repoPath: string, options) {
       const cmd = this as Command;
       try {
@@ -633,6 +696,16 @@ export function createCliProgram(): Command {
         const top = merged.top;
         const warningsMode = parseWarningsMode(options.warnings as string);
         const sequential = resolveSequentialCliOption(options);
+        const outputPath = isExplicitCliOption(cmd, "output")
+          ? (options.output as string)
+          : undefined;
+        const color = resolveAssessColor({
+          format,
+          outputPath,
+          noColor: options.color === false,
+          envNoColor: process.env.NO_COLOR,
+          stdoutIsTTY: process.stdout.isTTY,
+        });
 
         await executeAssess({
           repoPath,
@@ -641,15 +714,14 @@ export function createCliProgram(): Command {
           minHotspotScore,
           top,
           format,
-          outputPath: isExplicitCliOption(cmd, "output")
-            ? (options.output as string)
-            : undefined,
+          outputPath,
           quiet: options.quiet as boolean,
           noProgress: options.progress === false,
           includeTests: options.includeTests as boolean | undefined,
           sequential,
           verbose: options.verbose as boolean,
           warningsMode,
+          color,
         });
       } catch (error) {
         mapAssessError(error);

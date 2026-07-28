@@ -69,7 +69,7 @@ hotspot-scanner assess .          # scan → filter by hotspotScore → sequenti
 hotspot-scanner scan . --dry-run  # preview config path, remount, unknown keys, and eligible file count
 ```
 
-**Trend metrics:** Indentation stats (`indentMean`, `indentSd`, `indentMax`, `indentTotal`) are a Tornhill-style whitespace proxy (not AST/cyclomatic complexity). `ncloc` is file size. Table output includes a **Pattern** line (`deteriorating` / `refactored` / `stable` / `inconclusive`) above sparklines plus a metric legend; JSON (`--format json`) uses contract `version: "3.0"` with required `meta.growthPattern` and `meta.metricLegend`. After `scan --explain` finds a hotspot, stderr prints `next: hotspot-scanner trend <path>` — see [docs/recipes.md → Hotspot drill-down](docs/recipes.md#hotspot-drill-down-scan--explain--trend).
+**Trend metrics:** Indentation stats (`indentMean`, `indentSd`, `indentMax`, `indentTotal`) are a Tornhill-style whitespace proxy (not AST/cyclomatic complexity). `ncloc` is file size. Table output includes a **Pattern** line (`deteriorating` / `refactored` / `stable` / `inconclusive`) above sparklines plus a metric legend; on an interactive TTY the pattern **kind** is ANSI-colored (see **Colors** below). JSON (`--format json`) uses contract `version: "3.0"` with required `meta.growthPattern` and `meta.metricLegend`. After `scan --explain` finds a hotspot, stderr prints `next: hotspot-scanner trend <path>` — see [docs/recipes.md → Hotspot drill-down](docs/recipes.md#hotspot-drill-down-scan--explain--trend).
 
 `init` creates a valid config with `$schema`, `$comments`, and realistic `include`/`exclude` examples; `config validate` exits `0` when the file parses and `2` on invalid or missing config; `config print` shows merged precedence without git mining; `doctor` surfaces setup problems early (including a **`since`** preflight and unknown-config-key soft warns) and prints a **`scope`** line with the same eligible-file count `scan --dry-run` would use (shared remount/config prelude — a nested package directory does not need a local `.git`); `scan --dry-run` validates scope and config prelude metadata without mining git history or running NCLOC analysis.
 
@@ -261,7 +261,7 @@ Table and markdown reports include interpretation helpers: an **executive summar
 
 **Section filter (`--only`)**: Repeatable flag limiting output to `hotspots` only. Excluded sections are omitted from all formats.
 
-**Colors**: Scan **table** format only — when stdout is an interactive TTY, without `--output`, scan `--no-color`, or a non-empty `NO_COLOR`. Markdown, JSON, and CSV are always plain text. Doctor **text** output (`--format text`, default) colors only the status prefix (`pass:` green, `warn:` yellow, `fail:` red); message bodies stay plain. Doctor color uses the same TTY / `NO_COLOR` gates plus doctor `--no-color`; doctor JSON is always plain.
+**Colors**: Scan **table** format only — when stdout is an interactive TTY, without `--output`, scan `--no-color`, or a non-empty `NO_COLOR`. Markdown, JSON, and CSV are always plain text. Doctor **text** output (`--format text`, default) colors only the status prefix (`pass:` green, `warn:` yellow, `fail:` red); message bodies stay plain. Doctor color uses the same TTY / `NO_COLOR` gates plus doctor `--no-color`; doctor JSON is always plain. **Trend** table colors only the growth-pattern **kind** token on the `Pattern:` line (`deteriorating` red, `refactored` green, `inconclusive` yellow, `stable` plain); sparklines, headers, and rows stay plain — disabled with trend `--no-color`, non-TTY stdout, `--output`, or non-table formats. **Assess** table uses bold for the title and `Deteriorating` section; colors pattern-kind tokens in the summary counts line and detail rows, and score values via the same bands as scan — disabled with assess `--no-color`, non-TTY stdout, `--output`, or non-table formats. Each subcommand has its own `--no-color` flag (not global, not a config key).
 
 ### Table
 
@@ -492,7 +492,7 @@ Rename blind-spot messages use `code: "RENAME_HISTORY_INCOMPLETE"` (ambiguous ch
 
 ### Scan → assess
 
-`hotspot-scanner assess [path]` runs the full scan, keeps hotspots with `hotspotScore >= --min-hotspot-score` (default **0.7**), caps to `--top` (default **20**), then runs **sequential** `runComplexityTrend` per candidate. Table and markdown show summary pattern counts and a detail section **only for deteriorating** files. JSON uses `kind: "hotspot-assess"` / `version: "1.0"` — isolated from scan JSON `3.0`; candidates include `growthPattern` without full revision `points`.
+`hotspot-scanner assess [path]` runs the full scan, keeps hotspots with `hotspotScore >= --min-hotspot-score` (default **0.7**), caps to `--top` (default **20**), then runs **sequential** `runComplexityTrend` per candidate. Table and markdown show summary pattern counts and a detail section **only for deteriorating** files. On an interactive TTY, assess **table** output bolds the title and `Deteriorating` section and colors pattern kinds and scores (see **Colors**). JSON uses `kind: "hotspot-assess"` / `version: "1.0"` — isolated from scan JSON `3.0`; candidates include `growthPattern` without full revision `points`.
 
 ```bash
 hotspot-scanner assess . --min-hotspot-score 0.7 --top 10

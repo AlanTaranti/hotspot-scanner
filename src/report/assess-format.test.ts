@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import type { AssessResult } from "../assess/types.js";
 import { renderAssessMarkdown } from "./assess-markdown.js";
 import { renderAssessTable } from "./assess-table.js";
+import { stripAnsi } from "./color.js";
 
 const fixturePath = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -119,5 +120,21 @@ describe("assess reporters", () => {
     expect(markdownOutput).toContain("refactored=1");
     expect(markdownOutput).not.toContain("Pattern: refactored");
     expect(markdownOutput).not.toContain("src/inconclusive.ts");
+  });
+
+  it("colors title, section, pattern kinds, and scores when color is enabled", () => {
+    const plain = renderAssessTable(fixture, { color: false });
+    const colored = renderAssessTable(fixture, { color: true });
+    expect(stripAnsi(colored)).toBe(plain);
+    expect(colored).not.toBe(plain);
+    expect(colored).toContain("\x1b[");
+    expect(colored).toContain("Hotspot assess");
+    expect(colored).toContain("Deteriorating");
+  });
+
+  it("defaults to plain output when color is omitted", () => {
+    expect(renderAssessTable(fixture)).toBe(
+      renderAssessTable(fixture, { color: false }),
+    );
   });
 });

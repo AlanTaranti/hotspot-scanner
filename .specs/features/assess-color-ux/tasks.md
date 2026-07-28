@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/assess-color-ux/design.md`](./design.md)  
 **Spec**: [`.specs/features/assess-color-ux/spec.md`](./spec.md)  
 **Context**: [`.specs/features/assess-color-ux/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Medium feature — paint helpers + assess table + bin gates + docs. STOP at Planned; Execute in a separate session via `orchestrator-implementer` after Status promotion. Prefer M76 Done first for `paintGrowthPattern`; if missing, implement shared helper in T1. Do **not** change assess schema or selection here.
 
 ---
@@ -94,14 +94,14 @@ No `[P]` — sequential owners.
 
 **Done when:**
 
-- [ ] `paintBold` wraps text when enabled; plain when disabled
-- [ ] `paintGrowthPattern` available and used for summary + detail kinds; stable always plain
-- [ ] Detail scores use `paintScore` when color enabled
-- [ ] `stripAnsi(renderAssessTable(r, { color: true })) === renderAssessTable(r, { color: false })`
-- [ ] Default / omitted `color` remains plain (backward compatible)
-- [ ] Paths / summaries / meta lines uncolored
-- [ ] Gate check passes: `pnpm test -- src/report/color.test.ts src/report/assess-format.test.ts`
-- [ ] Test count: no silent deletions
+- [x] `paintBold` wraps text when enabled; plain when disabled
+- [x] `paintGrowthPattern` available and used for summary + detail kinds; stable always plain
+- [x] Detail scores use `paintScore` when color enabled
+- [x] `stripAnsi(renderAssessTable(r, { color: true })) === renderAssessTable(r, { color: false })`
+- [x] Default / omitted `color` remains plain (backward compatible)
+- [x] Paths / summaries / meta lines uncolored
+- [x] Gate check passes: `pnpm test -- src/report/color.test.ts src/report/assess-format.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests:** unit  
 **Gate:** `pnpm test -- src/report/color.test.ts src/report/assess-format.test.ts`
@@ -128,12 +128,12 @@ No `[P]` — sequential owners.
 
 **Done when:**
 
-- [ ] `resolveAssessColor` matrix covered (table/json/markdown, TTY, noColor, NO_COLOR empty vs set, outputPath)
-- [ ] Assess `--no-color` registered and disables color on TTY
-- [ ] JSON/markdown assess output has no ANSI
-- [ ] Existing assess table assertions updated with `stripAnsi` if needed
-- [ ] Gate check passes: `pnpm test -- bin/hotspot-scanner.test.ts`
-- [ ] Test count: no silent deletions
+- [x] `resolveAssessColor` matrix covered (table/json/markdown, TTY, noColor, NO_COLOR empty vs set, outputPath)
+- [x] Assess `--no-color` registered and disables color on TTY
+- [x] JSON/markdown assess output has no ANSI
+- [x] Existing assess table assertions updated with `stripAnsi` if needed
+- [x] Gate check passes: `pnpm test -- bin/hotspot-scanner.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests:** unit  
 **Gate:** `pnpm test -- bin/hotspot-scanner.test.ts`
@@ -160,10 +160,10 @@ No `[P]` — sequential owners.
 
 **Done when:**
 
-- [ ] README mentions assess table bold/colors + disable gates
-- [ ] ARCHITECTURE notes assess color briefly in CLI ANSI section
-- [ ] No contradictory living-doc claim that assess never colors
-- [ ] Gate check: docs-only review (no code gate required beyond T4)
+- [x] README mentions assess table bold/colors + disable gates
+- [x] ARCHITECTURE notes assess color briefly in CLI ANSI section
+- [x] No contradictory living-doc claim that assess never colors
+- [x] Gate check: docs-only review (no code gate required beyond T4)
 
 **Tests:** none  
 **Gate:** review checklist
@@ -190,8 +190,8 @@ No `[P]` — sequential owners.
 
 **Done when:**
 
-- [ ] `pnpm build && pnpm test` passes
-- [ ] Test count: no silent deletions vs pre-milestone baseline
+- [x] `pnpm build && pnpm test` passes
+- [x] Test count: no silent deletions vs pre-milestone baseline
 
 **Tests:** full suite  
 **Gate:** `pnpm build && pnpm test`

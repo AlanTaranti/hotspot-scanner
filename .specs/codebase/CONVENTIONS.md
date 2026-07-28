@@ -47,7 +47,7 @@ Project **Done gate** remains `pnpm build && pnpm test` only (see AGENTS.md). Li
 
 - Domain logic stays out of `bin/` — only flag parsing and `runScan()` invocation
 - Default `--since`: 12 months (STATE decision; show window in output)
-- ANSI color: resolved in `bin/hotspot-scanner.ts` (`resolveTableColor` for scan table, `resolveDoctorColor` for doctor text) → `color: boolean` passed into `src/report/` formatters; TTY stdout + empty/unset `NO_COLOR` + subcommand `--no-color` gates; doctor text colors status prefixes only
+- ANSI color: resolved in `bin/hotspot-scanner.ts` (`resolveTableColor` scan table, `resolveDoctorColor` doctor text, `resolveTrendColor` trend table, `resolveAssessColor` assess table) → `color: boolean` passed into `src/report/` formatters; TTY stdout + empty/unset `NO_COLOR` + subcommand `--no-color` gates (+ no `--output` for table surfaces); doctor colors status prefixes only; trend colors Pattern kind only; assess bolds title/section and colors pattern kinds + scores
 
 ## Commits
 

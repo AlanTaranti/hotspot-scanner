@@ -32,6 +32,7 @@ export function parseTrendFormat(value: string): TrendOutputFormat {
 function renderTrendOutput(
   result: ComplexityTrendResult,
   format: TrendOutputFormat,
+  color: boolean,
 ): string {
   if (format === "json") {
     return renderTrendJson(result);
@@ -39,7 +40,7 @@ function renderTrendOutput(
   if (format === "csv") {
     return renderTrendCsv(result);
   }
-  return renderTrendTable(result);
+  return renderTrendTable(result, { color });
 }
 
 export async function executeTrend(options: {
@@ -53,6 +54,7 @@ export async function executeTrend(options: {
   follow?: boolean;
   format: TrendOutputFormat;
   outputPath?: string;
+  color?: boolean;
 }): Promise<void> {
   const result = await runWithScanCancelSignals((signal) =>
     runComplexityTrend({
@@ -77,7 +79,7 @@ export async function executeTrend(options: {
     process.stderr.write(`warning: ${warning.message}\n`);
   }
 
-  const body = renderTrendOutput(result, options.format);
+  const body = renderTrendOutput(result, options.format, options.color ?? false);
   if (options.outputPath !== undefined) {
     await validateOutputPath(options.outputPath);
     await writeFile(options.outputPath, body, "utf8");

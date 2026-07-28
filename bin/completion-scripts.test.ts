@@ -25,6 +25,7 @@ const REPRESENTATIVE_ASSESS_FLAGS = [
   "--config",
   "--quiet",
   "--no-progress",
+  "--no-color",
 ] as const;
 
 const REPRESENTATIVE_TREND_FLAGS = [
@@ -34,6 +35,7 @@ const REPRESENTATIVE_TREND_FLAGS = [
   "--follow",
   "--format",
   "--output",
+  "--no-color",
 ] as const;
 
 const REPRESENTATIVE_SCAN_FLAGS = [

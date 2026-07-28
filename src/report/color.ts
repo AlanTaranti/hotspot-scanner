@@ -1,4 +1,5 @@
 const RESET = "\x1b[0m";
+const BOLD = "\x1b[1m";
 const RED = "\x1b[31m";
 const GREEN = "\x1b[32m";
 const YELLOW = "\x1b[33m";
@@ -24,6 +25,40 @@ export function paintScore(score: number, enabled: boolean): string {
     return `${YELLOW}${text}${RESET}`;
   }
   return text;
+}
+
+/** Wrap text in bold when enabled. */
+export function paintBold(text: string, enabled: boolean): string {
+  if (!enabled) {
+    return text;
+  }
+  return `${BOLD}${text}${RESET}`;
+}
+
+export type GrowthPatternKind =
+  | "deteriorating"
+  | "refactored"
+  | "stable"
+  | "inconclusive";
+
+/** Color growth-pattern kind token (deteriorating red, refactored green, inconclusive yellow, stable plain). */
+export function paintGrowthPattern(
+  kind: GrowthPatternKind,
+  enabled: boolean,
+): string {
+  if (!enabled) {
+    return kind;
+  }
+  switch (kind) {
+    case "deteriorating":
+      return `${RED}${kind}${RESET}`;
+    case "refactored":
+      return `${GREEN}${kind}${RESET}`;
+    case "inconclusive":
+      return `${YELLOW}${kind}${RESET}`;
+    case "stable":
+      return kind;
+  }
 }
 
 /** Color doctor status prefix (`pass:` green, `warn:` yellow, `fail:` red). */
