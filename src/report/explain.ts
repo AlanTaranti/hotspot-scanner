@@ -112,6 +112,11 @@ function formatNotFound(target: ExplainTarget): string {
   return `explain: no hotspot ranking for ${pathKey}`;
 }
 
+/** Stable stderr next-step hint for explain→trend bridge (HOTSPOT-1549). */
+export function formatTrendNextStep(filePath: string): string {
+  return `next: hotspot-scanner trend ${normalizeMatchKey(filePath)}`;
+}
+
 /** Human-readable score breakdown for a matched ranking row (stderr-only). */
 export function formatExplainBlock(
   result: ScanResult,

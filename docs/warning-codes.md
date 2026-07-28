@@ -8,7 +8,7 @@ The CLI writes diagnostics to stderr with a severity prefix (`info:`, `warning:`
 
 | Mode | Default? | Stderr behavior |
 | ---- | -------- | --------------- |
-| `summary` | **Yes** | Buffer warning/error during the scan. Before report write: one short rollup line (`Warnings: N total (…)`). After write: **one aggregated line per group** (by code + rename sub-kind) with count and next-step text. |
+| `summary` | **Yes** | Buffer warning/error during the scan. After report write: **one aggregated line per group** (by code + rename sub-kind) with count and next-step text. |
 | `full` | No | Emit each structured warning immediately during the scan (per-path ambiguous renames; unlinked sample + remainder lines as in `meta.warnings`). `flushWarnings()` clears live progress only — does not re-emit. |
 | `json` | No | Buffer all warnings; after report write, `flushWarnings()` writes one JSON document: `{"warnings":ScanWarning[]}`. No teaser or human summary lines. |
 
@@ -22,7 +22,9 @@ The CLI writes diagnostics to stderr with a severity prefix (`info:`, `warning:`
 | `--quiet` + `--warnings=full` | Quiet wins for progress/info; warning/error emit in full detail |
 | `--verbose` | Git spawn argv trace only — does **not** expand warning stderr |
 
-Under `summary`, stderr uses a **bookend**: a short rollup line immediately **before** the report is written (stdout or `--output`), then the full aggregated per-group lines **after** the write. `Finalizing…` stays visible until the pre-write teaser. Under `json`, one JSON emission happens only after the write (no teaser). Under `full`, warnings stream during the scan; flush clears live progress only.
+Under `summary`, warnings buffer during the scan; after the report is written (stdout or `--output`), `flushWarnings()` emits the aggregated per-group lines. `Finalizing…` stays visible through scoring, render, and write until `flushWarnings()` clears the live progress line. Under `json`, one JSON emission happens only after the write. Under `full`, warnings stream during the scan; flush clears live progress only.
+
+**Warnings/Timing rollups** (`Warnings: N total (…)` and the Timing line) appear only in table/markdown executive summaries — not on stderr.
 
 **Severity vs exit code.** `severity` classifies diagnostics only. A successful scan exits `0` even when warnings are present. Hard failures use the exit codes in [README.md](../README.md#exit-codes) (`1` for `--fail-on-explain-miss`, `2` for usage/config errors, `130`/`143` for cancel).
 

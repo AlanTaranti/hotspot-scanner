@@ -13,6 +13,7 @@ Automated validation for `@vitals/hotspot-scanner` CLI. No interactive UI UAT.
 
 ```bash
 pnpm exec hotspot-scanner scan tests/fixtures/repos/<repo>
+pnpm exec hotspot-scanner trend tests/fixtures/repos/trend-indent/src/trend.ts --since "10 years ago"
 ```
 
 With flags:
@@ -48,10 +49,31 @@ See [AGENTS.md](../../../AGENTS.md) § Validation.
 | `--format csv`         | Multi-file CSV bundle (requires `--output`); stem-derived paths + `meta.json` sidecar | table                 |
 | `--output <path>`      | Write report to file (required for `--format csv`)                                    | stdout                |
 | `--top <N>`            | Limit table/markdown rows (ignored for json/csv)                                      | `20`                  |
-| `--explain <path>`     | File-path score breakdown on stderr after report                                      | —                     |
+| `--explain <path>`     | File-path score breakdown on stderr after report; hit prints `next: hotspot-scanner trend <path>` | —                     |
 | `--fail-on-explain-miss` | Exit `1` when explain target missing (requires `--explain`)                       | —                     |
+| `trend <file>`         | Per-file complexity trend; table shows `Pattern:` line; JSON `meta.growthPattern` required | —                     |
 
 Test relevant flags when the feature scope touches CLI.
+
+## Trend validation
+
+```bash
+pnpm exec hotspot-scanner trend tests/fixtures/repos/trend-indent/src/trend.ts --since "10 years ago"
+pnpm exec hotspot-scanner trend tests/fixtures/repos/trend-indent/src/trend.ts --format json --since "10 years ago"
+```
+
+Checks:
+
+- Exit `0` on success
+- Table output contains `Pattern:` above sparklines
+- JSON `version` is `"3.0"` with `meta.growthPattern.kind` and `summary`
+- CSV has metric headers only (no pattern column)
+
+Drill-down bridge:
+
+```bash
+pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts --explain src/high.ts 2>&1 | grep '^next:'
+```
 
 ## When to validate
 

@@ -1,10 +1,50 @@
 import { describe, expect, it } from "vitest";
-import { formatDoctorJsonReport, type DoctorJsonReport } from "./format.js";
-import type { DoctorResult } from "./index.js";
+import { stripAnsi } from "../report/color.js";
+import {
+  formatDoctorJsonReport,
+  formatDoctorTextReport,
+  type DoctorJsonReport,
+} from "./format.js";
+import type { DoctorFinding, DoctorResult } from "./index.js";
 
 function parseReport(output: string): DoctorJsonReport {
   return JSON.parse(output) as DoctorJsonReport;
 }
+
+describe("formatDoctorTextReport", () => {
+  const findings: DoctorFinding[] = [
+    { id: "node-engines", status: "pass", message: "Node ok" },
+    { id: "config", status: "warn", message: "missing config" },
+    { id: "git-repo", status: "fail", message: "not a repo" },
+  ];
+
+  it("formats status: message lines without color when disabled", () => {
+    expect(formatDoctorTextReport(findings, { color: false })).toBe(
+      "pass: Node ok\nwarn: missing config\nfail: not a repo\n",
+    );
+  });
+
+  it("colors only the status prefix when enabled", () => {
+    const colored = formatDoctorTextReport(findings, { color: true });
+
+    expect(colored).toContain("\x1b[32mpass:\x1b[0m Node ok");
+    expect(colored).toContain("\x1b[33mwarn:\x1b[0m missing config");
+    expect(colored).toContain("\x1b[31mfail:\x1b[0m not a repo");
+  });
+
+  it("stripAnsi(colored) equals plain output", () => {
+    const plain = formatDoctorTextReport(findings, { color: false });
+    const colored = formatDoctorTextReport(findings, { color: true });
+
+    expect(stripAnsi(colored)).toBe(plain);
+  });
+
+  it("ends output with a trailing newline", () => {
+    expect(
+      formatDoctorTextReport([], { color: false }).endsWith("\n"),
+    ).toBe(true);
+  });
+});
 
 describe("formatDoctorJsonReport", () => {
   it("serializes the locked envelope with version, findings, and exitCode", () => {

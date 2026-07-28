@@ -1,5 +1,5 @@
 {
-  "version": "2.0",
+  "version": "3.0",
   "kind": "complexity-trend",
   "filePath": "src/example.ts",
   "points": [
@@ -40,6 +40,10 @@
       "indentMax": "Deepest indent level in the file",
       "indentTotal": "Sum of indent levels across analyzed lines",
       "ncloc": "Non-comment lines of code (file size)"
+    },
+    "growthPattern": {
+      "kind": "inconclusive",
+      "summary": "insufficient history (2 points, need 5)"
     },
     "scannerVersion": "1.0.0",
     "warnings": []

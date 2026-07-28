@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M72 Done**; **M73–M75 Specs Planned**. Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
+Status: **M7–M75 Done**. Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
 
 **M12** intentionally absent (CI fail-on-score removed — see STATE).
 
@@ -18,15 +18,11 @@ Status: **M7–M72 Done**; **M73–M75 Specs Planned**. Deferred horizon in [STA
 
 ### Open
 
-| Milestone | Slug | Specs |
-| --------- | ---- | ----- |
-| **M73** | `top-only-rollups` | [Planned](../features/top-only-rollups/tasks.md) — Warnings/Timing rollups only in exec summary; drop stderr teaser + brief timing |
-| **M74** | `doctor-color-ux` | [Planned](../features/doctor-color-ux/tasks.md) — ANSI color for doctor text status prefixes (`pass`/`warn`/`fail`); M41 gates |
-| **M75** | `growth-pattern-trend-bridge` | [Planned](../features/growth-pattern-trend-bridge/tasks.md) — Always-on Tornhill growth Pattern on `trend` + explain→trend next-step |
+_None — M73–M75 Execute complete (2026-07-27). Deferred horizon in [STATE.md](STATE.md)._
 
 ### Done
 
-M7–M72 historical detail below. M73–M75 Specs Planned under Open. Deferred horizon in [STATE.md](STATE.md).
+M7–M75 Done. M73–M75 Execute complete (2026-07-27). Deferred horizon in [STATE.md](STATE.md).
 
 ## Milestone 1 — Scaffold
 
@@ -1031,61 +1027,61 @@ Dedicated `hotspot-scanner trend <file>` command: path-scoped Git history (`--fo
 
 ---
 
-## Milestone 73 — Top-only summary rollups — Specs Planned
+## Milestone 73 — Top-only summary rollups — Done
 
 → [`.specs/features/top-only-rollups/spec.md`](../features/top-only-rollups/spec.md)  
-**Slug:** `top-only-rollups` | **Priority:** Medium | **Specs:** Planned  
+**Slug:** `top-only-rollups` | **Priority:** Medium | **Specs:** Done  
 **IDs:** HOTSPOT-1500–1519 (1515–1519 reserved) | **Depth:** Medium  
 **Sisters:** warnings-bookend-dx (M68), feedback-copy-ux (M62), inline-progress-bar (M61), cli-warnings-mode (M58)  
-**Artifacts:** [context.md](../features/top-only-rollups/context.md) · [spec.md](../features/top-only-rollups/spec.md) · [design.md](../features/top-only-rollups/design.md) · [tasks.md](../features/top-only-rollups/tasks.md) (`Status: Planned`)
+**Artifacts:** [context.md](../features/top-only-rollups/context.md) · [spec.md](../features/top-only-rollups/spec.md) · [design.md](../features/top-only-rollups/design.md) · [tasks.md](../features/top-only-rollups/tasks.md) (`Status: Done`)
 
 Remove duplicate human rollups on default scan output: keep `Warnings:` + `Timing:` only in the table/markdown executive summary; drop M68 pre-write stderr teaser and M62 brief `timing: total Nms` stderr echo. Keep post-write aggregated `warning:` detail via `flushWarnings`. No new flags, schema, or ranking changes.
 
-- [ ] Remove `emitWarningTeaser` from scan lifecycle / diagnostics API
-- [ ] Remove `emitBriefTimingStderr` and call sites
-- [ ] Update bin/diagnostics lifecycle tests (write → flush → explain)
-- [ ] Sync `docs/warning-codes.md`, README, ARCHITECTURE
-- [ ] Final gate `pnpm build && pnpm test`
+- [x] Remove `emitWarningTeaser` from scan lifecycle / diagnostics API
+- [x] Remove `emitBriefTimingStderr` and call sites
+- [x] Update bin/diagnostics lifecycle tests (write → flush → explain)
+- [x] Sync `docs/warning-codes.md`, README, ARCHITECTURE
+- [x] Final gate `pnpm build && pnpm test` (977 tests)
 
 **Out of scope:** Bottom-only; item C (scan body full warnings); changing `--warnings=full`/`json` semantics beyond teaser absence; compare/baseline.
 
 ---
 
-## Milestone 74 — Doctor Color UX — Specs Planned
+## Milestone 74 — Doctor Color UX — Done
 
 → [`.specs/features/doctor-color-ux/spec.md`](../features/doctor-color-ux/spec.md)  
-**Slug:** `doctor-color-ux` | **Priority:** Medium | **Specs:** Planned  
+**Slug:** `doctor-color-ux` | **Priority:** Medium | **Specs:** Done  
 **IDs:** HOTSPOT-1520–1539 (1535–1539 reserved; active 1520–1530) | **Depth:** Medium  
 **Sisters:** output-interpretation-ux (M41), cli-init-doctor-dry-run (M39), scan-observability (M51), doctor-scope-parity (M52), config-doctor-dx (M64)  
-**Artifacts:** [context.md](../features/doctor-color-ux/context.md) · [spec.md](../features/doctor-color-ux/spec.md) · [design.md](../features/doctor-color-ux/design.md) · [tasks.md](../features/doctor-color-ux/tasks.md) (`Status: Planned`)
+**Artifacts:** [context.md](../features/doctor-color-ux/context.md) · [spec.md](../features/doctor-color-ux/spec.md) · [design.md](../features/doctor-color-ux/design.md) · [tasks.md](../features/doctor-color-ux/tasks.md) (`Status: Done`)
 
 ANSI-color `pass:` / `warn:` / `fail:` prefixes on `doctor` **text** output when stdout is a TTY; disable via `--no-color`, non-empty `NO_COLOR`, non-TTY, or `--format json`. Reuse raw ANSI helpers (no new color dependency). JSON envelope and finding messages unchanged.
 
-- [ ] `paintDoctorStatus` + `formatDoctorTextReport({ color })`
-- [ ] `resolveDoctorColor` + doctor `--no-color` + CLI tests
-- [ ] README / ARCHITECTURE / CONVENTIONS notes
-- [ ] Final gate `pnpm build && pnpm test`
+- [x] `paintDoctorStatus` + `formatDoctorTextReport({ color })`
+- [x] `resolveDoctorColor` + doctor `--no-color` + CLI tests
+- [x] README / ARCHITECTURE / CONVENTIONS notes
+- [x] Final gate `pnpm build && pnpm test`
 
 **Out of scope:** Message-body/path coloring; `FORCE_COLOR`; JSON color; chalk; scan/trend color changes; changing exit codes or finding copy; M73 top-only-rollups.
 
 ---
 
-## Milestone 75 — Growth pattern + trend bridge — Specs Planned
+## Milestone 75 — Growth pattern + trend bridge — Done
 
 → [`.specs/features/growth-pattern-trend-bridge/spec.md`](../features/growth-pattern-trend-bridge/spec.md)  
-**Slug:** `growth-pattern-trend-bridge` | **Priority:** High | **Specs:** Planned  
+**Slug:** `growth-pattern-trend-bridge` | **Priority:** High | **Specs:** Done  
 **IDs:** HOTSPOT-1540–1599 (1570–1599 reserved; active 1540–1554) | **Depth:** Large  
 **Sisters:** complexity-trend (M72), explain-and-scan-feedback (M42), remove-compare-baseline (M71 — do not reopen compare)  
-**Artifacts:** [context.md](../features/growth-pattern-trend-bridge/context.md) · [spec.md](../features/growth-pattern-trend-bridge/spec.md) · [design.md](../features/growth-pattern-trend-bridge/design.md) · [tasks.md](../features/growth-pattern-trend-bridge/tasks.md) (`Status: Planned`)
+**Artifacts:** [context.md](../features/growth-pattern-trend-bridge/context.md) · [spec.md](../features/growth-pattern-trend-bridge/spec.md) · [design.md](../features/growth-pattern-trend-bridge/design.md) · [tasks.md](../features/growth-pattern-trend-bridge/tasks.md) (`Status: Done`)
 
 Always-on Tornhill growth-pattern classification on `trend` (`deteriorating` / `refactored` / `stable` / `inconclusive`) via `meta.growthPattern` + table `Pattern:` line; complexity-trend JSON bump `2.0` → `3.0`. Explain hit emits stderr `next: hotspot-scanner trend <path>`. Recipes/README glossary for the three curves. Does **not** change scan JSON `3.0` or reopen compare/baseline.
 
-- [ ] `classifyGrowthPattern` + unit tests (synthetic series)
-- [ ] Wire `runComplexityTrend` + schema `3.0` + contract tests
-- [ ] Table Pattern line; CSV unchanged
-- [ ] Explain next-step on hit; quiet/miss parity
-- [ ] Living docs + recipes/README
-- [ ] Final gate `pnpm build && pnpm test`
+- [x] `classifyGrowthPattern` + unit tests (synthetic series)
+- [x] Wire `runComplexityTrend` + schema `3.0` + contract tests
+- [x] Table Pattern line; CSV unchanged
+- [x] Explain next-step on hit; quiet/miss parity
+- [x] Living docs + recipes/README
+- [x] Final gate `pnpm build && pnpm test`
 
 **Out of scope:** `--classify`; fail-on-deteriorating / SARIF; `scan --trend-top` / batch; McCabe/AST/charts; CSV pattern column; config keys for trend.
 

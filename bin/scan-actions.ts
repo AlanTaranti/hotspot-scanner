@@ -11,7 +11,7 @@ import {
 } from "#diagnostics";
 import type { CsvBundle, ReportSection } from "#report";
 import { runScan } from "#scan";
-import type { ScanOptions, ScanResult, ScanStageTimings } from "#types";
+import type { ScanOptions, ScanResult } from "#types";
 
 export type { WarningsMode };
 
@@ -92,16 +92,6 @@ export async function writeCsvBundle(
       process.stderr.write(`  ${stem}.${suffix}\n`);
     }
   }
-}
-
-export function emitBriefTimingStderr(
-  timings: ScanStageTimings | undefined,
-  quiet?: boolean,
-): void {
-  if (quiet || timings === undefined) {
-    return;
-  }
-  process.stderr.write(`timing: total ${timings.totalMs}ms\n`);
 }
 
 async function resolveEffectiveSince(options: {
@@ -254,7 +244,6 @@ export type ScanDiagnosticOptions = {
 
 export type ExecuteScanResult = {
   result: ScanResult;
-  emitWarningTeaser: () => void;
   flushWarnings: () => void;
 };
 
@@ -265,7 +254,7 @@ export async function executeScan(options: {
   sequential?: boolean;
 } & ScanDiagnosticOptions): Promise<ExecuteScanResult> {
   const since = await resolveEffectiveSince(options);
-  const { onWarning, onProgress, emitWarningTeaser, flushWarnings } =
+  const { onWarning, onProgress, flushWarnings } =
     createCliDiagnosticHandlers({
     quiet: options.quiet ?? false,
     noProgress: options.noProgress ?? false,
@@ -292,7 +281,7 @@ export async function executeScan(options: {
       options.sequential,
     ),
   );
-  return { result, emitWarningTeaser, flushWarnings };
+  return { result, flushWarnings };
 }
 
 export type ReporterRenderOptions = {

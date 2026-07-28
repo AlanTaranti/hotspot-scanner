@@ -259,6 +259,15 @@ describe("complexity-trend.json schema", () => {
     const json = JSON.parse(
       readFileSync(join(fixturesDir, "sample-trend-result.json"), "utf8"),
     );
+    expect(json.version).toBe("3.0");
+    expect(json.meta.growthPattern).toEqual(
+      expect.objectContaining({
+        kind: expect.stringMatching(
+          /^(deteriorating|refactored|stable|inconclusive)$/,
+        ),
+        summary: expect.any(String),
+      }),
+    );
     expect(validateTrend(json)).toBe(true);
   });
 
@@ -283,6 +292,22 @@ describe("complexity-trend.json schema", () => {
       readFileSync(join(fixturesDir, "sample-trend-result.json"), "utf8"),
     );
     json.version = "1.0";
+    expect(validateTrend(json)).toBe(false);
+  });
+
+  it("rejects version 2.0", () => {
+    const json = JSON.parse(
+      readFileSync(join(fixturesDir, "sample-trend-result.json"), "utf8"),
+    );
+    json.version = "2.0";
+    expect(validateTrend(json)).toBe(false);
+  });
+
+  it("rejects missing growthPattern", () => {
+    const json = JSON.parse(
+      readFileSync(join(fixturesDir, "sample-trend-result.json"), "utf8"),
+    );
+    delete json.meta.growthPattern;
     expect(validateTrend(json)).toBe(false);
   });
 

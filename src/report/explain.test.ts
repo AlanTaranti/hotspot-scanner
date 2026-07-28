@@ -7,6 +7,7 @@ import {
   CliUsageError,
   explainTargetFound,
   formatExplainBlock,
+  formatTrendNextStep,
   normalizeExplainPath,
   parseExplainTarget,
 } from "./explain.js";
@@ -121,6 +122,23 @@ describe("explainTargetFound", () => {
     expect(
       explainTargetFound(result, { kind: "file", filePath: "src/missing.ts" }),
     ).toBe(false);
+  });
+});
+
+describe("formatTrendNextStep", () => {
+  it("returns the stable next-step prefix with a posix path", () => {
+    expect(formatTrendNextStep("src/hot.ts")).toBe(
+      "next: hotspot-scanner trend src/hot.ts",
+    );
+  });
+
+  it("strips leading ./ and normalizes separators", () => {
+    expect(formatTrendNextStep("./src/hot.ts")).toBe(
+      "next: hotspot-scanner trend src/hot.ts",
+    );
+    expect(formatTrendNextStep("src\\hot.ts")).toBe(
+      "next: hotspot-scanner trend src/hot.ts",
+    );
   });
 });
 

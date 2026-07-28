@@ -3,7 +3,7 @@
 **Design**: [design.md](./design.md)  
 **Spec**: [spec.md](./spec.md)  
 **Context**: [context.md](./context.md)  
-**Status**: Planned
+**Status**: Done
 
 ---
 
@@ -118,9 +118,9 @@ flowchart TD
 **Reuses:** `ComplexityTrendPoint` field picks only  
 **Done when:**
 
-- [ ] Synthetic series: short → inconclusive; flat → stable; rising → deteriorating; peak-then-drop → refactored (+ `peakRev`)
-- [ ] Mixed/weak → inconclusive
-- [ ] No AST imports
+- [x] Synthetic series: short → inconclusive; flat → stable; rising → deteriorating; peak-then-drop → refactored (+ `peakRev`)
+- [x] Mixed/weak → inconclusive
+- [x] No AST imports
 
 **Tests:** `classify.test.ts`  
 **Gate:** `pnpm test -- src/trend/classify.test.ts`  
@@ -136,8 +136,8 @@ flowchart TD
 **Reuses:** Existing path normalize helpers in explain module  
 **Done when:**
 
-- [ ] Unit asserts exact prefix and path normalization (`./` stripped)
-- [ ] No CLI wiring yet (T5)
+- [x] Unit asserts exact prefix and path normalization (`./` stripped)
+- [x] No CLI wiring yet (T5)
 
 **Tests:** extend `explain.test.ts`  
 **Gate:** `pnpm test -- src/report/explain.test.ts`  
@@ -153,9 +153,9 @@ flowchart TD
 **Reuses:** T1 classifier  
 **Done when:**
 
-- [ ] Every result includes `meta.growthPattern`
-- [ ] Ajv accepts `3.0` fixtures; rejects stale `2.0` const if tests assert const
-- [ ] Scan contract tests still pass at `3.0` scan
+- [x] Every result includes `meta.growthPattern`
+- [x] Ajv accepts `3.0` fixtures; rejects stale `2.0` const if tests assert const
+- [x] Scan contract tests still pass at `3.0` scan
 
 **Tests:** run-trend unit + contract  
 **Gate:** `pnpm test -- src/trend/run-trend.test.ts tests/contract`  
@@ -171,8 +171,8 @@ flowchart TD
 **Reuses:** `meta.growthPattern` from T3  
 **Done when:**
 
-- [ ] Table contains Pattern line above `indent_mean` sparkline
-- [ ] CSV header list unchanged
+- [x] Table contains Pattern line above `indent_mean` sparkline
+- [x] CSV header list unchanged
 
 **Tests:** report unit tests  
 **Gate:** `pnpm test -- src/report/trend`  
@@ -188,9 +188,9 @@ flowchart TD
 **Reuses:** T2 helper; existing explain compose / quiet  
 **Done when:**
 
-- [ ] CLI hit: stderr matches `/next: hotspot-scanner trend /`
-- [ ] CLI miss: no `next: hotspot-scanner trend`
-- [ ] JSON stdout still clean; fail-on-explain-miss behavior unchanged
+- [x] CLI hit: stderr matches `/next: hotspot-scanner trend /`
+- [x] CLI miss: no `next: hotspot-scanner trend`
+- [x] JSON stdout still clean; fail-on-explain-miss behavior unchanged
 
 **Tests:** CLI tests in `bin/hotspot-scanner.test.ts`  
 **Gate:** `pnpm test -- bin/hotspot-scanner.test.ts`  
@@ -205,9 +205,9 @@ flowchart TD
 **Where:** `docs/recipes.md`, `README.md`, `.specs/codebase/ARCHITECTURE.md`, `CONCERNS.md`, `STRUCTURE.md`, `.cursor/skills/vitals-pipeline-domain/SKILL.md` and/or `vitals-cli-validation` as needed  
 **Done when:**
 
-- [ ] Recipe + glossary present
-- [ ] CONCERNS notes classification false cliffs / Prettier
-- [ ] STRUCTURE lists `classify.ts`
+- [x] Recipe + glossary present
+- [x] CONCERNS notes classification false cliffs / Prettier
+- [x] STRUCTURE lists `classify.ts`
 
 **Tests:** none (doc review)  
 **Gate:** doc paths exist / grep  
@@ -222,9 +222,9 @@ flowchart TD
 **Where:** repo root  
 **Done when:**
 
-- [ ] `pnpm build && pnpm test` PASS
-- [ ] ROADMAP/STATE reflect M75 Done
-- [ ] `tasks.md` Status → Done
+- [x] `pnpm build && pnpm test` PASS
+- [x] ROADMAP/STATE reflect M75 Done
+- [x] `tasks.md` Status → Done
 
 **Tests:** full suite  
 **Gate:** `pnpm build && pnpm test`  

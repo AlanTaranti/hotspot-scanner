@@ -45,6 +45,7 @@ export interface DoctorResult {
 
 export {
   formatDoctorJsonReport,
+  formatDoctorTextReport,
   type DoctorJsonReport,
 } from "./format.js";
 

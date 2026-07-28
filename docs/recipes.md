@@ -166,3 +166,61 @@ Validate saved JSON programmatically with `parseScanResult` from `@vitals/hotspo
 # Partial export for triage — may omit sections
 hotspot-scanner scan . --only hotspots --format json --output hotspots-only.json
 ```
+
+## Hotspot drill-down: scan → explain → trend
+
+Use this workflow when a ranked hotspot needs more than a score — first understand *why* it ranks high, then see *how* indentation complexity evolved over Git history.
+
+**1. Scan** — surface candidates:
+
+```bash
+hotspot-scanner scan . --since "12 months ago" --top 10
+```
+
+**2. Explain** — score breakdown on stderr (full report on stdout first):
+
+```bash
+hotspot-scanner scan . --explain src/api/handler.ts
+```
+
+On a match, stderr ends with a copy-paste next step:
+
+```
+next: hotspot-scanner trend src/api/handler.ts
+```
+
+**3. Trend** — historical indentation + NCLOC series with an automatic growth-pattern label:
+
+```bash
+hotspot-scanner trend src/api/handler.ts --since "10 years ago"
+```
+
+Table output includes `Pattern: <kind> — <summary>` above the sparklines. JSON (`--format json`) carries the same classification under `meta.growthPattern` (contract `version: "3.0"`). CSV stays metric-only — no pattern column.
+
+Fixture walk-through from this repo:
+
+```bash
+pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts --explain src/high.ts
+pnpm exec hotspot-scanner trend tests/fixtures/repos/trend-indent/src/trend.ts --since "10 years ago"
+```
+
+**Tips:**
+
+- `--explain` uses full ranking arrays (ignores `--top`). Miss without `--fail-on-explain-miss` still exits `0`.
+- `trend` does not load `.hotspot-scanner.json`; pass `--since` / `--max-revisions` on the CLI.
+- Sparklines are indicative — see [Tornhill growth curves](#tornhill-growth-curves-trend-pattern) and formatter cliffs below.
+
+## Tornhill growth curves (trend Pattern)
+
+Every successful `trend` run classifies the sampled series into one of four **growth patterns** (Adam Tornhill framing). Labels appear as `Pattern: <kind> — <summary>` in table output and in JSON `meta.growthPattern`.
+
+| Kind | Meaning | Typical signal |
+| ---- | ------- | -------------- |
+| **deteriorating** | Indentation complexity is rising faster than file size | `indentMean` first→last rise ≥ 10%; summary compares mean vs `ncloc` growth |
+| **refactored** | Complexity peaked mid-history then dropped | Peak `indentMean` not at last revision; drop from peak to end ≥ 18% |
+| **stable** | Complexity stayed in a narrow band | Relative `indentMean` range within ~8% across the series |
+| **inconclusive** | Too little history or no clear curve | Fewer than 5 sampled points, or mixed movement that does not match the rules above |
+
+**Formatter cliffs:** A one-shot Prettier run or mass re-indent can spike `indentMean` and produce a false **deteriorating** or **refactored** label. Treat Pattern as a hint alongside sparklines and blame — not a gate. There is no special detector for format-only commits in M75.
+
+**Metrics reminder:** `indentMean` / `indentSd` / `indentMax` / `indentTotal` are whitespace-indentation proxies (not AST cyclomatic complexity). `ncloc` is file size at each revision.

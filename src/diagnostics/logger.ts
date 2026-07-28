@@ -3,7 +3,6 @@ import type {
   ScanProgress,
   ScanWarning,
 } from "../types/domain.js";
-import { formatWarningSummaryLine } from "../report/summary.js";
 import {
   flushWarningSummary,
   flushWarningsJson,
@@ -256,7 +255,6 @@ export function createCliDiagnosticHandlers(
 ): {
   onProgress: (progress: ScanProgress) => void;
   onWarning: (warning: ScanWarning) => void;
-  emitWarningTeaser: () => void;
   flushWarnings: () => void;
   clearLiveProgress: () => void;
 } {
@@ -302,14 +300,6 @@ export function createCliDiagnosticHandlers(
           buffer.push(warning);
         };
 
-  const emitWarningTeaser = () => {
-    clearLive();
-    if (warningsMode !== "summary" || buffer.length === 0) {
-      return;
-    }
-    process.stderr.write(`${formatWarningSummaryLine(buffer)}\n`);
-  };
-
   const flushWarnings = () => {
     clearLive();
     if (warningsMode === "json") {
@@ -331,7 +321,6 @@ export function createCliDiagnosticHandlers(
           writeProgressLine(progress, liveCtx);
         },
     onWarning,
-    emitWarningTeaser,
     flushWarnings,
     clearLiveProgress: clearLive,
   };

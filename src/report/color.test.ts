@@ -1,11 +1,31 @@
 import { describe, expect, it } from "vitest";
-import { paintScore, paintStaticDep, stripAnsi } from "./color.js";
+import {
+  paintDoctorStatus,
+  paintScore,
+  paintStaticDep,
+  stripAnsi,
+} from "./color.js";
 
 const RED = "\x1b[31m";
+const GREEN = "\x1b[32m";
 const YELLOW = "\x1b[33m";
 const DIM_GREEN = "\x1b[2;32m";
 const DIM_YELLOW = "\x1b[2;33m";
 const RESET = "\x1b[0m";
+
+describe("paintDoctorStatus", () => {
+  it("returns plain status prefix when color is disabled", () => {
+    expect(paintDoctorStatus("pass", false)).toBe("pass:");
+    expect(paintDoctorStatus("warn", false)).toBe("warn:");
+    expect(paintDoctorStatus("fail", false)).toBe("fail:");
+  });
+
+  it("wraps pass/warn/fail prefixes in green/yellow/red when enabled", () => {
+    expect(paintDoctorStatus("pass", true)).toBe(`${GREEN}pass:${RESET}`);
+    expect(paintDoctorStatus("warn", true)).toBe(`${YELLOW}warn:${RESET}`);
+    expect(paintDoctorStatus("fail", true)).toBe(`${RED}fail:${RESET}`);
+  });
+});
 
 describe("paintScore", () => {
   it("returns plain formatted text when color is disabled", () => {
@@ -52,6 +72,9 @@ describe("stripAnsi", () => {
     expect(stripAnsi(paintScore(0.5, true))).toBe("0.5000");
     expect(stripAnsi(paintStaticDep("yes", true))).toBe("yes");
     expect(stripAnsi(paintStaticDep("no", true))).toBe("no");
+    expect(stripAnsi(paintDoctorStatus("pass", true))).toBe("pass:");
+    expect(stripAnsi(paintDoctorStatus("warn", true))).toBe("warn:");
+    expect(stripAnsi(paintDoctorStatus("fail", true))).toBe("fail:");
   });
 
   it("returns plain text unchanged", () => {

@@ -3,7 +3,7 @@
 **Design**: [`.specs/features/doctor-color-ux/design.md`](./design.md)  
 **Spec**: [`.specs/features/doctor-color-ux/spec.md`](./spec.md)  
 **Context**: [`.specs/features/doctor-color-ux/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Medium feature — color paint + doctor format + bin gates + docs. STOP at Planned; Execute in a separate session via `orchestrator-implementer` after Status promotion. Do **not** implement M73 `top-only-rollups` here.
 
 ---
@@ -94,12 +94,12 @@ No `[P]` — sequential owners.
 
 **Done when:**
 
-- [ ] `paintDoctorStatus` colors pass/warn/fail when enabled; plain when disabled
-- [ ] `formatDoctorTextReport` wraps only the `status:` prefix
-- [ ] `stripAnsi(formatDoctorTextReport(f, { color: true })) === formatDoctorTextReport(f, { color: false })`
-- [ ] JSON formatter tests still pass unchanged
-- [ ] Gate check passes: `pnpm test -- src/report/color.test.ts src/doctor/format.test.ts`
-- [ ] Test count: no silent deletions
+- [x] `paintDoctorStatus` colors pass/warn/fail when enabled; plain when disabled
+- [x] `formatDoctorTextReport` wraps only the `status:` prefix
+- [x] `stripAnsi(formatDoctorTextReport(f, { color: true })) === formatDoctorTextReport(f, { color: false })`
+- [x] JSON formatter tests still pass unchanged
+- [x] Gate check passes: `pnpm test -- src/report/color.test.ts src/doctor/format.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests:** unit  
 **Gate:** `pnpm test -- src/report/color.test.ts src/doctor/format.test.ts`
@@ -126,12 +126,12 @@ No `[P]` — sequential owners.
 
 **Done when:**
 
-- [ ] `resolveDoctorColor` matrix covered (text/json, TTY, noColor, NO_COLOR empty vs set)
-- [ ] Doctor `--no-color` registered and disables color on TTY
-- [ ] JSON doctor output has no ANSI
-- [ ] Existing doctor text assertions updated with `stripAnsi` if needed
-- [ ] Gate check passes: `pnpm test -- bin/hotspot-scanner.test.ts`
-- [ ] Test count: no silent deletions
+- [x] `resolveDoctorColor` matrix covered (text/json, TTY, noColor, NO_COLOR empty vs set)
+- [x] Doctor `--no-color` registered and disables color on TTY
+- [x] JSON doctor output has no ANSI
+- [x] Existing doctor text assertions updated with `stripAnsi` if needed
+- [x] Gate check passes: `pnpm test -- bin/hotspot-scanner.test.ts`
+- [x] Test count: no silent deletions
 
 **Tests:** unit  
 **Gate:** `pnpm test -- bin/hotspot-scanner.test.ts`
@@ -158,10 +158,10 @@ No `[P]` — sequential owners.
 
 **Done when:**
 
-- [ ] README mentions doctor text status colors + disable gates
-- [ ] ARCHITECTURE (and CONVENTIONS if applicable) note doctor color briefly
-- [ ] No contradictory “doctor never colors” claims left
-- [ ] Gate check: docs-only review (no code gate required beyond T4)
+- [x] README mentions doctor text status colors + disable gates
+- [x] ARCHITECTURE (and CONVENTIONS if applicable) note doctor color briefly
+- [x] No contradictory “doctor never colors” claims left
+- [x] Gate check: docs-only review (no code gate required beyond T4)
 
 **Tests:** none  
 **Gate:** review checklist
@@ -188,8 +188,8 @@ No `[P]` — sequential owners.
 
 **Done when:**
 
-- [ ] `pnpm build && pnpm test` passes
-- [ ] Test count: no silent deletions vs pre-milestone baseline
+- [x] `pnpm build && pnpm test` passes
+- [x] Test count: no silent deletions vs pre-milestone baseline
 
 **Tests:** full suite  
 **Gate:** `pnpm build && pnpm test`

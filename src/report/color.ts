@@ -1,5 +1,6 @@
 const RESET = "\x1b[0m";
 const RED = "\x1b[31m";
+const GREEN = "\x1b[32m";
 const YELLOW = "\x1b[33m";
 const DIM_GREEN = "\x1b[2;32m";
 const DIM_YELLOW = "\x1b[2;33m";
@@ -23,6 +24,25 @@ export function paintScore(score: number, enabled: boolean): string {
     return `${YELLOW}${text}${RESET}`;
   }
   return text;
+}
+
+/** Color doctor status prefix (`pass:` green, `warn:` yellow, `fail:` red). */
+export function paintDoctorStatus(
+  status: "pass" | "warn" | "fail",
+  enabled: boolean,
+): string {
+  const prefix = `${status}:`;
+  if (!enabled) {
+    return prefix;
+  }
+  switch (status) {
+    case "pass":
+      return `${GREEN}${prefix}${RESET}`;
+    case "warn":
+      return `${YELLOW}${prefix}${RESET}`;
+    case "fail":
+      return `${RED}${prefix}${RESET}`;
+  }
 }
 
 /** Color StaticDep display text (`yes` dim green, `no` dim yellow). */

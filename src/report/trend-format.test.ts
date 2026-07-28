@@ -24,6 +24,13 @@ describe("trend reporters", () => {
     const output = renderTrendTable(fixture);
     expect(output).toContain("Complexity trend: src/example.ts");
     expect(output).toContain(TREND_TABLE_LEGEND);
+    expect(output).toContain(
+      "Pattern: inconclusive — insufficient history (2 points, need 5)",
+    );
+    const patternIndex = output.indexOf("Pattern:");
+    const sparklineIndex = output.indexOf("indent_mean");
+    expect(patternIndex).toBeGreaterThan(-1);
+    expect(sparklineIndex).toBeGreaterThan(patternIndex);
     expect(output).toContain("indent_mean ▁█");
     expect(output).toContain("ncloc       ▁█");
     expect(output).toContain("abc123");
@@ -46,7 +53,7 @@ describe("trend reporters", () => {
     const parsed = JSON.parse(output) as Record<string, unknown>;
     expect(parsed.$schema).toContain("complexity-trend.json");
     expect(parsed.kind).toBe("complexity-trend");
-    expect(parsed.version).toBe("2.0");
+    expect(parsed.version).toBe("3.0");
     const meta = parsed.meta as {
       sparklines: { indentMean: string };
       metricLegend: Record<string, string>;

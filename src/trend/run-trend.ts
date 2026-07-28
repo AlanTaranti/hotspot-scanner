@@ -1,5 +1,6 @@
 import { stat } from "node:fs/promises";
 import { dirname, relative, resolve } from "node:path";
+import { classifyGrowthPattern } from "./classify.js";
 import { analyzeIndentation } from "../complexity/indentation.js";
 import { countNcloc } from "../complexity/ncloc.js";
 import {
@@ -198,9 +199,16 @@ function buildResult(input: {
 }): ComplexityTrendResult {
   const indentMeanSeries = input.points.map((point) => point.indentMean);
   const nclocSeries = input.points.map((point) => point.ncloc);
+  const classified = classifyGrowthPattern(input.points);
+  const growthPattern = input.truncated
+    ? {
+        ...classified,
+        summary: `${classified.summary} (sampled history)`,
+      }
+    : classified;
 
   return {
-    version: "2.0",
+    version: "3.0",
     kind: "complexity-trend",
     filePath: input.filePath,
     points: input.points,
@@ -216,6 +224,7 @@ function buildResult(input: {
         ncloc: sparkline(nclocSeries),
       },
       metricLegend: TREND_METRIC_LEGEND,
+      growthPattern,
       scannerVersion:
         input.includeScannerVersion === false
           ? undefined

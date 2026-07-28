@@ -10,7 +10,7 @@
     "$schema": { "type": "string" },
     "version": {
       "type": "string",
-      "const": "2.0"
+      "const": "3.0"
     },
     "kind": {
       "type": "string",
@@ -56,6 +56,21 @@
         "message": { "type": "string" }
       }
     },
+    "GrowthPattern": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["kind", "summary"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["deteriorating", "refactored", "stable", "inconclusive"]
+        },
+        "summary": { "type": "string" },
+        "indentMeanDeltaRel": { "type": "number" },
+        "nclocDeltaRel": { "type": "number" },
+        "peakRev": { "type": "string" }
+      }
+    },
     "TrendMetricLegend": {
       "type": "object",
       "additionalProperties": false,
@@ -85,6 +100,7 @@
         "maxRevisions",
         "sparklines",
         "metricLegend",
+        "growthPattern",
         "warnings"
       ],
       "properties": {
@@ -107,6 +123,7 @@
           }
         },
         "metricLegend": { "$ref": "#/$defs/TrendMetricLegend" },
+        "growthPattern": { "$ref": "#/$defs/GrowthPattern" },
         "scannerVersion": { "type": "string" },
         "warnings": {
           "type": "array",

@@ -68,7 +68,7 @@ hotspot-scanner trend src/foo.ts  # indentation complexity vs NCLOC size for one
 hotspot-scanner scan . --dry-run  # preview config path, remount, unknown keys, and eligible file count
 ```
 
-**Trend metrics:** Indentation stats (`indentMean`, `indentSd`, `indentMax`, `indentTotal`) are a Tornhill-style whitespace proxy (not AST/cyclomatic complexity). `ncloc` is file size. Table output includes a legend; JSON (`--format json`) uses contract `version: "2.0"` with `meta.metricLegend` describing each field.
+**Trend metrics:** Indentation stats (`indentMean`, `indentSd`, `indentMax`, `indentTotal`) are a Tornhill-style whitespace proxy (not AST/cyclomatic complexity). `ncloc` is file size. Table output includes a **Pattern** line (`deteriorating` / `refactored` / `stable` / `inconclusive`) above sparklines plus a metric legend; JSON (`--format json`) uses contract `version: "3.0"` with required `meta.growthPattern` and `meta.metricLegend`. After `scan --explain` finds a hotspot, stderr prints `next: hotspot-scanner trend <path>` — see [docs/recipes.md → Hotspot drill-down](docs/recipes.md#hotspot-drill-down-scan--explain--trend).
 
 `init` creates a valid config with `$schema`, `$comments`, and realistic `include`/`exclude` examples; `config validate` exits `0` when the file parses and `2` on invalid or missing config; `config print` shows merged precedence without git mining; `doctor` surfaces setup problems early (including a **`since`** preflight and unknown-config-key soft warns) and prints a **`scope`** line with the same eligible-file count `scan --dry-run` would use (shared remount/config prelude — a nested package directory does not need a local `.git`); `scan --dry-run` validates scope and config prelude metadata without mining git history or running NCLOC analysis.
 
@@ -94,6 +94,7 @@ Rank  File                      Score     NLOC  NLOCN     Churn  ChurnN  Authors
 | **Weekly triage** | You want a ranked list of files to refactor this sprint | `hotspot-scanner scan . --since "3 months ago" --top 10` |
 | **Markdown in a PR** | You want a shareable report attached to a review | `hotspot-scanner scan . --format markdown --output report.md` |
 | **JSON for tooling** | You want machine-readable output for scripts or dashboards | `hotspot-scanner scan . --format json --output scan.json` |
+| **Hotspot drill-down** | You want score context then historical complexity trend | `scan --explain <path>` → `trend <path>` (Pattern label on trend) |
 
 Copy-paste cookbooks for these workflows (and monorepo scoping): [docs/recipes.md](docs/recipes.md).
 
@@ -122,7 +123,7 @@ See [Advanced](#advanced) for concurrency, rename confidence, and the full flag 
 | `-o`, `--output` | — | Write report to file (required for `--format csv`) |
 | `--only` | — | Include only `hotspots` (repeatable) |
 | `--no-triage-hints` | — | Suppress triage hints in scan table/markdown |
-| `--no-color` | — | Disable ANSI colors in table output |
+| `--no-color` | — | Disable ANSI colors in scan table output |
 | `--explain <target>` | — | After the report, print a file-path score breakdown to stderr |
 | `--fail-on-explain-miss` | — | Exit `1` when `--explain` target is not found (default miss still exits `0`; requires `--explain`) |
 | `--quiet` | — | Suppress progress, info-level stderr diagnostics, and `--verbose` git traces |
@@ -258,7 +259,7 @@ Table and markdown reports include interpretation helpers: an **executive summar
 
 **Section filter (`--only`)**: Repeatable flag limiting output to `hotspots` only. Excluded sections are omitted from all formats.
 
-**Colors**: Table format only, when writing to an interactive TTY without `--output`, `--no-color`, or a non-empty `NO_COLOR`. Markdown, JSON, and CSV are always plain text.
+**Colors**: Scan **table** format only — when stdout is an interactive TTY, without `--output`, scan `--no-color`, or a non-empty `NO_COLOR`. Markdown, JSON, and CSV are always plain text. Doctor **text** output (`--format text`, default) colors only the status prefix (`pass:` green, `warn:` yellow, `fail:` red); message bodies stay plain. Doctor color uses the same TTY / `NO_COLOR` gates plus doctor `--no-color`; doctor JSON is always plain.
 
 ### Table
 
@@ -294,7 +295,7 @@ import configSchema from "@vitals/hotspot-scanner/schemas/hotspot-scanner-config
 
 Use these schemas to validate CLI output or config files in your own pipelines.
 
-**`meta.timings`** (successful scans only): `gitMs`, `complexityMs`, `totalMs`. Table and markdown executive summaries include a Timing line when timings are present; a brief stderr line echoes total time after successful scans (unless `--quiet`). File-mode overlap: `gitMs` + `complexityMs` may sum above `totalMs`. **`meta.scannerVersion`** is always present on new scans (from `package.json`).
+**`meta.timings`** (successful scans only): `gitMs`, `complexityMs`, `totalMs`. Table and markdown executive summaries include a Timing line when timings are present. File-mode overlap: `gitMs` + `complexityMs` may sum above `totalMs`. **`meta.scannerVersion`** is always present on new scans (from `package.json`).
 
 **`--top` does not slice JSON** — all ranked hotspots are exported for scripting.
 
@@ -492,7 +493,7 @@ hotspot-scanner [-V|--version]
 hotspot-scanner init [directory] [--force]
 hotspot-scanner config validate [path]
 hotspot-scanner config print [path] [--since <period>] [--include <glob>] [--exclude <glob>] [-t|--top <n>] [--concurrency <n>] [--config <path>] [-f|--format text|json]
-hotspot-scanner doctor [path] [--config <path>] [--include-tests] [-f|--format text|json]
+hotspot-scanner doctor [path] [--config <path>] [--include-tests] [--no-color] [-f|--format text|json]
 hotspot-scanner scan [path] [options]
 hotspot-scanner completion <bash|zsh|fish>
 hotspot-scanner <path>   # path-first shorthand → scan <path> (., ./dir, absolute, or existing directory)
@@ -510,7 +511,7 @@ hotspot-scanner <path>   # path-first shorthand → scan <path> (., ./dir, absol
 | `-t`, `--top` | `20` | Top N rows in table/markdown output (ignored for json/csv) |
 | `--only <section>` | — | Include only `hotspots` (repeatable) |
 | `--no-triage-hints` | — | Suppress triage hints in scan table/markdown |
-| `--no-color` | — | Disable ANSI colors in table output |
+| `--no-color` | — | Disable ANSI colors in scan table output |
 | `--explain <target>` | — | After the report, print file-path score breakdown to stderr |
 | `--fail-on-explain-miss` | — | Exit `1` when `--explain` target is not found (requires `--explain`) |
 | `--include <glob>` | — | Include only paths matching glob (repeatable) |
@@ -527,6 +528,8 @@ hotspot-scanner <path>   # path-first shorthand → scan <path> (., ./dir, absol
 | `--csv-single-file` | — | With `--format csv`, write one CSV to exact `--output` (hotspots) instead of stem bundle |
 
 **`doctor --format`** — `text` (default) prints `status: message` lines; `json` prints `{ "version": "1.0", "findings": [...], "exitCode": N }` to stdout (JSON is emitted even when `exitCode` ≠ 0). Findings include `since` (git since preflight), `scope` (eligible file count), config validity (unknown keys soft-warn), and other pre-flight checks. Invalid format → usage error (exit `2`). Doctor does not run the scan pipeline.
+
+**`doctor` colors** — On an interactive stdout TTY with `--format text`, only the `pass:` / `warn:` / `fail:` prefix is ANSI-colored (green / yellow / red); finding messages, paths, and numbers stay plain. Color is disabled when stdout is not a TTY (piped/CI), when doctor `--no-color` is set, when `NO_COLOR` is non-empty (empty string is treated as unset), or when `--format json`. Scan `--no-color` does not affect doctor; each subcommand has its own flag. Not a config key.
 
 **`config validate`** — exits `0` when the config file parses; `2` on invalid JSON/types or when no discoverable config (and no explicit file). Does not require a git repository.
 
@@ -545,6 +548,7 @@ hotspot-scanner config validate         # validate discovered or explicit config
 hotspot-scanner config print -f json    # effective options + provenance JSON
 hotspot-scanner doctor .                # pre-flight: Node, git, repo, config, since, scope
 hotspot-scanner doctor . -f json        # structured findings for scripts
+hotspot-scanner doctor . --no-color     # plain status lines (no ANSI prefixes)
 hotspot-scanner scan . --dry-run        # scope + config prelude preview before a full scan
 hotspot-scanner scan                    # scan current directory (default path .)
 hotspot-scanner scan . --since "6 months ago"

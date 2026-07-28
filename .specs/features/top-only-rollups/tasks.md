@@ -3,7 +3,7 @@
 **Spec**: [`.specs/features/top-only-rollups/spec.md`](./spec.md)  
 **Design**: [`.specs/features/top-only-rollups/design.md`](./design.md)  
 **Context**: [`.specs/features/top-only-rollups/context.md`](./context.md)  
-**Status**: Planned  
+**Status**: Done  
 **Note**: Medium feature — bin lifecycle + diagnostics cleanup + docs. STOP at Planned; Execute in a separate session via `orchestrator-implementer` after Status promotion. Do **not** implement in the planning session.
 
 ---
@@ -92,11 +92,11 @@ No `[P]` — sequential owners.
 
 **Done when:**
 
-- [ ] No `emitWarningTeaser` call before report write on scan path
-- [ ] Dead teaser API removed (not left as no-op) unless a documented internal need remains — prefer delete
-- [ ] `flushWarnings` still invoked after write
-- [ ] `--warnings=full` / `json` semantics otherwise unchanged
-- [ ] Gate check passes: `pnpm test -- bin/hotspot-scanner.test.ts src/diagnostics/` (may be red until T3 — then green)
+- [x] No `emitWarningTeaser` call before report write on scan path
+- [x] Dead teaser API removed (not left as no-op) unless a documented internal need remains — prefer delete
+- [x] `flushWarnings` still invoked after write
+- [x] `--warnings=full` / `json` semantics otherwise unchanged
+- [x] Gate check passes: `pnpm test -- bin/hotspot-scanner.test.ts src/diagnostics/` (may be red until T3 — then green)
 
 **Tests:** unit (finalize in T3)  
 **Gate:** deferred to T3 if tests still expect teaser; otherwise `pnpm test -- bin/hotspot-scanner.test.ts src/diagnostics/`
@@ -123,9 +123,9 @@ No `[P]` — sequential owners.
 
 **Done when:**
 
-- [ ] `emitBriefTimingStderr` removed (function + imports)
-- [ ] Scan path does not write brief timing to stderr after flush
-- [ ] Table/markdown Timing summary line still produced by reporter (no code change expected in `summary.ts`)
+- [x] `emitBriefTimingStderr` removed (function + imports)
+- [x] Scan path does not write brief timing to stderr after flush
+- [x] Table/markdown Timing summary line still produced by reporter (no code change expected in `summary.ts`)
 
 **Tests:** unit (finalize in T3)  
 **Gate:** deferred to T3
@@ -152,11 +152,11 @@ No `[P]` — sequential owners.
 
 **Done when:**
 
-- [ ] No tests require `emitWarningTeaser` or `timing: total` stderr after successful scan
-- [ ] Order tests cover write → flush → explain
-- [ ] Summary-mode flush still asserted when warnings present
-- [ ] `pnpm test -- bin/hotspot-scanner.test.ts src/diagnostics/` exits 0
-- [ ] Test count: no silent deletions without replacement coverage
+- [x] No tests require `emitWarningTeaser` or `timing: total` stderr after successful scan
+- [x] Order tests cover write → flush → explain
+- [x] Summary-mode flush still asserted when warnings present
+- [x] `pnpm test -- bin/hotspot-scanner.test.ts src/diagnostics/` exits 0
+- [x] Test count: no silent deletions without replacement coverage
 
 **Tests:** unit  
 **Gate:** `pnpm test -- bin/hotspot-scanner.test.ts src/diagnostics/`
@@ -183,10 +183,10 @@ No `[P]` — sequential owners.
 
 **Done when:**
 
-- [ ] `docs/warning-codes.md` documents no pre-write teaser; summary/json post-write flush; full during scan
-- [ ] README does not claim brief stderr timing after successful scans
-- [ ] ARCHITECTURE diagnostics note matches M73 lifecycle
-- [ ] No new flags/schema claimed
+- [x] `docs/warning-codes.md` documents no pre-write teaser; summary/json post-write flush; full during scan
+- [x] README does not claim brief stderr timing after successful scans
+- [x] ARCHITECTURE diagnostics note matches M73 lifecycle
+- [x] No new flags/schema claimed
 
 **Tests:** docs review  
 **Gate:** none beyond T5
@@ -208,8 +208,8 @@ No `[P]` — sequential owners.
 
 **Done when:**
 
-- [ ] `pnpm build && pnpm test` exits 0
-- [ ] ROADMAP/STATE Execute sync complete (Done)
+- [x] `pnpm build && pnpm test` exits 0
+- [x] ROADMAP/STATE Execute sync complete (Done)
 
 **Tests:** full suite  
 **Gate:** `pnpm build && pnpm test`

@@ -1,5 +1,14 @@
 export { sparkline } from "./sparkline.js";
 export { uniformSample } from "./sample.js";
+export {
+  classifyGrowthPattern,
+  DETERIORATE_RISE,
+  MIN_POINTS,
+  REFACTOR_DROP,
+  STABLE_FLOOR,
+  STABLE_REL_RANGE,
+} from "./classify.js";
+export type { GrowthPattern, GrowthPatternKind } from "./classify.js";
 export { runComplexityTrend, formatTruncationNote } from "./run-trend.js";
 export {
   TREND_CLI_METRICS_HELP,

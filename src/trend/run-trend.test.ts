@@ -101,12 +101,14 @@ describe.sequential("runComplexityTrend", () => {
       includeScannerVersion: false,
     });
 
-    expect(result.version).toBe("2.0");
+    expect(result.version).toBe("3.0");
     expect(result.kind).toBe("complexity-trend");
     expect(result.points).toHaveLength(3);
     expect(result.points[0]!.indentMean).toBeLessThanOrEqual(
       result.points.at(-1)!.indentMean,
     );
+    expect(result.meta.growthPattern.kind).toBeDefined();
+    expect(result.meta.growthPattern.summary.length).toBeGreaterThan(0);
     expect(result.meta.sparklines.indentMean.length).toBeGreaterThan(0);
     expect(result.meta.sparklines.ncloc.length).toBeGreaterThan(0);
     expect(result.meta.metricLegend.indentMean).toBeDefined();
@@ -128,6 +130,7 @@ describe.sequential("runComplexityTrend", () => {
 
     expect(result.meta.truncated).toBe(true);
     expect(result.points).toHaveLength(2);
+    expect(result.meta.growthPattern.summary).toContain("(sampled history)");
     expect(formatTruncationNote(result)).toContain("uniform sample");
   });
 
@@ -144,6 +147,7 @@ describe.sequential("runComplexityTrend", () => {
 
     expect(result.points).toEqual([]);
     expect(result.meta.warnings[0]?.code).toBe("EMPTY_HISTORY");
+    expect(result.meta.growthPattern.kind).toBe("inconclusive");
   });
 
   it("records warning when show fails", async () => {

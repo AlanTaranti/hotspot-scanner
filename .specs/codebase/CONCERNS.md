@@ -31,8 +31,9 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 | ------- | ---------- |
 | Scan uses working-tree NCLOC only | Trend reads historical blobs; documented in ARCHITECTURE + README drill-down |
 | Indentation proxy vs AST | Tornhill whitespace rules in `analyzeIndentation`; no ts-morph |
-| Prettier / mass-indent cliffs | Document in recipes; sparklines are indicative |
-| Trend JSON vs scan `3.0` | Separate `schemas/complexity-trend.json`; `kind: complexity-trend` |
+| Prettier / mass-indent cliffs | One-shot format commits can spike `indentMean` → false **deteriorating** or **refactored** `growthPattern`; no formatter detector in M75 — warn in recipes/README; treat Pattern + sparklines as indicative |
+| Growth-pattern false cliffs | `classifyGrowthPattern` thresholds (`REFACTOR_DROP`, `DETERIORATE_RISE`, `MIN_POINTS`) are locked constants — unit tests in `classify.test.ts`; do not special-case blame/format commits without a new milestone |
+| Trend JSON vs scan `3.0` | Separate `schemas/complexity-trend.json` (`version: "3.0"`); `kind: complexity-trend`; required `meta.growthPattern` |
 
 ## Size analyzer / NCLOC (`src/complexity/`)
 

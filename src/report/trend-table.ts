@@ -19,6 +19,8 @@ export function renderTrendTable(result: ComplexityTrendResult): string {
   lines.push(`Complexity trend: ${result.filePath}`);
   lines.push(`Range: ${formatRange(result)}`);
   lines.push(TREND_TABLE_LEGEND);
+  const { kind, summary } = result.meta.growthPattern;
+  lines.push(`Pattern: ${kind} — ${summary}`);
   lines.push(`indent_mean ${result.meta.sparklines.indentMean}`);
   lines.push(`ncloc       ${result.meta.sparklines.ncloc}`);
   lines.push("");

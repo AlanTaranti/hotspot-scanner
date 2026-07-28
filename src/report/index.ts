@@ -4,6 +4,7 @@ export { CliUsageError } from "./explain.js";
 export {
   explainTargetFound,
   formatExplainBlock,
+  formatTrendNextStep,
   normalizeExplainPath,
   parseExplainTarget,
 } from "./explain.js";

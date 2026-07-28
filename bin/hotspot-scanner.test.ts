@@ -27,6 +27,7 @@ import {
   resolveCliExitCode,
   resolvePackageVersion,
   resolveSequentialCliOption,
+  resolveDoctorColor,
   resolveTableColor,
   runCli,
   validateExplainTarget,
@@ -412,6 +413,7 @@ describe("createCliProgram", () => {
     expect(optionLongs).toContain("--config");
     expect(optionLongs).toContain("--include-tests");
     expect(optionLongs).toContain("--format");
+    expect(optionLongs).toContain("--no-color");
   });
 
   it("exposes trend command with history flags", () => {
@@ -749,6 +751,42 @@ describe("resolveTableColor", () => {
 
   it("allows color when NO_COLOR is empty", () => {
     expect(resolveTableColor({ ...enabledBase, envNoColor: "" })).toBe(true);
+  });
+});
+
+describe("resolveDoctorColor", () => {
+  const enabledBase = {
+    format: "text" as const,
+    noColor: false,
+    envNoColor: undefined,
+    stdoutIsTTY: true,
+  };
+
+  it("enables color for text stdout on a TTY", () => {
+    expect(resolveDoctorColor(enabledBase)).toBe(true);
+  });
+
+  it("disables color for json format", () => {
+    expect(
+      resolveDoctorColor({ ...enabledBase, format: "json" }),
+    ).toBe(false);
+  });
+
+  it("disables color for --no-color, NO_COLOR, and non-TTY", () => {
+    expect(resolveDoctorColor({ ...enabledBase, noColor: true })).toBe(false);
+    expect(
+      resolveDoctorColor({ ...enabledBase, envNoColor: "1" }),
+    ).toBe(false);
+    expect(
+      resolveDoctorColor({ ...enabledBase, stdoutIsTTY: false }),
+    ).toBe(false);
+    expect(
+      resolveDoctorColor({ ...enabledBase, stdoutIsTTY: undefined }),
+    ).toBe(false);
+  });
+
+  it("allows color when NO_COLOR is empty", () => {
+    expect(resolveDoctorColor({ ...enabledBase, envNoColor: "" })).toBe(true);
   });
 });
 
@@ -3108,6 +3146,12 @@ describe("runCli", () => {
     expect(stderrSpy).toHaveBeenCalledWith(
       expect.stringContaining("hotspotScore = 2·c·h / (c+h)"),
     );
+    expect(stderrSpy).toHaveBeenCalledWith(
+      expect.stringMatching(/next: hotspot-scanner trend /),
+    );
+    expect(stderrSpy).toHaveBeenCalledWith(
+      "next: hotspot-scanner trend src/example.ts\n",
+    );
   });
 
   it("writes not-found explain message to stderr and still completes scan", async () => {
@@ -3141,6 +3185,9 @@ describe("runCli", () => {
     expect(chunks.join("")).toContain("Top Hotspots");
     expect(stderrSpy).toHaveBeenCalledWith(
       "explain: no hotspot ranking for src/missing.ts\n",
+    );
+    expect(stderrSpy.mock.calls.flat().join("")).not.toContain(
+      "next: hotspot-scanner trend",
     );
   });
 
@@ -3262,6 +3309,54 @@ describe("runCli", () => {
     expect(stderrSpy).toHaveBeenCalledWith(
       expect.stringContaining("=== Explain: src/example.ts (rank 1) ==="),
     );
+    expect(stderrSpy).toHaveBeenCalledWith(
+      "next: hotspot-scanner trend src/example.ts\n",
+    );
+  });
+
+  it("suppresses explain and next-step under --quiet", async () => {
+    const stderrSpy = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    vi.spyOn(scan, "runScan").mockResolvedValue({
+      version: "3.0",
+      hotspots: [
+        {
+          filePath: "src/example.ts",
+          hotspotScore: 0.88,
+          complexityNormalized: 0.9,
+          churnNormalized: 0.85,
+          ncloc: 42,
+          commitCount: 15,
+          linesChanged: 320,
+          authorCount: 3,
+        },
+      ],
+      functions: [],
+      meta: {
+        since: "12 months ago",
+        scannedAt: "2026-01-01T00:00:00.000Z",
+        granularity: "file",
+        warnings: [],
+      },
+    });
+    captureStdout();
+
+    await runCli([
+      "node",
+      "hotspot-scanner",
+      "scan",
+      ".",
+      "--format",
+      "json",
+      "--quiet",
+      "--explain",
+      "src/example.ts",
+    ]);
+
+    const stderrOutput = stderrSpy.mock.calls.flat().join("");
+    expect(stderrOutput).not.toContain("=== Explain:");
+    expect(stderrOutput).not.toContain("next: hotspot-scanner trend");
   });
 
   it("throws CliUsageError for path:function explain before scan", async () => {
@@ -3610,10 +3705,10 @@ describe("runCli doctor", () => {
     await runCli(["node", "hotspot-scanner", "doctor", smallTsFixture]);
 
     const output = chunks.join("");
-    expect(output).toMatch(/pass:.*Node/);
-    expect(output).toMatch(/pass:.*git is available/);
-    expect(output).toMatch(/pass:.*Git repository/);
-    expect(output).toMatch(/pass:.*eligible files: \d+/);
+    expect(stripAnsi(output)).toMatch(/pass:.*Node/);
+    expect(stripAnsi(output)).toMatch(/pass:.*git is available/);
+    expect(stripAnsi(output)).toMatch(/pass:.*Git repository/);
+    expect(stripAnsi(output)).toMatch(/pass:.*eligible files: \d+/);
   });
 
   it("exits 0 on monorepo nested package path with remount and scope", async () => {
@@ -3627,9 +3722,9 @@ describe("runCli doctor", () => {
     ]);
 
     const output = chunks.join("");
-    expect(output).toMatch(/pass:.*Git repository:.*monorepo-nested/);
-    expect(output).toMatch(/pass:.*eligible files: \d+/);
-    expect(output).toMatch(/remounted to git root/i);
+    expect(stripAnsi(output)).toMatch(/pass:.*Git repository:.*monorepo-nested/);
+    expect(stripAnsi(output)).toMatch(/pass:.*eligible files: \d+/);
+    expect(stripAnsi(output)).toMatch(/remounted to git root/i);
   });
 
   it("reports scope eligible count matching dry-run for the same path", async () => {
@@ -3682,7 +3777,7 @@ describe("runCli doctor", () => {
     expect(extractEligibleFileCount(doctorOutput)).toBe(
       extractEligibleFileCount(dryRunOutput),
     );
-    expect(doctorOutput).toMatch(/pass:.*eligible files: \d+/);
+    expect(stripAnsi(doctorOutput)).toMatch(/pass:.*eligible files: \d+/);
     expect(dryRunOutput).toContain("test files: included");
   });
 
@@ -3847,8 +3942,164 @@ describe("runCli doctor", () => {
     await runCli(["node", "hotspot-scanner", "doctor", smallTsFixture]);
 
     const output = chunks.join("");
-    expect(output).toMatch(/warn:.*since/i);
-    expect(output).toMatch(/No commits found for effective since/i);
+    expect(stripAnsi(output)).toMatch(/warn:.*since/i);
+    expect(stripAnsi(output)).toMatch(/No commits found for effective since/i);
+  });
+
+  it("renders ANSI colors on TTY doctor text stdout by default", async () => {
+    const previousIsTTY = process.stdout.isTTY;
+    const previousNoColor = process.env.NO_COLOR;
+    delete process.env.NO_COLOR;
+    Object.defineProperty(process.stdout, "isTTY", {
+      value: true,
+      configurable: true,
+    });
+    const doctorModule = await import("#doctor");
+    vi.spyOn(doctorModule, "runDoctor").mockResolvedValue({
+      findings: [
+        {
+          id: "node-engines",
+          status: "pass",
+          message: "Node v22.0.0 satisfies engines.node (>=22)",
+        },
+      ],
+      exitCode: 0,
+    });
+    const { chunks } = captureStdout();
+
+    try {
+      await runCli(["node", "hotspot-scanner", "doctor", smallTsFixture]);
+
+      const output = chunks.join("");
+      expect(output).not.toBe(stripAnsi(output));
+    } finally {
+      Object.defineProperty(process.stdout, "isTTY", {
+        value: previousIsTTY,
+        configurable: true,
+      });
+      if (previousNoColor === undefined) {
+        delete process.env.NO_COLOR;
+      } else {
+        process.env.NO_COLOR = previousNoColor;
+      }
+    }
+  });
+
+  it("disables doctor text color for --no-color", async () => {
+    const previousIsTTY = process.stdout.isTTY;
+    Object.defineProperty(process.stdout, "isTTY", {
+      value: true,
+      configurable: true,
+    });
+    const doctorModule = await import("#doctor");
+    vi.spyOn(doctorModule, "runDoctor").mockResolvedValue({
+      findings: [
+        {
+          id: "node-engines",
+          status: "pass",
+          message: "Node v22.0.0 satisfies engines.node (>=22)",
+        },
+      ],
+      exitCode: 0,
+    });
+    const { chunks } = captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "doctor",
+        smallTsFixture,
+        "--no-color",
+      ]);
+
+      const output = chunks.join("");
+      expect(output).toBe(stripAnsi(output));
+    } finally {
+      Object.defineProperty(process.stdout, "isTTY", {
+        value: previousIsTTY,
+        configurable: true,
+      });
+    }
+  });
+
+  it("disables doctor text color when NO_COLOR is set", async () => {
+    const previousIsTTY = process.stdout.isTTY;
+    const previousNoColor = process.env.NO_COLOR;
+    process.env.NO_COLOR = "1";
+    Object.defineProperty(process.stdout, "isTTY", {
+      value: true,
+      configurable: true,
+    });
+    const doctorModule = await import("#doctor");
+    vi.spyOn(doctorModule, "runDoctor").mockResolvedValue({
+      findings: [
+        {
+          id: "node-engines",
+          status: "pass",
+          message: "Node v22.0.0 satisfies engines.node (>=22)",
+        },
+      ],
+      exitCode: 0,
+    });
+    const { chunks } = captureStdout();
+
+    try {
+      await runCli(["node", "hotspot-scanner", "doctor", smallTsFixture]);
+
+      const output = chunks.join("");
+      expect(output).toBe(stripAnsi(output));
+    } finally {
+      Object.defineProperty(process.stdout, "isTTY", {
+        value: previousIsTTY,
+        configurable: true,
+      });
+      if (previousNoColor === undefined) {
+        delete process.env.NO_COLOR;
+      } else {
+        process.env.NO_COLOR = previousNoColor;
+      }
+    }
+  });
+
+  it("prints plain doctor text for --format json", async () => {
+    const previousIsTTY = process.stdout.isTTY;
+    Object.defineProperty(process.stdout, "isTTY", {
+      value: true,
+      configurable: true,
+    });
+    const doctorModule = await import("#doctor");
+    vi.spyOn(doctorModule, "runDoctor").mockResolvedValue({
+      findings: [
+        {
+          id: "node-engines",
+          status: "pass",
+          message: "Node v22.0.0 satisfies engines.node (>=22)",
+        },
+      ],
+      exitCode: 0,
+    });
+    const { chunks } = captureStdout();
+
+    try {
+      await runCli([
+        "node",
+        "hotspot-scanner",
+        "doctor",
+        smallTsFixture,
+        "--format",
+        "json",
+      ]);
+
+      const output = chunks.join("");
+      expect(output).toBe(stripAnsi(output));
+      expect(() => JSON.parse(output)).not.toThrow();
+    } finally {
+      Object.defineProperty(process.stdout, "isTTY", {
+        value: previousIsTTY,
+        configurable: true,
+      });
+    }
   });
 });
 
@@ -3923,7 +4174,7 @@ describe("runCli trend", () => {
       meta: { metricLegend: unknown };
     };
     expect(parsed.kind).toBe("complexity-trend");
-    expect(parsed.version).toBe("2.0");
+    expect(parsed.version).toBe("3.0");
     expect(parsed.meta.metricLegend).toBeDefined();
   });
 
@@ -4259,7 +4510,7 @@ describe("stderr feedback copy", () => {
     vi.restoreAllMocks();
   });
 
-  it("emits brief timing line after successful scan when timings present", async () => {
+  it("does not emit brief timing stderr after successful scan when timings present", async () => {
     const stderrSpy = vi
       .spyOn(process.stderr, "write")
       .mockImplementation(() => true);
@@ -4279,37 +4530,11 @@ describe("stderr feedback copy", () => {
       ".",
       "--format",
       "json",
-    ]);
-
-    const stderr = stderrSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
-    expect(stderr).toContain("timing: total 250ms");
-  });
-
-  it("suppresses brief timing line under --quiet", async () => {
-    const stderrSpy = vi
-      .spyOn(process.stderr, "write")
-      .mockImplementation(() => true);
-    vi.spyOn(scan, "runScan").mockResolvedValue({
-      ...mockScanResult(),
-      meta: {
-        ...mockScanResult().meta,
-        timings: { gitMs: 100, complexityMs: 200, totalMs: 250 },
-      },
-    });
-    captureStdout();
-
-    await runCli([
-      "node",
-      "hotspot-scanner",
-      "scan",
-      ".",
-      "--format",
-      "json",
-      "--quiet",
     ]);
 
     const stderr = stderrSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
     expect(stderr).not.toContain("timing: total");
+    expect(stderr).not.toMatch(/^Warnings: \d+ total/m);
   });
 
   it("passes resolved since into createCliDiagnosticHandlers", async () => {
@@ -4318,7 +4543,6 @@ describe("stderr feedback copy", () => {
       .mockReturnValue({
         onWarning: vi.fn(),
         onProgress: vi.fn(),
-        emitWarningTeaser: vi.fn(),
         flushWarnings: vi.fn(),
         clearLiveProgress: vi.fn(),
       });
@@ -4347,19 +4571,17 @@ describe("deferred flushWarnings lifecycle", () => {
     vi.restoreAllMocks();
   });
 
-  it("executeScan returns flushWarnings and emitWarningTeaser without invoking them", async () => {
+  it("executeScan returns flushWarnings without invoking it", async () => {
     const flushWarnings = vi.fn();
-    const emitWarningTeaser = vi.fn();
     vi.spyOn(diagnostics, "createCliDiagnosticHandlers").mockReturnValue({
       onWarning: vi.fn(),
       onProgress: vi.fn(),
-      emitWarningTeaser,
       flushWarnings,
       clearLiveProgress: vi.fn(),
     });
     vi.spyOn(scan, "runScan").mockResolvedValue(mockScanResult());
 
-    const { result, flushWarnings: returnedFlush, emitWarningTeaser: returnedTeaser } =
+    const { result, flushWarnings: returnedFlush } =
       await scanActions.executeScan({
         repoPath: ".",
         cliOverrides: {},
@@ -4367,21 +4589,15 @@ describe("deferred flushWarnings lifecycle", () => {
 
     expect(result.version).toBe("3.0");
     expect(returnedFlush).toBe(flushWarnings);
-    expect(returnedTeaser).toBe(emitWarningTeaser);
     expect(flushWarnings).not.toHaveBeenCalled();
-    expect(emitWarningTeaser).not.toHaveBeenCalled();
   });
 
-
-
-  it("scan teasers before write then flushes", async () => {
+  it("scan writes then flushes warnings", async () => {
     const callOrder: string[] = [];
-    const emitWarningTeaser = vi.fn(() => callOrder.push("teaser"));
     const flushWarnings = vi.fn(() => callOrder.push("flush"));
     vi.spyOn(diagnostics, "createCliDiagnosticHandlers").mockReturnValue({
       onWarning: vi.fn(),
       onProgress: vi.fn(),
-      emitWarningTeaser,
       flushWarnings,
       clearLiveProgress: vi.fn(),
     });
@@ -4403,59 +4619,18 @@ describe("deferred flushWarnings lifecycle", () => {
     ]);
 
     expect(writeRenderedSpy).toHaveBeenCalled();
-    expect(callOrder).toEqual(["teaser", "write", "flush"]);
+    expect(callOrder).toEqual(["write", "flush"]);
     writeRenderedSpy.mockRestore();
   });
 
-  it("emits brief timing after flushWarnings on scan", async () => {
-    const stderrOrder: string[] = [];
+  it("explain runs after write and flushWarnings on scan", async () => {
+    const callOrder: string[] = [];
     const flushWarnings = vi.fn(() => {
-      stderrOrder.push("flush");
+      callOrder.push("flush");
     });
     vi.spyOn(diagnostics, "createCliDiagnosticHandlers").mockReturnValue({
       onWarning: vi.fn(),
       onProgress: vi.fn(),
-      emitWarningTeaser: vi.fn(),
-      flushWarnings,
-      clearLiveProgress: vi.fn(),
-    });
-    vi.spyOn(scan, "runScan").mockResolvedValue({
-      ...mockScanResult(),
-      meta: {
-        ...mockScanResult().meta,
-        timings: { gitMs: 100, complexityMs: 200, totalMs: 250 },
-      },
-    });
-    vi.spyOn(process.stderr, "write").mockImplementation((chunk) => {
-      const text = String(chunk);
-      if (text.includes("timing: total")) {
-        stderrOrder.push("timing");
-      }
-      return true;
-    });
-    captureStdout();
-
-    await runCli([
-      "node",
-      "hotspot-scanner",
-      "scan",
-      ".",
-      "--format",
-      "json",
-    ]);
-
-    expect(stderrOrder).toEqual(["flush", "timing"]);
-  });
-
-  it("explain runs after flushWarnings on scan", async () => {
-    const stderrOrder: string[] = [];
-    const flushWarnings = vi.fn(() => {
-      stderrOrder.push("flush");
-    });
-    vi.spyOn(diagnostics, "createCliDiagnosticHandlers").mockReturnValue({
-      onWarning: vi.fn(),
-      onProgress: vi.fn(),
-      emitWarningTeaser: vi.fn(),
       flushWarnings,
       clearLiveProgress: vi.fn(),
     });
@@ -4479,10 +4654,13 @@ describe("deferred flushWarnings lifecycle", () => {
         warnings: [],
       },
     });
+    vi.spyOn(scanActions, "writeRenderedOutput").mockImplementation(async () => {
+      callOrder.push("write");
+    });
     vi.spyOn(process.stderr, "write").mockImplementation((chunk) => {
       const text = String(chunk);
       if (text.includes("=== Explain:")) {
-        stderrOrder.push("explain");
+        callOrder.push("explain");
       }
       return true;
     });
@@ -4499,10 +4677,6 @@ describe("deferred flushWarnings lifecycle", () => {
       "src/example.ts",
     ]);
 
-    expect(stderrOrder).toContain("flush");
-    expect(stderrOrder).toContain("explain");
-    expect(stderrOrder.indexOf("flush")).toBeLessThan(
-      stderrOrder.indexOf("explain"),
-    );
+    expect(callOrder).toEqual(["write", "flush", "explain"]);
   });
 });

@@ -1,3 +1,4 @@
+import type { GrowthPattern } from "./classify.js";
 import type { TrendMetricLegend } from "./metric-legend.js";
 
 export type ComplexityTrendPoint = {
@@ -17,7 +18,7 @@ export type ComplexityTrendWarning = {
 };
 
 export type ComplexityTrendResult = {
-  version: "2.0";
+  version: "3.0";
   kind: "complexity-trend";
   filePath: string;
   points: ComplexityTrendPoint[];
@@ -30,6 +31,7 @@ export type ComplexityTrendResult = {
     maxRevisions: number | null;
     sparklines: { indentMean: string; ncloc: string };
     metricLegend: TrendMetricLegend;
+    growthPattern: GrowthPattern;
     scannerVersion?: string;
     warnings: ComplexityTrendWarning[];
   };

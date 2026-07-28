@@ -19,6 +19,7 @@ import {
   createReporter,
   explainTargetFound,
   formatExplainBlock,
+  formatTrendNextStep,
   normalizeExplainPath,
   parseExplainTarget,
 } from "#report";
@@ -29,13 +30,16 @@ import {
   formatScanScopePreview,
   previewScanScope,
 } from "#scan";
-import { runDoctor, formatDoctorJsonReport, type DoctorFinding } from "#doctor";
+import {
+  runDoctor,
+  formatDoctorJsonReport,
+  formatDoctorTextReport,
+} from "#doctor";
 import { TREND_CLI_METRICS_HELP } from "#trend";
 import type { ScanResult } from "#types";
 import {
   buildScanOptions,
   CliUsageError,
-  emitBriefTimingStderr,
   executeScan,
   runWithScanCancelSignals,
   ScanCancelExit,
@@ -84,13 +88,6 @@ export class CliExitError extends Error {
     this.name = "CliExitError";
     this.exitCode = exitCode;
   }
-}
-
-function formatDoctorFindings(findings: DoctorFinding[]): string {
-  const lines = findings.map(
-    (finding) => `${finding.status}: ${finding.message}`,
-  );
-  return `${lines.join("\n")}\n`;
 }
 
 export function parsePositiveInteger(value: string, flagName: string): number {
@@ -174,14 +171,24 @@ function writeExplainBlock(
   result: ScanResult,
   explainRaw: string,
   repoPath: string,
+  options?: { quiet?: boolean },
 ): boolean {
   const target = normalizeExplainTarget(
     parseExplainTarget(explainRaw),
     repoPath,
   );
+  const found = explainTargetFound(result, target);
+  if (options?.quiet) {
+    return found;
+  }
   const block = formatExplainBlock(result, target);
   process.stderr.write(ensureTrailingNewline(block));
-  return explainTargetFound(result, target);
+  if (found) {
+    process.stderr.write(
+      ensureTrailingNewline(formatTrendNextStep(target.filePath)),
+    );
+  }
+  return found;
 }
 
 export function collectGlob(value: string, previous: string[]): string[] {
@@ -231,6 +238,27 @@ export function resolveTableColor(opts: {
     return false;
   }
   if (opts.outputPath !== undefined) {
+    return false;
+  }
+  if (opts.stdoutIsTTY !== true) {
+    return false;
+  }
+  return true;
+}
+
+export function resolveDoctorColor(opts: {
+  format: DoctorOutputFormat;
+  noColor: boolean;
+  envNoColor: string | undefined;
+  stdoutIsTTY: boolean | undefined;
+}): boolean {
+  if (opts.format !== "text") {
+    return false;
+  }
+  if (opts.noColor) {
+    return false;
+  }
+  if (opts.envNoColor !== undefined && opts.envNoColor.length > 0) {
     return false;
   }
   if (opts.stdoutIsTTY !== true) {
@@ -434,6 +462,7 @@ export function createCliProgram(): Command {
       "--include-tests",
       "Include test files in scope inventory (lift built-in test excludes)",
     )
+    .option("--no-color", "Disable ANSI colors in doctor text output")
     .action(async function (targetPath: string, options) {
       const cmd = this as Command;
       const format = parseDoctorFormat(options.format as string);
@@ -448,10 +477,16 @@ export function createCliProgram(): Command {
         configPath,
         ...(includeTests !== undefined ? { includeTests } : {}),
       });
+      const color = resolveDoctorColor({
+        format,
+        noColor: options.color === false,
+        envNoColor: process.env.NO_COLOR,
+        stdoutIsTTY: process.stdout.isTTY,
+      });
       const output =
         format === "json"
           ? formatDoctorJsonReport(result)
-          : formatDoctorFindings(result.findings);
+          : formatDoctorTextReport(result.findings, { color });
       process.stdout.write(output);
       if (result.exitCode !== 0) {
         throw new CliExitError(result.exitCode);
@@ -694,16 +729,16 @@ Examples:
 
       const reporter = createReporter();
       const output = reporter.render(result, reporterOptions);
-      scanOutcome.emitWarningTeaser();
       await writeRenderedOutput(output, format, outputPath, {
         quiet: options.quiet as boolean,
         ...(csvSingleFile ? { csvSingleFile: true } : {}),
       });
       scanOutcome.flushWarnings();
-      emitBriefTimingStderr(result.meta.timings, options.quiet as boolean);
 
       if (explainTarget !== undefined) {
-        const found = writeExplainBlock(result, explainTarget, repoPath);
+        const found = writeExplainBlock(result, explainTarget, repoPath, {
+          quiet: options.quiet as boolean,
+        });
         if (failOnExplainMiss && !found) {
           throw new CliExitError(1);
         }

@@ -20,10 +20,11 @@ git log (stream) → NCLOC size analysis → hotspot scoring → report
 | Scoring       | `src/scoring/`           | `HotspotScorer` — file hotspots only                                                           |
 | Config        | `src/config/`            | `.hotspot-scanner.json` + `mergeScanOptions` (CLI > config > defaults)                         |
 | Scan-result   | `src/scan-result/`       | `parseScanResult`, `ScanResultParseError` — programmatic JSON validation (library only)        |
-| Report        | `src/report/`            | table, JSON, markdown, CSV bundle                                                              |
+| Report        | `src/report/`            | table, JSON, markdown, CSV bundle; trend table (`trend-table.ts`); explain + `formatTrendNextStep` |
+| Trend         | `src/trend/`             | `runComplexityTrend` — per-file revision history; `classifyGrowthPattern` → `meta.growthPattern` (always-on; table `Pattern:` line) |
 | Orchestration | `src/scan.ts`            | `runScan()` — file-only pipeline                                                               |
 | CLI           | `bin/hotspot-scanner.ts` | commander — flags only, no domain logic                                                        |
-| Schemas       | `schemas/`               | `scan-result.json`, `hotspot-scanner-config.json` (`version: "3.0"`)                           |
+| Schemas       | `schemas/`               | `scan-result.json`, `hotspot-scanner-config.json`, `complexity-trend.json` (`version: "3.0"`) |
 
 **Superseded (M71):** `src/compare/`, compare report modules, `schemas/compare-result.json`, CLI compare/baseline — see Done spec `.specs/features/remove-compare-baseline/`.
 
@@ -60,8 +61,9 @@ SoT: [CONCERNS.md](../../../.specs/codebase/CONCERNS.md) / `src/complexity/ncloc
 | `--include` / `--exclude` | Path scoping (repeatable)                                        |
 | `--output <path>`         | Write report to file; **required** for `--format csv`            |
 | `--only hotspots`         | Section filter (only valid value post-M57)                       |
-| `--explain <path>`        | File-path score breakdown on stderr after report                 |
+| `--explain <path>`        | File-path score breakdown on stderr after report; hit appends `next: hotspot-scanner trend <path>` |
 | `--fail-on-explain-miss`  | Exit `1` when `--explain` target missing (requires `--explain`)  |
+| `trend <file>`            | Per-file indentation/NCLOC history; always-on `Pattern:` / `meta.growthPattern` (`deteriorating` \| `refactored` \| `stable` \| `inconclusive`) |
 
 Config file: `.hotspot-scanner.json` (`since`, `include`, `exclude`, `top`, `concurrency`). CLI-only: `format`, `output`. Legacy `granularity` → `UNKNOWN_CONFIG_KEY`.
 
