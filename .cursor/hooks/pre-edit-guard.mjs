@@ -16,16 +16,19 @@ import {
   CONVENTIONS_SOT_CONTEXT,
   INTEGRATIONS_SOT_CONTEXT,
   STACK_SOT_CONTEXT,
+  STRUCTURE_SOT_CONTEXT,
   isArchitectureDocPath,
   isConcernsDocPath,
   isConventionsDocPath,
   isIntegrationsDocPath,
   isStackDocPath,
+  isStructureDocPath,
   lintArchitectureDoc,
   lintConcernsDoc,
   lintConventionsDoc,
   lintIntegrationsDoc,
   lintStackDoc,
+  lintStructureDoc,
 } from "./lib/living-sot-doc.mjs";
 import { getWorkspaceRoot, loadState, readStdinJson } from "./lib/state.mjs";
 
@@ -113,6 +116,18 @@ if (isStackDocPath(relPath)) {
     ask(
       `STACK.md edit introduces forbidden tags (${bannedMatches.join(", ")}). Remove milestone/HOTSPOT changelog voice or confirm intentional exception.`,
       `${STACK_SOT_CONTEXT} Matches: ${bannedMatches.join(", ")}`,
+    );
+    process.exit(0);
+  }
+}
+
+if (isStructureDocPath(relPath)) {
+  const content = extractEditContent(input.tool_input);
+  const { bannedMatches } = lintStructureDoc(content);
+  if (bannedMatches.length > 0) {
+    ask(
+      `STRUCTURE.md edit introduces forbidden tags (${bannedMatches.join(", ")}). Remove milestone/HOTSPOT changelog voice or confirm intentional exception.`,
+      `${STRUCTURE_SOT_CONTEXT} Matches: ${bannedMatches.join(", ")}`,
     );
     process.exit(0);
   }

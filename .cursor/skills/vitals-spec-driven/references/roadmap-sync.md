@@ -37,7 +37,8 @@
 - [ ] CONVENTIONS.md: if naming / imports / build / lint conventions changed → sync present-tense conventions (no M##; see conventions-sot.mdc); else skip
 - [ ] INTEGRATIONS.md: if spawn / runtime deps / `node:fs` adapter ownership changed → sync present tense (no M## / HOTSPOT-*; see integrations-sot.mdc); else skip
 - [ ] STACK.md: if runtime / deps / `files` / `engines` / `exports` / build inventory changed → sync present tense (no M## / HOTSPOT-*; see stack-sot.mdc); else skip
-- [ ] Self-check: any sentence that needs a milestone number → wrong doc (ROADMAP/STATE/features, not ARCHITECTURE/CONCERNS/CONVENTIONS/INTEGRATIONS/STACK)
+- [ ] STRUCTURE.md: if directory layout / module paths / public API changed → sync present tense (no M## / HOTSPOT-*; see structure-sot.mdc); else skip
+- [ ] Self-check: any sentence that needs a milestone number → wrong doc (ROADMAP/STATE/features, not ARCHITECTURE/CONCERNS/CONVENTIONS/INTEGRATIONS/STACK/STRUCTURE)
 - [ ] Optional verify: `pnpm hooks:smoke` (living SoT lint via Cursor hooks; not part of `pnpm build && pnpm test`)
 ```
 

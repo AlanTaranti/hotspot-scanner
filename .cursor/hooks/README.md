@@ -15,8 +15,8 @@ State files older than **14 days** are pruned on `sessionStart`.
 | Critical | `afterShellExecution` | `record-gate-pass.mjs` | Record `gatePassedAt` / `buildPassedAt` + `testPassedAt` after build and test |
 | Critical | `subagentStop` | `subagent-stop.mjs` | Clear subagent state; follow-up for Phase E (quality gate) |
 | High | `subagentStart` | `subagent-start.mjs` | Subagent state; **deny** orchestrator when Status is Draft/Planned |
-| High | `preToolUse` | `pre-edit-guard.mjs` | Planner boundary; fragile `ask`; orchestrated ownership; ARCHITECTURE/CONCERNS/INTEGRATIONS/STACK SoT `ask` on `M##`/`HOTSPOT-*`; CONVENTIONS SoT `ask` on `M##` |
-| High | `postToolUse` | `post-edit-guard.mjs` | Track edits + fragile / scoring / ARCHITECTURE/CONCERNS/INTEGRATIONS/STACK/CONVENTIONS SoT alerts |
+| High | `preToolUse` | `pre-edit-guard.mjs` | Planner boundary; fragile `ask`; orchestrated ownership; ARCHITECTURE/CONCERNS/INTEGRATIONS/STACK/STRUCTURE SoT `ask` on `M##`/`HOTSPOT-*`; CONVENTIONS SoT `ask` on `M##` |
+| High | `postToolUse` | `post-edit-guard.mjs` | Track edits + fragile / scoring / ARCHITECTURE/CONCERNS/INTEGRATIONS/STACK/STRUCTURE/CONVENTIONS SoT alerts |
 | High | `afterFileEdit` | `track-edit.mjs` | Path tracking (fallback); absolute paths normalized to repo-relative |
 | High | `stop` | `stop-gate-reminder.mjs` | Gate reminder when the agent stops |
 | Medium | `sessionStart` | `session-context.mjs` | Inject ROADMAP + gate context; prune stale state |

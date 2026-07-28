@@ -1,23 +1,25 @@
 # STRUCTURE — @vitals/hotspot-scanner
 
+Directory layout and public API map SoT. Pipelines, contracts, and ownership boundaries: [ARCHITECTURE.md](ARCHITECTURE.md). Fixture methodology and Vitest patterns: [TESTING.md](TESTING.md). Runtime/deps inventory: [STACK.md](STACK.md).
+
 ## Directory layout
 
 ```
 hotspot-scanner/
 ├── bin/
-│   ├── hotspot-scanner.ts       # CLI entry (commander) — init, config validate/print, doctor, trend, assess, scan, completion
+│   ├── hotspot-scanner.ts       # CLI entry (commander) — init, config, doctor, trend, assess, scan, completion
 │   ├── scan-actions.ts          # Shared scan CLI wiring (runScan, path validation, render/write)
 │   ├── assess-actions.ts        # assess CLI wiring (executeAssess, formats, cancel)
 │   ├── trend-actions.ts         # trend CLI wiring (runComplexityTrend, formats, cancel)
-│   └── completion-scripts.ts    # Static bash/zsh/fish completion scripts (M54)
+│   └── completion-scripts.ts    # Static bash/zsh/fish completion scripts
 ├── src/
-│   ├── git/                     # Git Change Miner (numstat churn only) + file-history (trend)
+│   ├── git/                     # Git Change Miner (numstat churn) + file-history (trend)
 │   ├── complexity/              # NCLOC + indentation metrics (file-level)
-│   ├── trend/                   # Complexity trend orchestration (M72) + growth pattern classify (M75)
+│   ├── trend/                   # Complexity trend orchestration + growth pattern classify
 │   │   ├── classify.ts          # classifyGrowthPattern — Tornhill growth curves (pure)
 │   │   ├── run-trend.ts         # runComplexityTrend — revision sample + meta.growthPattern
 │   │   └── types.ts             # ComplexityTrendResult (version 3.0)
-│   ├── assess/                  # Hotspot assess orchestration (M77) — scan → filter → sequential trends
+│   ├── assess/                  # Hotspot assess — scan → filter → sequential trends
 │   │   ├── select-candidates.ts # selectAssessCandidates — minHotspotScore + top cap
 │   │   ├── run-assess.ts        # runAssess — batch trend + AssessResult
 │   │   └── types.ts             # AssessResult (version 1.0, kind hotspot-assess)
@@ -25,54 +27,79 @@ hotspot-scanner/
 │   ├── diagnostics/             # stderr warnings + progress logging
 │   ├── doctor/                  # Pre-flight checks (Node, git, repo, config, scope, tsconfig)
 │   ├── scan-result/             # parseScanResult + ScanResultParseError (library)
-│   ├── report/                  # CLI table + JSON + markdown + CSV reporter
+│   ├── report/                  # CLI table + JSON + markdown + CSV (+ trend/assess reporters)
 │   ├── config/                  # .hotspot-scanner.json load + merge + validate/print + init exemplar
 │   ├── paths/                   # PathScope globs + monorepo git-root remount (resolve-repo)
 │   ├── scan-preview.ts          # scan --dry-run scope preview (no mine/NCLOC)
 │   ├── scan.ts                  # Pipeline orchestration
-│   ├── package-meta.ts          # Cached package.json version for meta.scannerVersion (M66)
+│   ├── package-meta.ts          # Cached package.json version for meta.scannerVersion
 │   ├── types/                   # Domain types (no runtime logic)
 │   └── index.ts                 # Public library API
-├── schemas/                     # JSON Schema scan + config + complexity-trend + hotspot-assess contracts
+├── schemas/                     # scan-result, hotspot-scanner-config, complexity-trend, hotspot-assess
+├── docs/                        # User docs (recipes, methodology, warning codes)
 ├── tests/
-│   └── fixtures/                # Git repos + git log samples + NCLOC fixtures
+│   ├── fixtures/                # Git repos, git-log samples, NCLOC, scoring, report, workers
+│   ├── contract/                # JSON schema validation against schemas/
+│   ├── trend.integration.test.ts
+│   └── compiled-cli.smoke.test.ts
 └── .specs/                      # Living project docs
 ```
 
 ## Module map
 
-| Path                     | Status      | Role                                                                                                                                                                                               |
-| ------------------------ | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `bin/hotspot-scanner.ts` | implemented | Commander CLI — `init`, `config validate`, `config print`, `doctor`, `trend <file>`, `assess [path]`, `scan [path]`, `completion <shell>`; scan flags include `--since`, `--format`, `--top`, `--include`, `--exclude`, `--config`, `--concurrency`, `--output`, `--only`, `--no-triage-hints`, `--no-color`, `--explain`, `--fail-on-explain-miss`, `--dry-run`, `--include-tests`, `--sequential` / `--no-overlap`, `--quiet`, `--no-progress`, `--verbose`, `--warnings`, `--csv-single-file`; assess adds `--min-hotspot-score` (CLI-only) |
-| `bin/assess-actions.ts` | implemented | Assess CLI wiring — `executeAssess`, formats (`table` \| `json` \| `markdown`), cancel signals, per-file progress |
-| `bin/trend-actions.ts` | implemented | Trend CLI wiring — `runComplexityTrend`, formats, cancel signals |
-| `bin/scan-actions.ts`    | implemented | Shared CLI wiring — `executeScan`, `runWithScanCancelSignals`, `createVerboseSpawnArgvHandler`, path validators |
-| `bin/completion-scripts.ts` | implemented | `getCompletionScript(shell)` — static bash/zsh/fish scripts (M54) |
-| `src/git/`               | implemented | GitMiner — `spawn`, `parse`, `rename`, `aggregate`, `canonicalize`; `ls-files.ts` (M36); `probe-since.ts` (M64 doctor since preflight); `git-error-hint.ts` (M65 stderr→Hint helper for spawn failures); `file-history.ts` (M72 trend — `listFileRevisions` / `showFileAtRevision`, `--follow` allowed here only) |
-| `src/complexity/`        | implemented | Size analyzer — NCLOC (`ncloc.ts`, `analyze-file`, `analyze-batch`, `discover`, `pool`, `worker`); indentation metrics (`indentation.ts` / `analyzeIndentation` for trend) |
-| `src/trend/`             | implemented | `classifyGrowthPattern` (`classify.ts`), `runComplexityTrend` (`run-trend.ts`), types — per-file revision trend + `meta.growthPattern` |
-| `src/assess/`            | implemented | `runAssess` (`run-assess.ts`), `selectAssessCandidates` (`select-candidates.ts`), types — scan → filter → sequential trends → `AssessResult` |
-| `src/scoring/`           | implemented | `HotspotScorer` — `normalize`, `hotspot-scorer` |
-| `src/diagnostics/`       | implemented | stderr logger — warnings + throttled progress |
-| `src/doctor/`            | implemented | `runDoctor()` — Node, git, remount-aware repo, config (unknown-key soft warn), `since` preflight (`probeSinceWindow`), scope via `previewScanScope`, tsconfig |
-| `src/report/`            | implemented | Reporter — `path-column`, `schema-urls` (M66 JSON `$schema` constants), `only`, `summary`, `glossary`, `triage`, `explain` (+ `formatTrendNextStep`), `trend-table`, `assess-table` / `assess-markdown` / `assess-json`, `color`; table/json/markdown/csv |
-| `src/package-meta.ts`    | implemented | `getPackageVersion()` — sync cached read of `package.json` `"version"` for `meta.scannerVersion` on scan (M66) |
-| `src/scan-result/`       | implemented | `parseScanResult`, `ScanResultParseError` — programmatic scan JSON validation |
-| `src/config/`            | implemented | `.hotspot-scanner.json` loader (`RESERVED_META_KEYS`, `path` on load), `mergeScanOptions` + provenance merge, `validate-config.ts`, `print-config.ts`, `exemplar.ts` (schema-linked init), `UNKNOWN_CONFIG_KEY` for legacy keys |
-| `src/paths/`             | implemented | `createPathScope`, `resolveMonorepoScanPath`, `filterGitMinerResult` |
-| `src/scan-preview.ts`    | implemented | `previewScanScope()` — prelude + eligible file count + config path / remount / unknown keys (no mine/NCLOC) |
-| `src/scan.ts`            | implemented | `resolveScanPipelineContext`, `createScanPathScope`, `runScan()` — file-only pipeline |
-| `src/types/`             | implemented | `FileChangeStats`, `HotspotScore`, `ScanResult` (`version: "3.0"`), etc. |
-| `src/index.ts`           | implemented | Public API — `runScan`, `runComplexityTrend`, `runAssess`, `previewScanScope`, `runDoctor`, `parseScanResult`, `ScanResultParseError` (+ trend/assess/doctor types) |
+| Path                        | Role                                                                                                      |
+| --------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `bin/hotspot-scanner.ts`    | Commander CLI — `init`, `config validate`/`print`, `doctor`, `trend`, `assess`, `scan`, `completion`     |
+| `bin/assess-actions.ts`     | Assess CLI wiring — `executeAssess`, formats, cancel signals, per-file progress                           |
+| `bin/trend-actions.ts`      | Trend CLI wiring — `runComplexityTrend`, formats, cancel signals                                          |
+| `bin/scan-actions.ts`       | Shared scan CLI wiring — `executeScan`, cancel signals, verbose spawn argv, path validators               |
+| `bin/completion-scripts.ts` | `getCompletionScript(shell)` — static bash/zsh/fish scripts                                               |
+| `src/git/`                  | GitMiner (numstat churn) + file-history for trend; doctor since-probe helpers                              |
+| `src/complexity/`           | Size analyzer — NCLOC batch/discover/pool/worker; indentation metrics for trend                           |
+| `src/trend/`                | `classifyGrowthPattern`, `runComplexityTrend` — per-file revision trend + `meta.growthPattern`            |
+| `src/assess/`               | `runAssess`, `selectAssessCandidates` — scan → filter → sequential trends → `AssessResult`                |
+| `src/scoring/`              | `HotspotScorer` — normalize + hotspot score                                                               |
+| `src/diagnostics/`          | stderr logger — warnings + throttled progress                                                             |
+| `src/doctor/`               | `runDoctor()` — Node, git, remount-aware repo, config, since preflight, scope, tsconfig                   |
+| `src/report/`               | table / json / markdown / csv + trend and assess reporters                                                |
+| `src/package-meta.ts`       | `getPackageVersion()` — cached `package.json` version for `meta.scannerVersion`                           |
+| `src/scan-result/`          | `parseScanResult`, `ScanResultParseError` — programmatic scan JSON validation                             |
+| `src/config/`               | `.hotspot-scanner.json` load, merge, validate, print, schema-linked init exemplar                         |
+| `src/paths/`                | `createPathScope`, `resolveMonorepoScanPath`, `filterGitMinerResult`                                       |
+| `src/scan-preview.ts`       | `previewScanScope()` — dry-run scope preview (no mine/NCLOC)                                              |
+| `src/scan.ts`               | `resolveScanPipelineContext`, `createScanPathScope`, `runScan()` — file-only pipeline                     |
+| `src/types/`                | Domain types — `FileChangeStats`, `HotspotScore`, `ScanResult` (`version: "3.0"`), etc.                    |
+| `src/index.ts`              | Public library entry — see [Public API](#public-api)                                                      |
 
-**Removed (M71):** `src/compare/`, compare report modules (`compare-*`, `explain-compare`, `slice-compare`), `schemas/compare-result.json`.
+## Public API
+
+Exports from `src/index.ts`:
+
+**Values:** `PACKAGE_NAME`, `runScan`, `runComplexityTrend`, `runAssess`, `previewScanScope`, `runDoctor`, `parseScanResult`, `ScanResultParseError`, `formatTruncationNote`, `TrendNotTrackedError`, `TrendUsageError`
+
+**Types:**
+
+- Doctor: `DoctorFinding`, `DoctorFindingId`, `DoctorFindingStatus`, `DoctorResult`, `RunDoctorOptions`
+- Trend: `ComplexityTrendOptions`, `ComplexityTrendPoint`, `ComplexityTrendResult`, `ComplexityTrendWarning`
+- Assess: `AssessCandidate`, `AssessCandidateStatus`, `AssessOptions`, `AssessPatternCounts`, `AssessResult`
+- Scan: `ScanScopePreview`, `FileChangeStats`, `HotspotScore`, `ScanMeta`, `ScanOptions`, `ScanResult`
+
+## Where things live
+
+- **CLI entry / wiring:** `bin/`
+- **Scan pipeline:** `src/scan.ts` + `src/git/`, `src/complexity/`, `src/scoring/`, `src/report/`
+- **Trend / assess:** `src/trend/`, `src/assess/`
+- **Config:** `src/config/`
+- **Contracts:** `schemas/`
+- **Library entry:** `src/index.ts`
 
 ## Test layout
 
-- Co-located `*.test.ts` next to source modules
+- Co-located `*.test.ts` next to source modules (including `bin/`)
+- Top-level: `tests/trend.integration.test.ts`, `tests/compiled-cli.smoke.test.ts`, `tests/contract/`
 - `tests/fixtures/git-log/` — raw `git log` output samples
-- `tests/fixtures/repos/` — small versioned Git repositories for integration scans
-- `tests/fixtures/complexity/` — NCLOC-verified source snippets (M57); indentation cases co-located in `indentation.test.ts`
+- `tests/fixtures/repos/` — `small-ts`, `with-renames`, `merge-heavy`, `trend-indent`
+- `tests/fixtures/complexity/` — NCLOC source snippets (indentation cases co-located in `indentation.test.ts`)
 - `tests/fixtures/scoring/` — fixed scoring inputs with documented expected ranking order
-- `tests/fixtures/report/` — hand-crafted `ScanResult` for reporter tests
-- `tests/contract/` — JSON schema validation against `schemas/` (scan, config, complexity-trend, hotspot-assess)
+- `tests/fixtures/report/` — hand-crafted scan / trend / assess results for reporter tests
+- `tests/fixtures/workers/` — worker-thread edge-case scripts for pool tests

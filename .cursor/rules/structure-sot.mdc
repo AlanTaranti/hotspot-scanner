@@ -1,0 +1,47 @@
+---
+description: Keep STRUCTURE.md as present-tense directory-layout / public-API SoT — no milestone changelog
+globs: .specs/codebase/STRUCTURE.md
+alwaysApply: false
+---
+
+# Structure Layout SoT
+
+[`.specs/codebase/STRUCTURE.md`](../../.specs/codebase/STRUCTURE.md) is the **directory layout and public API map SoT**: trees, module path→role map, “where things live”, and library export inventory.
+
+It is **not** a changelog, milestone tracker, CLI flag encyclopedia, testing methodology guide, or pipeline design doc.
+
+## Ownership matrix
+
+| Change type | Destination |
+| ----------- | ----------- |
+| Directory layout / module path map / public exports / where things live | **STRUCTURE.md** |
+| Modules, pipeline, contracts, constraints | **ARCHITECTURE.md** |
+| Fixture methodology, Vitest patterns, coverage | **TESTING.md** |
+| Runtime / deps / publish inventory | **STACK.md** |
+| External spawn/deps adapters | **INTEGRATIONS.md** |
+| Naming, ESM, dual-tsconfig, lint/format | **CONVENTIONS.md** |
+| Milestone status, decisions, feature history | **ROADMAP.md** / **STATE.md** / `.specs/features/` |
+
+## Forbidden in STRUCTURE.md
+
+- Milestone tags: `\bM\d+\b` (e.g. `M54`, `M71`)
+- Requirement IDs: `HOTSPOT-*`
+- Changelog voice: “Removed in M…”, “shipped in M…”, Execute ownership by milestone number
+- CLI flag laundry lists (belong in ARCHITECTURE / README)
+- Fixture bootstrap / methodology detail (belong in TESTING)
+- Pipeline/data-flow encyclopedias (belong in ARCHITECTURE)
+
+## Allowed
+
+- Present-tense directory trees and Path | Role tables
+- Short “where things live” capability → path bullets
+- Public export list aligned with `src/index.ts`
+- Short pointers to ARCHITECTURE, TESTING, STACK
+
+## Sync rule
+
+When living docs change after Execute:
+
+1. Update STRUCTURE only for **live** layout / module paths / public API — do not append provenance.
+2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → wrong file (use ROADMAP/STATE/feature specs).
+3. Feature `design.md` / `tasks.md` may keep M##; extract only lasting layout/API facts into STRUCTURE.

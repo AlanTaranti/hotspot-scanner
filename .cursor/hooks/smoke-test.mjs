@@ -13,11 +13,13 @@ import {
   CONVENTIONS_REL_PATH,
   INTEGRATIONS_REL_PATH,
   STACK_REL_PATH,
+  STRUCTURE_REL_PATH,
   lintArchitectureDoc,
   lintConcernsDoc,
   lintConventionsDoc,
   lintIntegrationsDoc,
   lintStackDoc,
+  lintStructureDoc,
 } from "./lib/living-sot-doc.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -626,6 +628,63 @@ const tests = [
       assertIncludes(stdout, '"permission":"ask"', "stack ask");
       assertIncludes(stdout, "M78", "stack ask mentions M78");
       cleanupState("smoke-stack");
+    },
+  },
+  {
+    name: "structure lint flags M## and HOTSPOT-*",
+    run() {
+      const dirty = lintStructureDoc(
+        "# STRUCTURE\n\n## Directory layout (M71). See HOTSPOT-1042.\n",
+      );
+      if (!dirty.bannedMatches.includes("M71")) {
+        throw new Error(
+          `expected M71 in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+        );
+      }
+      if (!dirty.bannedMatches.some((m) => /^HOTSPOT-1042$/i.test(m))) {
+        throw new Error(
+          `expected HOTSPOT-1042 in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+        );
+      }
+      const clean = lintStructureDoc(
+        "# STRUCTURE\n\nDirectory layout and public API map.\n",
+      );
+      if (clean.bannedMatches.length !== 0) {
+        throw new Error(
+          `expected clean sample, got ${JSON.stringify(clean.bannedMatches)}`,
+        );
+      }
+    },
+  },
+  {
+    name: "live STRUCTURE.md has no banned milestone tags",
+    run() {
+      const text = fs.readFileSync(path.join(root, STRUCTURE_REL_PATH), "utf8");
+      const { bannedMatches } = lintStructureDoc(text);
+      if (bannedMatches.length > 0) {
+        throw new Error(
+          `STRUCTURE.md contains forbidden tags: ${bannedMatches.join(", ")}`,
+        );
+      }
+    },
+  },
+  {
+    name: "pre-edit ask on STRUCTURE Write with M78",
+    run() {
+      cleanupState("smoke-structure");
+      const { stdout } = runHook("pre-edit-guard.mjs", {
+        hook_event_name: "preToolUse",
+        tool_name: "Write",
+        tool_input: {
+          path: path.join(root, ".specs/codebase/STRUCTURE.md"),
+          contents: "## Module map (M78)\n",
+        },
+        conversation_id: "smoke-structure",
+        workspace_roots: [root],
+      });
+      assertIncludes(stdout, '"permission":"ask"', "structure ask");
+      assertIncludes(stdout, "M78", "structure ask mentions M78");
+      cleanupState("smoke-structure");
     },
   },
   {
