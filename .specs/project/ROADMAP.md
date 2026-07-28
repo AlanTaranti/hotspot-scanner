@@ -4,8 +4,8 @@
 
 | Field | Value |
 | ----- | ----- |
-| **Status** | **M7–M78 Done** |
-| **Open milestones** | _None_ |
+| **Status** | **M79 Planned** — package scope rename (`@taranti/hotspot-scanner`) |
+| **Open milestones** | M79 |
 | **Deferred** | [STATE.md](STATE.md) § Deferred |
 
 Archive below is historical (feature links stay valid). Prefer this table + Done summary for “what’s next”; deferred ideas live only in STATE. Detail for any milestone: `.specs/features/<slug>/`.
@@ -744,3 +744,13 @@ TTY ANSI on assess table title, Pattern kinds, and detail scores.
 
 - Bold sections + shared growth-pattern paints
 - Honor `--no-color` / non-TTY / `--output` / non-table
+
+## Milestone 79 — Package scope rename — PLANNED
+
+→ [`.specs/features/package-scope-rename/spec.md`](../features/package-scope-rename/spec.md)
+
+Rename npm package identity from `@vitals/hotspot-scanner` to `@taranti/hotspot-scanner` across code and docs.
+
+- package.json + PACKAGE_NAME
+- Adoption and living docs identity sweep
+- Cursor agents/skills prose (not skill folder renames)
