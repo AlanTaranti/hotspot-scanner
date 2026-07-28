@@ -146,6 +146,8 @@ Persistent memory for decisions, blockers, and lessons across sessions.
 | 2026-07-27 | **M73 top-only-rollups Done** | Execute complete: removed M68 pre-write stderr teaser + M62 brief `timing: total Nms`; Warnings/Timing rollups exec-summary only; post-write `flushWarnings` preserved. Gate green (`pnpm build && pnpm test`, 977 tests). Specs: `.specs/features/top-only-rollups/` (Done). |
 | 2026-07-27 | **M74 doctor-color-ux Done** | Execute complete: `paintDoctorStatus` + `formatDoctorTextReport`; `resolveDoctorColor` + doctor `--no-color`; M41 gates (TTY, NO_COLOR, JSON plain). Gate green. Specs: `.specs/features/doctor-color-ux/` (Done). |
 | 2026-07-27 | **M75 growth-pattern-trend-bridge Done** | Execute complete: always-on `classifyGrowthPattern` + trend JSON `3.0` + table Pattern line; explain hit stderr `next: hotspot-scanner trend <path>`; recipes/README glossary. Scan JSON `3.0` unchanged. Gate green. Specs: `.specs/features/growth-pattern-trend-bridge/` (Done). |
+| 2026-07-27 | **M76 trend-color-ux Specs Planned (Medium)** | Color trend table Pattern **kind** only (`deteriorating`/`refactored`/`inconclusive`/`stable` → red/green/yellow/plain); reuse M41 gates (TTY, `--no-color`, `NO_COLOR`, `--output`); no FORCE_COLOR; JSON/CSV plain; no new color deps. IDs HOTSPOT-1600–1619. Specs: `.specs/features/trend-color-ux/` (`Status: Planned`). |
+| 2026-07-27 | **M76 lock — Pattern kind color only** | Do not color summary/sparklines/headers/rows; do not hoist `--no-color` to program-global; trend subcommand flag only; keep `Pattern: <kind> — <summary>` shape (M75). |
 
 ## Architecture decisions (ADRs)
 
@@ -182,7 +184,7 @@ _None._
 
 ## Active
 
-**M7–M75 Done** — no open milestones. Deferred horizon: npm publish; CI/SARIF; historical AST; item C (scan body full warnings); fail-on-warning.
+**M76 trend-color-ux Specs Planned** — Execute via `orchestrator-implementer` after Status promotion. M7–M75 Done. Deferred horizon: npm publish; CI/SARIF; historical AST; item C (scan body full warnings); fail-on-warning.
 
 ## Deferred
 

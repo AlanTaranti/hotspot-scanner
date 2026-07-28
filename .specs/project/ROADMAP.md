@@ -1087,6 +1087,25 @@ Always-on Tornhill growth-pattern classification on `trend` (`deteriorating` / `
 
 ---
 
+## Milestone 76 — Trend Color UX — Specs Planned
+
+→ [`.specs/features/trend-color-ux/spec.md`](../features/trend-color-ux/spec.md)  
+**Slug:** `trend-color-ux` | **Priority:** Medium | **Specs:** Planned  
+**IDs:** HOTSPOT-1600–1619 (1615–1619 reserved; active 1600–1611) | **Depth:** Medium  
+**Sisters:** output-interpretation-ux (M41), doctor-color-ux (M74), growth-pattern-trend-bridge (M75), complexity-trend (M72)  
+**Artifacts:** [context.md](../features/trend-color-ux/context.md) · [spec.md](../features/trend-color-ux/spec.md) · [design.md](../features/trend-color-ux/design.md) · [tasks.md](../features/trend-color-ux/tasks.md) (`Status: Planned`)
+
+ANSI-color the growth-pattern **kind** token on `trend` **table** `Pattern:` line when stdout is a TTY; disable via `--no-color`, non-empty `NO_COLOR`, non-TTY, `--output`, or non-table formats. Reuse raw ANSI helpers (no new color dependency). JSON/CSV and classification/schema unchanged.
+
+- [ ] `paintGrowthPattern` + `renderTrendTable({ color })`
+- [ ] `resolveTrendColor` + trend `--no-color` + trend-actions wire + CLI tests
+- [ ] README / ARCHITECTURE / CONVENTIONS notes
+- [ ] Final gate `pnpm build && pnpm test`
+
+**Out of scope:** Summary/sparkline/header/row-cell coloring; per-row deltas; `FORCE_COLOR`; JSON/CSV color; chalk; scan/doctor color changes; hoisting `--no-color` global; `classifyGrowthPattern` / schema changes.
+
+---
+
 ## Further horizon
 
 Remains in [STATE.md](STATE.md) **Deferred**:
