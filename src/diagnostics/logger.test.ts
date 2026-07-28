@@ -360,6 +360,7 @@ describe("diagnostics logger", () => {
       expect(write).toHaveBeenCalledTimes(1);
 
       flushWarnings();
+      expect(write).toHaveBeenNthCalledWith(2, "\n");
       expect(write).toHaveBeenCalledWith("info: info msg\n");
       expect(write).toHaveBeenCalledWith("warning: warn msg\n");
     });
@@ -443,7 +444,8 @@ describe("diagnostics logger", () => {
 
       expect(write).toHaveBeenNthCalledWith(1, "\x1b[2K\rgit 1,000 commits…");
       expect(write).toHaveBeenNthCalledWith(2, "\x1b[2K\r");
-      expect(write).toHaveBeenNthCalledWith(3, "warning: warn msg\n");
+      expect(write).toHaveBeenNthCalledWith(3, "\n");
+      expect(write).toHaveBeenNthCalledWith(4, "warning: warn msg\n");
     });
 
     it("clears live progress before each warning under warnings=full", () => {
@@ -601,8 +603,9 @@ describe("diagnostics logger", () => {
 
       expect(write).not.toHaveBeenCalled();
       flushWarnings();
-      expect(write).toHaveBeenCalledTimes(1);
-      expect(write).toHaveBeenCalledWith("info: info msg\n");
+      expect(write).toHaveBeenCalledTimes(2);
+      expect(write).toHaveBeenNthCalledWith(1, "\n");
+      expect(write).toHaveBeenNthCalledWith(2, "info: info msg\n");
     });
 
     it("suppresses progress and info warnings when quiet is set", () => {
@@ -634,9 +637,10 @@ describe("diagnostics logger", () => {
 
       expect(write).not.toHaveBeenCalled();
       flushWarnings();
-      expect(write).toHaveBeenCalledTimes(2);
-      expect(write).toHaveBeenCalledWith("warning: warn msg\n");
-      expect(write).toHaveBeenCalledWith("error: error msg\n");
+      expect(write).toHaveBeenCalledTimes(3);
+      expect(write).toHaveBeenNthCalledWith(1, "\n");
+      expect(write).toHaveBeenNthCalledWith(2, "warning: warn msg\n");
+      expect(write).toHaveBeenNthCalledWith(3, "error: error msg\n");
     });
 
     it("quiet supersedes noProgress when both are set", () => {

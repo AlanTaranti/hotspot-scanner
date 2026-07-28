@@ -131,6 +131,9 @@ interface BufferedGroup {
 
 /** Write one JSON document with the full buffered warnings array. */
 export function flushWarningsJson(buffer: ScanWarning[]): void {
+  if (buffer.length > 0) {
+    process.stderr.write("\n");
+  }
   process.stderr.write(`${JSON.stringify({ warnings: buffer })}\n`);
 }
 
@@ -159,6 +162,8 @@ export function flushWarningSummary(buffer: ScanWarning[]): void {
       group.count += 1;
     }
   }
+
+  process.stderr.write("\n");
 
   for (const key of order) {
     const group = groups.get(key)!;

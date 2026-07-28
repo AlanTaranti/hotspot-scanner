@@ -22,7 +22,7 @@ The CLI writes diagnostics to stderr with a severity prefix (`info:`, `warning:`
 | `--quiet` + `--warnings=full` | Quiet wins for progress/info; warning/error emit in full detail |
 | `--verbose` | Git spawn argv trace only — does **not** expand warning stderr |
 
-Under `summary`, warnings buffer during the scan; after the report is written (stdout or `--output`), `flushWarnings()` emits the aggregated per-group lines. `Finalizing…` stays visible through scoring, render, and write until `flushWarnings()` clears the live progress line. Under `json`, one JSON emission happens only after the write. Under `full`, warnings stream during the scan; flush clears live progress only.
+Under `summary`, warnings buffer during the scan; after the report is written (stdout or `--output`), `flushWarnings()` emits the aggregated per-group lines, preceded by one blank line on stderr when any warnings were buffered. `Finalizing…` stays visible through scoring, render, and write until `flushWarnings()` clears the live progress line. Under `json`, one JSON emission happens only after the write (also preceded by a blank line when the buffer is non-empty). Under `full`, warnings stream during the scan; flush clears live progress only.
 
 **Warnings/Timing rollups** (`Warnings: N total (…)` and the Timing line) appear only in table/markdown executive summaries — not on stderr.
 

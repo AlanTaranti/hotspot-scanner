@@ -103,8 +103,9 @@ describe("flushWarningsJson", () => {
 
     flushWarningsJson(warnings);
 
-    expect(write).toHaveBeenCalledTimes(1);
-    expect(JSON.parse(String(write.mock.calls[0]![0]))).toEqual({
+    expect(write).toHaveBeenCalledTimes(2);
+    expect(write).toHaveBeenNthCalledWith(1, "\n");
+    expect(JSON.parse(String(write.mock.calls[1]![0]))).toEqual({
       warnings,
     });
   });
@@ -137,8 +138,10 @@ describe("flushWarningSummary", () => {
 
     flushWarningSummary(messages.map(renameWarning));
 
-    expect(write).toHaveBeenCalledTimes(1);
-    expect(write).toHaveBeenCalledWith(
+    expect(write).toHaveBeenCalledTimes(2);
+    expect(write).toHaveBeenNthCalledWith(1, "\n");
+    expect(write).toHaveBeenNthCalledWith(
+      2,
       "warning: Rename history may be incomplete for 3 path(s). Next step: verify rename detection or widen --since to capture more history.\n",
     );
   });
@@ -157,8 +160,10 @@ describe("flushWarningSummary", () => {
 
     flushWarningSummary(messages.map(renameWarning));
 
-    expect(write).toHaveBeenCalledTimes(1);
-    expect(write).toHaveBeenCalledWith(
+    expect(write).toHaveBeenCalledTimes(2);
+    expect(write).toHaveBeenNthCalledWith(1, "\n");
+    expect(write).toHaveBeenNthCalledWith(
+      2,
       "warning: Suspected unlinked rename (no git rename metadata): 7 pair(s). Next step: ensure git records renames (-M is enabled) or widen --since to capture earlier history.\n",
     );
   });
@@ -171,8 +176,9 @@ describe("flushWarningSummary", () => {
 
     flushWarningSummary([renameWarning(message)]);
 
-    expect(write).toHaveBeenCalledTimes(1);
-    expect(write).toHaveBeenCalledWith(`warning: ${message}\n`);
+    expect(write).toHaveBeenCalledTimes(2);
+    expect(write).toHaveBeenNthCalledWith(1, "\n");
+    expect(write).toHaveBeenNthCalledWith(2, `warning: ${message}\n`);
   });
 
   it("emits original line for a single non-rename warning", () => {
@@ -186,7 +192,10 @@ describe("flushWarningSummary", () => {
 
     flushWarningSummary([warning]);
 
-    expect(write).toHaveBeenCalledWith(
+    expect(write).toHaveBeenCalledTimes(2);
+    expect(write).toHaveBeenNthCalledWith(1, "\n");
+    expect(write).toHaveBeenNthCalledWith(
+      2,
       "warning: No commits found in the specified --since window.\n",
     );
   });
@@ -202,8 +211,9 @@ describe("flushWarningSummary", () => {
       createScanWarning("READ_FAILED", "Could not read c.ts"),
     ]);
 
-    expect(write).toHaveBeenCalledTimes(1);
-    expect(write.mock.calls[0]![0]).toMatch(
+    expect(write).toHaveBeenCalledTimes(2);
+    expect(write).toHaveBeenNthCalledWith(1, "\n");
+    expect(write.mock.calls[1]![0]).toMatch(
       /^warning: 3 READ_FAILED: Could not read a\.ts\n$/,
     );
   });
@@ -229,8 +239,10 @@ describe("createCliDiagnosticHandlers warningsMode", () => {
     expect(write).not.toHaveBeenCalled();
 
     flushWarnings();
-    expect(write).toHaveBeenCalledTimes(1);
-    expect(write).toHaveBeenCalledWith(
+    expect(write).toHaveBeenCalledTimes(2);
+    expect(write).toHaveBeenNthCalledWith(1, "\n");
+    expect(write).toHaveBeenNthCalledWith(
+      2,
       "warning: Rename history may be incomplete for 2 path(s). Next step: verify rename detection or widen --since to capture more history.\n",
     );
 
@@ -249,9 +261,9 @@ describe("createCliDiagnosticHandlers warningsMode", () => {
     expect(write).not.toHaveBeenCalled();
 
     flushWarnings();
-    expect(write).toHaveBeenCalledWith(
-      "warning: Could not read x.ts\n",
-    );
+    expect(write).toHaveBeenCalledTimes(2);
+    expect(write).toHaveBeenNthCalledWith(1, "\n");
+    expect(write).toHaveBeenNthCalledWith(2, "warning: Could not read x.ts\n");
   });
 
   it("logs immediately under full and flush is a no-op", () => {
@@ -305,9 +317,10 @@ describe("createCliDiagnosticHandlers warningsMode", () => {
     expect(write).not.toHaveBeenCalled();
 
     flushWarnings();
-    expect(write).toHaveBeenCalledTimes(2);
-    expect(write).toHaveBeenCalledWith("warning: warn msg\n");
-    expect(write).toHaveBeenCalledWith("error: error msg\n");
+    expect(write).toHaveBeenCalledTimes(3);
+    expect(write).toHaveBeenNthCalledWith(1, "\n");
+    expect(write).toHaveBeenNthCalledWith(2, "warning: warn msg\n");
+    expect(write).toHaveBeenNthCalledWith(3, "error: error msg\n");
   });
 
   it("quiet + full still suppresses info and logs warning/error immediately", () => {
@@ -348,8 +361,9 @@ describe("createCliDiagnosticHandlers warningsMode", () => {
     expect(write).not.toHaveBeenCalled();
 
     flushWarnings();
-    expect(write).toHaveBeenCalledTimes(1);
-    expect(JSON.parse(String(write.mock.calls[0]![0]))).toEqual({
+    expect(write).toHaveBeenCalledTimes(2);
+    expect(write).toHaveBeenNthCalledWith(1, "\n");
+    expect(JSON.parse(String(write.mock.calls[1]![0]))).toEqual({
       warnings,
     });
   });
@@ -381,7 +395,9 @@ describe("createCliDiagnosticHandlers warningsMode", () => {
     onWarning(warn);
     flushWarnings();
 
-    expect(JSON.parse(String(write.mock.calls[0]![0]))).toEqual({
+    expect(write).toHaveBeenCalledTimes(2);
+    expect(write).toHaveBeenNthCalledWith(1, "\n");
+    expect(JSON.parse(String(write.mock.calls[1]![0]))).toEqual({
       warnings: [warn],
     });
   });
