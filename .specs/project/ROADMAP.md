@@ -1,6 +1,6 @@
 # ROADMAP — @vitals/hotspot-scanner
 
-Status: **M7–M72 Done**; **M73 Specs Planned**. Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
+Status: **M7–M72 Done**; **M73–M74 Specs Planned**. Deferred horizon in [STATE.md](STATE.md) (npm publish, CI recipes/SARIF, historical AST do-not-prioritize).
 
 **M12** intentionally absent (CI fail-on-score removed — see STATE).
 
@@ -21,10 +21,11 @@ Status: **M7–M72 Done**; **M73 Specs Planned**. Deferred horizon in [STATE.md]
 | Milestone | Slug | Specs |
 | --------- | ---- | ----- |
 | **M73** | `top-only-rollups` | [Planned](../features/top-only-rollups/tasks.md) — Warnings/Timing rollups only in exec summary; drop stderr teaser + brief timing |
+| **M74** | `doctor-color-ux` | [Planned](../features/doctor-color-ux/tasks.md) — ANSI color for doctor text status prefixes (`pass`/`warn`/`fail`); M41 gates |
 
 ### Done
 
-M7–M72 historical detail below. M73 Specs Planned under Open. Deferred horizon in [STATE.md](STATE.md).
+M7–M72 historical detail below. M73–M74 Specs Planned under Open. Deferred horizon in [STATE.md](STATE.md).
 
 ## Milestone 1 — Scaffold
 
@@ -1046,6 +1047,25 @@ Remove duplicate human rollups on default scan output: keep `Warnings:` + `Timin
 - [ ] Final gate `pnpm build && pnpm test`
 
 **Out of scope:** Bottom-only; item C (scan body full warnings); changing `--warnings=full`/`json` semantics beyond teaser absence; compare/baseline.
+
+---
+
+## Milestone 74 — Doctor Color UX — Specs Planned
+
+→ [`.specs/features/doctor-color-ux/spec.md`](../features/doctor-color-ux/spec.md)  
+**Slug:** `doctor-color-ux` | **Priority:** Medium | **Specs:** Planned  
+**IDs:** HOTSPOT-1520–1539 (1535–1539 reserved; active 1520–1530) | **Depth:** Medium  
+**Sisters:** output-interpretation-ux (M41), cli-init-doctor-dry-run (M39), scan-observability (M51), doctor-scope-parity (M52), config-doctor-dx (M64)  
+**Artifacts:** [context.md](../features/doctor-color-ux/context.md) · [spec.md](../features/doctor-color-ux/spec.md) · [design.md](../features/doctor-color-ux/design.md) · [tasks.md](../features/doctor-color-ux/tasks.md) (`Status: Planned`)
+
+ANSI-color `pass:` / `warn:` / `fail:` prefixes on `doctor` **text** output when stdout is a TTY; disable via `--no-color`, non-empty `NO_COLOR`, non-TTY, or `--format json`. Reuse raw ANSI helpers (no new color dependency). JSON envelope and finding messages unchanged.
+
+- [ ] `paintDoctorStatus` + `formatDoctorTextReport({ color })`
+- [ ] `resolveDoctorColor` + doctor `--no-color` + CLI tests
+- [ ] README / ARCHITECTURE / CONVENTIONS notes
+- [ ] Final gate `pnpm build && pnpm test`
+
+**Out of scope:** Message-body/path coloring; `FORCE_COLOR`; JSON color; chalk; scan/trend color changes; changing exit codes or finding copy; M73 top-only-rollups.
 
 ---
 
