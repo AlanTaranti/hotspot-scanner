@@ -11,9 +11,11 @@ import {
   ARCHITECTURE_REL_PATH,
   CONCERNS_REL_PATH,
   CONVENTIONS_REL_PATH,
+  INTEGRATIONS_REL_PATH,
   lintArchitectureDoc,
   lintConcernsDoc,
   lintConventionsDoc,
+  lintIntegrationsDoc,
 } from "./lib/living-sot-doc.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -505,6 +507,66 @@ const tests = [
       assertIncludes(stdout, '"permission":"ask"', "concerns ask");
       assertIncludes(stdout, "M78", "concerns ask mentions M78");
       cleanupState("smoke-concerns");
+    },
+  },
+  {
+    name: "integrations lint flags M## and HOTSPOT-*",
+    run() {
+      const dirty = lintIntegrationsDoc(
+        "# INTEGRATIONS\n\nRemoved in M71. See HOTSPOT-1042.\n",
+      );
+      if (!dirty.bannedMatches.includes("M71")) {
+        throw new Error(
+          `expected M71 in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+        );
+      }
+      if (!dirty.bannedMatches.some((m) => /^HOTSPOT-1042$/i.test(m))) {
+        throw new Error(
+          `expected HOTSPOT-1042 in bannedMatches, got ${JSON.stringify(dirty.bannedMatches)}`,
+        );
+      }
+      const clean = lintIntegrationsDoc(
+        "# INTEGRATIONS\n\nExternal adapters. Git spawn in src/git/.\n",
+      );
+      if (clean.bannedMatches.length !== 0) {
+        throw new Error(
+          `expected clean sample, got ${JSON.stringify(clean.bannedMatches)}`,
+        );
+      }
+    },
+  },
+  {
+    name: "live INTEGRATIONS.md has no banned milestone tags",
+    run() {
+      const text = fs.readFileSync(
+        path.join(root, INTEGRATIONS_REL_PATH),
+        "utf8",
+      );
+      const { bannedMatches } = lintIntegrationsDoc(text);
+      if (bannedMatches.length > 0) {
+        throw new Error(
+          `INTEGRATIONS.md contains forbidden tags: ${bannedMatches.join(", ")}`,
+        );
+      }
+    },
+  },
+  {
+    name: "pre-edit ask on INTEGRATIONS Write with M78",
+    run() {
+      cleanupState("smoke-integrations");
+      const { stdout } = runHook("pre-edit-guard.mjs", {
+        hook_event_name: "preToolUse",
+        tool_name: "Write",
+        tool_input: {
+          path: path.join(root, ".specs/codebase/INTEGRATIONS.md"),
+          contents: "## Git (M78)\n",
+        },
+        conversation_id: "smoke-integrations",
+        workspace_roots: [root],
+      });
+      assertIncludes(stdout, '"permission":"ask"', "integrations ask");
+      assertIncludes(stdout, "M78", "integrations ask mentions M78");
+      cleanupState("smoke-integrations");
     },
   },
   {

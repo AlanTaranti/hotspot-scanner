@@ -22,6 +22,7 @@ Fragile areas requiring extra care and test coverage. Enforced by [`.cursor/rule
 | Rename blind spots (copy-paste, pre-`--since`, no `old => new`)   | `src/git/rename-warnings.ts` — unlinked delete+add heuristic, heuristic `PathAliasMap.link()`; `--since`+rename-link truncation warning; fixtures `rename-unlinked.txt`, `rename-since-truncation.txt` |
 | Merge commits, deletes, numstat edge cases                        | Fixture coverage in `tests/fixtures/git-log/`                                                                                                                                                                                       |
 | Per-file history (`--follow`) for trend only                        | `src/git/file-history.ts` — **must not** add `--follow` to scan numstat `buildGitLogArgv`; trend reads historical blobs via `git show`                                                                                              |
+| Function-level churn via `git log -p`                               | **Not used** — file-level hotspots only; do not reintroduce a patch-stream / function-churn miner without a feature spec                                                                                                            |
 
 ## Complexity trend (`src/trend/`)
 

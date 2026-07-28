@@ -1,0 +1,42 @@
+---
+description: Keep INTEGRATIONS.md as present-tense external-adapter SoT — no milestone changelog
+globs: .specs/codebase/INTEGRATIONS.md
+alwaysApply: false
+---
+
+# Integrations Adapter SoT
+
+[`.specs/codebase/INTEGRATIONS.md`](../../.specs/codebase/INTEGRATIONS.md) is the **external-adapter SoT**: spawn sites, runtime deps, filesystem ownership, and mock boundaries.
+
+It is **not** a changelog, milestone tracker, feature history log, or JSON-contract encyclopedia.
+
+## Ownership matrix
+
+| Change type | Destination |
+| ----------- | ----------- |
+| External spawn / deps / `node:fs` adapter ownership | **INTEGRATIONS.md** |
+| Modules, pipeline, contracts, constraints | **ARCHITECTURE.md** |
+| Fragile risks / RT / mitigations | **CONCERNS.md** |
+| Mock patterns and coverage thresholds | **TESTING.md** |
+| Milestone status, decisions, feature history | **ROADMAP.md** / **STATE.md** / `.specs/features/` |
+
+## Forbidden in INTEGRATIONS.md
+
+- Milestone tags: `\bM\d+\b` (e.g. `M71`, `M57`)
+- Requirement IDs: `HOTSPOT-*`
+- Changelog voice: “Removed in M…”, “shipped in M…”, Execute ownership by milestone number
+- Full re-documentation of `parseScanResult` / schema field rules (belongs in ARCHITECTURE)
+
+## Allowed
+
+- Present-tense Role / Adapter / Invocation / Rule / Failure / Tests tables
+- Anti-regression “not used” constraints (present tense; link CONCERNS when risk-framed)
+- Links to ARCHITECTURE, CONCERNS, TESTING, module paths
+
+## Sync rule
+
+When living docs change after Execute:
+
+1. Update INTEGRATIONS only for **live** adapters and ownership — do not append provenance.
+2. Self-check: *Does this sentence need a milestone number to make sense?* If yes → wrong file (use ROADMAP/STATE/feature specs).
+3. Feature `design.md` / `tasks.md` may keep M##; extract only lasting adapter boundaries into INTEGRATIONS.
