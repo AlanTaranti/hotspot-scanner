@@ -1,5 +1,7 @@
 # ARCHITECTURE — @vitals/hotspot-scanner
 
+Design SoT for modules, pipelines, contracts, and ownership boundaries. Fragile risks: [CONCERNS.md](CONCERNS.md). External adapters: [INTEGRATIONS.md](INTEGRATIONS.md).
+
 ## Container view
 
 ```mermaid
@@ -38,84 +40,87 @@ flowchart TB
   Trend --> Reporter
 ```
 
-## Pipeline (M57 + M71)
+## Pipeline
+
+Scan pipeline:
 
 ```
 git log (streaming numstat) → NCLOC size analysis (file-level) → hotspot score → report
 ```
 
-JSON contract **`version: "3.0"`** with `ncloc` on each hotspot. **File hotspots only** — no function granularity, no McCabe, no `ts-morph`. Compare/baseline removed in M71; `parseScanResult` retained under `src/scan-result/` for library consumers.
+JSON scan contract **`version: "3.0"`** with `ncloc` on each hotspot. File hotspots only — no function granularity, no McCabe, no `ts-morph`. No compare/baseline CLI; `parseScanResult` retained under `src/scan-result/` for library consumers.
 
-## CLI commands (M39–M78)
+Sibling commands (separate from the scan pipeline): `trend` (per-file revision history) and `assess` (scan → filter → sequential trends).
 
-Multi-command CLI via Commander in `bin/hotspot-scanner.ts` with shared wiring in `bin/scan-actions.ts` (flags, I/O, exit mapping only — no domain logic):
+## CLI commands
+
+Multi-command CLI via Commander in `bin/hotspot-scanner.ts`. Shared wiring in `bin/scan-actions.ts`, `bin/trend-actions.ts`, `bin/assess-actions.ts` (flags, I/O, exit mapping only — no domain logic):
 
 | Command | Module | Behavior |
 | ------- | ------ | -------- |
-| `init [dir]` | `src/config/exemplar.ts` (`writeInitConfig`) | Writes schema-linked exemplar `.hotspot-scanner.json` (`$schema`, `$comments`, realistic `include`/`exclude`); refuses overwrite without `--force` |
-| `config validate [path]` | `src/config/validate-config.ts` (`validateHotspotScannerConfigFile`) | Parse/validate config file or directory walk; exit `0` valid / `2` invalid or missing; **does not** require git |
-| `config print [path]` | `src/config/print-config.ts` + `merge-options.ts` (`loadMergedScanConfigWithSources`) | Effective merged `since`/`include`/`exclude`/`top`/`concurrency` with per-field `cli` \| `config` \| `default` source tags; `-f, --format text\|json`; scan-like CLI overrides (`--since`, `--include`, `--exclude`, `--top`, `--concurrency`, `--config`); **does not** require git or invoke pipeline stages |
-| `doctor [path]` | `src/doctor/` (`runDoctor`, `formatDoctorTextReport`, `formatDoctorJsonReport`) | Pre-flight checks: Node `engines`, git on PATH, git repo via shared `resolveScanPipelineContext`, config discovery/validity (unknown keys soft-warn), **`since`** preflight via `probeSinceWindow` (pass / empty warn / git-reject fail), **`scope`** inventory (`previewScanScope` — eligible count parity with `scan --dry-run`), tsconfig/jsconfig info; optional `--include-tests`; `-f, --format text\|json`; `--no-color` (CLI-only, subcommand flag); text output colors `pass:`/`warn:`/`fail:` prefixes via `paintDoctorStatus` when `resolveDoctorColor` allows; aggregate exit policy; **does not** invoke Git Change Miner, size analyzer, scorers, or Reporter |
-| `trend <file>` | `src/trend/` (`runComplexityTrend`, `classifyGrowthPattern`) via `bin/trend-actions.ts` | Per-file Git history (`listFileRevisions` / `showFileAtRevision`; `--follow` default, not echoed in output); indentation metrics (`indentMean`, etc.) + NCLOC per revision; uniform `--max-revisions` sample; always-on `classifyGrowthPattern` → `meta.growthPattern` + table `Pattern:` line above sparklines; ASCII sparklines; `table` \| `json` \| `csv`; separate JSON contract `version: "3.0"` / `kind: "complexity-trend"` with required `meta.growthPattern` + `meta.metricLegend` (CSV metric-only — no pattern column); **does not** load config or invoke scan pipeline |
-| `assess [path]` | `src/assess/` (`runAssess`, `selectAssessCandidates`) via `bin/assess-actions.ts` | `runScan` → filter `hotspotScore >= --min-hotspot-score` (default `0.7`) → slice `--top` (default `20`) → **sequential** `runComplexityTrend` per candidate with per-file stderr progress; soft-continue on per-file trend failure; table/markdown: summary pattern counts + detail **only** for `deteriorating`; JSON `kind: "hotspot-assess"` / `version: "1.0"` (no per-candidate `points`); scan-backed flags (`--since`, `--include`, `--exclude`, `--config`, `--concurrency`, `--sequential`, `--include-tests`) follow scan merge; `--min-hotspot-score` CLI-only; **does not** embed assess in scan JSON `3.0` |
-| `scan [path]` | `src/scan.ts` (`runScan`) via `bin/scan-actions.ts` | Full pipeline (see [Data flow (scan)](#data-flow-scan)) |
-| `scan --dry-run` | `src/scan-preview.ts` (`previewScanScope`) | Merges config, validates repo + git, builds `PathScope`, counts via `discoverSourceFiles`; prints config file path (or `none`), remount message when present, unknown config keys when present — **does not** mine git or run NCLOC |
-| `completion <shell>` | `bin/completion-scripts.ts` (`getCompletionScript`) | Static bash/zsh/fish completion script to stdout |
+| `init [dir]` | `src/config/exemplar.ts` | Writes schema-linked exemplar `.hotspot-scanner.json`; refuses overwrite without `--force` |
+| `config validate [path]` | `src/config/validate-config.ts` | Parse/validate config; exit `0` / `2`; does not require git |
+| `config print [path]` | `src/config/print-config.ts` | Effective merged scan options with `cli` \| `config` \| `default` provenance; does not invoke pipeline |
+| `doctor [path]` | `src/doctor/` | Pre-flight (Node, git, repo via `resolveScanPipelineContext`, config, `since` probe, scope inventory, tsconfig); text or JSON; does not mine/score |
+| `trend <file>` | `src/trend/` | Per-file Git history + indentation/NCLOC series + growth pattern; own JSON contract; does not load scan config |
+| `assess [path]` | `src/assess/` | `runScan` → filter/slice → sequential `runComplexityTrend`; own JSON contract |
+| `scan [path]` | `src/scan.ts` | Full scan pipeline (see [Data flow (scan)](#data-flow-scan)) |
+| `scan --dry-run` | `src/scan-preview.ts` | Scope preview only — no mine/NCLOC |
+| `completion <shell>` | `bin/completion-scripts.ts` | Static bash/zsh/fish script to stdout |
 
-**Path-first argv (M63).** `maybeRewritePathToScan()` in `bin/hotspot-scanner.ts` rewrites `hotspot-scanner <path> …` to `hotspot-scanner scan <path> …` when the first token is `.`, `./…`, absolute, or an existing directory (not a known subcommand, help/version, or flag). Bare invocation (`argv.length <= 2`) still throws help `CliUsageError` (exit `2`).
-
-**Shell completion drift control (M54 + M63).** `bin/completion-scripts.ts` owns bash/zsh/fish scripts; zsh and fish long-flag lists must stay aligned with bash `SCAN_FLAGS`. Unit tests assert representative flags in all three shells when adding CLI surface.
-
-`--dry-run` ignores `--format` / `--output` (plain-text preview on stdout).
-
-**Removed (M71):** `baseline save`, `compare`, `scan --baseline`, `--strict` — unknown command/option → exit `2`.
+- **Path-first argv:** `maybeRewritePathToScan()` rewrites `hotspot-scanner <path> …` → `scan <path> …` when the first token looks like a path (not a known subcommand/flag). Bare invocation still throws help `CliUsageError` (exit `2`).
+- **Completion drift:** zsh/fish long-flag lists must stay aligned with bash `SCAN_FLAGS` in `bin/completion-scripts.ts`.
+- `--dry-run` ignores `--format` / `--output` (plain-text preview on stdout).
+- **Not in CLI surface:** `baseline save`, `compare`, `scan --baseline`, `--strict` — unknown command/option → exit `2`.
 
 ## Data flow (scan)
 
-1. CLI dispatches commands; shared scan wiring in `bin/scan-actions.ts`. Scan flags include `--since`; `-f` / `--format`; `-t` / `--top`; `--include` / `--exclude`; `--config`; `--concurrency`; `-o` / `--output`; `--only`; `--no-triage-hints`; `--no-color`; `--explain`; `--fail-on-explain-miss`; `--dry-run`; `--quiet`; `--no-progress`; `--verbose`; `--warnings`; `--csv-single-file`; `--sequential` / `--no-overlap`.
-2. **Monorepo path resolve + config (M43 + M21 + M30)** — `resolveScanPipelineContext()`:
+1. CLI dispatches; shared wiring in `bin/scan-actions.ts`. Scan flags include `--since`, `--format`, `--top`, `--include` / `--exclude`, `--config`, `--concurrency`, `--output`, `--only`, `--no-triage-hints`, `--no-color`, `--explain`, `--fail-on-explain-miss`, `--dry-run`, `--quiet`, `--no-progress`, `--verbose`, `--warnings`, `--csv-single-file`, `--sequential` / `--no-overlap`, `--include-tests`.
+2. **Monorepo path resolve + config** — `resolveScanPipelineContext()`:
    - `validateRepoPath` → `resolveMonorepoScanPath` → `loadHotspotScannerConfig` (walk from request path) → `mergeScanOptions` (CLI > config > defaults for `since`, `include`, `exclude`, `top`, `concurrency`)
    - Auto-include `{packagePrefix}/**` when remounted and CLI `include` unset
-   - Unknown config keys → warn-only `UNKNOWN_CONFIG_KEY` (leftover `granularity` from pre-M57 configs is ignored)
+   - Unknown config keys → warn-only `UNKNOWN_CONFIG_KEY`
 3. **`runScan()`** builds `PathScope`, then:
    - **Overlap (default)** — `GitMiner.mine` (numstat) ∥ `ComplexityAnalyzer.analyze` (NCLOC) under shared `AbortController`; sibling abort on first failure
    - **Sequential opt-out** — `--sequential` / `--no-overlap` runs git then size analysis sequentially
    - **Git Change Miner** — one `git log -M --numstat` stream → `FileChangeStats`; `PathAliasMap` for renames; `filterGitMinerResult()` by `PathScope`; `onProgress({ phase: "git", commitsProcessed })`
-   - **Size analyzer (`src/complexity/`)** — discovers in-scope TS/JS files (`git ls-files` preferred, walk fallback); reads file text; `countNcloc()` per file; optional worker-thread pool (`--concurrency`); unreadable files → `READ_FAILED` warning + skip (omit from hotspots); `onProgress({ phase: "complexity", filesProcessed, batchesProcessed, … })`
-   - **Post-barrier** — `createHotspotScorer().score(fileStats, nclocResults)` → `ScanResult.hotspots`; `meta.timings` (`gitMs`, `complexityMs`, `totalMs`); `meta.scannerVersion` from cached `getPackageVersion()` (`src/package-meta.ts`)
+   - **Size analyzer (`src/complexity/`)** — discovers in-scope TS/JS files (`git ls-files` preferred, walk fallback); `countNcloc()` per file; optional worker pool (`--concurrency`); unreadable files → `READ_FAILED` + skip; `onProgress({ phase: "complexity", … })`
+   - **Post-barrier** — `createHotspotScorer().score(fileStats, nclocResults)` → `ScanResult.hotspots`; `meta.timings`; `meta.scannerVersion` from `getPackageVersion()` (`src/package-meta.ts`)
 4. CLI passes `ScanResult` to **Reporter** (`--top` at render time for table/markdown only)
 5. With `--explain <path>`, file-path breakdown on stderr after report
 
-### Config file (M21 + M30 + M64)
+### Config file
 
 - **Filename:** `.hotspot-scanner.json` only
-- **Known keys:** `since`, `include`, `exclude`, `top`, `concurrency` — map to CLI semantics
-- **Reserved meta (M64):** `$schema`, `$comment`, `$comments` — name-based skip in `parseHotspotScannerConfig`; not merged, not listed in `unknownKeys`, never emit `UNKNOWN_CONFIG_KEY`
-- **Unknown keys (warn-only):** leftover coupling/NCLOC-era keys such as `granularity`, `minCochange`, `megaCommitThreshold` — not applied; emit `UNKNOWN_CONFIG_KEY`
-- **Load path:** `LoadedHotspotScannerConfig.path` — absolute path when discovered or explicit; `null` when none
-- **Schema:** `schemas/hotspot-scanner-config.json` (`$id` `https://vitals.dev/hotspot-scanner/schemas/hotspot-scanner-config.json`); package export `./schemas/hotspot-scanner-config.json`; init exemplar links `$schema` to that URI
+- **Known keys:** `since`, `include`, `exclude`, `top`, `concurrency`
+- **Reserved meta:** `$schema`, `$comment`, `$comments` — skipped in parse; not merged; never `UNKNOWN_CONFIG_KEY`
+- **Unknown keys (warn-only):** e.g. `granularity`, `minCochange`, `megaCommitThreshold` — not applied
+- **Load path:** `LoadedHotspotScannerConfig.path` — absolute when discovered/explicit; `null` when none
+- **Schema:** `schemas/hotspot-scanner-config.json`; package export `./schemas/hotspot-scanner-config.json`
 - **CLI-only:** `format`, `output`, `--only`, `--no-triage-hints`, `--no-color`, `--explain`, `--fail-on-explain-miss`, `quiet`, `no-progress`, `verbose`, `warnings`, `csv-single-file`, `sequential`, `includeTests`, `version`
 
-### Path scoping (M7 + M30 + M43 + M46 + M67)
+### Path scoping
 
 - **Eligible extensions:** `.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`, `.mts`, `.cts` (`ELIGIBLE_EXTENSIONS` in `src/complexity/discover.ts`)
 - Default artifact and test excludes; `--include-tests` lifts test globs only
-- **Built-in test globs:** `DEFAULT_TEST_EXCLUDE_PATTERNS` in `src/paths/scope.ts` — legacy `.ts`/`.tsx`/`.js`/`.jsx` test/spec patterns, `__tests__/`, plus mjs/cjs/mts/cts test/spec parity patterns (M67)
-- **No ignore file (M54):** use config `exclude` / CLI `--exclude`
-- **Monorepo remount (M43):** nested package cwd → git root + auto-include unless CLI `--include` set
+- **Built-in test globs:** `DEFAULT_TEST_EXCLUDE_PATTERNS` in `src/paths/scope.ts` (test/spec patterns including mjs/cjs/mts/cts + `__tests__/`)
+- **No ignore file:** use config `exclude` / CLI `--exclude`
+- **Monorepo remount:** nested package cwd → git root + auto-include unless CLI `--include` set
 
 ## Key constraints
 
 - Single **numstat** Git log pass for file churn (ADR-2026-020)
-- Find-renames (`-M`) on numstat spawn; **no** global `git log --follow`
-- Working-tree source only (not historical file versions)
+- Find-renames (`-M`) on numstat spawn; **no** global `git log --follow` on the scan miner
+- Scan size analysis uses working-tree source only (not historical blobs — those are trend-only)
 - Unreadable source: `READ_FAILED` warning + skip file (no stub hotspot row)
 - Streaming required for large repos (RT-001)
-- NCLOC batches via persistent `worker_threads` pool when `concurrency > 1` (M15 + M31)
+- NCLOC batches via persistent `worker_threads` pool when `concurrency > 1`
 
-## Rename confidence (M26, RT-003)
+## Git Change Miner
 
-File git miner uses `PathAliasMap` (`src/git/rename.ts`) and `src/git/rename-warnings.ts`. M50 heuristic linking for unlinked delete+add pairs. Warnings use `code: "RENAME_HISTORY_INCOMPLETE"`. M42 appends next-step sentences — codes unchanged.
+### Rename model (RT-003)
+
+File miner uses `PathAliasMap` (`src/git/rename.ts`) and `src/git/rename-warnings.ts`, including heuristic linking for unlinked delete+add pairs. Warnings use `code: "RENAME_HISTORY_INCOMPLETE"`. Explain may append next-step copy; warning codes stay unchanged.
 
 ### Git argv
 
@@ -123,156 +128,13 @@ File git miner uses `PathAliasMap` (`src/git/rename.ts`) and `src/git/rename-war
 | ----- | ------------- | ------------ | ---------- |
 | File (numstat) | `buildGitLogArgv` in `src/git/spawn.ts` | `-M` | **forbidden** |
 
-### Git spawn failure hints (M65)
+Trend file history (`src/git/file-history.ts`) may use `--follow` / `git show` — must not leak into scan numstat argv.
 
-When `git log` or `git ls-files` spawn exits non-zero, `GitLogError` (`src/git/spawn.ts`) and `GitLsFilesError` (`src/git/ls-files.ts`) build `message` via `formatGitStderrHint` in `src/git/git-error-hint.ts`:
+### Spawn failure ownership
 
-- **since/date** → fix `--since` or config `since` (relative window or ISO date)
-- **shallow** → deepen clone or re-clone without depth limits
-- **corrupt / bad-object** → `git fsck` or re-clone
+`GitLogError` / `GitLsFilesError` may enrich `message` via `formatGitStderrHint` in `src/git/` only. Bin prints `error.message` — no git-stderr pattern switches in `bin/`. Not-a-git hints stay on `resolve-repo`; doctor `since` preflight stays on `probeSinceWindow`. Detail: [INTEGRATIONS.md](INTEGRATIONS.md).
 
-First-match priority: since/date → shallow → corrupt. Unmatched or empty stderr: no `Hint:` line (message shape unchanged). The `stderr` property stays raw git text; only `message` is enriched.
-
-**CLI:** bin prints `error.message` only — no git stderr pattern switches in `bin/`. Exit code for spawn failures remains **1**.
-
-**Sister boundaries (do not duplicate):** M38 `Hint:` tone on resolve-repo not-a-git and `CliUsageError` / `ConfigError` paths; M64 doctor `since` preflight via `probeSinceWindow` (catches invalid `since` before scan). M65 covers scan-time hard spawn failures only — no dedicated not-a-git pattern.
-
-## Diagnostics (M28 + M51 + M58 + M59 + M61 + M63)
-
-Module: `src/diagnostics/` (`logger.ts`, `warning-summary.ts`).
-
-### CLI stderr warning sink (M58 + M63)
-
-`createCliDiagnosticHandlers({ quiet, noProgress, warningsMode, stderrIsTTY?, stderrColumns? })` is **presentation-only**:
-
-- Pipeline / miner still emit the full `ScanWarning[]` into `meta.warnings` and programmatic `onWarning`.
-- CLI `--warnings summary` (default) buffers warning/error during the scan. After report write, `flushWarnings()` emits one aggregated stderr line per `(code, subKind)` group. Warnings/Timing rollups appear only in table/markdown executive summaries (M73 top-only rollups).
-- `--warnings full` logs each warning immediately (after clearing any live progress line); `flushWarnings()` clears live progress only — does not re-emit streamed lines.
-- `--warnings json` (M63) buffers warnings; `flushWarnings()` after write writes one JSON document to stderr: `{"warnings":ScanWarning[]}` (empty → `{"warnings":[]}`); no teaser. `--quiet` still suppresses info-level entries before buffering.
-- Not a config key; does not change the JSON contract.
-
-### Ephemeral TTY progress (M59 + M61)
-
-When `stderrIsTTY` is true (default: `process.stderr.isTTY === true`, injectable in tests):
-
-- Progress for `git`, `complexity`, and `finalize` phases overwrites **one live stderr line** (`\x1b[2K\r` + text; no trailing newline while live).
-- **Complexity** (M61): inline fill bar when `totalFiles` is known — TTY `█`/`░`, non-TTY `#`/`-`; honest `filesProcessed/totalFiles` (+ batch when known); omit bar when total unknown; no overall scan percentage.
-- **Git** (M61): indeterminate counter only (`git N commits…`); no bar or fake %.
-- **Finalize** (M61): body `Finalizing…`; emitted once post-barrier in `runScan`; bypasses throttle; survives through score / render until deferred flush.
-- Bar width from `stderrColumns` (default `process.stderr.columns`, injectable) via `resolveProgressBarWidth` (clamped 10–40; fallback 80 columns).
-- The live line is cleared on `flushWarnings()`, before handler-driven warning/error/info stderr writes (`warnings=full`), and on phase switch.
-- Non-TTY (piped/CI) keeps `\n`-terminated progress lines unchanged (ASCII bar on complexity when total known).
-- `--quiet` / `--no-progress` suppress progress entirely (TTY or not), including finalize. Git/complexity throttle intervals unchanged.
-
-### Deferred progress flush (M61 + M73)
-
-`executeScan` returns `flushWarnings` without calling it before render/write:
-
-| Path | Order (success) |
-| ---- | ----------------- |
-| `scan` | write → `flushWarnings()` → `--explain` |
-
-M58 clear-before-warning/error/info unchanged. `flushWarnings()` clears live progress and emits buffered warnings under `summary`/`json` after write.
-
-### Table File column (M60)
-
-Scan **table** format uses `src/report/path-column.ts` for the File column:
-
-- **Middle-ellipsis** (Unicode `…`) keeps a path prefix and basename when the path exceeds the column width (e.g. `src/api/v1/…/schema.ts`).
-- **Width** derives from `process.stdout.columns` minus a fixed non-File budget (56 chars for scan numeric columns), clamped 16–64; fallback **24** when columns are missing/invalid (pipes, CI).
-- Injectable `stdoutColumns` on `renderTable` options for tests (parity with M59 `stderrIsTTY`).
-- Markdown / JSON / CSV emit full paths unchanged.
-
-### CLI ANSI colors (M41 + M74 + M76 + M78)
-
-Bin resolves color gates into a boolean before calling pure report formatters (`color: boolean`). Live helpers in `src/report/color.ts`: `paintScore`, `paintDoctorStatus`, `paintGrowthPattern`, `paintBold`, `stripAnsi`. (`paintStaticDep` remains in the module as a **legacy** helper from coupling-era table coloring — unused after M56.) No color dependency; no `FORCE_COLOR`.
-
-| Surface | Resolver | Enabled when |
-| ------- | -------- | ------------ |
-| Scan table | `resolveTableColor` | `format === "table"`, stdout TTY, no `--output`, scan `--no-color` unset, `NO_COLOR` unset or empty |
-| Doctor text | `resolveDoctorColor` | `format === "text"`, stdout TTY, doctor `--no-color` unset, `NO_COLOR` unset or empty |
-| Trend table | `resolveTrendColor` | `format === "table"`, stdout TTY, no `--output`, trend `--no-color` unset, `NO_COLOR` unset or empty |
-| Assess table | `resolveAssessColor` | `format === "table"`, stdout TTY, no `--output`, assess `--no-color` unset, `NO_COLOR` unset or empty |
-
-Markdown, JSON, and CSV (scan/trend/assess) and doctor JSON are always plain. Each subcommand exposes its own `--no-color` (not a global parent flag, not a config key). Doctor text colors **only** the `pass:` / `warn:` / `fail:` prefix; message bodies stay plain. Trend table colors **only** the growth-pattern kind token on the `Pattern:` line. Assess table bolds title + `Deteriorating` section; colors pattern-kind tokens and detail scores — not paths or summaries.
-
-### Progress phases
-
-| `phase` | Emitter | Counter / body |
-| ------- | ------- | -------------- |
-| `git` | `GitMiner` numstat stream | `commitsProcessed` — indeterminate counter, no bar |
-| `complexity` | Size analyzer / worker pool | `filesProcessed`, `batchesProcessed`, optional `totalFiles` / `totalBatches`; fill bar when total known; `commitsProcessed` is `0` |
-| `finalize` | `runScan` post-barrier (once) | `commitsProcessed: 0`; body `Finalizing…`; through score / render until deferred flush |
-
-### Stage timings
-
-```ts
-interface ScanStageTimings {
-  gitMs: number;
-  complexityMs: number;
-  totalMs: number;
-}
-```
-
-File-mode overlap: `gitMs` + `complexityMs` may sum above `totalMs`.
-
-**Presentation (HOTSPOT-1042, M73):** Table and markdown executive summaries include Warnings and Timing lines when applicable; no brief stderr timing echo after successful scans. JSON and CSV payloads unchanged.
-
-### Stable warning codes (M28+ / M57 / M71)
-
-| Code | Emitter | Operator interpretation |
-| ---- | ------- | ----------------------- |
-| `EMPTY_SINCE_WINDOW` | git | No commits in `--since`; widen window |
-| `RENAME_HISTORY_INCOMPLETE` | git | Rename tracking incomplete |
-| `READ_FAILED` | size analyzer | File I/O failed — file omitted from hotspots |
-| `MONOREPO_PATH_REMOUNT` | scan prelude | Remounted to git root; auto-include when applicable |
-| `UNKNOWN_CONFIG_KEY` | config load | Unknown key(s) — not applied; includes legacy `granularity` |
-
-**Removed (M71):** `COMPARE_SINCE_MISMATCH`.
-
-### Explain breakdown (M42 + M53 + M63 + M75)
-
-`--explain <path>` — file path only (repo-relative or absolute under repo). Explains current file hotspot ranking. `path:function` syntax rejected (`CliUsageError`). Default miss prints not-found on stderr and exits `0` on success; `--fail-on-explain-miss` (M63) exits `1` when target missing (requires `--explain`).
-
-**Explain→trend bridge (M75):** On explain hit, `formatTrendNextStep` (`src/report/explain.ts`) appends `next: hotspot-scanner trend <posix-path>` to stderr after the breakdown (suppressed under `--quiet`). Miss omits the line; exit codes unchanged.
-
-### Complexity trend + growth pattern (M72 + M75)
-
-Separate from scan pipeline. `runComplexityTrend` (`src/trend/run-trend.ts`) samples file revisions, computes indentation + NCLOC per point, then `classifyGrowthPattern` (`src/trend/classify.ts`) labels the series:
-
-| `kind` | Heuristic (sampled series) |
-| ------ | -------------------------- |
-| `refactored` | Peak `indentMean` not at last index; drop from peak ≥ 18% |
-| `deteriorating` | First→last `indentMean` rise ≥ 10% (summary notes mean vs `ncloc` when relevant) |
-| `stable` | Relative `indentMean` range ≤ 8% |
-| `inconclusive` | `< 5` points or no rule match |
-
-Priority: refactored (peak-then-drop) before deteriorating before stable. Classifier runs on the **sampled** series; truncated history may append `(sampled history)` to `summary`. Table: `renderTrendTable` prints `Pattern: <kind> — <summary>` above sparklines. JSON: `meta.growthPattern` required under `version: "3.0"`. Mass reformat / Prettier cliffs can mislabel — documented in CONCERNS + recipes; no special detector.
-
-### Hotspot assess (M77)
-
-Separate orchestration from scan and trend. `runAssess` (`src/assess/run-assess.ts`):
-
-```
-runScan → selectAssessCandidates(minHotspotScore, top) → sequential runComplexityTrend per candidate
-```
-
-| Step | Module | Notes |
-| ---- | ------ | ----- |
-| Scan | `runScan` | Full file-hotspot pipeline; scan warnings preserved on `AssessResult.meta.warnings` |
-| Select | `selectAssessCandidates` | Filter `hotspotScore >= minHotspotScore`, sort desc (scan order / `filePath` tie-break), slice `top` |
-| Trend batch | `runComplexityTrend` | **Sequential** (one file at a time); per-file `onAssessProgress` on stderr (`assess: [i/N] path`); `TrendNotTrackedError` → `skipped`, other failures → `error` row; batch continues |
-| Report | `src/report/assess-*.ts` | Table/markdown: summary counts + deteriorating detail only; JSON via `renderAssessJson` |
-
-**Schema isolation:** `schemas/hotspot-assess.json` — `version: "1.0"`, `kind: "hotspot-assess"`. Candidates carry `growthPattern` (M75 shape) without embedding trend `points`. Scan `3.0` and complexity-trend `3.0` contracts unchanged.
-
-**CLI:** `assess [path]` via `bin/assess-actions.ts` (`executeAssess`); formats `table` \| `json` \| `markdown` (no CSV). Cancel `SIGINT`/`SIGTERM` → exit `130`/`143` (parity with scan/trend). Partial candidate errors → exit `0`.
-
-### CSV single-file write path (M63)
-
-`--csv-single-file` with `--format csv` and `--output` is a **bin write-path** choice in `writeRenderedOutput` (not a new `renderCsv` layout): scan writes `hotspots.csv` bundle key to exact `--output`. Default M18 stem bundle unchanged when flag omitted.
-
-## Size analysis stage (M57)
+## Size analysis stage
 
 ```mermaid
 flowchart LR
@@ -285,14 +147,99 @@ flowchart LR
 ```
 
 - **Module:** `src/complexity/ncloc.ts` (`countNcloc`), `analyze-file.ts`, `analyze-batch.ts`, `pool.ts`, `worker.ts`
-- **NCLOC definition (RT-005):** single-pass state machine — blank lines and comment-only lines do not count; code + trailing `//` counts; `//` inside strings still counts when line has code
+- **NCLOC definition (RT-005):** single-pass state machine — blank and comment-only lines excluded; code + trailing `//` counts; `//` inside strings still counts when the line has code
 - **No AST:** plain text read; no parse-failed stubs
 
 ## Orchestration
 
-`src/scan.ts` overlaps git mining and NCLOC analysis by default (M34); `--sequential` opts out (M49). Function mode, function-churn patch stream, and McCabe paths **removed** (M57).
+`src/scan.ts` overlaps git mining and NCLOC analysis by default; `--sequential` / `--no-overlap` opts out. No function-mode, function-churn patch stream, or McCabe paths in the product surface.
 
-## Hotspot output schema (M57)
+## Diagnostics
+
+Module: `src/diagnostics/` (`logger.ts`, `warning-summary.ts`).
+
+### Warning presentation vs contract
+
+- Pipeline emits full `ScanWarning[]` into `meta.warnings` and programmatic `onWarning`.
+- CLI `--warnings summary|full|json` is **presentation-only** (not a config key; does not change JSON). Default `summary` aggregates on stderr after write via `flushWarnings()`; `full` streams during scan; `json` emits one stderr document after write.
+- Stable warning `code`s: [docs/warning-codes.md](../../docs/warning-codes.md).
+
+### Progress and flush order
+
+When stderr is a TTY, progress for `git`, `complexity`, and `finalize` overwrites one live line and clears on `flushWarnings()`, before handler-driven warning stderr (`warnings=full`), and on phase switch. Non-TTY keeps newline logs. `--quiet` / `--no-progress` suppress progress.
+
+| Path | Order (success) |
+| ---- | ----------------- |
+| `scan` | write → `flushWarnings()` → `--explain` |
+
+### Progress phases
+
+| `phase` | Emitter | Counter / body |
+| ------- | ------- | -------------- |
+| `git` | `GitMiner` numstat stream | `commitsProcessed` — indeterminate counter |
+| `complexity` | Size analyzer / worker pool | `filesProcessed`, `batchesProcessed`, optional totals; fill bar when total known |
+| `finalize` | `runScan` post-barrier (once) | body `Finalizing…`; through score / render until deferred flush |
+
+### Stage timings
+
+```ts
+interface ScanStageTimings {
+  gitMs: number;
+  complexityMs: number;
+  totalMs: number;
+}
+```
+
+Under overlap, `gitMs` + `complexityMs` may sum above `totalMs`. Table/markdown executive summaries may include Warnings and Timing lines; JSON/CSV payloads unchanged (no brief stderr timing echo).
+
+### Explain
+
+`--explain <path>` — file path only (`path:function` → `CliUsageError`). Lookup uses full `ScanResult` arrays. Default miss → stderr not-found, exit `0`; `--fail-on-explain-miss` → exit `1` when missing. On hit, `formatTrendNextStep` may append `next: hotspot-scanner trend <path>` (suppressed under `--quiet`).
+
+### ANSI color ownership
+
+Bin resolves a boolean `color` before calling pure report formatters. Helpers in `src/report/color.ts`. No color dependency; no `FORCE_COLOR`. Each subcommand owns its `--no-color` flag (not global, not config).
+
+| Surface | Resolver | Enabled when |
+| ------- | -------- | ------------ |
+| Scan table | `resolveTableColor` | `format === "table"`, stdout TTY, no `--output`, `--no-color` unset, `NO_COLOR` unset/empty |
+| Doctor text | `resolveDoctorColor` | `format === "text"`, stdout TTY, `--no-color` unset, `NO_COLOR` unset/empty |
+| Trend table | `resolveTrendColor` | `format === "table"`, stdout TTY, no `--output`, `--no-color` unset, `NO_COLOR` unset/empty |
+| Assess table | `resolveAssessColor` | `format === "table"`, stdout TTY, no `--output`, `--no-color` unset, `NO_COLOR` unset/empty |
+
+Markdown, JSON, and CSV (and doctor JSON) are always plain.
+
+## Complexity trend + growth pattern
+
+Separate from scan. `runComplexityTrend` (`src/trend/run-trend.ts`) samples file revisions, computes indentation + NCLOC per point, then `classifyGrowthPattern` (`src/trend/classify.ts`):
+
+| `kind` | Heuristic (sampled series) |
+| ------ | -------------------------- |
+| `refactored` | Peak `indentMean` not at last index; drop from peak ≥ 18% |
+| `deteriorating` | First→last `indentMean` rise ≥ 10% |
+| `stable` | Relative `indentMean` range ≤ 8% |
+| `inconclusive` | `< 5` points or no rule match |
+
+Priority: refactored → deteriorating → stable. Classifier runs on the **sampled** series. JSON: `version: "3.0"` / `kind: "complexity-trend"` with required `meta.growthPattern`. Mass reformat cliffs: [CONCERNS.md](CONCERNS.md).
+
+## Hotspot assess
+
+`runAssess` (`src/assess/run-assess.ts`):
+
+```
+runScan → selectAssessCandidates(minHotspotScore, top) → sequential runComplexityTrend per candidate
+```
+
+| Step | Module | Notes |
+| ---- | ------ | ----- |
+| Scan | `runScan` | Full file-hotspot pipeline; warnings preserved on `AssessResult.meta.warnings` |
+| Select | `selectAssessCandidates` | Filter `hotspotScore >= minHotspotScore`, sort desc, slice `top` |
+| Trend batch | `runComplexityTrend` | Sequential; soft-continue on per-file failure (`skipped` / `error`) |
+| Report | `src/report/assess-*.ts` | Summary counts + deteriorating detail; JSON via `renderAssessJson` |
+
+**Schema isolation:** `schemas/hotspot-assess.json` — `version: "1.0"`, `kind: "hotspot-assess"`. Candidates carry `growthPattern` without embedding trend `points`. Scan `3.0` and complexity-trend `3.0` unchanged. Formats: `table` \| `json` \| `markdown` (no CSV).
+
+## Hotspot output schema
 
 Each `HotspotScore` in `ScanResult.hotspots`:
 
@@ -307,34 +254,30 @@ Each `HotspotScore` in `ScanResult.hotspots`:
 | `linesChanged` | `FileChangeStats` | yes | yes (Lines) |
 | `authorCount` | `FileChangeStats.authors.size` | yes | yes (Authors) |
 
-JSON `version` is **`"3.0"`**. Field name `complexityNormalized` retained for the normalized size axis `c` (harmonic formula unchanged).
+JSON `version` is **`"3.0"`**. Field name `complexityNormalized` retained for normalized size axis `c` (harmonic formula unchanged).
 
-## Export formats (M10, M17, M18, M41, M70)
+## Export formats
 
-- **Scan CSV bundle:** `{stem}.meta.json` + `{stem}.hotspots.csv` only (no functions/coupling sidecars)
-- **`--only hotspots`** — only valid section (`functions` / coupling rejected)
+- **Scan CSV bundle:** `{stem}.meta.json` + `{stem}.hotspots.csv` (default stem expansion from `--output`)
+- **`--csv-single-file`:** bin write-path writes the hotspots CSV to the exact `--output` path (bundle layout unchanged when omitted)
+- **`--only hotspots`** — only valid section
 - **Triage:** scan rule `dual-signal-hotspot`
-- **Table Lines column (M70):** `linesChanged` parity with markdown
 
-## Exit codes
-
-Canonical table: [AGENTS.md](../../AGENTS.md) § Validation (CLI) — `0` success, `1` explain-miss with `--fail-on-explain-miss`, `2` usage/config, `130`/`143` cancel.
-
-## JSON Contract (M20 + M57 + M64 + M66 + M71 + M72 + M75 + M77)
+## JSON Contract
 
 | File | Root type |
 | ---- | --------- |
 | `schemas/scan-result.json` | `ScanResult` (`version: "3.0"`) |
-| `schemas/hotspot-scanner-config.json` | `.hotspot-scanner.json` config (known keys + reserved meta) |
+| `schemas/hotspot-scanner-config.json` | `.hotspot-scanner.json` config |
 | `schemas/complexity-trend.json` | `ComplexityTrendResult` (`kind: "complexity-trend"`, `version: "3.0"`) |
 | `schemas/hotspot-assess.json` | `AssessResult` (`kind: "hotspot-assess"`, `version: "1.0"`) |
 
-- **Scan `version: "3.0"`** — `hotspots` + `meta` only; no `functions`, no `granularity`, no `coupling`. **No version bump for M66** — enrichments are additive under `"3.0"` (same pattern as M51 `meta.timings`).
-- **Config schema (M64):** documents known keys and reserved meta; `additionalProperties: true` (runtime still warns unknowns); package exports schema subpaths including config, scan, trend, and assess
-- **Contract tests:** `tests/contract/json-schema.test.ts` (scan, config, complexity-trend, hotspot-assess)
-- **Removed (M71):** `schemas/compare-result.json`, compare contract tests
+- **Scan `version: "3.0"`** — `hotspots` + `meta` only; no `functions`, no `granularity`, no `coupling`. Additive enrichments stay under `"3.0"` without a version bump.
+- **Config schema:** known keys + reserved meta; `additionalProperties: true` (runtime still warns unknowns)
+- **Contract tests:** `tests/contract/json-schema.test.ts`
+- No compare schema in the product surface
 
-### Additive fields under `3.0` (M66)
+### Additive fields under scan `3.0`
 
 | Field | Where | Emission / read |
 | ----- | ----- | --------------- |
@@ -343,10 +286,14 @@ Canonical table: [AGENTS.md](../../AGENTS.md) § Validation (CLI) — `0` succes
 
 **`$schema` URL** (`src/report/schema-urls.ts`): `https://vitals.dev/hotspot-scanner/schemas/scan-result.json`
 
-**Parse tolerance:** `parseScanResult` accepts `3.0` scans without `scannerVersion` or top-level `$schema`; when `scannerVersion` is present as a string it is preserved on parsed `ScanMeta` (parity with optional `timings`). Non-string `scannerVersion` when the key is present → `ScanResultParseError`. Rejects `1.0`/`2.0`, `coupling`, `functions`, `cyclomaticComplexity`.
+**Parse tolerance:** `parseScanResult` accepts `3.0` scans without `scannerVersion` or top-level `$schema`; preserves string `scannerVersion` when present. Non-string `scannerVersion` → `ScanResultParseError`. Rejects `1.0`/`2.0`, `coupling`, `functions`, `cyclomaticComplexity`.
 
-## Scan-result parse (M71)
+## Scan-result parse
 
 - **Module:** `src/scan-result/parse-scan-result.ts`
 - **Public API:** `parseScanResult(raw: unknown): ScanResult`, `ScanResultParseError`
 - **Use:** programmatic validation of scan JSON — no CLI loader path
+
+## Exit codes
+
+Canonical table: [AGENTS.md](../../AGENTS.md) § Validation (CLI) — `0` success, `1` explain-miss with `--fail-on-explain-miss`, `2` usage/config, `130`/`143` cancel.
