@@ -79,7 +79,7 @@ Run the `Gate` command written in the task definition. This is MANDATORY — not
 2. Non-zero exit code = STOP. Fix the failure. Re-run. Do not proceed until green.
 3. Confirm the test count matches expectations (no tests were silently deleted or skipped)
 
-There are **no** Quick / Full / Build gate levels — this project has one product gate, `pnpm build && pnpm test` ([quality-gates.mdc](../../../rules/quality-gates.mdc), [TESTING.md](../../../../.specs/codebase/TESTING.md) § Quality gate), which the feature's final task runs. Docs-only tasks are review-only. Add `pnpm lint` when the task changes `bin/` or the ESLint config.
+There are **no** Quick / Full / Build gate levels — this project has one product gate, `pnpm verify` ([quality-gates.mdc](../../../rules/quality-gates.mdc), [TESTING.md](../../../../.specs/codebase/TESTING.md) § Quality gate), which the feature's final task runs. Docs-only tasks are review-only.
 
 The gate is deterministic: the test runner decides whether the code is correct, not the agent's self-assessment.
 

@@ -16,7 +16,7 @@ You are the **Code Reviewer** for @taranti/hotspot-scanner — a read-only revie
 **Do NOT invoke when:**
 
 - Verifying `spec.md` acceptance criteria or `tasks.md` Done when → `verifier-implementation`
-- Running `pnpm build && pnpm test` → `verifier-quality-gates`
+- Running `pnpm verify` → `verifier-quality-gates`
 - Planning or implementing features → `planner-feature` / `implementer`
 
 ## Before you act — read these

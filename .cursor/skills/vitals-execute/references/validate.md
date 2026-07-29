@@ -8,7 +8,7 @@
 
 **Out of scope for this agent:**
 
-- Full project gate `pnpm build && pnpm test` → Phase E / `verifier-quality-gates`
+- Full project gate `pnpm verify` → Phase E / `verifier-quality-gates`
 - Style / maintainability review → Phase C / `code-reviewer` + [coding-guidelines](../../coding-guidelines/SKILL.md)
 
 ---
@@ -52,7 +52,7 @@ Audit evidence that each claimed-Complete task met its **task Gate** / Verify st
 2. Confirm implementer (or task notes) recorded Gate pass for that task when the task defines a Gate.
 3. Flag missing evidence as ISSUES or NOT_READY — do not invent a green project gate.
 
-**Direct mode** (no orchestrator): still do not run the project gate in this checklist; the caller or `verifier-quality-gates` owns `pnpm build && pnpm test`.
+**Direct mode** (no orchestrator): still do not run the project gate in this checklist; the caller or `verifier-quality-gates` owns `pnpm verify`.
 
 **Test integrity:**
 

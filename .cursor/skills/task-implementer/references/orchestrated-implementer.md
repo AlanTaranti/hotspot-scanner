@@ -22,7 +22,7 @@
 2. Non-zero exit = **do not** report Complete — fix and re-run, or report **Blocked** / **Partial** with error output.
 3. Record: command run, PASS/FAIL, test counts when available.
 
-**Orchestrator-owned gate:** do **not** run project-wide `pnpm build && pnpm test` unless that exact command is the task's Verify/Gate field.
+**Orchestrator-owned gate:** do **not** run project-wide `pnpm verify` unless that exact command is the task's Verify/Gate field.
 
 ---
 
@@ -68,5 +68,5 @@ Blockers:
 
 - May update `tasks.md` per [implement.md](implement.md) Step 9.
 - On Status `Done`: sync [ROADMAP.md](../../../../.specs/project/ROADMAP.md) per [roadmap-sync.md](../../vitals-common/references/roadmap-sync.md).
-- Run `pnpm build && pnpm test` before marking Done (or task-specific Gate if narrower).
+- Run `pnpm verify` before marking Done (or task-specific Gate if narrower).
 - Recommend `verifier-implementation` before final Done on large features.

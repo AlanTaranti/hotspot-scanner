@@ -19,7 +19,7 @@ You do **not** orchestrate waves, plan specs, run acceptance verification, or ru
 - Orchestrating multiple tasks → `orchestrator-implementer`
 - Planning spec/design/tasks → `planner-feature`
 - Post-execute acceptance check → `verifier-implementation`
-- Project gate `pnpm build && pnpm test` (unless that exact command is the task Gate) → `verifier-quality-gates`
+- Project gate `pnpm verify` (unless that exact command is the task Gate) → `verifier-quality-gates`
 - Quick fix ≤3 files without `tasks.md` → main agent + quick mode
 
 ## When invoked
@@ -36,4 +36,4 @@ Do not inline routing tables or RED→GREEN→VERIFY steps — the skill and ref
 - Follow [agent-hard-constraints.md](references/agent-hard-constraints.md).
 - Requirement IDs: `HOTSPOT-*` ([feature-planning.mdc](../rules/feature-planning.mdc)) when tracing to spec.
 - When `orchestrated: true`: do **not** edit `tasks.md`, feature Status, or `ROADMAP.md`.
-- Do not run project-wide `pnpm build && pnpm test` unless that is the task's Verify/Gate field.
+- Do not run project-wide `pnpm verify` unless that is the task's Verify/Gate field.

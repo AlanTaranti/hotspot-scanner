@@ -76,7 +76,7 @@ Every task MUST include:
 
 **Verify:** commands to prove functionality + expected outputs.
 
-**Gate:** a runnable command — targeted Vitest for implementation tasks, `pnpm build && pnpm test` for the feature's final task. No Quick/Full/Build tiers ([quality-gates.mdc](../../../rules/quality-gates.mdc), [TESTING.md](../../../../.specs/codebase/TESTING.md) § Quality gate).
+**Gate:** a runnable command — targeted Vitest for implementation tasks, `pnpm verify` for the feature's final task. No Quick/Full/Build tiers ([quality-gates.mdc](../../../rules/quality-gates.mdc), [TESTING.md](../../../../.specs/codebase/TESTING.md) § Quality gate).
 
 ```markdown
 ### T1: [Task name]
@@ -84,7 +84,7 @@ Every task MUST include:
 **What:** [Deliverable]
 **Where:** [File path]
 **Tests**: [unit/integration/none]
-**Gate**: `pnpm exec vitest run <path>` (final task: `pnpm build && pnpm test`)
+**Gate**: `pnpm exec vitest run <path>` (final task: `pnpm verify`)
 
 **Done when:**
 

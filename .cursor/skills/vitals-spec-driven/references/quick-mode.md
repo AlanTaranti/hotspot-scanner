@@ -49,7 +49,7 @@ Follow [coding-guidelines/SKILL.md](../../coding-guidelines/SKILL.md):
 
 Run verification from step 2. Mark done only after verification passes.
 
-**Gate:** `pnpm build && pnpm test` ([quality-gates.mdc](../../../rules/quality-gates.mdc))
+**Gate:** `pnpm verify` ([quality-gates.mdc](../../../rules/quality-gates.mdc))
 
 ### 5. Commit (on request)
 

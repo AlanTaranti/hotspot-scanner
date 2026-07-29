@@ -11,12 +11,14 @@
 ## Commands
 
 ```bash
-pnpm build && pnpm test
+pnpm verify
 ```
 
-**Conditional supplemental lint** — run `pnpm lint` **only** when the change touches `bin/` or ESLint config (`eslint.config.*` / lint scripts). Skip otherwise and mark the lint row `SKIPPED`. See TESTING.md § Gate check commands.
+Equivalent to `pnpm build && pnpm test && pnpm lint && pnpm format:check` (that order). Matches GitHub Actions jobs `build`, `test`, `lint`, and `format`.
 
 `pnpm build` writes `dist/`; that is expected and is not a source edit. Do not fix source code here — return failures to the parent / `implementer` for remediation, then re-run when asked.
+
+Use `pnpm format` (write) only to fix Prettier failures locally — it is not part of the gate (CI runs `format:check` only).
 
 ---
 
@@ -25,17 +27,17 @@ pnpm build && pnpm test
 ```markdown
 ## Scope
 
-- Gate: pnpm build && pnpm test
-- Lint applicable: [yes — bin/ or ESLint config touched | no]
+- Gate: pnpm verify
 - Files/areas touched: [summary]
 
 ## Results
 
 | Step | Command | Status | Notes |
 | ---- | ------- | ------ | ----- |
-| 1 | pnpm build | PASS/FAIL | writes dist/ |
-| 2 | pnpm test | PASS/FAIL | see TESTING.md § Coverage |
-| 3 | pnpm lint | PASS/FAIL/SKIPPED | conditional — bin/ or ESLint config only |
+| 1 | pnpm build | PASS/FAIL | writes dist/; CI job `build` |
+| 2 | pnpm test | PASS/FAIL | see TESTING.md § Coverage; CI job `test` |
+| 3 | pnpm lint | PASS/FAIL | CI job `lint` |
+| 4 | pnpm format:check | PASS/FAIL | CI job `format` |
 
 ## Failures (if any)
 
@@ -46,7 +48,7 @@ pnpm build && pnpm test
 
 ## Verdict
 
-- [ ] Ready for Done (all applicable steps PASS)
+- [ ] Ready for Done (all steps PASS)
 - [ ] Blocked — N gate failures
 ```
 

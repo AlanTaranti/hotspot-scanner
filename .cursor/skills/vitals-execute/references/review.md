@@ -7,7 +7,7 @@
 **Out of scope for this agent:**
 
 - Spec acceptance → Phase D / [validate.md](validate.md) + `verifier-implementation`
-- Full project gate `pnpm build && pnpm test` → Phase E / [quality-gates-report.md](quality-gates-report.md) + `verifier-quality-gates`
+- Full project gate `pnpm verify` → Phase E / [quality-gates-report.md](quality-gates-report.md) + `verifier-quality-gates`
 
 ---
 

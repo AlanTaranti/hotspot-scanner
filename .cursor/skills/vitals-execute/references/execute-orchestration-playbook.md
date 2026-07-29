@@ -62,7 +62,7 @@ for wave in waves:
 **Rules:**
 
 - **One task per subagent invocation**; multiple invocations in the same wave run **in parallel** (one `Task` call per task, all launched in a single message).
-- Gate-final tasks (`deferred_project_gate`: project-wide `pnpm build && pnpm test`) → **exclude from Phase B**; execute only in Phase E.
+- Gate-final tasks (`deferred_project_gate`: project-wide `pnpm verify`) → **exclude from Phase B**; execute only in Phase E.
 - **Default to wave parallelism** when path-disjoint and test-safe per TESTING.md; `[P]` is a planner signal — the orchestrator may infer safety via Path Conflict Check / module map when `[P]` is absent.
 - Do not parallelize tasks that edit the same file or both touch `src/scan.ts` / `bin/hotspot-scanner.ts` wiring.
 - On `Blocked` or `SPLIT_REQUIRED` → report under Open items; do not mark Complete.
@@ -130,7 +130,7 @@ Optional remediation: **max 1 round** — re-delegate failed tasks, then re-run 
 1. Invoke `verifier-quality-gates` (or run directly):
 
 ```bash
-pnpm build && pnpm test
+pnpm verify
 ```
 
 2. If **PASS** → proceed to Phase F.

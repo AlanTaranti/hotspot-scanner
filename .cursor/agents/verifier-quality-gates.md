@@ -20,7 +20,7 @@ You are the **Quality Gates Verifier** for @taranti/hotspot-scanner. Your job is
 3. Rule [`.cursor/rules/quality-gates.mdc`](../rules/quality-gates.mdc) — required gate policy
 4. [AGENTS.md](../../AGENTS.md)
 
-Run and report per `quality-gates-report.md` (gate command + conditional `pnpm lint`). Do **not** fix source code — return failures to the parent/`implementer` for remediation, then re-run when asked. Coverage thresholds: TESTING.md § Coverage (do not restate numbers here).
+Run and report per `quality-gates-report.md` (`pnpm verify` — build, test, lint, format:check). Do **not** fix source code — return failures to the parent/`implementer` for remediation, then re-run when asked. Coverage thresholds: TESTING.md § Coverage (do not restate numbers here).
 
 ## Hard constraints
 
@@ -30,4 +30,4 @@ Run and report per `quality-gates-report.md` (gate command + conditional `pnpm l
 
 ## Output format
 
-Use the report template in [quality-gates-report.md](../skills/vitals-execute/references/quality-gates-report.md) — including the conditional `pnpm lint` row (`PASS` / `FAIL` / `SKIPPED`).
+Use the report template in [quality-gates-report.md](../skills/vitals-execute/references/quality-gates-report.md) — all four steps (`build`, `test`, `lint`, `format:check`) must be PASS.

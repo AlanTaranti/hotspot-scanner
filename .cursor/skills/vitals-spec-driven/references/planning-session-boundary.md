@@ -34,7 +34,7 @@ The product lifecycle includes Execute — but **not in the same session** as pl
 
 - Edit `src/`, `bin/`, `tests/` implementation files (paths may appear in task definitions as _targets_, not as edits) — except [quick-mode.md](quick-mode.md)
 - Invoke `orchestrator-implementer` or run Execute while Status is `Draft` / `Planned`
-- Run project gate (`pnpm build && pnpm test`) except to validate planning assumptions when explicitly asked
+- Run project gate (`pnpm verify`) except to validate planning assumptions when explicitly asked
 - Set `tasks.md` Status to `Done` or `In Progress`
 
 ---
@@ -54,7 +54,7 @@ Planning complete for [feature-slug].
 
 Artifacts: spec.md [, design.md] [, context.md], tasks.md (Status: Planned)
 Next step: review tasks.md, promote Status, open a dev session, and invoke orchestrator-implementer.
-Expected final gate: pnpm build && pnpm test
+Expected final gate: pnpm verify
 ```
 
 ---

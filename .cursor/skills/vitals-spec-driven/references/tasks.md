@@ -48,15 +48,15 @@ Read [TESTING.md](../../../../.specs/codebase/TESTING.md) before creating tasks 
 
 ### 1.6. Gate per task (no tiers)
 
-This project has **one** product gate — `pnpm build && pnpm test`
+This project has **one** product gate — `pnpm verify`
 ([quality-gates.mdc](../../../rules/quality-gates.mdc), [TESTING.md](../../../../.specs/codebase/TESTING.md) § Quality gate).
-There are **no** Quick / Full / Build tiers.
+Equivalent to `pnpm build && pnpm test && pnpm lint && pnpm format:check`. There are **no** Quick / Full / Build tiers.
 
 | Task position           | `Gate` field                                                              |
 | ----------------------- | ------------------------------------------------------------------------- |
 | Any implementation task | Targeted Vitest run, e.g. `pnpm exec vitest run src/git/aggregate.test.ts` |
 | Docs-only task          | `none beyond review (project gate in the final task)`                     |
-| Final task of a feature | `pnpm build && pnpm test`                                                 |
+| Final task of a feature | `pnpm verify`                                                             |
 
 Every feature ends with a task whose gate is the project gate — nothing is Done without it.
 
@@ -244,10 +244,10 @@ flowchart LR
 
 **Done when**:
 
-- [ ] `pnpm build && pnpm test` passes with coverage thresholds met
+- [ ] `pnpm verify` passes with coverage thresholds met
 
 **Tests**: none
-**Gate**: `pnpm build && pnpm test`
+**Gate**: `pnpm verify`
 ````
 
 ---
@@ -279,5 +279,5 @@ Canonical checks (granularity, diagram, test co-location, path conflict, Done wh
 - **Dependencies are gates** — Clear what blocks what
 - **Done when = Testable** — If you can't verify it, rewrite it
 - **Requirement ID = Traceable** — Every task traces back to a spec requirement (`HOTSPOT-*`)
-- **One gate, one final task** — Targeted Vitest per task; `pnpm build && pnpm test` closes the feature
+- **One gate, one final task** — Targeted Vitest per task; `pnpm verify` closes the feature
 - **One commit per task** — Plan the commit message format in advance

@@ -192,11 +192,11 @@ Run workflow and flag matrix: skill `vitals-cli-validation`. Canonical exit-code
 
 ## Parallelism assessment
 
-| Test Type                   | Parallel-Safe?    | Isolation Model                                                           | Evidence                               |
-| --------------------------- | ----------------- | ------------------------------------------------------------------------- | -------------------------------------- |
-| Unit (co-located)           | Yes               | No shared mutable fixture repos; mocks local to file                      | `src/**/*.test.ts`, `bin/**/*.test.ts` |
-| Contract                    | Yes               | Read-only schema + sample JSON fixtures                                   | `tests/contract/`                      |
-| Integration (fixture repos) | Yes               | Per-fixture dirs; `globalSetup` / `ensureFixtureRepo()` bootstrap         | `*.integration.test.ts`                |
+| Test Type                   | Parallel-Safe?    | Isolation Model                                                                                         | Evidence                               |
+| --------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| Unit (co-located)           | Yes               | No shared mutable fixture repos; mocks local to file                                                    | `src/**/*.test.ts`, `bin/**/*.test.ts` |
+| Contract                    | Yes               | Read-only schema + sample JSON fixtures                                                                 | `tests/contract/`                      |
+| Integration (fixture repos) | Yes               | Per-fixture dirs; `globalSetup` / `ensureFixtureRepo()` bootstrap                                       | `*.integration.test.ts`                |
 | Compiled CLI smoke          | Yes (after build) | Spawns `dist/bin/`; skips when missing; Done/`pnpm verify` and CI `build`→`test` always provide `dist/` | `tests/compiled-cli.smoke.test.ts`     |
 
 Vitest runs files in parallel by default. Do not share writable state across test files without isolation.
@@ -205,10 +205,20 @@ Vitest runs files in parallel by default. Do not share writable state across tes
 
 This project uses a **single** product gate (no Quick/Full/Build tiers):
 
+| Step          | Command             | CI job        |
+| ------------- | ------------------- | ------------- |
+| Build         | `pnpm build`        | `build`       |
+| Test          | `pnpm test`         | `test`        |
+| Lint          | `pnpm lint`         | `lint`        |
+| Format        | `pnpm format:check` | `format`      |
+| Product (all) | `pnpm verify`       | all four jobs |
+
 | Gate                      | When to Use                                     | Command            |
 | ------------------------- | ----------------------------------------------- | ------------------ |
 | Product                   | Before marking any implementation task Complete | `pnpm verify`      |
 | Hooks smoke (out-of-band) | After changing `.cursor/hooks/`                 | `pnpm hooks:smoke` |
+
+`pnpm verify` runs build, test, lint, and format:check in that order. Use `pnpm format` (write) only to fix Prettier issues locally — it is not part of the gate.
 
 ## Integrity rules
 

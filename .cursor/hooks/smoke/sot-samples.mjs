@@ -204,7 +204,7 @@ Shipped in M71. HOTSPOT-999 is fine to mention.
       "React",
     ],
     clean:
-      "# Skill\n\nOne gate: `pnpm build && pnpm test`. There are **no**\nQuick / Full / Build tiers. IDs use `HOTSPOT-1010`. Milestone M75 bookkeeping → ROADMAP.\n",
+      "# Skill\n\nOne gate: `pnpm verify`. There are **no**\nQuick / Full / Build tiers. IDs use `HOTSPOT-1010`. Milestone M75 bookkeeping → ROADMAP.\n",
     editPath: ".cursor/skills/vitals-common/SKILL.md",
     editContents: "## Gate tiers\n\nRun the Quick / Full / Build tier for the task.\n",
     askNeedle: "Quick/Full/Build tiers",

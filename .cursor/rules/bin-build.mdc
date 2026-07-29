@@ -22,7 +22,7 @@ SoT: [`.specs/codebase/CONVENTIONS.md`](../../.specs/codebase/CONVENTIONS.md) §
 - **Internal bin modules:** use `.js` extension for sibling imports (`./scan-actions.js`).
 - `pnpm build` = stale-`tsbuildinfo` guard + `tsc -b tsconfig.bin.json` (see STACK.md § Build)
 - Prefer `pnpm clean` over `rm -rf dist` alone (must also drop `tsconfig.tsbuildinfo`)
-- After changes to `bin/`, `tsconfig.bin.json`, or `tsconfig.json`: run `pnpm build && pnpm test` (includes `tests/compiled-cli.smoke.test.ts` against `dist/bin/`).
+- After changes to `bin/`, `tsconfig.bin.json`, or `tsconfig.json`: run `pnpm verify` (includes `tests/compiled-cli.smoke.test.ts` against `dist/bin/`).
 
 ## Hook coverage
 

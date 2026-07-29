@@ -85,4 +85,4 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - NEVER silence `console.warn` / `console.error` globally to pass gates — use `vi.spyOn` only in specs that assert the warning, or fix the root cause (stub, setup, production code)
 - Prefer co-located Vitest (`*.test.ts` beside the module); CLI/fixture validation per [TESTING.md](../../../.specs/codebase/TESTING.md) and [vitals-cli-validation](../vitals-cli-validation/SKILL.md)
 
-For project-wide quality gate when finishing tasks: agent `verifier-quality-gates`, rule [quality-gates.mdc](../../rules/quality-gates.mdc), command `pnpm build && pnpm test` (thresholds in TESTING.md).
+For project-wide quality gate when finishing tasks: agent `verifier-quality-gates`, rule [quality-gates.mdc](../../rules/quality-gates.mdc), command `pnpm verify` (thresholds in TESTING.md).
