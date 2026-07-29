@@ -6,6 +6,7 @@ alwaysApply: true
 # Commit Policy
 
 - After verification, **propose** a Conventional Commit message.
+- When proposing a message for work tied to a GitHub Issue, include `#N` (e.g. `feat: … (#42)`). Details: [CONTRIBUTING.md](../../CONTRIBUTING.md) § Commits and pull requests.
 - **Do not commit** unless the user explicitly asks (keywords such as commit / commite / comitar / versionar).
 
 Enforcement: project hook `commit-policy.mjs` — see [`.cursor/hooks/README.md`](../hooks/README.md).

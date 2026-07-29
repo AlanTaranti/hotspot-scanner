@@ -114,6 +114,8 @@ Fragile modules (git mining, NCLOC, scoring) need extra care and targeted fixtur
 ## Commits and pull requests
 
 - Use **Conventional Commits** (e.g. `feat:`, `fix:`, `test:`, `docs:`)
+- When work is tied to a [GitHub Issue](https://github.com/AlanTaranti/hotspot-scanner/issues), include `#N` in the commit message (subject preferred; body or `Refs: #N` is fine). Examples: `fix: handle empty scan result (#42)`, `feat(report): add markdown footer (#87)`. Not required on every commit (e.g. chores/docs without an issue).
+- CodeScene Ticket ID Mapping uses `#(\d+)` so same-issue commits feed change coupling across commits.
 - PR description should include: what changed, why, and a test plan (commands you ran)
 - Bug reports and feature requests: [GitHub Issues](https://github.com/AlanTaranti/hotspot-scanner/issues)
 - Security vulnerabilities: follow [SECURITY.md](SECURITY.md) — do not open a public issue
