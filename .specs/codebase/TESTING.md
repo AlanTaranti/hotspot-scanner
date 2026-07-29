@@ -130,7 +130,7 @@ Hand-crafted `git log --numstat --name-only` line streams injected at the miner 
 | `merge-heavy/`  | Merge-commit churn                |
 | `trend-indent/` | Complexity trend on a single file |
 
-**Bootstrap:** each fixture has `bootstrap-repo.mjs` + `ensureFixtureRepo()`. Vitest `globalSetup` (`tests/fixtures/repos/global-setup.ts`) runs bootstrap for **`small-ts`**, **`merge-heavy`**, **`monorepo-nested`**, and **`trend-indent`**. `with-renames/` is bootstrapped by its owning tests or manually (`node bootstrap-repo.mjs` in the fixture dir) before CLI validation.
+**Bootstrap:** each fixture has `bootstrap-repo.mjs` + `ensureFixtureRepo()`. Vitest `globalSetup` (`tests/fixtures/repos/global-setup.ts`) runs bootstrap for all repo fixtures listed above before tests start.
 
 **Integration wiring:** `src/scan.integration.test.ts`, `src/scan.path-scoping.integration.test.ts`, `tests/trend.integration.test.ts`, `bin/hotspot-scanner.integration.test.ts`.
 
