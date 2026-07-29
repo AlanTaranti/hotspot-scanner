@@ -7,4 +7,6 @@ const reposDir = dirname(fileURLToPath(import.meta.url));
 export default function globalSetup(): void {
   ensureFixtureRepo(join(reposDir, "small-ts"));
   ensureFixtureRepo(join(reposDir, "merge-heavy"));
+  ensureFixtureRepo(join(reposDir, "monorepo-nested"));
+  ensureFixtureRepo(join(reposDir, "trend-indent"));
 }

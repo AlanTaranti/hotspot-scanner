@@ -184,4 +184,19 @@ parent = createRef(
 );
 
 git("reset", "--hard", "HEAD");
+
+git("add", "bootstrap-repo.mjs");
+const bootstrapTree = git("write-tree");
+const head = git("rev-parse", "HEAD");
+const bootstrapHash = gitWithDate(
+  "2026-07-15T22:37:28",
+  "commit-tree",
+  bootstrapTree,
+  "-p",
+  head,
+  "-m",
+  "track bootstrap scripts",
+);
+git("update-ref", "refs/heads/main", bootstrapHash);
+
 console.log(git("log", "--oneline"));
