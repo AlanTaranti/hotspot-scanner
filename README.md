@@ -3,6 +3,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](https://nodejs.org/)
 [![GitHub](https://img.shields.io/badge/github-AlanTaranti%2Fhotspot-scanner-181717?logo=github)](https://github.com/AlanTaranti/hotspot-scanner)
+[![CodeScene Average Code Health](https://codescene.io/projects/83124/status-badges/average-code-health)](https://codescene.io/projects/83124)
+[![CodeScene Hotspot Code Health](https://codescene.io/projects/83124/status-badges/hotspot-code-health)](https://codescene.io/projects/83124)
 
 **Package:** `@taranti/hotspot-scanner` · **CLI command:** `hotspot-scanner`
 
