@@ -33,9 +33,9 @@ Before opening a pull request, re-run:
 pnpm verify
 ```
 
-Equivalent to `pnpm build && pnpm test && pnpm lint && pnpm format:check` in that order. This is the single required acceptance bar for all contributions (local and CI) — see [quality-gates.mdc](.cursor/rules/quality-gates.mdc).
+Equivalent to `pnpm build && pnpm test && pnpm lint && pnpm format:check` in that order. This is the single required local acceptance bar — see [quality-gates.mdc](.cursor/rules/quality-gates.mdc). CI runs the same four checks as separate named jobs (`build`, `lint`, `format`, `test`) so failures are easier to spot in GitHub Checks.
 
-Unit iteration without a prior build is OK: when `dist/` is missing, compiled CLI smoke skips instead of failing. Done and CI still run build before test via `pnpm verify`, so smoke always executes there.
+Unit iteration without a prior build is OK: when `dist/` is missing, compiled CLI smoke skips instead of failing. Done still runs build before test via `pnpm verify`; CI runs the `build` job before `test` (and passes `dist/` as an artifact), so smoke always executes there.
 
 ### Recommended local checks (optional)
 

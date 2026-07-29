@@ -18,7 +18,7 @@ Equivalent to `pnpm build && pnpm test && pnpm lint && pnpm format:check` (that 
 
 - `pnpm test` runs `vitest run --coverage` (coverage is not optional)
 - Vitest resolves these `#` aliases to **source** modules under `src/` during tests: `#scan`, `#report`, `#diagnostics`, `#scoring`, `#types`, `#config`, `#doctor`, `#git`, `#trend`, `#assess`
-- **`tests/compiled-cli.smoke.test.ts`** exercises the **compiled** CLI at `dist/bin/hotspot-scanner.js` (`trend`/`scan`/`assess`/`doctor --help`). Unit iteration without build is OK: missing `dist/` skips the suite. Done/CI still run build before test via `pnpm verify`, so smoke always executes there.
+- **`tests/compiled-cli.smoke.test.ts`** exercises the **compiled** CLI at `dist/bin/hotspot-scanner.js` (`trend`/`scan`/`assess`/`doctor --help`). Unit iteration without build is OK: missing `dist/` skips the suite. Done runs build before test via `pnpm verify`; CI runs the `build` job before `test` (artifact `dist/`), so smoke always executes there.
 
 ## Test organization
 
@@ -197,7 +197,7 @@ Run workflow and flag matrix: skill `vitals-cli-validation`. Canonical exit-code
 | Unit (co-located)           | Yes               | No shared mutable fixture repos; mocks local to file                      | `src/**/*.test.ts`, `bin/**/*.test.ts` |
 | Contract                    | Yes               | Read-only schema + sample JSON fixtures                                   | `tests/contract/`                      |
 | Integration (fixture repos) | Yes               | Per-fixture dirs; `globalSetup` / `ensureFixtureRepo()` bootstrap         | `*.integration.test.ts`                |
-| Compiled CLI smoke          | Yes (after build) | Spawns `dist/bin/`; skips when missing; `pnpm verify` always builds first | `tests/compiled-cli.smoke.test.ts`     |
+| Compiled CLI smoke          | Yes (after build) | Spawns `dist/bin/`; skips when missing; Done/`pnpm verify` and CI `build`→`test` always provide `dist/` | `tests/compiled-cli.smoke.test.ts`     |
 
 Vitest runs files in parallel by default. Do not share writable state across test files without isolation.
 

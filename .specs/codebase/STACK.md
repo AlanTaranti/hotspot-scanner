@@ -47,11 +47,11 @@ Git log invocation uses `child_process.spawn` in `src/git/` (no `simple-git`).
 - `pnpm build` → invalidate stale `tsconfig.tsbuildinfo` if `dist/` missing, then `tsc -b tsconfig.bin.json` (lib `src/**` → `dist/`, then `bin/` → `dist/bin/` via project references)
 - `pnpm clean` → removes `dist/` and `tsconfig.tsbuildinfo` (deleting only `dist/` leaves a stale incremental cache and breaks the next build with TS6305)
 - `pnpm typecheck` mirrors dual-tsconfig layout with `--noEmit`
-- `pnpm verify` → `pnpm build && pnpm test && pnpm lint && pnpm format:check` (required Done/CI gate)
+- `pnpm verify` → `pnpm build && pnpm test && pnpm lint && pnpm format:check` (required local Done gate)
 
 ## CI
 
-- GitHub Actions workflow `.github/workflows/ci.yml` on push/PR to `main`: Node from `.nvmrc`, pnpm via `packageManager`, `pnpm install --frozen-lockfile`, then `pnpm verify`
+- GitHub Actions workflow `.github/workflows/ci.yml` on push/PR to `main`: Node from `.nvmrc`, pnpm via `packageManager`, `pnpm install --frozen-lockfile` per job; parallel jobs `build` (`pnpm build`, uploads `dist/`), `lint` (`pnpm lint`), `format` (`pnpm format:check`); `test` (`pnpm test`) needs `build` and downloads `dist/` so compiled CLI smoke runs
 
 ## Not in stack
 
