@@ -83,7 +83,11 @@ Rank  File                      Score     NLOC  NLOCN     Churn  ChurnN  Authors
 | `trend`  | How did this file’s complexity evolve? | `hotspot-scanner trend src/foo.ts` |
 | `assess` | Are the top hotspots getting worse?    | `hotspot-scanner assess .`         |
 
-Typical flow: `scan` → `scan --explain <path>` → `trend <path>` or `assess .` for a batch. Cookbooks: [Hotspot drill-down](docs/recipes.md#hotspot-drill-down-scan--explain--trend) · [Scan → assess](docs/recipes.md#scan--assess-batch-deteriorating-hotspots). Assess orchestration: [CLI reference → Scan → assess](docs/cli-reference.md#scan--assess).
+Typical flow: `scan` → `scan --explain <path>` → `trend <path>` or `assess .` for a batch.
+
+Cookbooks: [Hotspot drill-down](docs/recipes.md#hotspot-drill-down-scan--explain--trend) · [Scan → assess](docs/recipes.md#scan--assess-batch-deteriorating-hotspots).
+
+Assess orchestration: [CLI reference → Scan → assess](docs/cli-reference.md#scan--assess).
 
 ## Use this when…
 
@@ -127,7 +131,9 @@ NCLOC and indentation are **proxies for prioritization**, not substitutes for AS
 - **Indentation is for `trend` / `assess` only** — whitespace nesting over Git history (Tornhill-style), not the main ranking.
 - Focus the small slice of files that absorb most commits (**high-interest** debt).
 
-**Full write-up:** [docs/methodology.md](docs/methodology.md). Growth-pattern labels: [Tornhill growth curves](docs/recipes.md#tornhill-growth-curves-trend-pattern).
+**Full write-up:** [docs/methodology.md](docs/methodology.md).
+
+Growth-pattern labels: [Tornhill growth curves](docs/recipes.md#tornhill-growth-curves-trend-pattern).
 
 ## Essential flags
 
@@ -142,7 +148,9 @@ NCLOC and indentation are **proxies for prioritization**, not substitutes for AS
 | `--explain <target>`      | —               | After the report, print a file-path score breakdown to stderr     |
 | `--dry-run`               | —               | Preview scope and config without git mine / NCLOC                 |
 
-Full flag list: [docs/cli-reference.md](docs/cli-reference.md#command-synopsis-and-flags). Also: `hotspot-scanner scan --help`.
+Full flag list: [docs/cli-reference.md](docs/cli-reference.md#command-synopsis-and-flags).
+
+Also: `hotspot-scanner scan --help`.
 
 ## Requirements
 
@@ -177,7 +185,9 @@ Restart your shell or reload the config after installing. Invalid shell names ex
 
 `hotspot-scanner init` writes a schema-linked exemplar **`.hotspot-scanner.json`** (use `--force` to overwrite). Discovery filename is only that name. Reserved `$schema` / `$comment` / `$comments` are IDE meta — not merged as options.
 
-**Discovery:** walk upward from `<repoPath>`; **nearest wins**. No file → defaults. `--config <path>` loads one file and skips the walk (missing/invalid → non-zero).
+**Discovery:** walk upward from `<repoPath>`; **nearest wins**. No file → defaults.
+
+`--config <path>` loads one file and skips the walk (missing/invalid → non-zero).
 
 **Precedence:** CLI **>** config **>** defaults.
 
@@ -200,7 +210,11 @@ Restart your shell or reload the config after installing. Invalid shell names ex
 }
 ```
 
-Tests (`*.test.*` / `*.spec.*`, `__tests__/`) are excluded by default (`--include-tests` to include). No `.hotspotignore` — use `exclude` / `--exclude` ([recipes](docs/recipes.md#excluding-paths-no-hotspotignore)). Nested package scans remount to the git root with auto-include — [Monorepo config](docs/recipes.md#monorepo-config).
+Tests (`*.test.*` / `*.spec.*`, `__tests__/`) are excluded by default (`--include-tests` to include).
+
+No `.hotspotignore` — use `exclude` / `--exclude` ([recipes](docs/recipes.md#excluding-paths-no-hotspotignore)).
+
+Nested package scans remount to the git root with auto-include — [Monorepo config](docs/recipes.md#monorepo-config).
 
 ## Output formats
 
