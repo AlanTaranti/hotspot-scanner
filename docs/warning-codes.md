@@ -26,7 +26,7 @@ Under `summary`, warnings buffer during the scan; after the report is written (s
 
 **Warnings/Timing rollups** (`Warnings: N total (…)` and the Timing line) appear only in table/markdown executive summaries — not on stderr.
 
-**Severity vs exit code.** `severity` classifies diagnostics only. A successful scan exits `0` even when warnings are present. Hard failures use the exit codes in [docs/cli-reference.md → Exit codes](cli-reference.md#exit-codes) (`1` for `--fail-on-explain-miss`, `2` for usage/config errors, `130`/`143` for cancel).
+**Severity vs exit code.** `severity` classifies diagnostics only. A successful scan exits `0` even when warnings are present. Hard failures use the exit codes in [docs/cli-reference.md → Exit codes](cli-reference.md#exit-codes) (`1` / `2` / `130` / `143` — including explain-miss and `doctor` findings).
 
 ## Stable codes
 

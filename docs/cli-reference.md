@@ -149,13 +149,13 @@ hotspot-scanner <path>   # path-first shorthand → scan <path> (., ./dir, absol
 
 Canonical exit-code table for the CLI (SoT). Adoption overview also in [README](../README.md#exit-codes).
 
-| Code  | Meaning                                                                                                              |
-| ----- | -------------------------------------------------------------------------------------------------------------------- |
-| `0`   | Scan completed successfully (`--explain` miss without `--fail-on-explain-miss` also exits `0`)                       |
-| `1`   | `--fail-on-explain-miss` with missing explain target                                                                 |
-| `2`   | Invalid CLI args, config validation, or usage errors (including unknown/removed `compare` / `baseline` / `--strict`) |
-| `130` | Cancelled by `SIGINT` (POSIX 128+2)                                                                                  |
-| `143` | Cancelled by `SIGTERM` (POSIX 128+15)                                                                                |
+| Code  | Meaning                                                                                                                                         |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `0`   | Success (`--explain` miss without `--fail-on-explain-miss` also exits `0`)                                                                      |
+| `1`   | `--fail-on-explain-miss` with missing explain target; or `doctor` with a non-config `fail` finding                                              |
+| `2`   | Invalid CLI args, config validation, or usage errors (including unknown/removed `compare` / `baseline` / `--strict`; doctor config-only `fail`) |
+| `130` | Cancelled by `SIGINT` (POSIX 128+2)                                                                                                             |
+| `143` | Cancelled by `SIGTERM` (POSIX 128+15)                                                                                                           |
 
 Run `hotspot-scanner scan --help` for copy-paste examples (cwd default, JSON output, short aliases).
 
