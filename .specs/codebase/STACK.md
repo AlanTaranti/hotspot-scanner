@@ -38,7 +38,9 @@ Git log invocation uses `child_process.spawn` in `src/git/` (no `simple-git`).
 
 ## Package publish
 
-- `package.json` `files` includes `dist/`, `schemas/`, `LICENSE`, `README.md`, `SECURITY.md`
+- `package.json` `files` includes `dist/`, `schemas/`, `docs/`, `LICENSE`, `README.md`, `SECURITY.md`
+- `publishConfig.access` is `public` (scoped `@taranti/*` on the public registry)
+- `prepack` runs `npm run build` before pack/publish; `pack:check` runs `npm pack --dry-run`
 - `engines.node` is `>=22`; `repository` points at the git remote URL
 - `exports` schema subpaths: `./schemas/scan-result.json`, `./schemas/hotspot-scanner-config.json`, `./schemas/complexity-trend.json`, `./schemas/hotspot-assess.json`
 

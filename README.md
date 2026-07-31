@@ -44,23 +44,23 @@ Tech leads need to prioritize refactoring, but most codebases don't make that ob
 ## Quick start
 
 ```bash
-git clone https://github.com/AlanTaranti/hotspot-scanner.git
-cd hotspot-scanner
-pnpm install
-pnpm build
-cd /path/to/your-repo
-pnpm exec hotspot-scanner scan   # optional path defaults to .
-# Path-first shorthand (equivalent to scan):
-pnpm exec hotspot-scanner .
-```
+# One-shot (no global install)
+npx @taranti/hotspot-scanner scan .
+# or: pnpm dlx @taranti/hotspot-scanner scan .
 
-Or try the bundled fixture first:
-
-```bash
-pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts
+# After a global install (see Installation)
+hotspot-scanner scan .          # optional path defaults to .
+hotspot-scanner .               # path-first shorthand (equivalent to scan)
 ```
 
 Before your first full scan, run `hotspot-scanner init`, then `config validate` / `config print`, then `doctor .`, then `scan . --dry-run`. Each one catches a different setup problem early. See [Configuration](#configuration).
+
+From a clone of this repo, try the bundled fixture:
+
+```bash
+pnpm install && pnpm build
+pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts
+```
 
 **Example output** (fixture `small-ts`, truncated):
 
@@ -159,7 +159,23 @@ Full flag list: [docs/cli-reference.md](docs/cli-reference.md#command-synopsis-a
 
 ## Installation
 
-Official install is clone + build from source — see [Quick start](#quick-start). No npm registry install yet.
+Requires [Node.js 22+](https://nodejs.org/) and `git` at scan time.
+
+**Global:**
+
+```bash
+npm install -g @taranti/hotspot-scanner
+# or: pnpm add -g @taranti/hotspot-scanner
+```
+
+**One-shot** (no global install):
+
+```bash
+npx @taranti/hotspot-scanner scan .
+pnpm dlx @taranti/hotspot-scanner scan .
+```
+
+**From source** (contributors): clone, `pnpm install`, `pnpm build` — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Shell completion
 
@@ -250,7 +266,7 @@ Canonical table: [docs/cli-reference.md → Exit codes](docs/cli-reference.md#ex
 
 ## Programmatic API
 
-After `pnpm build`, import from `@taranti/hotspot-scanner` (`dist/index.js`):
+After installing the package (npm/pnpm) or building from source (`pnpm build`), import from `@taranti/hotspot-scanner`:
 
 ```typescript
 import {

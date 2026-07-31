@@ -33,10 +33,14 @@
   "files": [
     "dist",
     "schemas",
+    "docs",
     "LICENSE",
     "README.md",
     "SECURITY.md"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=22"
   },
@@ -52,6 +56,8 @@
   "scripts": {
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "build": "node scripts/invalidate-stale-tsbuildinfo.mjs && tsc -b tsconfig.bin.json",
+    "prepack": "npm run build",
+    "pack:check": "npm pack --dry-run",
     "test": "vitest run --coverage",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.bin.json",
     "lint": "eslint .",
