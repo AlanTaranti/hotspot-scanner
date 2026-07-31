@@ -2,11 +2,11 @@
 
 ## Current
 
-| Field               | Value                             |
-| ------------------- | --------------------------------- |
-| **Status**          | **M81 Done** — no open milestones |
-| **Open milestones** | —                                 |
-| **Deferred**        | [STATE.md](STATE.md) § Deferred   |
+| Field               | Value                                                                 |
+| ------------------- | --------------------------------------------------------------------- |
+| **Status**          | **M82 Planned** — next Execute; M83 Planned (after M82)               |
+| **Open milestones** | M82 ([github-release-action](../features/github-release-action/spec.md)), M83 ([npm-publish-oidc](../features/npm-publish-oidc/spec.md)) |
+| **Deferred**        | [STATE.md](STATE.md) § Deferred                                       |
 
 Archive below is historical (feature links stay valid). Prefer this table + Done summary for “what’s next”; deferred ideas live only in STATE. Detail for any milestone: `.specs/features/<slug>/`.
 
@@ -26,6 +26,26 @@ Archive below is historical (feature links stay valid). Prefer this table + Done
 | M73–M78 | Top-only rollups; doctor/trend/assess color UX; growth-pattern bridge; hotspot assess                                                                                                        |
 | M79–M80 | Package scope rename (`@taranti`); GitHub repo identity (`AlanTaranti`)                                                                                                                      |
 | M81     | Contributor DX: toolchain pins, schema URL host, live `@taranti` sweep, `pnpm verify`, soft smoke, GHA CI                                                                                    |
+
+## Milestone 82 — GitHub Release Action — PLANNED
+
+→ [`.specs/features/github-release-action/spec.md`](../features/github-release-action/spec.md)
+
+Manual `workflow_dispatch` release: semver bump, tag, gate, GitHub Release (no npm).
+
+- One `release.yml` with `bump` major/minor/patch
+- Commit + tag `vX.Y.Z` + `pnpm verify` + GitHub Release notes
+- CONTRIBUTING Releasing section
+
+## Milestone 83 — npm Publish via OIDC — PLANNED
+
+→ [`.specs/features/npm-publish-oidc/spec.md`](../features/npm-publish-oidc/spec.md)
+
+Publish `@taranti/hotspot-scanner` from the same `release.yml` via Trusted Publishing (after M82).
+
+- OIDC `id-token` + `pnpm publish` (no steady-state `NPM_TOKEN`)
+- Trusted Publisher docs + first-publish prerequisite
+- README registry install path
 
 ## Milestone 81 — Contributor DX — DONE
 

@@ -2,14 +2,14 @@
 
 Persistent memory for decisions, blockers, and lessons across sessions.
 
-**Last Updated:** 2026-07-28
-**Current Work:** M81 Done — no open milestones; see ROADMAP Current
+**Last Updated:** 2026-07-31
+**Current Work:** M82 Planned — GitHub Release Action; M83 Planned after M82 (npm OIDC)
 
 Archive of chronological Execute rows: [STATE-ARCHIVE.md](STATE-ARCHIVE.md).
 
 ## Active
 
-**No open milestones.** Last delivered: **M81 Done** — [contributor-dx-ci](../features/contributor-dx-ci/spec.md) (minimal CI, toolchain pin, schema URL host, live `@taranti` sweep, `pnpm verify` gate, soft compiled-CLI smoke). Deferred horizon: see § Deferred. Milestone status: [ROADMAP.md](ROADMAP.md) **Current**.
+**M82 Planned** — [github-release-action](../features/github-release-action/spec.md) (manual `release.yml`: bump → tag → `pnpm verify` → GitHub Release). **M83 Planned** (blocked on M82 Done) — [npm-publish-oidc](../features/npm-publish-oidc/spec.md). See [ROADMAP.md](ROADMAP.md) **Current**.
 
 ## Blockers
 
@@ -17,7 +17,7 @@ _None._
 
 ## Deferred
 
-- **npm publish / npx / `pnpm dlx` install path** — future backlog (out of M37–M45 / M62–M70). Decide private registry vs public npm vs Git-only later; until then official use path is GitHub clone + pnpm build (M81 adds CI on that path, not publish).
+- **npm publish / npx / `pnpm dlx` install path** — tracked as **M83 Planned** (public npm via Trusted Publishing OIDC on `release.yml`; not private registry / Git-only). Until M83 ships, official use path remains GitHub clone + pnpm build (M81 CI covers that path; M82 is GitHub Release only).
 - **Fail-on stable deltas / SARIF / fail-on-score** (DX items formerly bundled with “CI recipes”) — minimal CI absorbed by M81; product metric gates and SARIF remain deferred
 - **Item C — full warning lines in scan report body** — deferred past M68 bookend + M73 top-only rollups
 - **Fail-on-warning CI gates** — deferred (not M68)
@@ -30,6 +30,8 @@ Lasting product locks. Chronological Execute / Planned→Done rows: [STATE-ARCHI
 
 | Date       | Decision                                                                               | Rationale                                                                                                                                                                                                        |
 | ---------- | -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-07-31 | Package release cuts only via manual `release.yml` (`workflow_dispatch` + bump)          | Intentional semver; no auto-release on push to `main`; package semver ≠ JSON contract `version`                                                                                                                    |
+| 2026-07-31 | npm publish target = public registry via Trusted Publishing OIDC on `release.yml`        | No steady-state `NPM_TOKEN`; M83 ships publish; first-publish chicken-egg is maintainer prerequisite                                                                                                               |
 | 2026-07-28 | Schema `$id` / `$schema` host = GitHub raw `AlanTaranti/hotspot-scanner/main/schemas/` | Replaces `vitals.dev` host; additive URL only — no scan/trend/assess JSON `version` bump; see M81 context                                                                                                        |
 | 2026-07-28 | Required gate = `pnpm verify` (`build && test && lint && format:check`)                | Single gate (no tiers); lint/format on the bar; commit-hook freshness must recognize verify / four-step chain                                                                                                    |
 | 2026-07-28 | Compiled CLI smoke **skips** when `dist/` missing                                      | Local unit iteration without build; Done/CI still build-first so smoke always runs                                                                                                                               |
