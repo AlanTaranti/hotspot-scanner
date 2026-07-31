@@ -20,20 +20,17 @@ Tech leads need to prioritize refactoring, but most codebases don't make that ob
 ## Table of contents
 
 - [Quick start](#quick-start)
-- [Commands at a glance](#commands-at-a-glance)
-- [Use this when…](#use-this-when)
-- [Recipes](docs/recipes.md)
-- [How it works](#how-it-works)
-  - [Why these metrics?](#why-these-metrics)
-- [Methodology](docs/methodology.md)
-- [Essential flags](#essential-flags)
 - [Requirements](#requirements)
 - [Installation](#installation)
-- [Shell completion](#shell-completion)
+- [Commands at a glance](#commands-at-a-glance)
+- [Use this when…](#use-this-when)
+- [How it works](#how-it-works)
+  - [Why these metrics?](#why-these-metrics)
+- [Essential flags](#essential-flags)
 - [Configuration](#configuration)
 - [Output formats](#output-formats)
+- [Shell completion](#shell-completion)
 - [Programmatic API](#programmatic-api)
-- [CLI reference](docs/cli-reference.md)
 - [Documentation](#documentation)
 - [Limitations](#limitations)
 - [Contributing](#contributing)
@@ -54,14 +51,7 @@ hotspot-scanner .               # path-first shorthand (equivalent to scan)
 
 Before your first full scan, run `hotspot-scanner init`, then `config validate` / `config print`, then `doctor .`, then `scan . --dry-run`. Each one catches a different setup problem early. See [Configuration](#configuration).
 
-From a clone of this repo, try the bundled fixture:
-
-```bash
-pnpm install && pnpm build
-pnpm exec hotspot-scanner scan tests/fixtures/repos/small-ts
-```
-
-**Example output** (fixture `small-ts`, truncated):
+**Example output** (truncated):
 
 ```
 Scan window: 12 months ago (scanned 2026-07-30T12:13:38.361Z)
@@ -72,6 +62,31 @@ Rank  File                      Score     NLOC  NLOCN     Churn  ChurnN  Authors
    1  src/high.ts                 0.6089    26    0.5350      5  0.7067        1     35
    2  src/medium.ts               0.4085     9    0.2567      7  1.0000        1     21
    3  bootstrap-repo.mjs          0.0000   141    1.0000      2  0.0000        1    235
+```
+
+## Requirements
+
+| Requirement | Version               |
+| ----------- | --------------------- |
+| Node.js     | 22+                   |
+| git         | required at scan time |
+
+## Installation
+
+Requires [Node.js 22+](https://nodejs.org/) and `git` at scan time.
+
+**Global:**
+
+```bash
+npm install -g @taranti/hotspot-scanner
+# or: pnpm add -g @taranti/hotspot-scanner
+```
+
+**One-shot** (no global install):
+
+```bash
+npx @taranti/hotspot-scanner scan .
+pnpm dlx @taranti/hotspot-scanner scan .
 ```
 
 ## Commands at a glance
@@ -148,51 +163,6 @@ Full write-up: [docs/methodology.md](docs/methodology.md). Growth-pattern labels
 
 Full flag list: [docs/cli-reference.md](docs/cli-reference.md#command-synopsis-and-flags). Also: `hotspot-scanner scan --help`.
 
-## Requirements
-
-| Requirement | Version               |
-| ----------- | --------------------- |
-| Node.js     | 22+                   |
-| git         | required at scan time |
-| pnpm        | for development       |
-
-## Installation
-
-Requires [Node.js 22+](https://nodejs.org/) and `git` at scan time.
-
-**Global:**
-
-```bash
-npm install -g @taranti/hotspot-scanner
-# or: pnpm add -g @taranti/hotspot-scanner
-```
-
-**One-shot** (no global install):
-
-```bash
-npx @taranti/hotspot-scanner scan .
-pnpm dlx @taranti/hotspot-scanner scan .
-```
-
-**From source** (contributors): clone, `pnpm install`, `pnpm build` — see [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## Shell completion
-
-Tab-complete subcommands and common flags for bash, zsh, or fish. The `completion` subcommand just prints a static script to stdout — no scan, no git work:
-
-```bash
-# bash — append to ~/.bashrc or a sourced file
-hotspot-scanner completion bash >> ~/.bashrc
-
-# zsh — write to a directory on fpath (e.g. ~/.zfunc), then compinit
-hotspot-scanner completion zsh > ~/.zfunc/_hotspot-scanner
-
-# fish — evaluate in the current session (or save to a completions path)
-source (hotspot-scanner completion fish | psub)
-```
-
-Restart your shell, or reload the config, after installing. Invalid shell names exit with a usage error (exit `2`). See `hotspot-scanner completion --help`.
-
 ## Configuration
 
 `hotspot-scanner init` writes a schema-linked exemplar `.hotspot-scanner.json` (`--force` to overwrite). Discovery filename is only that name. Reserved `$schema` / `$comment` / `$comments` are IDE metadata — not merged as options.
@@ -263,9 +233,26 @@ Canonical table: [docs/cli-reference.md → Exit codes](docs/cli-reference.md#ex
 | `2`           | Invalid usage / config / unknown removed commands (doctor config-only `fail` is also `2`)  |
 | `130` / `143` | Cancelled by `SIGINT` / `SIGTERM`                                                          |
 
+## Shell completion
+
+Tab-complete subcommands and common flags for bash, zsh, or fish. The `completion` subcommand just prints a static script to stdout — no scan, no git work:
+
+```bash
+# bash — append to ~/.bashrc or a sourced file
+hotspot-scanner completion bash >> ~/.bashrc
+
+# zsh — write to a directory on fpath (e.g. ~/.zfunc), then compinit
+hotspot-scanner completion zsh > ~/.zfunc/_hotspot-scanner
+
+# fish — evaluate in the current session (or save to a completions path)
+source (hotspot-scanner completion fish | psub)
+```
+
+Restart your shell, or reload the config, after installing. Invalid shell names exit with a usage error (exit `2`). See `hotspot-scanner completion --help`.
+
 ## Programmatic API
 
-After installing the package (npm/pnpm) or building from source (`pnpm build`), import from `@taranti/hotspot-scanner`:
+After installing the package (npm/pnpm), import from `@taranti/hotspot-scanner`:
 
 ```typescript
 import {
@@ -297,7 +284,7 @@ const doctor: DoctorResult = await runDoctor({ targetPath: "/path/to/repo" });
 await runComplexityTrend({ filePath: "/path/to/repo/src/foo.ts" });
 ```
 
-`runScan()` returns the full ranked arrays — scan CLI `--top` is render-only. `runAssess({ top })` / assess CLI `--top` cap candidates after the score filter. Full exports: `src/index.ts`.
+`runScan()` returns the full ranked arrays — scan CLI `--top` is render-only. `runAssess({ top })` / assess CLI `--top` cap candidates after the score filter. Full exports: [.specs/codebase/STRUCTURE.md](.specs/codebase/STRUCTURE.md#public-api).
 
 ## Documentation
 

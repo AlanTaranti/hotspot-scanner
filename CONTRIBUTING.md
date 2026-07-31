@@ -23,7 +23,7 @@ pnpm install
 pnpm verify
 ```
 
-`pnpm verify` is the project quality gate (see below). `pnpm test` runs Vitest with mandatory per-file coverage; thresholds and include/exclude rules live in [.specs/codebase/TESTING.md](.specs/codebase/TESTING.md).
+`pnpm verify` is the project quality gate (see below) and includes `pnpm build`. For local CLI iteration without the full gate: `pnpm build`, then `pnpm exec hotspot-scanner …` (see [Manual CLI validation](#manual-cli-validation)). `pnpm test` runs Vitest with mandatory per-file coverage; thresholds and include/exclude rules live in [.specs/codebase/TESTING.md](.specs/codebase/TESTING.md).
 
 ## Quality gate
 
