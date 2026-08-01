@@ -27,6 +27,16 @@ Archive below is historical (feature links stay valid). Prefer this table + Done
 | M79–M80 | Package scope rename (`@taranti`); GitHub repo identity (`AlanTaranti`)                                                                                                                      |
 | M81     | Contributor DX: toolchain pins, schema URL host, live `@taranti` sweep, `pnpm verify`, soft smoke, GHA CI                                                                                    |
 
+## Milestone 81 — Contributor DX — DONE
+
+→ [`.specs/features/contributor-dx-ci/spec.md`](../features/contributor-dx-ci/spec.md)
+
+Minimal CI, toolchain pins, post-M79 identity finish, expanded verify gate, and softer local smoke.
+
+- GitHub Actions on push/PR (Node 22, frozen lockfile, `pnpm verify`)
+- `.nvmrc` / `packageManager` / `.editorconfig`; schema URLs → GitHub raw host
+- Live `@taranti` package sweep; soft skip compiled CLI smoke when `dist/` missing
+
 ## Milestone 82 — GitHub Release Action — PLANNED
 
 → [`.specs/features/github-release-action/spec.md`](../features/github-release-action/spec.md)
@@ -46,16 +56,6 @@ Publish `@taranti/hotspot-scanner` from the same `release.yml` via Trusted Publi
 - OIDC `id-token` + `pnpm publish` (no steady-state `NPM_TOKEN`)
 - Trusted Publisher docs + first-publish prerequisite
 - README registry install path
-
-## Milestone 81 — Contributor DX — DONE
-
-→ [`.specs/features/contributor-dx-ci/spec.md`](../features/contributor-dx-ci/spec.md)
-
-Minimal CI, toolchain pins, post-M79 identity finish, expanded verify gate, and softer local smoke.
-
-- GitHub Actions on push/PR (Node 22, frozen lockfile, `pnpm verify`)
-- `.nvmrc` / `packageManager` / `.editorconfig`; schema URLs → GitHub raw host
-- Live `@taranti` package sweep; soft skip compiled CLI smoke when `dist/` missing
 
 ---
 
